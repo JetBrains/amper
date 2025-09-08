@@ -188,6 +188,27 @@ Fragments:
     Settings: {
     }
 
+  wasmWasi
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@wasmWasi
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+    }
+
+  wasmWasiTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@wasmWasi
+    Fragment dependencies:
+      commonTest (REFINE)
+      wasmWasi (FRIEND)
+    Settings: {
+    }
+
   web
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -211,21 +232,23 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [android, iosArm64, js, jvm, wasmJs]
+  [android, iosArm64, js, jvm, wasmJs, wasmWasi]
     Fragments:
       android
       iosArm64
       js
       jvm
       wasmJs
+      wasmWasi
   isTest: true
-  [android, iosArm64, js, jvm, wasmJs]
+  [android, iosArm64, js, jvm, wasmJs, wasmWasi]
     Fragments:
       androidTest
       iosArm64Test
       jsTest
       jvmTest
       wasmJsTest
+      wasmWasiTest
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

@@ -22,7 +22,7 @@ import org.jetbrains.amper.tasks.web.WebCompileKlibTask
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 
-internal class WasmJsCompileKlibTask(
+internal class WasmWasiCompileKlibTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
@@ -47,7 +47,7 @@ internal class WasmJsCompileKlibTask(
     kotlinArtifactsDownloader,
 ) {
     override val expectedPlatform: Platform
-        get() = Platform.WASM_JS
+        get() = Platform.WASM_WASI
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
@@ -63,7 +63,7 @@ internal class WasmJsCompileKlibTask(
         include: Path?,
     ): List<String> =
         kotlinWasmCompilerArgs(
-            WasmTarget.JS,
+            WasmTarget.WASI,
             kotlinUserSettings,
             compilerPlugins,
             libraryPaths,

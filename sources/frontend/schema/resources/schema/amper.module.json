@@ -64,6 +64,7 @@
                   "js",
                   "jvm",
                   "wasmJs",
+                  "wasmWasi",
                   "android",
                   "linuxX64",
                   "linuxArm64",
@@ -101,6 +102,7 @@
                 "linux/app",
                 "windows/app",
                 "wasm-js/app",
+                "wasm-wasi/app",
                 "js/app"
               ],
               "x-intellij-enum-metadata": {
@@ -114,6 +116,7 @@
                 "linux/app": "A native linux application",
                 "windows/app": "A native Windows application",
                 "wasm-js/app": "A wasm JS application",
+                "wasm-wasi/app": "A wasm WASI application",
                 "js/app": "A JavaScript application"
               },
               "x-intellij-enum-order-sensitive": true,
@@ -140,6 +143,7 @@
             "linux/app",
             "windows/app",
             "wasm-js/app",
+            "wasm-wasi/app",
             "js/app"
           ]
         }
@@ -1932,6 +1936,7 @@
                     "js",
                     "jvm",
                     "wasmJs",
+                    "wasmWasi",
                     "android",
                     "linuxX64",
                     "linuxArm64",

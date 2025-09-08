@@ -12,6 +12,7 @@ fun Platform.toResolutionPlatform() : ResolutionPlatform? = when(this) {
     Platform.JVM -> ResolutionPlatform.JVM
     Platform.ANDROID -> ResolutionPlatform.ANDROID
     Platform.WASM_JS -> ResolutionPlatform.WASM_JS
+    Platform.WASM_WASI -> ResolutionPlatform.WASM_WASI
     Platform.LINUX_X64 -> ResolutionPlatform.LINUX_X64
     Platform.LINUX_ARM64 -> ResolutionPlatform.LINUX_ARM64
     Platform.TVOS_ARM64 -> ResolutionPlatform.TVOS_ARM64
@@ -51,6 +52,7 @@ fun ResolutionPlatform.toPlatform() : Platform = when(this) {
     ResolutionPlatform.JVM -> Platform.JVM
     ResolutionPlatform.ANDROID -> Platform.ANDROID
     ResolutionPlatform.WASM_JS -> Platform.WASM_JS
+    ResolutionPlatform.WASM_WASI -> Platform.WASM_WASI
     ResolutionPlatform.LINUX_X64 -> Platform.LINUX_X64
     ResolutionPlatform.LINUX_ARM64 -> Platform.LINUX_ARM64
     ResolutionPlatform.TVOS_ARM64 -> Platform.TVOS_ARM64

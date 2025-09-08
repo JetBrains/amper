@@ -5,10 +5,8 @@
 package org.jetbrains.amper.ksp
 
 import org.jetbrains.amper.compilation.CompilationUserSettings
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -264,7 +262,7 @@ internal interface KspJsConfig : KspConfig {
 
 enum class WebBackend(val argValue: String) {
     JS("JS"),
-    WASM_JS("WASM");
+    WASM("WASM");
 }
 
 internal interface KspCommonConfig : KspConfig {

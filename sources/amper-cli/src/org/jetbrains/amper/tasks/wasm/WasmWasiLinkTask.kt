@@ -18,11 +18,11 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.web.WebCompileKlibTask
+import org.jetbrains.amper.tasks.web.WebLinkTask
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 
-internal class WasmJsCompileKlibTask(
+internal class WasmWasiLinkTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
@@ -31,10 +31,11 @@ internal class WasmJsCompileKlibTask(
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
+    compileKLibTaskName: TaskName,
     buildType: BuildType? = null,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
-) : WebCompileKlibTask(
+) : WebLinkTask(
     module,
     platform,
     userCacheRoot,
@@ -44,10 +45,11 @@ internal class WasmJsCompileKlibTask(
     tempRoot,
     isTest,
     buildType,
+    compileKLibTaskName,
     kotlinArtifactsDownloader,
 ) {
     override val expectedPlatform: Platform
-        get() = Platform.WASM_JS
+        get() = Platform.WASM_WASI
 
     override fun kotlinCompilerArgs(
         kotlinUserSettings: KotlinUserSettings,
@@ -63,7 +65,7 @@ internal class WasmJsCompileKlibTask(
         include: Path?,
     ): List<String> =
         kotlinWasmCompilerArgs(
-            WasmTarget.JS,
+            WasmTarget.WASI,
             kotlinUserSettings,
             compilerPlugins,
             libraryPaths,

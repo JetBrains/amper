@@ -7,10 +7,10 @@ package org.jetbrains.amper.tasks.wasm
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 
-fun ProjectTasksBuilder.setupWasmJsTasks() {
+fun ProjectTasksBuilder.setupWasmWasiTasks() {
     setupWasmTasks(
-        Platform.WASM_JS,
-        ::WasmJsCompileKlibTask,
-        ::WasmJsLinkTask,
+        Platform.WASM_WASI,
+        ::WasmWasiCompileKlibTask,
+        ::WasmWasiLinkTask,
     )
 }

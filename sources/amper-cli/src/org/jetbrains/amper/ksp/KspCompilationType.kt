@@ -19,6 +19,7 @@ enum class KspCompilationType(val kspMainClassFqn: String) {
             Platform.WEB,
             Platform.JS,
             Platform.WASM_JS -> JS
+            Platform.WASM_WASI -> JS
 
             Platform.JVM,
             Platform.ANDROID -> JVM

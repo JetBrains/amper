@@ -31,6 +31,7 @@ class ProjectFileTest : AmperCliTestBase() {
             "shared",
             "utils",
             "wasm-js-cli",
+            "wasm-wasi-cli",
             "windows-cli",
         ))
     }

@@ -71,6 +71,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         backend.runTask(sourcesJarJsTask)
         val sourcesJarWasmJsTask = TaskName(":shared:sourcesJarWasmJs")
         backend.runTask(sourcesJarWasmJsTask)
+        val sourcesJarWasmWasiTask = TaskName(":shared:sourcesJarWasmWasi")
+        backend.runTask(sourcesJarWasmWasiTask)
 
         assertJarFileEntries(
             jarPath = backend.context.taskOutputPath(sourcesJarJvm) / "shared-jvm-sources.jar",
@@ -155,6 +157,18 @@ class AmperBackendTest : AmperIntegrationTestBase() {
                 "commonMain/program2.kt",
                 "wasmJsMain/",
                 "wasmJsMain/World.kt",
+            )
+        )
+        assertJarFileEntries(
+            jarPath = backend.context.taskOutputPath(sourcesJarWasmWasiTask) / "shared-wasmwasi-sources.jar",
+            expectedEntries = listOf(
+                "META-INF/MANIFEST.MF",
+                "commonMain/",
+                "commonMain/World.kt",
+                "commonMain/program1.kt",
+                "commonMain/program2.kt",
+                "wasmWasiMain/",
+                "wasmWasiMain/World.kt",
             )
         )
     }

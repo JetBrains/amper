@@ -9,7 +9,7 @@ import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.ResolvedCompilerPlugin
-import org.jetbrains.amper.compilation.kotlinWasmJsCompilerArgs
+import org.jetbrains.amper.compilation.kotlinWasmCompilerArgs
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -31,8 +31,8 @@ internal class WasmJsLinkTask(
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
-    buildType: BuildType? = null,
     compileKLibTaskName: TaskName,
+    buildType: BuildType? = null,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ) : WebLinkTask(
@@ -64,7 +64,8 @@ internal class WasmJsLinkTask(
         compilationType: KotlinCompilationType,
         include: Path?,
     ): List<String> =
-        kotlinWasmJsCompilerArgs(
+        kotlinWasmCompilerArgs(
+            WasmTarget.JS,
             kotlinUserSettings,
             compilerPlugins,
             libraryPaths,

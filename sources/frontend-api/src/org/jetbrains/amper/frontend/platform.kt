@@ -29,6 +29,8 @@ enum class Platform(
     JS(WEB, isLeaf = true),
     WASM_JS(WEB, isLeaf = true),
 
+    WASM_WASI(COMMON, isLeaf = true),
+
     NATIVE(COMMON),
 
     LINUX(NATIVE),

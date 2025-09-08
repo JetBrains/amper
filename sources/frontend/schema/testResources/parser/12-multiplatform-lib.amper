@@ -1,4 +1,4 @@
 product {
   type = "lib"
-  platforms = { "jvm", "android", "iosArm64", "js", "wasmJs }
+  platforms = { "jvm", "android", "iosArm64", "js", "wasmJs", "wasmWasi" }
 }

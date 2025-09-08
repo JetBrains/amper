@@ -16,18 +16,19 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.java.setupJavaAnnotationProcessingTasks
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.compose.setupComposeTasks
 import org.jetbrains.amper.tasks.custom.setupCustomTasks
+import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.tasks.js.setupJsTasks
-import org.jetbrains.amper.java.setupJavaAnnotationProcessingTasks
-import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
+import org.jetbrains.amper.tasks.wasm.setupWasmWasiTasks
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 
@@ -89,6 +90,7 @@ class ProjectTasksBuilder(
         setupAndroidTasks()
         setupNativeTasks()
         setupWasmJsTasks()
+        setupWasmWasiTasks()
         setupJsTasks()
         setupIosTasks()
         setupKspTasks()

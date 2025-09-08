@@ -7,6 +7,7 @@ product:
     - iosX64
     - js
     - wasmJs
+    - wasmWasi
 
 dependencies:
   - com.squareup.okio:okio:3.3.0

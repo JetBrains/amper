@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.ios.IosConventions
+import org.jetbrains.amper.tasks.wasm.WasmTarget
 import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.nio.file.Path
@@ -273,7 +274,8 @@ internal fun kotlinNativeCompilerArgs(
     }
 }
 
-internal fun kotlinWasmJsCompilerArgs(
+internal fun kotlinWasmCompilerArgs(
+    wasmTarget: WasmTarget,
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<ResolvedCompilerPlugin>,
     libraryPaths: List<Path>,
@@ -287,7 +289,7 @@ internal fun kotlinWasmJsCompilerArgs(
     include: Path?,
 ): List<String> = buildList {
     add("-Xwasm")
-    add("-Xwasm-target=js")
+    add("-Xwasm-target=wasm-${wasmTarget.name.lowercase()}")
 
     addAll(
         kotlinWebCompilerArgs(

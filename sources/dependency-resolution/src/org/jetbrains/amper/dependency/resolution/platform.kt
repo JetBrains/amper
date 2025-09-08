@@ -28,6 +28,7 @@ enum class ResolutionPlatform(
     COMMON (PlatformType.COMMON),
     JS (PlatformType.JS),
     WASM_JS(PlatformType.WASM),
+    WASM_WASI(PlatformType.WASM),
 
     // LINUX -> NATIVE
     LINUX_X64(PlatformType.NATIVE),

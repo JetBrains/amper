@@ -1,0 +1,5 @@
+product:
+  type: wasm-wasi/app
+
+dependencies:
+  - ../shared
