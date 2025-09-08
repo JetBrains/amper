@@ -316,23 +316,23 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [ANDROID, JS, WASM_JS, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
+  [android, iosArm64, iosSimulatorArm64, iosX64, js, wasmJs]
     Fragments:
       android
-      js
-      wasmJs
       iosArm64
       iosSimulatorArm64
       iosX64
+      js
+      wasmJs
   isTest: true
-  [ANDROID, JS, WASM_JS, IOS_ARM64, IOS_SIMULATOR_ARM64, IOS_X64]
+  [android, iosArm64, iosSimulatorArm64, iosX64, js, wasmJs]
     Fragments:
       androidTest
-      jsTest
-      wasmJsTest
       iosArm64Test
       iosSimulatorArm64Test
       iosX64Test
+      jsTest
+      wasmJsTest
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

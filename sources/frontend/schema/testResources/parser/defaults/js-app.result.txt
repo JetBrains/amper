@@ -890,11 +890,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [JS]
+  [js]
     Fragments:
       js
   isTest: true
-  [JS]
+  [js]
     Fragments:
       jsTest
 Repositories:

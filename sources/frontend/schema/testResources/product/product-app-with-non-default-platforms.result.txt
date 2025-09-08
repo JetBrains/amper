@@ -104,11 +104,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [MACOS_X64]
+  [macosX64]
     Fragments:
       macosX64
   isTest: true
-  [MACOS_X64]
+  [macosX64]
     Fragments:
       macosX64Test
 Repositories:

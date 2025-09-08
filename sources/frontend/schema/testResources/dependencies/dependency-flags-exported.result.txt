@@ -29,11 +29,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [ANDROID]
+  [android]
     Fragments:
       main
   isTest: true
-  [ANDROID]
+  [android]
     Fragments:
       test
 Repositories:

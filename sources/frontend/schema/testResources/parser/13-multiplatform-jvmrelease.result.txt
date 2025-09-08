@@ -82,15 +82,15 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [JVM, ANDROID]
+  [android, jvm]
     Fragments:
-      jvm
       android
+      jvm
   isTest: true
-  [JVM, ANDROID]
+  [android, jvm]
     Fragments:
-      jvmTest
       androidTest
+      jvmTest
 Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2

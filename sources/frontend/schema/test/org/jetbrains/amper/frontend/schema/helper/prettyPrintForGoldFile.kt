@@ -51,9 +51,9 @@ internal fun AmperModule.prettyPrintForGoldFile(printDefaults: Boolean = false):
     appendLine("Artifacts:")
     for (artifact in artifacts.sortedBy { it.name }) {
         appendLine("  isTest: ${artifact.isTest}")
-        appendLine("  ${artifact.platforms}")
+        appendLine("  ${artifact.platforms.map { it.schemaValue }.sorted()}")
         appendLine("    Fragments:")
-        for (fragment in artifact.fragments) {
+        for (fragment in artifact.fragments.sortedBy { it.name }) {
             appendLine("      ${fragment.name}")
         }
     }

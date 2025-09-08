@@ -85,11 +85,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [JVM]
+  [jvm]
     Fragments:
       jvm
   isTest: true
-  [JVM]
+  [jvm]
     Fragments:
       jvmTest
 Repositories:

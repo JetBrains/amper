@@ -21,11 +21,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [JVM]
+  [jvm]
     Fragments:
       main
   isTest: true
-  [JVM]
+  [jvm]
     Fragments:
       test
 Repositories:

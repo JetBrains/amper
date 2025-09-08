@@ -184,12 +184,12 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [ANDROID, IOS_X64]
+  [android, iosX64]
     Fragments:
       android
       iosX64
   isTest: true
-  [ANDROID, IOS_X64]
+  [android, iosX64]
     Fragments:
       androidTest
       iosX64Test

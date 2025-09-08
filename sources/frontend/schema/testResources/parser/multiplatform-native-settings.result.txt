@@ -107,11 +107,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [LINUX_ARM64]
+  [linuxArm64]
     Fragments:
       linuxArm64
   isTest: true
-  [LINUX_ARM64]
+  [linuxArm64]
     Fragments:
       linuxArm64Test
 Repositories:

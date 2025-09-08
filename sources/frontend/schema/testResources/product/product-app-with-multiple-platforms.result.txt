@@ -125,19 +125,19 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [MACOS_ARM64]
+  [macosArm64]
     Fragments:
       macosArm64
   isTest: true
-  [MACOS_ARM64]
+  [macosArm64]
     Fragments:
       macosArm64Test
   isTest: false
-  [MACOS_X64]
+  [macosX64]
     Fragments:
       macosX64
   isTest: true
-  [MACOS_X64]
+  [macosX64]
     Fragments:
       macosX64Test
 Repositories:

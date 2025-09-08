@@ -890,11 +890,11 @@ Fragments:
 
 Artifacts:
   isTest: false
-  [WASM_JS]
+  [wasmJs]
     Fragments:
       wasmJs
   isTest: true
-  [WASM_JS]
+  [wasmJs]
     Fragments:
       wasmJsTest
 Repositories:
