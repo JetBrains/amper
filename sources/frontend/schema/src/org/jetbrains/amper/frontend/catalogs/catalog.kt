@@ -332,14 +332,6 @@ private fun library(groupAndModule: String, version: TraceableString): Traceable
         trace = BuiltinCatalogTrace(catalog, computedValueTrace = version),
     )
 
-context(catalog: VersionCatalog)
-private fun library(groupAndModule: String, version: String): TraceableString =
-    TraceableString("$groupAndModule:$version", trace = BuiltinCatalogTrace(catalog))
-
-context(catalog: VersionCatalog)
-private fun library(groupAndModule: String): TraceableString =
-    TraceableString(groupAndModule, trace = BuiltinCatalogTrace(catalog))
-
 private fun materialIconsVersion(composeVersion: TraceableString) =
     when {
         ComparableVersion(composeVersion.value) >= ComparableVersion("1.8.0") ->
