@@ -25,7 +25,6 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.android.findAndroidManifestFragment
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -115,8 +114,6 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             .filterIsInstance<LeafFragment>()
             .firstOrNull { it.platforms.contains(Platform.ANDROID) } ?: return
 
-        val manifestFragment = androidFragment.findAndroidManifestFragment()
-
         val androidSettings = androidFragment.settings.android
         androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
 
@@ -196,7 +193,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             ?.associate { it.modulePath to it } ?: mapOf()
 
         androidExtension.sourceSets.matching { it.name == "main" }.all {
-            it.manifest.srcFile(manifestFragment.src.resolve("AndroidManifest.xml"))
+            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
             it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
         }
 
