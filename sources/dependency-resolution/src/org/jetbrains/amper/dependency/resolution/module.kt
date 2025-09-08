@@ -136,7 +136,7 @@ class RootDependencyNodePlain internal constructor(
     override val name: String,
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext(),
+    private val graphContext: DependencyGraphContext = currentGraphContext(),
 ): DependencyNodeHolderPlain, RootDependencyNode {
     override val parentsRefs = emptyList<DependencyNodeReference>()
     override val parents = mutableListOf<DependencyNode>()

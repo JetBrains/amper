@@ -70,7 +70,9 @@ interface DependencyNode {
      *
      * The returned sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
      */
-    fun distinctBfsSequence(childrenPredicate: (DependencyNode, DependencyNode) -> Boolean = { _,_ -> true }): Sequence<DependencyNode> = sequence {
+    fun distinctBfsSequence(
+        childrenPredicate: (child: DependencyNode, parent: DependencyNode) -> Boolean = { _,_ -> true }
+    ): Sequence<DependencyNode> = sequence {
         val queue = LinkedList(listOf(this@DependencyNode))
         val visited = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
@@ -177,7 +179,7 @@ interface DependencyNode {
         } ?: forMavenNode?.let { group == it.groupId && module == it.artifactId }
         ?: false
 
-    suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
+    fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
         val files = mutableSetOf<Path>()
         for (node in distinctBfsSequence()) {
             if (node is MavenDependencyNode) {
@@ -218,7 +220,7 @@ class DependencyGraph(
 
 // todo (AB) : Serialize to Int instead of object to decrease size of serialized graph
 @Serializable
-class DependencyNodeReference(
+data class DependencyNodeReference(
     internal val index: DependencyNodeIndex
 ) {
     fun toNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
@@ -422,7 +424,7 @@ typealias DependencyNodeIndex = Int
 typealias MavenDependencyIndex = Int
 typealias MavenDependencyConstraintIndex = Int
 
-fun defaultGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
+fun currentGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
     ?: error("Instance of DependencyGraphContext should be either explicitly passed to the constructor or presented in the dedicated ThreadLocal")
 
 interface DependencyNodePlain : DependencyNode {

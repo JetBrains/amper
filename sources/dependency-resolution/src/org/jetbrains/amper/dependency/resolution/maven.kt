@@ -124,7 +124,7 @@ class MavenDependencyNodePlain internal constructor(
     private val coordinatesForPublishing: MavenCoordinates,
     private val parentKmpLibraryCoordinates: MavenCoordinates?,
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext()
+    private val graphContext: DependencyGraphContext = currentGraphContext()
 ) : MavenDependencyNode, DependencyNodePlain {
     override fun getMavenCoordinatesForPublishing(): MavenCoordinates = coordinatesForPublishing
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
@@ -370,7 +370,7 @@ class UnresolvedMavenDependencyNodePlain internal constructor(
     val coordinates: String,
     override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext()
+    private val graphContext: DependencyGraphContext = currentGraphContext()
 ): DependencyNodePlain {
     override val childrenRefs: List<DependencyNodeReference> = emptyList()
     override val children: List<DependencyNode> = emptyList()
@@ -443,7 +443,7 @@ class MavenDependencyConstraintNodePlain internal constructor(
     internal val overriddenByRefs: List<DependencyNodeReference> = mutableListOf(),
     override val messages: List<Message>,
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext()
+    private val graphContext: DependencyGraphContext = currentGraphContext()
 ) : MavenDependencyConstraintNode, DependencyNodePlain {
 
     override val dependencyConstraint: MavenDependencyConstraint by lazy { dependencyConstraintRef.toNodePlain(graphContext) }

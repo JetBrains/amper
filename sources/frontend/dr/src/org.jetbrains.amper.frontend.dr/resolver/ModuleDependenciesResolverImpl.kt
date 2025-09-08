@@ -99,7 +99,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         .filterIsInstance<DirectFragmentDependencyNodeHolder>()
                         .distinctBy { it.dependencyNode }
                         .mapNotNull { it.toDependencyResolutionKey() }.toList()
-                    dependenciesMap[it.name] = coordinates
+                    dependenciesMap[it.name + it.context.settings.key()] = coordinates
                 }
             } else if (it is DependencyNodeHolder) {
                 it.fillDependenciesGraphInput(dependenciesMap)

@@ -21,7 +21,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
-import org.jetbrains.amper.dependency.resolution.defaultGraphContext
+import org.jetbrains.amper.dependency.resolution.currentGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -145,7 +145,7 @@ class ModuleDependencyNodeWithModulePlain internal constructor(
     override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext(),
+    private val graphContext: DependencyGraphContext = currentGraphContext(),
 ): DependencyNodeHolderPlain, ModuleDependencyNode {
     override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
@@ -214,7 +214,7 @@ class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
-    private val graphContext: DependencyGraphContext = defaultGraphContext()
+    private val graphContext: DependencyGraphContext = currentGraphContext()
 
 ): DependencyNodeHolderPlain, DirectFragmentDependencyNode {
     override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
