@@ -118,7 +118,7 @@ internal class IdeSync(
                 .flatMap { externalDependencies }
                 .filterIsInstance<MavenDependencyBase>()
                 .distinct()
-                .map { it.toGraph(this, fileCacheBuilder, spanBuilder) }
+                .mapNotNull { it.toGraph(this, fileCacheBuilder, spanBuilder) }
                 .toList()
             // In a single-platform case we could rely on IDE dependencies resolution.
             // Exported dependencies of the fragment on other modules will be taken into account by IDE while preparing
@@ -132,10 +132,10 @@ internal class IdeSync(
             .filter { it.notation is MavenDependencyBase }
             .sortedByDescending { it.fragment == this }
             .distinctBy { it.dependencyNode }
-            .map {
+            .mapNotNull {
                 val mavenDependencyNotation = it.notation as MavenDependencyBase
                 val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
-                mavenDependencyNotation.toFragmentDirectDependencyNode(this, context)
+                context?.let { mavenDependencyNotation.toFragmentDirectDependencyNode(this, context) }
             }.toList()
 
         return allMavenDeps
@@ -160,30 +160,36 @@ internal class IdeSync(
         fragment: Fragment,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource?
-    ): DirectFragmentDependencyNodeHolder {
+    ): DirectFragmentDependencyNodeHolder? {
         val context = resolveFragmentContext(fragment, fileCacheBuilder, spanBuilder)
-        val node = toFragmentDirectDependencyNode(fragment, context)
-        return node
+            ?: return null
+        return toFragmentDirectDependencyNode(fragment, context)
     }
 
     private fun MavenDependencyBase.resolveFragmentContext(
         fragment: Fragment,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         spanBuilder: SpanBuilderSource? = null,
-    ): Context {
+    ): Context? {
+        val fragmentPlatforms = fragment.resolutionPlatforms ?: return null
         val scope = when (this) {
             is MavenDependency -> if (compile) ResolutionScope.COMPILE else ResolutionScope.RUNTIME
             is BomDependency -> ResolutionScope.COMPILE
         }
-        return fragment.module.resolveModuleContext(fragment.resolutionPlatforms, scope, fileCacheBuilder, spanBuilder)
+        return fragment.module.resolveModuleContext(fragmentPlatforms, scope, fileCacheBuilder, spanBuilder)
     }
 }
 
-private val Fragment.resolutionPlatforms: Set<ResolutionPlatform>
-    get() = (platforms.mapNotNull {
-        it.toResolutionPlatform() ?: run {
-            logger.error("${name}: Platform $it is not supported for resolving external dependencies")
+private val Fragment.resolutionPlatforms: Set<ResolutionPlatform>?
+    get() =
+        if (platforms.isEmpty()) {
+            logger.warn("Fragment ${module.userReadableName}.$name has empty list of target platforms")
             null
+        } else {
+            platforms.mapNotNull {
+                it.toResolutionPlatform() ?: run {
+                    logger.error("Fragment ${module.userReadableName}.$name has target platform $it that is not supported for resolving external dependencies")
+                    null
+                }
+            }.toSet().takeIf { it.isNotEmpty() }
         }
-    }.takeIf { it.isNotEmpty() }?.toSet()
-        ?: error("Can't start resolution for the fragment with platforms ${platforms.toSet()}"))

@@ -444,6 +444,42 @@ class DiagnosticsTest : BaseModuleDrTest() {
         }
     }
 
+    /**
+     * This test should be replaced with the test for AOM building logic
+     * as soon as it starts skipping fragments with empty platforms (some diagnostic should have been reported in this case)
+     * See https://youtrack.jetbrains.com/issue/AMPER-4651
+     */
+    @Test
+    fun `test fragments with empty platforms resolution do not fail resolution`() = runTest {
+        val aom = getTestProjectModel("jvm-empty-platforms", testDataRoot)
+
+        assertEquals(
+            setOf("common", "commonTest", "jvm", "jvmTest", "x", "xTest"),
+            aom.modules.single().fragments.map { it.name }.toSet(),
+            "Unexpected list of project module fragments"
+        )
+
+        val mainFragmentDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "jvm-empty-platforms",
+            fragment = "main",
+            expected = """
+                Fragment 'jvm-empty-platforms.main' dependencies
+            """.trimIndent(),
+            verifyMessages = false
+        )
+
+        val diagnosticsReporter = CollectingProblemReporter()
+        collectBuildProblems(mainFragmentDeps, diagnosticsReporter, Level.Warning)
+        val buildProblems = diagnosticsReporter.problems
+        assertEquals(0, buildProblems.size)
+    }
+
+
     @OptIn(ExperimentalContracts::class)
     internal fun DependencyNode.isMavenDependency(group: String, module: String): Boolean {
         contract {
