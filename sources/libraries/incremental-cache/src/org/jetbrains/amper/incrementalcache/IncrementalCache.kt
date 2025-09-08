@@ -49,7 +49,7 @@ class IncrementalCache(
     /**
      * Span builder
      */
-    var spanBuilder: (String) -> SpanBuilder
+    private val spanBuilder: (String) -> SpanBuilder
 ) {
 
     constructor(
