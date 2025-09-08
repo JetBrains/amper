@@ -5,9 +5,9 @@
 package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.tasks.rootFragment
 
-
-private val AmperModule.commonSettings get() = rootFragment.settings 
+private val AmperModule.commonSettings get() = rootFragment.settings
 
 // TODO Fix that with new frontend!
 internal fun isComposeEnabledFor(module: AmperModule) =

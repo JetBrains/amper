@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.rootFragment
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory

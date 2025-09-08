@@ -81,6 +81,9 @@ interface AmperModule {
 
     val source: AmperModuleFileSource
 
+    /**
+     * List of all the fragments in the module. Can be empty if no platforms were specified.
+     */
     val fragments: List<Fragment>
 
     val artifacts: List<Artifact>
@@ -94,8 +97,6 @@ interface AmperModule {
     val usedTemplates: List<VirtualFile>
     
     val leafFragments get() = fragments.filterIsInstance<LeafFragment>()
-
-    val rootFragment: Fragment get() = fragments.first { it.fragmentDependencies.isEmpty() }
 
     val leafPlatforms: Set<Platform> get() = leafFragments.map { it.platform }.toSet()
 

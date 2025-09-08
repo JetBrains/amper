@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.refinedLeafFragmentsDependingOn
+import org.jetbrains.amper.tasks.rootFragment
 
 fun ProjectTasksBuilder.setupComposeTasks() {
     configureComposeResourcesGeneration()
@@ -38,7 +39,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             We generate public code to make API not depend on the actual presence of the resources,
             because the user already opted-in to their usage.
         */
-        val shouldGenerateCode = makeAccessorsPublic || rootFragment.module.fragments.any { it.hasAnyComposeResources }
+        val shouldGenerateCode = makeAccessorsPublic || module.fragments.any { it.hasAnyComposeResources }
 
         // Configure "global" tasks that generate common code (into rootFragment).
         tasks.registerTask(

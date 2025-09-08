@@ -151,14 +151,16 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.repositories = repositories
                 this.cache = fileCacheBuilder
                 this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
-                this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
-                    val groupAndArtifact = it.split(":", limit = 2)
-                    if (groupAndArtifact.size != 2) {
-                        logger.error("Invalid `excludeDependencies` entry: $it"); null
-                    } else {
-                        MavenGroupAndArtifact(groupAndArtifact[0], groupAndArtifact[1])
-                    }
-                }.toSet()
+                fragments.firstOrNull()?.let { rootFragment ->
+                    this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
+                        val groupAndArtifact = it.split(":", limit = 2)
+                        if (groupAndArtifact.size != 2) {
+                            logger.error("Invalid `excludeDependencies` entry: $it"); null
+                        } else {
+                            MavenGroupAndArtifact(groupAndArtifact[0], groupAndArtifact[1])
+                        }
+                    }.toSet()
+                }
             }
         }
         return context

@@ -33,6 +33,7 @@ import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
+import org.jetbrains.amper.tasks.rootFragment
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
