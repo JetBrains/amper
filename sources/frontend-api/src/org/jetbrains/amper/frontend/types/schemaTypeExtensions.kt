@@ -27,38 +27,81 @@ fun SchemaVariantDeclaration.toType() = SchemaType.VariantType(this)
 fun SchemaObjectDeclaration.Property.isValueRequired() = default == null
 
 fun SchemaType.render(
-    includePossibleValues: Boolean = true,
+    includeSyntax: Boolean = true,
 ): String = buildString {
     when (this@render) {
-        is SchemaType.BooleanType -> append("boolean")
+        is SchemaType.BooleanType -> {
+            append("boolean")
+            if (includeSyntax) {
+                append(""" ( "true" | "false" )""")
+            }
+        }
         is SchemaType.IntType -> append("integer")
         is SchemaType.PathType -> append("path")
         is SchemaType.StringType -> append("string")
-        is SchemaType.ListType -> append("list[ ${elementType.render(false)} ]")
-        is SchemaType.MapType -> append("map {${SchemaType.KeyStringType.render(false)} : ${valueType.render(false)} }")
+        is SchemaType.ListType -> append("sequence [${elementType.render(false)}]")
+        is SchemaType.MapType -> append("mapping {${SchemaType.KeyStringType.render(false)} : ${valueType.render(false)}}")
         is SchemaType.EnumType -> {
             // TODO: Introduce a public-name concept?
             append(declaration.simpleName())
-            if (includePossibleValues) {
-                declaration.entries.joinTo(
+            if (includeSyntax) {
+                declaration.entries.filter { !it.isOutdated && it.isIncludedIntoJsonSchema }.joinTo(
                     buffer = this,
                     separator = " | ",
-                    prefix = "( ",
+                    prefix = " ( ",
                     postfix = " )",
-                ) { '"' + it.schemaValue + '"' }
+                ) { it.schemaValue.quote() }
             }
         }
         is SchemaType.ObjectType -> {
             // TODO: Introduce a public-name concept?
+            // e.g. Dependency ( string | { string: ( "exported" | DependencyScope | {:} } ) )
             append(declaration.simpleName())
-            if (includePossibleValues) {
-                append("{...}")
+            if (includeSyntax) {
+                append(" ")
+                fun appendPossibleSyntax() {
+                    val possibleSyntax = buildList {
+                        declaration.getBooleanShorthand()?.let {
+                            add(it.name.quote())
+                        }
+                        declaration.getSecondaryShorthand()?.let {
+                            when(val type = it.type) {
+                                is SchemaType.EnumType -> type.declaration.entries.forEach { entry ->
+                                    // Add enum values "inline" for enum shorthand
+                                    add(entry.schemaValue.quote())
+                                }
+                                else -> add(type.render())
+                            }
+                        }
+                        add("{..}")
+                    }
+                    if (possibleSyntax.size == 1) {
+                        append(possibleSyntax[0])
+                    } else {
+                        possibleSyntax.joinTo(
+                            buffer = this,
+                            prefix = "( ",
+                            postfix = " )",
+                            separator = " | ",
+                        )
+                    }
+                }
+                val fromKeyProperty = declaration.getFromKeyAndTheRestNestedProperty()
+                if (fromKeyProperty != null) {
+                    append("( ")
+                    val fromKeyPropertyType = fromKeyProperty.type.render(false)
+                    append(fromKeyPropertyType).append(" | ").append(fromKeyPropertyType).append(": ")
+                    appendPossibleSyntax()
+                    append(" )")
+                } else {
+                    appendPossibleSyntax()
+                }
             }
         }
         is SchemaType.VariantType -> {
             // TODO: Introduce a public-name concept?
             append(declaration.simpleName())
-            if (includePossibleValues) {
+            if (includeSyntax) {
                 declaration.variantTree.joinTo(
                     buffer = this,
                     separator = " | ",
@@ -68,5 +111,7 @@ fun SchemaType.render(
             }
         }
     }
-    if (isMarkedNullable) append('?')
+    if (isMarkedNullable) append(" | null")
 }
+
+private fun String.quote() = '"' + this + '"'

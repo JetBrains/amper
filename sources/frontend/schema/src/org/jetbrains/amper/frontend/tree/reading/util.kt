@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.elementType
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -22,14 +23,15 @@ import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.YAMLCompoundValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
-import org.jetbrains.yaml.psi.YAMLValue
 
 context(contexts: Contexts)
 internal fun scalarValue(origin: YAMLScalarOrKey, value: Any) =
@@ -47,21 +49,24 @@ internal fun mapLikeValue(
     contexts = contexts,
 )
 
-internal fun formatValueForMessage(scalar: YAMLScalarOrKey) = "scalar ''${scalar.textValue}''"
-
-internal fun formatValueForMessage(psi: YAMLValue) = when(psi) {
-    is YAMLScalar -> "scalar ''${psi.textValue}''"
-    is YAMLSequence -> "sequence [...]"
-    is YAMLMapping -> "mapping {...}"
-    is YAMLCompoundValue -> psi.textValue // TODO: not clear what is compound value that is not a list or a map
-    else -> "''${psi.text}''"
+internal fun formatValueForMessage(psi: PsiElement) = when (psi) {
+    is YAMLScalar -> "scalar"
+    is YAMLSequence -> "sequence []"
+    is YAMLMapping -> "mapping {}"
+    is YAMLCompoundValue -> "compound value {}"
+    else -> when (psi.elementType) {
+        YAMLTokenTypes.SCALAR_KEY -> "scalar"
+        else -> error("Unexpected PsiElement $psi")
+    }
 }
 
 context(reporter: ProblemReporter)
-internal fun reportTypeTag(value: YAMLValue) {
-    value.tag?.let {
-        reporter.reportBundleError(it.asBuildProblemSource(), "validation.structure.unsupported.tag")
-    }
+internal fun reportUnexpectedValue(unexpected: PsiElement, expectedType: SchemaType) {
+    reportParsing(
+        unexpected, "validation.types.unexpected.value",
+        expectedType.render(), formatValueForMessage(unexpected),
+        type = BuildProblemType.TypeMismatch,
+    )
 }
 
 context(reporter: ProblemReporter)
@@ -75,8 +80,17 @@ internal fun reportParsing(
     reporter.reportBundleError(psi.asBuildProblemSource(), messageKey, *args, level = level, problemType = type)
 }
 
+// guarantees to include non-compound child elements
+internal fun PsiElement.allChildren(): Sequence<PsiElement> = sequence {
+    var current: PsiElement? = firstChild
+    while (current != null) {
+        yield(current)
+        current = current.nextSibling
+    }
+}
+
 internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue<T> {
-    return when(this) {
+    return when (this) {
         is ListValue<T> -> copy(trace = trace)
         is MapLikeValue<T> -> copy(trace = trace)
         is NoValue -> NoValue(trace = trace)

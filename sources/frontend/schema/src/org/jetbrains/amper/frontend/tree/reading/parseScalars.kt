@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.InvalidPathException
@@ -18,14 +19,14 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): ScalarValue<*>? = when (type) {
     is SchemaType.BooleanType -> when(val boolean = scalar.textValue.toBooleanStrictOrNull()) {
         null -> {
-            reportParsing(scalar.psi, "validation.expected.boolean", type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> scalarValue(scalar, boolean)
     }
     is SchemaType.IntType -> when(val int = scalar.textValue.toIntOrNull()) {
         null -> {
-            reportParsing(scalar.psi, "validation.expected.integer", type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> scalarValue(scalar, int)
@@ -55,15 +56,21 @@ private fun parsePath(scalar: YAMLScalarOrKey, type: SchemaType.PathType): Scala
 }
 
 context(_: Contexts, _: ProblemReporter)
-private fun parseEnum(scalar: YAMLScalarOrKey, type: SchemaType.EnumType): ScalarValue<*>? {
+internal fun parseEnum(
+    scalar: YAMLScalarOrKey,
+    type: SchemaType.EnumType,
+    additionalSuggestedValues: List<String> = emptyList(),
+): ScalarValue<*>? {
     val textValue = scalar.textValue
     val entry = type.declaration.getEntryBySchemaValue(textValue)
     if (entry == null) {
-        val suggestedValues =  type.declaration.entries
-            .filter { it.isIncludedIntoJsonSchema && !it.isOutdated }.joinToString { it.schemaValue }
+        val suggestedValues = additionalSuggestedValues + type.declaration.entries
+            .filter { it.isIncludedIntoJsonSchema && !it.isOutdated }
+            .map { it.schemaValue }
         reportParsing(
             scalar.psi, "validation.types.unknown.enum.value",
-            textValue, suggestedValues, type = BuildProblemType.TypeMismatch,
+            textValue, suggestedValues.joinToString(),
+            type = BuildProblemType.TypeMismatch,
         )
         return null
     }

@@ -1,0 +1,21 @@
+product:
+  type: jvm/lib
+
+settings:
+  junit: <![Error] Unknown value 'invalid'. Expected one of: [junit-4, junit-5, none]!>invalid<!>
+  compose: <![Error] Expected `ComposeSettings ( "enabled" | {..} )`, but got `scalar`!>something-else<!>
+  publishing: <![Error] Expected `PublishingSettings {..}`, but got `sequence []`!>[1,2,3]<!>
+  kotlin:
+    ksp:
+      processorOptions:
+        <![Error] Expected `mapping {string : string}`, but got `scalar`!>hello<!>
+  jvm:
+    storeParameterNames:
+      <![Error] Expected `boolean ( "true" | "false" )`, but got `mapping {}`!>true: false<!>
+    release: <![Error] Expected `JavaVersion ( "25" | "24" | "23" | "22" | "21" | "17" | "11" | "8" ) | null`, but got `mapping {}`!>{1,2,3}<!>
+  java:
+    freeCompilerArgs:
+      <![Error] Expected `sequence [string]`, but got `mapping {}`!>args: value<!>
+
+dependencies:
+  - <![Error] Expected `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`, but got `sequence []`!>[1,2,3]<!>

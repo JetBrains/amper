@@ -76,7 +76,6 @@ private fun parseFile(
         reporter.reportBundleError(
             documents[1].asBuildProblemSource(), "validation.structure.unsupported.multiple.documents"
         )
-        return null
     }
     val value = documents.first() // Safe - at least one document is always present
         .topLevelValue ?: return null

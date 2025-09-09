@@ -1,0 +1,27 @@
+product: jvm/lib
+
+settings:
+  kotlin:
+    version: <![Error] Secondary (`!!`) YAML type tags are not supported in Amper!>!!str<!> 2.20.0
+    ksp:
+      processorOptions:
+        <![Error] Secondary (`!!`) YAML type tags are not supported in Amper!>!!int<!> foo: bar
+        <![Error] Unexpected custom YAML type tag!>!unknown<!> baz: quu
+        ? <![Error] Secondary (`!!`) YAML type tags are not supported in Amper!>!!str<!>
+          <![Error] Unexpected compound key. Only string keys are supported!>[1, 2, 3]<!>
+          : value
+        <![Error] Expected a mapping key!>?
+        : missing-key<!>
+
+dependencies: <![Error] YAML anchors/aliases are not supported in Amper!>&anchor<!>
+  - foo:bar:1
+
+repositories: <![Error] Unexpected custom YAML type tag!>!tag<!>
+  - <![Error] Secondary (`!!`) YAML type tags are not supported in Amper!>!!null<!> foo
+
+dependencies@jvm: <![Error] YAML anchors/aliases are not supported in Amper!>*anchor<!>
+
+<![Error] Multiple YAML documents are not supported!>---
+
+settings@jvm:
+  kotlin: [1,2,3]<!>

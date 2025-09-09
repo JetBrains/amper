@@ -22,13 +22,11 @@ import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseList(psi: YAMLSequence, type: SchemaType.ListType): ListValue<*> {
-    reportTypeTag(psi)
-
     fun parseListValue(item: YAMLSequenceItem): TreeValue<*>? {
         // (no value case) No point of issuing `NoValue` here because it can't be later overridden in the list context.
         // So it can't be possibly valid - report it and skip it.
         val value = item.value ?: run {
-            reportParsing(item, "validation.structure.missing.list.item")
+            reportParsing(item, "validation.structure.missing.unmergeable.value")
             return null
         }
         return parseValue(value, type.elementType)
@@ -45,7 +43,6 @@ internal fun parseList(psi: YAMLSequence, type: SchemaType.ListType): ListValue<
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseMap(psi: YAMLMapping, type: SchemaType.MapType): Owned {
-    reportTypeTag(psi)
     val children = psi.keyValues.mapNotNull { keyValue: YAMLKeyValue ->
         parseKeyValueForMap(keyValue, type)
     }
@@ -67,8 +64,6 @@ internal fun parseMap(psi: YAMLMapping, type: SchemaType.MapType): Owned {
  */
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseMapFromSequence(psi: YAMLSequence, type: SchemaType.MapType): Owned {
-    reportTypeTag(psi)
-
     fun parseSingleKeyValue(item: YAMLSequenceItem): MapLikeValue.Property<*>? {
         val value = item.value
         if (value !is YAMLMapping) {

@@ -5,12 +5,12 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.elementType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
-import org.toml.lang.psi.ext.elementType
 
 @JvmInline
 internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
@@ -29,10 +29,13 @@ internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
                 reportParsing(keyValue, "validation.structure.missing.key")
                 return null
             }
-            val tag = keyValue.children.find { it.elementType == YAMLTokenTypes.TAG }
+            val tag = keyValue.allChildren().find { it.elementType == YAMLTokenTypes.TAG }
             if (tag != null) {
-                reportParsing(tag, "validation.structure.unsupported.tag")
-                return null
+                if (tag.text.startsWith("!!")) {
+                    reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+                } else {
+                    reportParsing(tag, "validation.structure.unsupported.tag")
+                }
             }
             if (key !is YAMLScalar && key.elementType != YAMLTokenTypes.SCALAR_KEY) {
                 reportParsing(key, "validation.types.unexpected.compound.key")

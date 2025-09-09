@@ -10,7 +10,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class RequiredValuesTest  : GoldenTestBase(Path("testResources") / "required-values") {
+class RequiredValuesTest : GoldenTestBase(Path("testResources") / "required-values") {
     @Test
     fun `invalid platforms`() {
         diagnosticsTest("0-invalid-platforms/module")

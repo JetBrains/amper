@@ -4,4 +4,4 @@ product:
 settings:
   kotlin:
     serialization:
-      enabled: <![Error] Expected a boolean value!>abracadabra<!>
+      enabled: <![Error] Expected: boolean ( "true" | "false" )!>abracadabra<!>

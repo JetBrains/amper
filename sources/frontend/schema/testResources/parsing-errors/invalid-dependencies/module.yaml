@@ -1,0 +1,9 @@
+product:
+  type: jvm/lib
+
+dependencies:
+  - <![Error] While parsing `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>maven:notation:1: exported
+    another: key<!>
+  - <![Error] While parsing `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>{}<!>
+  - <![Error] Expected a value!>notation:<!>
+  - notation: <![Error] Unknown value 'invalid-value'. Expected one of: [exported, compile-only, runtime-only, all]!>invalid-value<!>

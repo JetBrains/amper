@@ -31,7 +31,13 @@ internal fun parseObject(
     type: SchemaType.ObjectType,
     allowTypeTag: Boolean = false,
 ): Owned? {
-    if (!allowTypeTag) reportTypeTag(psi)
+    if (!allowTypeTag) {
+        psi.tag?.let { tag ->
+            if (!tag.text.startsWith("!!")) {  // Standard "!!" tags are reported in `parseValue`
+                reportParsing(tag, "validation.structure.unsupported.tag")
+            }
+        }
+    }
 
     val fromKeyProperty = type.declaration.getFromKeyAndTheRestNestedProperty()
     return if (fromKeyProperty != null) {
@@ -51,7 +57,7 @@ private fun parseObjectWithFromKeyProperty(
     return when (psi) {
         is YAMLMapping -> {
             val argKeyValue = psi.keyValues.singleOrNull() ?: run {
-                reportParsing(psi,  "validation.types.invalid.ctor.arg.key", type.render())
+                reportParsing(psi, "validation.types.invalid.ctor.arg.key", type.render())
                 return null
             }
             val key = YAMLScalarOrKey.parseKey(argKeyValue) ?: return null
@@ -59,7 +65,7 @@ private fun parseObjectWithFromKeyProperty(
                 ?: return null
             val nestedRemainingObject = argKeyValue.value
             if (nestedRemainingObject == null) {
-                reportParsing(argKeyValue, "validation.types.invalid.ctor.arg.value", type.render())
+                reportParsing(argKeyValue, "validation.structure.missing.unmergeable.value")
                 return null
             }
             val remainingProperties = parseObjectWithoutFromKeyProperty(nestedRemainingObject, type)
@@ -86,7 +92,7 @@ private fun parseObjectWithFromKeyProperty(
             origin = psi, type = type,
         )
         else -> {
-            reportParsing(psi, "validation.types.invalid.ctor.arg", argumentType.render())
+            reportUnexpectedValue(psi, type)
             null
         }
     }
@@ -99,7 +105,7 @@ private fun parseObjectWithoutFromKeyProperty(psi: YAMLValue, type: SchemaType.O
         is YAMLScalar -> parseObjectFromScalarShorthand(YAMLScalarOrKey(psi), type)
         is YAMLSequence -> parseObjectFromListShorthand(psi, type)
         else -> {
-            reportParsing(psi, "validation.types.expected.object", formatValueForMessage(psi))
+            reportUnexpectedValue(psi, type)
             null
         }
     }
@@ -154,15 +160,19 @@ private fun parseObjectFromScalarShorthand(
         if (boolean != null && scalar.textValue == boolean.name) {
             return boolean to scalarValue(scalar, true)
         }
-        when (val type = secondary?.type) {
-            is SchemaType.ScalarType -> return secondary to parseScalar(scalar, type)
-            else -> Unit
+        return when (val type = secondary?.type) {
+            is SchemaType.EnumType -> secondary to parseEnum(
+                // additionalSuggestedValues is specified
+                // to include the boolean shorthand in the report if parsing fails.
+                scalar, type, additionalSuggestedValues = listOfNotNull(boolean?.name),
+            )
+            is SchemaType.ScalarType -> secondary to parseScalar(scalar, type)
+            else -> null
         }
-        return null
     }
 
     val (property, result) = parseScalarShorthandValue() ?: run {
-        reportParsing(scalar.psi, "validation.types.expected.object", formatValueForMessage(scalar))
+        reportUnexpectedValue(scalar.psi, type)
         return null
     }
 
@@ -203,7 +213,7 @@ private fun parseObjectFromListShorthand(
         )
     }
     // shorthand is unsupported
-    reportParsing(psi, "validation.types.expected.object")
+    reportUnexpectedValue(psi, type)
     return null
 }
 

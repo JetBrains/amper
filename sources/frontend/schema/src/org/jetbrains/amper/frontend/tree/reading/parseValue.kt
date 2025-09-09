@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
+import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -11,10 +12,10 @@ import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLAlias
+import org.jetbrains.yaml.psi.YAMLAnchor
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLQuotedText
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -50,13 +51,19 @@ internal fun parseValue(
     }
     psi.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {
-            // Do not abort parsing, just ignore the tag
             reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+        } else if (type !is SchemaType.VariantType) {
+            reportParsing(tag, "validation.structure.unsupported.tag")
         }
+        // tags are allowed for variants sometimes.
     }
     if (psi is YAMLAlias) {
-        reportParsing(psi, "validation.structure.unsupported.standard.alias")
+        reportParsing(psi, "validation.structure.unsupported.alias")
         return null
+    }
+
+    psi.childrenOfType<YAMLAnchor>().forEach { anchor ->
+        reportParsing(anchor, "validation.structure.unsupported.alias")
     }
 
     // This is required because all "inherited" contexts, that are not explicitly mentioned must not have any traces.
@@ -79,7 +86,7 @@ internal fun parseValue(
             is SchemaType.ObjectType -> parseObject(psi, type)
             is SchemaType.VariantType -> parseVariant(psi, type)
             else -> {
-                reportParsing(psi, "validation.types.unexpected.value", type.render(), formatValueForMessage(psi))
+                reportUnexpectedValue(psi, type)
                 return null
             }
         }
