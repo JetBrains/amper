@@ -46,5 +46,5 @@ Module B
 │                        ╰─── org.jetbrains.compose.runtime:runtime:1.6.0 (*)
 ├─── B:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── B:main:org.jetbrains.compose.runtime:runtime:1.5.0, implicit
+╰─── B:main:org.jetbrains.compose.runtime:runtime:1.5.0, implicit (because Compose is enabled)
      ╰─── org.jetbrains.compose.runtime:runtime:1.5.0 -> 1.6.0 (*)

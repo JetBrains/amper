@@ -156,5 +156,5 @@ Fragment 'shared.ios' dependencies
 │                   ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion
 ├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-╰─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+╰─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
      ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

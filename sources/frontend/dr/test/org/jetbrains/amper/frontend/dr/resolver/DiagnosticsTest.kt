@@ -64,7 +64,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
                 │         ╰─── org.jetbrains:annotations:13.0
-                ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12, implicit
+                ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:commonTest:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
@@ -74,7 +74,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
                 │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}
                 │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.defaultKotlinVersion}
                 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
@@ -85,7 +85,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │              │    ├─── org.junit:junit-bom:5.10.1
                 │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
                 │              ╰─── org.apiguardian:apiguardian-api:1.1.2
-                ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit
+                ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
@@ -95,7 +95,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12, implicit
+                ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
@@ -105,9 +105,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
                 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
                 │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion} (*)
-                ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit
+                ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                      ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 """.trimIndent(),
             messagesCheck = { node ->

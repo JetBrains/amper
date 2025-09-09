@@ -216,21 +216,21 @@ Module shared
 │    ╰─── org.jetbrains.compose.material3:material3:#composeDefaultVersion (*)
 ├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 ├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── shared:apple:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+├─── shared:apple:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── shared:common:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+├─── shared:common:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 ├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+├─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)
 ├─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── shared:native:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+╰─── shared:native:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
      ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

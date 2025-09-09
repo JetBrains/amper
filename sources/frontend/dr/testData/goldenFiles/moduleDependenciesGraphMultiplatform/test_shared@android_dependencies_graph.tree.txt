@@ -168,5 +168,5 @@ Fragment 'shared.android' dependencies
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
 │         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-╰─── shared:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+╰─── shared:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
      ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

@@ -2,7 +2,7 @@ Fragment 'ios-app.iosX64' dependencies
 ├─── ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-├─── ios-app:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
+├─── ios-app:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
 │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
 │         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:#composeDefaultVersion
 │              ├─── org.jetbrains.compose.annotation-internal:annotation:#composeDefaultVersion

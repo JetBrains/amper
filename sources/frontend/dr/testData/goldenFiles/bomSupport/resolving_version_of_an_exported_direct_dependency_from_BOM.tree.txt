@@ -84,9 +84,9 @@ Module app
 │    │              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.21 -> #kotlinVersion (*)
 │    ├─── B:jvm:io.ktor:ktor-client-core:3.2.3
 │    │    ╰─── io.ktor:ktor-client-core:3.2.3 (*)
-│    ├─── B:common:io.ktor:ktor-bom:3.2.3, implicit
+│    ├─── B:common:io.ktor:ktor-bom:3.2.3, implicit (because Ktor is enabled and ktor.applyBom=true)
 │    │    ╰─── io.ktor:ktor-bom:3.2.3
-│    ╰─── B:jvm:io.ktor:ktor-bom:3.2.3, implicit
+│    ╰─── B:jvm:io.ktor:ktor-bom:3.2.3, implicit (because Ktor is enabled and ktor.applyBom=true)
 │         ╰─── io.ktor:ktor-bom:3.2.3
 ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

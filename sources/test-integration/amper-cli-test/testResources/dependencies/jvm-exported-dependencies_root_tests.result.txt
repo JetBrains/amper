@@ -48,7 +48,7 @@ Module root
 │         ╰─── org.jetbrains:annotations:13.0
 ├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
 │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10
 │         ├─── org.jetbrains.kotlin:kotlin-test:2.2.10
 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
@@ -70,7 +70,7 @@ Module root
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
 ├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit
+╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
      ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10 (*)
 
 Module root
@@ -91,7 +91,7 @@ Module root
 │         ╰─── org.jetbrains:annotations:13.0
 ├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
 │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10
 │         ├─── org.jetbrains.kotlin:kotlin-test:2.2.10
 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
@@ -106,5 +106,5 @@ Module root
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
 ├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit
+╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
      ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10 (*)

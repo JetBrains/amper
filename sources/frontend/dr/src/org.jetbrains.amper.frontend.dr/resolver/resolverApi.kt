@@ -17,7 +17,11 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
-import org.jetbrains.amper.frontend.api.isDefault
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
+import org.jetbrains.amper.frontend.api.TransformedValueTrace
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -113,6 +117,18 @@ class DirectFragmentDependencyNodeHolder(
     parentNodes: List<DependencyNode> = emptyList(),
     override val messages: List<Message> = emptyList(),
 ) : DependencyNodeHolderWithNotation(
-    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace.isDefault } ?: ""}",
+    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
     listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
 )
+
+private fun traceInfo(notation: Notation): String {
+    val sourceInfo = when (val trace = notation.trace) {
+        is DefaultTrace -> "implicit"
+        is TransformedValueTrace -> "implicit (${trace.description})"
+        is ResolvedReferenceTrace -> trace.description
+        is BuiltinCatalogTrace -> null // should never happen for dependency Notation
+        // TODO maybe write something if the dependency comes from a template?
+        is PsiTrace -> null // we don't want to clutter the output for 'regular' dependencies declared in files
+    }
+    return sourceInfo?.let { ", $it" } ?: ""
+}
