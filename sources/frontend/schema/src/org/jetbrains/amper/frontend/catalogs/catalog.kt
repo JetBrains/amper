@@ -20,40 +20,39 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
-    kotlinVersion = version(
-        version = TraceableVersion(kotlin.version, kotlin::version.schemaDelegate),
-        fallbackVersion = UsedVersions.defaultKotlinVersion,
-    ),
-    serializationVersion = kotlin.serialization.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, kotlin.serialization::version.schemaDelegate) }
-        ?.let { version(it, UsedVersions.kotlinxSerializationVersion) },
-    composeVersion = compose.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, compose::version.schemaDelegate) }
-        ?.let { version(it, UsedVersions.composeVersion) },
-    ktorVersion = ktor.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, ktor::version.schemaDelegate) }
-        ?.let { version(it, UsedVersions.ktorVersion) },
-    springBootVersion = springBoot.takeIf { it.enabled }?.version
-        ?.let { TraceableVersion(it, springBoot::version.schemaDelegate) }
-        ?.let { version(it, UsedVersions.springBootVersion) },
+    kotlinVersion = kotlin::version.asTraceableString(UsedVersions.defaultKotlinVersion),
+    serializationVersion = kotlin.serialization::version.asTraceableString(UsedVersions.kotlinxSerializationVersion)
+        .takeIf { kotlin.serialization.enabled },
+    composeVersion = compose::version.asTraceableString(UsedVersions.composeVersion)
+        .takeIf { compose.enabled },
+    ktorVersion = ktor::version.asTraceableString(UsedVersions.ktorVersion)
+        .takeIf { ktor.enabled },
+    springBootVersion = springBoot::version.asTraceableString(UsedVersions.springBootVersion)
+        .takeIf { springBoot.enabled },
 )
 
 context(problemReporter: ProblemReporter)
 @OptIn(NonIdealDiagnostic::class)
-private fun version(version: TraceableVersion, fallbackVersion: String): TraceableString {
+private fun KProperty0<String>.asTraceableString(fallbackVersion: String): TraceableString {
     // we validate the version only for emptiness because maven artifacts allow any string as a version
     //  that's why we cannot provide a precise validation for non-empty strings
-    return if (!version.value.isEmpty()) version
-    else {
+    return if (!schemaDelegate.value.isEmpty()) {
+        TraceableVersion(schemaDelegate.value, schemaDelegate.trace)
+    } else {
         problemReporter.reportBundleError(
-            source = version.asBuildProblemSource(),
+            source = schemaDelegate.trace.asBuildProblemSource(),
             messageKey = "empty.version.string",
         )
+        // TODO instead of this fallback, we could add a general @NonEmpty validation up front, so the schema
+        //  instantiator deals with it before creating invalid schema elements. Invalid values are already replaced
+        //  with their defaults for best effort handling, so we should end up with the same result, but without any
+        //  special handling here, and the trace will be a real default.
         // fallback to avoid double errors
-        TraceableString(fallbackVersion, trace = DefaultTrace)
+        TraceableVersion(fallbackVersion, trace = DefaultTrace)
     }
 }
 
