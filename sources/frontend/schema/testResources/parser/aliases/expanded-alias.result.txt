@@ -1,0 +1,201 @@
+Fragments:
+  android
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@android
+    Fragment dependencies:
+      iosAndAndroid (REFINE)
+    Settings: {
+    }
+
+  androidTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@android
+    Fragment dependencies:
+      iosAndAndroidTest (REFINE)
+      android (FRIEND)
+    Settings: {
+    }
+
+  apple
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@apple
+    Fragment dependencies:
+      native (REFINE)
+    Settings: {
+    }
+
+  appleTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@apple
+    Fragment dependencies:
+      nativeTest (REFINE)
+      apple (FRIEND)
+    Settings: {
+    }
+
+  common
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Settings: {
+    }
+
+  commonTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test
+    Fragment dependencies:
+      common (FRIEND)
+    Settings: {
+    }
+
+  ios
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@ios
+    Fragment dependencies:
+      apple (REFINE)
+    Settings: {
+    }
+
+  iosAndAndroid
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@iosAndAndroid
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+    }
+
+  iosAndAndroidTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@iosAndAndroid
+    Fragment dependencies:
+      commonTest (REFINE)
+      iosAndAndroid (FRIEND)
+    Settings: {
+    }
+
+  iosArm64
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@iosArm64
+    Fragment dependencies:
+      ios (REFINE)
+    Settings: {
+    }
+
+  iosArm64Test
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@iosArm64
+    Fragment dependencies:
+      iosTest (REFINE)
+      iosArm64 (FRIEND)
+    Settings: {
+    }
+
+  iosTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@ios
+    Fragment dependencies:
+      appleTest (REFINE)
+      ios (FRIEND)
+    Settings: {
+    }
+
+  jvm
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@jvm
+    Fragment dependencies:
+      common (REFINE)
+    Settings: {
+    }
+
+  jvmTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@jvm
+    Fragment dependencies:
+      commonTest (REFINE)
+      jvm (FRIEND)
+    Settings: {
+    }
+
+  native
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: src@native
+    Fragment dependencies:
+      iosAndAndroid (REFINE)
+    Settings: {
+    }
+
+  nativeTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+    Src folder: test@native
+    Fragment dependencies:
+      iosAndAndroidTest (REFINE)
+      native (FRIEND)
+    Settings: {
+    }
+
+Artifacts:
+  isTest: false
+  [android, iosArm64, jvm]
+    Fragments:
+      android
+      iosArm64
+      jvm
+  isTest: true
+  [android, iosArm64, jvm]
+    Fragments:
+      androidTest
+      iosArm64Test
+      jvmTest
+Repositories:
+  - id: https://repo1.maven.org/maven2
+    url: https://repo1.maven.org/maven2
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.google.com
+    url: https://maven.google.com
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    publish: false
+    resolve: true
+    username: null
+    password: null

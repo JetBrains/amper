@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+aliases:
+  <![Error] Alias myAlias should have at least one platform present in the current product!>myAlias<!>: []

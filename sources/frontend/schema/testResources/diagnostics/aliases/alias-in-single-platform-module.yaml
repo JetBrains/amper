@@ -1,0 +1,4 @@
+product: jvm/app
+
+<![Warning] Aliases are not supported in single-platform modules!>aliases:
+  test: [jvm]<!>

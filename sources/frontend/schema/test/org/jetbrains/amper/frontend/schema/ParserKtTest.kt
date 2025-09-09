@@ -33,11 +33,6 @@ internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
     }
 
     @Test
-    fun aliases() {
-        aomTest("2-aliases")
-    }
-
-    @Test
     fun `jvm run`() {
         aomTest("4-jvm-run")
     }

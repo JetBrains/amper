@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ iosArm64, android, jvm ]
+
+aliases:
+  iosAndAndroid: [ ios, android ]

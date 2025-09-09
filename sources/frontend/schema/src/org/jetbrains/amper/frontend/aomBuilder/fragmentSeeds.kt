@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isParentOfStrict
-import org.jetbrains.amper.frontend.leaves
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.Module
-
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * A Utility builder class to prepare settings, fragment dependencies, and platforms
@@ -53,6 +53,7 @@ data class FragmentSeed(
  * For example, `native` will only be mapped to `linuxX64` in the above case, not to all other platforms that
  * `native` can include in the natural hierarchy.
  */
+context(problemReporter: ProblemReporter)
 fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     // Get declared platforms.
     val declaredPlatforms = product.platforms
@@ -67,19 +68,17 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
         }
         return setOf(FragmentSeed(setOf(platform), "", platform))
     }
+    val declaredAliases = aliases ?: emptyMap()
 
     if (!product.type.supportsFragmentBamboos) {
+        val aliasesElement = this::aliases.extractPsiElementOrNull()
+        if (aliasesElement != null) {
+            problemReporter.reportMessage(AliasesAreNotSupportedInSinglePlatformModule(aliasesElement))
+        }
         return prunedBambooSeeds()
     }
 
-    // Get declared aliases.
-    // Check that declared aliases only use declared platforms and
-    // check that aliases are not intersecting with any of the hierarchy platforms
-    // are implemented within diagnostics.
-    val declaredAliases = aliases ?: emptyMap()
-    val aliases2leaves = declaredAliases
-        .mapValues { it.value.leaves }
-        .filterValues { !Platform.naturalHierarchyExt.values.contains(it) }
+    val aliases2leaves = mapAliasesToLeaves(declaredAliases, product)
 
     // Extract part of the hierarchy that will be used to create fragments.
     val applicableHierarchy = Platform.naturalHierarchyExt.entries

@@ -1,7 +1,0 @@
-product:
-  type: lib
-  platforms:
-    - jvm
-
-aliases:
-  x: []

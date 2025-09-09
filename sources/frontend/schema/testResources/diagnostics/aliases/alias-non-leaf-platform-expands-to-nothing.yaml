@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ jvm, android ]
+
+aliases:
+  myAlias: [ jvm, android, <![Error] Alias myAlias uses non-leaf platform linux, but none of its leaves [linuxX64, linuxArm64] are declared in the current product!><![Error] Alias myAlias uses non-leaf platform linux, which is not supported at the moment!>linux<!><!> ]

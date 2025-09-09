@@ -32,8 +32,6 @@ fun MergedTreeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
     ProductPlatformIsUnsupported,
     ProductPlatformsShouldNotBeEmpty,
     TemplateNameWithoutPostfix,
-    AliasesDontUseUndeclaredPlatform,
-    AliasesAreNotIntersectingWithNaturalHierarchy,
     KotlinCompilerVersionDiagnosticsFactory,
 //    UselessSettingValue(refiner), // TODO fix it if we want to restore it: AMPER-4489, AMPER-4490
 )
