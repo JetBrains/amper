@@ -47,7 +47,7 @@ class Module : Base() {
     var product by value<ModuleProduct>()
 
     @SchemaDoc("Defines the names for the custom code sharing groups. [Read more](#aliases)")
-    var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
+    var aliases by nullableValue<Map<TraceableString, List<TraceableEnum<Platform>>>>()
 
     @Misnomers("templates")
     @SchemaDoc("Lists the templates applied to the module. [Read more](#templates)")

@@ -70,7 +70,7 @@ abstract class SchemaTypingContext protected constructor(
                 keyType = getType(checkNotNull(type.arguments[0].type)) as SchemaType.StringType,
                 valueType = getType(checkNotNull(type.arguments[1].type)),
             )
-            List::class, Set::class, Collection::class -> SchemaType.ListType(
+            List::class -> SchemaType.ListType(
                 isMarkedNullable = type.isMarkedNullable,
                 elementType = getType(checkNotNull(type.arguments[0].type)),
             )

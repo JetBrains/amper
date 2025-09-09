@@ -35,7 +35,7 @@ import org.jetbrains.amper.problems.reporting.replayProblemsTo
 class MinimalModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
-    var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
+    var aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
 
     @Misnomers("templates")
     var apply by nullableValue<List<TraceablePath>>()
