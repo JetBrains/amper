@@ -163,7 +163,7 @@ class PluginsTest : AmperCliTestBase() {
                 ╰─ There are multiple plugins with the id `hello`:
                    ╰─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
-                   ╰─ ${projectRoot / "hello" / "module.yaml"}:1:1
+                   ╰─ ${projectRoot / "hello"}
             """.trimIndent())
             assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello, hello, hello]...")
         }

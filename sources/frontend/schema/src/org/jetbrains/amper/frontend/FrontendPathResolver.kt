@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.amper.intellij.IntelliJApplicationConfigurator
@@ -31,6 +32,10 @@ class FrontendPathResolver(
 
     fun toPsiFile(file: VirtualFile): PsiFile? = runReadAction {
         PsiManager.getInstance(project).findFile(file)?.let(transformPsiFile)
+    }
+
+    fun toPsiDirectory(file: VirtualFile): PsiDirectory? = runReadAction {
+        PsiManager.getInstance(project).findDirectory(file)
     }
 
     fun loadVirtualFile(path: Path): VirtualFile = loadVirtualFileOrNull(path)

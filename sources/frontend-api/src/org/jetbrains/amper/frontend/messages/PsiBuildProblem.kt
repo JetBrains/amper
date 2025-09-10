@@ -5,7 +5,9 @@
 package org.jetbrains.amper.frontend.messages
 
 import com.intellij.openapi.vfs.toNioPathOrNull
+import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
@@ -48,4 +50,8 @@ fun Trace.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from trace $this")
 
 val PsiElement.originalFilePath: Path?
-    get() = containingFile.originalFile.virtualFile?.toNioPathOrNull()
+    get() = when (this) {
+        is PsiFile -> originalFile.virtualFile?.toNioPathOrNull()
+        is PsiDirectory -> virtualFile.toNioPathOrNull()
+        else -> containingFile.originalFilePath
+    }

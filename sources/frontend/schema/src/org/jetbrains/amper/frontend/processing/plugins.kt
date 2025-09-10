@@ -4,10 +4,12 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import com.intellij.psi.PsiDirectory
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
@@ -17,15 +19,15 @@ import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun Merged.configurePluginDefaults(moduleName: String, product: ModuleProduct): Merged =
+internal fun Merged.configurePluginDefaults(moduleDir: PsiDirectory, product: ModuleProduct): Merged =
     if (product.type == ProductType.JVM_AMPER_PLUGIN) {
         buildCtx.treeMerger.mergeTrees(
             listOfNotNull(
                 asMapLike,
                 buildCtx.pluginIdDefaultsTree(
-                    moduleName = moduleName,
-                    // TODO: Make a trace that points to a directory?
+                    moduleName = moduleDir.name,
                     trace = DefaultTrace(computedValueTrace = product),
+                    idTrace = DefaultTrace(computedValueTrace = TraceableString(moduleDir.name, moduleDir.asTrace())),
                 ),
             )
         )
@@ -33,11 +35,11 @@ internal fun Merged.configurePluginDefaults(moduleName: String, product: ModuleP
         this
     }
 
-private fun BuildCtx.pluginIdDefaultsTree(moduleName: String, trace: Trace) =
+private fun BuildCtx.pluginIdDefaultsTree(moduleName: String, trace: Trace, idTrace: Trace) =
     syntheticBuilder(types, trace) {
         `object`<Module> {
             Module::plugin {
-                PluginDeclarationSchema::id setTo scalar(TraceableString(moduleName, trace))
+                PluginDeclarationSchema::id setTo scalar(TraceableString(moduleName, idTrace), idTrace)
             }
         }
     }

@@ -145,9 +145,10 @@ internal fun BuildCtx.readModuleMergedTree(
         ownedTrees.forEach { diagnostic.analyze(root = it, minimalModule.module, problemReporter) }
     }
 
+    val modulePsiDir = pathResolver.toPsiDirectory(moduleFile.parent) ?: error("A module file necessarily has a parent")
     // Merge owned trees (see [TreeMerger]) and preprocess them.
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
-        .configurePluginDefaults(moduleName = moduleFile.parent.name, product = minimalModule.module.product)
+        .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
         .appendDefaultValues()
         .resolveReferences()
 
