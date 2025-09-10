@@ -26,32 +26,20 @@ class FrontendPathResolver(
     @TestOnly
     private val intelliJApplicationConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator.EMPTY,
 ) {
+    // Not lazy, because the mock project must be initialized before calling the ApplicationManager singleton
+    private val project: Project = project ?: MockProjectInitializer.initMockProject(intelliJApplicationConfigurator)
 
-    val project: Project by lazy {
-        project ?: MockProjectInitializer.initMockProject(intelliJApplicationConfigurator)
+    fun toPsiFile(file: VirtualFile): PsiFile? = runReadAction {
+        PsiManager.getInstance(project).findFile(file)?.let(transformPsiFile)
     }
 
-    fun toPsiFile(file: VirtualFile): PsiFile? {
-        val actualProject = project
-        val application = ApplicationManager.getApplication()
-        return application.runReadAction(Computable {
-            PsiManager.getInstance(actualProject).findFile(file)?.let(transformPsiFile)
-        })
-    }
-
-    fun loadVirtualFile(path: Path): VirtualFile {
-        project
-        val application = ApplicationManager.getApplication()
-        return application.runReadAction(Computable {
-            checkNotNull(
-                VirtualFileManager.getInstance().findFileByNioPath(path)
-            ) { "Virtual file by path $path doesn't exist" }
-        })
-    }
+    fun loadVirtualFile(path: Path): VirtualFile = loadVirtualFileOrNull(path)
+        ?: error("Virtual file by path $path doesn't exist")
     
-    fun loadVirtualFileOrNull(path: Path): VirtualFile? {
-        project
-        val application = ApplicationManager.getApplication()
-        return application.runReadAction(Computable { VirtualFileManager.getInstance().findFileByNioPath(path) })
+    fun loadVirtualFileOrNull(path: Path): VirtualFile? = runReadAction {
+        VirtualFileManager.getInstance().findFileByNioPath(path)
     }
+
+    private inline fun <T> runReadAction(crossinline action: () -> T): T =
+        ApplicationManager.getApplication().runReadAction(Computable { action() })
 }
