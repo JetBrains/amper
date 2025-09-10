@@ -6,7 +6,8 @@ import com.intellij.amper.lang.AmperContextualElement
 import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.openapi.util.NlsSafe
 
-val AmperContextName.name get(): @NlsSafe String? = identifier?.text
+val AmperContextName.name: @NlsSafe String? get() = identifier?.text
 
-val AmperContextualElement.contextNames get() = ((this as? AmperContextBlock)?.contextNameList?.mapNotNull { it.name }
-                                                ?: (this as? AmperContextualStatement)?.contextNameList?.mapNotNull { it.name }).orEmpty()
+val AmperContextualElement.contextNames: List<@NlsSafe String>
+  get() = ((this as? AmperContextBlock)?.contextNameList?.mapNotNull { it.name }
+           ?: (this as? AmperContextualStatement)?.contextNameList?.mapNotNull { it.name }).orEmpty()

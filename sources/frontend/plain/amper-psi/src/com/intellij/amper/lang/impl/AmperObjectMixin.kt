@@ -23,9 +23,9 @@ abstract class AmperObjectMixin(node: ASTNode): AmperObject, AmperElementImpl(no
   }
 }
 
-val AmperObject.propertyList get() = this.objectElementList.propertyList()
-val AmperObject.collectionItems get() = this.objectElementList.collectionItems()
-val AmperObject.allObjectElements get() = this.objectElementList.allElementsRecursively()
+val AmperObject.propertyList: List<AmperProperty> get() = this.objectElementList.propertyList()
+val AmperObject.collectionItems: List<AmperValue> get() = this.objectElementList.collectionItems()
+val AmperObject.allObjectElements: List<AmperObjectElement> get() = this.objectElementList.allElementsRecursively()
 
 private fun List<AmperObjectElement>.allElementsRecursively(): List<AmperObjectElement> {
   return flatMap {
