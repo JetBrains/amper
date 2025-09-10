@@ -70,12 +70,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                         pluginId = pluginData.id,
                         data = taskInfo.syntheticType,
                         instantiationStrategy = {
-                            TaskAction(
-                                jvmFunctionName = taskInfo.jvmFunctionName,
-                                jvmOwnerClassName = taskInfo.jvmFunctionClassName,
-                                inputPropertyNames = taskInfo.inputPropertyNames,
-                                outputPropertyNames = taskInfo.outputPropertyNames,
-                            )
+                            TaskAction(taskInfo)
                         },
                         isRootSchema = false,
                         typingContext = this,

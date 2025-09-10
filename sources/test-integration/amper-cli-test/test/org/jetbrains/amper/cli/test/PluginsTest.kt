@@ -39,6 +39,56 @@ class PluginsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `execution avoidance - enabled by default, disabled for no-outputs tasks`() = runSlowTest {
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/single-local-plugin"),
+            "task", ":app1:print-generated-sources@build-konfig",
+            copyToTempDir = true,
+        )
+
+        with(r1) {
+            assertStdoutContains("Generating Build Konfig...")
+            assertStdoutContains("Printing generated Build Konfig sources...")
+        }
+
+        // Incremental re-run, two times
+        repeat(2) {
+            println("test: run print sources #$it")
+
+            val r2 = runCli(
+                projectRoot = r1.projectRoot,
+                "task", ":app1:print-generated-sources@build-konfig"
+            )
+
+            with(r2) {
+                assertStdoutDoesNotContain("Generating Build Konfig...")
+                assertStdoutContains("Printing generated Build Konfig sources...")
+            }
+        }
+    }
+
+    @Test
+    fun `execution avoidance - disabled when explicitly opted-out`() = runSlowTest {
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            "show", "tasks",
+            copyToTempDir = true,
+        )
+
+        repeat(3) {
+            println("test: run print sources #$it")
+            val r2 = runCli(
+                projectRoot = r1.projectRoot,
+                "task", ":app:print-generated-sources@build-konfig",
+            )
+
+            with(r2) {
+                assertStdoutContains("Generating Build Konfig...")
+            }
+        }
+    }
+
+    @Test
     fun `single plugin - no effect when no enabled`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("extensibility/single-local-plugin"),

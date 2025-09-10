@@ -128,7 +128,8 @@ internal fun BuildCtx.buildPlugins(
             module = moduleBuildCtx,
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
-            val allOutputPaths = task.action.outputPropertyNames.flatMap {
+            val taskInfo = task.action.taskInfo
+            val allOutputPaths = taskInfo.outputPropertyNames.flatMap {
                 buildSet { gatherPaths(paths = this, value = task.action[it]) }
             }
             val outputMarks = task.markOutputsAs.distinctBy(
@@ -159,13 +160,14 @@ internal fun BuildCtx.buildPlugins(
             }
             moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
                 name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginData.id, name),
-                actionFunctionJvmName = task.action.jvmFunctionName,
-                actionClassJvmName = task.action.jvmOwnerClassName,
+                actionFunctionJvmName = taskInfo.jvmFunctionName,
+                actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
-                inputs = task.action.inputPropertyNames.mapNotNull { task.action[it] as Path? },
+                inputs = taskInfo.inputPropertyNames.mapNotNull { task.action[it] as Path? },
                 outputs = outputsToMarks,
                 codeSource = plugin.pluginModule,
+                explicitOptOutOfExecutionAvoidance = taskInfo.optOutOfExecutionAvoidance,
             )
         }
     }

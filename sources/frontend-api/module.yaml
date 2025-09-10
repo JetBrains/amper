@@ -9,6 +9,7 @@ apply:
 dependencies:
   - ../amper-problem-reporting
   - ../core: exported
+  - ../extensibility/amper-extensibility-schema-model: exported
   - $libs.kotlin.reflect
   - $libs.intellij.platform.core
   - $libs.intellij.platform.util

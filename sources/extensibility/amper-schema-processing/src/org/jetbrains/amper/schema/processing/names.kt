@@ -16,9 +16,13 @@ private val EXTENSIBILITY_API_PACKAGE = FqName("org.jetbrains.amper")
 private val KOTLIN_COLLECTIONS_PACKAGE = FqName("kotlin.collections")
 
 internal val SCHEMA_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Schema"))
-internal val TASK_ACTION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("TaskAction"))
 internal val INPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Input"))
 internal val OUTPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Output"))
+
+internal val TASK_ACTION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("TaskAction"))
+internal val TASK_ACTION_EXEC_AVOIDANCE_PARAM = Name.identifier("executionAvoidance")
+internal val EXEC_AVOIDANCE_ENUM = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("ExecutionAvoidance"))
+internal val EXEC_AVOIDANCE_DISABLED = CallableId(EXEC_AVOIDANCE_ENUM, Name.identifier("Disabled"))
 
 internal val PATH_CLASS = ClassId(FqName("java.nio.file"), Name.identifier("Path"))
 

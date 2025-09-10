@@ -14,4 +14,9 @@ package org.jetbrains.amper
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
-annotation class TaskAction
+annotation class TaskAction(
+    /**
+     * Execution avoidance strategy for the task action.
+     */
+    val executionAvoidance: ExecutionAvoidance = ExecutionAvoidance.Automatic,
+)

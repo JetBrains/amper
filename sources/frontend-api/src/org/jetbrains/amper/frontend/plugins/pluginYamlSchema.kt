@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
 
 class PluginYamlRoot : SchemaNode() {
@@ -15,10 +16,7 @@ class PluginYamlRoot : SchemaNode() {
 }
 
 class TaskAction(
-    @IgnoreForSchema val jvmOwnerClassName: String,
-    @IgnoreForSchema val jvmFunctionName: String,
-    @IgnoreForSchema val inputPropertyNames: List<String>,
-    @IgnoreForSchema val outputPropertyNames: List<String>,
+    @IgnoreForSchema val taskInfo: PluginData.TaskInfo,
 ) : SchemaNode() {
     operator fun get(key: String) = valueHolders[key]?.value
 }

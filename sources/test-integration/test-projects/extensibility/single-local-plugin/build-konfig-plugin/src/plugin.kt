@@ -16,8 +16,8 @@ import kotlin.io.path.walk
 @TaskAction
 fun printSources(
     @Input directory: Path,
-    // @Inject logger: TaskLogger,
 ) {
+    println("Printing generated Build Konfig sources...")
     directory.walk().forEach { file ->
         println(file.pathString)
         println(file.readText())
@@ -29,6 +29,7 @@ fun generateKonfig(
     config: Schema1,
     @Output outputDir: Path,
 ) {
+    println("Generating Build Konfig...")
     val className = ClassName(
         packageName = config.packageName,
         config.objectName,

@@ -143,6 +143,7 @@ data class PluginData(
         val jvmFunctionName: String,
         val inputPropertyNames: List<String> = emptyList(),
         val outputPropertyNames: List<String> = emptyList(),
+        val optOutOfExecutionAvoidance: Boolean = false,
     ) {
         init {
             require(inputPropertyNames.intersect(outputPropertyNames).isEmpty())

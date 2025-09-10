@@ -88,6 +88,7 @@ class DefaultTaskFromPluginDescription(
     override val inputs: List<Path>,
     override val outputs: Map<Path, TaskFromPluginDescription.OutputMark?>,
     override val codeSource: AmperModule,
+    override val explicitOptOutOfExecutionAvoidance: Boolean,
 ) : TaskFromPluginDescription
 
 class DefaultArtifact(

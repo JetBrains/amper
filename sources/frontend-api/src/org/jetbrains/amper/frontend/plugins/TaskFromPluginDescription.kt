@@ -64,6 +64,11 @@ interface TaskFromPluginDescription {
     val codeSource: AmperModule
 
     /**
+     * Whether the user has explicitly opted out of automatic input/output/config-based execution avoidance.
+     */
+    val explicitOptOutOfExecutionAvoidance: Boolean
+
+    /**
      * Signals that a path points to the generated contents of a certain [kind] (an Artifact), so that the backend
      * can recognize it and wire it to the build.
      *

@@ -7,6 +7,7 @@ package org.jetbrains.amper.schema.processing
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotationValue
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -54,6 +55,17 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         }
         property
     }
+
+    val optOutOfExecutionAvoidance = with(session) { function.symbol }.annotations
+        .first { it.classId == TASK_ACTION_ANNOTATION_CLASS }
+        .arguments.find { it.name == TASK_ACTION_EXEC_AVOIDANCE_PARAM }
+        .let {
+            when (val value = it?.expression) {
+                is KaAnnotationValue.EnumEntryValue -> value.callableId == EXEC_AVOIDANCE_DISABLED
+                else -> false
+            }
+        }
+
     return PluginData.TaskInfo(
         syntheticType = PluginData.ClassData(
             name = PluginData.SchemaName(name),
@@ -67,6 +79,7 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         }!!,  // TODO: Fill this only for backend
         inputPropertyNames = inputNames,
         outputPropertyNames = outputNames,
+        optOutOfExecutionAvoidance = optOutOfExecutionAvoidance,
     )
 }
 

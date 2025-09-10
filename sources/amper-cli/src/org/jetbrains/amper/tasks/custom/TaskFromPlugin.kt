@@ -105,9 +105,11 @@ class TaskFromPlugin(
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .first { it.module == description.codeSource }
 
-        if (description.outputs.isEmpty()) {
-            // We do not use execution-avoidance if there are no outputs declared.
-            // the task is then considered always not up to date.
+        val doNotUseExecutionAvoidance = description.explicitOptOutOfExecutionAvoidance ||
+                // We do not use execution-avoidance if there are no outputs declared.
+                description.outputs.isEmpty()
+
+        if (doNotUseExecutionAvoidance) {
             logger.debug("No outputs declared, not using execution avoidance")
             doExecuteTaskAction(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
