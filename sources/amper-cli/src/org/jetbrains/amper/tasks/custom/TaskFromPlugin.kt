@@ -11,8 +11,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.UnstableSchemaApi
-import org.jetbrains.amper.frontend.api.toStringRepresentation
+import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -140,9 +139,8 @@ class TaskFromPlugin(
             "Not reached: the schema object has no plugin counterpart"
         })
         val handler = InvocationHandler { proxy: Any, method: Method, args: Array<out Any?>? ->
-            @OptIn(UnstableSchemaApi::class)
             when (method.name) {
-                "toString" -> value.toStringRepresentation()
+                "toString" -> value.toStableJsonLikeString()
                 "hashCode" -> value.hashCode()
                 "equals" -> args?.get(0) === proxy
                 else -> {

@@ -15,8 +15,7 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.api.UnstableSchemaApi
-import org.jetbrains.amper.frontend.api.toStringRepresentation
+import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -67,8 +66,7 @@ abstract class AndroidDelegatedGradleTask(
         )
 
         val androidConfig = fragments.joinToString {
-            @OptIn(UnstableSchemaApi::class)
-            it.settings.android.toStringRepresentation()
+            it.settings.android.toStableJsonLikeString()
         }
         val configuration = mapOf("androidConfig" to androidConfig)
 

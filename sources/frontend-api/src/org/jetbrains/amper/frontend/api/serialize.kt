@@ -4,18 +4,12 @@
 
 package org.jetbrains.amper.frontend.api
 
-@RequiresOptIn(
-    "This API is introduced before the big frontend refactoring and will likely be changed/replaced by something else.",
-    level = RequiresOptIn.Level.WARNING,
-)
-annotation class UnstableSchemaApi
 
 /**
  * Provides stable string representation of the whole data tree.
- * The format is human-readable but not strictly defined.
+ * The format is JSON-like, stable, human-readable but not strictly defined.
  */
-@UnstableSchemaApi
-fun SchemaNode.toStringRepresentation(): String = valueHolders
+fun SchemaNode.toStableJsonLikeString(): String = valueHolders
     .entries
     .sortedBy { (k, _) -> k }
     .joinToString(
@@ -24,7 +18,6 @@ fun SchemaNode.toStringRepresentation(): String = valueHolders
         transform = { (k, v) -> "$k: ${serializeToJsonLike(v.value)}" },
     )
 
-@UnstableSchemaApi
 private fun serializeToJsonLike(any: Any?): String = when (any) {
     is Collection<*> -> any.joinToString(
         prefix = "[",
@@ -38,7 +31,7 @@ private fun serializeToJsonLike(any: Any?): String = when (any) {
         transform = { (k, v) -> "$k: ${serializeToJsonLike(v)}" }
     )
 
-    is SchemaNode -> any.toStringRepresentation()
+    is SchemaNode -> any.toStableJsonLikeString()
     else -> any.toString()
 }
 

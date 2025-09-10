@@ -9,8 +9,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.UnstableSchemaApi
-import org.jetbrains.amper.frontend.api.toStringRepresentation
+import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -64,9 +63,8 @@ fun parsePluginManifestFromModuleFile(
             override val description: String? = moduleHeader.plugin.description
             override val schemaExtensionClassName: String? = moduleHeader.plugin.schemaExtensionClassName?.value
 
-            @OptIn(UnstableSchemaApi::class)
             override fun toString(): String {
-                return "{schema='${moduleHeader.plugin.toStringRepresentation()}', moduleFile='${moduleFile.path}'}"
+                return "{schema='${moduleHeader.plugin.toStableJsonLikeString()}', moduleFile='${moduleFile.path}'}"
             }
         }
     }
