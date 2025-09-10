@@ -207,12 +207,7 @@ class DependencyGraph(
     companion object {
         fun DependencyNode.toGraph(): DependencyGraph {
             val graphContext = DependencyGraphContext()
-            val serializableNode = try {
-                DependencyGraphContext.currentGraphContext.set(graphContext)
-                this.toSerializableReference(graphContext)
-            } finally {
-                DependencyGraphContext.currentGraphContext.set(null)
-            }
+            val serializableNode = this.toSerializableReference(graphContext)
             return DependencyGraph(graphContext, serializableNode)
         }
     }
