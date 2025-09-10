@@ -17,6 +17,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 description = taskDescription,
                 buildOutputRoot = context.buildOutputRoot,
                 terminal = context.terminal,
+                executeOnChangedInputs = executeOnChangedInputs,
             )
             tasks.registerTask(
                 task, dependsOn = listOf(

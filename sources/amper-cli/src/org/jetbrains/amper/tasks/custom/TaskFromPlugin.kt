@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
@@ -25,6 +26,7 @@ import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
+import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -40,6 +42,7 @@ class TaskFromPlugin(
     val module: AmperModule,
     val description: TaskFromPluginDescription,
     val buildOutputRoot: AmperBuildOutputRoot,
+    val executeOnChangedInputs: ExecuteOnChangedInputs,
     val terminal: Terminal,
 ) : ArtifactTask {
 
@@ -102,10 +105,54 @@ class TaskFromPlugin(
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .first { it.module == description.codeSource }
 
+        if (description.outputs.isEmpty()) {
+            // We do not use execution-avoidance if there are no outputs declared.
+            // the task is then considered always not up to date.
+            logger.debug("No outputs declared, not using execution avoidance")
+            doExecuteTaskAction(
+                taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
+            )
+            return EmptyTaskResult
+        }
+
+        executeOnChangedInputs.execute(
+            id = taskName.name,
+            configuration = mapOf(
+                "action" to description.actionClassJvmName + '.' + description.actionFunctionJvmName,
+                "arguments" to description.actionArguments.entries.joinToString(
+                    separator = "\n",
+                    transform = { (arg, value) ->
+                        val valueRepresentation = when(value) {
+                            is SchemaNode -> value.toStableJsonLikeString()
+                            else -> value.toString()
+                        }
+                        "$arg = $valueRepresentation;"
+                    },
+                ),
+            ),
+            inputs = buildList {
+                addAll(description.inputs)
+                addAll(taskCode.jvmRuntimeClasspath)
+            },
+        ) {
+            doExecuteTaskAction(
+                taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(
+                outputs = description.outputs.keys.toList(),
+            )
+        }
+
+        return EmptyTaskResult
+    }
+
+    private suspend fun doExecuteTaskAction(
+        taskRuntimeClasspath: List<Path>,
+    ) {
         // TODO: Cache the classloader per plugin?
         val classLoader = URLClassLoader(
             taskName.toString(),
-            taskCode.jvmRuntimeClasspath.map { it.toUri().toURL() }.toTypedArray(),
+            taskRuntimeClasspath.map { it.toUri().toURL() }.toTypedArray(),
             javaClass.classLoader,
         )
 
@@ -127,8 +174,6 @@ class TaskFromPlugin(
         } catch (e: InvocationTargetException) {
             throw e.targetException
         }
-
-        return EmptyTaskResult
     }
 
     private fun createProxy(
@@ -160,4 +205,6 @@ class TaskFromPlugin(
         }
         return Proxy.newProxyInstance(classLoader, arrayOf(interfaceClass), handler)
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }
