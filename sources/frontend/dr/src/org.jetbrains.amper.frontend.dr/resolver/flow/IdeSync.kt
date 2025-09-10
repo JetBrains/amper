@@ -113,7 +113,6 @@ internal class IdeSync(
      */
     private fun Fragment.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource): List<DirectFragmentDependencyNodeHolder> {
         return spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
-
             val moduleDependencies = spanBuilder("DR: directDependenciesGraph").useWithoutCoroutines {
                 Classpath(
                     DependenciesFlowType.ClassPathType(
@@ -144,13 +143,14 @@ internal class IdeSync(
                     .filterIsInstance<DirectFragmentDependencyNodeHolder>()
                     .sortedByDescending { it.fragment == this }
                     .distinctBy { it.dependencyNode }
-                    .map {?                        val mavenDependencyNotation = it.notation as MavenDependencyBase
-                        val context = mavenDependencyNotation.notation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
-                        context?.let { mavenDependencyNotation.notation.toFragmentDirectDependencyNode(this, context) }
+                    .mapNotNull {
+                        val mavenDependencyNotation = it.notation
+                        val context = mavenDependencyNotation.resolveFragmentContext(this, fileCacheBuilder, spanBuilder)
+                        context?.let { mavenDependencyNotation.toFragmentDirectDependencyNode(this, context) }
                     }.toList()
             }
 
-            allMavenDeps
+            return@useWithoutCoroutines allMavenDeps
         }
     }
 
