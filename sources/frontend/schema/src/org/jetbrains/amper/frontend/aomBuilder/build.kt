@@ -68,8 +68,8 @@ import kotlin.io.path.relativeTo
  * handle the fatal errors.
  */
 context(problemReporter: ProblemReporter)
-fun AmperProjectContext.readProjectModel(): Model? {
-    val resultModules = doBuild(this@readProjectModel) ?: return null
+fun AmperProjectContext.readProjectModel(): Model {
+    val resultModules = doBuild(this@readProjectModel)
     val model = DefaultModel(projectRootDir.toNioPath(), resultModules)
     AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
     return model
@@ -83,7 +83,7 @@ internal fun doBuild(
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
     pluginData: List<PluginData> = projectContext.loadPreparedPluginData(),
-): List<AmperModule>? = with(
+): List<AmperModule> = with(
     BuildCtx(
         pathResolver = projectContext.frontendPathResolver,
         problemReporter = problemReporter,
@@ -97,9 +97,6 @@ internal fun doBuild(
             readModuleMergedTree(it, projectContext.projectVersionsCatalog, templateCache)
         }
     }
-
-    // Fail fast if we have fatal errors.
-    if (problemReporter.hasFatal) return null
 
     // Build [AmperModule]s.
     val modules = buildAmperModules(rawModules)
@@ -117,10 +114,6 @@ internal fun doBuild(
     AomSingleModuleDiagnosticFactories.forEach { diagnostic ->
         modules.forEach { diagnostic.analyze(it.module, problemReporter) }
     }
-
-    // Fail fast if we have fatal errors.
-    if (problemReporter.hasFatal) return null
-
     return modules.map { it.module }
 }
 

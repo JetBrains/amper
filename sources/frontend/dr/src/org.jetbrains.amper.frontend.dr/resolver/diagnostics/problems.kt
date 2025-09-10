@@ -67,8 +67,7 @@ internal fun Message.mapSeverityToLevel(): Level = when (severity) {
     Severity.INFO -> Level.WeakWarning
 }
 
-internal fun Level.mapLevelToSeverity(): Severity? = when (this) {
-    Level.Fatal -> null                  // DR doesn't report anything that might stop the overall import process
+internal fun Level.mapLevelToSeverity(): Severity = when (this) {
     Level.Error -> Severity.ERROR
     Level.Warning -> Severity.WARNING
     Level.WeakWarning -> Severity.INFO

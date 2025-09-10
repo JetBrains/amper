@@ -34,16 +34,6 @@ enum class Level {
      * * Any CLI build will fail immediately after parsing the model, before executing any task.
      */
     Error,
-    /**
-     * A level that implies a very broken configuration that cannot be represented meaningfully with our project model.
-     *
-     * * The project model cannot be built at all, and thus cannot be imported (at all) in the IDE.
-     * * Any CLI build will fail immediately after trying to parse the model, before executing any task.
-     */
-    // TODO reconsider this level: maybe the failing model construction is enough to convey this. For most of the Fatal
-    //   errors in the project, it looks like they could be regular errors and we could just chop off a piece of the
-    //   model (like an entire module), without necessarily failing the entire import.
-    Fatal,
     ;
 
     fun atLeastAsSevereAs(other: Level): Boolean = this >= other

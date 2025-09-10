@@ -63,8 +63,8 @@ internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
         }
     }
 
-    // In CLI, we don't only fail on fatal errors, but on all errors, because the model would be incorrect otherwise
-    if (model == null || CliProblemReporter.wereProblemsReported()) {
+    // In CLI, we immediately stop the build if we had any error, because the model could be incorrect otherwise
+    if (CliProblemReporter.wereProblemsReported()) {
         userReadableError("failed to read Amper model, refer to the errors above")
     }
 

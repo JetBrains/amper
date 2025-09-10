@@ -43,7 +43,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         level: Level,
         graphRoot: DependencyNode,
     ) {
-        val severity = level.mapLevelToSeverity() ?: return
+        val severity = level.mapLevelToSeverity()
         val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
 
         if (importantMessages.isEmpty()) return

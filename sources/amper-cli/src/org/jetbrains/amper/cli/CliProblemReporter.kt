@@ -14,11 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal object CliProblemReporter : ProblemReporter {
     private val logger = LoggerFactory.getLogger("build")
     private val problemsWereReported = AtomicBoolean(false)
-    private val fatalsWereReported = AtomicBoolean(false)
 
     fun wereProblemsReported() = problemsWereReported.get()
-
-    override val hasFatal: Boolean get() = fatalsWereReported.get()
 
     override fun reportMessage(message: BuildProblem) {
         when (message.level) {
@@ -26,11 +23,6 @@ internal object CliProblemReporter : ProblemReporter {
             Level.Error -> {
                 logger.error(renderMessage(message))
                 problemsWereReported.set(true)
-            }
-            Level.Fatal -> {
-                logger.error(renderMessage(message))
-                problemsWereReported.set(true)
-                fatalsWereReported.set(true)
             }
             Level.WeakWarning -> {
                 logger.info(renderMessage(message))

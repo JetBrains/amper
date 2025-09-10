@@ -283,8 +283,6 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
             val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
                 ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
             projectContext.readProjectModel()
-                ?: error("Failed to read Amper project model from the delegated Android Gradle build. " +
-                        "This should never happen because fatal errors should have failed the Amper build earlier.")
         }
 
         settings.gradle.knownModel = model

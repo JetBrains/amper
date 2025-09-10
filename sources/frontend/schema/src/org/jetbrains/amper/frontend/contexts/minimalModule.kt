@@ -14,19 +14,24 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
+import org.jetbrains.yaml.psi.YAMLPsiElement
 
 /**
  * Internal schema to read fields, which are crucial for contexts generation.
@@ -50,7 +55,7 @@ internal val defaultContextsInheritance by lazy {
 @OptIn(NonIdealDiagnostic::class)
 internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
     val collectingReporter = CollectingProblemReporter()
-    return with(copy(problemReporter = collectingReporter)) {
+    val minimalModule = with(copy(problemReporter = collectingReporter)) {
         val rawModuleTree = readTree(
             moduleFilePath,
             type = types.getDeclaration<MinimalModule>(),
@@ -73,41 +78,87 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
                     listOf("product") if keyTrace != null -> collectingReporter.reportBundleError(
                         source = keyTrace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
-                        level = Level.Fatal,
                     )
                     listOf("product") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined.empty",
                         buildProblemId = "product.not.defined",
-                        level = Level.Fatal,
                     )
                     listOf("product", "type") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
-                        level = Level.Fatal,
                     )
                     else -> super.onMissingRequiredPropertyValue(trace, valuePath, keyTrace)
                 }
             }
         }
-        val instance = createSchemaNode<MinimalModule>(refined, delegate)
-
-        if (collectingReporter.hasFatal) {
-            // Replay errors to the original reporter if something fatal had happened.
-            // Otherwise, we will read the file again and report.
-            collectingReporter.replayProblemsTo(this@tryReadMinimalModule.problemReporter)
-            return null
-        }
-        instance ?: return null
-
-        MinimalModuleHolder(
-            moduleFilePath = moduleFilePath,
-            buildCtx = this@tryReadMinimalModule,
-            // We can cast here because we know that minimal module
-            // properties should be used outside any context.
-            module = instance,
-        )
+        createSchemaNode<MinimalModule>(refined, delegate)
     }
+    if (minimalModule == null) {
+        // Replay errors to the original reporter if we couldn't even create the minimal module.
+        // Otherwise, messages will be reported when reading the full module, so we should swallow them here.
+        collectingReporter.replayProblemsTo(problemReporter)
+        return null
+    }
+
+    val specifiedUnsupportedPlatforms = minimalModule.product.specifiedUnsupportedPlatforms
+    specifiedUnsupportedPlatforms.forEach { unsupportedPlatform ->
+        problemReporter.reportUnsupportedPlatform(unsupportedPlatform, minimalModule.product.type)
+    }
+    if (specifiedUnsupportedPlatforms.isNotEmpty()) {
+        return null
+    }
+
+    if (minimalModule.product.type == ProductType.LIB && minimalModule.product::platforms.isDefault) {
+        problemReporter.reportMissingExplicitPlatforms(minimalModule.product)
+        return null
+    }
+
+    if (minimalModule.product.platforms.isEmpty()) {
+        problemReporter.reportBundleError(
+            source = minimalModule.product::platforms.asBuildProblemSource(),
+            messageKey = "product.platforms.should.not.be.empty",
+        )
+        return null
+    }
+
+    return MinimalModuleHolder(
+        moduleFilePath = moduleFilePath,
+        buildCtx = this@tryReadMinimalModule,
+        // We can cast here because we know that minimal module
+        // properties should be used outside any context.
+        module = minimalModule,
+    )
+}
+
+private val ModuleProduct.specifiedUnsupportedPlatforms: List<TraceableEnum<Platform>>
+    get() = platforms.filter { it.value !in type.supportedPlatforms }
+
+private fun ProblemReporter.reportUnsupportedPlatform(
+    unsupportedPlatform: TraceableEnum<Platform>,
+    productType: ProductType,
+) {
+    reportBundleError(
+        source = unsupportedPlatform.trace.asBuildProblemSource(),
+        messageKey = "product.unsupported.platform",
+        productType.schemaValue,
+        unsupportedPlatform.value.pretty,
+        productType.supportedPlatforms.joinToString { it.pretty },
+        problemType = BuildProblemType.InconsistentConfiguration,
+    )
+}
+
+private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduct) {
+    val isYaml = product::type.extractPsiElementOrNull()?.parent is YAMLPsiElement
+    reportBundleError(
+        source = product::type.asBuildProblemSource(),
+        messageKey = if (isYaml) {
+            "product.type.does.not.have.default.platforms"
+        } else {
+            "product.type.does.not.have.default.platforms.amperlang"
+        },
+        ProductType.LIB.schemaValue,
+    )
 }
 
 internal class MinimalModuleHolder(

@@ -7,10 +7,6 @@ package org.jetbrains.amper.problems.reporting
 import org.jetbrains.annotations.Nls
 
 interface ProblemReporter {
-    /**
-     * Check if we reported any fatal errors.
-     */
-    val hasFatal: Boolean
 
     fun reportMessage(message: BuildProblem)
 }
@@ -19,7 +15,6 @@ interface ProblemReporter {
  * A [ProblemReporter] that does nothing.
  */
 object NoopProblemReporter : ProblemReporter {
-    override val hasFatal get() = false
     override fun reportMessage(message: BuildProblem) = Unit
 }
 
@@ -30,8 +25,6 @@ object NoopProblemReporter : ProblemReporter {
  * (e.g. in Gradle).
  */
 class CollectingProblemReporter : ProblemReporter {
-    override val hasFatal get() = problems.any { it.level == Level.Fatal }
-
     private val myProblems = mutableListOf<BuildProblem>()
     val problems: List<BuildProblem> by ::myProblems
 

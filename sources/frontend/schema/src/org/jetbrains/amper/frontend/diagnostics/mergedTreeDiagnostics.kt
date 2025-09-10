@@ -28,9 +28,6 @@ interface MergedTreeDiagnostic {
 // suppressed the unused warning because it's necessary for the disabled diagnostic that we'll put back eventually
 fun MergedTreeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
     AndroidTooOldVersionFactory,
-    LibShouldHavePlatforms,
-    ProductPlatformIsUnsupported,
-    ProductPlatformsShouldNotBeEmpty,
     TemplateNameWithoutPostfix,
     KotlinCompilerVersionDiagnosticsFactory,
 //    UselessSettingValue(refiner), // TODO fix it if we want to restore it: AMPER-4489, AMPER-4490
