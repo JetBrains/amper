@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public final class YAMLUtil {
+
   private static final TokenSet BLANK_LINE_ELEMENTS = TokenSet.andNot(YAMLElementTypes.BLANK_ELEMENTS, YAMLElementTypes.EOL_ELEMENTS);
 
   /**
