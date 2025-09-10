@@ -17,31 +17,31 @@ import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
+import kotlin.collections.Set
 import kotlin.reflect.full.findAnnotation
 
 private sealed class PropertyWithSource(
     val name: String,
-    val applicablePlatforms: List<Platform>?,
-    val applicableProductTypes: List<ProductType>?
+    val applicablePlatforms: Set<Platform>,
+    val applicableProductTypes: Set<ProductType>,
 ) {
     class PropertyWithPrimitiveValue(
         name: String,
         val source: ValueSource?,
         val value: Any?,
-        applicablePlatforms: List<Platform>? = null,
-        applicableProductTypes: List<ProductType>? = null,
+        applicablePlatforms: Set<Platform>,
+        applicableProductTypes: Set<ProductType>,
     ) : PropertyWithSource(name, applicablePlatforms, applicableProductTypes)
 
     class PropertyWithObjectValue(
         name: String,
         val valueObjectProperties: List<PropertyWithSource>,
-        applicablePlatforms: List<Platform>? = null,
-        applicableProductTypes: List<ProductType>? = null,
+        applicablePlatforms: Set<Platform>,
+        applicableProductTypes: Set<ProductType>,
     ) : PropertyWithSource(name, applicablePlatforms, applicableProductTypes)
 }
 
@@ -53,29 +53,18 @@ private sealed class ValueSource {
 
 private class CollectingVisitor(
     private val properties: MutableList<PropertyWithSource>,
-    private val contexts: Set<String>
 ) : SchemaValuesVisitor() {
-    override fun visitMap(it: Map<*, *>) {
-        if (contexts.isNotEmpty()) {
-            val matchingContext = it.keys.mapNotNull { it as? Set<*> }.firstOrNull {
-                contexts.intersect(it.mapNotNull { (it as? TraceableString)?.value }).isNotEmpty()
-            }
-            if (matchingContext != null) {
-                visit(it[matchingContext])
-                return
-            }
-        }
-        super.visitMap(it)
-    }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun visitSchemaValueDelegate(valueBase: SchemaValueDelegate<*>) {
-        val applicablePlatforms = valueBase.property.findAnnotation<PlatformSpecific>()?.platforms?.toList()
-        val applicableProductTypes = valueBase.property.findAnnotation<ProductTypeSpecific>()?.productTypes?.toList()
+        val applicablePlatforms = valueBase.property.findAnnotation<PlatformSpecific>()?.platforms?.toSet()
+            ?: Platform.entries.toSet()
+        val applicableProductTypes = valueBase.property.findAnnotation<ProductTypeSpecific>()?.productTypes?.toSet()
+            ?: ProductType.entries.toSet()
         val value = when {
             valueBase.value is SchemaNode -> {
                 val innerProperties = mutableListOf<PropertyWithSource>()
-                CollectingVisitor(innerProperties, contexts).visit(valueBase.value)
+                CollectingVisitor(innerProperties).visit(valueBase.value)
                 PropertyWithSource.PropertyWithObjectValue(
                     name = valueBase.property.name,
                     valueObjectProperties = innerProperties,
@@ -86,7 +75,7 @@ private class CollectingVisitor(
 
             valueBase.value == null && valueBase.default != null -> {
                 val innerProperties = mutableListOf<PropertyWithSource>()
-                CollectingVisitor(innerProperties, contexts).visit(valueBase.default!!.value)
+                CollectingVisitor(innerProperties).visit(valueBase.default!!.value)
                 PropertyWithSource.PropertyWithObjectValue(
                     name = valueBase.property.name,
                     valueObjectProperties = innerProperties,
@@ -124,41 +113,41 @@ private class CollectingVisitor(
 
 fun renderSettings(
     value: Settings,
-    product: ProductType?,
+    product: ProductType,
     contexts: Set<Platform>
-): String {
-    val props = value.findProperties(contexts)
-    val applicableProps = props.filter {
-        (it.applicablePlatforms?.let { contexts.intersect(it).isNotEmpty() } ?: true)
-                && (it.applicableProductTypes?.map { it.value }?.contains(product?.value) ?: true)
-    }
-    return renderProperties(applicableProps, contexts)
-}
+): String = renderObject(value, product, contexts)
 
-private fun Any.findProperties(
-    contexts: Set<Platform>,
-): List<PropertyWithSource> {
+private fun renderObject(
+    value: SchemaNode,
+    product: ProductType,
+    contexts: Set<Platform>
+): String = renderProperties(value.findProperties(), product, contexts)
+
+private fun Any.findProperties(): List<PropertyWithSource> {
     val obj = this@findProperties
     return buildList {
-        val contextsStrings = contexts.map { it.pretty }.toSet()
-        CollectingVisitor(this, contextsStrings).visit(obj)
+        CollectingVisitor(this).visit(obj)
     }
 }
 
-private fun renderProperties(properties: List<PropertyWithSource>, contexts: Set<Platform>): String = buildString {
-    properties.forEach { prop ->
-        append(
-            "${prop.name}: ${
-                when (prop) {
-                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.valueObjectProperties, contexts)
-                        .prependIndent("   ")
-                    is PropertyWithSource.PropertyWithPrimitiveValue -> {
-                        val value = prop.value
-                        presentableValue(value, contexts) + (sourcePostfix(prop).takeIf { value !is Collection<*> || value.isEmpty() } ?: "")
+private fun renderProperties(properties: List<PropertyWithSource>, product: ProductType, contexts: Set<Platform>): String = buildString {
+    properties
+        .filter {
+            product in it.applicableProductTypes && contexts.intersect(it.applicablePlatforms).isNotEmpty()
+        }
+        .forEach { prop ->
+            append(
+                "${prop.name}: ${
+                    when (prop) {
+                        is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.valueObjectProperties, product, contexts)
+                            .prependIndent("   ")
+                        is PropertyWithSource.PropertyWithPrimitiveValue -> {
+                            val value = prop.value
+                            presentableValue(value, product, contexts) + (sourcePostfix(prop).takeIf { value !is Collection<*> || value.isEmpty() } ?: "")
+                        }
                     }
-                }
-            }\n")
-    }
+                }\n")
+        }
 }
 
 private fun formatSourceName(sourceName: String): String = "  # [$sourceName]"
@@ -179,22 +168,22 @@ private fun sourcePostfix(it: PropertyWithSource.PropertyWithPrimitiveValue
     return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName) else ""
 }
 
-private fun presentableValue(it: Any?, contexts: Set<Platform>): String {
+private fun presentableValue(it: Any?, product: ProductType, contexts: Set<Platform>): String {
     return when {
         it is TraceableEnum<*> && it.value is SchemaEnum -> (it.value as SchemaEnum).schemaValue
         it is SchemaEnum -> it.schemaValue
         it is Collection<*> && it.isEmpty() -> "[]"
-        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it, contexts)
-        it is Collection<*> -> "[" + it.joinToString { presentableValue(it, contexts) } + "]"
-        it is SchemaNode -> renderProperties(it.findProperties(contexts), contexts)
+        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it, product, contexts)
+        it is Collection<*> -> "[" + it.joinToString { presentableValue(it, product, contexts) } + "]"
+        it is SchemaNode -> renderObject(it, product, contexts)
         else -> it.toString()
     }
 }
 
-private fun renderTraceableCollection(it: Collection<*>, contexts: Set<Platform>): String = "[\n" +
+private fun renderTraceableCollection(it: Collection<*>, product: ProductType, contexts: Set<Platform>): String = "[\n" +
         it.mapIndexed { index, element ->
             "   " +
-                    presentableValue(element, contexts) +
+                    presentableValue(element, product, contexts) +
                     (if (index == it.indices.last) "" else ",") +
                     (((element as Traceable).trace as? PsiTrace)?.psiElement?.containingFilename()
                         ?.let { formatSourceName(it) }

@@ -28,10 +28,6 @@ settings@android
   compose:
      enabled: true  # [module.yaml (android-app)]
      experimental:
-        hotReload:
-           enabled: false  # [default]
-           version: 1.0.0-beta05  # [default]
-
 
      resources:
         enabled: false  # [default]
@@ -52,8 +48,6 @@ settings@android
 
   junit: junit-5  # [default]
   jvm:
-     mainClass:
-
      release: 17  # [default]
      runtimeClasspathMode: jars  # [default]
      storeParameterNames: false  # [default]
@@ -74,8 +68,6 @@ settings@android
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -87,8 +79,6 @@ settings@android
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -98,8 +88,6 @@ settings@android
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]
@@ -191,8 +179,6 @@ settings@jvm
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -204,8 +190,6 @@ settings@jvm
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -215,8 +199,6 @@ settings@jvm
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]
@@ -265,7 +247,6 @@ Module: shared
 
 settings@jvm+android
   android:
-     applicationId: org.example.namespace  # [Inherited from 'namespace']
      compileSdk: 35  # [default]
      maxSdk:
 
@@ -275,18 +256,7 @@ settings@jvm+android
         additionalAnnotations: []  # [default]
         enabled: false  # [default]
 
-     resourcePackaging:
-        excludes: []  # [default]
-        merges: []  # [default]
-        pickFirsts: []  # [default]
-
-     signing:
-        enabled: false  # [default]
-        propertiesFile: keystore.properties  # [default]
-
      targetSdk: 35  # [Inherited from 'compileSdk']
-     versionCode: 1  # [default]
-     versionName: unspecified  # [default]
 
   compose:
      enabled: true  # [module.yaml (shared)]
@@ -315,8 +285,6 @@ settings@jvm+android
 
   junit: junit-5  # [default]
   jvm:
-     mainClass:
-
      release: 17  # [default]
      runtimeClasspathMode: jars  # [default]
      storeParameterNames: false  # [default]
@@ -337,8 +305,6 @@ settings@jvm+android
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -353,8 +319,6 @@ settings@jvm+android
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -364,8 +328,6 @@ settings@jvm+android
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]
@@ -438,8 +400,6 @@ settings@jvm
 
   junit: junit-5  # [default]
   jvm:
-     mainClass:
-
      release: 17  # [default]
      runtimeClasspathMode: jars  # [default]
      storeParameterNames: false  # [default]
@@ -460,8 +420,6 @@ settings@jvm
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -476,8 +434,6 @@ settings@jvm
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -487,8 +443,6 @@ settings@jvm
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]
@@ -535,7 +489,6 @@ settings@jvm
 
 settings@android
   android:
-     applicationId: org.example.namespace  # [Inherited from 'namespace']
      compileSdk: 35  # [default]
      maxSdk:
 
@@ -545,26 +498,11 @@ settings@android
         additionalAnnotations: []  # [default]
         enabled: false  # [default]
 
-     resourcePackaging:
-        excludes: []  # [default]
-        merges: []  # [default]
-        pickFirsts: []  # [default]
-
-     signing:
-        enabled: false  # [default]
-        propertiesFile: keystore.properties  # [default]
-
      targetSdk: 35  # [Inherited from 'compileSdk']
-     versionCode: 1  # [default]
-     versionName: unspecified  # [default]
 
   compose:
      enabled: true  # [module.yaml (shared)]
      experimental:
-        hotReload:
-           enabled: false  # [default]
-           version: 1.0.0-beta05  # [default]
-
 
      resources:
         enabled: false  # [default]
@@ -585,8 +523,6 @@ settings@android
 
   junit: junit-5  # [default]
   jvm:
-     mainClass:
-
      release: 17  # [default]
      runtimeClasspathMode: jars  # [default]
      storeParameterNames: false  # [default]
@@ -607,8 +543,6 @@ settings@android
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -623,8 +557,6 @@ settings@android
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -634,8 +566,6 @@ settings@android
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]

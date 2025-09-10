@@ -28,8 +28,6 @@ settings@jvm
 
   junit: junit-5  # [default]
   jvm:
-     mainClass:
-
      release: 17  # [default]
      runtimeClasspathMode: jars  # [default]
      storeParameterNames: false  # [default]
@@ -50,8 +48,6 @@ settings@jvm
      allWarningsAsErrors: false  # [default]
      apiVersion:
 
-     debug:
-
      freeCompilerArgs:
 
      ksp:
@@ -63,8 +59,6 @@ settings@jvm
 
      languageVersion:
 
-     linkerOptions:
-
      noArg:
         annotations:
 
@@ -74,8 +68,6 @@ settings@jvm
 
 
      optIns:
-
-     optimization:
 
      powerAssert:
         enabled: false  # [default]
