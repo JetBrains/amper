@@ -1,0 +1,674 @@
+Module: android-app
+
+settings@android
+  android:
+     applicationId: org.example.namespace  # [Inherited from 'namespace']
+     compileSdk: 35  # [default]
+     maxSdk:
+
+     minSdk: 21  # [default]
+     namespace: org.example.namespace  # [default]
+     parcelize:
+        additionalAnnotations: []  # [default]
+        enabled: false  # [default]
+
+     resourcePackaging:
+        excludes: []  # [default]
+        merges: []  # [default]
+        pickFirsts: []  # [default]
+
+     signing:
+        enabled: false  # [default]
+        propertiesFile: keystore.properties  # [default]
+
+     targetSdk: 35  # [Inherited from 'compileSdk']
+     versionCode: 1  # [default]
+     versionName: unspecified  # [default]
+
+  compose:
+     enabled: true  # [module.yaml (android-app)]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+           version: 1.0.0-beta05  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.2  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion:
+
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+        version: 2.2.10-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion:
+
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.9.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+     version: 2.2.10  # [default]
+
+  kover:
+
+  ktor:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.2.3  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:
+
+
+
+Module: jvm-app
+
+settings@jvm
+  compose:
+     enabled: true  # [module.yaml (jvm-app)]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+           version: 1.0.0-beta05  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.2  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion:
+
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+        version: 2.2.10-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion:
+
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.9.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+     version: 2.2.10  # [default]
+
+  kover:
+
+  ktor:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.2.3  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:
+
+
+  springBoot:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.5.5  # [default]
+
+
+Module: shared
+
+settings@jvm+android
+  android:
+     applicationId: org.example.namespace  # [Inherited from 'namespace']
+     compileSdk: 35  # [default]
+     maxSdk:
+
+     minSdk: 21  # [default]
+     namespace: org.example.namespace  # [default]
+     parcelize:
+        additionalAnnotations: []  # [default]
+        enabled: false  # [default]
+
+     resourcePackaging:
+        excludes: []  # [default]
+        merges: []  # [default]
+        pickFirsts: []  # [default]
+
+     signing:
+        enabled: false  # [default]
+        propertiesFile: keystore.properties  # [default]
+
+     targetSdk: 35  # [Inherited from 'compileSdk']
+     versionCode: 1  # [default]
+     versionName: unspecified  # [default]
+
+  compose:
+     enabled: true  # [module.yaml (shared)]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+           version: 1.0.0-beta05  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.2  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion:
+
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {}  # [module.yaml (shared)]
+        processors: [
+           coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml (shared)]
+          # [module.yaml (shared)]
+        ]
+        version: 2.2.10-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion:
+
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.9.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+     version: 2.2.10  # [default]
+
+  kover:
+
+  ktor:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.2.3  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:
+
+
+  springBoot:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.5.5  # [default]
+
+
+settings@jvm
+  compose:
+     enabled: true  # [module.yaml (shared)]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+           version: 1.0.0-beta05  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.2  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion:
+
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {room.schemaLocation=./generated-db-schema/jvm}  # [module.yaml (shared)]
+        processors: [
+           coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml (shared)]
+          # [module.yaml (shared)]
+        ]
+        version: 2.2.10-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion:
+
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.9.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+     version: 2.2.10  # [default]
+
+  kover:
+
+  ktor:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.2.3  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:
+
+
+  springBoot:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.5.5  # [default]
+
+
+settings@android
+  android:
+     applicationId: org.example.namespace  # [Inherited from 'namespace']
+     compileSdk: 35  # [default]
+     maxSdk:
+
+     minSdk: 21  # [default]
+     namespace: org.example.namespace  # [default]
+     parcelize:
+        additionalAnnotations: []  # [default]
+        enabled: false  # [default]
+
+     resourcePackaging:
+        excludes: []  # [default]
+        merges: []  # [default]
+        pickFirsts: []  # [default]
+
+     signing:
+        enabled: false  # [default]
+        propertiesFile: keystore.properties  # [default]
+
+     targetSdk: 35  # [Inherited from 'compileSdk']
+     versionCode: 1  # [default]
+     versionName: unspecified  # [default]
+
+  compose:
+     enabled: true  # [module.yaml (shared)]
+     experimental:
+        hotReload:
+           enabled: false  # [default]
+           version: 1.0.0-beta05  # [default]
+
+
+     resources:
+        enabled: false  # [default]
+        exposedAccessors: false  # [default]
+        packageName:   # [default]
+
+     version: 1.8.2  # [default]
+
+  internal:
+     excludeDependencies: []  # [default]
+
+  java:
+     annotationProcessing:
+        processorOptions: {}  # [default]
+        processors: []  # [default]
+
+     freeCompilerArgs: []  # [default]
+
+  junit: junit-5  # [default]
+  jvm:
+     mainClass:
+
+     release: 17  # [default]
+     runtimeClasspathMode: jars  # [default]
+     storeParameterNames: false  # [default]
+     test:
+        freeJvmArgs: []  # [default]
+        junitPlatformVersion: 1.13.4  # [default]
+        systemProperties: {}  # [default]
+
+
+  kotlin:
+     allOpen:
+        annotations:
+
+        enabled: false  # [default]
+        presets:
+
+
+     allWarningsAsErrors: false  # [default]
+     apiVersion:
+
+     debug:
+
+     freeCompilerArgs:
+
+     ksp:
+        processorOptions: {room.schemaLocation=./generated-db-schema/android}  # [module.yaml (shared)]
+        processors: [
+           coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml (shared)]
+          # [module.yaml (shared)]
+        ]
+        version: 2.2.10-2.0.2  # [default]
+
+     languageFeatures:
+
+     languageVersion:
+
+     linkerOptions:
+
+     noArg:
+        annotations:
+
+        enabled: false  # [default]
+        invokeInitializers: false  # [default]
+        presets:
+
+
+     optIns:
+
+     optimization:
+
+     powerAssert:
+        enabled: false  # [default]
+        functions: [
+           kotlin.assert
+        ]
+
+     progressiveMode: false  # [default]
+     serialization:
+        enabled: false  # [Enabled when 'format' is specified]
+        format:
+
+        version: 1.9.0  # [default]
+
+     suppressWarnings: false  # [default]
+     verbose: false  # [default]
+     version: 2.2.10  # [default]
+
+  kover:
+
+  ktor:
+     applyBom: true  # [default]
+     enabled: false  # [default]
+     version: 3.2.3  # [default]
+
+  lombok:
+     enabled: false  # [default]
+     version: 1.18.38  # [default]
+
+  publishing:
+     enabled: true  # [default]
+     group:
+
+     name:
+
+     version:

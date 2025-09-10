@@ -132,7 +132,7 @@ fun renderSettings(
         (it.applicablePlatforms?.let { contexts.intersect(it).isNotEmpty() } ?: true)
                 && (it.applicableProductTypes?.map { it.value }?.contains(product?.value) ?: true)
     }
-    return renderProperties(applicableProps)
+    return renderProperties(applicableProps, contexts)
 }
 
 private fun Any.findProperties(
@@ -145,16 +145,16 @@ private fun Any.findProperties(
     }
 }
 
-private fun renderProperties(properties: List<PropertyWithSource>): String = buildString {
+private fun renderProperties(properties: List<PropertyWithSource>, contexts: Set<Platform>): String = buildString {
     properties.forEach { prop ->
         append(
             "${prop.name}: ${
                 when (prop) {
-                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.valueObjectProperties)
+                    is PropertyWithSource.PropertyWithObjectValue -> "\n" + renderProperties(prop.valueObjectProperties, contexts)
                         .prependIndent("   ")
                     is PropertyWithSource.PropertyWithPrimitiveValue -> {
                         val value = prop.value
-                        presentableValue(value) + (sourcePostfix(prop).takeIf { value !is Collection<*> || value.isEmpty() } ?: "")
+                        presentableValue(value, contexts) + (sourcePostfix(prop).takeIf { value !is Collection<*> || value.isEmpty() } ?: "")
                     }
                 }
             }\n")
@@ -179,21 +179,22 @@ private fun sourcePostfix(it: PropertyWithSource.PropertyWithPrimitiveValue
     return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName) else ""
 }
 
-private fun presentableValue(it: Any?): String {
+private fun presentableValue(it: Any?, contexts: Set<Platform>): String {
     return when {
         it is TraceableEnum<*> && it.value is SchemaEnum -> (it.value as SchemaEnum).schemaValue
         it is SchemaEnum -> it.schemaValue
         it is Collection<*> && it.isEmpty() -> "[]"
-        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it)
-        it is Collection<*> -> "[" + it.joinToString { presentableValue(it) } + "]"
+        it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it, contexts)
+        it is Collection<*> -> "[" + it.joinToString { presentableValue(it, contexts) } + "]"
+        it is SchemaNode -> renderProperties(it.findProperties(contexts), contexts)
         else -> it.toString()
     }
 }
 
-private fun renderTraceableCollection(it: Collection<*>): String = "[\n" +
+private fun renderTraceableCollection(it: Collection<*>, contexts: Set<Platform>): String = "[\n" +
         it.mapIndexed { index, element ->
             "   " +
-                    presentableValue(element) +
+                    presentableValue(element, contexts) +
                     (if (index == it.indices.last) "" else ",") +
                     (((element as Traceable).trace as? PsiTrace)?.psiElement?.containingFilename()
                         ?.let { formatSourceName(it) }

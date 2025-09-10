@@ -59,11 +59,22 @@ class ShowSettingsCommandTest : AmperCliTestBase(), GoldenTest {
     }
 
     @Test
-    fun `show settings command prints settings for all modules`() = runSlowTest {
+    fun `show settings command prints settings for all modules - jvm only`() = runSlowTest {
         val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "--all")
 
         ShowSettingsTestRun(
             caseName = "jvm-multimodule-tests_all-modules",
+            base = Path("testResources/showSettings"),
+            cliResult = r,
+        ).doTest()
+    }
+
+    @Test
+    fun `show settings command prints settings for all modules - multiplatform`() = runSlowTest {
+        val r = runCli(projectRoot = testProject("compose-multiplatform-room"), "show", "settings", "--all")
+
+        ShowSettingsTestRun(
+            caseName = "compose-multiplatform-room_all-modules",
             base = Path("testResources/showSettings"),
             cliResult = r,
         ).doTest()
