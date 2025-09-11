@@ -5,8 +5,8 @@
 package org.jetbrains.amper.dependency.resolution.diagnostics
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.modules.SerializersModuleBuilder
-import org.jetbrains.amper.dependency.resolution.AmperDependencyResolutionExceptionSerializable
 import org.jetbrains.annotations.Nls
 
 /**
@@ -65,13 +65,6 @@ private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buil
     }
 }
 
-/**
- * Marks that the [Message] could've been caused by a third-party error or exception.
- */
-interface WithThrowable : Message {
-    val throwable: AmperDependencyResolutionExceptionSerializable?
-}
-
 enum class Severity {
     /**
      * Use for information that might provide additional insights on how the node was resolved.
@@ -99,10 +92,11 @@ internal data class SimpleMessage(
     val text: @Nls String,
     val extra: @Nls String = "",
     override val severity: Severity = Severity.INFO,
-    override val throwable: AmperDependencyResolutionExceptionSerializable? = null,
+    @Transient
+    val throwable: Throwable? = null,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
-) : WithChildMessages, WithThrowable {
+) : WithChildMessages {
 
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"

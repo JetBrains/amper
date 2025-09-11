@@ -97,11 +97,10 @@ interface DependencyNodeHolderPlain: DependencyNodePlain
 //    override fun toString(): String = name
 //}
 
-// todo (AB) : Pass spanBuilder here
 class RootDependencyNodeInput(
     name: String = "root",
     /**
-     * // todo (AB) : Add better comment here
+     * // todo (AB) : Add a better comment here
      * This field might be used as an ID of cache entry of resolution graph.
      * Passing the same ID with different graphs will lead to invalidating the cache entry on every single run, reducing the cache usage to minimum.
      * This id should uniquely identify a resolution operation that is going to be cached.

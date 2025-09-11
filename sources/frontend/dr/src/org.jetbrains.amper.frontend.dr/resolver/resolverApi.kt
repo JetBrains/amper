@@ -50,6 +50,7 @@ data class ResolutionInput(
     val downloadSources: Boolean = false,
     val skipIncrementalCache: Boolean= false,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
+    // todo (AB) : Replace it with OpenTelemetry (it could provide tracer as well as other useful stuff: meters)
     val spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
 )
 

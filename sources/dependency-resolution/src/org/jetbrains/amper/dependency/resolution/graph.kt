@@ -4,12 +4,10 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -53,6 +51,8 @@ interface DependencyNode {
     */
     // todo (AB) : It should be reference here. Also, to prevent loops, created type should be immediately registered,
     // todo (AB) : before running into recursion for references.
+
+    // todo (AB) : We should probably move it outside nodes (as an extension functions written somewhere separately)
     fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference
 
     /**
@@ -422,6 +422,7 @@ typealias MavenDependencyConstraintIndex = Int
 fun currentGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
     ?: error("Instance of DependencyGraphContext should be either explicitly passed to the constructor or presented in the dedicated ThreadLocal")
 
+// todo (AB) : It should be internal most probably
 interface DependencyNodePlain : DependencyNode {
     val parentsRefs: List<DependencyNodeReference>
     val childrenRefs: List<DependencyNodeReference>
@@ -436,67 +437,3 @@ internal fun plainNodeSerializationError(): Nothing {
 }
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-
-@Serializable
-class AmperDependencyResolutionExceptionSerializable private constructor(
-    private val ownMessage: String?,
-    private val causeToString: String,
-    private val causeStackTrace: Array<@Serializable(with = StackTraceElementSerializer::class)StackTraceElement>
-) : Throwable(ownMessage) {
-    override fun toString() =
-        (ownMessage?.let { "${AmperDependencyResolutionExceptionSerializable::class.java.simpleName}: $it causedBy${System.lineSeparator()}" } ?: "") +
-                " $causeToString"
-
-    init {
-        setStackTrace(causeStackTrace)
-    }
-
-    constructor(cause: Throwable, message: String? = null)
-            : this(message, cause.toString(), cause.stackTrace )
-}
-
-class StackTraceElementSerializer : KSerializer<StackTraceElement> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("java.lang.StackTraceElement") {
-        element("class", String.serializer().descriptor)
-        element("m", String.serializer().descriptor)
-        element("f", String.serializer().nullable.descriptor)
-        element("l", Int.serializer().descriptor)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun serialize(encoder: Encoder, value: StackTraceElement) {
-        encoder.encodeStructure(descriptor) {
-            encodeStringElement(descriptor, 0, value.className)
-            encodeStringElement(descriptor, 1, value.methodName)
-            encodeNullableSerializableElement(descriptor, 2, String.serializer().nullable, value.fileName)
-            encodeIntElement(descriptor, 3, value.lineNumber)
-        }
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun deserialize(decoder: Decoder): StackTraceElement {
-        return decoder.decodeStructure(descriptor) {
-            var className: String? = null
-            var methodName: String? = null
-            var fileName: String? = null
-            var lineNumber: Int = -1
-
-            while (true) {
-                when (val index = decodeElementIndex(descriptor)) {
-                    0 -> className = decodeStringElement(descriptor, 0)
-                    1 -> methodName = decodeStringElement(descriptor, 1)
-                    2 -> fileName = decodeNullableSerializableElement(descriptor, 2, String.serializer().nullable)
-                    3 -> lineNumber = decodeIntElement(descriptor, 3)
-                    CompositeDecoder.DECODE_DONE -> break
-                    else -> error("Unexpected index: $index")
-                }
-            }
-
-            requireNotNull(className) { "Class name should not be null" }
-            requireNotNull(methodName) { "Method name should not be null" }
-
-            StackTraceElement(className, methodName, fileName, lineNumber)
-        }
-    }
-}
-

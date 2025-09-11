@@ -49,6 +49,7 @@ class IncrementalCache(
     /**
      * Span builder
      */
+    // todo (AB): this should be eliminated (after DR started using OpenTelemetry in input instead of SpanBuilderProvider)
     private val spanBuilder: (String) -> SpanBuilder
 ) {
 

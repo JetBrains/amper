@@ -1335,13 +1335,13 @@ class MavenDependencyImpl internal constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                diagnosticReporter.addMessage(
-                    UnableToParseMetadata.asMessage(
-                        moduleFile,
-                        extra = DependencyResolutionBundle.message("extra.exception", e),
-                        exception = AmperDependencyResolutionExceptionSerializable(e),
-                    )
+                val message = UnableToParseMetadata.asMessage(
+                    moduleFile,
+                    extra = DependencyResolutionBundle.message("extra.exception", e),
+                    exception = e,
                 )
+                logger.warn(message.message, e)
+                diagnosticReporter.addMessage(message)
             }
         } else {
             diagnosticReporter.addMessage(
@@ -1653,13 +1653,13 @@ class MavenDependencyImpl internal constructor(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    diagnosticsReporter.addMessage(
-                        FailedRepackagingKMPLibrary.asMessage(
-                            kmpLibraryWithSourceSet.name,
-                            extra = DependencyResolutionBundle.message("extra.exception", e),
-                            exception = AmperDependencyResolutionExceptionSerializable(e),
-                        )
+                    val message = FailedRepackagingKMPLibrary.asMessage(
+                        kmpLibraryWithSourceSet.name,
+                        extra = DependencyResolutionBundle.message("extra.exception", e),
+                        exception = e,
                     )
+                    logger.warn(message.message, e)
+                    diagnosticsReporter.addMessage(message)
                     false
                 }
             }
@@ -1930,13 +1930,13 @@ class MavenDependencyImpl internal constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            diagnosticsReporter.addMessage(
-                UnableToParsePom.asMessage(
-                    pom,
-                    extra = DependencyResolutionBundle.message("extra.exception", e),
-                    exception = AmperDependencyResolutionExceptionSerializable(e),
-                )
+            val message = UnableToParsePom.asMessage(
+                pom,
+                extra = DependencyResolutionBundle.message("extra.exception", e),
+                exception = e,
             )
+            logger.warn(message.message, e)
+            diagnosticsReporter.addMessage(message)
             return null
         }
     }

@@ -556,15 +556,14 @@ open class DependencyFileImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (t: Throwable) {
-            diagnosticsReporter.addMessage(
-                UnexpectedErrorOnDownload.asMessage(
-                    fileName,
-                    dependency,
-                    t::class.simpleName,
-                    t.message,
-                    exception = AmperDependencyResolutionExceptionSerializable(t),
-                )
+            val message = UnexpectedErrorOnDownload.asMessage(
+                fileName,
+                dependency,
+                extra = DependencyResolutionBundle.message("extra.exception", t),
+                exception = t,
             )
+            logger.warn(message.message, t)
+            diagnosticsReporter.addMessage(message)
             null
         }
     }
@@ -741,7 +740,7 @@ open class DependencyFileImpl(
                             fileName,
                             dependency,
                             extra = DependencyResolutionBundle.message("extra.exception", t),
-                            exception = AmperDependencyResolutionExceptionSerializable(t),
+                            exception = t,
                         )
                     )
                     return null
@@ -1063,7 +1062,7 @@ open class DependencyFileImpl(
                 UnableToReachURL.asMessage(
                     url,
                     extra = DependencyResolutionBundle.message("extra.exception", e),
-                    exception = AmperDependencyResolutionExceptionSerializable(e)
+                    exception = e
                 )
             )
         }

@@ -20,10 +20,8 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
-import org.jetbrains.amper.dependency.resolution.diagnostics.WithThrowable
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -128,17 +126,9 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 }
 
                 Level.Error -> {
-                    var throwable: Throwable? = null
-                    if (buildProblem is DependencyBuildProblem) {
-                        val errorMessage = buildProblem.errorMessage
-                        if (errorMessage is WithThrowable) {
-                            throwable = errorMessage.throwable
-                        }
-                    }
-
-                    span.recordException(throwable ?: MavenResolverException(buildProblem.message))
+                    span.recordException(MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
-                        logger.error(buildProblem.message, throwable)
+                        logger.error(buildProblem.message)
                     }
                 }
 

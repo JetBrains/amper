@@ -137,6 +137,7 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeInput(
+                            // todo (AB) : resolutionId = taskName
                             resolutionId = module.uniqueModuleKey()?.let { moduleKey ->
                                 "Module ${module.userReadableName} compile and runtime dependencies (moduleKey = $moduleKey), " +
                                         "platform = $resolvedPlatform, " +
