@@ -23,7 +23,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 
-internal class DependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
+internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
     private val module by option("-m", "--module",
         help = "Specific module to show dependencies of (run the `show modules` command to get the modules list)")

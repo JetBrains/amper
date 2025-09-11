@@ -10,7 +10,7 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.frontend.Model
 
-internal class ModulesCommand : AmperModelAwareCommand(name = "modules") {
+internal class ShowModulesCommand : AmperModelAwareCommand(name = "modules") {
 
     override fun help(context: Context): String = "List all modules in the project"
 

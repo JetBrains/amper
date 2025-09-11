@@ -8,11 +8,10 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.terminal
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
-import org.jetbrains.amper.cli.commands.AmperProjectAwareCommand
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Model
 
-internal class TasksCommand : AmperModelAwareCommand(name = "tasks") {
+internal class ShowTasksCommand : AmperModelAwareCommand(name = "tasks") {
 
     override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 

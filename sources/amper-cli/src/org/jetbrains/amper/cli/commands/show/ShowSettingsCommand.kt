@@ -24,7 +24,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.valueTracking.renderSettings
 
-internal class SettingsCommand : AmperModelAwareCommand(name = "settings") {
+internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
 
     private val modules by option("-m", "--module",
         help = "The module to show the settings of (run the 'show modules' command to get the modules list). " +
