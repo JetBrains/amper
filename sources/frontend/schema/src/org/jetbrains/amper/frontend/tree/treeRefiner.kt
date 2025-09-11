@@ -82,56 +82,40 @@ class RefineRequest(
     private fun List<MapLikeValue.Property<TreeValue<*>>>.refineProperties(): Map<String, MapLikeValue.Property<TreeValue<Refined>>> =
         filterByContexts().run {
             // Do actual overriding for key-value pairs.
-            val keyValuesMerged = filterPropValueIs<ScalarOrReference<*>>()
-                .refineOrReduceByKeys {
-                    it.sortedWith(::compareAndReport).reduceProperties { first, second ->
-                        val newTrace = second.trace.withPrecedingValue(first)
-                        val newValue = when (second) {
-                            is NullValue -> second.copy(trace = newTrace)
-                            is ScalarValue -> second.copy(value = second.value, trace = newTrace)
-                            is ReferenceValue -> second.copy(value = second.value, trace = newTrace)
+            val refinedProperties = refineOrReduceByKeys {
+                it.sortedWith(::compareAndReport).reduceProperties { first, second ->
+                    val newTrace = second.trace.withPrecedingValue(first)
+                    val newValue = when (second) {
+                        is NullValue -> second.copy(trace = newTrace)
+                        is ScalarValue -> second.copy(trace = newTrace)
+                        is ReferenceValue -> second.copy(trace = newTrace)
+                        is NoValue -> if (first is NoValue) NoValue(trace = newTrace) else refine(first)
+                        is ListValue<*> -> {
+                            val firstChildren = (first as? ListValue<*>)?.children.orEmpty()
+                            ListValue(
+                                children = firstChildren.plus(second.children).filterByContexts().map(::refine),
+                                trace = second.trace.withPrecedingValue(first),
+                                contexts = second.contexts,
+                            )
                         }
-                        newValue as ScalarOrReference<Refined>
+                        is MapLikeValue<*> -> {
+                            val firstChildren = (first as? MapLikeValue<*>)?.children.orEmpty()
+                            Refined(
+                                refinedChildren = (firstChildren + second.children).refineProperties(),
+                                type = second.type,
+                                trace = second.trace.withPrecedingValue(first),
+                                contexts = second.contexts,
+                            )
+                        }
                     }
+                    @Suppress("UNCHECKED_CAST")
+                    newValue as TreeValue<Refined>
                 }
-
-            // Concatenate list nodes.
-            val listsMerged = filterPropValueIs<ListValue<*>>()
-                .refineOrReduceByKeys {
-                    it.sortedWith(::compareAndReport).reduceProperties { first, second ->
-                        ListValue(
-                            children = first.children.plus(second.children).filterByContexts().map(::refine),
-                            trace = second.trace.withPrecedingValue(first),
-                            contexts = second.contexts,
-                        )
-                    }
-                }
-
-            // Call recursive merge for mapping nodes.
-            // Note: We dont need to sort here because the order is relevant only for leaves or for lists.
-            val mapsMerged = filterPropValueIs<MapLikeValue<*>>()
-                .refineOrReduceByKeys {
-                    it.reduceProperties { first, second ->
-                        Refined(
-                            refinedChildren = (first.children + second.children).refineProperties(),
-                            type = second.type,
-                            trace = second.trace.withPrecedingValue(first),
-                            contexts = second.contexts,
-                        )
-                    }
-                }
-
-            // For no value properties, just pick the first one (copy for the sake of type safety).
-            val noValues = filter { it.value is NoValue }
-                .refineOrReduceByKeys { MapLikeValue.Property(it.first(), NoValue(it.first().value.trace)) }
-
-            // Group the result.
-            val refinedProperties = keyValuesMerged + mapsMerged + listsMerged
+            }
 
             // Restore order. Also, ignore NoValues if anything is overwriting them.
             val unordered = refinedProperties.associateBy { it.key }
-            val unorderedNoValue = noValues.associateBy { it.key }
-            return map { it.key }.distinct().associateWith { unordered[it] ?: unorderedNoValue[it]!! }
+            return mapTo(mutableSetOf()) { it.key }.associateWith { unordered[it]!! }
         }
 
     /**
