@@ -1,6 +1,4 @@
-product:
-  type: lib
-  platforms: [ jvm ]
+product: jvm/lib
 
 dependencies:
   - ../../amper-cli

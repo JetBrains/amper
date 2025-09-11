@@ -1,6 +1,4 @@
-product:
-  type: lib
-  platforms: [ jvm ]
+product: jvm/lib
 
 apply:
   - ../sources/common.module-template.yaml

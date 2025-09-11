@@ -3,9 +3,7 @@
 # by its maven coordinates (group:artifact:version)
 # See details in https://docs.google.com/document/d/15yati1wtQPbiRKmFrhuvpwO-8G7-ACxdojn-40oEIEI/edit#heading=h.wfvvh1v0sye7
 
-product:
-  type: lib
-  platforms: [ jvm ]
+product: jvm/lib
 
 apply:
   - ../common.module-template.yaml
