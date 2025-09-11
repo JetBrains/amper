@@ -24,6 +24,9 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
+/**
+ * Generates a POM for the given [module] at this [Path].
+ */
 fun Path.writePomFor(
     module: AmperModule,
     platform: Platform,
@@ -31,14 +34,18 @@ fun Path.writePomFor(
     gradleMetadataComment: Boolean,
 ) {
     val model = generatePomModel(module, platform, publicationCoordsOverrides)
-
-    XmlStreamWriter(toFile()).use { writer ->
-        MavenXpp3Writer().write(writer, model)
-    }
+    writePom(model)
 
     if (gradleMetadataComment) {
         insertGradleMetadataComment()
     }
+}
+
+/**
+ * Writes the given Maven [model] as a POM file at this [Path].
+ */
+fun Path.writePom(model: Model) = XmlStreamWriter(toFile()).use { writer ->
+    MavenXpp3Writer().write(writer, model)
 }
 
 @Suppress("unused")

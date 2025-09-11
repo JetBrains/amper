@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import org.apache.maven.model.Model
 import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
@@ -19,8 +20,12 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.maven.publish.deployToRemoteRepo
 import org.jetbrains.amper.maven.publish.installToMavenLocal
+import org.jetbrains.amper.maven.publish.writePom
 import java.nio.file.Path
+import kotlin.io.path.createTempFile
 import kotlin.io.path.extension
+
+private const val AmperGroupId = "org.jetbrains.amper"
 
 suspend fun main(args: Array<String>) = UploadDistCommand().main(args)
 
@@ -58,16 +63,28 @@ class UploadDistCommand : CacheableTaskCommand() {
             )
         }
     }
+
+    private fun Distribution.artifacts(artifactId: String): List<Artifact> {
+        val wrapperArtifacts = wrappers.map { amperArtifact(artifactId, classifier = "wrapper", file = it) }
+        val tarGzDistArtifact = amperArtifact(artifactId, classifier = "dist", file = cliTgz)
+        // we also generate a POM file to please maven and ensure maven-metadata.xml is properly updated
+        val pomArtifact = amperArtifact(artifactId, classifier = null, file = createSimplePom(artifactId, version))
+        return wrapperArtifacts + tarGzDistArtifact + pomArtifact
+    }
+
+    private fun createSimplePom(artifactId: String, version: String): Path {
+        val model = Model()
+        model.modelVersion = "4.0.0"
+        model.name = artifactId
+        model.groupId = AmperGroupId
+        model.artifactId = artifactId
+        model.version = version
+        return taskOutputDirectory.resolve("$artifactId.pom").apply { writePom(model) }
+    }
 }
 
-private fun Distribution.artifacts(artifactId: String): List<Artifact> {
-    val wrapperArtifacts = wrappers.map { amperArtifact(artifactId, classifier = "wrapper", file = it) }
-    val tarGzDistArtifact = amperArtifact(artifactId, classifier = "dist", file = cliTgz)
-    return wrapperArtifacts + tarGzDistArtifact
-}
-
-private fun amperArtifact(artifactId: String, classifier: String, file: Path): Artifact = DefaultArtifact(
-    "org.jetbrains.amper",
+private fun amperArtifact(artifactId: String, classifier: String?, file: Path): Artifact = DefaultArtifact(
+    AmperGroupId,
     artifactId,
     classifier,
     file.extension,

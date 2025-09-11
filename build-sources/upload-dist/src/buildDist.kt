@@ -16,6 +16,7 @@ import kotlin.io.path.outputStream
 import kotlin.io.path.readBytes
 
 internal data class Distribution(
+    val version: String,
     val cliTgz: Path,
     val wrappers: List<Path>,
 )
@@ -49,7 +50,11 @@ internal suspend fun ExecuteOnChangedInputs.buildDist(
 
         ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
     }
-    return Distribution(cliTgz = result.outputs[0], wrappers = result.outputs.drop(1))
+    return Distribution(
+        version = AmperBuild.mavenVersion,
+        cliTgz = result.outputs[0],
+        wrappers = result.outputs.drop(1)
+    )
 }
 
 private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths: List<NamedClasspath>) {
