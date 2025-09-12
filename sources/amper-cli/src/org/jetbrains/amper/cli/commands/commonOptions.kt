@@ -15,8 +15,12 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.rendering.TextColors.green
+import org.jetbrains.amper.cli.commands.PlatformGroup.AliasOrInvalid
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withPlatformSuggestions
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.util.BuildType
 import kotlin.collections.sorted
@@ -46,6 +50,79 @@ internal fun BaseCliktCommand<*>.leafPlatformOption(help: String) = option(
     }
 }
 
+internal const val PlatformGroupOption = "--platform-group"
+
+/**
+ * Accepts a [Platform] or alias name representing one leaf or a combination of platforms.
+ *
+ * **Important**: this is not meant to be used to get a general set of platforms. For that purpose, use
+ * [leafPlatformOption] with [multiple][com.github.ajalt.clikt.parameters.options.multiple] instead.
+ */
+internal fun BaseCliktCommand<*>.platformGroupOption(help: String): NullableOption<PlatformGroup, PlatformGroup> {
+    val choices = Platform.values.associateBy { it.pretty.lowercase() }
+    return option(
+        "-p",
+        PlatformGroupOption,
+        help = "${help.ensureEndsWith(".")}\n\n$checkPlatformsListMsg",
+    ).convert(
+        metavar = "<platform-group>",
+        // We can't show aliases here, but at least it helps 99% of users
+        completionCandidates = Fixed(choices.keys),
+    ) { text ->
+        choices[text.lowercase()]?.let(PlatformGroup::BuiltIn) ?: AliasOrInvalid(text)
+    }.also {
+        configureContext {
+            suggestTypoCorrection = suggestTypoCorrection.withPlatformSuggestions()
+        }
+    }
+}
+
+/**
+ * Represents a combination of platforms, either as a built-in [Platform] value or as an alias.
+ */
+internal sealed interface PlatformGroup {
+    /**
+     * The alias or platform's user-readable name.
+     */
+    val name: String
+
+    /**
+     * Represents a plain string that is not a valid platform name, but could be a potential alias.
+     * It can only be known when considering a particular module.
+     */
+    data class AliasOrInvalid(override val name: String) : PlatformGroup
+
+    /**
+     * A built-in [Platform] value, which represents either a group or a single leaf platform.
+     */
+    data class BuiltIn(val platform: Platform) : PlatformGroup {
+        override val name: String
+            get() = platform.pretty
+    }
+}
+
+/**
+ * Returns the leaf platforms from this group that are present in the given [module]'s declared platforms.
+ */
+context(command: BaseCliktCommand<*>)
+internal fun PlatformGroup.validLeavesIn(module: AmperModule): Set<Platform> = when (this) {
+    is AliasOrInvalid -> module.aliases[name] ?: command.currentContext.errorInvalidPlatformGroupName(module, name)
+    is PlatformGroup.BuiltIn -> module.leafPlatforms intersect Platform.naturalHierarchyExt.getValue(platform)
+}
+
+private fun Context.errorInvalidPlatformGroupName(module: AmperModule, invalidName: String): Nothing {
+    val validNames = module.validPlatformGroupNames()
+    val didYouMean = didYouMeanMessage(invalidName, validNames)?.let { " $it" } ?: ""
+    userReadableError("""
+        Invalid platform group name '${red(invalidName)}'.$didYouMean
+        
+        Supported platform groups for module '${module.userReadableName}': ${validNames.sorted().joinToString()}
+    """.trimIndent())
+}
+
+private fun AmperModule.validPlatformGroupNames() =
+    aliases.keys + leafPlatforms.flatMap { it.pathToParent }.map { it.schemaValue }
+
 private fun String.ensureEndsWith(suffix: String): String = if (endsWith(suffix)) this else "$this$suffix"
 
 /**
@@ -71,14 +148,20 @@ private fun errorMessage(
     choices: Map<String, *>,
     supportedValuesMsg: String,
 ): String {
-    val allChoices = choices.keys.sorted()
-    val typoPossibilities = context.suggestTypoCorrection(choice, allChoices)
-    val didYouMean = when (typoPossibilities.size) {
-        0 -> ""
-        1 -> "Did you mean ${green(typoPossibilities.single())}?"
-        else -> "Did you mean one of ${typoPossibilities.joinToString { green(it) }}?"
-    }
+    val didYouMean = context.didYouMeanMessage(choice, choices.keys) ?: ""
     return "invalid choice: $choice. $didYouMean\n\n$supportedValuesMsg"
+}
+
+/**
+ * Returns a "did you mean X" message based on typo suggestions given the [invalidValue] and the [possibleValues].
+ */
+private fun Context.didYouMeanMessage(invalidValue: String, possibleValues: Set<String>): String? {
+    val typoPossibilities = suggestTypoCorrection(invalidValue, possibleValues.sorted())
+    return when (typoPossibilities.size) {
+        0 -> null
+        1 -> "Did you mean ${green(typoPossibilities.single())}?"
+        else -> "Did you mean one of ${typoPossibilities.sorted().joinToString { green(it) }}?"
+    }
 }
 
 internal const val UserJvmArgsOption = "--jvm-args"

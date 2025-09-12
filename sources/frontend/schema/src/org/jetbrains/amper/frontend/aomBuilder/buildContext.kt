@@ -59,6 +59,9 @@ internal data class ModuleBuildCtx(
             DefaultModule(
                 userReadableName = moduleFile.parent.name,
                 type = moduleCtxModule.product.type,
+                aliases = moduleCtxModule.aliases.orEmpty().entries.associate { alias ->
+                    alias.key.value to alias.value.map { platform -> platform.value }.toSet()
+                },
                 source = AmperModuleFileSource(moduleFile.toNioPath()),
                 usedCatalog = catalog,
                 usedTemplates = moduleCtxModule.apply?.mapNotNull(::readTemplateFromPath).orEmpty(),

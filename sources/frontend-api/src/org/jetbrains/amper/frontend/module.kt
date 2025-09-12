@@ -82,6 +82,11 @@ interface AmperModule {
     val source: AmperModuleFileSource
 
     /**
+     * The platform aliases defined in this module.
+     */
+    val aliases: Map<String, Set<Platform>>
+
+    /**
      * List of all the fragments in the module. Can be empty if no platforms were specified.
      */
     val fragments: List<Fragment>

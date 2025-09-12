@@ -40,6 +40,7 @@ internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: AmperModuleFileSource,
+    override val aliases: Map<String, Set<Platform>>,
     override val usedCatalog: VersionCatalog?,
     override val usedTemplates: List<VirtualFile>,
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),

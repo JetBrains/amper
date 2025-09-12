@@ -50,7 +50,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for jvm module with group common`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
-            "show", "dependencies", "--module", "root", "--platforms=common",
+            "show", "dependencies", "--module", "root", "--platform-group=common",
         )
 
         CliTestRun("jvm-exported-dependencies_root_common", base = Path("testResources/dependencies"), cliResult = r).doTest()
@@ -60,14 +60,29 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for jvm module with inexistent platform`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
-            "show", "dependencies", "--module", "root", "--platforms=notaplatform",
+            "show", "dependencies", "--module", "root", "--platform-group=notaplatform",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
         r.assertStderrContains("""
-            ERROR: The following platforms are unresolved: notaplatform.
+            ERROR: Invalid platform group name 'notaplatform'.
             
-            Module root target platforms: jvm
+            Supported platform groups for module 'root': common, jvm
+        """.trimIndent())
+    }
+
+    @Test
+    fun `show dependencies for jvm module with platform typo (single choice)`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--module", "root", "--platform-group=commno",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        r.assertStderrContains("""
+            ERROR: Invalid platform group name 'commno'. Did you mean common?
+            
+            Supported platform groups for module 'root': common, jvm
         """.trimIndent())
     }
 
@@ -75,11 +90,11 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for jvm module with undeclared platform`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
-            "show", "dependencies", "--module", "root", "--platforms=ios",
+            "show", "dependencies", "--module", "root", "--platform-group=ios",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-        r.assertStderrContains("ERROR: Module root doesn't support platforms: ios.")
+        r.assertStderrContains("ERROR: Module 'root' doesn't support platform 'ios'")
     }
 
     @Test
@@ -106,7 +121,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for multiplatform module with group common`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-lib-with-alias"),
-            "show", "dependencies", "--platforms=common",
+            "show", "dependencies", "--platform-group=common",
         )
 
         CliTestRun("multiplatform-lib-with-alias_common", base = Path("testResources/dependencies"), cliResult = r).doTest()
@@ -116,7 +131,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for multiplatform module with group native`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-lib-with-alias"),
-            "show", "dependencies", "--platforms=native",
+            "show", "dependencies", "--platform-group=native",
         )
 
         CliTestRun("multiplatform-lib-with-alias_native", base = Path("testResources/dependencies"), cliResult = r).doTest()
@@ -126,24 +141,64 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     fun `show dependencies for multiplatform module with group jvm`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-lib-with-alias"),
-            "show", "dependencies", "--platforms=jvm",
+            "show", "dependencies", "--platform-group=jvm",
         )
 
         CliTestRun("multiplatform-lib-with-alias_jvm", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
+    fun `show dependencies for multiplatform module with group from alias`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("multiplatform-lib-with-alias"),
+            "show", "dependencies", "--platform-group=jvmAndAndroid",
+        )
+
+        CliTestRun("multiplatform-lib-with-alias_alias_jvmAndAndroid", base = Path("testResources/dependencies"), cliResult = r).doTest()
+    }
+
+    @Test
     fun `show dependencies for multiplatform module with inexistent platform`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("multiplatform-lib-with-alias"),
-            "show", "dependencies", "--platforms=notaplatform",
+            "show", "dependencies", "--platform-group=notaplatform",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
         r.assertStderrContains("""
-            ERROR: The following platforms are unresolved: notaplatform.
-            
-            Module multiplatform-lib-with-alias target platforms: jvm, android, iosArm64, iosSimulatorArm64, iosX64
+            ERROR: Invalid platform group name 'notaplatform'.
+
+            Supported platform groups for module 'multiplatform-lib-with-alias': android, apple, common, ios, iosArm64, iosSimulatorArm64, iosX64, jvm, jvmAndAndroid, native
+        """.trimIndent())
+    }
+
+    @Test
+    fun `show dependencies for multiplatform module with platform typo ios64 (multi choice)`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("multiplatform-lib-with-alias"),
+            "show", "dependencies", "--platform-group=ios64",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        r.assertStderrContains("""
+            ERROR: Invalid platform group name 'ios64'. Did you mean one of ios, iosArm64, iosX64?
+
+            Supported platform groups for module 'multiplatform-lib-with-alias': android, apple, common, ios, iosArm64, iosSimulatorArm64, iosX64, jvm, jvmAndAndroid, native
+        """.trimIndent())
+    }
+
+    @Test
+    fun `show dependencies for multiplatform module with platform typo nadroive (multi choice)`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("multiplatform-lib-with-alias"),
+            "show", "dependencies", "--platform-group=nadroive",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        r.assertStderrContains("""
+            ERROR: Invalid platform group name 'nadroive'. Did you mean one of android, native?
+
+            Supported platform groups for module 'multiplatform-lib-with-alias': android, apple, common, ios, iosArm64, iosSimulatorArm64, iosX64, jvm, jvmAndAndroid, native
         """.trimIndent())
     }
 }

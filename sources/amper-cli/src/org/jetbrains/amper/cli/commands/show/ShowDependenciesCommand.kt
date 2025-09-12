@@ -6,9 +6,15 @@ package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.unique
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
+import org.jetbrains.amper.cli.commands.PlatformGroup
+import org.jetbrains.amper.cli.commands.PlatformGroupOption
+import org.jetbrains.amper.cli.commands.platformGroupOption
+import org.jetbrains.amper.cli.commands.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
@@ -26,12 +32,21 @@ import org.jetbrains.amper.tasks.buildDependenciesGraph
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
     private val module by option("-m", "--module",
-        help = "Specific module to show dependencies of (run the `show modules` command to get the modules list)")
-
-    private val platforms by option("-p", "--platforms",
-        help = "Comma-separated list of platforms specifying a resolution scope to show dependencies for, if left unspecified, " +
-                "dependencies for all module resolution scopes are shown."
+        help = "The module to show dependencies of. If unspecified, you will be prompted to choose one."
     )
+
+    private val platformGroups by platformGroupOption(
+        help = """
+            The name of a platform, group of platforms, or alias that defines a resolution scope to show the 
+            dependencies of.
+
+            For example, `$PlatformGroupOption=native` shows the dependencies resolved for the sources that target
+            all native platforms declared in the module: `src` and `src@native`.
+
+            This option can be repeated to show the dependencies used in multiple resolution scopes.
+            By default, the dependencies for all resolution scopes of the module are shown.
+        """.trimIndent(),
+    ).multiple().unique()
 
     private val includeTests by option("--include-tests",
         help = "Whether to include information about test dependencies or not, false by default"
@@ -50,9 +65,9 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     override suspend fun run(cliContext: CliContext, model: Model) {
         val resolvedModule = resolveModuleIn(model.modules)
 
-        val platformSetsToResolveFor = platforms
-            ?.let { listOf(resolvedModule.getModuleLeafPlatforms(it)) }
-            ?: resolvedModule.fragments.map { it.platforms }.distinct()
+        val platformSetsToResolveFor = platformGroups
+            .map { it.checkAndFilterLeaves(resolvedModule) }
+            .ifEmpty { resolvedModule.fragments.map { it.platforms }.distinct() }
 
         val mavenCoordinates = filter?.resolveFilter()
 
@@ -143,47 +158,18 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     }
 
     /**
-     * Get intersection of platforms specified in command line and leaf platforms of the module.
-     * Report an error and exit immediately,
-     * if some input platforms are either unresolved or absent among module target platforms.
+     * Returns the leaf platforms from this group that are present in the given [module]'s declared platforms.
+     *
+     * If any explicit leaf platform from this group is not declared in the [module], it is reported as an error.
+     * If any intermediate platform from this group doesn't intersect with the [module] leaf platforms at all, it is
+     * reported as an error.
      */
-    private fun AmperModule.getModuleLeafPlatforms(
-        platformsString: String,
-    ): Set<Platform> {
-        val moduleLeafPlatforms = leafPlatforms
-        val platformNames = platformsString.split(",")
-
-        val unresolvedPlatformNames = mutableListOf<String>()
-        val notMatchingPlatforms = mutableListOf<Platform>()
-        val resolvedLeafPlatforms = mutableListOf<Platform>()
-
-        platformNames.forEach {
-            val resolvedPlatform = Platform[it]
-            if (resolvedPlatform == null) {
-                unresolvedPlatformNames.add(it)
-            } else {
-                val leafPlatforms = Platform.naturalHierarchyExt[resolvedPlatform]
-                    ?: error("Platform $resolvedPlatform ha no leaf platforms")
-                val correspondingModuleLeafPlatforms = leafPlatforms.intersect(moduleLeafPlatforms)
-                if (correspondingModuleLeafPlatforms.isEmpty()) {
-                    notMatchingPlatforms.add(resolvedPlatform)
-                } else {
-                    resolvedLeafPlatforms.addAll(correspondingModuleLeafPlatforms)
-                }
-            }
+    private fun PlatformGroup.checkAndFilterLeaves(module: AmperModule): Set<Platform> {
+        val validLeafPlatforms = validLeavesIn(module)
+        if (validLeafPlatforms.isEmpty()) {
+            // can never happen with an alias, so the wording is ok like this
+            userReadableError("Module '${module.userReadableName}' doesn't support platform '$name'")
         }
-        if (unresolvedPlatformNames.isNotEmpty()) {
-            userReadableError(
-                "The following platforms are unresolved: ${unresolvedPlatformNames.joinToString()}.\n\n" +
-                        "Module ${userReadableName} target platforms: ${moduleLeafPlatforms.joinToString { it.pretty }}"
-            )
-        }
-        if (notMatchingPlatforms.isNotEmpty()) {
-            userReadableError(
-                "Module ${userReadableName} " +
-                        "doesn't support platforms: ${notMatchingPlatforms.joinToString { it.pretty }}.\n"
-            )
-        }
-        return resolvedLeafPlatforms.toSet()
+        return validLeafPlatforms
     }
 }

@@ -49,8 +49,8 @@ class TypoTest : AmperCliTestBase() {
     fun `using -p ios should suggest macosArm64 and macosX64`() {
         testTypo(
             "run", "-p", "ios",
-            expectedError = "invalid value for -p: invalid choice: ios. Did you mean one of iosX64, iosArm64, " +
-                    "iosSimulatorArm64?\n\n" +
+            expectedError = "invalid value for -p: invalid choice: ios. Did you mean one of iosArm64, " +
+                    "iosSimulatorArm64, iosX64?\n\n" +
                     "Check the full list of supported platforms in the documentation:\n" +
                     "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
         )

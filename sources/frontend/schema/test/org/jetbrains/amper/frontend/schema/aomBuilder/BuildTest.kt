@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.ModulePart
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.parseStringWithReferences
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -119,6 +120,8 @@ class BuildTest {
         override val type: ProductType
             get() = throw UnsupportedOperationException()
         override val source: AmperModuleFileSource
+            get() = throw UnsupportedOperationException()
+        override val aliases: Map<String, Set<Platform>>
             get() = throw UnsupportedOperationException()
         override val fragments: List<Fragment>
             get() = throw UnsupportedOperationException()
