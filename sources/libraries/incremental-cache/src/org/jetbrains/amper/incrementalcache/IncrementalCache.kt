@@ -115,7 +115,7 @@ class IncrementalCache(
                 val (cachedState, cacheCheckTime) = measureTimedValue {
                     getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)
                 }
-                if (cachedState != null && !cachedState.outdated) {
+                if (cachedState != null && !cachedState.outdated && !forceRecalculation) {
                     logger.debug("[inc] up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
                     logger.debug("[inc] '$key' is up-to-date")
                     span.setAttribute("status", "up-to-date")
@@ -125,6 +125,7 @@ class IncrementalCache(
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
                 } else {
                     span.setAttribute("status", "requires-building")
+                    span.setAttribute("forceRecalculation", "$forceRecalculation")
                     logger.debug("[inc] building '$key'")
                 }
 

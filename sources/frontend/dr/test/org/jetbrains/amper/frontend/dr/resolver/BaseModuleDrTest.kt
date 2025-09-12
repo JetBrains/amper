@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import com.intellij.openapi.diagnostic.logger
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
@@ -31,6 +34,8 @@ import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
 import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -78,7 +83,9 @@ abstract class BaseModuleDrTest {
         fragment: String? = null,
         messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
-        val resolutionInputCopy = resolutionInput.copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot))
+        val resolutionInputCopy = resolutionInput
+            .copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot.resolve("fff")))
+            .copy(incrementalCacheUsage = getIncrementalCacheUsage())
 
         val graph =
             with(moduleDependenciesResolver) {
@@ -335,3 +342,36 @@ abstract class BaseModuleDrTest {
     protected fun String.toMavenCoordinates() =
         split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }
+
+private object ResolutionCacheUsageContextElementKey: CoroutineContext.Key<ResolutionCacheUsageContextElement>
+
+internal class ResolutionCacheUsageContextElement(
+    var resolutionCacheUsage: ResolutionCacheUsage
+) : CoroutineContext.Key<ResolutionCacheUsageContextElement>, CoroutineContext.Element {
+    override val key: CoroutineContext.Key<*>
+        get() = ResolutionCacheUsageContextElementKey
+
+    override fun toString(): String = "ResolutionCacheUsageContextElement"
+}
+
+internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
+    val resolutionCacheUsageContext = ResolutionCacheUsageContextElement(ResolutionCacheUsage.REFRESH_AND_USE)
+    runSlowTest(
+        context = EmptyCoroutineContext + resolutionCacheUsageContext,
+        testBody = {
+            try {
+                println("Running test with resolutionCacheUsage=${resolutionCacheUsageContext.resolutionCacheUsage}")
+                testBody()
+
+                resolutionCacheUsageContext.resolutionCacheUsage = ResolutionCacheUsage.USE
+                println("Running test with resolutionCacheUsage=${resolutionCacheUsageContext.resolutionCacheUsage}")
+                testBody()
+            } finally {
+                resolutionCacheUsageContext.resolutionCacheUsage = ResolutionCacheUsage.SKIP
+            }
+        }
+    )
+}
+
+private suspend fun getIncrementalCacheUsage() =
+    currentCoroutineContext()[ResolutionCacheUsageContextElementKey]?.resolutionCacheUsage?: ResolutionCacheUsage.SKIP

@@ -40,7 +40,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             resolutionInput = ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                skipIncrementalCache = true,
+                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "D2",
@@ -58,7 +58,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                skipIncrementalCache = true,
+                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "ios-app",
@@ -77,7 +77,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             resolutionInput = ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                skipIncrementalCache = true,
+                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             verifyMessages = false

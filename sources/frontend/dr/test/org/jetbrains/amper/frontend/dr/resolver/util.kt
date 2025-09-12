@@ -13,6 +13,8 @@ import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertIs
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -20,7 +22,8 @@ import kotlin.time.Duration.Companion.minutes
 /**
  * [runTest] but with a 5-minute timeout.
  */
-internal fun runSlowTest(testBody: suspend TestScope.() -> Unit) = runTest(timeout = 5.minutes, testBody = testBody)
+internal fun runSlowTest(context: CoroutineContext = EmptyCoroutineContext, testBody: suspend TestScope.() -> Unit) =
+    runTest(context = context, timeout = 5.minutes, testBody = testBody)
 
 internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNode = children
     .filterIsInstance<ModuleDependencyNode>()

@@ -116,7 +116,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
-        skipIncrementalCache: Boolean,
+        incrementalCacheUsage: ResolutionCacheUsage
     ): DependencyNode {
         return context.spanBuilder("DR.graph:resolveDependencies").use {
             when (resolutionDepth) {
@@ -144,11 +144,10 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         else -> null
                     }?.replaceTheEndWithMd5IfTooLong()
 
-                    if (resolutionId == null || skipIncrementalCache) {
+                    if (resolutionId == null || incrementalCacheUsage == ResolutionCacheUsage.SKIP) {
                         resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
                         this@resolveDependencies
                     } else {
-
                         // todo (AB): It should be adopted and moved into dependency-resolution library
                         // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
                         val executeOnChangedInputs = ExecuteOnChangedInputs(
@@ -169,6 +168,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                             // todo (AB): Think about id, it should specify graph all logical resolution scopes.
                             id = resolutionId,
                             configuration,
+                            forceRecalculation = (incrementalCacheUsage == ResolutionCacheUsage.REFRESH_AND_USE),
                             inputs = listOf(),
                         ) {
                             context.spanBuilder("DR.graph:resolution")
@@ -272,10 +272,10 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     private fun ResolutionConfig.key() = "${scope.name}:${platforms.joinToString(",")}:${repositories.joinToString(",")}"
 
     override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode {
-         with(resolutionInput) {
-             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
-             val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
-             return resolvedGraph as ModuleDependencyNode
+        with(resolutionInput) {
+            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
+            val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
+            return resolvedGraph as ModuleDependencyNode
         }
     }
 
@@ -296,7 +296,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         return with(resolutionInput) {
             resolutionInput.spanBuilder("DR: Resolving dependencies for the list of modules").use {
                 val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
-                val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, skipIncrementalCache)
+                val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, incrementalCacheUsage)
                 resolvedGraph
             }
         }

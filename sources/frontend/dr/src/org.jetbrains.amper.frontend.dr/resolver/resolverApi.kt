@@ -43,12 +43,18 @@ enum class ResolutionDepth {
     GRAPH_FULL
 }
 
+enum class ResolutionCacheUsage {
+    SKIP,
+    USE,
+    REFRESH_AND_USE,
+}
+
 data class ResolutionInput(
     val dependenciesFlowType: DependenciesFlowType,
     val resolutionDepth: ResolutionDepth,
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
-    val skipIncrementalCache: Boolean= false,
+    val incrementalCacheUsage: ResolutionCacheUsage = ResolutionCacheUsage.USE,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
     // todo (AB) : Replace it with OpenTelemetry (it could provide tracer as well as other useful stuff: meters)
     val spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
@@ -85,7 +91,7 @@ interface ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
-        skipIncrementalCache: Boolean= false,
+        incrementalCacheUsage: ResolutionCacheUsage = ResolutionCacheUsage.SKIP,
     ): DependencyNode
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode
