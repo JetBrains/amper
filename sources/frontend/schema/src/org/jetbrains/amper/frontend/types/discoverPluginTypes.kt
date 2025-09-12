@@ -122,7 +122,7 @@ private class ExternalObjectDeclaration(
                 this += SchemaObjectDeclaration.Property(
                     name = property.name,
                     type = typingContext.toSchemaType(pluginId, property.type),
-                    default = property.default?.let { Default.Static(it.toValue()) },
+                    default = property.default.toInternalDefault(forType = property.type),
                     documentation = property.doc,
                     origin = property.origin.toLocalPluginOrigin(),
                 )
@@ -139,6 +139,20 @@ private class ExternalObjectDeclaration(
                 )
             }
         }
+    }
+
+    private fun Defaults?.toInternalDefault(forType: PluginData.Type): Default<*>? {
+        if (this != null) {
+            return Default.Static(toValue())
+        }
+
+        if (forType is PluginData.Type.ObjectType && !forType.isNullable) {
+            // For non-nullable objects we instantiate a nested object by default, like with `by nested()`
+            // Note: the real type will be taken out of the property type, so it's not important what to put here.
+            return Default.NestedObject(ExtensionSchemaNode::class)
+        }
+
+        return null
     }
 
     private fun Defaults.toValue(): Any? = when(this) {
