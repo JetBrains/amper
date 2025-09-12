@@ -8,8 +8,12 @@ tasks:
   generate-konfig:
     # taskDir: <set automatically>
     action: !org.jetbrains.amper.plugins.buildkonfig.generateKonfig
-      config: ${module.configuration}
-      outputDir: ${taskDir}  # can be made default to `${taskDir}`?
+      config: ${module.configuration.config}
+      packageName: ${module.configuration.packageName}
+      objectName: ${module.configuration.objectName}
+      visibility: ${module.configuration.visibility}
+      outputDir: ${taskDir}/sources
+      baselinePropertiesFile: ${module.rootDir}/${module.configuration.propertiesFileName}.properties
     markOutputsAs:
       - path: ${action.outputDir} # physical reference
         kind: kotlin-sources

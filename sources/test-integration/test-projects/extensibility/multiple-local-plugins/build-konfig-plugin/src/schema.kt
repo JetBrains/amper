@@ -14,7 +14,9 @@ interface Schema1 {
 
     val objectName: String
 
-    val visibility: Visibility?
+    val visibility: Visibility get() = Visibility.`public`
+
+    val propertiesFileName: String get() = "konfig"
 }
 
 enum class Visibility {

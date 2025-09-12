@@ -1,0 +1,12 @@
+
+tasks:
+  some-task:
+    action: !com.example.someAction
+      boolean1: ${module.configuration.boolean}
+      boolean2: ${module.configuration.requiredString} # ${module.configuration.boolean}+true
+      requiredString: "prefix-${module.configuration.requiredString}-${boolean1}"
+      nullablePath: ${module.configuration.path}/${requiredString}
+      path: ${module.configuration}
+      nullableInt: ${module.configuration.nullablePath}
+      nested1: ${module}
+      nested2: ${module.configuration.nested.map}

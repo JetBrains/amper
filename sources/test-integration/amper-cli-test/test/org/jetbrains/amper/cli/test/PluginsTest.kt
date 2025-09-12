@@ -9,8 +9,11 @@ import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.AmperCliResult
+import org.jetbrains.amper.test.normalizeLineSeparators
 import kotlin.io.path.div
+import kotlin.io.path.readText
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class PluginsTest : AmperCliTestBase() {
@@ -137,6 +140,19 @@ class PluginsTest : AmperCliTestBase() {
             assertStdoutContains("tasks${slash}_hello-plugin_say@hello")
             assertStdoutContains("multiple-local-plugins${slash}hello-plugin")
         }
+
+        runCli(
+            projectRoot = r.projectRoot,
+            "run", "-m", "app",
+        )
+
+        assertContains(
+            charSequence = (r.projectRoot / "app" / "konfig.properties").readText().normalizeLineSeparators(),
+            other = """
+                ID=chair-red-dog
+                VERSION=1.0
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -188,6 +204,31 @@ class PluginsTest : AmperCliTestBase() {
                 actual = parseErrors(),
             )
             assertStdoutDoesNotContain("Processing local plugin schema for")
+        }
+    }
+
+    @Test
+    fun `invalid references`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("extensibility/invalid-references"),
+            "show", "tasks",
+            copyToTempDir = true,
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        )
+        with(result) {
+            val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
+            assertEquals(
+                expected = sortedSetOf(
+                    "${pluginYaml}:11:7: The value of type `ModuleConfigurationForPlugin` cannot be assigned to the type `Nested`",
+                    "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
+                    "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
+                    "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
+                    "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
+                    "${pluginYaml}:4:5: No value for required property 'int'.",
+                ),
+                actual = parseErrors(),
+            )
         }
     }
 

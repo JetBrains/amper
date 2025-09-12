@@ -1,0 +1,10 @@
+product:
+  type: jvm/app
+
+settings:
+  plugin1:
+    enabled: true
+    requiredBoolean: false
+    requiredString: "foo"
+    path: ./some-path
+    int: 42

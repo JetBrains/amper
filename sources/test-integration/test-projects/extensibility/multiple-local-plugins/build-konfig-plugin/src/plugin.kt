@@ -9,9 +9,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.amper.*
 
 import java.nio.file.Path
-import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.io.path.walk
+import java.util.*
+import kotlin.io.path.*
 
 @TaskAction
 fun printSources(
@@ -25,20 +24,26 @@ fun printSources(
 
 @TaskAction(ExecutionAvoidance.Disabled)
 fun generateKonfig(
-    config: Schema1,
+    config: Map<String, String>,
+    packageName: String,
+    objectName: String,
+    visibility: Visibility,
+    @Output baselinePropertiesFile: Path,
     @Output outputDir: Path,
 ) {
     println("Generating Build Konfig...")
     val className = ClassName(
-        packageName = config.packageName,
-        config.objectName,
+        packageName = packageName,
+        objectName,
     )
+    val outProperties = Properties()
     val typeSpec = TypeSpec.objectBuilder(className).apply {
-        when (config.visibility ?: Visibility.public) {
+        when (visibility) {
             Visibility.internal -> addModifiers(KModifier.INTERNAL)
             Visibility.public -> addModifiers(KModifier.PUBLIC)
         }
-        config.config.forEach { (key, value) ->
+        config.forEach { (key, value) ->
+            outProperties.setProperty(key, value)
             addProperty(
                 PropertySpec.builder(key, STRING, KModifier.CONST)
                     .initializer("%S", value)
@@ -46,6 +51,7 @@ fun generateKonfig(
             )
         }
     }.build()
+    baselinePropertiesFile.bufferedWriter().use { outProperties.store(it, "generated") }
 
     FileSpec.builder(className)
         .addType(typeSpec)
