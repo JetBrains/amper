@@ -106,7 +106,7 @@ interface AmperModule {
 }
 
 /**
- * Returns all fragments in this module that target the given [platforms].
+ * Returns all fragments in this module that target at least the given set of [platforms].
  * If [includeTestFragments] is false, only production fragments are returned.
  */
 fun AmperModule.fragmentsTargeting(platforms: Set<Platform>, includeTestFragments: Boolean): List<Fragment> =
