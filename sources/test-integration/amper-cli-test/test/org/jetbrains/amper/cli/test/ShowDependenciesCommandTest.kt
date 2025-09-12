@@ -20,7 +20,7 @@ import kotlin.test.Test
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
-class DependenciesCommandTest : AmperCliTestBase(), GoldenTest {
+class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
 
     // FIXME this is not the build dir. Why are we doing this?
     override fun buildDir(): Path = tempRoot
