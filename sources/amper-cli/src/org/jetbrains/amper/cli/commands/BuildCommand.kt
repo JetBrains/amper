@@ -19,9 +19,10 @@ internal class BuildCommand : AmperModelAwareCommand(name = "build") {
                 "This option can be repeated to build several modules."
     ).multiple().unique()
 
-    private val platforms by leafPlatformOption(help = "Only build for the specified platform. " +
-            "This option can be repeated to build several platforms.")
-        .multiple().unique()
+    private val platforms by leafPlatformOption(
+        help = "Only build for the specified platform. This option can be repeated to build several platforms. " +
+                "By default, sources are built for all platforms."
+    ).multiple().unique()
 
     private val buildTypes by buildTypeOption(
         help = "Build the specified variant. This option can be repeated to build several variants. " +

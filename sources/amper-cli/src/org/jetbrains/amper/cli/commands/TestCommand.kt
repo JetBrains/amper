@@ -23,7 +23,7 @@ import org.jetbrains.amper.test.TestFilter
 internal class TestCommand : AmperModelAwareCommand(name = "test") {
 
     private val platforms by leafPlatformOption(
-        help = "Only run tests for the specified platform. The option can be repeated to test several platforms."
+        help = "Only run tests for the specified platform. The option can be repeated to test several platforms.",
     ).multiple()
 
     // Note: we can't use patterns for test methods because JUnit Console Launcher only supports literals for this

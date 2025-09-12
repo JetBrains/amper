@@ -18,8 +18,10 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
 
     private val module by option("-m", "--module", help = "Specific module to run (run the `show modules` command to get the modules list)")
 
-    private val platform by leafPlatformOption(help = "Run the app on specified platform. This option is only necessary if " +
-            "the module has multiple main functions for different platforms")
+    private val platform by leafPlatformOption(
+        help = "Run the app on specified platform. This option is only necessary if the module has multiple main " +
+                "functions for different platforms",
+    )
 
     private val deviceId by option(
         "-d", "--device-id",

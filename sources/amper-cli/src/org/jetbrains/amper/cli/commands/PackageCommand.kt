@@ -28,13 +28,13 @@ internal class PackageCommand : AmperModelAwareCommand(name = "package") {
 
     private val buildTypes by buildTypeOption(
         help = "The variant to package. This option can be repeated to package several variants. " +
-                "Release variant is packaged by default."
+                "The release variant is packaged by default."
     ).multiple().unique()
 
     private val formats by option(
         "-f",
         "--format",
-        help = "The output package format.",
+        help = "The output package format. This option can be repeated to package into several formats.",
     )
         .enum<PackageTask.Format> { it.value }
         .multiple()

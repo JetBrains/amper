@@ -24,6 +24,13 @@ import kotlin.collections.sorted
 private val checkPlatformsListMsg =
     "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
 
+/**
+ * Accepts a leaf platform, with proper completion and typo correction suggestions.
+ *
+ * For commands that need multiple platforms, use this option with the
+ * [multiple][com.github.ajalt.clikt.parameters.options.multiple] modifier so it can be repeated by users.
+ * For consistency, do not use comma-separated lists.
+ */
 internal fun BaseCliktCommand<*>.leafPlatformOption(help: String) = option(
     "-p",
     "--platform",
