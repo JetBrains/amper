@@ -181,7 +181,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         if (notMatchingPlatforms.isNotEmpty()) {
             userReadableError(
                 "Module ${userReadableName} " +
-                        "doesn't support platforms: ${notMatchingPlatforms.joinToString()}.\n"
+                        "doesn't support platforms: ${notMatchingPlatforms.joinToString { it.pretty }}.\n"
             )
         }
         return resolvedLeafPlatforms.toSet()

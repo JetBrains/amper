@@ -47,6 +47,7 @@
         <option value="sources/test-integration/test-projects/ksp-jvm-dagger-catalog" />
         <option value="sources/test-integration/test-projects/ksp-jvm-koin" />
         <option value="sources/test-integration/test-projects/ksp-kmp-koin" />
+        <option value="sources/test-integration/test-projects/multiplatform-lib-with-alias" />
         <option value="sources/test-integration/test-projects/native-test-app-test" />
         <option value="sources/test-integration/test-projects/native-test-no-test-sources" />
         <option value="sources/test-integration/test-projects/native-test-no-tests" />
