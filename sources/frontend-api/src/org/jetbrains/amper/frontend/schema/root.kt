@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -118,6 +119,7 @@ enum class AmperLayout(
 
 class Meta : SchemaNode() {
 
+    @GradleSpecific("custom file layouts are not supported in standalone Amper")
     @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interoperability)")
     var layout by value(AmperLayout.AMPER)
 }
