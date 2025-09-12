@@ -194,7 +194,7 @@ class PublishingSettings : SchemaNode() {
 
     @PlatformAgnostic
     @SchemaDoc("Enable publication of the module to Maven repositories")
-    var enabled by value(default = true) // FIXME this is only for the transition and should be made 'false'
+    var enabled by value(default = false)
 
     @PlatformAgnostic
     @SchemaDoc("Group ID of the published Maven artifact")

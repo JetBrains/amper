@@ -134,7 +134,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -284,7 +284,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -430,7 +430,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -579,7 +579,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -726,7 +726,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -873,7 +873,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1023,7 +1023,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1173,7 +1173,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1320,7 +1320,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1470,7 +1470,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1617,7 +1617,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null
@@ -1767,7 +1767,7 @@ Fragments:
       }
       native: <default> null
       publishing: <default> {
-        enabled: <default> true
+        enabled: <default> false
         group: <default> null
         name: <default> null
         version: <default> null

@@ -118,7 +118,7 @@ settings@android
      version: 1.18.38  # [default]
 
   publishing:
-     enabled: true  # [default]
+     enabled: false  # [default]
      group:
 
      name:
@@ -229,7 +229,7 @@ settings@jvm
      version: 1.18.38  # [default]
 
   publishing:
-     enabled: true  # [default]
+     enabled: false  # [default]
      group:
 
      name:
@@ -358,7 +358,7 @@ settings@jvm+android
      version: 1.18.38  # [default]
 
   publishing:
-     enabled: true  # [default]
+     enabled: false  # [default]
      group:
 
      name:
@@ -473,7 +473,7 @@ settings@jvm
      version: 1.18.38  # [default]
 
   publishing:
-     enabled: true  # [default]
+     enabled: false  # [default]
      group:
 
      name:
@@ -596,7 +596,7 @@ settings@android
      version: 1.18.38  # [default]
 
   publishing:
-     enabled: true  # [default]
+     enabled: false  # [default]
      group:
 
      name:

@@ -123,7 +123,7 @@
       "version(DefaultCtx)" : "1.18.38(DefaultCtx)"
     },
     "publishing" : {
-      "enabled(DefaultCtx)" : "true(DefaultCtx)",
+      "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "group(DefaultCtx)" : "null(DefaultCtx)",
       "name(DefaultCtx)" : "null(DefaultCtx)",
       "version(DefaultCtx)" : "null(DefaultCtx)"

@@ -89,7 +89,6 @@ class CustomTasksTest : AmperCliTestBase() {
     }
 
     @Test
-    @EnabledOnOs(OS.LINUX, OS.MAC)  // Windows may have problems with Unicode symbols.
     fun `custom task dependencies with loops`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("customTasks/custom-task-dependencies-loops"), "show", "tasks",

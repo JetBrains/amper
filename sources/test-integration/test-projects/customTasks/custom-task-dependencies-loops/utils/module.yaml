@@ -8,6 +8,10 @@ repositories:
     url: mavenLocal
     publish: true
 
+settings:
+  publishing:
+    enabled: true
+
 tasks:
   testJvm:
     dependsOn: [:main-lib:publishJvmToMavenLocal]
