@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultCtxs
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import java.util.*
+import org.jetbrains.amper.stdlib.collections.IdentityHashSet
 
 context(buildCtx: BuildCtx)
 internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
@@ -65,13 +65,14 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
        Appending defaults to every object value would bloat the tree (make the tree almost complete).
        That would still work, but we want to avoid complete trees.
      */
-    val rootsForDefaults = IdentityHashMap<MapLikeValue<*>, Unit>()
-    rootsForDefaults[this] = Unit  // (a)
+    val rootsForDefaults = IdentityHashSet<MapLikeValue<*>>()
+    rootsForDefaults += this  // (a)
 
     fun TreeValue<*>.findRootsForDefaults(): Unit = when (this) {
         is ListValue<*> -> children.forEach { value ->
             if (value is MapLikeValue<*> && value.type != null) {
                 rootsForDefaults[value] = Unit  // (c)
+                rootsForDefaults += value  // (c)
             }
             value.findRootsForDefaults()
         }
@@ -83,7 +84,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
             }
             val default = type?.getProperty(child.key)?.default
             if (default == null || (default is Default.Static && default.value == null)) {
-                rootsForDefaults[value] = Unit  // (b)
+                rootsForDefaults += value  // (b)
             }
         }
         else -> Unit
@@ -103,7 +104,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
  * Visitor that is adding default values with special [DefaultTrace] trace and [DefaultCtxs] context to the tree.
  */
 private class DefaultsAppender(
-    val rootsForDefaults: IdentityHashMap<MapLikeValue<*>, Unit>,
+    val rootsForDefaults: Set<MapLikeValue<*>>,
 ) : TreeTransformer<TreeState>() {
     override fun visitMapValue(value: MapLikeValue<TreeState>): TransformResult<MapLikeValue<TreeState>> {
         val transformResult = super.visitMapValue(value)
