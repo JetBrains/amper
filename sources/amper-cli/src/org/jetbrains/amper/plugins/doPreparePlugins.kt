@@ -109,7 +109,7 @@ internal suspend fun doPreparePlugins(
             .writeText(Json.encodeToString(results.map { it.pluginData }))
 
         reporter.replayProblemsTo(CliProblemReporter)
-        if (reporter.problems.isNotEmpty()) {
+        if (reporter.problems.any { it.level.atLeastAsSevereAs(Level.Error) }) {
             userReadableError("Local plugins pre-processing failed, see the errors above.")
         }
 
