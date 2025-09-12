@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
-import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
@@ -27,14 +26,10 @@ import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.slf4j.LoggerFactory
-import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
 import java.net.URLClassLoader
 import java.nio.file.Path
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.kotlinFunction
 
 class TaskFromPlugin(
@@ -160,15 +155,11 @@ class TaskFromPlugin(
 
         val actionFacade = classLoader.loadClass(description.actionClassJvmName)
         val actionMethod = actionFacade.methods.first { it.name == description.actionFunctionJvmName }.kotlinFunction!!
+        val marshaller = ValueMarshaller(classLoader)
         val argumentsMap = description.actionArguments.mapKeys { (name, _) ->
             actionMethod.parameters.first { it.name == name }
-        }.mapValues { (_, value) ->
-            when (value) {
-                is ExtensionSchemaNode -> createProxy(classLoader, value)
-                is SchemaNode -> TODO("Passing internal schema objects to external tasks is not yet supported")
-                is Path -> value
-                else -> value
-            }
+        }.mapValues { (parameter, value) ->
+            marshaller.marshallValue(value, parameter.type.javaType)
         }
 
         try {
@@ -176,36 +167,6 @@ class TaskFromPlugin(
         } catch (e: InvocationTargetException) {
             throw e.targetException
         }
-    }
-
-    private fun createProxy(
-        classLoader: ClassLoader,
-        value: ExtensionSchemaNode,
-    ): Any {
-        val interfaceClass = classLoader.loadClass(checkNotNull(value.interfaceName) {
-            "Not reached: the schema object has no plugin counterpart"
-        })
-        val handler = InvocationHandler { proxy: Any, method: Method, args: Array<out Any?>? ->
-            when (method.name) {
-                "toString" -> value.toStableJsonLikeString()
-                "hashCode" -> value.hashCode()
-                "equals" -> args?.get(0) === proxy
-                else -> {
-                    val property = method.declaringClass.kotlin.memberProperties
-                        .first { it.getter.javaMethod == method }
-                    val value = value.valueHolders[property.name]?.value
-                    when {
-                        value == null -> null
-                        method.returnType.isEnum -> {
-                            check(value is String)
-                            method.returnType.enumConstants.filterIsInstance<Enum<*>>().first { it.name == value }
-                        }
-                        else -> value
-                    }
-                }
-            }
-        }
-        return Proxy.newProxyInstance(classLoader, arrayOf(interfaceClass), handler)
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
