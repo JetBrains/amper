@@ -34,18 +34,15 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     )
 
     private val includeTests by option("--include-tests",
-        help = "Whether to include information about test dependencies or not, false by default")
-        .flag(default = false)
+        help = "Whether to include information about test dependencies or not, false by default"
+    ).flag("--exclude-tests", default = false)
 
     private val filter by option("--filter",
         metavar = "groupId:artifactId",
-        help = "Coordinates of a particular dependency from the module dependencies graph. " +
-                "Only maven dependencies are supported at the moment in a format group:module. " +
-                "group defines a maven library group and module defines maven library module" +
-                "If the argument is specified, a subgraph of module dependencies that contains paths from root " +
-                "to the specified dependency will be presented as a result. " +
-                "If a dependency version is resolved based on a dependency constraint, " +
-                "the path from the root to that constraint will be included in the resulting subgraph as well. "
+        help = "Filter the dependency graph to only show paths that contain a specific dependency, in any version. " +
+                "Only maven dependencies are supported at the moment, in the format `groupId:artifactId`. " +
+                "If a dependency version is resolved based on a dependency constraint, the path from the root to " +
+                "that constraint will be included in the resulting subgraph as well. "
     )
 
     override fun help(context: com.github.ajalt.clikt.core.Context): String = "Print the resolved dependencies graph of the module"
