@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.golden.readContentsAndReplace
@@ -120,6 +121,7 @@ internal fun readAndRefineModule(
     var merged = treeMerger.mergeTrees(tree)
     merged = if (withDefaults) merged.appendDefaultValues() else merged
     merged.refineTree(contexts, minimalModule.combinedInheritance)
+        .resolveReferences()
 }
 
 // Helper function read the module with templates and refine it with selected contexts.

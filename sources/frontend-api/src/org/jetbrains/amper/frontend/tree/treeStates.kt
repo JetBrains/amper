@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.tree
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.MapLikeValue.Property
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaType
 
 /**
  * This is a hint to limit compile time [TreeValue] usage.
@@ -18,7 +18,7 @@ typealias OwnedTree = TreeValue<TreeState>
 
 class Owned(
     override val children: MapLikeChildren<TreeState>,
-    override val type: SchemaObjectDeclaration?,
+    override val type: SchemaType.MapLikeType,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : MapLikeValue<TreeState>, TreeState
@@ -27,7 +27,7 @@ typealias MergedTree = TreeValue<Merged>
 
 class Merged(
     override val children: MapLikeChildren<Merged>,
-    override val type: SchemaObjectDeclaration?,
+    override val type: SchemaType.MapLikeType,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : MapLikeValue<Merged>, TreeState
@@ -36,7 +36,7 @@ typealias RefinedTree = TreeValue<Refined>
 
 class Refined(
     val refinedChildren: Map<String, Property<TreeValue<Refined>>>,
-    override val type: SchemaObjectDeclaration?,
+    override val type: SchemaType.MapLikeType,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : MapLikeValue<Refined>, TreeState {
@@ -48,7 +48,7 @@ class Refined(
  */
 fun <TS : TreeState> MapLikeValue<TS>.copy(
     children: MapLikeChildren<TS> = this.children,
-    type: SchemaObjectDeclaration? = this.type,
+    type: SchemaType.MapLikeType = this.type,
     trace: Trace = this.trace,
     contexts: Contexts = this.contexts,
 ): MapLikeValue<TS> = when (this) {
@@ -79,7 +79,7 @@ fun <TS : TreeState> MapLikeValue<TS>.copy(
 inline fun <TS : TreeState, reified T : TreeValue<TS>> MapLikeValue<TS>.copy(
     trace: Trace = this.trace,
     contexts: Contexts = this.contexts,
-    type: SchemaObjectDeclaration? = this.type,
+    type: SchemaType.MapLikeType = this.type,
     crossinline transform: (key: String, pValue: T, old: Property<TreeValue<TS>>) -> MapLikeChildren<TS>?,
 ) = copy(
     children = children.flatMap { if (it.value is T) transform(it.key, it.value, it).orEmpty() else listOf(it) },

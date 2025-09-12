@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -27,13 +28,20 @@ import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.asMapLike
+import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
+import org.jetbrains.amper.frontend.types.SchemaOrigin
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
@@ -201,15 +209,15 @@ private class PluginTreeReader(
 
         val tree = readTree(
             file = pluginFile,
-            type = declaration,
+            declaration = declaration,
             reportUnknowns = true,
             parseReferences = true,
             parseContexts = false,
         )
 
-        treeMerger.mergeTrees(tree)
+        val withDefaults = treeMerger.mergeTrees(tree)
             .appendDefaultValues()
-            .let { treeRefiner.refineTree(it, EmptyContexts) } as MapLikeValue<Refined>
+        treeRefiner.refineTree(withDefaults, EmptyContexts) as MapLikeValue<Refined>
     }
 
     fun asAppliedTo(
@@ -217,8 +225,9 @@ private class PluginTreeReader(
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginData.id.value)
+            ?.asMapLike ?: return null
 
-        val enabled = pluginConfiguration?.asMapLikeAndGet("enabled")?.scalarValue<Boolean>()
+        val enabled = pluginConfiguration["enabled"].singleOrNull()?.value?.scalarValue<Boolean>()
         if (enabled != true) return null
 
         val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
@@ -227,14 +236,29 @@ private class PluginTreeReader(
                 projectContext.getTaskOutputRoot(pluginTaskNameFor(module.module, pluginData.id, name))
             }.orEmpty()
 
+        val configurationType = pluginConfiguration.type as SchemaType.ObjectType
+        val moduleConfigurationDeclaration = object : SchemaObjectDeclarationBase() {
+            override val properties = listOf(
+                SchemaObjectDeclaration.Property(
+                    "configuration", configurationType, origin = configurationType.declaration.origin, default = null,
+                ),
+                SchemaObjectDeclaration.Property(
+                    "rootDir", SchemaType.PathType, origin = SchemaOrigin.Builtin, default = null,
+                ),
+            )
+            override fun createInstance(): SchemaNode = ExtensionSchemaNode(null)
+            override val qualifiedName get() = "ModuleConfigurationForPlugin"
+            override val origin get() = SchemaOrigin.Builtin
+        }
+
         // Build a tree with computed "reference-only" values.
         val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
             `object`<PluginYamlRoot> {
-                "module" setTo map {
+                "module" setTo `object`(moduleConfigurationDeclaration.toType()) {
                     "configuration" setTo pluginConfiguration
                     "rootDir" setTo scalar(moduleRootDir)
                 }
-                PluginYamlRoot::tasks setTo map {
+                PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {
                         taskName setTo `object`<Task> {
                             "taskDir" setTo scalar(taskBuildRoot)
@@ -244,11 +268,11 @@ private class PluginTreeReader(
             }
         }
 
-        treeMerger.mergeTrees(listOfNotNull(pluginTree, referenceValuesTree))
-            .resolveReferences()
-            // TODO: filter-out reference-only values? So far they don't cause any trouble
-            .let { treeRefiner.refineTree(it, EmptyContexts) }
-            .let { createSchemaNode<PluginYamlRoot>(it) }
+        val mergedTree = treeMerger.mergeTrees(listOfNotNull(pluginTree, referenceValuesTree))
+        val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
+        // TODO: filter-out reference-only values? So far they don't cause any trouble
+        val resolvedTree = refinedTree.resolveReferences()
+        createSchemaNode<PluginYamlRoot>(resolvedTree)
     }
 
     private fun TreeValue<Refined>.asMapLikeAndGet(property: String): TreeValue<Refined>? {

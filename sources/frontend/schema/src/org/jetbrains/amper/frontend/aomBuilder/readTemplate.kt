@@ -28,14 +28,13 @@ context(problemReporter: ProblemReporter)
 @UsedInIdePlugin
 fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog =
     with(BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)) {
-        val templateTree = readTree(file = templateFile, type = templateAType)
+        val templateTree = readTree(file = templateFile, declaration = templateAType)
             .appendDefaultValues()
-            .resolveReferences()
-        val mergedTemplateTree = treeMerger.mergeTrees(templateTree)
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.
         // NOTE: That will change when nested templated are allowed.
-        val noContextsTree = refiner.refineTree(mergedTemplateTree, EmptyContexts)
+        val noContextsTree = refiner.refineTree(templateTree, EmptyContexts)
+            .resolveReferences()
         val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
         val builtinCatalog = noContextsTemplate?.settings?.builtInCatalog() ?: EmptyVersionCatalog
         builtinCatalog + projectVersionsCatalog

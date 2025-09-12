@@ -151,12 +151,12 @@ internal fun BuildCtx.readModuleMergedTree(
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
         .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
         .appendDefaultValues()
-        .resolveReferences()
 
     // Choose catalogs.
     // TODO This should be done without refining somehow?
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
     val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
+        .resolveReferences()
     val commonModule = createSchemaNode<Module>(commonTree)
         ?: return null
     val effectiveCatalog = commonModule.settings.builtInCatalog() + projectVersionsCatalog

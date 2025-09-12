@@ -54,9 +54,9 @@ internal fun BuildCtx.buildCustomTask(
 
     val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>())
         .appendDefaultValues()
-        .resolveReferences()
     val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
-    
+        .resolveReferences()
+
     // We can cast here only because no contexts are available inside the task definition.
     val node = createSchemaNode<CustomTaskNode>(refined) ?: return
     val customTask = with(problemReporter) {

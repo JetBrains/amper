@@ -58,16 +58,16 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
     val minimalModule = with(copy(problemReporter = collectingReporter)) {
         val rawModuleTree = readTree(
             moduleFilePath,
-            type = types.getDeclaration<MinimalModule>(),
+            declaration = types.getDeclaration<MinimalModule>(),
             reportUnknowns = false,
         )
 
         // We need to resolve defaults for the tree.
         val moduleTree = rawModuleTree
             .appendDefaultValues()
-            .resolveReferences()
 
         val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
+            .resolveReferences()
         val delegate = object : MissingPropertiesHandler.Default(collectingReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,

@@ -7,11 +7,24 @@ package org.jetbrains.amper.frontend.types
 sealed interface SchemaType {
     val isMarkedNullable: Boolean
 
+    /**
+     * Type for [org.jetbrains.amper.frontend.tree.ScalarValue]
+     */
     sealed interface ScalarType : SchemaType
     
     sealed interface TypeWithDeclaration : SchemaType {
         val declaration: SchemaTypeDeclaration
     }
+
+    /**
+     * Type for [org.jetbrains.amper.frontend.tree.StringInterpolationValue]
+     */
+    sealed interface StringInterpolatableType : ScalarType
+
+    /**
+     * Type for [org.jetbrains.amper.frontend.tree.MapLikeValue]
+     */
+    sealed interface MapLikeType : SchemaType
 
     data class BooleanType(
         override val isMarkedNullable: Boolean = false,
@@ -25,12 +38,12 @@ sealed interface SchemaType {
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
         val knownStringValues: Set<String>? = null,
-    ) : ScalarType
+    ) : ScalarType, StringInterpolatableType
 
     data class PathType(
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
-    ) : ScalarType
+    ) : ScalarType, StringInterpolatableType
 
     data class EnumType(
         override val declaration: SchemaEnumDeclaration,
@@ -41,7 +54,7 @@ sealed interface SchemaType {
     data class ObjectType(
         override val declaration: SchemaObjectDeclaration,
         override val isMarkedNullable: Boolean = false,
-    ) : TypeWithDeclaration
+    ) : TypeWithDeclaration, MapLikeType
 
     data class VariantType(
         override val declaration: SchemaVariantDeclaration,
@@ -54,12 +67,15 @@ sealed interface SchemaType {
     ) : SchemaType
 
     data class MapType(
-        val keyType: StringType,
         val valueType: SchemaType,
+        val keyType: StringType = StringType,
         override val isMarkedNullable: Boolean = false,
-    ) : SchemaType
+    ) : SchemaType, MapLikeType
 
     companion object {
-        val KeyStringType: StringType = StringType()
+        val StringType = StringType()
+        val TraceableStringType = StringType(isTraceableWrapped = true)
+        val PathType = PathType()
+        val BooleanType = BooleanType()
     }
 }

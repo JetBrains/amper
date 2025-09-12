@@ -22,19 +22,19 @@ internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): 
             reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
-        else -> scalarValue(scalar, boolean)
+        else -> scalarValue(scalar, type, boolean)
     }
     is SchemaType.IntType -> when(val int = scalar.textValue.toIntOrNull()) {
         null -> {
             reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
-        else -> scalarValue(scalar, int)
+        else -> scalarValue(scalar, type, int)
     }
     is SchemaType.StringType -> {
         val string = scalar.textValue
         val value = if (type.isTraceableWrapped) string.asTraceable(scalar.psi.asTrace()) else string
-        scalarValue(scalar, value)
+        scalarValue(scalar, type, value)
     }
     is SchemaType.EnumType -> parseEnum(scalar, type)
     is SchemaType.PathType -> parsePath(scalar, type)
@@ -52,7 +52,7 @@ private fun parsePath(scalar: YAMLScalarOrKey, type: SchemaType.PathType): Scala
     path = if (path.isAbsolute) path else config.basePath.resolve(path)
     path = path.normalize()
     val value = if (type.isTraceableWrapped) path.asTraceable(scalar.psi.asTrace()) else path
-    return scalarValue(scalar, value)
+    return scalarValue(scalar, type, value)
 }
 
 context(_: Contexts, _: ProblemReporter)
@@ -83,5 +83,5 @@ internal fun parseEnum(
         enumConstant.asTraceable(scalar.psi.asTrace())
     } else enumConstant
 
-    return scalarValue(scalar, value)
+    return scalarValue(scalar, type, value)
 }

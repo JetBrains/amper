@@ -27,6 +27,7 @@ class TreePsiLookupVisitor<TS : TreeState>(
     override fun visitNullValue(value: NullValue<TS>) = value.checkSelf()
     override fun visitScalarValue(value: ScalarValue<TS>) = value.checkSelf()
     override fun visitReferenceValue(value: ReferenceValue<TS>) = value.checkSelf()
+    override fun visitStringInterpolationValue(value: StringInterpolationValue<TS>) = value.checkSelf()
 
     override fun visitNoValue(value: NoValue) = null
 

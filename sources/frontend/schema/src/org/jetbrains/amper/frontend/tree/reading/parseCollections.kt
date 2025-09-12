@@ -36,6 +36,7 @@ internal fun parseList(psi: YAMLSequence, type: SchemaType.ListType): ListValue<
         children = psi.items.mapNotNull { item ->
             parseListValue(item)
         },
+        type = type,
         trace = psi.asTrace(),
         contexts = contexts,
     )
@@ -49,7 +50,7 @@ internal fun parseMap(psi: YAMLMapping, type: SchemaType.MapType): Owned {
     return mapLikeValue(
         children = children,
         origin = psi,
-        type = null,
+        type = type,
     )
 }
 
@@ -84,7 +85,7 @@ internal fun parseMapFromSequence(psi: YAMLSequence, type: SchemaType.MapType): 
     return mapLikeValue(
         origin = psi,
         children = children,
-        type = null,
+        type = type,
     )
 }
 
@@ -95,7 +96,7 @@ private fun parseKeyValueForMap(
 ): MapLikeValue.Property<*>? {
     val key = YAMLScalarOrKey.parseKey(psi)
         ?: return null
-    val keyScalar = parseScalar(key, SchemaType.KeyStringType)
+    val keyScalar = parseScalar(key, SchemaType.StringType)
         ?: return null
     return MapLikeValue.Property(
         key = keyScalar.value as String,

@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.diagnostics.helpers
 
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.tree.RecurringTreeVisitor
-import org.jetbrains.amper.frontend.tree.RecurringTreeVisitorUnit
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.MapProperty
@@ -14,15 +12,18 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.MergedTree
 import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
+import org.jetbrains.amper.frontend.tree.RecurringTreeVisitor
+import org.jetbrains.amper.frontend.tree.RecurringTreeVisitorUnit
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.ScalarProperty
 import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.StringInterpolationValue
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.tree.visitMapLikeValues
 import org.jetbrains.amper.frontend.types.isSameAs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-
 
 /**
  * Visit all passed scalar properties within given [TreeValue].
@@ -75,7 +76,7 @@ inline fun <reified T : SchemaNode> MergedTree.visitListProperties(
 inline fun <reified T : SchemaNode> MergedTree.visitObjects(
     crossinline block: (MapLikeValue<Merged>) -> Unit
 ) = visitMapLikeValues { 
-    if (it.type?.isSameAs<T>() == true) block(it)
+    if (it.declaration?.isSameAs<T>() == true) block(it)
 }
 
 /**
@@ -88,7 +89,7 @@ class ObjectPropertiesVisitorRecurring(
 ) : RecurringTreeVisitorUnit<Merged>() {
 
     override fun visitMapValue(value: MapLikeValue<Merged>) {
-        if (value.type?.isSameAs(objectKlass) == true) value.children.map { it.doVisitMapProperty() }
+        if (value.declaration?.isSameAs(objectKlass) == true) value.children.map { it.doVisitMapProperty() }
         else super.visitMapValue(value)
     }
 
@@ -111,6 +112,7 @@ private object AllScalarPropertiesCollector : RecurringTreeVisitor<ScalarPropert
     override fun visitScalarValue(value: ScalarValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun visitNoValue(value: NoValue) = emptyList<ScalarPropertyWithOwner>()
     override fun visitReferenceValue(value: ReferenceValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitStringInterpolationValue(value: StringInterpolationValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun aggregate(value: MergedTree, childResults: List<ScalarPropertiesWithOwner>) = childResults.flatten()
     override fun visitMapValue(value: MapLikeValue<Merged>) = super.visitMapValue(value) +
             value.children.filter { it.value is ScalarValue }.map { value to (it as ScalarProperty<Merged>) }

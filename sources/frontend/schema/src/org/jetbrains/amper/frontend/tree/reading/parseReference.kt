@@ -7,59 +7,102 @@ package org.jetbrains.amper.frontend.tree.reading
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ReferenceValue
+import org.jetbrains.amper.frontend.tree.StringInterpolationValue
 import org.jetbrains.amper.frontend.tree.TreeState
+import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.regex.getValue
 
 context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseReference(
+internal fun parseReferenceOrInterpolation(
     scalar: YAMLScalarOrKey,
     type: SchemaType,
-): ReferenceValue<*>? {
-    val textValue = scalar.textValue
-    val match = checkNotNull(ReferenceSyntax.matchEntire(textValue)) {
-        "Should not be called unless 'containsReferenceSyntax' is true"
-    }
-    val prefix by match
-    val suffix by match
-    val reference by match
-    val closingBrace by match
-    if (closingBrace == null) {
-        // TODO: more granular range reporting
-        reportParsing(scalar.psi, "validation.reference.missing.closing.brace")
-        // Return some reference
-        return null
-    }
-
-    val hasInterpolation = !prefix.isNullOrEmpty() || !suffix.isNullOrEmpty()
-    if (hasInterpolation && !type.supportsInterpolation()) {
-        // TODO: more granular range reporting
-        reportParsing(scalar.psi, "validation.types.unsupported.interpolation", type.render())
-        return null
-    }
-
-    return ReferenceValue<TreeState>(
-        value = reference!!,
-        trace = scalar.psi.asTrace(),
-        contexts = contexts,
-        prefix = prefix.orEmpty(),
-        suffix = suffix.orEmpty(),
-        type = type,
+): TreeValue<*>? {
+    val parts = mutableListOf<StringInterpolationValue.Part>()
+    splitIntoParts(
+        scalar.textValue,
+        onMatch = { match ->
+            // TODO: more granular range reporting
+            val reference by match
+            val closingBrace by match
+            if (closingBrace == null) {
+                reportParsing(scalar.psi, "validation.reference.missing.closing.brace")
+                return null
+            }
+            val referenceText = reference
+            if (referenceText.isNullOrBlank()) {
+                reportParsing(scalar.psi, "validation.reference.empty")
+                return null
+            }
+            if ('$' in referenceText || '{' in referenceText) {
+                reportParsing(scalar.psi, "validation.reference.nested")
+                return null
+            }
+            val referencePath = referenceText.split('.')
+            if (referencePath.any { it.isEmpty() }) {
+                reportParsing(scalar.psi, "validation.reference.empty.element")
+            }
+            parts.add(StringInterpolationValue.Part.Reference(referencePath))
+        },
+        onText = { text ->
+            parts.add(StringInterpolationValue.Part.Text(text))
+        },
     )
+    require(parts.isNotEmpty())
+
+    return if (parts.size > 1) {
+        if (type !is SchemaType.StringInterpolatableType) {
+            // TODO: more granular range reporting
+            reportParsing(scalar.psi, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
+            return null
+        }
+        StringInterpolationValue<TreeState>(
+            parts = parts,
+            trace = scalar.psi.asTrace(),
+            contexts = contexts,
+            type = type,
+        )
+    } else {
+        val reference = checkNotNull(parts.first() as StringInterpolationValue.Part.Reference) {
+            "Should not be called unless 'containsReferenceSyntax' is true"
+        }
+        ReferenceValue<TreeState>(
+            referencedPath = reference.referencePath,
+            trace = scalar.psi.asTrace(),
+            contexts = contexts,
+            type = type,
+        )
+    }
+}
+
+private inline fun splitIntoParts(
+    input: String,
+    onMatch: (MatchResult) -> Unit,
+    onText: (String) -> Unit,
+) {
+    var position = 0
+    while (position < input.length) {
+        val match = ReferenceSyntax.find(input, position)
+        if (match != null) {
+            if (match.range.first > position) {
+                onText(input.substring(position, match.range.first))
+            }
+            onMatch(match)
+            position = match.range.last + 1
+        } else {
+            onText(input.substring(position))
+            break
+        }
+    }
 }
 
 internal fun containsReferenceSyntax(scalar: YAMLScalarOrKey): Boolean {
     val textValue = scalar.textValue
-    return ReferenceSyntax.matchEntire(textValue) != null
-}
-
-private fun SchemaType.supportsInterpolation() = when(this) {
-    is SchemaType.PathType, is SchemaType.StringType -> true
-    else -> false
+    return ReferenceSyntax.containsMatchIn(textValue)
 }
 
 // The closing brace is optional here, so when this matches, it doesn't mean that the reference is valid.
 private val ReferenceSyntax =
-    """^(?<prefix>.*?)\$\{(?<reference>[^{}\n]*)(?<closingBrace>})?(?<suffix>.*)$""".toRegex()
+    """\$\{(?<reference>[^}\n]*)(?<closingBrace>})?""".toRegex()

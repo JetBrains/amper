@@ -57,12 +57,12 @@ fun parsePluginManifestFromModuleFile(
     with(BuildCtx(frontendPathResolver, NoopProblemReporter)) {
         val pluginModuleTree = readTree(
             file = moduleFile,
-            type = types.getDeclaration<MinimalPluginModule>(),
+            declaration = types.getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
             parseContexts = false,
         ).appendDefaultValues()
-            .resolveReferences()
         val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
+            .resolveReferences()
         val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree)
             ?: return null
 

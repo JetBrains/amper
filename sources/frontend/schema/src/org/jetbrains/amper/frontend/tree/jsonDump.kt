@@ -26,7 +26,7 @@ fun TreeValue<*>.jsonDump(
     fun Context.pathCtxString() = if (this is PathCtx) path.toNioPath().normalizedPath() else null
     fun TreeValue<*>.contextStr() = contexts
         .filter(contextsFilter).ifEmpty { null }
-        ?.joinToString(",", "(", ")") { it.pathCtxString() ?: it.toString() }
+        ?.joinToString(separator = ",", prefix = "(", postfix = ")") { it.pathCtxString() ?: it.toString() }
         ?: ""
 
     // Hiding actual logic in internal function. Also, convenient for parameters passing.
@@ -50,6 +50,10 @@ fun TreeValue<*>.jsonDump(
             }
 
             is ScalarOrReference -> {
+                val value = when (this@doJsonDump) {
+                    is ScalarValue -> value
+                    else -> null
+                }
                 val asPath = (value as? Path) ?: (value as? TraceablePath)?.value
                 val asNormalizedPath = asPath?.normalizedPath()
                 if (asNormalizedPath != null) append("\"$asNormalizedPath${contextStr()}\"")

@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.SchemaType.Companion.KeyStringType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -158,7 +157,7 @@ private fun parseObjectFromScalarShorthand(
         val secondary = type.declaration.getSecondaryShorthand()
 
         if (boolean != null && scalar.textValue == boolean.name) {
-            return boolean to scalarValue(scalar, true)
+            return boolean to scalarValue(scalar, SchemaType.BooleanType, true)
         }
         return when (val type = secondary?.type) {
             is SchemaType.EnumType -> secondary to parseEnum(
@@ -222,7 +221,7 @@ private fun parsePropertyKeyContexts(
     key: YAMLScalarOrKey,
 ): Pair<String, Contexts>? {
     val keyText = context(EmptyContexts) {
-        parseScalar(key, KeyStringType) ?: return null
+        parseScalar(key, SchemaType.StringType) ?: return null
     }.value as String
     if (config.supportContexts) {
         val keyWithoutContext = keyText.substringBefore('@')

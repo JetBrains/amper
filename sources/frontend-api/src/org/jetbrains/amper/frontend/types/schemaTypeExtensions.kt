@@ -42,7 +42,7 @@ fun SchemaType.render(
         is SchemaType.PathType -> append("path")
         is SchemaType.StringType -> append("string")
         is SchemaType.ListType -> append("sequence [${elementType.render(false)}]")
-        is SchemaType.MapType -> append("mapping {${SchemaType.KeyStringType.render(false)} : ${valueType.render(false)}}")
+        is SchemaType.MapType -> append("mapping {${keyType.render(false)} : ${valueType.render(false)}}")
         is SchemaType.EnumType -> {
             // TODO: Introduce a public-name concept?
             append(declaration.simpleName())
@@ -117,3 +117,24 @@ fun SchemaType.render(
 }
 
 private fun String.quote() = '"' + this + '"'
+
+fun <T : SchemaType> T.withNullability(
+    isMarkedNullable: Boolean,
+): T {
+    if (isMarkedNullable == this.isMarkedNullable) {
+        return this
+    }
+    val copy = when (this) {
+        is SchemaType.ListType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.MapType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.ObjectType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.BooleanType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.EnumType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.IntType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.PathType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.StringType -> copy(isMarkedNullable = isMarkedNullable)
+        is SchemaType.VariantType -> copy(isMarkedNullable = isMarkedNullable)
+    }
+    @Suppress("UNCHECKED_CAST")
+    return copy as T
+}

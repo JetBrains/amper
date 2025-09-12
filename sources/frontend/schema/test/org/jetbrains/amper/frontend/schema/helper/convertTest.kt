@@ -36,8 +36,8 @@ private class ConvertTestRun(
         with(BuildCtx(pathResolver, problemReporter)) {
             val tree = readTree(inputFile, moduleAType)
                 .appendDefaultValues()
-                .resolveReferences()
             val refined = tree.refineTree(EmptyContexts, defaultContextsInheritance)
+                .resolveReferences()
             createSchemaNode<Module>(refined)
         }
         return problemReporter.problems.joinToString { it.message }

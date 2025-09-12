@@ -74,7 +74,7 @@ internal fun parseValue(
         if (config.supportReferences && psi is YAMLScalar) {
             val scalar = YAMLScalarOrKey(psi)
             if (containsReferenceSyntax(scalar)) {
-                return parseReference(scalar, type)
+                return parseReferenceOrInterpolation(scalar, type)
             }
         }
 

@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -202,6 +203,7 @@ internal fun BuildCtx.createFragments(
                 platforms.map { PlatformCtx(it.pretty) } +
                 PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
+            .resolveReferences()
         val handler = object : MissingPropertiesHandler.Default(problemReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,

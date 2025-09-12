@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.StringInterpolationValue
 import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.copy
@@ -34,17 +35,17 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 
 context(contexts: Contexts)
-internal fun scalarValue(origin: YAMLScalarOrKey, value: Any) =
-    ScalarValue<TreeState>(value, origin.psi.asTrace(), contexts)
+internal fun scalarValue(origin: YAMLScalarOrKey, type: SchemaType.ScalarType, value: Any) =
+    ScalarValue<TreeState>(value, type, origin.psi.asTrace(), contexts)
 
 context(contexts: Contexts)
 internal fun mapLikeValue(
     origin: PsiElement,
-    type: SchemaType.ObjectType?,
+    type: SchemaType.MapLikeType,
     children: MapLikeChildren<TreeState>,
 ) = Owned(
     children = children,
-    type = type?.declaration,
+    type = type,
     trace = origin.asTrace(),
     contexts = contexts,
 )
@@ -95,6 +96,7 @@ internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue
         is MapLikeValue<T> -> copy(trace = trace)
         is NoValue -> NoValue(trace = trace)
         is ReferenceValue<T> -> copy(trace = trace)
+        is StringInterpolationValue<T> -> copy(trace = trace)
         is ScalarValue<T> -> copy(trace = trace)
         is NullValue<T> -> copy(trace = trace)
     }

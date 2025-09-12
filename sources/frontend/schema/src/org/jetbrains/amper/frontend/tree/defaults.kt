@@ -70,8 +70,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
 
     fun TreeValue<*>.findRootsForDefaults(): Unit = when (this) {
         is ListValue<*> -> children.forEach { value ->
-            if (value is MapLikeValue<*> && value.type != null) {
-                rootsForDefaults[value] = Unit  // (c)
+            if (value is MapLikeValue<*> && value.type is SchemaType.ObjectType) {
                 rootsForDefaults += value  // (c)
             }
             value.findRootsForDefaults()
@@ -79,10 +78,10 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
         is MapLikeValue<*> -> for (child in children) {
             child.value.findRootsForDefaults()
             val value = child.value as? MapLikeValue<*>
-            if (value?.type == null) {
+            if (value?.type !is SchemaType.ObjectType) {
                 continue
             }
-            val default = type?.getProperty(child.key)?.default
+            val default = declaration?.getProperty(child.key)?.default
             if (default == null || (default is Default.Static && default.value == null)) {
                 rootsForDefaults += value  // (b)
             }
@@ -109,7 +108,7 @@ private class DefaultsAppender(
     override fun visitMapValue(value: MapLikeValue<TreeState>): TransformResult<MapLikeValue<TreeState>> {
         val transformResult = super.visitMapValue(value)
 
-        val declaration = value.type
+        val declaration = value.declaration
         if (declaration == null || value !in rootsForDefaults)
             return transformResult
 
@@ -140,9 +139,9 @@ private fun Default<*>.toTreeValue(type: SchemaType): TreeValue<TreeState>? = wh
     is Default.Static -> toTreeValue(type)
     is Default.NestedObject -> {
         check(type is SchemaType.ObjectType)
-        Owned(createDefaultProperties(type.declaration), null, DefaultTrace, DefaultCtxs)
+        Owned(createDefaultProperties(type.declaration), type, DefaultTrace, DefaultCtxs)
     }
-    is Default.DirectDependent -> ReferenceValue(property.name, DefaultTrace, DefaultCtxs, type = type)
+    is Default.DirectDependent -> ReferenceValue(listOf(property.name), type, DefaultTrace, DefaultCtxs)
     is Default.TransformedDependent<*, *> -> {
         // FIXME: Not yet supported! Need to rethink this default kind and implement it in another way
         null
@@ -155,21 +154,21 @@ private fun Default.Static<*>.toTreeValue(type: SchemaType): TreeValue<TreeState
         check(type.isMarkedNullable)
         NullValue(DefaultTrace, DefaultCtxs)
     } else when (type) {
-        is SchemaType.ScalarType -> ScalarValue(value, DefaultTrace, DefaultCtxs)
+        is SchemaType.ScalarType -> ScalarValue(value, type, DefaultTrace, DefaultCtxs)
         is SchemaType.ListType -> {
             check(value is List<*>)
             check(value.isEmpty() || type.elementType is SchemaType.ScalarType) {
                 "Non-empty lists as defaults are allowed only for lists with scalar element types"
             }
             val children = value.map { Default.Static(it).toTreeValue(type.elementType) }
-            ListValue(children, DefaultTrace, DefaultCtxs)
+            ListValue(children, type, DefaultTrace, DefaultCtxs)
         }
         is SchemaType.MapType -> {
             check(value == emptyMap<Nothing, Nothing>()) {
                 "Only an empty map is permitted as a default for a map property. " +
                         "If there are cases, you'll need to extend the implementation here"
             }
-            Owned(emptyList(), null, DefaultTrace, DefaultCtxs)
+            Owned(emptyList(), type, DefaultTrace, DefaultCtxs)
         }
         is SchemaType.ObjectType, is SchemaType.VariantType -> {
             error("Static defaults for object types are not supported")

@@ -22,8 +22,8 @@ internal fun readProject(
     with(BuildCtx(resolver, problemReporter)) {
         val projectTree = readTree(projectFile, projectAType)
             .appendDefaultValues()
-            .resolveReferences()
         val noContextsTree = TreeRefiner().refineTree(projectTree, EmptyContexts)
+            .resolveReferences()
         createSchemaNode<Project>(noContextsTree)
             ?: error("No required values must be in the project schema!")
     }

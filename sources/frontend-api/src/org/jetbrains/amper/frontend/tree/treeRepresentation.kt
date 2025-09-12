@@ -29,9 +29,7 @@ sealed interface TreeValue<out TS : TreeState> : WithContexts, Traceable {
     fun withContexts(contexts: Contexts): TreeValue<TS>
 }
 
-sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS> {
-    val value: Any?
-}
+sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS>
 
 /**
  * Represent no set value. E.g. `foo: ` in YAML.
@@ -54,7 +52,6 @@ data class NullValue<out TS : TreeState>(
     override val trace: Trace,
     override val contexts: Contexts,
 ) : ScalarOrReference<TS> {
-    override val value: Nothing? = null
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
 }
 
@@ -65,7 +62,8 @@ fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all {
  * This is a scalar value tree node. E.g., string, boolean, enum or path.
  */
 data class ScalarValue<out TS : TreeState>(
-    override val value: Any,
+    val value: Any,
+    val type: SchemaType.ScalarType,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : ScalarOrReference<TS> {
@@ -80,16 +78,39 @@ inline fun <reified T : Any> TreeValue<*>.scalarValueOr(block: () -> T) = scalar
  * This is a reference value tree node, pointing to some subtree.
  */
 data class ReferenceValue<out TS : TreeState>(
-    override val value: String,
+    val referencedPath: List<String>,
+    val type: SchemaType,
     override val trace: Trace,
     override val contexts: Contexts,
-    val prefix: String = "",
-    val suffix: String = "",
-    val type: SchemaType,
 ) : ScalarOrReference<TS> {
-    /** Convenient alias */
-    val referencedPath get() = value
+    init {
+        require(referencedPath.isNotEmpty()) { "`referencePath` can't be empty" }
+    }
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
+}
+
+data class StringInterpolationValue<TS : TreeState>(
+    val parts: List<Part>,
+    val type: SchemaType.StringInterpolatableType,
+    override val trace: Trace,
+    override val contexts: Contexts,
+) : ScalarOrReference<TS> {
+    init {
+        require(parts.any { it is Part.Reference }) {
+            "Makes no sense to construct StringInterpolationValue without references"
+        }
+    }
+
+    override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
+
+    sealed interface Part {
+        data class Reference(val referencePath: List<String>) : Part {
+            init {
+                require(referencePath.isNotEmpty()) { "`referencePath` can't be empty" }
+            }
+        }
+        data class Text(val text: String): Part
+    }
 }
 
 /**
@@ -97,6 +118,7 @@ data class ReferenceValue<out TS : TreeState>(
  */
 data class ListValue<TS : TreeState>(
     val children: List<TreeValue<TS>>,
+    val type: SchemaType.ListType,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : TreeValue<TS> {
@@ -110,6 +132,7 @@ data class ListValue<TS : TreeState>(
         children = children.flatMap { if (it is T) transform(it).orEmpty() else listOf(it) },
         trace = trace,
         contexts = contexts,
+        type = type,
     )
 }
 
@@ -125,7 +148,7 @@ inline val <TS : TreeState> TreeValue<TS>.asList get() = asSafely<ListValue<TS>>
  */
 interface MapLikeValue<out TS : TreeState> : TreeValue<TS> {
     val children: MapLikeChildren<TS>
-    val type: SchemaObjectDeclaration?
+    val type: SchemaType.MapLikeType
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
     data class Property<out T : TreeValue<*>>(
         val key: String,
@@ -149,10 +172,13 @@ interface MapLikeValue<out TS : TreeState> : TreeValue<TS> {
     }
 }
 
+val MapLikeValue<*>.declaration: SchemaObjectDeclaration? get() = when(val type = type) {
+    is SchemaType.MapType -> null
+    is SchemaType.ObjectType -> type.declaration
+}
 // Convenient aliases for typed map-like nodes.
 typealias MapProperty<TS> = Property<MapLikeValue<TS>>
 typealias ScalarProperty<TS> = Property<ScalarValue<TS>>
-typealias ReferenceProperty<TS> = Property<ReferenceValue<TS>>
 typealias MapLikeChildren<TS> = List<Property<TreeValue<TS>>>
 
 // Convenient accessors for typed map-like nodes.
@@ -166,50 +192,3 @@ operator fun <TS : TreeState> MapLikeValue<TS>.get(key: String) = children.filte
 operator fun <TS : TreeState> List<MapLikeValue<TS>>.get(key: String) = flatMap { it[key] }
 operator fun <TS : TreeState> MapLikeValue<TS>.get(prop: KProperty1<*, *>) = this[prop.name]
 fun Refined.single(key: String) = refinedChildren[key]
-
-// MapLikeValue.Property constructors.
-
-/** Constructs a [MapLikeValue.Property] instance with [ScalarValue] inside. */
-@Suppress("FunctionName")
-fun ScalarProperty(
-    aProp: SchemaObjectDeclaration.Property,
-    kTrace: Trace,
-    value: Any,
-    trace: Trace,
-    contexts: Contexts,
-) = ScalarProperty<Owned>(
-    key = aProp.name,
-    kTrace = kTrace,
-    value = ScalarValue(value, trace, contexts),
-    pType = aProp,
-)
-
-/** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
-@Suppress("FunctionName")
-fun ReferenceProperty(
-    aProp: SchemaObjectDeclaration.Property,
-    kTrace: Trace,
-    referencedPath: String,
-    trace: Trace,
-    contexts: Contexts,
-) = ReferenceProperty<Owned>(
-    key = aProp.name,
-    kTrace = kTrace,
-    value = ReferenceValue(referencedPath, trace, contexts, type = aProp.type),
-    pType = aProp,
-)
-
-/** Constructs a [MapLikeValue.Property] instance with [ReferenceValue] inside. */
-@Suppress("FunctionName")
-fun MapProperty(
-    aProp: SchemaObjectDeclaration.Property,
-    kTrace: Trace,
-    trace: Trace,
-    contexts: Contexts,
-    type: SchemaObjectDeclaration?,
-) = MapProperty(
-    key = aProp.name,
-    kTrace = kTrace,
-    value = Owned(emptyList(), type, trace, contexts),
-    pType = aProp,
-)

@@ -28,7 +28,7 @@ import kotlin.io.path.absolute
 
 internal fun BuildCtx.readTree(
     file: VirtualFile,
-    type: SchemaObjectDeclaration,
+    declaration: SchemaObjectDeclaration,
     vararg contexts: Context,
     reportUnknowns: Boolean = true,
     parseReferences: Boolean = false,
@@ -49,10 +49,10 @@ internal fun BuildCtx.readTree(
                     context(config, problemReporter, rootContexts) {
                         parseFile(
                             file = psiFile as YAMLFile,
-                            type = type.toType(),
+                            type = declaration.toType(),
                         )
                     }
-                } ?: Owned(emptyList(), type, psiFile.asTrace(), rootContexts)
+                } ?: Owned(emptyList(), declaration.toType(), psiFile.asTrace(), rootContexts)
             }
             else -> error("Unsupported language: ${psiFile.language}")
         }

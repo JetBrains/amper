@@ -16,15 +16,17 @@ import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
+import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.StringInterpolationValue
 import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
-import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -86,15 +88,22 @@ private fun createNode(
     forProperty: SchemaObjectDeclaration.Property? = null,
     propertyKeyTrace: Trace? = null,
 ): Any? {
-    if (value is NoValue) {
-        if (forProperty?.isValueRequired() == true) {
-            missingPropertiesHandler.onMissingRequiredPropertyValue(
-                trace = value.trace,
-                valuePath = valuePath,
-                keyTrace = propertyKeyTrace,
-            )
+    when (value) {
+        is NoValue -> {
+            if (forProperty?.isValueRequired() == true) {
+                missingPropertiesHandler.onMissingRequiredPropertyValue(
+                    trace = value.trace,
+                    valuePath = valuePath,
+                    keyTrace = propertyKeyTrace,
+                )
+            }
+            return ValueCreationErrorToken
         }
-        return ValueCreationErrorToken
+        is ReferenceValue, is StringInterpolationValue -> {
+            // Do not report: must be already reported during reference resolution
+            return ValueCreationErrorToken
+        }
+        else -> {}
     }
 
     return when (type) {
@@ -103,10 +112,10 @@ private fun createNode(
         is SchemaType.MapType if (value is Refined) -> createMapNode(value, type, valuePath)
         is SchemaType.ObjectType if (value is Refined) -> createObjectNode(value, type, valuePath)
         is SchemaType.VariantType if (value is Refined) -> {
-            check(value.type in type.declaration.variants) {
+            check(value.declaration in type.declaration.variants) {
                 "Type error: ${value.type} not among ${type.declaration.variants}"
             }
-            createNode(value.type!!.toType(), value, valuePath)
+            createNode(value.type, value, valuePath)
         }
         else if (type.isMarkedNullable && value is NullValue<*>) -> null
         else -> {

@@ -214,7 +214,6 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
         isMarkedNullable = type.isNullable,
     )
     is PluginData.Type.MapType -> SchemaType.MapType(
-        keyType = SchemaType.KeyStringType,
         valueType = toSchemaType(pluginId, type.valueType),
         isMarkedNullable = type.isNullable,
     )

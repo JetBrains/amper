@@ -62,6 +62,7 @@ class RefineRequest(
         return when (node) {
             is ListValue -> ListValue(
                 children = node.children.filterByContexts().map(::refine),
+                type = node.type,
                 trace = node.trace,
                 contexts = node.contexts,
             )
@@ -89,11 +90,13 @@ class RefineRequest(
                         is NullValue -> second.copy(trace = newTrace)
                         is ScalarValue -> second.copy(trace = newTrace)
                         is ReferenceValue -> second.copy(trace = newTrace)
+                        is StringInterpolationValue<*> -> second.copy(trace = newTrace)
                         is NoValue -> if (first is NoValue) NoValue(trace = newTrace) else refine(first)
                         is ListValue<*> -> {
                             val firstChildren = (first as? ListValue<*>)?.children.orEmpty()
                             ListValue(
                                 children = firstChildren.plus(second.children).filterByContexts().map(::refine),
+                                type = second.type,
                                 trace = second.trace.withPrecedingValue(first),
                                 contexts = second.contexts,
                             )
@@ -136,10 +139,6 @@ class RefineRequest(
             second.copy(newValue = block(first.value, second.value))
         }
     }
-
-    @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : TreeValue<*>> List<MapLikeValue.Property<*>>.filterPropValueIs() =
-        filter { it.value is T } as List<MapLikeValue.Property<T>>
 
     /**
      * Refines the element if it is single or applies [reduce] to a collection of properties grouped by keys.

@@ -31,7 +31,6 @@ import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
@@ -53,8 +52,7 @@ internal class CatalogVersionsSubstitutor(
 
     override fun visitMapValue(value: MapLikeValue<Merged>): TransformResult<MapLikeValue<Merged>> {
         // Here we don't know what kind of node we are visiting, so we have to use `super`.
-        val valueType = value.type?.toType() ?: return super.visitMapValue(value)
-        val substituted = substitutionTypes[valueType] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
+        val substituted = substitutionTypes[value.type] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
         val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
@@ -73,7 +71,7 @@ internal class CatalogVersionsSubstitutor(
         )
         val newChildren = value.children - catalogKeyProp +
                 MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
-        return Changed(value.copy(children = newChildren, type = substituted.declaration))
+        return Changed(value.copy(children = newChildren, type = substituted))
     }
 }
 
