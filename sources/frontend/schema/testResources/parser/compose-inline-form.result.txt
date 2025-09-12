@@ -1,7 +1,7 @@
 Fragments:
   main
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ComposeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -13,9 +13,9 @@ Fragments:
 
   test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=ScalarValue(value=false, trace=DefaultTrace, contexts=[DefaultCtx]), computedValueTrace=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ComposeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       main (FRIEND)

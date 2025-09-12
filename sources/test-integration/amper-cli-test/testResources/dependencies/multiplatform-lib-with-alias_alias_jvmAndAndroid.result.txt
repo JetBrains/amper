@@ -9,10 +9,10 @@ Module multiplatform-lib-with-alias
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.0 -> 2.2.20
 ├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlin:kotlin-stdlib:2.2.20, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.20
-├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
+├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 -> 2.2.20
-├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
+├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
 │         ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 -> 2.2.20
 │         ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0 (*)
@@ -20,9 +20,9 @@ Module multiplatform-lib-with-alias
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1 (*)
 ├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.20, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.20
-├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
+├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0 (*)
-╰─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
+╰─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, implicit
      ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0 (*)
 
 Module multiplatform-lib-with-alias
@@ -34,10 +34,10 @@ Module multiplatform-lib-with-alias
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.0 -> 2.2.20
 ├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlin:kotlin-stdlib:2.2.20, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.20
-├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
+├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
 │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 -> 2.2.20
-├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
+├─── multiplatform-lib-with-alias:jvmAndAndroid:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
 │         ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 -> 2.2.20
 │         ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0 (*)
@@ -45,7 +45,7 @@ Module multiplatform-lib-with-alias
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1 (*)
 ├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.20, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.20
-├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
+├─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0, implicit
 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0 (*)
-╰─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
+╰─── multiplatform-lib-with-alias:common:org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0, implicit
      ╰─── org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0 (*)

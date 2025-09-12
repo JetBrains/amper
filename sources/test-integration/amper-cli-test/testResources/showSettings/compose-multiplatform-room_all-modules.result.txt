@@ -2,7 +2,7 @@ Module: android-app
 
 settings@android
   android:
-     applicationId: org.example.namespace  # [Inherited from 'namespace']
+     applicationId: org.example.namespace  # [Default, inherited from 'namespace']
      compileSdk: 35  # [default]
      maxSdk:
 
@@ -21,7 +21,7 @@ settings@android
         enabled: false  # [default]
         propertiesFile: keystore.properties  # [default]
 
-     targetSdk: 35  # [Inherited from 'compileSdk']
+     targetSdk: 35  # [Default, inherited from 'compileSdk']
      versionCode: 1  # [default]
      versionName: unspecified  # [default]
 
@@ -256,7 +256,7 @@ settings@jvm+android
         additionalAnnotations: []  # [default]
         enabled: false  # [default]
 
-     targetSdk: 35  # [Inherited from 'compileSdk']
+     targetSdk: 35  # [Default, inherited from 'compileSdk']
 
   compose:
      enabled: true  # [module.yaml (shared)]
@@ -498,7 +498,7 @@ settings@android
         additionalAnnotations: []  # [default]
         enabled: false  # [default]
 
-     targetSdk: 35  # [Inherited from 'compileSdk']
+     targetSdk: 35  # [Default, inherited from 'compileSdk']
 
   compose:
      enabled: true  # [module.yaml (shared)]

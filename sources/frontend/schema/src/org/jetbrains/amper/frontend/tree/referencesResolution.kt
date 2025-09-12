@@ -4,10 +4,13 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.api.TrivialTraceable
-import org.jetbrains.amper.frontend.api.withComputedValueTrace
+import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
+import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.TraceableValue
+import org.jetbrains.amper.frontend.api.TransformedValueTrace
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.contexts.DefaultCtx
+import org.jetbrains.amper.frontend.tree.reading.copyWithTrace
 import org.jetbrains.amper.frontend.types.SchemaType
 import kotlin.io.path.Path
 
@@ -49,10 +52,7 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
                     oldProp
                 } else {
                     // We are basically copying the reference and substituting the referenced value in each copy.
-                    oldProp.copy(
-                        value = resolvedVal,
-                        kTrace = oldProp.kTrace.withComputedValueTrace(TrivialTraceable(resolvedVal.trace)),
-                    )
+                    oldProp.copy(value = resolvedVal)
                 }
             }
 
@@ -95,10 +95,22 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
                     }
                     else -> it
                 }
+            }.map { tree ->
+                tree.copyWithTrace(
+                    TransformedValueTrace(
+                        description = $$"injected resolved reference ${$${value.referencedPath}}",
+                        sourceValue = TraceableValue(value = this, trace = value.resolvedTrace(resolvedValue = tree)),
+                        definitionTrace = value.trace,
+                    )
+                )
+            }
+        } else {
+            resolved = resolved.map {
+                it.copyWithTrace(value.resolvedTrace(resolvedValue = it))
             }
         }
 
-        if (value.trace is DefaultTrace) {
+        if (value.trace.isDefault) {
             // Adjust contexts if the reference was the DefaultValue.
             resolved = resolved.map { it.withContexts(it.contexts + DefaultCtx) }
         }
@@ -114,6 +126,12 @@ private class TreeReferencesResolver : TreeTransformer<Merged>() {
 }
 
 private fun MergedTree.areThereAnyReferences() = AreThereAnyReferences.visitValue(this)
+
+private fun ReferenceValue<*>.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
+    description = $$"resolved from ${$$referencedPath}",
+    referenceTrace = trace,
+    resolvedValue = resolvedValue,
+)
 
 private object AreThereAnyReferences : RecurringTreeVisitor<Boolean, Merged>() {
     override fun visitNullValue(value: NullValue<Merged>) = false

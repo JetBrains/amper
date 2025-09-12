@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
-import org.jetbrains.amper.frontend.api.isDefault
+import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -109,7 +109,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
         return null
     }
 
-    if (minimalModule.product.type == ProductType.LIB && minimalModule.product::platforms.isDefault) {
+    if (minimalModule.product.type == ProductType.LIB && !minimalModule.product::platforms.isExplicitlySet) {
         problemReporter.reportMissingExplicitPlatforms(minimalModule.product)
         return null
     }

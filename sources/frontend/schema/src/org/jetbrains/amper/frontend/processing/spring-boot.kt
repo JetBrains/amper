@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
 import org.jetbrains.amper.frontend.schema.AllOpenSettings
@@ -25,7 +25,10 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 context(buildCtx: BuildCtx)
 internal fun Merged.configureSpringBootDefaults(moduleCtxModule: Module) =
     if (moduleCtxModule.settings.springBoot.enabled) {
-        val springDefault = DefaultTrace(computedValueTrace = moduleCtxModule.settings.springBoot::enabled.schemaDelegate)
+        val springDefault = TransformedValueTrace(
+            description = "because Spring Boot is enabled",
+            sourceValue = moduleCtxModule.settings.springBoot::enabled.schemaDelegate,
+        )
         buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.springBootDefaultsTree(springDefault)))
    } else {
         this

@@ -7,12 +7,12 @@ package org.jetbrains.amper.frontend.schema.helper
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
-import org.jetbrains.amper.frontend.api.Default
-import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
+import org.jetbrains.amper.frontend.api.isDefault
 import kotlin.reflect.full.hasAnnotation
 
 /**
@@ -142,8 +142,8 @@ private class HumanReadableSerializerVisitor(
         // We don't care about such properties
         if (schemaValue.property.hasAnnotation<HiddenFromCompletion>()) return
 
-        val isSetToDefault = schemaValue.trace is DefaultTrace
-        val isDerived = schemaValue.default is Default.Dependent<*, *>
+        val isSetToDefault = schemaValue.trace.isDefault
+        val isDerived = schemaValue.trace is DerivedValueTrace
 
         /*
         We still want to print derived properties because if the logic of its calculation is changed we want to notice

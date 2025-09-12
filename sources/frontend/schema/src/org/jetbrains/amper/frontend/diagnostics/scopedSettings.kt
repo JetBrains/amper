@@ -10,8 +10,8 @@ import org.jetbrains.amper.frontend.Platform.COMMON
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchyExt
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.contexts.platformCtxs
 import org.jetbrains.amper.frontend.contexts.unwrapAliases
@@ -46,7 +46,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         val minimalModule: MinimalModule,
         val prop: MapLikeValue.Property<*>,
     ) {
-        fun doCheck() = if (prop.value.trace !is DefaultTrace) {
+        fun doCheck() = if (!prop.value.trace.isDefault) {
             platformAgnostic()
             platformSpecific()
             productSpecific()

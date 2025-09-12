@@ -7,8 +7,10 @@ package org.jetbrains.amper.frontend.processing
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import org.jetbrains.amper.frontend.schema.Module
@@ -26,8 +28,15 @@ internal fun Merged.configurePluginDefaults(moduleDir: PsiDirectory, product: Mo
                 asMapLike,
                 buildCtx.pluginIdDefaultsTree(
                     moduleName = moduleDir.name,
-                    trace = DefaultTrace(computedValueTrace = product),
-                    idTrace = DefaultTrace(computedValueTrace = TraceableString(moduleDir.name, moduleDir.asTrace())),
+                    trace = TransformedValueTrace(
+                        description = "default plugin module structure",
+                        sourceValue = product,
+                    ),
+                    idTrace = ResolvedReferenceTrace(
+                        description = "default, from the module name",
+                        referenceTrace = DefaultTrace,
+                        resolvedValue = TraceableString(moduleDir.name, moduleDir.asTrace()),
+                    ),
                 ),
             )
         )

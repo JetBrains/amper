@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.tree
 
 import com.intellij.util.asSafely
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.contexts.WithContexts
@@ -19,8 +19,8 @@ import kotlin.reflect.KProperty1
  * This a value tree node base class.
  * Basically, every tree node must contain contexts and a trace.
  */
-sealed interface TreeValue<out TS : TreeState> : WithContexts {
-    val trace: Trace
+sealed interface TreeValue<out TS : TreeState> : WithContexts, Traceable {
+    override val trace: Trace
     override val contexts: Contexts
 
     /**

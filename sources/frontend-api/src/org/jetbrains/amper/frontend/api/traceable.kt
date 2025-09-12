@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.tree.TreeValue
 import java.nio.file.Path
@@ -19,32 +20,38 @@ sealed interface Trace {
      * Old value defined initially and suppressed by merge or inheritance during model building,
      * it could be a chain of the subsequent preceding values built during merge of templates and module file definitions.
      */
-    val precedingValue: TreeValue<*>? // old value suppressed by merge or inheritance
-
-    /**
-     * If the value of a property is computed based on the value of another property, then trace to that value is registered here.
-     */
-    val computedValueTrace: Traceable?
-}
-
-open class DefaultTrace(
-    override val computedValueTrace: Traceable?,
-) : Trace {
-
-    override fun toString() =
-        if (computedValueTrace != null) "DefaultTrace(computedValueTrace=$computedValueTrace)" else "DefaultTrace"
-
-    companion object : DefaultTrace(null)
-    override val precedingValue: TreeValue<*>? = null
+    val precedingValue: TreeValue<*>?
 }
 
 /**
- * The Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
+ * Whether the value with this [Trace] can be considered a default value.
+ * Hint: this is not obvious, be careful what you actually want here.
+ */
+val Trace.isDefault: Boolean
+    get() = when (this) {
+        is BuiltinCatalogTrace -> true
+        is DefaultTrace -> true
+        is DerivedValueTrace -> definitionTrace.isDefault
+        is PsiTrace -> false
+    }
+
+/**
+ * A trace indicating that the value is a static default value (hardcoded in the schema, or in the code).
+ */
+data object DefaultTrace : Trace {
+    override val precedingValue: TreeValue<*>?
+        get() = null // doesn't override anything because it's a default - it was here first!
+}
+
+/**
+ * The value with this trace originates from a [psiElement].
  */
 data class PsiTrace(
+    /**
+     * The [PsiElement] that this value was read from.
+     */
     val psiElement: PsiElement,
     override val precedingValue: TreeValue<*>? = null,
-    override val computedValueTrace: Traceable? = null,
 ) : Trace
 
 /**
@@ -53,26 +60,138 @@ data class PsiTrace(
 fun PsiElement.asTrace(): PsiTrace = PsiTrace(this)
 
 /**
- * The Property with this trace originates from the version catalog provided by the toolchain.
+ * The value with this trace originates from a built-in version catalog provided by a toolchain.
  */
+@UsedInIdePlugin // just to filter the catalog entries, no property is used from this type
 data class BuiltinCatalogTrace(
     val catalog: VersionCatalog,
-    override val computedValueTrace: Traceable? = null,
+    val version: TraceableVersion,
 ) : Trace {
-    override val precedingValue: TreeValue<*>? = null
+    override val precedingValue: TreeValue<*>? get() = null
+}
+
+/**
+ * A trace indicating that the value was derived from another value.
+ *
+ * It can describe a value that was directly copied from some source (a resolved reference) or a value that results
+ * from the transformation of some source value.
+ *
+ * The [definitionTrace] is the trace to where the "derivation" (transformation / reference) itself is defined (e.g. a
+ * literal reference element like `${module.name}` in the module file). If it's defined directly in Amper's code, we
+ * use the [DefaultTrace] as the [definitionTrace].
+ *
+ * The [sourceValue] is the input value that is copied or transformed into the final value.
+ *
+ * Example: for the final value of `someProp`, the trace will be a [DerivedValueTrace] configured this way:
+ *
+ * ```yaml
+ * settings:
+ *   kotlin:
+ *     serialization:
+ *       format: json  # 'sourceValue' points here, to where the value comes from
+ *   myPlugin:
+ *     someProp: ${settings.kotlin.serialization.format} # 'definitionTrace' points here, where the ref is defined
+ * ```
+ *
+ * @see ResolvedReferenceTrace
+ * @see TransformedValueTrace
+ */
+sealed interface DerivedValueTrace : Trace {
+    /**
+     * A short description of how we obtained the value from the source value.
+     *
+     * Its purpose is to be used in some introspection commands / results. Typically, in the `show settings` CLI
+     * command, this description is used in the form of a comment next to the values to explain where they come from.
+     * As a result, here are a few guidelines to respect:
+     *
+     * * use just a few words, not full sentences
+     * * keep it on a single line
+     * * start with a lowercase letter (so it fits nicely in parentheses)
+     *
+     * Examples: "default", "because Compose is enabled", "from ${settings.kotlin.version}"
+     */
+    val description: String
+    /**
+     * The trace to the place where the reference or transformation is defined.
+     *
+     * For literal references in YAML files like `${settings.kotlin.version}`, this should be a [PsiTrace] pointing to
+     * the reference itself (the text with the `$`).
+     * For more abstract transformation definitions, this should represent where the transformation itself is defined.
+     *
+     * For example, some properties in the schema take their default value from another property when they're not set.
+     * In this case, the reference is implicitly defined in the schema as the default value, so its [definitionTrace]
+     * should be the [DefaultTrace].
+     *
+     * Another example is a set of Maven coordinates defined in code, derived from a version value defined in the
+     * settings. In this case, the [definitionTrace] is also the [DefaultTrace] because it's defined in the code, and
+     * the source value is the traceable version from the settings.
+     */
+    val definitionTrace: Trace
+    /**
+     * The traceable source value from which this trace's value was derived.
+     *
+     * For references, this should trace to the value that was resolved by following the reference.
+     * For example, if the reference is `${settings.kotlin.version}`, the [sourceValue] should trace to the value
+     * in the module file that the `settings.kotlin.version` was set to (or [DefaultTrace] if the property wasn't set
+     * explicitly).
+     *
+     * For more complicated computed values, this should trace to the value that is used as input for the computation
+     * or transformation. For example, if we construct Maven coordinates in the code from a default groupId and
+     * artifactId, but from a version that comes from a setting, the trace's [sourceValue] is the trace to the version
+     * property's value, while the [definitionTrace] is the [DefaultTrace] (concatenation defined in code).
+     */
+    // TODO ideally we should make it a `TraceableValue<T>` and maybe make DerivedValueTrace generic in T.
+    //  Not possible now because we put a lot of schemaDelegate references here, and they are not yet TraceableValue
+    //  themselves.
+    val sourceValue: Traceable
+}
+
+/**
+ * A trace indicating that the value is the result of transforming another value.
+ *
+ * This can be understood in a very wide sense. For example, if a list item is added by default because a property
+ * somewhere is set to a specific value (e.g. enabled=true), the trace of this item can be seen as a
+ * [TransformedValueTrace] that takes its source in the property value, and with a [DefaultTrace] as the
+ * [definitionTrace].
+ */
+data class TransformedValueTrace(
+    override val description: String,
+    override val sourceValue: Traceable,
+    override val definitionTrace: Trace = DefaultTrace,
+    override val precedingValue: TreeValue<*>? = null,
+) : DerivedValueTrace
+
+/**
+ * A trace indicating that the value was resolved from a reference.
+ *
+ * This also applies to defaults that take their value directly from some other property, because the default value
+ * is conceptually a reference to the other property.
+ */
+data class ResolvedReferenceTrace(
+    override val description: String,
+    /**
+     * Trace to where the reference itself is defined.
+     *
+     * Can be [DefaultTrace] for default values that are directly copied from other properties (the default value can
+     * be seen as a hardcoded "reference").
+     */
+    val referenceTrace: Trace,
+    /**
+     * The traceable value that was resolved from the reference (or copied from the source, in a wider sense).
+     */
+    val resolvedValue: Traceable,
+    override val precedingValue: TreeValue<*>? = null,
+) : DerivedValueTrace {
+    override val definitionTrace: Trace get() = referenceTrace
+    override val sourceValue: Traceable get() = resolvedValue
 }
 
 fun Trace.withPrecedingValue(precedingValue: TreeValue<*>): Trace = when (this) {
     is PsiTrace -> copy(precedingValue = precedingValue)
-    else -> this
-}
-
-fun Trace.withComputedValueTrace(computedValueTrace: Traceable?): Trace = when {
-    computedValueTrace == null -> this
-    this is PsiTrace -> copy(computedValueTrace = computedValueTrace)
-    this is BuiltinCatalogTrace -> copy(computedValueTrace = computedValueTrace)
-    this is DefaultTrace -> DefaultTrace(computedValueTrace)
-    else -> this
+    is ResolvedReferenceTrace -> copy(precedingValue = precedingValue)
+    is TransformedValueTrace -> copy(precedingValue = precedingValue)
+    is BuiltinCatalogTrace -> error("Built-in catalog entries shouldn't override anything")
+    is DefaultTrace -> error("Defaults shouldn't override anything")
 }
 
 /**
@@ -85,14 +204,9 @@ interface Traceable {
 }
 
 /**
- * Basic wrapper for classes that have different trace contract (basically, non nullable).
- */
-open class TrivialTraceable(override val trace: Trace) : Traceable
-
-/**
  * A value that can persist its trace.
  */
-abstract class TraceableValue<T>(val value: T, trace: Trace) : TrivialTraceable(trace) {
+open class TraceableValue<T>(val value: T, override val trace: Trace) : Traceable {
     override fun toString() = value.toString()
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) = this === other || other?.asSafely<TraceableValue<*>>()?.value == value
@@ -100,6 +214,9 @@ abstract class TraceableValue<T>(val value: T, trace: Trace) : TrivialTraceable(
 
 open class TraceableString(value: String, trace: Trace) : TraceableValue<String>(value, trace)
 
+/**
+ * Marker type to find which derived value is the version in DR diagnostics.
+ */
 class TraceableVersion(value: String, trace: Trace) : TraceableString(value, trace)
 
 class TraceablePath(value: Path, trace: Trace) : TraceableValue<Path>(value, trace)
@@ -118,14 +235,3 @@ class TraceableEnum<T : Enum<*>>(value: T, trace: Trace) : TraceableValue<T>(val
 fun <T : Enum<*>> T.asTraceable(trace: Trace) = TraceableEnum(this, trace)
 fun Path.asTraceable(trace: Trace) = TraceablePath(this, trace)
 fun String.asTraceable(trace: Trace) = TraceableString(this, trace)
-
-/**
- * Creates a new [TraceableString] with a value computed from this [TraceableString]'s value.
- * The new trace will be the same as this one.
- *
- * TODO should we use a derived trace of a new type like "DerivedTrace" or "ComputedTrace"?
- */
-fun TraceableString.derived(transform: (String) -> String) = TraceableString(
-    value = transform(value),
-    trace = trace,
-)

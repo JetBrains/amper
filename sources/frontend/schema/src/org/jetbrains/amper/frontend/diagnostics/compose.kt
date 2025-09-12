@@ -9,7 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.isDefault
+import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -29,7 +29,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
             if (!settings.enabled) {
                 val versionProp = settings::version
                 val trace = versionProp.schemaDelegate.trace
-                if (!versionProp.isDefault && reportedPlaces.add(trace))
+                if (versionProp.isExplicitlySet && reportedPlaces.add(trace))
                     problemReporter.reportMessage(ComposeVersionWithoutCompose(versionProp))
             }
         }

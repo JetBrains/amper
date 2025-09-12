@@ -10,8 +10,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
-import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
@@ -37,8 +38,9 @@ fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = schemaDelegate.extrac
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement
-    is BuiltinCatalogTrace,
-    is DefaultTrace -> computedValueTrace?.extractPsiElementOrNull()
+    is DefaultTrace -> null
+    is BuiltinCatalogTrace -> version.extractPsiElementOrNull()
+    is DerivedValueTrace -> definitionTrace.extractPsiElementOrNull() ?: sourceValue.extractPsiElementOrNull()
 }
 
 fun Traceable.extractPsiElementOrNull(): PsiElement? = trace.extractPsiElementOrNull()

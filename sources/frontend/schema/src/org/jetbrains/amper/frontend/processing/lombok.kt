@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
@@ -21,7 +21,10 @@ context(buildCtx: BuildCtx)
 internal fun Merged.configureLombokDefaults(moduleCtxModule: Module): Merged {
     val lombokSettings = moduleCtxModule.settings.lombok
     return if (lombokSettings.enabled) {
-        val lombokDefault = DefaultTrace(computedValueTrace = lombokSettings::enabled.schemaDelegate)
+        val lombokDefault = TransformedValueTrace(
+            description = "because Lombok is enabled",
+            sourceValue = lombokSettings::enabled.schemaDelegate,
+        )
         val elements = buildCtx.lombokAnnotationProcessorDefaultsTree(
             trace = lombokDefault,
             lombokVersion = lombokSettings.version,

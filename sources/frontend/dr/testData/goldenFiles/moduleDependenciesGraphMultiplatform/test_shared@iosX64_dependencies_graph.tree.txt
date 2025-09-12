@@ -201,5 +201,5 @@ Fragment 'shared.iosX64' dependencies
 │                        ╰─── org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> #kotlinVersion (*)
 ├─── shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── shared:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion
+╰─── shared:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit
      ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion (*)

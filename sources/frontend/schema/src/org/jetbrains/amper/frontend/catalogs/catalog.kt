@@ -24,20 +24,20 @@ import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
-    kotlinVersion = kotlin::version.asTraceableString(UsedVersions.defaultKotlinVersion),
-    serializationVersion = kotlin.serialization::version.asTraceableString(UsedVersions.kotlinxSerializationVersion)
+    kotlinVersion = kotlin::version.asTraceableVersion(UsedVersions.defaultKotlinVersion),
+    serializationVersion = kotlin.serialization::version.asTraceableVersion(UsedVersions.kotlinxSerializationVersion)
         .takeIf { kotlin.serialization.enabled },
-    composeVersion = compose::version.asTraceableString(UsedVersions.composeVersion)
+    composeVersion = compose::version.asTraceableVersion(UsedVersions.composeVersion)
         .takeIf { compose.enabled },
-    ktorVersion = ktor::version.asTraceableString(UsedVersions.ktorVersion)
+    ktorVersion = ktor::version.asTraceableVersion(UsedVersions.ktorVersion)
         .takeIf { ktor.enabled },
-    springBootVersion = springBoot::version.asTraceableString(UsedVersions.springBootVersion)
+    springBootVersion = springBoot::version.asTraceableVersion(UsedVersions.springBootVersion)
         .takeIf { springBoot.enabled },
 )
 
 context(problemReporter: ProblemReporter)
 @OptIn(NonIdealDiagnostic::class)
-private fun KProperty0<String>.asTraceableString(fallbackVersion: String): TraceableString {
+private fun KProperty0<String>.asTraceableVersion(fallbackVersion: String): TraceableVersion {
     // we validate the version only for emptiness because maven artifacts allow any string as a version
     //  that's why we cannot provide a precise validation for non-empty strings
     return if (!schemaDelegate.value.isEmpty()) {
@@ -57,11 +57,11 @@ private fun KProperty0<String>.asTraceableString(fallbackVersion: String): Trace
 }
 
 private class BuiltInCatalog(
-    kotlinVersion: TraceableString,
-    serializationVersion: TraceableString?,
-    composeVersion: TraceableString?,
-    ktorVersion: TraceableString?,
-    springBootVersion: TraceableString?,
+    kotlinVersion: TraceableVersion,
+    serializationVersion: TraceableVersion?,
+    composeVersion: TraceableVersion?,
+    ktorVersion: TraceableVersion?,
+    springBootVersion: TraceableVersion?,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : InMemoryVersionCatalog {
 
@@ -328,8 +328,8 @@ private class BuiltInCatalog(
 }
 
 context(catalog: VersionCatalog)
-private fun library(groupAndModule: String, version: TraceableString): TraceableString =
+private fun library(groupAndModule: String, version: TraceableVersion): TraceableString =
     TraceableString(
         value = "$groupAndModule:${version.value}",
-        trace = BuiltinCatalogTrace(catalog, computedValueTrace = version),
+        trace = BuiltinCatalogTrace(catalog, version = version),
     )

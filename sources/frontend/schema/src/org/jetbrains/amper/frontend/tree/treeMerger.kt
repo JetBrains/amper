@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 
 /**
@@ -59,7 +59,7 @@ class TreeMerger {
         val (mapLike, other) = allChildren.partitionMapLike()
         val otherMerged = other.map { it.mergeSingle() }
         val mapLikeMerged = mapLike.mergeProperties()
-        val firstNonDefault = trees.firstOrNull { it.trace !is DefaultTrace } ?: firstTree
+        val firstNonDefault = trees.firstOrNull { !it.trace.isDefault } ?: firstTree
         return Merged(
             children = mapLikeMerged + otherMerged,
             type = firstNonDefault.type,

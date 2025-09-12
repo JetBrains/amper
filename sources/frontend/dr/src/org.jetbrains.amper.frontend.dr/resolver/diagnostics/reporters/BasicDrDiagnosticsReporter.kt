@@ -12,6 +12,9 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.frontend.MavenDependencyBase
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
@@ -119,7 +122,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         if (node !is MavenDependencyNode) return null
         val notation = directDependency.notation as? MavenDependencyBase ?: return null
 
-        val resolvedVersion = notation.coordinates.resolveVersion() ?: return null
+        val resolvedVersion = notation.coordinates.findTraceableVersion() ?: return null
 
         val versionTrace = resolvedVersion.trace
 
@@ -137,8 +140,16 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         return VersionDefinition(versionTrace.psiElement, relativePath)
     }
 
-    private fun Traceable.resolveVersion(): TraceableVersion? {
-        return (this as? TraceableVersion) ?: this.trace?.computedValueTrace?.resolveVersion()
+    private fun Traceable.findTraceableVersion(): TraceableVersion? {
+        if (this is TraceableVersion) {
+            return this
+        }
+        return when (val t = trace) {
+            is DerivedValueTrace -> t.sourceValue.findTraceableVersion()
+            is BuiltinCatalogTrace -> t.version
+            is DefaultTrace -> null
+            is PsiTrace -> null
+        }
     }
 }
 

@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
-import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.isDefault
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -113,6 +113,6 @@ class DirectFragmentDependencyNodeHolder(
     parentNodes: List<DependencyNode> = emptyList(),
     override val messages: List<Message> = emptyList(),
 ) : DependencyNodeHolderWithNotation(
-    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace == DefaultTrace } ?: ""}",
+    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${", implicit".takeIf { notation.trace.isDefault } ?: ""}",
     listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
 )

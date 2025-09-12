@@ -8,9 +8,9 @@ import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.withComputedValueTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
@@ -58,14 +58,18 @@ internal class CatalogVersionsSubstitutor(
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
         val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
-        val catalogValue = catalogKeyProp.value.asScalar ?: return Removed
-        val catalogKey = catalogValue.value.asSafely<String>() ?: return Removed
+        val catalogKeyScalar = catalogKeyProp.value.asScalar ?: return Removed
+        val catalogKey = catalogKeyScalar.value.asSafely<String>() ?: return Removed
         val found = with(buildCtx.problemReporter) {
-            catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogValue.trace) ?: return Removed
+            catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogKeyScalar.trace) ?: return Removed
         }
-        val newCValue = catalogValue.copy(
+        val newCValue = catalogKeyScalar.copy(
             value = found.value,
-            trace = catalogValue.trace.withComputedValueTrace(found),
+            trace = ResolvedReferenceTrace(
+                description = "from $catalogKey",
+                referenceTrace = catalogKeyScalar.trace,
+                resolvedValue = found,
+            ),
         )
         val newChildren = value.children - catalogKeyProp +
                 MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
