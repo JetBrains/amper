@@ -1,0 +1,28 @@
+root
+╰─── io.swagger.core.v3:swagger-core:2.2.36
+     ├─── jakarta.xml.bind:jakarta.xml.bind-api:2.3.3
+     │    ╰─── jakarta.activation:jakarta.activation-api:1.2.2
+     ├─── org.apache.commons:commons-lang3:3.18.0
+     ├─── org.slf4j:slf4j-api:2.0.9
+     ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2
+     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.19.2
+     │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.2
+     │    ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2 (*)
+     │    ├─── org.yaml:snakeyaml:2.4
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.19.2 (*)
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2
+     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2 (*)
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── io.swagger.core.v3:swagger-annotations:2.2.36
+     ├─── org.yaml:snakeyaml:2.3 -> 2.4
+     ├─── io.swagger.core.v3:swagger-models:2.2.36
+     │    ╰─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     ╰─── jakarta.validation:jakarta.validation-api:2.0.2

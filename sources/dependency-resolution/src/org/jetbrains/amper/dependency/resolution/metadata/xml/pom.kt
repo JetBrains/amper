@@ -367,6 +367,8 @@ private fun String.expandTemplate(project: Project): String {
         when (key.removePrefix("project.")) {
             "groupId" -> project.groupId
             "version" -> project.version
+            "parent.groupId" -> project.parent?.groupId
+            "parent.version" -> project.parent?.version
             else -> project.properties?.properties?.get(key)
         }
     } else {

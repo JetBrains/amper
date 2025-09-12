@@ -44,6 +44,15 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the variable ${project.parent.version} from pom.xml
+     * is resolved and substituted.
+     */
+    @Test
+    fun `io_swagger_core_v3 swagger-core 2_2_36`(testInfo: TestInfo) = runTest {
+        doTestByFile(testInfo)
+    }
+
+    /**
      * This test checks that wrong artifact checksum declared in the Gradle module metadata won't cause DR error if
      * valid checksum is published as a separate file in an external repository.
      *
