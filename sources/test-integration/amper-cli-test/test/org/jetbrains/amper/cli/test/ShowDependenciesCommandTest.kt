@@ -32,8 +32,6 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
             "show", "dependencies", "--module", "root"
         )
 
-        Charset.availableCharsets().forEach { println(it.key) }
-
         CliTestRun("jvm-exported-dependencies-root", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 }
