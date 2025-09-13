@@ -28,9 +28,9 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
     pluginsData.forEach { pluginData ->
         val moduleExtensionSchemaName = pluginData.moduleExtensionSchemaName
         val hasValidModuleExtension = moduleExtensionSchemaName != null &&
-                pluginData.classTypes.any { it.name == moduleExtensionSchemaName }
+                pluginData.declarations.classes.any { it.name == moduleExtensionSchemaName }
         // Load external classes.
-        for (declaration in pluginData.classTypes) registeredDeclarations[pluginData.id / declaration.name] =
+        for (declaration in pluginData.declarations.classes) registeredDeclarations[pluginData.id / declaration.name] =
             ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 data = declaration,
@@ -58,14 +58,15 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
         } else moduleExtensionSchemaName
 
         // Load external enums.
-        for (declaration in pluginData.enumTypes) registeredDeclarations[pluginData.id / declaration.schemaName] =
-            ExternalEnumDeclaration(declaration)
+        for (declaration in pluginData.declarations.enums) {
+            registeredDeclarations[pluginData.id / declaration.schemaName] = ExternalEnumDeclaration(declaration)
+        }
 
         // Load external variant classes.
         registeredDeclarations[pluginData.taskActionPluginKey] =
             SyntheticVariantDeclaration(
                 qualifiedName = pluginData.taskActionPluginKey.qualifiedName,
-                variants = pluginData.tasks.map { taskInfo ->
+                variants = pluginData.declarations.tasks.map { taskInfo ->
                     ExternalObjectDeclaration(
                         pluginId = pluginData.id,
                         data = taskInfo.syntheticType,
@@ -79,7 +80,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
             )
 
         val moduleExtensionSchemaDeclaration = moduleExtensionSchemaName?.let { name ->
-            pluginData.classTypes.find { it.name == name }
+            pluginData.declarations.classes.find { it.name == name }
         }
         // Load custom properties for a [Settings] schema type.
         addCustomProperty(

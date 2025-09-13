@@ -92,7 +92,7 @@ internal fun BuildCtx.buildPlugins(
             ?: return@mapPlugins null
 
         pluginModule.moduleCtxModule.plugin?.schemaExtensionClassName?.let { moduleExtensionSchemaName ->
-            if (pluginData.classTypes.none { it.name.qualifiedName == moduleExtensionSchemaName.value }) {
+            if (pluginData.declarations.classes.none { it.name.qualifiedName == moduleExtensionSchemaName.value }) {
                 problemReporter.reportBundleError(
                     source = moduleExtensionSchemaName.asBuildProblemSource(),
                     "plugin.missing.schema.class", moduleExtensionSchemaName,
@@ -137,8 +137,10 @@ internal fun BuildCtx.buildPlugins(
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val taskInfo = task.action.taskInfo
-            val allOutputPaths = taskInfo.outputPropertyNames.flatMap {
-                buildSet { gatherPaths(paths = this, value = task.action[it]) }
+            val allOutputPaths = buildSet {
+                taskInfo.outputPropertyNames.forEach {
+                    gatherPaths(paths = this, value = task.action[it])
+                }
             }
             val outputMarks = task.markOutputsAs.distinctBy(
                 selector = { it.path },

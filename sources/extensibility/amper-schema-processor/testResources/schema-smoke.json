@@ -1,7 +1,5 @@
 {
-  "id": "test-plugin",
-  "moduleExtensionSchemaName": "com.example.MySettings",
-  "enumTypes": [
+  "enums": [
     {
       "schemaName": "com.example.MyKind",
       "entries": [
@@ -24,7 +22,7 @@
       "origin": ".."
     }
   ],
-  "classTypes": [
+  "classes": [
     {
       "name": "com.example.Empty",
       "origin": ".."

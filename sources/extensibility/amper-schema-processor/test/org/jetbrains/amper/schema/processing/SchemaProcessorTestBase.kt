@@ -16,8 +16,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.plugins.schema.model.SourceLocation
 import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -45,7 +45,6 @@ abstract class SchemaProcessorTestBase {
     }
 
     protected fun runTest(
-        pluginId: String = "test-plugin",
         block: TestBuilder.() -> Unit,
     ) {
         class Source(
@@ -92,10 +91,10 @@ abstract class SchemaProcessorTestBase {
                 source.path.writeText(source.contentsWithoutComments)
             }
 
-            val request = PluginDataRequest(
-                plugins = listOf(
-                    PluginDataRequest.PluginHeader(
-                        pluginId = PluginData.Id(pluginId),
+            val request = PluginDeclarationsRequest(
+                requests = listOf(
+                    PluginDeclarationsRequest.Request(
+                        moduleName = "test-plugin",
                         moduleExtensionSchemaName = schemaExtensionClassName?.let(PluginData::SchemaName),
                         sourceDir = tempDirExtension.path,
                     ),
@@ -130,7 +129,7 @@ abstract class SchemaProcessorTestBase {
             }
             assertEquals(
                 expected = expectedJsonPluginData,
-                actual = JsonForTest.encodeToString(result.pluginData)
+                actual = JsonForTest.encodeToString(result.declarations)
             )
         } finally {
             Disposer.dispose(disposable)

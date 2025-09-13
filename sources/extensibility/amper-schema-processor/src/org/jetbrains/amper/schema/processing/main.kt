@@ -10,9 +10,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
-import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
+import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
@@ -21,12 +20,13 @@ import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
+import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
 import kotlin.system.exitProcess
 
 fun main() {
     @OptIn(ExperimentalSerializationApi::class)
-    val request = Json.decodeFromStream<PluginDataRequest>(System.`in`)
+    val request = Json.decodeFromStream<PluginDeclarationsRequest>(System.`in`)
 
     val disposable = Disposer.newDisposable()
     try {
@@ -44,9 +44,9 @@ fun main() {
 
 fun runSchemaProcessor(
     disposable: Disposable,
-    request: PluginDataRequest,
+    request: PluginDeclarationsRequest,
 ): List<PluginDataResponse.PluginDataWithDiagnostics> {
-    val modules = mutableMapOf<PluginData.Id, KaSourceModule>()
+    val modules = mutableMapOf<Path, KaSourceModule>()
     val session = buildStandaloneAnalysisAPISession(disposable) {
         val myPlatform = JvmPlatforms.defaultJvmPlatform
         buildKtModuleProvider {
@@ -63,25 +63,25 @@ fun runSchemaProcessor(
                     addBinaryRoot(libraryPath)
                 }
             }
-            request.plugins.forEach { pluginHeader ->
+            request.requests.forEach { pluginHeader ->
                 val module = buildKtSourceModule {
                     platform = myPlatform
-                    moduleName = pluginHeader.pluginId.value
+                    moduleName = pluginHeader.moduleName
                     addSourceRoot(pluginHeader.sourceDir)
                     addRegularDependency(jdkModule)
                     libraryModules.forEach(::addRegularDependency)
                 }
-                modules[pluginHeader.pluginId] = module
+                modules[pluginHeader.sourceDir] = module
                 addModule(module)
             }
         }
     }
 
-    return modules.map { (id, module) ->
+    return modules.map { (sourceDir, module) ->
         analyze(module) {
             parsePluginData(
                 files = session.modulesWithFiles[module]?.filterIsInstance<KtFile>().orEmpty(),
-                header = request.plugins.first { it.pluginId == id }
+                header = request.requests.first { it.sourceDir == sourceDir }
             )
         }
     }

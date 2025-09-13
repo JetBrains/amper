@@ -22,10 +22,14 @@ data class PluginData(
     val id: Id,
     val moduleExtensionSchemaName: SchemaName? = null,
     val description: String? = null,
-    val enumTypes: List<EnumData> = emptyList(),
-    val classTypes: List<ClassData> = emptyList(),
-    val tasks: List<TaskInfo> = emptyList(),
+    val declarations: Declarations,
 ) {
+    @Serializable
+    data class Declarations(
+        val enums: List<EnumData> = emptyList(),
+        val classes: List<ClassData> = emptyList(),
+        val tasks: List<TaskInfo> = emptyList(),
+    )
 
     @Serializable
     @JvmInline
@@ -141,8 +145,8 @@ data class PluginData(
         val syntheticType: ClassData,
         val jvmFunctionClassName: String,
         val jvmFunctionName: String,
-        val inputPropertyNames: List<String> = emptyList(),
-        val outputPropertyNames: List<String> = emptyList(),
+        val inputPropertyNames: Set<String> = emptySet(),
+        val outputPropertyNames: Set<String> = emptySet(),
         val optOutOfExecutionAvoidance: Boolean = false,
     ) {
         init {

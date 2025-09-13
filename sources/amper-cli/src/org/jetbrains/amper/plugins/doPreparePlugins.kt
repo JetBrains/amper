@@ -7,6 +7,7 @@ package org.jetbrains.amper.plugins
 import com.intellij.openapi.vfs.findDocument
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -17,9 +18,9 @@ import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind
+import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -38,9 +39,11 @@ import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.relativeTo
 import kotlin.io.path.writeText
 
 internal suspend fun doPreparePlugins(
+    projectRoot: AmperProjectRoot,
     userCacheRoot: AmperUserCacheRoot,
     frontendPathResolver: FrontendPathResolver,
     executeOnChangedInputs: ExecuteOnChangedInputs,
@@ -63,15 +66,14 @@ internal suspend fun doPreparePlugins(
         val toolClasspath = distributionRoot.resolve("plugins-processor").listDirectoryEntries("*.jar")
         val apiClasspath = distributionRoot.resolve("extensibility-api").listDirectoryEntries("*.jar")
         val outputCaptor = ProcessOutputListener.InMemoryCapture()
-        val request = PluginDataRequest(
+        val request = PluginDeclarationsRequest(
             jdkPath = jdk.homeDir,
             librariesPaths = apiClasspath,
-            plugins = plugins.map { (pluginRootPath, pluginInfo) ->
-                PluginDataRequest.PluginHeader(
-                    pluginId = PluginData.Id(pluginInfo.id),
+            requests = plugins.map { (pluginRootPath, pluginInfo) ->
+                PluginDeclarationsRequest.Request(
+                    moduleName = pluginRootPath.relativeTo(projectRoot.path).joinToString(":"),
                     sourceDir = pluginRootPath / "src",
                     moduleExtensionSchemaName = pluginInfo.schemaExtensionClassName?.let(PluginData::SchemaName),
-                    description = pluginInfo.description,
                 )
             }
         )
@@ -105,8 +107,19 @@ internal suspend fun doPreparePlugins(
             )
         }
 
+        val allPluginData = results.map { result ->
+            val plugin = checkNotNull(plugins[result.sourcePath.parent]) {
+                "Processing of ${result.sourcePath} requested, but no corresponding result is found"
+            }
+            PluginData(
+                id = PluginData.Id(plugin.id),
+                moduleExtensionSchemaName = plugin.schemaExtensionClassName?.let(PluginData::SchemaName),
+                description = plugin.description,
+                declarations = result.declarations,
+            )
+        }
         schemaFile.createParentDirectories()
-            .writeText(Json.encodeToString(results.map { it.pluginData }))
+            .writeText(Json.encodeToString(allPluginData))
 
         reporter.replayProblemsTo(CliProblemReporter)
         if (reporter.problems.any { it.level.atLeastAsSevereAs(Level.Error) }) {

@@ -16,7 +16,8 @@ data class PluginDataResponse(
 ) {
     @Serializable
     data class PluginDataWithDiagnostics(
-        val pluginData: PluginData,
+        val sourcePath: PathAsString,
+        val declarations: PluginData.Declarations,
         val diagnostics: List<Diagnostic> = emptyList(),
     )
 

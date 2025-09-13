@@ -41,6 +41,7 @@ suspend fun preparePlugins(
         spanBuilder("Generate local plugins schema")
             .use {
                 doPreparePlugins(
+                    projectRoot = context.projectRoot,
                     userCacheRoot = context.userCacheRoot,
                     executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot),
                     frontendPathResolver = projectContext.frontendPathResolver,

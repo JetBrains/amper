@@ -6,9 +6,9 @@ package org.jetbrains.amper.schema.processing
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
-import org.jetbrains.amper.plugins.schema.model.PluginDataRequest
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorGeneric
+import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.stdlib.collections.distinctBy
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
@@ -33,7 +33,7 @@ internal interface ParsedClassesResolver {
  */
 fun KaSession.parsePluginData(
     files: Collection<KtFile>,
-    header: PluginDataRequest.PluginHeader,
+    header: PluginDeclarationsRequest.Request,
 ): PluginDataResponse.PluginDataWithDiagnostics {
     val symbolsCollector = object : SymbolsCollector {
         val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
@@ -101,12 +101,10 @@ fun KaSession.parsePluginData(
     }
 
     return PluginDataResponse.PluginDataWithDiagnostics(
-        pluginData = PluginData(
-            id = header.pluginId,
-            moduleExtensionSchemaName = header.moduleExtensionSchemaName,
-            description = header.description,
-            enumTypes = enums,
-            classTypes = classes,
+        sourcePath = header.sourceDir,
+        declarations = PluginData.Declarations(
+            enums = enums,
+            classes = classes,
             tasks = tasks,
         ),
         diagnostics = diagnosticCollector.diagnostics,

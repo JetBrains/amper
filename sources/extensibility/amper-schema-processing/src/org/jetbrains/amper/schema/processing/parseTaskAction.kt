@@ -41,8 +41,8 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         reportError(function.typeReference ?: function, "schema.forbidden.task.action.return")
     }
 
-    val inputNames = mutableListOf<String>()
-    val outputNames = mutableListOf<String>()
+    val inputNames = mutableSetOf<String>()
+    val outputNames = mutableSetOf<String>()
     val properties = function.valueParameters.mapNotNull {
         val (property, mark) = parseTaskParameter(
             parameter = it,
