@@ -11,6 +11,10 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.options.UserJvmArgsOption
+import org.jetbrains.amper.cli.options.buildTypeOption
+import org.jetbrains.amper.cli.options.leafPlatformOption
+import org.jetbrains.amper.cli.options.userJvmArgsOption
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.engine.TaskExecutor
@@ -85,7 +89,7 @@ internal class TestCommand : AmperModelAwareCommand(name = "test") {
             The JVM arguments to pass to the JVM running the tests, separated by spaces.
             These arguments only affect JVM and Android tests; they don't affect non-JVM tests (such as iOS tests).
             
-            If the `$UserJvmArgsOption` option is repeated, the arguments contained in all occurrences are passed
+            If the `${UserJvmArgsOption}` option is repeated, the arguments contained in all occurrences are passed
             to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments.
         """.trimIndent()
     )

@@ -11,10 +11,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
-import org.jetbrains.amper.cli.commands.PlatformGroup
-import org.jetbrains.amper.cli.commands.PlatformGroupOption
-import org.jetbrains.amper.cli.commands.platformGroupOption
-import org.jetbrains.amper.cli.commands.validLeavesIn
+import org.jetbrains.amper.cli.options.PlatformGroup
+import org.jetbrains.amper.cli.options.PlatformGroupOption
+import org.jetbrains.amper.cli.options.platformGroupOption
+import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder

@@ -5,7 +5,7 @@
 package org.jetbrains.amper.cli
 
 import kotlinx.coroutines.CoroutineScope
-import org.jetbrains.amper.cli.commands.UserJvmArgsOption
+import org.jetbrains.amper.cli.options.UserJvmArgsOption
 import org.jetbrains.amper.cli.widgets.TaskProgressRenderer
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.telemetry.spanBuilder

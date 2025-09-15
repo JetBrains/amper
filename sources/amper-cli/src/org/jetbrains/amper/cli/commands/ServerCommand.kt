@@ -30,6 +30,7 @@ import org.jetbrains.amper.cli.logging.ServerWriter
 import org.jetbrains.amper.cli.logging.sessionIdKey
 import org.jetbrains.amper.cli.logging.useKey
 import org.jetbrains.amper.cli.logging.useServerValue
+import org.jetbrains.amper.cli.options.choiceWithTypoSuggestion
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.TaskName

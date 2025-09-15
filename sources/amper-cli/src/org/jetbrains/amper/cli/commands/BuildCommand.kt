@@ -9,6 +9,8 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.options.buildTypeOption
+import org.jetbrains.amper.cli.options.leafPlatformOption
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Model
 

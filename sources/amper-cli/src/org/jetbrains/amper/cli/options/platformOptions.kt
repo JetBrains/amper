@@ -2,28 +2,23 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli.commands
+package org.jetbrains.amper.cli.options
 
 import com.github.ajalt.clikt.completion.CompletionCandidates.Fixed
 import com.github.ajalt.clikt.core.BaseCliktCommand
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.options.NullableOption
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.transformAll
-import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.rendering.TextColors.green
-import org.jetbrains.amper.cli.commands.PlatformGroup.AliasOrInvalid
+import com.github.ajalt.mordant.rendering.TextColors.red
+import org.jetbrains.amper.cli.options.PlatformGroup.AliasOrInvalid
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withPlatformSuggestions
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.util.BuildType
-import kotlin.collections.sorted
 
 private val checkPlatformsListMsg =
     "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
@@ -163,60 +158,3 @@ private fun Context.didYouMeanMessage(invalidValue: String, possibleValues: Set<
         else -> "Did you mean one of ${typoPossibilities.sorted().joinToString { green(it) }}?"
     }
 }
-
-internal const val UserJvmArgsOption = "--jvm-args"
-
-internal fun ParameterHolder.userJvmArgsOption(help: String) = option(UserJvmArgsOption, help = help)
-    .transformAll { values ->
-        values.flatMap { it.splitArgsHonoringQuotes() }
-    }
-
-internal fun String.splitArgsHonoringQuotes(): List<String> {
-    val args = mutableListOf<String>()
-    val currentArg = StringBuilder()
-    var inQuotes = false
-    var escaping = false
-    var hasPendingArg = false
-
-    for (c in this) {
-        if (escaping) {
-            currentArg.append(c)
-            escaping = false
-            continue
-        }
-        when {
-            c == '\\' -> {
-                escaping = true
-            }
-            c == '"' -> {
-                inQuotes = !inQuotes
-                hasPendingArg = true
-            }
-            c == ' ' && !inQuotes -> {
-                if (hasPendingArg) { // multiple spaces shouldn't yield empty args
-                    args.add(currentArg.toString())
-                    currentArg.clear()
-                    hasPendingArg = false
-                }
-            }
-            else -> {
-                currentArg.append(c)
-                hasPendingArg = true
-            }
-        }
-    }
-    require(!escaping) { "Dangling escape character '\\'" }
-    require(!inQuotes) { "Unclosed quotes" }
-    if (hasPendingArg) {
-        args.add(currentArg.toString())
-    }
-    return args
-}
-
-internal fun ParameterHolder.buildTypeOption(
-    help: String,
-) = option(
-    "-v",
-    "--variant",
-    help = help,
-).enum<BuildType> { it.value }

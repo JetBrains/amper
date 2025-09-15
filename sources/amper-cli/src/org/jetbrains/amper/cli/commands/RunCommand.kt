@@ -10,6 +10,10 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.cli.options.UserJvmArgsOption
+import org.jetbrains.amper.cli.options.buildTypeOption
+import org.jetbrains.amper.cli.options.leafPlatformOption
+import org.jetbrains.amper.cli.options.userJvmArgsOption
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.tasks.AllRunSettings
@@ -42,7 +46,7 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
             The JVM arguments to pass to the JVM running the application, separated by spaces.
             These arguments only affect the JVM used to run the application, and don't affect non-JVM applications.
             
-            If the `$UserJvmArgsOption` option is repeated, the arguments contained in all occurrences are passed
+            If the `${UserJvmArgsOption}` option is repeated, the arguments contained in all occurrences are passed
             to the JVM in the order they were specified. The JVM decides how it handles duplicate arguments.
         """.trimIndent()
     )
