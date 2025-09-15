@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModule
@@ -66,10 +67,17 @@ import kotlin.io.path.relativeTo
  *
  * The returned model is built on a best-effort basis. The contracts for all returned data is only respected if no
  * errors are reported.
+ *
+ * @param pluginData plugin data that should be used for reading the project model. The default is pre-built plugin
+ *  data but the client is free to provide their own. E.g., IDE can build the freshest plugin data directly from the
+ *  Kotlin sources in-memory and provide it to the project model reader.
  */
+@UsedInIdePlugin
 context(problemReporter: ProblemReporter)
-fun AmperProjectContext.readProjectModel(): Model {
-    val resultModules = doBuild(this@readProjectModel)
+fun AmperProjectContext.readProjectModel(
+    pluginData: List<PluginData> = loadPreparedPluginData(),
+): Model {
+    val resultModules = doBuild(this@readProjectModel, pluginData = pluginData)
     val model = DefaultModel(projectRootDir.toNioPath(), resultModules)
     AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
     return model
