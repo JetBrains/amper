@@ -9,8 +9,20 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
+/**
+ * The Amper project model.
+ */
 interface Model {
+    /**
+     * The path to the root directory of this project.
+     *
+     * This is the directory containing the `project.yaml` (or `module.yaml` file for single-module projects).
+     */
     val projectRoot: Path
+
+    /**
+     * The modules declared in this project.
+     */
     val modules: List<AmperModule>
 }
 
