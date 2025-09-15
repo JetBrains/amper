@@ -64,8 +64,8 @@ import kotlin.io.path.relativeTo
  *
  * All errors and warnings are reported to the given [problemReporter].
  *
- * If a fatal error occurs, the model cannot be built, and thus the method returns null. It's up to the consumer to
- * handle the fatal errors.
+ * The returned model is built on a best-effort basis. The contracts for all returned data is only respected if no
+ * errors are reported.
  */
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(): Model {
