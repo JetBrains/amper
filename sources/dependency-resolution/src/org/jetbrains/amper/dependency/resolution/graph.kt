@@ -35,7 +35,7 @@ import kotlin.io.path.exists
  */
 // todo (AB) : Most of usages of children with resolution context should be replaced with interfaces
 interface DependencyNode {
-    val parents: List<DependencyNode>
+    val parents: Set<DependencyNode>
     val key: Key<*>
     val children: List<DependencyNode>
     val messages: List<Message>
@@ -53,7 +53,7 @@ interface DependencyNode {
     // todo (AB) : before running into recursion for references.
 
     // todo (AB) : We should probably move it outside nodes (as an extension functions written somewhere separately)
-    fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference
+    fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference
 
     /**
      * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
@@ -207,7 +207,7 @@ class DependencyGraph(
     companion object {
         fun DependencyNode.toGraph(): DependencyGraph {
             val graphContext = DependencyGraphContext()
-            val serializableNode = this.toSerializableReference(graphContext)
+            val serializableNode = this.toSerializableReference(graphContext, null)
             return DependencyGraph(graphContext, serializableNode)
         }
     }
@@ -271,7 +271,16 @@ class  DependencyGraphContext(
         }
         private set
 
-    fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlain(
+    fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlainWithParent(
+        node: Node, nodePlain: NodePlain, parent: DependencyNodeReference?
+    ): DependencyNodeReference {
+        return registerDependencyNodePlain(node, nodePlain)
+            .also {
+                parent?.let { nodePlain.parentsRefs.add(it) }
+            }
+    }
+
+    private fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlain(
         node: Node, nodePlain: NodePlain
     ): DependencyNodeReference {
         if (allDependencyNodeReferences[node] != null) error("Node plain for node $node is already registered")
@@ -316,6 +325,14 @@ class  DependencyGraphContext(
 
     inline fun <reified T: DependencyNode> getDependencyNodeReference(node: T): DependencyNodeReference? {
         return allDependencyNodeReferences[node]
+    }
+
+    inline fun <reified T: DependencyNode> getDependencyNodeReferenceAndSetParent(node: T, parent: DependencyNodeReference?): DependencyNodeReference? {
+        return getDependencyNodeReference(node)
+            ?.apply {
+                val nodePlain = this.toNodePlain(this@DependencyGraphContext)
+                parent?.let { nodePlain.parentsRefs.add(it) }
+            }
     }
 
     fun getMavenDependencyReference(mavenDependency: MavenDependency): MavenDependencyReference? {
@@ -424,12 +441,12 @@ fun currentGraphContext(): DependencyGraphContext = DependencyGraphContext.curre
 
 // todo (AB) : It should be internal most probably
 interface DependencyNodePlain : DependencyNode {
-    val parentsRefs: List<DependencyNodeReference>
+    val parentsRefs: MutableSet<DependencyNodeReference>
     val childrenRefs: List<DependencyNodeReference>
 
-    override val parents: MutableList<DependencyNode>
+    override val parents: MutableSet<DependencyNode>
 
-    override fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference = plainNodeSerializationError()
+    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference = plainNodeSerializationError()
 }
 
 internal fun plainNodeSerializationError(): Nothing {
@@ -437,3 +454,17 @@ internal fun plainNodeSerializationError(): Nothing {
 }
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+/**
+ * @return true if there is no path (even transitive) to the given root from the node via node's parents
+ */
+fun DependencyNode.isOrphan(root: DependencyNode, visited: MutableSet<DependencyNode> = mutableSetOf()): Boolean {
+    if (this == root) return false // this is the root node
+    if (this in visited) return true // already tried this node
+
+    if (parents.isEmpty()) return true // no parents => orphan
+    if (parents.contains(root)) return false // we reach the root
+
+    visited.add(this)
+    return parents.all { it.isOrphan(root, visited) }
+}

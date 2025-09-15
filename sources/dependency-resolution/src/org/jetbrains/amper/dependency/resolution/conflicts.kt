@@ -66,7 +66,7 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
             .maxByOrNull { ComparableVersion(it) }
             ?: error("All conflicting candidates have no resolved version")
 
-        val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }
+        val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }.toSet()
 
         candidates.asSequence()
             // do not override yet unresolved dependencies until their original version are resolved from BOM
@@ -76,11 +76,11 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
                     // todo (AB) don't align strictly constraint
                     is MavenDependencyNodeImpl -> {
                         it.dependency = it.context.createOrReuseDependency(it.group, it.module, resolvedVersion, it.isBom)
-                        it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
+                        it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptySet()
                     }
                     is MavenDependencyConstraintNodeImpl -> {
                         it.dependencyConstraint = it.context.createOrReuseDependencyConstraint(it.group, it.module, Version(requires = resolvedVersion))
-                        it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptyList()
+                        it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptySet()
                     }
                 }
             }

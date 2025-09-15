@@ -8,15 +8,14 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 
 class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
-//    override val context: Context = node.context
     override val key: Key<*> = node.key
     override val messages: List<Message> = node.messages.toMutableList()
 
-    override val parents: MutableList<DependencyNode> = mutableListOf()
+    override val parents: MutableSet<DependencyNode> = mutableSetOf()
 
     override fun toString() = node.toString()
 
-    override fun toSerializableReference(graphContext: DependencyGraphContext) = error("${this::class.java.simpleName} is not serializable")
+    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?) = error("${this::class.java.simpleName} is not serializable")
 }
 
 /**
@@ -127,7 +126,7 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
                                         && it.version == it.dependencyConstraint.version
                                         && node.resolvedVersion() == it.originalVersion()
                             }
-                    }.flatMap { it }
+                    }.flatten()
                     .distinct()
 
                 (dependencies + constraints).toSet()

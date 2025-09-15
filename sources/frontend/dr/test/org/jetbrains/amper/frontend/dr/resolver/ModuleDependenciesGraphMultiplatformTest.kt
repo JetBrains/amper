@@ -256,7 +256,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 ),
                 ResolutionDepth.GRAPH_FULL,
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
-                incrementalCacheUsage = ResolutionCacheUsage.SKIP
+                incrementalCacheUsage = IncrementalCacheUsage.SKIP
             ),
             module = "shared"
         ) as ModuleDependencyNode

@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.Path
 
@@ -59,7 +59,7 @@ class Context internal constructor(
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: List<DependencyNodeWithResolutionContext>, repositories: List<Repository>? = null): Context =
+    fun copyWithNewNodeCache(parentNodes: Set<DependencyNodeWithResolutionContext>, repositories: List<Repository>? = null): Context =
         Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency, constraintsByMavenDependency)
             .apply {
                 nodeParents.addAll(parentNodes)
@@ -253,9 +253,9 @@ data class FileCache(
  * The parents of the node holding this context.
  */
 // TODO this should probably be an internal property of the dependency node instead of stored in the nodeCache
-val Context.nodeParents: MutableList<DependencyNode>
-    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
-        CopyOnWriteArrayList()
+val Context.nodeParents: MutableSet<DependencyNode>
+    get() = nodeCache.computeIfAbsent(Key<MutableSet<DependencyNode>>("parentNodes")) {
+        CopyOnWriteArraySet()
     }
 
 @Serializable

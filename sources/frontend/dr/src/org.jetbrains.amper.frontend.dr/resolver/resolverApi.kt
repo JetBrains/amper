@@ -43,7 +43,7 @@ enum class ResolutionDepth {
     GRAPH_FULL
 }
 
-enum class ResolutionCacheUsage {
+enum class IncrementalCacheUsage {
     SKIP,
     USE,
     REFRESH_AND_USE,
@@ -54,7 +54,7 @@ data class ResolutionInput(
     val resolutionDepth: ResolutionDepth,
     val resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
     val downloadSources: Boolean = false,
-    val incrementalCacheUsage: ResolutionCacheUsage = ResolutionCacheUsage.USE,
+    val incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
     // todo (AB) : Replace it with OpenTelemetry (it could provide tracer as well as other useful stuff: meters)
     val spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
@@ -91,7 +91,7 @@ interface ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
-        incrementalCacheUsage: ResolutionCacheUsage = ResolutionCacheUsage.SKIP,
+        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.SKIP,
     ): DependencyNode
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode
@@ -121,7 +121,7 @@ abstract class DependencyNodeHolderWithNotation(
     children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     open val notation: Notation? = null,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : DependencyNodeHolder(name, children, templateContext, parentNodes)
 
 interface ModuleDependencyNode: DependencyNode {
@@ -135,7 +135,7 @@ class ModuleDependencyNodeWithModule(
     children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     override val notation: LocalModuleDependency? = null,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes),
     ModuleDependencyNode
 {
@@ -149,12 +149,12 @@ class ModuleDependencyNodeWithModule(
 class ModuleDependencyNodeWithModulePlain internal constructor(
     override val moduleName: String,
     val name: String,
-    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
 ): DependencyNodeHolderPlain, ModuleDependencyNode {
-    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient
@@ -178,7 +178,7 @@ class DirectFragmentDependencyNodeHolder(
     val fragment: Fragment,
     templateContext: Context,
     override val notation: MavenDependencyBase,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
     override val messages: List<Message> = emptyList(),
 ) : DirectFragmentDependencyNode, DependencyNodeHolderWithNotation(
     name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
@@ -192,11 +192,11 @@ class DirectFragmentDependencyNodeHolder(
             messages, graphContext = graphContext
         )
 
-    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext) {
-        super.fillEmptyNodePlain(nodePlain, graphContext)
+    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
         (nodePlain as DirectFragmentDependencyNodeHolderPlain).dependencyNodeRef =
-            graphContext.getDependencyNodeReference(dependencyNode)
-                ?: dependencyNode.toSerializableReference(graphContext)
+            graphContext.getDependencyNodeReferenceAndSetParent(dependencyNode, nodeReference)
+                ?: dependencyNode.toSerializableReference(graphContext,nodeReference)
     }
 }
 
@@ -218,13 +218,13 @@ class DirectFragmentDependencyNodeHolderPlain internal constructor(
     val name: String,
     val notationCoordinates: String,
     override val messages: List<Message>,
-    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
 
 ): DependencyNodeHolderPlain, DirectFragmentDependencyNode {
-    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient

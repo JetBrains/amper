@@ -142,6 +142,7 @@ internal class IdeSync(
                     .distinctBfsSequence()
                     .filterIsInstance<DirectFragmentDependencyNodeHolder>()
                     .sortedByDescending { it.fragment == this }
+//                    .sortedForIdeSync(this@toGraph)
                     .distinctBy { it.dependencyNode }
                     .mapNotNull {
                         val mavenDependencyNotation = it.notation
@@ -153,6 +154,29 @@ internal class IdeSync(
             return@useWithoutCoroutines allMavenDeps
         }
     }
+
+    /**
+     * Returns all fragments in this module that target the given [platforms].
+     */
+    private fun Sequence<DirectFragmentDependencyNodeHolder>.sortedForIdeSync(fragment: Fragment): List<DirectFragmentDependencyNodeHolder> =
+        this
+            .groupBy { it.fragment }
+            .ensureFirstFragmentDeps(fragment)
+            .flatMap { it.value.sortedBy { it.name } }
+
+    private fun Map<Fragment, List<DirectFragmentDependencyNodeHolder>>.ensureFirstFragmentDeps(fragment: Fragment) =
+        if (this.isEmpty() || this.entries.first() == fragment)
+            this
+        else {
+            val loadedFragmentEntry = this.entries.firstOrNull { it.key == fragment }
+            if (loadedFragmentEntry == null) {
+                this
+            } else
+                buildMap {
+                    put(loadedFragmentEntry.key, loadedFragmentEntry.value)
+                    putAll(this@ensureFirstFragmentDeps - loadedFragmentEntry.key)
+                }
+        }
 
     private fun AmperModule.platforms(): Set<Platform> = fragments.flatMap { it.platforms }.toSet()
 

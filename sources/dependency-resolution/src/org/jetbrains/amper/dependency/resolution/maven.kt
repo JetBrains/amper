@@ -94,7 +94,7 @@ interface MavenDependencyNode : DependencyNode {
 
     val dependency: MavenDependency
 
-    val overriddenBy: List<DependencyNode>
+    val overriddenBy: Set<DependencyNode>
 
     override val key: Key<MavenDependency>
         get() = Key<MavenDependency>("$group:$module")
@@ -118,9 +118,9 @@ class MavenDependencyNodePlain internal constructor(
     override val isBom: Boolean,
     override val messages: List<Message>,
     private val dependencyRef: MavenDependencyReference,
-    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
-    internal val overriddenByRefs: List<DependencyNodeReference> = mutableListOf(),
+    internal val overriddenByRefs: Set<DependencyNodeReference> = mutableSetOf(),
     private val coordinatesForPublishing: MavenCoordinates,
     private val parentKmpLibraryCoordinates: MavenCoordinates?,
     @Transient
@@ -130,9 +130,9 @@ class MavenDependencyNodePlain internal constructor(
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
 
     // todo (AB) : Mode to an abstract class DependencyNodePlainBase and reuse?
-    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
-    override val overriddenBy: List<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) } }
+    override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
 
     override val dependency: MavenDependency by lazy { dependencyRef.toNodePlain(graphContext) }
 
@@ -159,10 +159,10 @@ class MavenDependencyNodePlain internal constructor(
 class MavenDependencyNodeImpl internal constructor(
     templateContext: Context,
     dependency: MavenDependencyImpl,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : MavenDependencyNode, DependencyNodeWithResolutionContext {
 
-    override val parents: List<DependencyNode> get() = context.nodeParents
+    override val parents: Set<DependencyNode> get() = context.nodeParents
 
     constructor(
         templateContext: Context,
@@ -170,7 +170,7 @@ class MavenDependencyNodeImpl internal constructor(
         module: String,
         version: String?,
         isBom: Boolean,
-        parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+        parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
     ) : this(
         templateContext,
         templateContext.createOrReuseDependency(group, module, version, isBom),
@@ -199,7 +199,7 @@ class MavenDependencyNodeImpl internal constructor(
     override var versionFromBom: String? = null
         internal set
 
-    override var overriddenBy: List<DependencyNode> = emptyList()
+    override var overriddenBy: Set<DependencyNode> = emptySet()
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
@@ -216,11 +216,19 @@ class MavenDependencyNodeImpl internal constructor(
                 context
                     .getOrCreateNode(it, this)
                     // skip children that form cyclic dependencies
-                    .takeIf { !it.isDescendantOf(it) }
+                    .let { child ->
+                        child.takeIf { !child.isDescendantOf(child) }
+                            .also { if (it == null) child.context.nodeParents.remove(this) }
+                    }
             } + dependencyConstraints.map {
                 context.getOrCreateConstraintNode(it as MavenDependencyConstraintImpl, this)
             }
         },
+        onValueRecalculated = { oldValue, newValue ->
+            if (oldValue != null) {
+                (oldValue - newValue.toSet()).forEach { it.context.nodeParents.remove(this) }
+            }
+        }
     )
 
     override val messages: List<Message>
@@ -337,8 +345,8 @@ class MavenDependencyNodeImpl internal constructor(
         return getOriginalMavenCoordinates()
     }
 
-     override fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference {
-        return graphContext.getDependencyNodeReference(this)
+     override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
+        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
             ?: run {
                 // 1. register empty reference first (to break cycles)
                 val newNodePlain = MavenDependencyNodePlain(
@@ -349,16 +357,19 @@ class MavenDependencyNodeImpl internal constructor(
                     graphContext = graphContext
                 )
 
-                val newReference = graphContext.registerDependencyNodePlain(this, newNodePlain)
+                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
 
                 // 2. enrich it with references
-                val overriddenBy = overriddenBy.map { it.toSerializableReference(graphContext) }
-                val parents = parents.map { it.toSerializableReference(graphContext) }
-                val children = children.map { it.toSerializableReference(graphContext) }
+                val children = children.map {
+                    it.toSerializableReference(graphContext, newReference)
+                }
 
-                (newNodePlain.overriddenByRefs as MutableList<DependencyNodeReference>).addAll(overriddenBy)
-                (newNodePlain.parentsRefs as MutableList<DependencyNodeReference>).addAll(parents)
+                val overriddenBy = overriddenBy
+                    .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
+                    .map { it.toSerializableReference(graphContext, null) }
+
                 (newNodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
+                (newNodePlain.overriddenByRefs as MutableSet<DependencyNodeReference>).addAll(overriddenBy)
 
                 newReference
             }
@@ -368,7 +379,7 @@ class MavenDependencyNodeImpl internal constructor(
 @Serializable
 class UnresolvedMavenDependencyNodePlain internal constructor(
     val coordinates: String,
-    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
 ): DependencyNodePlain {
@@ -378,7 +389,7 @@ class UnresolvedMavenDependencyNodePlain internal constructor(
     @Transient
     override val key: Key<*> = Key<UnresolvedMavenDependencyNodePlain>(coordinates)
 
-    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
 
     override fun toString() = "$coordinates, unresolved"
 }
@@ -386,7 +397,7 @@ class UnresolvedMavenDependencyNodePlain internal constructor(
 class UnresolvedMavenDependencyNode(
     val coordinates: String,
     templateContext: Context,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : DependencyNodeWithResolutionContext {
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
@@ -396,17 +407,15 @@ class UnresolvedMavenDependencyNode(
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
     override fun toString(): String = "$coordinates, unresolved"
 
-    override fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference {
-        return graphContext.getDependencyNodeReference(this)
+    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
+        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
             ?: run {
                 // 1. register empty reference first (to break cycles)
                 val newNodePlain = UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
 
-                val newReference = graphContext.registerDependencyNodePlain(this, newNodePlain)
+                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
 
                 // 2. enrich it with references
-                val parents = parents.map { it.toSerializableReference(graphContext) }
-                (newNodePlain.parentsRefs as MutableList<DependencyNodeReference>).addAll(parents)
 
                 newReference
             }
@@ -420,7 +429,7 @@ interface MavenDependencyConstraintNode : DependencyNode {
 
     val dependencyConstraint: MavenDependencyConstraint
 
-    val overriddenBy: List<DependencyNode>
+    val overriddenBy: Set<DependencyNode>
 }
 
 @Serializable
@@ -438,9 +447,9 @@ class MavenDependencyConstraintNodePlain internal constructor(
     override val module: String,
     override val version: Version,
     private val dependencyConstraintRef: MavenDependencyConstraintReference,
-    override val parentsRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
-    internal val overriddenByRefs: List<DependencyNodeReference> = mutableListOf(),
+    internal val overriddenByRefs: Set<DependencyNodeReference> = mutableSetOf(),
     override val messages: List<Message>,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
@@ -448,9 +457,9 @@ class MavenDependencyConstraintNodePlain internal constructor(
 
     override val dependencyConstraint: MavenDependencyConstraint by lazy { dependencyConstraintRef.toNodePlain(graphContext) }
 
-    override val parents: MutableList<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableList() }
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
-    override val overriddenBy: List<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) } }
+    override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
 
     @Transient
     override val key: Key<*> = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode
@@ -467,7 +476,7 @@ class MavenDependencyConstraintNodePlain internal constructor(
 internal class MavenDependencyConstraintNodeImpl internal constructor(
     templateContext: Context,
     dependencyConstraint: MavenDependencyConstraintImpl,
-    parentNodes: List<DependencyNodeWithResolutionContext> = emptyList(),
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ):  MavenDependencyConstraintNode, DependencyNodeWithResolutionContext {
     @Volatile
     override var dependencyConstraint: MavenDependencyConstraintImpl = dependencyConstraint
@@ -481,7 +490,7 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
     override val module: String = dependencyConstraint.module
     override val version: Version = dependencyConstraint.version
 
-    override var overriddenBy: List<DependencyNode> = emptyList()
+    override var overriddenBy: Set<DependencyNode> = emptySet()
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
@@ -500,8 +509,8 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
         "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
     }
 
-    override fun toSerializableReference(graphContext: DependencyGraphContext): DependencyNodeReference {
-        return graphContext.getDependencyNodeReference(this)
+    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
+        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
             ?: run {
                 // 1. register empty reference first (to break cycles)
                 val newNodePlain = MavenDependencyConstraintNodePlain(
@@ -511,16 +520,16 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
                     graphContext = graphContext,
                 )
 
-                val newReference = graphContext.registerDependencyNodePlain(this, newNodePlain)
+                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
 
                 // 2. enrich it with references
-                val overriddenBy = overriddenBy.map { it.toSerializableReference(graphContext) }
-                val parents = parents.map { it.toSerializableReference(graphContext) }
-                val children = children.map { it.toSerializableReference(graphContext) }
+                val children = children.map { it.toSerializableReference(graphContext, newReference) }
+                val overriddenBy = overriddenBy
+                    .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
+                    .map { it.toSerializableReference(graphContext, null) }
 
-                (newNodePlain.overriddenByRefs as MutableList<DependencyNodeReference>).addAll(overriddenBy)
-                (newNodePlain.parentsRefs as MutableList<DependencyNodeReference>).addAll(parents)
                 (newNodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
+                (newNodePlain.overriddenByRefs as MutableSet<DependencyNodeReference>).addAll(overriddenBy)
 
                 newReference
             }
@@ -532,9 +541,10 @@ private typealias DependencyProvider<T> = (T) -> Any?
 /**
  * A lazy property that's recalculated if its dependency changes.
  */
-private class PropertyWithDependencyGeneric<T, out V : Any>(
+private class PropertyWithDependencyGeneric<T, V : Any>(
     val dependencyProviders: List<DependencyProvider<T>>,
     val valueProvider: (List<Any?>) -> V,
+    val onValueRecalculated: (V?, V) -> Unit = { _, _ -> },
 ) : ReadOnlyProperty<T, V> {
 
     @Volatile
@@ -549,7 +559,9 @@ private class PropertyWithDependencyGeneric<T, out V : Any>(
             synchronized(this) {
                 if (shouldRecalculate(newDependencies)) {
                     dependencies = newDependencies
+                    val oldValue = if (::value.isInitialized) value else null
                     value = valueProvider(dependencies)
+                    onValueRecalculated(oldValue, value)
                 }
             }
         }
@@ -798,7 +810,7 @@ class MavenDependencyImpl internal constructor(
                     }
                     addAll(sourceSetsFiles.map { it as DependencyFileImpl })
                 }
-            },
+            }
         )
 
     /**

@@ -116,7 +116,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
-        incrementalCacheUsage: ResolutionCacheUsage
+        incrementalCacheUsage: IncrementalCacheUsage
     ): DependencyNode {
         return context.spanBuilder("DR.graph:resolveDependencies").use {
             when (resolutionDepth) {
@@ -144,7 +144,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         else -> null
                     }?.replaceTheEndWithMd5IfTooLong()
 
-                    if (resolutionId == null || incrementalCacheUsage == ResolutionCacheUsage.SKIP) {
+                    if (resolutionId == null || incrementalCacheUsage == IncrementalCacheUsage.SKIP) {
                         resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
                         this@resolveDependencies
                     } else {
@@ -168,7 +168,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                             // todo (AB): Think about id, it should specify graph all logical resolution scopes.
                             id = resolutionId,
                             configuration,
-                            forceRecalculation = (incrementalCacheUsage == ResolutionCacheUsage.REFRESH_AND_USE),
+                            forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
                             inputs = listOf(),
                         ) {
                             context.spanBuilder("DR.graph:resolution")

@@ -13,8 +13,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
-import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.telemetry.use
 import java.util.concurrent.ConcurrentHashMap
@@ -137,7 +135,7 @@ class Resolver {
         }
         resolutionMutex.withLock {
             // maybe a concurrent job has resolved this node already
-            if (this in resolvedNodes)   {
+            if (this in resolvedNodes) {
                 conflictResolver.registerAndDetectConflictsWithChildren(this)
                 return
             }
@@ -250,26 +248,42 @@ private class ConflictResolver(
      * // todo (AB) : as a part of conflict resolution winning subgraph, but some will be eliminated (not reachable from the root).
      * // todo (AB) : The question is: how to detect such "stale" parents? how to get rid of them on conflict resolution-loosing subgraphs?
      */
-    private suspend fun unregisterOrphanNodes(nodes: Set<DependencyNodeWithResolutionContext>) {
-        nodes.flatMap {
-            it.distinctBfsSequence { child, _ ->
-                // only a single parent leads to the unregistered top node
-                // => the node can be unregistered as well with all children
-                child.parents.size == 1
-                        // all parents lead to one of the unregistered top nodes
-                        // => the node could be unregistered as well with all children
-                        || !child.isThereAPathToTopBypassing(nodes)
-                // otherwise, the node is referenced from some resolved non-conflicted node
-                // => it should be kept with all children (avoid unregistering)
-            }.filterIsInstance<DependencyNodeWithResolutionContext>()
-        }.forEach {
-            conflictDetectionMutexByKey.withLock(it.key.hashCode()) {
-                val similarNodes = similarNodesByKey.computeIfAbsent(it.key) { mutableSetOf() }
-                similarNodes.remove(it)
-                unspecifiedVersionHelper?.unregisterNode(it)
+    private suspend fun unregisterOrphanNodes(nodes: Map<DependencyNodeWithResolutionContext, List<DependencyNodeWithResolutionContext>>) {
+        val nodesToUnregister = nodes.keys +
+                nodes.values.flatMap { oldChildren ->
+                    // old children of the node before the conflict was resolved
+                    oldChildren
+                        .toSet()
+                        .filter { it.isOrphanChildOfConflictingNodes(nodes) }
+                        .flatMap {
+                            it.distinctBfsSequence { child, _ ->
+                                // only a single parent leads to the unregistered top node
+                                // => the node can be unregistered as well with all children
+                                child.isOrphanChildOfConflictingNodes(nodes)
+                                // otherwise, the node is referenced from some resolved non-conflicted node
+                                // => it should be kept with all children (avoid unregistering)
+                            }.filterIsInstance<DependencyNodeWithResolutionContext>()
+                        }
+                }
+
+        nodesToUnregister.forEach { node ->
+            conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
+                val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
+                similarNodes.remove(node)
+                unspecifiedVersionHelper?.unregisterNode(node)
             }
         }
     }
+
+    private fun DependencyNode.isOrphanChildOfConflictingNodes(
+        nodes: Map<DependencyNodeWithResolutionContext, List<DependencyNodeWithResolutionContext>>,
+    ): Boolean =
+        // there is the single parent that is to be unregistered
+        // => the child node can be unregistered as well with all children (except those referenced outside)
+        parents.size == 1
+                // all parents lead to one of the unregistered top nodes
+                // => the node could be unregistered as well with all children
+                || !isThereAPathToTopBypassing(nodes.keys)
 
     private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNodeWithResolutionContext>): Boolean {
         if (parents.isEmpty()) return true // we reach the root
@@ -314,23 +328,23 @@ private class ConflictResolver(
         conflictingNodes()
             .map { candidates ->
                 async {
+                    val candidatesWithOldChildren = candidates.associateWith { it.children }
                     val resolved = candidates.resolveConflict()
                     if (resolved) {
-                        candidates
+                        candidatesWithOldChildren
                     } else {
-                        emptySet()
+                        emptyMap()
                     }
                 }
             }
             .awaitAll()
-            .flatten()
-            .toSet()
+            .fold(emptyMap<DependencyNodeWithResolutionContext,List<DependencyNodeWithResolutionContext>>()) { acc, map ->  acc + map }
             .also {
                 unregisterOrphanNodes(it)
                 conflictedKeys.clear()
             }
             .let {
-                it + (unspecifiedVersionHelper?.resolveVersions() ?: emptyList())
+                it.keys + (unspecifiedVersionHelper?.resolveVersions() ?: emptyList())
             }
     }
 
@@ -386,7 +400,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
 
 interface DependencyNodeWithResolutionContext: DependencyNode {
 
-    override val parents: List<DependencyNode> get() = context.nodeParents
+    override val parents: Set<DependencyNode> get() = context.nodeParents
     val context: Context
     override val key: Key<*>
     override val children: List<DependencyNodeWithResolutionContext>

@@ -13,7 +13,12 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.group
+import org.jetbrains.amper.dependency.resolution.isOrphan
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.Test
@@ -40,13 +45,13 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             resolutionInput = ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
+                incrementalCacheUsage = IncrementalCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "D2",
         )
 
-        assertGraphSerialization(appModuleGraph)
+        assertGraphSerialization(appModuleGraph, testInfo)
     }
 
     @Test
@@ -58,13 +63,13 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
+                incrementalCacheUsage = IncrementalCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "ios-app",
         )
 
-        assertGraphSerialization(iosAppModuleDeps)
+        assertGraphSerialization(iosAppModuleDeps, testInfo)
     }
 
     @Test
@@ -77,40 +82,39 @@ class GraphSerializationTest: BaseModuleDrTest() {
             aom,
             resolutionInput = ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                incrementalCacheUsage = ResolutionCacheUsage.SKIP,
+                incrementalCacheUsage = IncrementalCacheUsage.SKIP,
                 fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             verifyMessages = false
         )
 
-        // todo (AB): Check that deserializedRoot contains the same diagnostics with throwable as root (or get rid od Throwable in diagnostic)
+        val deserializedRoot = assertGraphSerialization(root, testInfo)
 
-        val deserializedRoot = assertGraphSerialization(root)
-//        root.children.single()
-//            .children.filterIsInstance<DirectFragmentDependencyNode>()
-//            .first { (it.dependencyNode as? MavenDependencyNode)?.group == "com.jetbrains.intellij.platform" }
-//            .dependencyNode
-//            .let { it as MavenDependencyNode }
-//            .messages.filterIsInstance<WithThrowable>().single().throwable?.stackTrace?.toSet()?.map { it.toString() } ==
-//                deserializedRoot.children.single()
-//                    .children.filterIsInstance<DirectFragmentDependencyNode>()
-//                    .first { (it.dependencyNode as? MavenDependencyNode)?.group == "com.jetbrains.intellij.platform" }
-//                    .dependencyNode
-//                    .let { it as MavenDependencyNode }
-//                    .messages.filterIsInstance<WithThrowable>().single().throwable?.stackTrace?.toSet()?.map { it.toString() }
+        fun DependencyNode.getErrorMessagesForChild(group: String): Set<String> =
+            children.filterIsInstance<DirectFragmentDependencyNode>()
+                .first { (it.dependencyNode as? MavenDependencyNode)?.group == group }
+                .dependencyNode
+                .let { it as MavenDependencyNode }
+                .messages.map { it.message }.toSet()
+
+        kotlin.test.assertEquals(
+            root.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform"),
+            deserializedRoot.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform"),
+            "Diagnostic messages taken from deserializaed graph differs from original ones"
+        )
     }
 
     /**
      * @return deserialized graph
      */
-    private fun assertGraphSerialization(root: DependencyNode): DependencyNode {
+    private fun assertGraphSerialization(root: DependencyNode, testInfo: TestInfo): DependencyNode {
         val serializableGraph = root.toGraph()
+        assertGraphStructure(testInfo, root, serializableGraph)
 
         val encoded = json.encodeToString(serializableGraph)
-        println(encoded)
+//        assertSerializedGraphByGoldenFile(testInfo, encoded)
 
         val decoded = json.decodeFromString(DependencyGraph.serializer(), encoded)
-
         val encodedOfDecoded = json.encodeToString(decoded)
 
         kotlin.test.assertEquals(
@@ -127,6 +131,114 @@ class GraphSerializationTest: BaseModuleDrTest() {
         )
 
         return nodePlain
+    }
+
+    private fun assertGraphStructure(testInfo: TestInfo, root: DependencyNode, graph: DependencyGraph) {
+        root.assertGraphStructure(testInfo, GraphType.ORIGINAL)
+        graph.assertGraphStructure(testInfo)
+
+//        graph.assertNodePlainIndexes(testInfo)
+    }
+
+    private fun DependencyGraph.assertGraphStructure(testInfo: TestInfo) {
+        root.toNodePlain(this.graphContext).assertGraphStructure(testInfo, GraphType.DESERIALIZED)
+    }
+
+    private fun DependencyNode.assertGraphStructure(testInfo: TestInfo, graphType: GraphType) {
+        assertParentsInGraph(testInfo, graphType)
+        assertOverriddenByInGraph(testInfo, graphType)
+    }
+
+    private fun DependencyNode.assertParentsInGraph(testInfo: TestInfo, graphType: GraphType) {
+        val filterOrphans = (graphType == GraphType.ORIGINAL)
+
+        val actual = distinctBfsSequence().flatMap { dep -> dep.parents
+            .filter{ !filterOrphans || !it.isOrphan(this@assertParentsInGraph) }
+            .map { it to dep } }.toSet()
+            .sortedBy { it.first.toString() + it.second.toString() }
+            .joinToString(System.lineSeparator())
+
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.parents.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for dependency graph parents")
+        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            assertEqualsWithDiff(
+                expected = expected.lines(),
+                actual = actual.lines(),
+                "Unexpected parents entries in ${graphType.pretty} graph"
+            )
+        }
+    }
+
+    private fun DependencyNode.assertOverriddenByInGraph(testInfo: TestInfo, graphType: GraphType) {
+        val filterOrphans = (graphType == GraphType.ORIGINAL)
+
+        val allOverriddenBy = buildList {
+            distinctBfsSequence()
+                .filter { it is MavenDependencyNode || it is MavenDependencyConstraintNode }
+                .forEach { dep ->
+                    when (dep) {
+                        is MavenDependencyNode -> addAll(dep.overriddenBy.sortedBy { it.toString() }
+                            .filter{ !filterOrphans || !it.isOrphan(this@assertOverriddenByInGraph) }
+                            .map { it to dep })
+                        is MavenDependencyConstraintNode -> addAll(dep.overriddenBy.sortedBy { it.toString() }
+                            .filter{ !filterOrphans || !it.isOrphan(this@assertOverriddenByInGraph) }
+                            .map { it to dep })
+                        else -> error("unexpected node type ${dep::class.java.simpleName}")
+                    }
+                }
+        }
+        val actual = allOverriddenBy.joinToString(System.lineSeparator())
+
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.overriddenBy.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for dependency graph overriddenBy entries")
+        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            assertEqualsWithDiff(
+                expected = expected.lines(),
+                actual = actual.lines(),
+                "Unexpected overriddenBy entries in ${graphType.pretty} graph"
+            )
+        }
+    }
+
+    private enum class GraphType(val pretty: String) {
+        ORIGINAL ("original"),
+        DESERIALIZED ("deserialized")
+    }
+
+    /**
+     * This check is not applied since indexes are not stable from one execution to another since those depend on the dependency nodes order in the cache,
+     * and it in turn depends on the order of both 'node.children' and 'node.overriddenBy' while the latter have no stable sort order
+     * (and it is quite tricky to sort it since it depends not only on coordinates, but on resolution context as well)
+     */
+    private fun DependencyGraph.assertNodePlainIndexes(testInfo: TestInfo) {
+        val actual = graphContext.allDependencyNodes
+            .map { "${it.value}:  ${it.key.toString()} (${(it.key as? MavenDependencyNodePlain)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
+            .joinToString(System.lineSeparator())
+
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.indexes.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for serialized dependency graph indexes")
+        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            assertEqualsWithDiff(
+                expected = expected.lines(),
+                actual = actual.lines(),
+                "graph indexes differs from expected ones"
+            )
+        }
+    }
+
+    /**
+     * This check is not applied since indexes of dependencies in serialized graph JSON are not stable from one execution to another.
+     */
+    private fun assertSerializedGraphByGoldenFile(testInfo: TestInfo, encoded: String) {
+        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.graph.txt"
+        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for serialized dependency graph")
+        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+            assertEqualsWithDiff(
+                expected = expected.lines(),
+                actual = encoded.lines(),
+                "decoded graph pretty print representation differs from the original graph"
+            )
+        }
     }
 
     @Test

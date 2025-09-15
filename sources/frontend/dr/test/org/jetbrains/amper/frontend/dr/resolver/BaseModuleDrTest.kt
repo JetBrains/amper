@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import com.intellij.openapi.diagnostic.logger
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
@@ -343,35 +342,35 @@ abstract class BaseModuleDrTest {
         split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }
 
-private object ResolutionCacheUsageContextElementKey: CoroutineContext.Key<ResolutionCacheUsageContextElement>
+private object IncrementalCacheUsageContextElementKey: CoroutineContext.Key<IncrementalCacheUsageContextElement>
 
-internal class ResolutionCacheUsageContextElement(
-    var resolutionCacheUsage: ResolutionCacheUsage
-) : CoroutineContext.Key<ResolutionCacheUsageContextElement>, CoroutineContext.Element {
+internal class IncrementalCacheUsageContextElement(
+    var incrementalCacheUsage: IncrementalCacheUsage
+) : CoroutineContext.Key<IncrementalCacheUsageContextElement>, CoroutineContext.Element {
     override val key: CoroutineContext.Key<*>
-        get() = ResolutionCacheUsageContextElementKey
+        get() = IncrementalCacheUsageContextElementKey
 
     override fun toString(): String = "ResolutionCacheUsageContextElement"
 }
 
 internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
-    val resolutionCacheUsageContext = ResolutionCacheUsageContextElement(ResolutionCacheUsage.REFRESH_AND_USE)
+    val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
     runSlowTest(
-        context = EmptyCoroutineContext + resolutionCacheUsageContext,
+        context = EmptyCoroutineContext + incrementalCacheUsageContext,
         testBody = {
             try {
-                println("Running test with resolutionCacheUsage=${resolutionCacheUsageContext.resolutionCacheUsage}")
+                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
                 testBody()
 
-                resolutionCacheUsageContext.resolutionCacheUsage = ResolutionCacheUsage.USE
-                println("Running test with resolutionCacheUsage=${resolutionCacheUsageContext.resolutionCacheUsage}")
+                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.USE
+                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
                 testBody()
             } finally {
-                resolutionCacheUsageContext.resolutionCacheUsage = ResolutionCacheUsage.SKIP
+                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
             }
         }
     )
 }
 
 private suspend fun getIncrementalCacheUsage() =
-    currentCoroutineContext()[ResolutionCacheUsageContextElementKey]?.resolutionCacheUsage?: ResolutionCacheUsage.SKIP
+    currentCoroutineContext()[IncrementalCacheUsageContextElementKey]?.incrementalCacheUsage?: IncrementalCacheUsage.SKIP
