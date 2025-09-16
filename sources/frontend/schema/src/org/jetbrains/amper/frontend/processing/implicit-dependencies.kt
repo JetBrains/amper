@@ -182,13 +182,12 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
             ))
         }
     }
-    if (settings.android.parcelize.enabled) {
-        // FIXME for some reason using the proper trace instead of DefaultTrace breaks a ParcelizeTest
-//        val parcelizeDependencyTrace = TransformedValueTrace(
-//            description = "because Android Parcelize is enabled",
-//            sourceValue = settings.android.parcelize::enabled.schemaDelegate,
-//        )
-        add(kotlinDependencyOf("kotlin-parcelize-runtime", kotlinVersion, dependencyTrace = DefaultTrace))
+    if (settings.android.parcelize.enabled && setOf(Platform.JVM, Platform.ANDROID).containsAll(platforms)) {
+        val parcelizeDependencyTrace = TransformedValueTrace(
+            description = "because Android Parcelize is enabled",
+            sourceValue = settings.android.parcelize::enabled.schemaDelegate,
+        )
+        add(kotlinDependencyOf("kotlin-parcelize-runtime", kotlinVersion, dependencyTrace = parcelizeDependencyTrace))
     }
     if (settings.lombok.enabled) {
         val lombokVersion = settings.lombok::version.schemaDelegate.asTraceableString()
