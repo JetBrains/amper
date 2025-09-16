@@ -5,10 +5,12 @@
 package org.jetbrains.amper.schema.processing
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.elementType
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorGeneric
-import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
+import org.jetbrains.amper.plugins.schema.model.plus
 import org.jetbrains.amper.stdlib.collections.distinctBy
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
@@ -17,54 +19,91 @@ import org.jetbrains.kotlin.analysis.api.symbols.KaEnumEntrySymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolOrigin
 import org.jetbrains.kotlin.analysis.api.symbols.psi
 import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.psiUtil.modalityModifier
 
 internal interface SymbolsCollector {
     fun onEnumReferenced(symbol: KaClassSymbol)
 }
 
-internal interface ParsedClassesResolver {
-    fun getClassData(type: PluginData.Type.ObjectType): PluginData.ClassData
-}
+class ParsingOptions(
+    val isParsingAmperApi: Boolean,
+)
+
+internal fun loadSerializedBuiltinDeclarations(): String = ParsingOptions::class.java.classLoader
+    .getResourceAsStream("META-INF/amper/extensibility-api-declarations.json")
+    .use {
+        checkNotNull(it) { "Failed to load extensibility-api-declarations.json" }
+        it.bufferedReader().readText()
+    }
+
+internal fun loadBuiltinDeclarations(): PluginData.Declarations =
+    Json.decodeFromString(loadSerializedBuiltinDeclarations())
 
 /**
  * The entry point to the `amper-schema-processing` library.
  */
-fun KaSession.parsePluginData(
+fun KaSession.parsePluginDeclarations(
     files: Collection<KtFile>,
-    header: PluginDeclarationsRequest.Request,
-): PluginDataResponse.PluginDataWithDiagnostics {
+    diagnostics: MutableList<in PluginDataResponse.Diagnostic>,
+    moduleExtensionSchemaName: String? = null,
+    isParsingAmperApi: Boolean = false,
+): PluginData.Declarations {
+    val options = ParsingOptions(
+        isParsingAmperApi = isParsingAmperApi,
+    )
+    val builtinDeclarations = if (!options.isParsingAmperApi) {
+        loadBuiltinDeclarations()
+    } else PluginData.Declarations()
+
     val symbolsCollector = object : SymbolsCollector {
         val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
         override fun onEnumReferenced(symbol: KaClassSymbol) {
             require(symbol.classKind == KaClassKind.ENUM_CLASS)
+            if (symbol.origin != KaSymbolOrigin.SOURCE) {
+                // skip builtin enums
+                return
+            }
             referencedEnumSymbols += symbol
         }
     }
     val diagnosticCollector = object : DiagnosticsReporter {
-        val diagnostics = mutableListOf<PluginDataResponse.Diagnostic>()
         override fun report(diagnostic: PluginDataResponse.Diagnostic) {
             diagnostics += diagnostic
         }
     }
 
-    val classes = files.flatMap {
+    val classes = mutableListOf<PluginData.ClassData>()
+    val sealedClasses = mutableListOf<PluginData.VariantData>()
+
+    files.flatMap {
         discoverAnnotatedClassesFrom(it, SCHEMA_ANNOTATION_CLASS)
-    }.mapNotNull {
-        context(symbolsCollector, diagnosticCollector) {
-            parseSchemaDeclaration(it, primarySchemaFqnString = header.moduleExtensionSchemaName)
+    }.forEach { declaration ->
+        context(symbolsCollector, diagnosticCollector, options) {
+            val modalityType = declaration.modalityModifier()
+            if (modalityType != null && modalityType.elementType == KtTokens.SEALED_KEYWORD) {
+                if (options.isParsingAmperApi) {
+                    sealedClasses += parseVariantDeclaration(declaration)
+                } else {
+                    reportError(modalityType, "schema.forbidden.sealed")
+                }
+            } else {
+                parseSchemaDeclaration(declaration, primarySchemaFqnString = moduleExtensionSchemaName)
+                    ?.let { classes += it }
+            }
         }
     }
 
-    val parsedClassesResolver = object : ParsedClassesResolver {
-        private val byName = classes.associateBy { it.name }
-        override fun getClassData(type: PluginData.Type.ObjectType): PluginData.ClassData {
-            return checkNotNull(byName[type.schemaName]) { "Undefined class for ${type.schemaName.qualifiedName}" }
-        }
-    }
+    val parsedClassesResolver = DeclarationsResolver(
+        declarations = PluginData.Declarations(
+            classes = classes,
+            variants = sealedClasses,
+        ) + builtinDeclarations,
+    )
 
-    val tasks = context(diagnosticCollector, symbolsCollector, parsedClassesResolver) {
+    val tasks = context(diagnosticCollector, symbolsCollector, parsedClassesResolver, options) {
         files.flatMap {
             discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
         }.mapNotNull {
@@ -74,7 +113,7 @@ fun KaSession.parsePluginData(
             onDuplicates = { name, taskInfos ->
                 taskInfos.forEach {
                     report(
-                        it.syntheticType.origin, "schema.forbidden.task.action.overloads", name,
+                        it.syntheticType.origin!!, "schema.forbidden.task.action.overloads", name,
                         kind = ErrorGeneric,
                     )
                 }
@@ -82,10 +121,7 @@ fun KaSession.parsePluginData(
         )
     }
 
-    val enums = symbolsCollector.referencedEnumSymbols.filter {
-        // Otherwise it's a library (API) enum, we don't touch those here.
-        it.origin == KaSymbolOrigin.SOURCE
-    }.map { symbol ->
+    val enums = symbolsCollector.referencedEnumSymbols.map { symbol ->
         PluginData.EnumData(
             schemaName = checkNotNull(symbol.classId) { "not reachable: enum" }.toSchemaName(),
             entries = symbol.staticDeclaredMemberScope.callables.filterIsInstance<KaEnumEntrySymbol>().map {
@@ -100,13 +136,10 @@ fun KaSession.parsePluginData(
         )
     }
 
-    return PluginDataResponse.PluginDataWithDiagnostics(
-        sourcePath = header.sourceDir,
-        declarations = PluginData.Declarations(
-            enums = enums,
-            classes = classes,
-            tasks = tasks,
-        ),
-        diagnostics = diagnosticCollector.diagnostics,
+    return PluginData.Declarations(
+        enums = enums,
+        classes = classes,
+        tasks = tasks,
+        variants = sealedClasses,
     )
 }

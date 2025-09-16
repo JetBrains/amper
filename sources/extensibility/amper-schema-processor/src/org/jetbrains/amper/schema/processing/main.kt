@@ -24,16 +24,17 @@ import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
 import kotlin.system.exitProcess
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
-    @OptIn(ExperimentalSerializationApi::class)
     val request = Json.decodeFromStream<PluginDeclarationsRequest>(System.`in`)
 
     val disposable = Disposer.newDisposable()
     try {
         val results = runSchemaProcessor(disposable, request)
-
-        @OptIn(ExperimentalSerializationApi::class)
         Json.encodeToStream(PluginDataResponse(results = results), System.out)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        exitProcess(1)
     } finally {
         Disposer.dispose(disposable)
 
@@ -43,6 +44,17 @@ fun main() {
 }
 
 fun runSchemaProcessor(
+    request: PluginDeclarationsRequest,
+): List<PluginDataResponse.PluginDataWithDiagnostics> {
+    val disposable = Disposer.newDisposable()
+    return try {
+        runSchemaProcessor(disposable, request)
+    } finally {
+        Disposer.dispose(disposable)
+    }
+}
+
+internal fun runSchemaProcessor(
     disposable: Disposable,
     request: PluginDeclarationsRequest,
 ): List<PluginDataResponse.PluginDataWithDiagnostics> {
@@ -77,12 +89,22 @@ fun runSchemaProcessor(
         }
     }
 
-    return modules.map { (sourceDir, module) ->
+    val results = modules.map { (sourceDir, module) ->
         analyze(module) {
-            parsePluginData(
+            val request = request.requests.first { it.sourceDir == sourceDir }
+            val diagnostics = mutableListOf<PluginDataResponse.Diagnostic>()
+            val declarations = parsePluginDeclarations(
                 files = session.modulesWithFiles[module]?.filterIsInstance<KtFile>().orEmpty(),
-                header = request.requests.first { it.sourceDir == sourceDir }
+                diagnostics = diagnostics,
+                isParsingAmperApi = request.isParsingAmperApi,
+                moduleExtensionSchemaName = request.moduleExtensionSchemaName,
+            )
+            PluginDataResponse.PluginDataWithDiagnostics(
+                sourcePath = request.sourceDir,
+                declarations = declarations,
+                diagnostics = diagnostics,
             )
         }
     }
+    return results
 }

@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 interface SchemaObjectDeclaration : SchemaTypeDeclaration {
     val properties: List<Property>
@@ -65,6 +66,7 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val specificToGradleMessage: String? = null,
         val hasShorthand: Boolean = false,
         val isHiddenFromCompletion: Boolean = false,
+        val inputOutputMark: InputOutputMark? = null,
         val origin: SchemaOrigin,
     )
 }

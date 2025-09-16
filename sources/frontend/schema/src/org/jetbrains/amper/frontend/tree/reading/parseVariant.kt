@@ -7,6 +7,10 @@ package org.jetbrains.amper.frontend.tree.reading
 import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependency
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyCatalog
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.schema.BomDependency
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -66,6 +70,11 @@ internal fun parseVariant(
         '.' -> parseObject(psi, type.leafType(UnscopedModuleDependency::class))
         '$' -> parseObject(psi, type.leafType(UnscopedCatalogDependency::class))
         else -> parseObject(psi, type.leafType(UnscopedExternalMavenDependency::class))
+    }
+    ShadowDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
+        '.' -> parseObject(psi, type.leafType(ShadowDependencyLocal::class))
+        '$' -> parseObject(psi, type.leafType(ShadowDependencyCatalog::class))
+        else -> parseObject(psi, type.leafType(ShadowDependencyMaven::class))
     }
     else -> {
         // Generic approach: deduce the type based on the explicit type tag.

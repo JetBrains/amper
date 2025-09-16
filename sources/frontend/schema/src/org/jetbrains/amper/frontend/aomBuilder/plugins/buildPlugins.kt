@@ -2,13 +2,17 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.aomBuilder
+package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.DefaultTaskFromPluginDescription
+import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -47,7 +51,6 @@ import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.stdlib.collections.distinctBy
-import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -137,11 +140,8 @@ internal fun BuildCtx.buildPlugins(
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val taskInfo = task.action.taskInfo
-            val allOutputPaths = buildSet {
-                taskInfo.outputPropertyNames.forEach {
-                    gatherPaths(paths = this, value = task.action[it])
-                }
-            }
+            val pathsCollector = InputOutputPathsCollector()
+            pathsCollector.gatherPaths(task.action)
             val outputMarks = task.markOutputsAs.distinctBy(
                 selector = { it.path },
                 onDuplicates = { path, duplicateMarks ->
@@ -153,13 +153,13 @@ internal fun BuildCtx.buildPlugins(
                 }
             ).associateBy { it.path }
             outputMarks.forEach { (path, mark) ->
-                if (path !in allOutputPaths) {
+                if (path !in pathsCollector.allOutputPaths) {
                     problemReporter.reportBundleError(
                         mark.asBuildProblemSource(), "plugin.invalid.mark.output.as.no.such.path", path
                     )
                 }
             }
-            val outputsToMarks = allOutputPaths.associateWith { path ->
+            val outputsToMarks = pathsCollector.allOutputPaths.associateWith { path ->
                 val mark = outputMarks[path] ?: return@associateWith null
                 TaskFromPluginDescription.OutputMark(
                     kind = mark.kind,
@@ -174,24 +174,12 @@ internal fun BuildCtx.buildPlugins(
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
-                inputs = taskInfo.inputPropertyNames.mapNotNull { task.action[it] as Path? },
+                inputs = pathsCollector.allInputPaths.toList(),
                 outputs = outputsToMarks,
                 codeSource = plugin.pluginModule,
                 explicitOptOutOfExecutionAvoidance = taskInfo.optOutOfExecutionAvoidance,
             )
         }
-    }
-}
-
-private fun gatherPaths(
-    paths: MutableSet<in Path>,
-    value: Any?,
-) {
-    when(value) {
-        is SchemaNode -> value.valueHolders.values.forEach { gatherPaths(paths, it.value) }
-        is Map<*, *> -> value.values.forEach { gatherPaths(paths, it) }
-        is Collection<*> -> value.forEach { gatherPaths(paths, it) }
-        is Path -> paths.add(value)
     }
 }
 
@@ -248,7 +236,9 @@ private class PluginTreeReader(
                     "rootDir", SchemaType.PathType, origin = SchemaOrigin.Builtin, default = null,
                 ),
             )
-            override fun createInstance(): SchemaNode = ExtensionSchemaNode(null)
+            override fun createInstance(): SchemaNode = ExtensionSchemaNode().also {
+                it.schemaType = this
+            }
             override val qualifiedName get() = "ModuleConfigurationForPlugin"
             override val origin get() = SchemaOrigin.Builtin
         }
@@ -272,7 +262,6 @@ private class PluginTreeReader(
 
         val mergedTree = treeMerger.mergeTrees(listOfNotNull(pluginTree, referenceValuesTree))
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
-        // TODO: filter-out reference-only values? So far they don't cause any trouble
         val resolvedTree = refinedTree.resolveReferences()
         createSchemaNode<PluginYamlRoot>(resolvedTree)
     }

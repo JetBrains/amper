@@ -4,7 +4,39 @@
 
 package org.jetbrains.amper.frontend.types
 
+import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration.Property
+import org.jetbrains.amper.plugins.schema.model.PluginData
+import kotlin.reflect.KClass
+
+internal interface ReflectionBasedTypeDeclaration : SchemaTypeDeclaration {
+    val backingReflectionClass: KClass<*>
+
+    override val publicInterfaceReflectionName: String?
+        get() = ShadowMaps.ShadowNodeClassToPublicReflectionName[backingReflectionClass]
+
+    override val origin: SchemaOrigin
+        get() = SchemaOrigin.Builtin
+
+    override val simpleName: String
+        get() = backingReflectionClass.simpleName!!
+
+    override val qualifiedName: String
+        get() = backingReflectionClass.qualifiedName!!
+}
+
+internal interface PluginBasedTypeDeclaration : SchemaTypeDeclaration {
+    val schemaName: PluginData.SchemaName
+
+    override val publicInterfaceReflectionName: String
+        get() = schemaName.reflectionName()
+
+    override val simpleName: String
+        get() = schemaName.simpleNames.last()
+
+    override val qualifiedName: String
+        get() = schemaName.qualifiedName
+}
 
 internal abstract class SchemaObjectDeclarationBase : SchemaObjectDeclaration {
     private val propertiesByName by lazy { properties.associateBy { it.name } }

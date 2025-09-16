@@ -64,7 +64,8 @@ internal fun parseDefaultExpression(
                 else -> null
             }
         } ?: run { reportError(expression, "schema.defaults.invalid.map"); null }
-        is PluginData.Type.ObjectType -> {
+        is PluginData.Type.ObjectType,
+        is PluginData.Type.VariantType -> {
             reportError(expression, "schema.defaults.invalid.object"); null
         }
         is PluginData.Type.PathType -> {

@@ -21,6 +21,7 @@ suspend fun preparePlugins(
 ) {
     spanBuilder("Prepare plugins").use {
         val projectContext = context.projectContext
+        val seenPluginIds = hashSetOf<String>()
         val pluginInfos = projectContext.pluginModuleFiles.associateNotNull { pluginModuleFile ->
             val pluginManifest = spanBuilder("Read plugin manifest").use {
                 parsePluginManifestFromModuleFile(
@@ -28,6 +29,10 @@ suspend fun preparePlugins(
                     moduleFile = pluginModuleFile,
                 )
             } ?: return@associateNotNull null
+            if (!seenPluginIds.add(pluginManifest.id)) {
+                // Skip the plugin with a duplicate id
+                return@associateNotNull null
+            }
 
             pluginModuleFile.parent.toNioPath() to pluginManifest
         }

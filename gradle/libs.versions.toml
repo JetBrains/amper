@@ -17,6 +17,7 @@ junit-jupiter = "5.12.1"
 junit-platform = "1.13.4" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kaml = "0.76.0"
 kotlin = "2.2.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+kotlinpoet = "2.2.0"
 kotlinx-collections = "0.3.8" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-coroutines = "1.8.0" # aligned with IntelliJ platform - UPDATE WITH CARE
 kotlinx-datetime = "0.7.1"
@@ -83,6 +84,7 @@ kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api",
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-poet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 kotlin-symbol-light-classes-for-ide = { module = "org.jetbrains.kotlin:symbol-light-classes-for-ide", version.ref = "kotlin" }

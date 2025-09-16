@@ -19,6 +19,6 @@ package org.jetbrains.amper
  * - to extend other [Schema]-annotated interfaces
  */
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Schema

@@ -7,7 +7,6 @@ package org.jetbrains.amper.tasks.custom
 import com.android.utils.associateByNotNull
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
-import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
@@ -37,8 +36,11 @@ class ValueMarshaller(
                 // and because resulting enum constants already preserve identity when called multiple times.
                 type.enumConstants.first { (it as Enum<*>).name == value }
             }
-            is ExtensionSchemaNode -> withValueCache(value) { createProxy(value) }
-            is SchemaNode -> TODO("Passing internal schema objects to external tasks is not yet supported")
+            is SchemaNode -> withValueCache(value) {
+                val publicInterfaceName = value.schemaType.publicInterfaceReflectionName
+                    ?: error("No public interface reflection name for $value")
+                createProxy(value, publicInterfaceName)
+            }
             is List<*> -> withValueCache(value) {
                 value.map { marshallValue(it, (type as ParameterizedType).actualTypeArguments.first()) }
             }
@@ -50,11 +52,10 @@ class ValueMarshaller(
     }
 
     private fun createProxy(
-        value: ExtensionSchemaNode,
+        value: SchemaNode,
+        interfaceName: String,
     ): Any {
-        val interfaceClass = publicClassLoader.loadClass(checkNotNull(value.interfaceName) {
-            "Not reached: the schema object has no plugin counterpart"
-        })
+        val interfaceClass = publicClassLoader.loadClass(interfaceName)
         val methodsToProperties = interfaceClass.kotlin.memberProperties.associateByNotNull {
             it.getter.javaMethod
         }

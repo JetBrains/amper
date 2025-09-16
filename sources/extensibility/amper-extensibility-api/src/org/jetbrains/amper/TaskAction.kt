@@ -12,7 +12,7 @@ package org.jetbrains.amper
  * In addition, [java.nio.file.Path] parameters must be annotated with either [Input] or [Output].
  */
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class TaskAction(
     /**

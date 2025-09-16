@@ -8,9 +8,7 @@ import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import kotlin.reflect.KClass
 
-fun SchemaTypeDeclaration.simpleName() = qualifiedName.substringAfterLast('.')
-
-inline fun <reified T : SchemaNode> SchemaTypeDeclaration.isSameAs(): Boolean = qualifiedName == T::class.qualifiedName
+inline fun <reified T : SchemaNode> SchemaTypeDeclaration.isSameAs(): Boolean = isSameAs(T::class)
 
 fun SchemaTypeDeclaration.isSameAs(`class`: KClass<out SchemaNode>): Boolean = qualifiedName == `class`.qualifiedName
 
@@ -45,7 +43,7 @@ fun SchemaType.render(
         is SchemaType.MapType -> append("mapping {${keyType.render(false)} : ${valueType.render(false)}}")
         is SchemaType.EnumType -> {
             // TODO: Introduce a public-name concept?
-            append(declaration.simpleName())
+            append(declaration.simpleName)
             if (includeSyntax) {
                 declaration.entries.filter { !it.isOutdated && it.isIncludedIntoJsonSchema }.joinTo(
                     buffer = this,
@@ -58,7 +56,7 @@ fun SchemaType.render(
         is SchemaType.ObjectType -> {
             // TODO: Introduce a public-name concept?
             // e.g. Dependency ( string | { string: ( "exported" | DependencyScope | {:} } ) )
-            append(declaration.simpleName())
+            append(declaration.simpleName)
             if (includeSyntax) {
                 append(" ")
                 fun appendPossibleSyntax() {
@@ -102,14 +100,14 @@ fun SchemaType.render(
         }
         is SchemaType.VariantType -> {
             // TODO: Introduce a public-name concept?
-            append(declaration.simpleName())
+            append(declaration.simpleName)
             if (includeSyntax) {
                 declaration.variantTree.joinTo(
                     buffer = this,
                     separator = " | ",
                     prefix = "( ",
                     postfix = " )",
-                ) { it.declaration.simpleName() }
+                ) { it.declaration.simpleName }
             }
         }
     }

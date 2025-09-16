@@ -57,7 +57,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
     }
 
     private open inner class BuiltinDeclarationWithCustomProperties(
-        private val backingReflectionClass: KClass<out SchemaNode>,
+        backingReflectionClass: KClass<out SchemaNode>,
     ) : SchemaObjectDeclaration, BuiltinClassDeclaration(backingReflectionClass) {
         override val properties by lazy { parseBuiltInProperties() + customProperties(backingReflectionClass) }
 

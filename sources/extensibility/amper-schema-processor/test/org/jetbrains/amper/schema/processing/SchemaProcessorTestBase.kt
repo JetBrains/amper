@@ -4,27 +4,15 @@
 
 package org.jetbrains.amper.schema.processing
 
-import com.intellij.openapi.util.Disposer
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
-import org.jetbrains.amper.plugins.schema.model.SourceLocation
+import org.jetbrains.amper.plugins.schema.model.withoutOrigin
 import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.io.File
-import java.net.URLClassLoader
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 
@@ -80,83 +68,51 @@ abstract class SchemaProcessorTestBase {
         }
         builder.block()
 
-        val disposable = Disposer.newDisposable()
-        try {
-            val classpath = System.getProperty("java.class.path")!!.split(File.pathSeparator)
-            val stdlib = Path(classpath.first { "kotlin-stdlib-" in it })
-            val extensibilityApi = Path(classpath.first { "amper-extensibility-api" in it })
+        for (source in sources) {
+            check(source.name.endsWith(".kt")) { "Kotlin source expected" }
+            source.path.writeText(source.contentsWithoutComments)
+        }
 
-            for (source in sources) {
-                check(source.name.endsWith(".kt")) { "Kotlin source expected" }
-                source.path.writeText(source.contentsWithoutComments)
+        val request = PluginDeclarationsRequest.Request(
+            moduleName = "test-plugin",
+            moduleExtensionSchemaName = schemaExtensionClassName,
+            sourceDir = tempDirExtension.path,
+        )
+
+        val result = runSchemaProcessor(PluginDeclarationsRequest(listOf(request))).single()
+        val groupedDiagnostics: Map<Path, List<PluginDataResponse.Diagnostic>> =
+            result.diagnostics.groupBy { it.location.path }
+        for (source in sources) {
+            val relevantErrors = groupedDiagnostics[source.path].orEmpty()
+            val markers = mutableListOf<Pair<String, Int>>()
+            for (error in relevantErrors) {
+                markers += "/*{{*/" to error.location.textRange.first
+                markers += "/*}} ${error.message} */" to error.location.textRange.last
             }
+            // Sorting all the markers to insert them one-by-one from the end to avoid offsets recalculation
+            markers.sortByDescending { (_, position) -> position }
 
-            val request = PluginDeclarationsRequest(
-                requests = listOf(
-                    PluginDeclarationsRequest.Request(
-                        moduleName = "test-plugin",
-                        moduleExtensionSchemaName = schemaExtensionClassName?.let(PluginData::SchemaName),
-                        sourceDir = tempDirExtension.path,
-                    ),
-                ),
-                jdkPath = Path(System.getProperty("java.home")!!),
-                librariesPaths = listOf(stdlib, extensibilityApi),
-            )
-
-            val result = runSchemaProcessor(disposable, request).first()
-            val groupedDiagnostics: Map<Path, List<PluginDataResponse.Diagnostic>> =
-                result.diagnostics.groupBy { it.location.path }
-            for (source in sources) {
-                val relevantErrors = groupedDiagnostics[source.path].orEmpty()
-                val markers = mutableListOf<Pair<String, Int>>()
-                for (error in relevantErrors) {
-                    markers += "/*{{*/" to error.location.textRange.first
-                    markers += "/*}} ${error.message} */" to error.location.textRange.last
+            val markedContents = StringBuilder(source.contentsWithoutComments).run {
+                for ((contents, position) in markers) {
+                    insert(position, contents)
                 }
-                // Sorting all the markers to insert them one-by-one from the end to avoid offsets recalculation
-                markers.sortByDescending { (_, position) -> position }
-
-                val markedContents = StringBuilder(source.contentsWithoutComments).run {
-                    for ((contents, position) in markers) {
-                        insert(position, contents)
-                    }
-                    toString()
-                }
-                assertEquals(
-                    expected = source.contents,
-                    actual = markedContents,
-                )
+                toString()
             }
             assertEquals(
-                expected = expectedJsonPluginData,
-                actual = JsonForTest.encodeToString(result.declarations)
+                expected = source.contents,
+                actual = markedContents,
             )
-        } finally {
-            Disposer.dispose(disposable)
         }
-    }
-
-    private fun ClassLoader.findUrlClassloader(): URLClassLoader? = when (this) {
-        is URLClassLoader -> this
-        else -> parent?.findUrlClassloader()
+        val format = Json {
+            prettyPrint = true
+            @OptIn(ExperimentalSerializationApi::class)
+            prettyPrintIndent = "  "
+        }
+        assertEquals(
+            expected = expectedJsonPluginData,
+            actual = format.encodeToString(result.declarations.withoutOrigin())
+        )
     }
 }
 
 private val MultiLineCommentRegex = """/\*.*?\*/""".toRegex(RegexOption.DOT_MATCHES_ALL)
-
-private object RedactingSourceLocationSerializer : KSerializer<SourceLocation> {
-    override val descriptor = PrimitiveSerialDescriptor("RedactingSourceLocation", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: SourceLocation) = encoder.encodeString("..")
-    override fun deserialize(decoder: Decoder) = error("Not used for deserialization")
-}
-
-private val JsonForTest = Json {
-    prettyPrint = true
-    @OptIn(ExperimentalSerializationApi::class)
-    prettyPrintIndent = "  "
-
-    serializersModule = SerializersModule {
-        // We have to redact all the origins because they are environment-sensitive
-        contextual(RedactingSourceLocationSerializer)
-    }
-}

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 /**
  * An annotation to specify documentation bundle entry.
@@ -171,3 +172,10 @@ annotation class IgnoreForSchema
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class HiddenFromCompletion
+
+/**
+ * Specified Input/Output semantics for Path-referencing properties. Used by tasks from plugins.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PathMark(val type: InputOutputMark)

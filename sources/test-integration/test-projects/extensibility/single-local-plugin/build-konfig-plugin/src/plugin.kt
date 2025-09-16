@@ -54,3 +54,8 @@ fun generateKonfig(
         .build()
         .writeTo(outputDir)
 }
+
+@TaskAction
+fun hello(@Input thisClasspath: Classpath) {
+    println(thisClasspath)
+}

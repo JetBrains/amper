@@ -8,18 +8,19 @@ import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.TaskAction
+import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
 import org.jetbrains.amper.plugins.schema.model.Defaults
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.SourceLocation
+import kotlin.reflect.KClass
 
 internal data class PluginKey(val pluginId: PluginData.Id, val qualifiedName: String) : DeclarationKey
 
-internal val PluginData.taskActionPluginKey get() = id / PluginData.SchemaName(TaskAction::class.qualifiedName!!)
+internal val PluginData.taskActionPluginKey get() = id / TaskAction::class
 internal val taskActionBuiltInKey = TaskAction::class.builtInKey
 
-private val StubSchemaName = PluginData.SchemaName("Stub")
-
 internal operator fun PluginData.Id.div(schemaName: PluginData.SchemaName) = PluginKey(this, schemaName.qualifiedName)
+internal operator fun PluginData.Id.div(kClass: KClass<*>) = PluginKey(this, kClass.qualifiedName!!)
 
 /**
  * Iterate over all [PluginData] and register all discovered types into [this] typing context.
@@ -27,14 +28,12 @@ internal operator fun PluginData.Id.div(schemaName: PluginData.SchemaName) = Plu
 internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: List<PluginData>) {
     pluginsData.forEach { pluginData ->
         val moduleExtensionSchemaName = pluginData.moduleExtensionSchemaName
-        val hasValidModuleExtension = moduleExtensionSchemaName != null &&
-                pluginData.declarations.classes.any { it.name == moduleExtensionSchemaName }
         // Load external classes.
         for (declaration in pluginData.declarations.classes) registeredDeclarations[pluginData.id / declaration.name] =
             ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 data = declaration,
-                instantiationStrategy = { ExtensionSchemaNode(declaration.name.qualifiedName) },
+                instantiationStrategy = { ExtensionSchemaNode() },
                 isRootSchema = declaration.name == moduleExtensionSchemaName,
                 typingContext = this,
             )
@@ -43,18 +42,22 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
         //  that would somehow point to the plugin module
         val stubPluginConfigurationOrigin = SchemaOrigin.Builtin
 
-        val pluginSettingsExtensionSchemaName = if (!hasValidModuleExtension) {
+        val pluginSettingsExtensionSchemaName = if (moduleExtensionSchemaName == null) {
             // Add a stub class just for the `enabled` sake.
-            registeredDeclarations[pluginData.id / StubSchemaName] = ExternalObjectDeclaration(
+            val stubSchemaName = PluginData.SchemaName(
+                packageName = pluginData.id.value,
+                simpleNames = listOf("Settings"),
+            )
+            registeredDeclarations[pluginData.id / stubSchemaName] = ExternalObjectDeclaration(
                 pluginId = pluginData.id,
-                schemaName = StubSchemaName,
+                schemaName = stubSchemaName,
                 properties = emptyList(),
                 origin = stubPluginConfigurationOrigin,
-                instantiationStrategy = { ExtensionSchemaNode(null) },
+                instantiationStrategy = { ExtensionSchemaNode() },
                 isRootSchema = true,
                 typingContext = this,
             )
-            StubSchemaName
+            stubSchemaName
         } else moduleExtensionSchemaName
 
         // Load external enums.
@@ -98,13 +101,13 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
 
 private class ExternalObjectDeclaration(
     private val pluginId: PluginData.Id,
-    schemaName: PluginData.SchemaName,
+    override val schemaName: PluginData.SchemaName,
     properties: List<PluginData.ClassData.Property>,
     override val origin: SchemaOrigin,
     private val instantiationStrategy: () -> SchemaNode,
     private val isRootSchema: Boolean,
     private val typingContext: ExtensibleBuiltInTypingContext,
-) : SchemaObjectDeclarationBase() {
+) : SchemaObjectDeclarationBase(), PluginBasedTypeDeclaration {
 
     constructor(
         pluginId: PluginData.Id,
@@ -120,11 +123,18 @@ private class ExternalObjectDeclaration(
     override val properties: List<SchemaObjectDeclaration.Property> by lazy {
         buildList {
             for (property in properties) {
+                if (property.internalAttributes?.isProvided == true) {
+                    // Skip @Provided properties
+                    continue
+                }
                 this += SchemaObjectDeclaration.Property(
                     name = property.name,
                     type = typingContext.toSchemaType(pluginId, property.type),
                     default = property.default.toInternalDefault(forType = property.type),
                     documentation = property.doc,
+                    hasShorthand = property.internalAttributes?.isShorthand == true,
+                    isFromKeyAndTheRestNested = property.internalAttributes?.isDependencyNotation == true,
+                    inputOutputMark = property.inputOutputMark,
                     origin = property.origin.toLocalPluginOrigin(),
                 )
             }
@@ -166,14 +176,17 @@ private class ExternalObjectDeclaration(
         Defaults.Null -> null
     }
 
-    override fun createInstance(): SchemaNode = instantiationStrategy()
-    override val qualifiedName = schemaName.qualifiedName
+    override fun createInstance(): SchemaNode = instantiationStrategy().apply {
+        schemaType = this@ExternalObjectDeclaration
+    }
     override fun toString() = qualifiedName
 }
 
 private class ExternalEnumDeclaration(
     private val data: PluginData.EnumData,
-) : SchemaEnumDeclarationBase() {
+) : SchemaEnumDeclarationBase(), PluginBasedTypeDeclaration {
+    override val schemaName: PluginData.SchemaName
+        get() = data.schemaName
     override val origin: SchemaOrigin = data.origin.toLocalPluginOrigin()
     override val entries: List<SchemaEnumDeclaration.EnumEntry> by lazy {
         data.entries.map { entry ->
@@ -187,7 +200,6 @@ private class ExternalEnumDeclaration(
     }
     override val isOrderSensitive get() = false
     override fun toEnumConstant(name: String) = name
-    override val qualifiedName get() = data.schemaName.qualifiedName
     override fun toString() = qualifiedName
 }
 
@@ -218,17 +230,32 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
         valueType = toSchemaType(pluginId, type.valueType),
         isMarkedNullable = type.isNullable,
     )
-    is PluginData.Type.EnumType -> SchemaType.EnumType(
-        declaration = checkNotNull(registeredDeclarations[pluginId / type.schemaName] as? SchemaEnumDeclaration),
-        isMarkedNullable = type.isNullable,
-    )
-    is PluginData.Type.ObjectType -> SchemaType.ObjectType(
-        declaration = checkNotNull(registeredDeclarations[pluginId / type.schemaName] as? SchemaObjectDeclaration),
-        isMarkedNullable = type.isNullable,
-    )
+    is PluginData.Type.EnumType -> {
+        val key = type.schemaName.toKeyShadowAware(pluginId)
+        SchemaType.EnumType(
+            declaration = checkNotNull(registeredDeclarations[key] as? SchemaEnumDeclaration),
+            isMarkedNullable = type.isNullable,
+        )
+    }
+    is PluginData.Type.ObjectType -> {
+        val key = type.schemaName.toKeyShadowAware(pluginId)
+        SchemaType.ObjectType(
+            declaration = checkNotNull(registeredDeclarations[key] as? SchemaObjectDeclaration),
+            isMarkedNullable = type.isNullable,
+        )
+    }
+    is PluginData.Type.VariantType -> TODO("Not yet allowed for the user types, so not reached here")
 }
 
-private fun SourceLocation.toLocalPluginOrigin() = SchemaOrigin.LocalPlugin(
-    sourceFile = path,
-    textRange = textRange,
-)
+private fun PluginData.SchemaName.toKeyShadowAware(pluginId: PluginData.Id) =
+    // Check if the qualified name is in the ShadowMap. If so, the we "shadow" it with the builtin "shadow" schema node.
+    ShadowMaps.PublicInterfaceToShadowNodeClass[qualifiedName]?.builtInKey
+        ?: (pluginId / this)
+
+private fun SourceLocation?.toLocalPluginOrigin(): SchemaOrigin {
+    if (this == null) return SchemaOrigin.Builtin
+    return SchemaOrigin.LocalPlugin(
+        sourceFile = path,
+        textRange = textRange,
+    )
+}

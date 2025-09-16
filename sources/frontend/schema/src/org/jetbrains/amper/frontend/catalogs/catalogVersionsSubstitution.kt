@@ -12,6 +12,8 @@ import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyCatalog
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -45,6 +47,7 @@ internal class CatalogVersionsSubstitutor(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
         getType<UnscopedCatalogDependency>() to getType<UnscopedExternalMavenDependency>(),
         getType<CatalogBomDependency>() to getType<ExternalMavenBomDependency>(),
+        getType<ShadowDependencyCatalog>() to getType<ShadowDependencyMaven>(),
     )
 
     override fun visitMapValue(value: MapLikeValue<Merged>): TransformResult<MapLikeValue<Merged>> {

@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend
 
 import java.util.*
 import kotlin.collections.AbstractMap
-import kotlin.reflect.KMutableProperty0
 
 fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 
@@ -89,7 +88,7 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
  */
 interface SchemaEnum {
     val schemaValue: String
-    val outdated: Boolean
+    val outdated: Boolean get() = false
 }
 
 interface Context {

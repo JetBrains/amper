@@ -14,6 +14,6 @@ package org.jetbrains.amper
  * Execution avoidance mechanism may rely on this information.
  */
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.VALUE_PARAMETER)
 annotation class Output

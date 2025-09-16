@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.schema.processing
 
+import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaPropertySymbol
@@ -12,7 +13,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 
-context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, options: ParsingOptions)
 internal fun parseProperty(
     property: KtProperty,
 ): PluginData.ClassData.Property? {
@@ -45,11 +46,23 @@ internal fun parseProperty(
 
     if (type == null) return null
 
+    val internal = if (options.isParsingAmperApi) {
+        PluginData.ClassData.InternalAttributes(
+            isProvided = property.isAnnotatedWith(PROVIDED_ANNOTATION_CLASS),
+            isShorthand = property.isAnnotatedWith(SHORTHAND_ANNOTATION_CLASS),
+            isDependencyNotation = property.isAnnotatedWith(DEP_NOTATION_ANNOTATION_CLASS),
+        )
+    } else null
+
     return PluginData.ClassData.Property(
         name = name,
         type = type,
         default = default,
         doc = property.getDefaultDocString(),
         origin = nameIdentifier.getSourceLocation(),
+        internalAttributes = internal,
+        inputOutputMark = InputOutputMark.ValueOnly.takeIf {
+            options.isParsingAmperApi && property.isAnnotatedWith(PATH_VALUE_ONLY_ANNOTATION_CLASS)
+        },
     )
 }

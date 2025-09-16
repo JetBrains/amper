@@ -1,41 +1,35 @@
 {
   "enums": [
     {
-      "schemaName": "com.example.MyKind",
+      "schemaName": "com.example/MyKind",
       "entries": [
         {
           "name": "Kind1",
-          "schemaName": "Kind1",
-          "origin": ".."
+          "schemaName": "Kind1"
         },
         {
           "name": "Kind2",
-          "schemaName": "Kind2",
-          "origin": ".."
+          "schemaName": "Kind2"
         },
         {
           "name": "Kind3",
-          "schemaName": "Kind3",
-          "origin": ".."
+          "schemaName": "Kind3"
         }
-      ],
-      "origin": ".."
+      ]
     }
   ],
   "classes": [
     {
-      "name": "com.example.Empty",
-      "origin": ".."
+      "name": "com.example/Empty"
     },
     {
-      "name": "com.example.Lists",
+      "name": "com.example/Lists",
       "properties": [
         {
           "name": "enabled",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "data",
@@ -44,8 +38,7 @@
             "elementType": {
               "type": "string"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "data2",
@@ -53,10 +46,9 @@
             "type": "list",
             "elementType": {
               "type": "object",
-              "schemaName": "com.example.Lists"
+              "schemaName": "com.example/Lists"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "aliasList",
@@ -65,14 +57,12 @@
             "elementType": {
               "type": "string"
             }
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.Maps",
+      "name": "com.example/Maps",
       "properties": [
         {
           "name": "mapProperty1",
@@ -81,8 +71,7 @@
             "valueType": {
               "type": "string"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "mapProperty2",
@@ -91,8 +80,7 @@
             "valueType": {
               "type": "string"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "mapProperty4",
@@ -100,10 +88,9 @@
             "type": "map",
             "valueType": {
               "type": "object",
-              "schemaName": "com.example.Lists"
+              "schemaName": "com.example/Lists"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "mapProperty5",
@@ -111,80 +98,70 @@
             "type": "map",
             "valueType": {
               "type": "object",
-              "schemaName": "com.example.Maps"
+              "schemaName": "com.example/Maps"
             }
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.Nullable",
+      "name": "com.example/Nullable",
       "properties": [
         {
           "name": "enum",
           "type": {
             "type": "enum",
-            "schemaName": "com.example.MyKind",
+            "schemaName": "com.example/MyKind",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "boolean",
           "type": {
             "type": "boolean",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "string",
           "type": {
             "type": "string",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "int",
           "type": {
             "type": "int",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "path",
           "type": {
             "type": "path",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "booleanAlias",
           "type": {
             "type": "boolean",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "listsOptional",
           "type": {
             "type": "object",
-            "schemaName": "com.example.Lists",
+            "schemaName": "com.example/Lists",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.WithValidDefaults",
+      "name": "com.example/WithValidDefaults",
       "properties": [
         {
           "name": "boolean1",
@@ -194,8 +171,7 @@
           "default": {
             "type": "boolean",
             "value": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "boolean3",
@@ -205,8 +181,7 @@
           "default": {
             "type": "boolean",
             "value": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "string1",
@@ -216,8 +191,7 @@
           "default": {
             "type": "string",
             "value": "hello"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "string2",
@@ -227,8 +201,7 @@
           "default": {
             "type": "string",
             "value": "hello World!"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "string3",
@@ -239,8 +212,7 @@
           "default": {
             "type": "string",
             "value": "helloWorld"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "string4",
@@ -250,8 +222,7 @@
           },
           "default": {
             "type": "null"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "int",
@@ -261,8 +232,7 @@
           "default": {
             "type": "int",
             "value": 3
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "int2",
@@ -272,8 +242,7 @@
           "default": {
             "type": "int",
             "value": 2147483647
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "listOfString",
@@ -299,8 +268,7 @@
                 "value": "c"
               }
             ]
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "listOfString2",
@@ -313,8 +281,7 @@
           "default": {
             "type": "list",
             "value": []
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "listOfString1",
@@ -340,8 +307,7 @@
                 "value": "World!"
               }
             ]
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "listOfMaps",
@@ -366,8 +332,7 @@
                 "value": {}
               }
             ]
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "mapOfList",
@@ -383,8 +348,7 @@
           "default": {
             "type": "map",
             "value": {}
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "map",
@@ -397,20 +361,18 @@
           "default": {
             "type": "map",
             "value": {}
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "obj1",
           "type": {
             "type": "object",
-            "schemaName": "com.example.Maps",
+            "schemaName": "com.example/Maps",
             "isNullable": true
           },
           "default": {
             "type": "null"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "path",
@@ -420,69 +382,60 @@
           },
           "default": {
             "type": "null"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "enum",
           "type": {
             "type": "enum",
-            "schemaName": "com.example.MyKind",
+            "schemaName": "com.example/MyKind",
             "isNullable": true
           },
           "default": {
             "type": "null"
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.WithInvalidDefaults",
+      "name": "com.example/WithInvalidDefaults",
       "properties": [
         {
           "name": "boolean0",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "boolean1",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "boolean2",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "int1",
           "type": {
             "type": "int"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "int2",
           "type": {
             "type": "int",
             "isNullable": true
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "path",
           "type": {
             "type": "path"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "list1",
@@ -491,8 +444,7 @@
             "elementType": {
               "type": "string"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "list2",
@@ -508,8 +460,7 @@
           "default": {
             "type": "list",
             "value": []
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "map",
@@ -518,63 +469,55 @@
             "valueType": {
               "type": "int"
             }
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "obj",
           "type": {
             "type": "object",
-            "schemaName": "com.example.WithValidDefaults"
-          },
-          "origin": ".."
+            "schemaName": "com.example/WithValidDefaults"
+          }
         },
         {
           "name": "obj1",
           "type": {
             "type": "object",
-            "schemaName": "com.example.WithValidDefaults"
-          },
-          "origin": ".."
+            "schemaName": "com.example/WithValidDefaults"
+          }
         },
         {
           "name": "enum",
           "type": {
             "type": "enum",
-            "schemaName": "com.example.MyKind"
+            "schemaName": "com.example/MyKind"
           },
           "default": {
             "type": "enum",
             "value": "Kind1"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "withBlockBody",
           "type": {
             "type": "int"
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.Invalid",
+      "name": "com.example/Invalid",
       "properties": [
         {
           "name": "foo",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "withReceiver",
           "type": {
             "type": "int"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "withReceiver2",
@@ -584,86 +527,74 @@
           "default": {
             "type": "string",
             "value": ""
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "withContext",
           "type": {
             "type": "int"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "mutable",
           "type": {
             "type": "string"
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.MySettings",
+      "name": "com.example/MySettings",
       "properties": [
         {
           "name": "booleanProperty",
           "type": {
             "type": "boolean"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "stringProperty",
           "type": {
             "type": "string"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "intProperty",
           "type": {
             "type": "int"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "pathProperty",
           "type": {
             "type": "path"
-          },
-          "origin": ".."
+          }
         },
         {
           "name": "empty",
           "type": {
             "type": "object",
-            "schemaName": "com.example.Empty"
-          },
-          "origin": ".."
+            "schemaName": "com.example/Empty"
+          }
         },
         {
           "name": "lists",
           "type": {
             "type": "object",
-            "schemaName": "com.example.Lists"
-          },
-          "origin": ".."
+            "schemaName": "com.example/Lists"
+          }
         },
         {
           "name": "maps",
           "type": {
             "type": "object",
-            "schemaName": "com.example.Maps"
-          },
-          "origin": ".."
+            "schemaName": "com.example/Maps"
+          }
         }
-      ],
-      "origin": ".."
+      ]
     },
     {
-      "name": "com.example.Config",
+      "name": "com.example/Config",
       "properties": [
         {
           "name": "map",
@@ -675,25 +606,22 @@
                 "type": "path"
               }
             }
-          },
-          "origin": ".."
+          }
         }
-      ],
-      "origin": ".."
+      ]
     }
   ],
   "tasks": [
     {
       "syntheticType": {
-        "name": "com.example.overloaded",
-        "origin": ".."
+        "name": "com.example/overloaded"
       },
       "jvmFunctionClassName": "com.example.PluginKt",
       "jvmFunctionName": "overloaded"
     },
     {
       "syntheticType": {
-        "name": "com.example.invalidTaskAction",
+        "name": "com.example/invalidTaskAction",
         "properties": [
           {
             "name": "int",
@@ -703,8 +631,7 @@
             "default": {
               "type": "int",
               "value": 0
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "map",
@@ -717,8 +644,7 @@
             "default": {
               "type": "map",
               "value": {}
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "list",
@@ -731,8 +657,7 @@
             "default": {
               "type": "list",
               "value": []
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "inputDir",
@@ -743,51 +668,47 @@
             "default": {
               "type": "null"
             },
-            "origin": ".."
+            "inputOutputMark": "Input"
           },
           {
             "name": "outputDir",
             "type": {
               "type": "path"
             },
-            "origin": ".."
+            "inputOutputMark": "Output"
           },
           {
             "name": "somePath",
             "type": {
               "type": "path"
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "anotherPath",
             "type": {
               "type": "path"
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "crazyPath",
             "type": {
               "type": "path"
-            },
-            "origin": ".."
+            }
           },
           {
             "name": "config",
             "type": {
               "type": "object",
-              "schemaName": "com.example.Config"
-            },
-            "origin": ".."
+              "schemaName": "com.example/Config"
+            }
           },
           {
             "name": "inputConfig",
             "type": {
               "type": "object",
-              "schemaName": "com.example.Config"
+              "schemaName": "com.example/Config"
             },
-            "origin": ".."
+            "inputOutputMark": "Input"
           },
           {
             "name": "outputList",
@@ -797,21 +718,12 @@
                 "type": "path"
               }
             },
-            "origin": ".."
+            "inputOutputMark": "Output"
           }
-        ],
-        "origin": ".."
+        ]
       },
       "jvmFunctionClassName": "com.example.PluginKt",
-      "jvmFunctionName": "invalidTaskAction",
-      "inputPropertyNames": [
-        "inputDir",
-        "inputConfig"
-      ],
-      "outputPropertyNames": [
-        "outputDir",
-        "outputList"
-      ]
+      "jvmFunctionName": "invalidTaskAction"
     }
   ]
 }

@@ -73,12 +73,12 @@ internal suspend fun doPreparePlugins(
                 PluginDeclarationsRequest.Request(
                     moduleName = pluginRootPath.relativeTo(projectRoot.path).joinToString(":"),
                     sourceDir = pluginRootPath / "src",
-                    moduleExtensionSchemaName = pluginInfo.schemaExtensionClassName?.let(PluginData::SchemaName),
+                    moduleExtensionSchemaName = pluginInfo.schemaExtensionClassName,
                 )
             }
         )
         logger.info("Processing local plugin schema for [${plugins.values.joinToString { it.id }}]...")
-        jdk.runJava(
+        val result = jdk.runJava(
             workingDir = Path("."),
             mainClass = "org.jetbrains.amper.schema.processing.MainKt",
             programArgs = emptyList(),
@@ -88,6 +88,10 @@ internal suspend fun doPreparePlugins(
             // Input request is passed via STDIN
             input = ProcessInput.Text(Json.encodeToString(request))
         )
+        if (result.exitCode != 0) {
+            logger.error(outputCaptor.stderr)
+            error("Failed to process local plugin schema")
+        }
         // Results are parsed from the process' STDOUT
         val results = try {
             Json.decodeFromString<PluginDataResponse>(outputCaptor.stdout).results
@@ -113,7 +117,9 @@ internal suspend fun doPreparePlugins(
             }
             PluginData(
                 id = PluginData.Id(plugin.id),
-                moduleExtensionSchemaName = plugin.schemaExtensionClassName?.let(PluginData::SchemaName),
+                moduleExtensionSchemaName = result.declarations.classes.map { it.name }.find {
+                    it.qualifiedName == plugin.schemaExtensionClassName
+                },
                 description = plugin.description,
                 declarations = result.declarations,
             )

@@ -181,7 +181,7 @@ class PluginsTest : AmperCliTestBase() {
                    ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "hello"}
             """.trimIndent())
-            assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello, hello, hello]...")
+            assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello]...")
         }
     }
 

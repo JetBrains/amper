@@ -1,0 +1,104 @@
+{
+    "enums": [
+        {
+            "schemaName": "org.jetbrains.amper/Classpath/Scope",
+            "entries": [
+                {
+                    "name": "Runtime",
+                    "schemaName": "Runtime"
+                },
+                {
+                    "name": "Compile",
+                    "schemaName": "Compile"
+                }
+            ]
+        }
+    ],
+    "classes": [
+        {
+            "name": "org.jetbrains.amper/Classpath",
+            "properties": [
+                {
+                    "name": "dependencies",
+                    "type": {
+                        "type": "list",
+                        "elementType": {
+                            "type": "variant",
+                            "schemaName": "org.jetbrains.amper/Dependency"
+                        }
+                    },
+                    "internalAttributes": {
+                        "isShorthand": true
+                    }
+                },
+                {
+                    "name": "scope",
+                    "type": {
+                        "type": "enum",
+                        "schemaName": "org.jetbrains.amper/Classpath/Scope"
+                    },
+                    "default": {
+                        "type": "enum",
+                        "value": "Runtime"
+                    },
+                    "internalAttributes": {}
+                },
+                {
+                    "name": "resolvedFiles",
+                    "type": {
+                        "type": "list",
+                        "elementType": {
+                            "type": "path"
+                        }
+                    },
+                    "internalAttributes": {
+                        "isProvided": true
+                    }
+                }
+            ],
+            "doc": "TODO: docs"
+        },
+        {
+            "name": "org.jetbrains.amper/Dependency/Local",
+            "properties": [
+                {
+                    "name": "modulePath",
+                    "type": {
+                        "type": "path"
+                    },
+                    "inputOutputMark": "ValueOnly",
+                    "internalAttributes": {
+                        "isDependencyNotation": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "org.jetbrains.amper/Dependency/Maven",
+            "properties": [
+                {
+                    "name": "coordinates",
+                    "type": {
+                        "type": "string"
+                    },
+                    "internalAttributes": {
+                        "isDependencyNotation": true
+                    }
+                }
+            ]
+        }
+    ],
+    "variants": [
+        {
+            "name": "org.jetbrains.amper/Dependency",
+            "variants": [
+                {
+                    "schemaName": "org.jetbrains.amper/Dependency/Local"
+                },
+                {
+                    "schemaName": "org.jetbrains.amper/Dependency/Maven"
+                }
+            ]
+        }
+    ]
+}

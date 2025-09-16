@@ -9,6 +9,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorUnresolvedLikeConstruct
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
 import org.jetbrains.kotlin.analysis.api.types.KaStarTypeProjection
 import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.analysis.api.types.KaTypeArgumentWithVariance
@@ -20,7 +21,7 @@ import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.types.Variance
 
-context(session: KaSession, _: DiagnosticsReporter, typeCollector: SymbolsCollector)
+context(session: KaSession, _: DiagnosticsReporter, typeCollector: SymbolsCollector, options: ParsingOptions)
 internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     val isNullable = nullability == KaTypeNullability.NULLABLE
     val symbol = expandTypeToClassSymbol() ?: run {
@@ -64,10 +65,14 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         else -> when (symbol.classKind) {
             KaClassKind.INTERFACE -> {
                 if (symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS)) {
-                    PluginData.Type.ObjectType(
-                        checkNotNull(symbol.classId) { "not reachable: interface can't be anonymous" }.toSchemaName(),
-                        isNullable,
-                    )
+                    val schemaName = checkNotNull(symbol.classId) {
+                        "not reachable: interface can't be anonymous"
+                    }.toSchemaName()
+                    when (symbol.modality) {
+                        KaSymbolModality.SEALED if options.isParsingAmperApi ->
+                            PluginData.Type.VariantType(schemaName, isNullable)
+                        else -> PluginData.Type.ObjectType(schemaName, isNullable)
+                    }
                 } else { reportUnexpectedType(origin); null }
             }
             KaClassKind.ENUM_CLASS -> {
@@ -82,7 +87,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
     }
 }
 
-context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
+context(_: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: ParsingOptions)
 private fun KaTypeProjection.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     return when (this) {
         is KaStarTypeProjection -> run {

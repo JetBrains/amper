@@ -17,15 +17,32 @@ import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
 context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector)
+internal fun parseVariantDeclaration(
+    variantDeclaration: KtClassOrObject,
+): PluginData.VariantData {
+    // WARNING: This routine parses the unreleased structures that are only allowed under Amper internal API.
+    val symbol = with(session) { variantDeclaration.namedClassSymbol }
+        ?: error("Not a named class: $variantDeclaration")
+    return PluginData.VariantData(
+        name = symbol.classId?.toSchemaName() ?: error("No name: $symbol"),
+        variants = with(session) { symbol.sealedClassInheritors }.map {
+            PluginData.Type.ObjectType(it.classId?.toSchemaName() ?: error("No name: $it"))
+        },
+        origin = variantDeclaration.getSourceLocation(),
+    )
+}
+
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, options: ParsingOptions)
 internal fun parseSchemaDeclaration(
     schemaDeclaration: KtClassOrObject,
-    primarySchemaFqnString: PluginData.SchemaName?,
+    primarySchemaFqnString: String?,
 ): PluginData.ClassData? {
     if (!schemaDeclaration.isInterface()) {
         reportError(schemaDeclaration.getDeclarationKeyword() ?: schemaDeclaration, "schema.not.interface")
         return null  // fatal - no need to parse further
     }
-    val name = schemaDeclaration.fqName?.asString() ?: return null // invalid Kotlin
+    val classId = schemaDeclaration.getClassId() ?: return null // invalid Kotlin
+    val name = classId.toSchemaName()
     val nameIdentifier = schemaDeclaration.nameIdentifier ?: return null // invalid Kotlin
     when (with(session) { schemaDeclaration.symbol }.visibility) {
         KaSymbolVisibility.PUBLIC, KaSymbolVisibility.UNKNOWN -> Unit // okay/ignore
@@ -35,7 +52,7 @@ internal fun parseSchemaDeclaration(
         }
         else -> reportError(schemaDeclaration.visibilityModifier() ?: nameIdentifier, "schema.must.be.public")
     }
-    val isPrimarySchema = name == primarySchemaFqnString?.qualifiedName
+    val isPrimarySchema = name.qualifiedName == primarySchemaFqnString
     val properties = buildList {
         val visitor = object : KtTreeVisitor<Nothing?>() {
             override fun visitClassOrObject(classOrObject: KtClassOrObject, data: Nothing?): Void? {
@@ -47,7 +64,9 @@ internal fun parseSchemaDeclaration(
             }
 
             override fun visitSuperTypeListEntry(specifier: KtSuperTypeListEntry, data: Nothing?): Void? {
-                reportError(specifier, "schema.forbidden.mixins")
+                if (!options.isParsingAmperApi) { // Ignore for unreleased - may be part of the variant
+                    reportError(specifier, "schema.forbidden.mixins")
+                }
                 return super.visitSuperTypeListEntry(specifier, data)
             }
 
@@ -72,7 +91,7 @@ internal fun parseSchemaDeclaration(
         schemaDeclaration.acceptChildren(visitor)
     }
     return PluginData.ClassData(
-        name = PluginData.SchemaName(name),
+        name = name,
         properties = properties,
         doc = schemaDeclaration.getDefaultDocString(),
         origin = nameIdentifier.getSourceLocation(),

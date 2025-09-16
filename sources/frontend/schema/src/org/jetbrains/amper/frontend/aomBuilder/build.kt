@@ -16,6 +16,8 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
+import org.jetbrains.amper.frontend.aomBuilder.plugins.loadPreparedPluginData
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString

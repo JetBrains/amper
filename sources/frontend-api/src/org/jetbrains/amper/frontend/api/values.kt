@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
@@ -78,6 +79,9 @@ abstract class SchemaNode : Traceable {
      * Register a nullable value the given [default].
      */
     fun <T : Any> nullableValue(default: T? = null) = value(default = default)
+
+    @IgnoreForSchema
+    lateinit var schemaType: SchemaObjectDeclaration
 
     @IgnoreForSchema
     final override lateinit var trace: Trace

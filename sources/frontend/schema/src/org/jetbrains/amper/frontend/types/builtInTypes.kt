@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
+import org.jetbrains.amper.frontend.api.PathMark
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -124,33 +125,26 @@ internal abstract class BuiltInTypingContext protected constructor(
      */
     protected open fun KClass<*>.isVariant(): Boolean = isSealed
 
-    protected abstract class BuiltinTypeDeclarationBase(
-        clazz: KClass<*>,
-    ) : SchemaTypeDeclaration {
-        override val qualifiedName = checkNotNull(clazz.qualifiedName)
-        override val origin get() = SchemaOrigin.Builtin
-    }
-
     protected inner class BuiltinVariantDeclaration<T : SchemaNode>(
-        sealedClass: KClass<T>,
-    ) : SchemaVariantDeclaration, BuiltinTypeDeclarationBase(sealedClass) {
+        override val backingReflectionClass: KClass<T>,
+    ) : SchemaVariantDeclaration, ReflectionBasedTypeDeclaration {
         init {
-            require(sealedClass.isSealed)
+            require(backingReflectionClass.isSealed)
         }
 
         override val variantTree: List<SchemaVariantDeclaration.Variant> by lazy {
-            sealedClass.sealedSubclasses.map {
+            backingReflectionClass.sealedSubclasses.map {
                 when(val type = getType(it.createType())) {
                     is SchemaType.ObjectType -> SchemaVariantDeclaration.Variant.LeafVariant(type.declaration)
                     is SchemaType.VariantType -> SchemaVariantDeclaration.Variant.SubVariant(type.declaration)
-                    else -> error("Unexpected sealed subclass! class: $it, sealed: $sealedClass")
+                    else -> error("Unexpected sealed subclass! class: $it, sealed: $backingReflectionClass")
                 }
             }
         }
 
         override val variants by lazy {
             // TODO Do we need any checks here?
-            sealedClass.deepSealedSubclasses()
+            backingReflectionClass.deepSealedSubclasses()
                 .mapNotNull { getType(it.starProjectedType) as? SchemaType.ObjectType }
                 .map { it.declaration }
         }
@@ -162,16 +156,12 @@ internal abstract class BuiltInTypingContext protected constructor(
     }
 
     private class BuiltinEnumDeclaration<T : Enum<T>>(
-        private val backingReflectionClass: KClass<T>,
-    ) : SchemaEnumDeclaration, SchemaEnumDeclarationBase() {
+        override val backingReflectionClass: KClass<T>,
+    ) : SchemaEnumDeclaration, ReflectionBasedTypeDeclaration, SchemaEnumDeclarationBase() {
         private val enumOrderSensitive = backingReflectionClass.findAnnotation<EnumOrderSensitive>()
         private val enumConstants = backingReflectionClass.java.enumConstants
 
         override val isOrderSensitive = enumOrderSensitive != null
-
-        override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
-
-        override val origin get() = SchemaOrigin.Builtin
 
         override val entries by lazy {
             val annotationsByEntryName: Map<String, Field> = backingReflectionClass.java.fields
@@ -202,14 +192,10 @@ internal abstract class BuiltInTypingContext protected constructor(
     }
 
     protected open inner class BuiltinClassDeclaration(
-        private val backingReflectionClass: KClass<out SchemaNode>,
-    ) : SchemaObjectDeclaration, SchemaObjectDeclarationBase() {
-
-        override val qualifiedName: String = checkNotNull(backingReflectionClass.qualifiedName)
+        override val backingReflectionClass: KClass<out SchemaNode>,
+    ) : SchemaObjectDeclaration, ReflectionBasedTypeDeclaration, SchemaObjectDeclarationBase() {
 
         override val properties by lazy { parseBuiltInProperties() }
-
-        override val origin get() = SchemaOrigin.Builtin
 
         protected fun parseBuiltInProperties(): List<SchemaObjectDeclaration.Property> {
             // This is needed to extract default values
@@ -230,6 +216,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         isPlatformAgnostic = prop.hasAnnotation<PlatformAgnostic>(),
                         specificToGradleMessage = prop.findAnnotation<GradleSpecific>()?.message,
                         hasShorthand = prop.hasAnnotation<Shorthand>(),
+                        inputOutputMark = prop.findAnnotation<PathMark>()?.type,
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>(),
                         origin = SchemaOrigin.Builtin,
                     )
@@ -246,7 +233,9 @@ internal abstract class BuiltInTypingContext protected constructor(
         }
 
         override fun createInstance(): SchemaNode =
-            backingReflectionClass.createInstance()
+            backingReflectionClass.createInstance().apply {
+                schemaType = this@BuiltinClassDeclaration
+            }
 
         override fun toString() = "class declaration `${qualifiedName}`"
     }

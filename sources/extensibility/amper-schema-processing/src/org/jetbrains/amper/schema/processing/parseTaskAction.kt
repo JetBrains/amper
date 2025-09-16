@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.schema.processing
 
+import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -11,15 +12,16 @@ import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotationValue
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.name.parentOrNull
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
-context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: ParsedClassesResolver)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsResolver, _: ParsingOptions)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
     val nameIdentifier = function.nameIdentifier ?: return null // invalid Kotlin (top-level functions are named)
-    val name = function.fqName?.asString() ?: return null  // invalid Kotlin (top-level functions are named)
+    val name = function.fqName ?: return null  // invalid Kotlin (top-level functions are named)
     when (with(session) { function.symbol }.visibility) {
         KaSymbolVisibility.PUBLIC, KaSymbolVisibility.UNKNOWN -> Unit // okay/ignore
         else -> reportError(function.visibilityModifier() ?: nameIdentifier, "schema.task.action.must.be.public")
@@ -41,19 +43,11 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         reportError(function.typeReference ?: function, "schema.forbidden.task.action.return")
     }
 
-    val inputNames = mutableSetOf<String>()
-    val outputNames = mutableSetOf<String>()
     val properties = function.valueParameters.mapNotNull {
-        val (property, mark) = parseTaskParameter(
+        parseTaskParameter(
             parameter = it,
             docProvider = { name -> function.docComment?.findSectionByTag(KDocKnownTag.PARAM, name)?.getContent() },
-        ) ?: return@mapNotNull null
-        when (mark) {
-            InputOutputMark.Input -> inputNames.add(property.name)
-            InputOutputMark.Output -> outputNames.add(property.name)
-            null -> {}
-        }
-        property
+        )
     }
 
     val optOutOfExecutionAvoidance = with(session) { function.symbol }.annotations
@@ -68,7 +62,10 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
 
     return PluginData.TaskInfo(
         syntheticType = PluginData.ClassData(
-            name = PluginData.SchemaName(name),
+            name = PluginData.SchemaName(
+                packageName = name.parentOrNull()?.pathSegments()?.joinToString(".").orEmpty(),
+                simpleNames = listOf(name.shortName().asString()),
+            ),
             properties = properties,
             doc = function.getDefaultDocString(),
             origin = nameIdentifier.getSourceLocation(),
@@ -77,23 +74,21 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
         jvmFunctionClassName = @OptIn(KaExperimentalApi::class) with(session) {
             function.symbol.containingJvmClassName
         }!!,  // TODO: Fill this only for backend
-        inputPropertyNames = inputNames,
-        outputPropertyNames = outputNames,
         optOutOfExecutionAvoidance = optOutOfExecutionAvoidance,
     )
 }
 
-context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: ParsedClassesResolver)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsResolver, _: ParsingOptions)
 private fun parseTaskParameter(
     parameter: KtParameter,
     docProvider: (name: String) -> String?,
-): TaskParameter? {
+): PluginData.ClassData.Property? {
     val parameterName = parameter.name ?: return null // invalid Kotlin
     val typeReference = parameter.typeReference ?: return null // invalid Kotlin
     val type = with(session) { typeReference.type }.parseSchemaType(origin = { typeReference }) ?: return null
     val inputMark = parameter.getAnnotation(INPUT_ANNOTATION_CLASS)
     val outputMark = parameter.getAnnotation(OUTPUT_ANNOTATION_CLASS)
-    val inputOutputMark: InputOutputMark? = if (type.containsPath()) {
+    val inputOutputMark: InputOutputMark? = if (type.mustBeInputOutputMarked()) {
         when {
             inputMark != null && outputMark != null -> {  // both
                 reportError(parameter, "schema.task.action.parameter.path.conflicting")
@@ -116,33 +111,27 @@ private fun parseTaskParameter(
         parseDefaultExpression(defaultValue, type)
     }
 
-    return TaskParameter(
-        property = PluginData.ClassData.Property(
-            name = parameterName,
-            type = type,
-            default = default,
-            doc = docProvider(parameterName),
-            origin = parameter.getSourceLocation(),
-        ),
-        inputOutputMark = inputOutputMark
+    return PluginData.ClassData.Property(
+        name = parameterName,
+        type = type,
+        default = default,
+        doc = docProvider(parameterName),
+        inputOutputMark = inputOutputMark,
+        origin = parameter.getSourceLocation(),
     )
 }
 
-private data class TaskParameter(
-    val property: PluginData.ClassData.Property,
-    val inputOutputMark: InputOutputMark?,
-)
-
-private enum class InputOutputMark {
-    Input,
-    Output,
-}
-
-context(resolver: ParsedClassesResolver)
-private fun PluginData.Type.containsPath(): Boolean = when(this) {
-    is PluginData.Type.ListType -> elementType.containsPath()
-    is PluginData.Type.MapType -> valueType.containsPath()
-    is PluginData.Type.ObjectType -> resolver.getClassData(this).properties.any { it.type.containsPath() }
+context(resolver: DeclarationsResolver)
+private fun PluginData.Type.mustBeInputOutputMarked(): Boolean = when(this) {
+    is PluginData.Type.ListType -> elementType.mustBeInputOutputMarked()
+    is PluginData.Type.MapType -> valueType.mustBeInputOutputMarked()
+    is PluginData.Type.ObjectType -> declaration.properties.any {
+        if (it.inputOutputMark == InputOutputMark.ValueOnly) {
+            return@any false
+        }
+        it.type.mustBeInputOutputMarked()
+    }
+    is PluginData.Type.VariantType -> declaration.variants.any { it.mustBeInputOutputMarked() }
     is PluginData.Type.PathType -> true
     else -> false
 }

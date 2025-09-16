@@ -5,6 +5,10 @@ apply:
   - ../../used-in-idea.module-template.yaml
   - ../uses-aa.module-template.yaml
 
+settings:
+  kotlin:
+    serialization: json
+
 dependencies:
   - ../amper-extensibility-schema-model: exported
   - ../../libraries/stdlib-extended
@@ -19,3 +23,8 @@ dependencies:
   - $libs.kotlin.symbol.light.classes.for.ide: runtime-only
   - com.github.ben-manes.caffeine:caffeine:2.9.3: runtime-only  # required for AA but is missing in deps somehow.
 
+test-dependencies:
+  - ../amper-schema-processor
+  - ../amper-extensibility-api
+  - ../../test-base
+  - $libs.kotlin.poet

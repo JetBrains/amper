@@ -6,5 +6,5 @@ apply:
 dependencies:
   # WARNING: No dependencies on amper-specific modules are permitted here!
   - $libs.kotlinx.coroutines.core
-  - com.squareup:kotlinpoet:1.18.1
+  - $libs.kotlin.poet
   - $libs.slf4j.api

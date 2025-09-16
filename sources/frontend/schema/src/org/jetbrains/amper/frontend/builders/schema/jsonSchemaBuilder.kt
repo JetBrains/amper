@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.collectReferencedObjects
 import org.jetbrains.amper.frontend.types.isValueRequired
-import org.jetbrains.amper.frontend.types.simpleName
 import org.jetbrains.amper.frontend.types.toType
 
 fun jsonSchemaString(root: SchemaObjectDeclaration) = JsonSchema(root).jsonString
@@ -21,17 +20,17 @@ fun jsonSchemaString(root: SchemaObjectDeclaration) = JsonSchema(root).jsonStrin
 /**
  * Creates a [JsonElement] that represents a JSON schema for the specified [root].
  */
-fun JsonSchema(root: SchemaObjectDeclaration) = root.simpleName().let { simpleName ->
+fun JsonSchema(root: SchemaObjectDeclaration) = root.simpleName.let { simpleName ->
     val objects = collectReferencedObjects(root)
     JsonSchema(
         "https://json-schema.org/draft/2020-12/schema",
         "${simpleName}.json",
         "$simpleName schema",
         "object",
-        listOf(RefElement(root.simpleName())),
+        listOf(RefElement(root.simpleName)),
         objects
             .map { it.declaration }
-            .associate { it.simpleName() to SingleATypeSchemaBuilder.asSchemaObject(it) },
+            .associate { it.simpleName to SingleATypeSchemaBuilder.asSchemaObject(it) },
     )
 }
 
@@ -176,7 +175,7 @@ private object SingleATypeSchemaBuilder : ATypesVisitor<JsonElement> {
         AnyOfElement(type.declaration.variants.map { it.toType().accept() })
 
     override fun visitObject(type: SchemaType.ObjectType): JsonObject =
-        RefElement(type.declaration.simpleName())
+        RefElement(type.declaration.simpleName)
 }
 
 // TODO Introduce a short form of the schema doc in the annotation instead.

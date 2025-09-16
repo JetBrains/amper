@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.plugins.MinimalPluginModule
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskAction
+import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
@@ -29,7 +30,7 @@ fun SchemaTypingContext(
         MinimalModule::class,
         MinimalPluginModule::class,
         CustomTaskNode::class,
-    ),
+    ) + ShadowMaps.PublicInterfaceToShadowNodeClass.values,
 ) {
     override fun discoverTypes() {
         discoverPluginTypes(pluginData)

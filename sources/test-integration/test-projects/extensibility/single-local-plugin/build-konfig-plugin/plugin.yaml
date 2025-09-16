@@ -17,3 +17,8 @@ tasks:
   print-generated-sources:
     action: !org.jetbrains.amper.plugins.buildkonfig.printSources
       directory: ${generate-konfig.action.outputDir}
+
+  hello:
+    action: !org.jetbrains.amper.plugins.buildkonfig.hello
+      thisClasspath:
+        - ../app1

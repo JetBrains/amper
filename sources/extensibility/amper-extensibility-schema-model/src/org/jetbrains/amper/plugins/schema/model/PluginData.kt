@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.plugins.schema.model
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,8 +13,7 @@ import kotlinx.serialization.Serializable
  * - This includes the general plugin information: [id], [description]
  * - Information about the `module.yaml` schema extension for the plugin:
  *   [moduleExtensionSchemaName] (may be absent if plugin has no user configuration).
- * - Schema types descriptions: [enumTypes], [classTypes]
- * - Information about tasks registration: [tasks], also depend on the types information.
+ * - Schema types/tasks descriptions: [declarations]
  */
 @Serializable
 data class PluginData(
@@ -28,14 +26,27 @@ data class PluginData(
     data class Declarations(
         val enums: List<EnumData> = emptyList(),
         val classes: List<ClassData> = emptyList(),
+        val variants: List<VariantData> = emptyList(),
         val tasks: List<TaskInfo> = emptyList(),
     )
 
-    @Serializable
-    @JvmInline
-    value class SchemaName(
-        val qualifiedName: String,
-    )
+    @Serializable(SchemaNameSerializer::class)
+    data class SchemaName(
+        val packageName: String,
+        val simpleNames: List<String>,
+    ) {
+        val qualifiedName: String by lazy {
+            buildString {
+                if (packageName.isNotEmpty()) append(packageName).append('.')
+                simpleNames.joinTo(this, ".")
+            }
+        }
+
+        fun reflectionName() = buildString {
+            if (packageName.isNotEmpty()) append(packageName).append('.')
+            simpleNames.joinTo(this, "$")
+        }
+    }
 
     @Serializable
     @JvmInline
@@ -44,19 +55,24 @@ data class PluginData(
     )
 
     @Serializable
+    data class VariantData(
+        val name: SchemaName,
+        val variants: List<Type.ObjectType>,
+        val origin: SourceLocation? = null,
+    )
+
+    @Serializable
     data class EnumData(
         val schemaName: SchemaName,
         val entries: List<Entry>,
-        @Contextual // needed for tests
-        val origin: SourceLocation,
+        val origin: SourceLocation? = null,
     ) {
         @Serializable
         data class Entry(
             val name: String,
             val schemaName: String,
             val doc: String? = null,
-            @Contextual // needed for tests
-            val origin: SourceLocation,
+            val origin: SourceLocation? = null,
         )
     }
 
@@ -65,17 +81,24 @@ data class PluginData(
         val name: SchemaName,
         val properties: List<Property> = emptyList(),
         val doc: String? = null,
-        @Contextual // needed for tests
-        val origin: SourceLocation,
+        val origin: SourceLocation? = null,
     ) {
+        @Serializable
+        data class InternalAttributes(
+            val isProvided: Boolean = false,
+            val isShorthand: Boolean = false,
+            val isDependencyNotation: Boolean = false,
+        )
+
         @Serializable
         data class Property(
             val name: String,
             val type: Type,
             val default: Defaults? = null,
             val doc: String? = null,
-            @Contextual // needed for tests
-            val origin: SourceLocation,
+            val origin: SourceLocation? = null,
+            val inputOutputMark: InputOutputMark? = null,
+            val internalAttributes: InternalAttributes? = null,
         )
     }
 
@@ -134,6 +157,13 @@ data class PluginData(
             val schemaName: SchemaName,
             override val isNullable: Boolean = false,
         ) : Type
+
+        @Serializable
+        @SerialName("variant")
+        data class VariantType(
+            val schemaName: SchemaName,
+            override val isNullable: Boolean = false,
+        ) : Type
     }
 
     @Serializable
@@ -145,12 +175,6 @@ data class PluginData(
         val syntheticType: ClassData,
         val jvmFunctionClassName: String,
         val jvmFunctionName: String,
-        val inputPropertyNames: Set<String> = emptySet(),
-        val outputPropertyNames: Set<String> = emptySet(),
         val optOutOfExecutionAvoidance: Boolean = false,
-    ) {
-        init {
-            require(inputPropertyNames.intersect(outputPropertyNames).isEmpty())
-        }
-    }
+    )
 }

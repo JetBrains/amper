@@ -87,24 +87,26 @@ class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
         return listOf(
             PluginData(
                 id = PluginData.Id("myPlugin"),
-                moduleExtensionSchemaName = PluginData.SchemaName("com.example.CustomPluginSchema"),
-                classTypes = listOf(
-                    PluginData.ClassData(
-                        name = PluginData.SchemaName("com.example.CustomPluginSchema"),
-                        origin = stubLocation,
-                        properties = listOf(
-                            PluginData.ClassData.Property(
-                                name = "foo",
-                                type = PluginData.Type.IntType(),
-                                origin = stubLocation,
-                            ),
-                            PluginData.ClassData.Property(
-                                name = "bar",
-                                type = PluginData.Type.StringType(),
-                                origin = stubLocation,
-                            ),
+                moduleExtensionSchemaName = PluginData.SchemaName("com.example", listOf("CustomPluginSchema")),
+                declarations = PluginData.Declarations(
+                    classes = listOf(
+                        PluginData.ClassData(
+                            name = PluginData.SchemaName("com.example", listOf("CustomPluginSchema")),
+                            origin = stubLocation,
+                            properties = listOf(
+                                PluginData.ClassData.Property(
+                                    name = "foo",
+                                    type = PluginData.Type.IntType(),
+                                    origin = stubLocation,
+                                ),
+                                PluginData.ClassData.Property(
+                                    name = "bar",
+                                    type = PluginData.Type.StringType(),
+                                    origin = stubLocation,
+                                ),
+                            )
                         )
-                    )
+                    ),
                 ),
             )
         )
