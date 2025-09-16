@@ -29,6 +29,7 @@ import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSourc
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 import org.jetbrains.amper.stdlib.collections.IdentityHashSet
+import org.jetbrains.amper.stdlib.collections.joinToString
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -283,7 +284,7 @@ private fun TreeValue<Refined>.deepContainsAnyReferences(): Boolean = when(this)
 }
 
 private fun ReferenceValue<*>.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
-    description = $$"$${if (trace.isDefault) "default, " else ""}from ${$$referencedPath}",
+    description = $$"$${if (trace.isDefault) "default, " else ""}from ${$${referencedPath.joinToString(".")}}",
     referenceTrace = trace,
     resolvedValue = resolvedValue,
 )
