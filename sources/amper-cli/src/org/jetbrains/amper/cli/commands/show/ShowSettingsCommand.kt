@@ -5,20 +5,15 @@
 package org.jetbrains.amper.cli.commands.show
 
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.multiple
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.unique
-import com.github.ajalt.mordant.input.interactiveMultiSelectList
 import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.info
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
-import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.cli.options.AllModulesOptionName
+import org.jetbrains.amper.cli.options.moduleFilter
+import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -27,19 +22,22 @@ import org.jetbrains.amper.frontend.serialization.serializeAsAmperYaml
 
 internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
 
-    private val modules by option("-m", "--module",
-        help = "The module to show the settings of (run the 'show modules' command to get the modules list). " +
-                "This option can be repeated to show settings for several modules. " +
-                "If unspecified, modules can be selected from an interactive list (only if there are several modules)."
-    ).multiple().unique()
+    private val moduleFilter by moduleFilter(
+        moduleOptionHelp = """
+            The module to show the settings of (run the `show modules` command to get the modules list).
+            This option can be repeated to show settings for several modules.
+            If unspecified, you will be prompted to choose one or more modules.
 
-    private val all by option("--all", help = "Show settings for all modules.").flag(default = false)
+            See also `$AllModulesOptionName` if you want to show settings for all modules in the project.
+        """.trimIndent(),
+        allModulesOptionHelp = "Show settings for all modules.",
+    )
 
     override fun help(context: Context): String = "Print the effective Amper settings of each module"
 
     override suspend fun run(cliContext: CliContext, model: Model) {
         val isMultimodule = model.modules.size
-        model.modules.filterModulesToInspect().forEach { module ->
+        moduleFilter.selectModules(model.modules).forEach { module ->
             if (isMultimodule > 1) {
                 terminal.info("Module: ${module.userReadableName}\n", Whitespace.PRE_LINE, TextAlign.LEFT)
             }
@@ -73,31 +71,5 @@ internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
         )
         terminal.println(yamlLikeEffectiveSettings.prependIndent("  "))
         terminal.println()
-    }
-
-    private fun List<AmperModule>.filterModulesToInspect(): List<AmperModule> {
-        if (size <= 1 || all) {
-            return this
-        }
-        if (modules.isNotEmpty()) {
-            return filter { it.userReadableName in modules }
-        }
-        if (terminal.terminalInfo.interactive) {
-            val selectedModules = promptForModules(availableModuleNames = map { it.userReadableName })
-            return filter { it.userReadableName in selectedModules }
-        }
-        userReadableError("Please specify the module(s) to show settings for with --module, or use --all to show settings for all modules")
-    }
-
-    private fun promptForModules(availableModuleNames: List<String>): List<String> {
-        var selectedModules: List<String>
-        do {
-            selectedModules = terminal.interactiveMultiSelectList {
-                title("Please select at least one module you want to inspect using ${terminal.theme.info("x")}, and confirm with ${terminal.theme.info("[Enter]")}:")
-                entries(availableModuleNames)
-                filterable(true)
-            } ?: throw PrintMessage("Command aborted.")
-        } while (selectedModules.isEmpty())
-        return selectedModules
     }
 }

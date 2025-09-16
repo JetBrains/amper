@@ -60,7 +60,7 @@ class ShowSettingsCommandTest : AmperCliTestBase(), GoldenTest {
 
     @Test
     fun `show settings command prints settings for all modules - jvm only`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "--all")
+        val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "--all-modules")
 
         ShowSettingsTestRun(
             caseName = "jvm-multimodule-tests_all-modules",
@@ -71,7 +71,7 @@ class ShowSettingsCommandTest : AmperCliTestBase(), GoldenTest {
 
     @Test
     fun `show settings command prints settings for all modules - multiplatform`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("compose-multiplatform-room"), "show", "settings", "--all")
+        val r = runCli(projectRoot = testProject("compose-multiplatform-room"), "show", "settings", "--all-modules")
 
         ShowSettingsTestRun(
             caseName = "compose-multiplatform-room_all-modules",
@@ -89,7 +89,7 @@ class ShowSettingsCommandTest : AmperCliTestBase(), GoldenTest {
             assertEmptyStdErr = false,
         )
 
-        r.assertStderrContains("Please specify the module(s) to show settings for with --module, or use --all to show settings for all modules")
+        r.assertStderrContains("Please specify the module(s) to inspect with --module, or use --all-modules to inspect all modules")
     }
 }
 

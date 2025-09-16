@@ -11,9 +11,13 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
+import org.jetbrains.amper.cli.options.AllModulesOptionName
+import org.jetbrains.amper.cli.options.ModuleFilter
 import org.jetbrains.amper.cli.options.PlatformGroup
 import org.jetbrains.amper.cli.options.PlatformGroupOption
+import org.jetbrains.amper.cli.options.moduleFilter
 import org.jetbrains.amper.cli.options.platformGroupOption
+import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -31,8 +35,15 @@ import org.jetbrains.amper.tasks.buildDependenciesGraph
 
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
-    private val module by option("-m", "--module",
-        help = "The module to show dependencies of. If unspecified, you will be prompted to choose one."
+    private val moduleFilter by moduleFilter(
+        moduleOptionHelp = """
+            The module to show the dependencies of (run the `show modules` command to get the modules list).
+            This option can be repeated to show the dependencies of several modules.
+            If unspecified, you will be prompted to choose one or more modules.
+
+            See also `$AllModulesOptionName` if you want to show dependencies for all modules in the project.
+        """.trimIndent(),
+        allModulesOptionHelp = "Show the dependencies of all modules.",
     )
 
     private val platformGroups by platformGroupOption(
@@ -63,11 +74,26 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     override fun help(context: com.github.ajalt.clikt.core.Context): String = "Print the resolved dependencies graph of the module"
 
     override suspend fun run(cliContext: CliContext, model: Model) {
-        val resolvedModule = resolveModuleIn(model.modules)
+        val selectedModules = moduleFilter.selectModules(projectModules = model.modules)
+        selectedModules.forEach { selectedModule ->
+            printModuleDependencies(
+                module = selectedModule,
+                // When using --all-modules, the user most likely just wants to filter "all" dependencies based on the
+                // platforms and is ok ignoring some modules that don't have these platforms.
+                failOnUnsupportedPlatforms = moduleFilter !is ModuleFilter.All,
+            )
+        }
+    }
 
-        val platformSetsToResolveFor = platformGroups
-            .map { it.checkAndFilterLeaves(resolvedModule) }
-            .ifEmpty { resolvedModule.fragments.map { it.platforms }.distinct() }
+    private suspend fun printModuleDependencies(module: AmperModule, failOnUnsupportedPlatforms: Boolean) {
+        val platformSetsToResolveFor = if (platformGroups.isEmpty()) {
+            module.fragments.map { it.platforms }.distinct()
+        } else {
+            platformGroups
+                .map { it.checkAndFilterLeaves(module, failOnUnsupportedPlatforms) }
+                .filter { it.isNotEmpty() } // we might have empty sets when we don't report errors, just skip
+                .ifEmpty { return } // if none of the sets had any platforms, just skip
+        }
 
         val mavenCoordinates = filter?.resolveFilter()
 
@@ -80,7 +106,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                         if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
                             return@forEach // compile and runtime dependencies are the same for native single-platform contexts
                         add(
-                            resolvedModule.buildDependenciesGraph(
+                            module.buildDependenciesGraph(
                                 isTests,
                                 platforms,
                                 scope,
@@ -102,10 +128,10 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         resolver.resolve(
             root = root,
-            resolveSourceMoniker = "module ${resolvedModule.userReadableName}",
+            resolveSourceMoniker = "module ${module.userReadableName}",
         )
 
-        printDependencies(mavenCoordinates, resolvedModule, root, filter)
+        printDependencies(mavenCoordinates, module, root, filter)
     }
 
     private fun printDependencies(
@@ -141,22 +167,6 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         return MavenCoordinates(groupId = parts[0], artifactId = parts[1], version = null)
     }
 
-    private fun resolveModuleIn(modules: List<AmperModule>): AmperModule {
-        val resolvedModule = if (module != null) {
-            modules.find { it.userReadableName == module } ?: userReadableError(
-                "Unable to resolve module by name '$module'.\n\n" +
-                        "Available modules:\n${modules.joinToString("\n") { it.userReadableName }}"
-            )
-        } else {
-            modules.singleOrNull() ?: userReadableError(
-                "There are several modules in the project. " +
-                        "Please specify one with '--module' argument.\n\n" +
-                        "Available modules:\n${modules.joinToString("\n") { it.userReadableName }}"
-            )
-        }
-        return resolvedModule
-    }
-
     /**
      * Returns the leaf platforms from this group that are present in the given [module]'s declared platforms.
      *
@@ -164,9 +174,12 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
      * If any intermediate platform from this group doesn't intersect with the [module] leaf platforms at all, it is
      * reported as an error.
      */
-    private fun PlatformGroup.checkAndFilterLeaves(module: AmperModule): Set<Platform> {
+    private fun PlatformGroup.checkAndFilterLeaves(
+        module: AmperModule,
+        failOnUnsupportedPlatforms: Boolean,
+    ): Set<Platform> {
         val validLeafPlatforms = validLeavesIn(module)
-        if (validLeafPlatforms.isEmpty()) {
+        if (validLeafPlatforms.isEmpty() && failOnUnsupportedPlatforms) {
             // can never happen with an alias, so the wording is ok like this
             userReadableError("Module '${module.userReadableName}' doesn't support platform '$name'")
         }

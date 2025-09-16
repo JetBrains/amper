@@ -27,13 +27,44 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     override fun buildDir(): Path = tempRoot
 
     @Test
-    fun `show dependencies for jvm module - default`() = runSlowTest {
+    fun `--module cannot be used with --all-modules`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--module", "root", "--all-modules",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        r.assertStderrContains("Error: option --module cannot be used with --all-modules")
+    }
+
+    @Test
+    fun `show dependencies for jvm - single module default platforms`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root",
         )
 
         CliTestRun("jvm-exported-dependencies_root_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
+    }
+
+    @Test
+    fun `show dependencies for jvm - multiple modules default platforms`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--module=root", "--module=cli",
+        )
+
+        CliTestRun("jvm-exported-dependencies_rootAndCli_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
+    }
+
+    @Test
+    fun `show dependencies for jvm - all modules default platforms`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--all-modules",
+        )
+
+        CliTestRun("jvm-exported-dependencies_all_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
