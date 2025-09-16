@@ -50,7 +50,7 @@ settings@jvm:
         - kotlin.assert  # default
     progressiveMode: false  # default
     serialization:
-      enabled: false  # Enabled when 'format' is specified
+      enabled: false  # enabled when 'format' is specified
       format: null  # default
       version: 1.9.0  # default
     suppressWarnings: false  # default
