@@ -1,7 +1,7 @@
 Fragments:
   main
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-parcelize-runtime:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-parcelize-runtime:2.2.10, trace=TransformedValueTrace(description=because Android Parcelize is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ParcelizeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -20,7 +20,7 @@ Fragments:
 
   test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-parcelize-runtime:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-parcelize-runtime:2.2.10, trace=TransformedValueTrace(description=because Android Parcelize is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ParcelizeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
