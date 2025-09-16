@@ -140,7 +140,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val root = RootDependencyNodeInput(
             resolutionId = resolvedModule.uniqueModuleKey()?.let { moduleKey ->
                 "Module ${resolvedModule.userReadableName} dependencies (moduleKey = $moduleKey), " +
-                        (platforms?.let { "platforms = $platforms," } ?: "") +
+                        (platformGroups.takeIf { it.isNotEmpty() }?.distinct()?.let { "platformGroups = $platformGroups," } ?: "") +
                         "includeTests = $includeTests"
             },
             children = variantsToResolve,
