@@ -15,7 +15,8 @@ class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
 
     override fun toString() = node.toString()
 
-    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?) = error("${this::class.java.simpleName} is not serializable")
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        error("${this::class.java.simpleName} is not serializable")
 }
 
 /**

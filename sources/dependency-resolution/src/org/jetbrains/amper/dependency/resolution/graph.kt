@@ -26,34 +26,17 @@ import kotlin.io.path.exists
  *
  * It has the following properties.
  *
- * - Holds a context relevant for it and its children.
+ * - Could have children, the loops are prohibited.
  * - Can be compared by a [Key] that's the same for all nodes with equal coordinates but different versions.
- * - Has mutable state, children, and messages that could change as a result of the resolution process.
  *
  * By the resolution process we mean finding the node's dependencies (children) according to provided context,
  * namely, a [ResolutionScope] and a platform.
  */
-// todo (AB) : Most of usages of children with resolution context should be replaced with interfaces
 interface DependencyNode {
     val parents: Set<DependencyNode>
     val key: Key<*>
     val children: List<DependencyNode>
     val messages: List<Message>
-
-    /**
-     * Every node should provide a Serializable representation of itself that will be used during graph serialization
-     * and deserialization.
-     *
-     * @context holds reusable objects that could be referenced from the node. Context is mutable.
-     * If the node references some reusable object,
-     * then this method should add the object into the context and use a Reference type for the returned Serializable form.
-     * This way the same object won't be stored several times in JSON and will be correctly deserialized from the given context
-    */
-    // todo (AB) : It should be reference here. Also, to prevent loops, created type should be immediately registered,
-    // todo (AB) : before running into recursion for references.
-
-    // todo (AB) : We should probably move it outside nodes (as an extension functions written somewhere separately)
-    fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference
 
     /**
      * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
@@ -81,6 +64,18 @@ interface DependencyNode {
                 yield(node)
                 queue.addAll(node.children.filter { it !in visited && childrenPredicate(it, node) })
             }
+        }
+    }
+
+    // todo (AB) : We should probably move serialization-related methods outside DependencyNode
+    // todo (AB) : (as an extension functions written somewhere separately)
+    fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain
+
+    fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        val children = children.map { it.toSerializableReference(graphContext, nodeReference) }
+
+        if (children.isNotEmpty()) {
+            (nodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
         }
     }
 
@@ -197,6 +192,52 @@ interface DependencyNode {
         }
         return files.toList()
     }
+}
+
+/**
+ * This method creates serializable representation of the node
+ * (which is presented by the type implementing [DependencyNodePlain] and annotated with [Serializable]),
+ * and register it in the given context, getting [DependencyNodeReference] as a result of the registration.
+ *
+ * Children of the nodes in the created [DependencyNodePlain] are represented with the references [DependencyNodeReference]
+ * and obtained by traversing the children of this node calling this method recursively.
+ *
+ * To prevent loops during serialization, the creation of the serializable object representing the node
+ * is split into two steps:
+ * 1. First, a plain data object is created with help of [DependencyNode.toEmptyNodePlain] with all references on other nodes left empty,
+ * but all other plain data get filled.
+ * This plain object is immediately registered in the given context,
+ * getting [DependencyNodeReference] as a result of the registration.
+ * 2. Before the method returns the resulting reference,
+ * the second step is performed that populates references to other nodes: [DependencyNode.fillEmptyNodePlain].
+ * First, children of the node are populated calling this method recursively.
+ * Since the resolution graph doesn't contain loops, after recursion is finished,
+ * all nodes of the graph will be registered in the given context.
+ * After that, all other kinds of references to the nodes might be populated (in an overridden [DependencyNode.fillEmptyNodePlain])
+ *
+ * @context holds reusable objects that could be referenced from the node. Context is mutable.
+ * If the node references some reusable object,
+ * then this method should add the object into the context and use a Reference type for the returned Serializable form.
+ * This way the same object won't be stored several times in JSON and will be correctly deserialized
+ * from the given context
+ *
+ * @parent is a reference to the parent node of the node that is being serialized.
+ * it is propagated to the API of [DependencyGraphContext] that registers it as a parent of the node.
+ */
+fun DependencyNode.toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
+    return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
+        ?: run {
+            // 1. Create an empty reference first (to break cycles)
+            val newNodePlain = toEmptyNodePlain(graphContext)
+
+            // 2. register empty reference (to break cycles)
+            val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
+
+            // 3. enrich it with references
+            fillEmptyNodePlain(newNodePlain, graphContext, newReference)
+
+            newReference
+        }
 }
 
 @Serializable
@@ -445,12 +486,6 @@ interface DependencyNodePlain : DependencyNode {
     val childrenRefs: List<DependencyNodeReference>
 
     override val parents: MutableSet<DependencyNode>
-
-    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference = plainNodeSerializationError()
-}
-
-internal fun plainNodeSerializationError(): Nothing {
-    error("Plain nodes are not intended to be serialized")
 }
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

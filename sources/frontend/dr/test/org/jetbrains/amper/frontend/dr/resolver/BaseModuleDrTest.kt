@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -125,7 +125,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
@@ -141,7 +141,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         files: List<String>,
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {

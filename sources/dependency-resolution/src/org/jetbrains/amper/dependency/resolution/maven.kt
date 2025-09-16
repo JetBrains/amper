@@ -104,6 +104,24 @@ interface MavenDependencyNode : DependencyNode {
     fun getMavenCoordinatesForPublishing(): MavenCoordinates
 
     fun getParentKmpLibraryCoordinates(): MavenCoordinates?
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        MavenDependencyNodePlain(
+            originalVersion, versionFromBom, isBom, messages,
+            dependencyRef = dependency.toSerializableReference(graphContext),
+            coordinatesForPublishing = getMavenCoordinatesForPublishing(),
+            parentKmpLibraryCoordinates = getParentKmpLibraryCoordinates(),
+            graphContext = graphContext
+        )
+
+    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
+
+        val overriddenBy = overriddenBy
+            .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
+            .map { it.toSerializableReference(graphContext, null) }
+        (nodePlain as MavenDependencyNodePlain).overriddenByRefs.addAll(overriddenBy)
+    }
 }
 
 val MavenDependencyNode.group
@@ -120,7 +138,7 @@ class MavenDependencyNodePlain internal constructor(
     private val dependencyRef: MavenDependencyReference,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
-    internal val overriddenByRefs: Set<DependencyNodeReference> = mutableSetOf(),
+    internal val overriddenByRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     private val coordinatesForPublishing: MavenCoordinates,
     private val parentKmpLibraryCoordinates: MavenCoordinates?,
     @Transient
@@ -154,7 +172,7 @@ class MavenDependencyNodePlain internal constructor(
  *
  * It's the responsibility of the caller to set a parent for this node if none was provided via the constructor.
  *
- * @see [DependencyNodeHolder]
+ * @see [DependencyNodeHolderImpl]
  */
 class MavenDependencyNodeImpl internal constructor(
     templateContext: Context,
@@ -344,45 +362,24 @@ class MavenDependencyNodeImpl internal constructor(
 
         return getOriginalMavenCoordinates()
     }
+}
 
-     override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
-        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-            ?: run {
-                // 1. register empty reference first (to break cycles)
-                val newNodePlain = MavenDependencyNodePlain(
-                    originalVersion, versionFromBom, isBom, messages,
-                    dependencyRef = dependency.toSerializableReference(graphContext),
-                    coordinatesForPublishing = getMavenCoordinatesForPublishing(),
-                    parentKmpLibraryCoordinates = getParentKmpLibraryCoordinates(),
-                    graphContext = graphContext
-                )
+interface UnresolvedMavenDependencyNode : DependencyNode {
+    val coordinates: String
+    override val key: Key<*>
+    fun getStringRepresentation() = "$coordinates, unresolved"
 
-                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
-
-                // 2. enrich it with references
-                val children = children.map {
-                    it.toSerializableReference(graphContext, newReference)
-                }
-
-                val overriddenBy = overriddenBy
-                    .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
-                    .map { it.toSerializableReference(graphContext, null) }
-
-                (newNodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
-                (newNodePlain.overriddenByRefs as MutableSet<DependencyNodeReference>).addAll(overriddenBy)
-
-                newReference
-            }
-    }
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
 }
 
 @Serializable
 class UnresolvedMavenDependencyNodePlain internal constructor(
-    val coordinates: String,
+    override val coordinates: String,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-): DependencyNodePlain {
+): UnresolvedMavenDependencyNode, DependencyNodePlain {
     override val childrenRefs: List<DependencyNodeReference> = emptyList()
     override val children: List<DependencyNode> = emptyList()
     override val messages: List<Message> = emptyList()
@@ -391,35 +388,21 @@ class UnresolvedMavenDependencyNodePlain internal constructor(
 
     override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
 
-    override fun toString() = "$coordinates, unresolved"
+    override fun toString() = getStringRepresentation()
 }
 
-class UnresolvedMavenDependencyNode(
-    val coordinates: String,
+class UnresolvedMavenDependencyNodeImpl(
+    override val coordinates: String,
     templateContext: Context,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : DependencyNodeWithResolutionContext {
+) : UnresolvedMavenDependencyNode, DependencyNodeWithResolutionContext {
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
+    override val key: Key<*> = Key<UnresolvedMavenDependencyNodeImpl>(coordinates)
     override val children: List<DependencyNodeWithResolutionContext> = emptyList()
     override val messages: List<Message> = emptyList()
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
-    override fun toString(): String = "$coordinates, unresolved"
-
-    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
-        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-            ?: run {
-                // 1. register empty reference first (to break cycles)
-                val newNodePlain = UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
-
-                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
-
-                // 2. enrich it with references
-
-                newReference
-            }
-    }
+    override fun toString(): String = getStringRepresentation()
 }
 
 interface MavenDependencyConstraintNode : DependencyNode {
@@ -430,6 +413,23 @@ interface MavenDependencyConstraintNode : DependencyNode {
     val dependencyConstraint: MavenDependencyConstraint
 
     val overriddenBy: Set<DependencyNode>
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        MavenDependencyConstraintNodePlain(
+            group, module, version,
+            dependencyConstraintRef = dependencyConstraint.toSerializableReference(graphContext),
+            messages = messages,
+            graphContext = graphContext,
+        )
+
+    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
+
+        val overriddenBy = overriddenBy
+            .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
+            .map { it.toSerializableReference(graphContext, null) }
+        (nodePlain as MavenDependencyConstraintNodePlain).overriddenByRefs.addAll(overriddenBy)
+    }
 }
 
 @Serializable
@@ -449,7 +449,7 @@ class MavenDependencyConstraintNodePlain internal constructor(
     private val dependencyConstraintRef: MavenDependencyConstraintReference,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
-    internal val overriddenByRefs: Set<DependencyNodeReference> = mutableSetOf(),
+    internal val overriddenByRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val messages: List<Message>,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
@@ -507,32 +507,6 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
         "$group:$module:${version.resolve()}"
     } else {
         "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
-    }
-
-    override fun toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
-        return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-            ?: run {
-                // 1. register empty reference first (to break cycles)
-                val newNodePlain = MavenDependencyConstraintNodePlain(
-                    group, module, version,
-                    dependencyConstraintRef = dependencyConstraint.toSerializableReference(graphContext),
-                    messages = messages,
-                    graphContext = graphContext,
-                )
-
-                val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
-
-                // 2. enrich it with references
-                val children = children.map { it.toSerializableReference(graphContext, newReference) }
-                val overriddenBy = overriddenBy
-                    .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
-                    .map { it.toSerializableReference(graphContext, null) }
-
-                (newNodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
-                (newNodePlain.overriddenByRefs as MutableSet<DependencyNodeReference>).addAll(overriddenBy)
-
-                newReference
-            }
     }
 }
 
@@ -604,15 +578,7 @@ interface MavenDependencyConstraint {
     val module: String
     val version: Version
 
-    fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyConstraintReference
-}
-
-data class MavenDependencyConstraintImpl(
-    override val group: String,
-    override val module: String,
-    override val version: Version
-) : MavenDependencyConstraint {
-    override fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyConstraintReference {
+    fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyConstraintReference {
         return graphContext.getMavenDependencyConstraintReference(this)
             ?: run {
                 // 1. register empty reference first (to break cycles)
@@ -623,14 +589,18 @@ data class MavenDependencyConstraintImpl(
     }
 }
 
+data class MavenDependencyConstraintImpl(
+    override val group: String,
+    override val module: String,
+    override val version: Version
+) : MavenDependencyConstraint
+
 @Serializable
 data class MavenDependencyConstraintPlain(
     override val group: String,
     override val module: String,
     override val version: Version
-) : MavenDependencyConstraint {
-    override fun toSerializableReference(graphContext: DependencyGraphContext) = plainNodeSerializationError()
-}
+) : MavenDependencyConstraint
 
 internal fun shouldIgnoreDependency(group: String, module: String, context: Context): Boolean {
     return MavenGroupAndArtifact(group, module) in context.settings.dependenciesBlocklist
@@ -657,6 +627,30 @@ interface MavenDependency {
     val state: ResolutionState
 
     fun files(withSources: Boolean = false): List<DependencyFile>
+
+    fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyReference {
+        // 1. register plain
+        // 2. enrich it with references
+
+        return graphContext.getMavenDependencyReference(this)
+            ?: run {
+                val mavenDependencyPlain = MavenDependencyPlain(
+                    coordinates,
+                    packaging,
+                    messages,
+                    files(true).map { DependencyFilePlain(it) },
+                    // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
+                    ResolutionConfigPlain(
+                        resolutionConfig.scope, resolutionConfig.platforms,
+                        // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
+                        resolutionConfig.repositories
+                    ),
+                    state
+                    // todo (AB) : Could be deduplicated
+                )
+                graphContext.registerMavenDependencyPlain(this, mavenDependencyPlain)
+            }
+    }
 }
 
 val MavenDependency.group
@@ -2225,30 +2219,6 @@ class MavenDependencyImpl internal constructor(
 
     private fun DependencyFileImpl.isSourcesDependencyFile(): Boolean =
         !files(withSources = false).map { it.fileName }.contains(this.fileName)
-
-    fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyReference {
-        // 1. register plain
-        // 2. enrich it with references
-
-        return graphContext.getMavenDependencyReference(this)
-            ?: run {
-                val mavenDependencyPlain = MavenDependencyPlain(
-                    coordinates,
-                    packaging,
-                    messages,
-                    _files.map { DependencyFilePlain(it) },
-                    // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
-                    ResolutionConfigPlain(
-                        resolutionConfig.scope, resolutionConfig.platforms,
-                        // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
-                        resolutionConfig.repositories
-                    ),
-                    state
-                     // todo (AB) : Could be deduplicated
-                )
-                graphContext.registerMavenDependencyPlain(this, mavenDependencyPlain)
-            }
-    }
 }
 
 /**

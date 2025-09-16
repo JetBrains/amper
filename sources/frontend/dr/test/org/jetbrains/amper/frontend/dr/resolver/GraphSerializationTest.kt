@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodePlain
@@ -51,7 +52,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             module = "D2",
         )
 
-        assertGraphSerialization(appModuleGraph, testInfo)
+        assertRepetitiveGraphSerialization(appModuleGraph, testInfo)
     }
 
     @Test
@@ -69,7 +70,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             module = "ios-app",
         )
 
-        assertGraphSerialization(iosAppModuleDeps, testInfo)
+        assertRepetitiveGraphSerialization(iosAppModuleDeps, testInfo)
     }
 
     @Test
@@ -88,7 +89,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             verifyMessages = false
         )
 
-        val deserializedRoot = assertGraphSerialization(root, testInfo)
+        val deserializedRoot = assertRepetitiveGraphSerialization(root, testInfo)
 
         fun DependencyNode.getErrorMessagesForChild(group: String): Set<String> =
             children.filterIsInstance<DirectFragmentDependencyNode>()
@@ -102,6 +103,17 @@ class GraphSerializationTest: BaseModuleDrTest() {
             deserializedRoot.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform"),
             "Diagnostic messages taken from deserializaed graph differs from original ones"
         )
+    }
+
+    /**
+     * @return deserialized graph
+     */
+    private fun assertRepetitiveGraphSerialization(root: DependencyNode, testInfo: TestInfo): DependencyNode {
+        println("### Asserting the first level serialization")
+        val nodeDeserialized = assertGraphSerialization(root, testInfo)
+        println("### Asserting the the second level serialization")
+        val nodeDeserializedTwice = assertGraphSerialization(nodeDeserialized, testInfo)
+        return nodeDeserializedTwice
     }
 
     /**
@@ -123,14 +135,13 @@ class GraphSerializationTest: BaseModuleDrTest() {
             "decoded string being encoded again differs from initially encoded"
         )
 
-        val nodePlain = decoded.root.toNodePlain(decoded.graphContext)
+        val nodeDeserialized = decoded.root.toNodePlain(decoded.graphContext)
         assertEqualsWithDiff(
             root.prettyPrint().lines(),
-            nodePlain.prettyPrint().lines(),
+            nodeDeserialized.prettyPrint().lines(),
             "decoded graph pretty print representation differs from the original graph"
         )
-
-        return nodePlain
+        return nodeDeserialized
     }
 
     private fun assertGraphStructure(testInfo: TestInfo, root: DependencyNode, graph: DependencyGraph) {

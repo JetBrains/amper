@@ -10,7 +10,7 @@ import kotlinx.serialization.modules.plus
 import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
@@ -101,7 +101,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         .mapNotNull { it.toDependencyResolutionKey() }.toList()
                     dependenciesMap[it.name + it.context.settings.key()] = coordinates
                 }
-            } else if (it is DependencyNodeHolder) {
+            } else if (it is DependencyNodeHolderImpl) {
                 it.fillDependenciesGraphInput(dependenciesMap)
             }
         }
@@ -112,7 +112,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             ?.getOriginalMavenCoordinates()
             ?.toString()
 
-    override suspend fun DependencyNodeHolder.resolveDependencies(
+    override suspend fun DependencyNodeHolderImpl.resolveDependencies(
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
@@ -209,7 +209,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    private fun DependencyNodePlain.fillNotation(sourceNode: DependencyNodeHolder) {
+    private fun DependencyNodePlain.fillNotation(sourceNode: DependencyNodeHolderImpl) {
         val sourceDirectDeps = sourceNode.children.groupBy { it.key }
         this.children.forEach { node ->
             when (node) {
@@ -254,7 +254,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         .takeIf { it.length <= 50 }
         ?: (this.substring(0, 50) + md5())
 
-    private suspend fun DependencyNodeHolder.resolveDependencies(
+    private suspend fun DependencyNodeHolderImpl.resolveDependencies(
         resolutionLevel: ResolutionLevel,
         resolutionDepth: ResolutionDepth,
         downloadSources: Boolean,

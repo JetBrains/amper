@@ -8,6 +8,7 @@ import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlain
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
@@ -23,6 +24,7 @@ import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.currentGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.toSerializableReference
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -87,7 +89,7 @@ interface ModuleDependenciesResolver {
     /**
      * @return dependency node representing the root of the resolved graph
      */
-    suspend fun DependencyNodeHolder.resolveDependencies(
+    suspend fun DependencyNodeHolderImpl.resolveDependencies(
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
@@ -122,11 +124,14 @@ abstract class DependencyNodeHolderWithNotation(
     templateContext: Context,
     open val notation: Notation? = null,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : DependencyNodeHolder(name, children, templateContext, parentNodes)
+) : DependencyNodeHolderImpl(name, children, templateContext, parentNodes)
 
-interface ModuleDependencyNode: DependencyNode {
+interface ModuleDependencyNode: DependencyNodeHolder {
     val moduleName: String
     val notation: LocalModuleDependency?
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        ModuleDependencyNodeWithModulePlain(moduleName, name, graphContext = graphContext)
 }
 
 class ModuleDependencyNodeWithModule(
@@ -136,29 +141,27 @@ class ModuleDependencyNodeWithModule(
     templateContext: Context,
     override val notation: LocalModuleDependency? = null,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : DependencyNodeHolderWithNotation(name, children, templateContext, notation, parentNodes = parentNodes),
-    ModuleDependencyNode
+) : ModuleDependencyNode,
+    DependencyNodeHolderWithNotation(
+        name, children, templateContext, notation, parentNodes = parentNodes)
 {
     override val moduleName = module.userReadableName
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        ModuleDependencyNodeWithModulePlain(module.userReadableName, name, graphContext = graphContext)
 }
 
 @Serializable
 class ModuleDependencyNodeWithModulePlain internal constructor(
     override val moduleName: String,
-    val name: String,
+    override val name: String,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
-): DependencyNodeHolderPlain, ModuleDependencyNode {
+): ModuleDependencyNode, DependencyNodeHolderPlain {
     override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient
-    override val key: Key<*> = Key<DependencyNodeHolder>(name)
+    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
     override val messages: List<Message> = listOf()
 
     @Transient
@@ -167,10 +170,22 @@ class ModuleDependencyNodeWithModulePlain internal constructor(
     override fun toString() = name
 }
 
-interface DirectFragmentDependencyNode: DependencyNode {
+interface DirectFragmentDependencyNode: DependencyNodeHolder {
     val fragmentName: String
     val dependencyNode: DependencyNode
+    val notationCoordinates: String
     val notation: MavenDependencyBase
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        DirectFragmentDependencyNodeHolderPlain(
+            fragmentName, name, notationCoordinates, messages, graphContext = graphContext)
+
+    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
+        (nodePlain as DirectFragmentDependencyNodeHolderPlain).dependencyNodeRef =
+            graphContext.getDependencyNodeReferenceAndSetParent(dependencyNode, nodeReference)
+                ?: dependencyNode.toSerializableReference(graphContext,nodeReference)
+    }
 }
 
 class DirectFragmentDependencyNodeHolder(
@@ -180,24 +195,13 @@ class DirectFragmentDependencyNodeHolder(
     override val notation: MavenDependencyBase,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
     override val messages: List<Message> = emptyList(),
-) : DirectFragmentDependencyNode, DependencyNodeHolderWithNotation(
-    name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
-    listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
+) : DirectFragmentDependencyNode,
+    DependencyNodeHolderWithNotation(
+        name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
+        listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
 ) {
     override val fragmentName: String = fragment.name
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        DirectFragmentDependencyNodeHolderPlain(
-            fragment.name, name, notation.coordinates.value,
-            messages, graphContext = graphContext
-        )
-
-    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
-        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
-        (nodePlain as DirectFragmentDependencyNodeHolderPlain).dependencyNodeRef =
-            graphContext.getDependencyNodeReferenceAndSetParent(dependencyNode, nodeReference)
-                ?: dependencyNode.toSerializableReference(graphContext,nodeReference)
-    }
+    override val notationCoordinates: String = notation.coordinates.value
 }
 
 private fun traceInfo(notation: Notation): String {
@@ -215,20 +219,19 @@ private fun traceInfo(notation: Notation): String {
 @Serializable
 class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override val fragmentName: String,
-    val name: String,
-    val notationCoordinates: String,
+    override val name: String,
+    override val notationCoordinates: String,
     override val messages: List<Message>,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-
-): DependencyNodeHolderPlain, DirectFragmentDependencyNode {
+): DirectFragmentDependencyNode, DependencyNodeHolderPlain {
     override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient
-    override val key: Key<*> = Key<DependencyNodeHolder>(name)
+    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
 
     lateinit var dependencyNodeRef: DependencyNodeReference
 

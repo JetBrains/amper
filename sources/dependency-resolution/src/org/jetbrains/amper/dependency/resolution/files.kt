@@ -272,13 +272,13 @@ data class DependencyFilePlain private constructor(
     override val kmpPlatforms: Set<ResolutionPlatform>? = null
 ) : DependencyFile {
 
-    constructor(dependencyFileImpl: DependencyFileImpl) : this(
-        dependencyFileImpl.isAutoAddedDocumentation,
-        dependencyFileImpl.isDocumentation,
-        dependencyFileImpl.extension,
-        dependencyFileImpl.path?.absolutePathString(),
-        dependencyFileImpl.settings[KmpSourceSetName],
-        dependencyFileImpl.settings[KmpPlatforms])
+    constructor(dependencyFile: DependencyFile) : this(
+        dependencyFile.isAutoAddedDocumentation,
+        dependencyFile.isDocumentation,
+        dependencyFile.extension,
+        dependencyFile.path?.absolutePathString(),
+        dependencyFile.kmpSourceSet,
+        dependencyFile.kmpPlatforms)
 
     @Transient
     override val path: Path? = pathAsString?.let { Path(it) }

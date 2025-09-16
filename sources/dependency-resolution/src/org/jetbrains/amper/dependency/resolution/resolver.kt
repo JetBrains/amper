@@ -44,7 +44,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * val paths = node.dependencyPaths()
  * ```
  *
- * @see DependencyNodeHolder
+ * @see DependencyNodeHolderImpl
  * @see MavenDependencyNode
  * @see Context
  */
@@ -398,6 +398,15 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
     }
 }
 
+/**
+ * It has the following properties (in addition to [DependencyNode]).
+ *
+ * - Holds a context relevant for it and its children.
+ * - Has mutable state, children, and messages that could change as a result of the resolution process.
+ *
+ * By the resolution process we mean finding the node's dependencies (children) according to provided context,
+ * namely, a [ResolutionScope] and a set of [ResolutionPlatform]s.
+ */
 interface DependencyNodeWithResolutionContext: DependencyNode {
 
     override val parents: Set<DependencyNode> get() = context.nodeParents

@@ -35,11 +35,11 @@ abstract class BaseDRTest {
         get() = Path("testData")
 
     protected suspend fun doTest(
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNodeHolder {
+    ): DependencyNodeHolderImpl {
         val resolver = Resolver()
         resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
@@ -52,7 +52,7 @@ abstract class BaseDRTest {
 
     protected suspend fun doTestByFile(
         testInfo: TestInfo,
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
@@ -81,7 +81,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         spanBuilder: SpanBuilderSource? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNodeHolder =
+    ): DependencyNodeHolderImpl =
         context(scope, platform, repositories, cacheBuilder, spanBuilder)
             .use { context ->
                 val root = dependency.toRootNode(context)
@@ -99,7 +99,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNodeHolder = doTest(
+    ): DependencyNodeHolderImpl = doTest(
         testInfo,
         listOf(dependency),
         scope,
@@ -122,7 +122,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNodeHolder {
+    ): DependencyNodeHolderImpl {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
@@ -171,7 +171,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         spanBuilder: SpanBuilderSource? = null,
-    ): DependencyNodeHolder = doTestImpl(
+    ): DependencyNodeHolderImpl = doTestImpl(
         testInfo,
         dependency,
         scope,
@@ -294,7 +294,7 @@ abstract class BaseDRTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false,
@@ -311,7 +311,7 @@ abstract class BaseDRTest {
     }
 
     protected suspend fun downloadAndAssertFiles(
-        files: List<String>, root: DependencyNodeHolder, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
+        files: List<String>, root: DependencyNodeHolderImpl, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false, filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ) {
         downloadDependencies(root, withSources, verifyMessages, filterMessages)
@@ -325,7 +325,7 @@ abstract class BaseDRTest {
     }
 
     private suspend fun downloadDependencies(
-        root: DependencyNodeHolder,
+        root: DependencyNodeHolderImpl,
         withSources: Boolean,
         verifyMessages: Boolean,
         filterMessages: List<Message>.() -> List<Message>

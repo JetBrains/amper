@@ -45,7 +45,7 @@ root
      │    ╰─── com.jetbrains.intellij.platform:core:243.24978.46
      ├─── jvm-invalid-dependencies:test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-     ╰─── jvm-invalid-dependencies:test:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit
+     ╰─── jvm-invalid-dependencies:test:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
           ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion
                ├─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)

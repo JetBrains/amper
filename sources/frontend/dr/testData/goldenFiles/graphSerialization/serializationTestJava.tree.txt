@@ -12,7 +12,7 @@ module:D2
 │    ╰─── org.jetbrains:annotations:24.1.0
 ├─── D2:commonTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-├─── D2:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit
+├─── D2:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
 │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion
 │         ├─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
 │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
@@ -35,5 +35,5 @@ module:D2
 │    ╰─── org.jetbrains:annotations:24.1.0
 ├─── D2:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-╰─── D2:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit
+╰─── D2:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
      ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion (*)
