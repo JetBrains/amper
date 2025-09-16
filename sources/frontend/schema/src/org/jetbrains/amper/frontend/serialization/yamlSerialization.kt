@@ -26,17 +26,36 @@ internal fun interface SchemaValueFilter {
     fun shouldInclude(valueDelegate: SchemaValueDelegate<*>): Boolean
 }
 
+interface YamlTheme {
+    enum class SpecialElementType {
+        Comment,
+        PropertyName,
+    }
+
+    /**
+     * Returns the given [text], optionally with ANSI color codes to colorize it as desired based on the given [type].
+     */
+    fun colorize(text: String, type: SpecialElementType): String = text
+
+    /**
+     * A default theme that doesn't add any color.
+     */
+    companion object NoColor : YamlTheme
+}
+
 /**
  * Serializes a [SchemaNode] to a YAML string that looks like how it would appear in Amper files.
  */
 internal fun SchemaNode.serializeAsAmperYaml(
     indent: String = "  ",
     filter: SchemaValueFilter = SchemaValueFilter { true },
-): String = YamlSerializer(indent = indent, filter = filter).serialize(this, trace = trace)
+    theme: YamlTheme = YamlTheme.NoColor,
+): String = YamlSerializer(indent = indent, filter = filter, theme = theme).serialize(this, trace = trace)
 
 internal class YamlSerializer(
     private val indent: String = "  ",
     private val filter: SchemaValueFilter = SchemaValueFilter { true },
+    private val theme: YamlTheme = YamlTheme.NoColor,
 ) {
     fun serialize(value: Any?, trace: Trace?): String = when (value) {
         is SchemaEnum -> serializeEnum(value, trace) // must be before Enum to be taken into account
@@ -102,7 +121,7 @@ internal class YamlSerializer(
         }
         return filteredDelegates.sortedBy { it.property.name }.joinToString("\n") { delegate ->
             serializeKeyValue(
-                key = delegate.property.name,
+                key = theme.colorize(delegate.property.name, YamlTheme.SpecialElementType.PropertyName),
                 value = delegate.value,
                 trace = delegate.trace,
             )
@@ -124,7 +143,10 @@ internal class YamlSerializer(
 
     private fun serializeTraceableValue(value: TraceableValue<*>): String = serialize(value.value, value.trace)
 
-    private fun traceComment(trace: Trace?): String = trace?.traceDescription()?.let { "  # [$it]" } ?: ""
+    private fun traceComment(trace: Trace?): String {
+        val traceDescription = trace?.traceDescription() ?: return ""
+        return theme.colorize("  # $traceDescription", YamlTheme.SpecialElementType.Comment)
+    }
 
     private fun Any?.isScalarLike(): Boolean = when (this) {
         null,

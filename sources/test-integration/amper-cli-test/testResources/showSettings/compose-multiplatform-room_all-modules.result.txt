@@ -2,410 +2,410 @@ Module: android-app
 
 settings@android:
   android:
-    applicationId: org.example.namespace  # [default, from ${namespace}]
-    compileSdk: 35  # [default]
-    maxSdk: null  # [default]
-    minSdk: 21  # [default]
-    namespace: org.example.namespace  # [default]
+    applicationId: org.example.namespace  # default, from ${namespace}
+    compileSdk: 35  # default
+    maxSdk: null  # default
+    minSdk: 21  # default
+    namespace: org.example.namespace  # default
     parcelize:
-      additionalAnnotations: []  # [default]
-      enabled: false  # [default]
+      additionalAnnotations: []  # default
+      enabled: false  # default
     resourcePackaging:
-      excludes: []  # [default]
-      merges: []  # [default]
-      pickFirsts: []  # [default]
+      excludes: []  # default
+      merges: []  # default
+      pickFirsts: []  # default
     signing:
-      enabled: false  # [default]
-      propertiesFile: keystore.properties  # [default]
-    targetSdk: 35  # [default, from ${compileSdk}]
-    versionCode: 1  # [default]
-    versionName: unspecified  # [default]
+      enabled: false  # default
+      propertiesFile: keystore.properties  # default
+    targetSdk: 35  # default, from ${compileSdk}
+    versionCode: 1  # default
+    versionName: unspecified  # default
   compose:
-    enabled: true  # [module.yaml]
-    experimental: {}  # [default]
+    enabled: true  # module.yaml
+    experimental: {}  # default
     resources:
-      enabled: false  # [default]
-      exposedAccessors: false  # [default]
-      packageName:   # [default]
-    version: 1.8.2  # [default]
+      enabled: false  # default
+      exposedAccessors: false  # default
+      packageName:   # default
+    version: 1.8.2  # default
   java:
     annotationProcessing:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-    freeCompilerArgs: []  # [default]
-  junit: junit-5  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+    freeCompilerArgs: []  # default
+  junit: junit-5  # default
   jvm:
-    release: 17  # [default]
-    runtimeClasspathMode: jars  # [default]
-    storeParameterNames: false  # [default]
+    release: 17  # default
+    runtimeClasspathMode: jars  # default
+    storeParameterNames: false  # default
     test:
-      freeJvmArgs: []  # [default]
-      junitPlatformVersion: 1.13.4  # [default]
-      systemProperties: {}  # [default]
+      freeJvmArgs: []  # default
+      junitPlatformVersion: 1.13.4  # default
+      systemProperties: {}  # default
   kotlin:
     allOpen:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      presets: null  # [default]
-    allWarningsAsErrors: false  # [default]
-    apiVersion: null  # [default, from ${languageVersion}]
-    freeCompilerArgs: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      presets: null  # default
+    allWarningsAsErrors: false  # default
+    apiVersion: null  # default, from ${languageVersion}
+    freeCompilerArgs: null  # default
     ksp:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-      version: 2.2.10-2.0.2  # [default]
-    languageFeatures: null  # [default]
-    languageVersion: null  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+      version: 2.2.10-2.0.2  # default
+    languageFeatures: null  # default
+    languageVersion: null  # default
     noArg:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      invokeInitializers: false  # [default]
-      presets: null  # [default]
-    optIns: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      invokeInitializers: false  # default
+      presets: null  # default
+    optIns: null  # default
     powerAssert:
-      enabled: false  # [default]
+      enabled: false  # default
       functions:
-        - kotlin.assert  # [default]
-    progressiveMode: false  # [default]
+        - kotlin.assert  # default
+    progressiveMode: false  # default
     serialization:
-      enabled: false  # [Enabled when 'format' is specified]
-      format: null  # [default]
-      version: 1.9.0  # [default]
-    suppressWarnings: false  # [default]
-    verbose: false  # [default]
-    version: 2.2.10  # [default]
-  kover: null  # [default]
+      enabled: false  # Enabled when 'format' is specified
+      format: null  # default
+      version: 1.9.0  # default
+    suppressWarnings: false  # default
+    verbose: false  # default
+    version: 2.2.10  # default
+  kover: null  # default
   ktor:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.2.3  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.2.3  # default
   lombok:
-    enabled: false  # [default]
-    version: 1.18.38  # [default]
+    enabled: false  # default
+    version: 1.18.38  # default
   publishing:
-    enabled: false  # [default]
-    group: null  # [default]
-    name: null  # [default]
-    version: null  # [default]
+    enabled: false  # default
+    group: null  # default
+    name: null  # default
+    version: null  # default
 
 Module: jvm-app
 
 settings@jvm:
   compose:
-    enabled: true  # [module.yaml]
+    enabled: true  # module.yaml
     experimental:
       hotReload:
-        enabled: false  # [default]
+        enabled: false  # default
     resources:
-      enabled: false  # [default]
-      exposedAccessors: false  # [default]
-      packageName:   # [default]
-    version: 1.8.2  # [default]
+      enabled: false  # default
+      exposedAccessors: false  # default
+      packageName:   # default
+    version: 1.8.2  # default
   java:
     annotationProcessing:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-    freeCompilerArgs: []  # [default]
-  junit: junit-5  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+    freeCompilerArgs: []  # default
+  junit: junit-5  # default
   jvm:
-    mainClass: null  # [default]
-    release: 17  # [default]
-    runtimeClasspathMode: jars  # [default]
-    storeParameterNames: false  # [default]
+    mainClass: null  # default
+    release: 17  # default
+    runtimeClasspathMode: jars  # default
+    storeParameterNames: false  # default
     test:
-      freeJvmArgs: []  # [default]
-      junitPlatformVersion: 1.13.4  # [default]
-      systemProperties: {}  # [default]
+      freeJvmArgs: []  # default
+      junitPlatformVersion: 1.13.4  # default
+      systemProperties: {}  # default
   kotlin:
     allOpen:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      presets: null  # [default]
-    allWarningsAsErrors: false  # [default]
-    apiVersion: null  # [default, from ${languageVersion}]
-    freeCompilerArgs: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      presets: null  # default
+    allWarningsAsErrors: false  # default
+    apiVersion: null  # default, from ${languageVersion}
+    freeCompilerArgs: null  # default
     ksp:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-      version: 2.2.10-2.0.2  # [default]
-    languageFeatures: null  # [default]
-    languageVersion: null  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+      version: 2.2.10-2.0.2  # default
+    languageFeatures: null  # default
+    languageVersion: null  # default
     noArg:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      invokeInitializers: false  # [default]
-      presets: null  # [default]
-    optIns: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      invokeInitializers: false  # default
+      presets: null  # default
+    optIns: null  # default
     powerAssert:
-      enabled: false  # [default]
+      enabled: false  # default
       functions:
-        - kotlin.assert  # [default]
-    progressiveMode: false  # [default]
+        - kotlin.assert  # default
+    progressiveMode: false  # default
     serialization:
-      enabled: false  # [Enabled when 'format' is specified]
-      format: null  # [default]
-      version: 1.9.0  # [default]
-    suppressWarnings: false  # [default]
-    verbose: false  # [default]
-    version: 2.2.10  # [default]
-  kover: null  # [default]
+      enabled: false  # Enabled when 'format' is specified
+      format: null  # default
+      version: 1.9.0  # default
+    suppressWarnings: false  # default
+    verbose: false  # default
+    version: 2.2.10  # default
+  kover: null  # default
   ktor:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.2.3  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.2.3  # default
   lombok:
-    enabled: false  # [default]
-    version: 1.18.38  # [default]
+    enabled: false  # default
+    version: 1.18.38  # default
   publishing:
-    enabled: false  # [default]
-    group: null  # [default]
-    name: null  # [default]
-    version: null  # [default]
+    enabled: false  # default
+    group: null  # default
+    name: null  # default
+    version: null  # default
   springBoot:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.5.5  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.5.5  # default
 
 Module: shared
 
 settings@jvm+android:
   android:
-    compileSdk: 35  # [default]
-    maxSdk: null  # [default]
-    minSdk: 21  # [default]
-    namespace: org.example.namespace  # [default]
+    compileSdk: 35  # default
+    maxSdk: null  # default
+    minSdk: 21  # default
+    namespace: org.example.namespace  # default
     parcelize:
-      additionalAnnotations: []  # [default]
-      enabled: false  # [default]
-    targetSdk: 35  # [default, from ${compileSdk}]
+      additionalAnnotations: []  # default
+      enabled: false  # default
+    targetSdk: 35  # default, from ${compileSdk}
   compose:
-    enabled: true  # [module.yaml]
+    enabled: true  # module.yaml
     experimental:
       hotReload:
-        enabled: false  # [default]
+        enabled: false  # default
     resources:
-      enabled: false  # [default]
-      exposedAccessors: false  # [default]
-      packageName:   # [default]
-    version: 1.8.2  # [default]
+      enabled: false  # default
+      exposedAccessors: false  # default
+      packageName:   # default
+    version: 1.8.2  # default
   java:
     annotationProcessing:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-    freeCompilerArgs: []  # [default]
-  junit: junit-5  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+    freeCompilerArgs: []  # default
+  junit: junit-5  # default
   jvm:
-    release: 17  # [default]
-    runtimeClasspathMode: jars  # [default]
-    storeParameterNames: false  # [default]
+    release: 17  # default
+    runtimeClasspathMode: jars  # default
+    storeParameterNames: false  # default
     test:
-      freeJvmArgs: []  # [default]
-      junitPlatformVersion: 1.13.4  # [default]
-      systemProperties: {}  # [default]
+      freeJvmArgs: []  # default
+      junitPlatformVersion: 1.13.4  # default
+      systemProperties: {}  # default
   kotlin:
     allOpen:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      presets: null  # [default]
-    allWarningsAsErrors: false  # [default]
-    apiVersion: null  # [default, from ${languageVersion}]
-    freeCompilerArgs: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      presets: null  # default
+    allWarningsAsErrors: false  # default
+    apiVersion: null  # default, from ${languageVersion}
+    freeCompilerArgs: null  # default
     ksp:
-      processorOptions: {}  # [module.yaml]
+      processorOptions: {}  # module.yaml
       processors:
-        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
-      version: 2.2.10-2.0.2  # [default]
-    languageFeatures: null  # [default]
-    languageVersion: null  # [default]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # module.yaml
+      version: 2.2.10-2.0.2  # default
+    languageFeatures: null  # default
+    languageVersion: null  # default
     noArg:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      invokeInitializers: false  # [default]
-      presets: null  # [default]
-    optIns: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      invokeInitializers: false  # default
+      presets: null  # default
+    optIns: null  # default
     powerAssert:
-      enabled: false  # [default]
+      enabled: false  # default
       functions:
-        - kotlin.assert  # [default]
-    progressiveMode: false  # [default]
+        - kotlin.assert  # default
+    progressiveMode: false  # default
     serialization:
-      enabled: false  # [Enabled when 'format' is specified]
-      format: null  # [default]
-      version: 1.9.0  # [default]
-    suppressWarnings: false  # [default]
-    verbose: false  # [default]
-    version: 2.2.10  # [default]
-  kover: null  # [default]
+      enabled: false  # Enabled when 'format' is specified
+      format: null  # default
+      version: 1.9.0  # default
+    suppressWarnings: false  # default
+    verbose: false  # default
+    version: 2.2.10  # default
+  kover: null  # default
   ktor:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.2.3  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.2.3  # default
   lombok:
-    enabled: false  # [default]
-    version: 1.18.38  # [default]
+    enabled: false  # default
+    version: 1.18.38  # default
   publishing:
-    enabled: false  # [default]
-    group: null  # [default]
-    name: null  # [default]
-    version: null  # [default]
+    enabled: false  # default
+    group: null  # default
+    name: null  # default
+    version: null  # default
   springBoot:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.5.5  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.5.5  # default
 
 settings@jvm:
   compose:
-    enabled: true  # [module.yaml]
+    enabled: true  # module.yaml
     experimental:
       hotReload:
-        enabled: false  # [default]
+        enabled: false  # default
     resources:
-      enabled: false  # [default]
-      exposedAccessors: false  # [default]
-      packageName:   # [default]
-    version: 1.8.2  # [default]
+      enabled: false  # default
+      exposedAccessors: false  # default
+      packageName:   # default
+    version: 1.8.2  # default
   java:
     annotationProcessing:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-    freeCompilerArgs: []  # [default]
-  junit: junit-5  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+    freeCompilerArgs: []  # default
+  junit: junit-5  # default
   jvm:
-    release: 17  # [default]
-    runtimeClasspathMode: jars  # [default]
-    storeParameterNames: false  # [default]
+    release: 17  # default
+    runtimeClasspathMode: jars  # default
+    storeParameterNames: false  # default
     test:
-      freeJvmArgs: []  # [default]
-      junitPlatformVersion: 1.13.4  # [default]
-      systemProperties: {}  # [default]
+      freeJvmArgs: []  # default
+      junitPlatformVersion: 1.13.4  # default
+      systemProperties: {}  # default
   kotlin:
     allOpen:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      presets: null  # [default]
-    allWarningsAsErrors: false  # [default]
-    apiVersion: null  # [default, from ${languageVersion}]
-    freeCompilerArgs: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      presets: null  # default
+    allWarningsAsErrors: false  # default
+    apiVersion: null  # default, from ${languageVersion}
+    freeCompilerArgs: null  # default
     ksp:
       processorOptions:
-        "room.schemaLocation": ./generated-db-schema/jvm  # [module.yaml]
+        "room.schemaLocation": ./generated-db-schema/jvm  # module.yaml
       processors:
-        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
-      version: 2.2.10-2.0.2  # [default]
-    languageFeatures: null  # [default]
-    languageVersion: null  # [default]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # module.yaml
+      version: 2.2.10-2.0.2  # default
+    languageFeatures: null  # default
+    languageVersion: null  # default
     noArg:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      invokeInitializers: false  # [default]
-      presets: null  # [default]
-    optIns: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      invokeInitializers: false  # default
+      presets: null  # default
+    optIns: null  # default
     powerAssert:
-      enabled: false  # [default]
+      enabled: false  # default
       functions:
-        - kotlin.assert  # [default]
-    progressiveMode: false  # [default]
+        - kotlin.assert  # default
+    progressiveMode: false  # default
     serialization:
-      enabled: false  # [Enabled when 'format' is specified]
-      format: null  # [default]
-      version: 1.9.0  # [default]
-    suppressWarnings: false  # [default]
-    verbose: false  # [default]
-    version: 2.2.10  # [default]
-  kover: null  # [default]
+      enabled: false  # Enabled when 'format' is specified
+      format: null  # default
+      version: 1.9.0  # default
+    suppressWarnings: false  # default
+    verbose: false  # default
+    version: 2.2.10  # default
+  kover: null  # default
   ktor:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.2.3  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.2.3  # default
   lombok:
-    enabled: false  # [default]
-    version: 1.18.38  # [default]
+    enabled: false  # default
+    version: 1.18.38  # default
   publishing:
-    enabled: false  # [default]
-    group: null  # [default]
-    name: null  # [default]
-    version: null  # [default]
+    enabled: false  # default
+    group: null  # default
+    name: null  # default
+    version: null  # default
   springBoot:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.5.5  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.5.5  # default
 
 settings@android:
   android:
-    compileSdk: 35  # [default]
-    maxSdk: null  # [default]
-    minSdk: 21  # [default]
-    namespace: org.example.namespace  # [default]
+    compileSdk: 35  # default
+    maxSdk: null  # default
+    minSdk: 21  # default
+    namespace: org.example.namespace  # default
     parcelize:
-      additionalAnnotations: []  # [default]
-      enabled: false  # [default]
-    targetSdk: 35  # [default, from ${compileSdk}]
+      additionalAnnotations: []  # default
+      enabled: false  # default
+    targetSdk: 35  # default, from ${compileSdk}
   compose:
-    enabled: true  # [module.yaml]
-    experimental: {}  # [default]
+    enabled: true  # module.yaml
+    experimental: {}  # default
     resources:
-      enabled: false  # [default]
-      exposedAccessors: false  # [default]
-      packageName:   # [default]
-    version: 1.8.2  # [default]
+      enabled: false  # default
+      exposedAccessors: false  # default
+      packageName:   # default
+    version: 1.8.2  # default
   java:
     annotationProcessing:
-      processorOptions: {}  # [default]
-      processors: []  # [default]
-    freeCompilerArgs: []  # [default]
-  junit: junit-5  # [default]
+      processorOptions: {}  # default
+      processors: []  # default
+    freeCompilerArgs: []  # default
+  junit: junit-5  # default
   jvm:
-    release: 17  # [default]
-    runtimeClasspathMode: jars  # [default]
-    storeParameterNames: false  # [default]
+    release: 17  # default
+    runtimeClasspathMode: jars  # default
+    storeParameterNames: false  # default
     test:
-      freeJvmArgs: []  # [default]
-      junitPlatformVersion: 1.13.4  # [default]
-      systemProperties: {}  # [default]
+      freeJvmArgs: []  # default
+      junitPlatformVersion: 1.13.4  # default
+      systemProperties: {}  # default
   kotlin:
     allOpen:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      presets: null  # [default]
-    allWarningsAsErrors: false  # [default]
-    apiVersion: null  # [default, from ${languageVersion}]
-    freeCompilerArgs: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      presets: null  # default
+    allWarningsAsErrors: false  # default
+    apiVersion: null  # default, from ${languageVersion}
+    freeCompilerArgs: null  # default
     ksp:
       processorOptions:
-        "room.schemaLocation": ./generated-db-schema/android  # [module.yaml]
+        "room.schemaLocation": ./generated-db-schema/android  # module.yaml
       processors:
-        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # [module.yaml]
-      version: 2.2.10-2.0.2  # [default]
-    languageFeatures: null  # [default]
-    languageVersion: null  # [default]
+        - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # module.yaml
+      version: 2.2.10-2.0.2  # default
+    languageFeatures: null  # default
+    languageVersion: null  # default
     noArg:
-      annotations: null  # [default]
-      enabled: false  # [default]
-      invokeInitializers: false  # [default]
-      presets: null  # [default]
-    optIns: null  # [default]
+      annotations: null  # default
+      enabled: false  # default
+      invokeInitializers: false  # default
+      presets: null  # default
+    optIns: null  # default
     powerAssert:
-      enabled: false  # [default]
+      enabled: false  # default
       functions:
-        - kotlin.assert  # [default]
-    progressiveMode: false  # [default]
+        - kotlin.assert  # default
+    progressiveMode: false  # default
     serialization:
-      enabled: false  # [Enabled when 'format' is specified]
-      format: null  # [default]
-      version: 1.9.0  # [default]
-    suppressWarnings: false  # [default]
-    verbose: false  # [default]
-    version: 2.2.10  # [default]
-  kover: null  # [default]
+      enabled: false  # Enabled when 'format' is specified
+      format: null  # default
+      version: 1.9.0  # default
+    suppressWarnings: false  # default
+    verbose: false  # default
+    version: 2.2.10  # default
+  kover: null  # default
   ktor:
-    applyBom: true  # [default]
-    enabled: false  # [default]
-    version: 3.2.3  # [default]
+    applyBom: true  # default
+    enabled: false  # default
+    version: 3.2.3  # default
   lombok:
-    enabled: false  # [default]
-    version: 1.18.38  # [default]
+    enabled: false  # default
+    version: 1.18.38  # default
   publishing:
-    enabled: false  # [default]
-    group: null  # [default]
-    name: null  # [default]
-    version: null  # [default]
+    enabled: false  # default
+    group: null  # default
+    name: null  # default
+    version: null  # default

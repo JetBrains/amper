@@ -26,9 +26,11 @@ fun Settings.serializeAsAmperYaml(
     printStaticDefaults: Boolean = true,
     printDerivedDefaults: Boolean = true,
     indent: String = "  ",
+    theme: YamlTheme = YamlTheme.NoColor,
 ): String = serializeAsAmperYaml(
     indent = indent,
     filter = SettingsFilter(productType, contexts, printStaticDefaults, printDerivedDefaults),
+    theme = theme,
 )
 
 private class SettingsFilter(

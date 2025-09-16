@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.serialization.YamlTheme
 import org.jetbrains.amper.frontend.serialization.serializeAsAmperYaml
 
 internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
@@ -59,10 +60,16 @@ internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
         } else {
             "settings:"
         }
-        terminal.println(settingsNodeName)
+        terminal.info(settingsNodeName)
         val yamlLikeEffectiveSettings = fragment.settings.serializeAsAmperYaml(
             productType = productType,
             contexts = fragment.platforms,
+            theme = object : YamlTheme {
+                override fun colorize(text: String, type: YamlTheme.SpecialElementType): String = when (type) {
+                    YamlTheme.SpecialElementType.Comment -> terminal.theme.muted(text)
+                    YamlTheme.SpecialElementType.PropertyName -> terminal.theme.info(text)
+                }
+            }
         )
         terminal.println(yamlLikeEffectiveSettings.prependIndent("  "))
         terminal.println()
