@@ -33,6 +33,7 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
             configuration = mapOf(
                 "targetDir" to targetDir.pathString,
                 "extraClasspaths" to extraClasspaths.joinToString { it.name },
+                "jarListFile" to (jarListFile ?: ""),
             ),
             inputs = buildList {
                 addAll(classpath)
