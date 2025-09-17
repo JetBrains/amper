@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.frontend.messages
 
+import com.intellij.openapi.vfs.originalFileOrSelf
 import com.intellij.openapi.vfs.toNioPathOrNull
-import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.SmartPsiElementPointer
 import com.intellij.psi.createSmartPointer
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
@@ -79,9 +79,5 @@ fun Traceable.extractPsiElement(): PsiElement =
 fun Trace.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from trace $this")
 
-val PsiElement.originalFilePath: Path?
-    get() = when (this) {
-        is PsiFile -> originalFile.virtualFile?.toNioPathOrNull()
-        is PsiDirectory -> virtualFile.toNioPathOrNull()
-        else -> containingFile.originalFilePath
-    }
+val SmartPsiElementPointer<*>.originalFilePath: Path?
+    get() = virtualFile.originalFileOrSelf().toNioPathOrNull()

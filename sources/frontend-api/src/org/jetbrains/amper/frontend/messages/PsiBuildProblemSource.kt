@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.messages
 
-import com.intellij.openapi.vfs.originalFileOrSelf
-import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.SmartPsiElementPointer
@@ -38,7 +36,7 @@ sealed interface PsiBuildProblemSource : FileBuildProblemSource {
     val psiPointer: SmartPsiElementPointer<out PsiElement>
 
     override val file: Path
-        get() = psiPointer.virtualFile.originalFileOrSelf().toNioPathOrNull() ?: error(NO_VIRTUAL_FILE_ERROR)
+        get() = psiPointer.originalFilePath ?: error(NO_VIRTUAL_FILE_ERROR)
 
     data class FileSystemLike internal constructor(override val psiPointer: SmartPsiElementPointer<PsiFileSystemItem>) : PsiBuildProblemSource
 
