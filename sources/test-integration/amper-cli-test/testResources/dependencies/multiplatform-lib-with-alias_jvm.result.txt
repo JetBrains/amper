@@ -2,7 +2,7 @@ Dependencies of module multiplatform-lib-with-alias:
 
 Module multiplatform-lib-with-alias
 │ - main
-│ - scope = RUNTIME
+│ - scope = COMPILE
 │ - platforms = [jvm]
 ├─── multiplatform-lib-with-alias:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
@@ -43,7 +43,7 @@ Module multiplatform-lib-with-alias
 
 Module multiplatform-lib-with-alias
 │ - main
-│ - scope = COMPILE
+│ - scope = RUNTIME
 │ - platforms = [jvm]
 ├─── multiplatform-lib-with-alias:jvm:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1

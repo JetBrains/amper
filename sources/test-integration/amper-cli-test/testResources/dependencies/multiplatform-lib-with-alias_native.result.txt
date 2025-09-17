@@ -2,7 +2,7 @@ Dependencies of module multiplatform-lib-with-alias:
 
 Module multiplatform-lib-with-alias
 │ - main
-│ - scope = RUNTIME
+│ - scope = COMPILE
 │ - platforms = [iosArm64, iosSimulatorArm64, iosX64]
 ├─── multiplatform-lib-with-alias:apple:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
@@ -47,7 +47,7 @@ Module multiplatform-lib-with-alias
 
 Module multiplatform-lib-with-alias
 │ - main
-│ - scope = COMPILE
+│ - scope = RUNTIME
 │ - platforms = [iosArm64, iosSimulatorArm64, iosX64]
 ├─── multiplatform-lib-with-alias:apple:org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
 │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1

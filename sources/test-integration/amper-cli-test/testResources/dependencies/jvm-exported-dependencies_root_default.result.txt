@@ -2,7 +2,7 @@ Dependencies of module root:
 
 Module root
 │ - main
-│ - scope = RUNTIME
+│ - scope = COMPILE
 │ - platforms = [jvm]
 ├─── root:common:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0
@@ -17,7 +17,7 @@ Module root
 
 Module root
 │ - main
-│ - scope = COMPILE
+│ - scope = RUNTIME
 │ - platforms = [jvm]
 ├─── root:common:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0

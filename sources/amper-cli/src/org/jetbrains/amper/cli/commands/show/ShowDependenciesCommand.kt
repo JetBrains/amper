@@ -100,7 +100,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val variantsToResolve = buildList {
             platformSetsToResolveFor.forEach { platforms ->
                 listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
-                    listOf(ResolutionScope.RUNTIME, ResolutionScope.COMPILE).forEach { scope ->
+                    listOf(ResolutionScope.COMPILE, ResolutionScope.RUNTIME).forEach { scope ->
                         // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
                         // todo (AB) : (since it is used in Idea for symbol resolution)
                         if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
