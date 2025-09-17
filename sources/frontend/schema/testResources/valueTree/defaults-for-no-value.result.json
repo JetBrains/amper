@@ -21,11 +21,11 @@
         "propertiesFile(DefaultCtx)" : "../../keystore.properties(DefaultCtx)"
       },
       "applicationId(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
-      "compileSdk(DefaultCtx)" : "VERSION_35(DefaultCtx)",
+      "compileSdk(DefaultCtx)" : "VERSION_36(DefaultCtx)",
       "maxSdk(DefaultCtx)" : "null(DefaultCtx)",
       "minSdk(DefaultCtx)" : "VERSION_21(DefaultCtx)",
       "namespace(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
-      "targetSdk(DefaultCtx)" : "VERSION_35(DefaultCtx)",
+      "targetSdk(DefaultCtx)" : "VERSION_36(DefaultCtx)",
       "versionCode(DefaultCtx)" : "1(DefaultCtx)",
       "versionName(DefaultCtx)" : "unspecified(DefaultCtx)"
     },

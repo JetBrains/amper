@@ -12,7 +12,7 @@ Fragments:
       android: {
         applicationId: <default> com.jetbrains.sample.app
         namespace: com.jetbrains.sample.app
-        targetSdk: <default> 35
+        targetSdk: <default> 36
       }
       kotlin: {
         apiVersion: <default> null
@@ -46,7 +46,7 @@ Fragments:
       android: {
         applicationId: <default> com.jetbrains.sample.app
         namespace: com.jetbrains.sample.app
-        targetSdk: <default> 35
+        targetSdk: <default> 36
       }
       kotlin: {
         apiVersion: <default> null

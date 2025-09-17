@@ -7,7 +7,7 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> 35
+        compileSdk: <default> 36
         maxSdk: <default> null
         minSdk: <default> 21
         namespace: <default> org.example.namespace
@@ -28,7 +28,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> 35
+        targetSdk: <default> 36
         versionCode: <default> 1
         versionName: <default> unspecified
       }
@@ -155,7 +155,7 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> 35
+        compileSdk: <default> 36
         maxSdk: <default> null
         minSdk: <default> 21
         namespace: <default> org.example.namespace
@@ -176,7 +176,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> 35
+        targetSdk: <default> 36
         versionCode: <default> 1
         versionName: <default> unspecified
       }

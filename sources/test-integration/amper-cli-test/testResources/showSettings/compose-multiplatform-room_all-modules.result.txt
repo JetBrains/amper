@@ -3,7 +3,7 @@ Module: android-app
 settings@android:
   android:
     applicationId: org.example.namespace  # default, from ${namespace}
-    compileSdk: 35  # default
+    compileSdk: 36  # default
     maxSdk: null  # default
     minSdk: 21  # default
     namespace: org.example.namespace  # default
@@ -17,7 +17,7 @@ settings@android:
     signing:
       enabled: false  # default
       propertiesFile: keystore.properties  # default
-    targetSdk: 35  # default, from ${compileSdk}
+    targetSdk: 36  # default, from ${compileSdk}
     versionCode: 1  # default
     versionName: unspecified  # default
   compose:
@@ -170,14 +170,14 @@ Module: shared
 
 settings@jvm+android:
   android:
-    compileSdk: 35  # default
+    compileSdk: 36  # default
     maxSdk: null  # default
     minSdk: 21  # default
     namespace: org.example.namespace  # default
     parcelize:
       additionalAnnotations: []  # default
       enabled: false  # default
-    targetSdk: 35  # default, from ${compileSdk}
+    targetSdk: 36  # default, from ${compileSdk}
   compose:
     enabled: true  # module.yaml
     experimental:
@@ -332,14 +332,14 @@ settings@jvm:
 
 settings@android:
   android:
-    compileSdk: 35  # default
+    compileSdk: 36  # default
     maxSdk: null  # default
     minSdk: 21  # default
     namespace: org.example.namespace  # default
     parcelize:
       additionalAnnotations: []  # default
       enabled: false  # default
-    targetSdk: 35  # default, from ${compileSdk}
+    targetSdk: 36  # default, from ${compileSdk}
   compose:
     enabled: true  # module.yaml
     experimental: {}  # default
