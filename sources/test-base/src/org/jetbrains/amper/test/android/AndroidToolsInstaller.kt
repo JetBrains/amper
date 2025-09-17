@@ -49,10 +49,12 @@ internal object AndroidToolsInstaller {
         "platforms;android-33",
         "platforms;android-34",
         "platforms;android-35",
+        "platforms;android-36",
         "build-tools;33.0.0",
         "build-tools;33.0.1",
         "build-tools;34.0.0",
         "build-tools;35.0.0",
+        "build-tools;36.0.0",
         // to create AVDs automatically in mobile-tests
         "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
     )
