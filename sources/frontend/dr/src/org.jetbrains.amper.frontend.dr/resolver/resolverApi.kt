@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlainBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodePlainBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
@@ -149,7 +150,7 @@ class ModuleDependencyNodeWithModule(
 }
 
 @Serializable
-class ModuleDependencyNodeWithModulePlain internal constructor(
+internal class ModuleDependencyNodeWithModulePlain internal constructor(
     override val moduleName: String,
     override val name: String,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
@@ -215,7 +216,7 @@ private fun traceInfo(notation: Notation): String {
 }
 
 @Serializable
-class DirectFragmentDependencyNodeHolderPlain internal constructor(
+internal class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override val fragmentName: String,
     override val name: String,
     override val notationCoordinates: String,
@@ -239,3 +240,40 @@ class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override fun toString() = name
 }
 
+internal interface UnresolvedMavenDependencyNode : DependencyNode {
+    val coordinates: String
+    override val key: Key<*>
+    fun getStringRepresentation() = "$coordinates, unresolved"
+
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+        UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
+}
+
+@Serializable
+internal class UnresolvedMavenDependencyNodePlain internal constructor(
+    override val coordinates: String,
+    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
+    @Transient
+    private val graphContext: DependencyGraphContext = currentGraphContext()
+): UnresolvedMavenDependencyNode, DependencyNodePlainBase(graphContext) {
+    override val childrenRefs: List<DependencyNodeReference> = emptyList()
+    override val messages: List<Message> = emptyList()
+    @Transient
+    override val key: Key<*> = Key<UnresolvedMavenDependencyNodePlain>(coordinates)
+
+    override fun toString() = getStringRepresentation()
+}
+
+internal class UnresolvedMavenDependencyNodeImpl(
+    override val coordinates: String,
+    templateContext: Context,
+    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
+) : UnresolvedMavenDependencyNode, DependencyNodeWithResolutionContext {
+    override val context = templateContext.copyWithNewNodeCache(parentNodes)
+    override val key: Key<*> = Key<UnresolvedMavenDependencyNodeImpl>(coordinates)
+    override val children: List<DependencyNodeWithResolutionContext> = emptyList()
+    override val messages: List<Message> = emptyList()
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
+    override suspend fun downloadDependencies(downloadSources: Boolean) {}
+    override fun toString(): String = getStringRepresentation()
+}

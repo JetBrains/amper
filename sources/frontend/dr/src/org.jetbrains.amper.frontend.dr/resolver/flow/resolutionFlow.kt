@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.UnresolvedMavenDependencyNodeImpl
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates

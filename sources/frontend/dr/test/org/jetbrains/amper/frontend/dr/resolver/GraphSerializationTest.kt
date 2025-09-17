@@ -13,10 +13,8 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
-import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.isOrphan
@@ -226,7 +224,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
      */
     private fun DependencyGraph.assertNodePlainIndexes(testInfo: TestInfo) {
         val actual = graphContext.allDependencyNodes
-            .map { "${it.value}:  ${it.key.toString()} (${(it.key as? MavenDependencyNodePlain)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
+            .map { "${it.value}:  ${it.key.toString()} (${(it.key as? MavenDependencyNode)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
             .joinToString(System.lineSeparator())
 
         val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.indexes.txt"

@@ -361,44 +361,6 @@ class MavenDependencyNodeImpl internal constructor(
     }
 }
 
-interface UnresolvedMavenDependencyNode : DependencyNode {
-    val coordinates: String
-    override val key: Key<*>
-    fun getStringRepresentation() = "$coordinates, unresolved"
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
-}
-
-@Serializable
-class UnresolvedMavenDependencyNodePlain internal constructor(
-    override val coordinates: String,
-    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
-    @Transient
-    private val graphContext: DependencyGraphContext = currentGraphContext()
-): UnresolvedMavenDependencyNode, DependencyNodePlainBase(graphContext) {
-    override val childrenRefs: List<DependencyNodeReference> = emptyList()
-    override val messages: List<Message> = emptyList()
-    @Transient
-    override val key: Key<*> = Key<UnresolvedMavenDependencyNodePlain>(coordinates)
-
-    override fun toString() = getStringRepresentation()
-}
-
-class UnresolvedMavenDependencyNodeImpl(
-    override val coordinates: String,
-    templateContext: Context,
-    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : UnresolvedMavenDependencyNode, DependencyNodeWithResolutionContext {
-    override val context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<UnresolvedMavenDependencyNodeImpl>(coordinates)
-    override val children: List<DependencyNodeWithResolutionContext> = emptyList()
-    override val messages: List<Message> = emptyList()
-    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
-    override suspend fun downloadDependencies(downloadSources: Boolean) {}
-    override fun toString(): String = getStringRepresentation()
-}
-
 interface MavenDependencyConstraintNode : DependencyNode {
     val group: String
     val module: String

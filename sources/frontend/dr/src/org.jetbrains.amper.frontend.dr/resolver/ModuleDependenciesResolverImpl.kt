@@ -25,7 +25,6 @@ import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
-import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.registerSerializableMessages

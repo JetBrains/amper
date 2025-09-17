@@ -266,7 +266,7 @@ data class DependencyNodeReference(
 
 
 @Serializable(with = DependencyGraphContextSerializer::class)
-class  DependencyGraphContext(
+class DependencyGraphContext(
     val allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex> = mutableMapOf(),
     val allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex> = mutableMapOf(),
     val allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex> = mutableMapOf()
@@ -481,7 +481,7 @@ typealias MavenDependencyConstraintIndex = Int
 fun currentGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
     ?: error("Instance of DependencyGraphContext should be either explicitly passed to the constructor or presented in the dedicated ThreadLocal")
 
-// todo (AB) : It should be internal most probably
+// todo (AB) : Leaf implementations of this node should be internal
 interface DependencyNodePlain : DependencyNode {
     val parentsRefs: MutableSet<DependencyNodeReference>
     val childrenRefs: List<DependencyNodeReference>
