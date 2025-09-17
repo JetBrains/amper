@@ -22,8 +22,10 @@ import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
+import java.io.File
 import java.net.ServerSocket
 import java.nio.file.Path
+import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 class JvmHotRunTask(
@@ -68,9 +70,8 @@ class JvmHotRunTask(
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent(
             hotReloadVersion = composeSettingsJvm.experimental.hotReload.version,
         )
-        val agent =
-            agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
-                ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
+        val agent = agentClasspath.singleOrNull { it.name.startsWith("hot-reload-agent") }
+                ?: error("Can't find hot-reload-agent in agent classpath:\n${agentClasspath.joinToString("\n")}")
 
         val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools(
             hotReloadVersion = composeSettingsJvm.experimental.hotReload.version,
@@ -82,7 +83,7 @@ class JvmHotRunTask(
 //            add("-agentlib:jdwp=transport=dt_socket,server=n,address=localhost:5007,suspend=y")
             add("-XX:+AllowEnhancedClassRedefinition")
             add("-javaagent:${agent.pathString}")
-            add("-Dcompose.reload.devToolsClasspath=${devToolsClasspath.joinToString(":")}")
+            add("-Dcompose.reload.devToolsClasspath=${devToolsClasspath.joinToString(File.pathSeparator)}")
             add("-Dcompose.reload.devToolsEnabled=true")
             add("-Dcompose.reload.devToolsTransparencyEnabled=true")
             add("-Dcompose.reload.dirtyResolveDepthLimit=5")
@@ -98,8 +99,8 @@ class JvmHotRunTask(
         val agentClasspath = toolingArtifactsDownloader.downloadHotReloadAgent(
             hotReloadVersion = composeSettingsJvm.experimental.hotReload.version,
         )
-        val agent = agentClasspath.singleOrNull { it.pathString.contains("org/jetbrains/compose/hot-reload/hot-reload-agent") }
-            ?: error("Can't find hot-reload-agent in agent classpath: $agentClasspath")
+        val agent = agentClasspath.singleOrNull { it.name.startsWith("hot-reload-agent") }
+            ?: error("Can't find hot-reload-agent in agent classpath:\n${agentClasspath.joinToString("\n")}")
         val filteredAgentClasspath = agentClasspath.filter { !it.pathString.contains(agent.pathString) }
 
         return buildList {
