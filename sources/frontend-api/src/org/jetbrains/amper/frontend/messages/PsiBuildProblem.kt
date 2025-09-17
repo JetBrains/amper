@@ -24,10 +24,19 @@ import org.jetbrains.amper.problems.reporting.Level
 import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
+@Deprecated(
+    "If a build problem really wants to expose PSI element, it should be done via source sub-typing into PsiBuildProblemSource. " +
+        "Holding references to PSI elements can lead to memory leaks and inconsistencies inside IDE. At the same time" +
+            "it's fine to just expose the BuildProblemSource and let the IDE figure out the element from it."
+)
 abstract class PsiBuildProblem(
     override val level: Level,
     override val type: BuildProblemType,
 ) : BuildProblem {
+    @Deprecated(
+        "Use source property instead, dereference the element and properly process `null` value",
+        replaceWith = ReplaceWith("(source as PsiBuildProblemSource).psiPointer.element ?: error(\"No PSI element found\")")
+    )
     abstract val element: PsiElement
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element.createSmartPointer()) }
 }
