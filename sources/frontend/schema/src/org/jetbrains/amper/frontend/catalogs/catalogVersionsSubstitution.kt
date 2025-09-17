@@ -83,7 +83,7 @@ private fun VersionCatalog.findInCatalogWithReport(key: String, keyTrace: Trace?
     val value = findInCatalog(key)
     if (value == null && keyTrace is PsiTrace) {
         problemReporter.reportBundleError(
-            source = keyTrace.psiElement.asBuildProblemSource(),
+            source = keyTrace.asBuildProblemSource(),
             messageKey = when {
                 key.startsWith("compose.") -> "compose.is.disabled"
                 key.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"

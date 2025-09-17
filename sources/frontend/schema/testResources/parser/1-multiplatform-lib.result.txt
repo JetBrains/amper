@@ -1,14 +1,14 @@
 Fragments:
   android
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:android-driver:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.google.dagger:dagger:2.28.3), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -17,16 +17,16 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:android-driver:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.google.dagger:dagger:2.28.3), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -36,11 +36,11 @@ Fragments:
 
   apple
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -49,13 +49,13 @@ Fragments:
 
   appleTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -65,10 +65,10 @@ Fragments:
 
   common
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -76,12 +76,12 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -90,11 +90,11 @@ Fragments:
 
   ios
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -103,11 +103,11 @@ Fragments:
 
   iosArm64
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
       ios (REFINE)
@@ -116,13 +116,13 @@ Fragments:
 
   iosArm64Test
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
     Fragment dependencies:
       iosTest (REFINE)
@@ -132,11 +132,11 @@ Fragments:
 
   iosSimulatorArm64
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@iosSimulatorArm64
     Fragment dependencies:
       ios (REFINE)
@@ -145,13 +145,13 @@ Fragments:
 
   iosSimulatorArm64Test
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@iosSimulatorArm64
     Fragment dependencies:
       iosTest (REFINE)
@@ -161,13 +161,13 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -177,11 +177,11 @@ Fragments:
 
   iosX64
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@iosX64
     Fragment dependencies:
       ios (REFINE)
@@ -190,13 +190,13 @@ Fragments:
 
   iosX64Test
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@iosX64
     Fragment dependencies:
       iosTest (REFINE)
@@ -206,10 +206,10 @@ Fragments:
 
   js
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
       web (REFINE)
@@ -218,12 +218,12 @@ Fragments:
 
   jsTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
       webTest (REFINE)
@@ -233,11 +233,11 @@ Fragments:
 
   native
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -246,13 +246,13 @@ Fragments:
 
   nativeTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.sqldelight:native-driver:1.5.5), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)
@@ -262,10 +262,10 @@ Fragments:
 
   wasmJs
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@wasmJs
     Fragment dependencies:
       web (REFINE)
@@ -274,12 +274,12 @@ Fragments:
 
   wasmJsTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@wasmJs
     Fragment dependencies:
       webTest (REFINE)
@@ -289,10 +289,10 @@ Fragments:
 
   wasmWasi
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@wasmWasi
     Fragment dependencies:
       common (REFINE)
@@ -301,12 +301,12 @@ Fragments:
 
   wasmWasiTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@wasmWasi
     Fragment dependencies:
       commonTest (REFINE)
@@ -316,10 +316,10 @@ Fragments:
 
   web
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: src@web
     Fragment dependencies:
       common (REFINE)
@@ -328,12 +328,12 @@ Fragments:
 
   webTest
     External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=app.cash.sqldelight:sqldelight:2.0.0-alpha05), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=com.squareup.okio:okio:3.3.0), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlin:kotlin-test:1.8.20), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, trace=PsiTrace(fileName=1-multiplatform-lib.yaml, text=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), compile=true, runtime=true, exported=false)
     Src folder: test@web
     Fragment dependencies:
       commonTest (REFINE)

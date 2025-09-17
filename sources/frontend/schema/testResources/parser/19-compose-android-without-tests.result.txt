@@ -1,10 +1,10 @@
 Fragments:
   main
     External dependencies:
-      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=androidx.activity:activity-compose:1.7.2), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=androidx.appcompat:appcompat:1.6.1), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=org.jetbrains.compose.foundation:foundation:1.4.1), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=org.jetbrains.compose.material3:material3:1.4.1), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ComposeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
@@ -19,10 +19,10 @@ Fragments:
 
   test
     External dependencies:
-      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=androidx.activity:activity-compose:1.7.2), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=androidx.appcompat:appcompat:1.6.1), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=org.jetbrains.compose.foundation:foundation:1.4.1), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(fileName=19-compose-android-without-tests.yaml, text=org.jetbrains.compose.material3:material3:1.4.1), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.8.2, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.ComposeSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)

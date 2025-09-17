@@ -10,8 +10,8 @@ import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.FileVersionCatalog
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTrace
 import org.toml.lang.psi.TomlFile
 import org.toml.lang.psi.TomlInlineTable
 import org.toml.lang.psi.TomlKey
@@ -49,7 +49,7 @@ private class TomlCatalog(
     override val entries: Map<String, TraceableString>
         get() = libraries.map {
             val definition = it.value
-            it.key to TraceableString(definition.libraryString, trace = PsiTrace(definition.element))
+            it.key to TraceableString(definition.libraryString, trace = definition.element.asTrace())
         }.toMap()
 }
 

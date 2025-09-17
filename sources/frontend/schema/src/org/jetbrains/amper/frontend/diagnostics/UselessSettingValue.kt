@@ -69,7 +69,7 @@ private class UselessSetting(
     )
 
     private fun formatLocation(): String {
-        val file = precedingTrace.psiElement.containingFile!!
+        val file = precedingTrace.psiPointer.virtualFile
         return if (file.name != "module.yaml" && file.name != "module.amper") file.name
         else file.parent!!.name
     }

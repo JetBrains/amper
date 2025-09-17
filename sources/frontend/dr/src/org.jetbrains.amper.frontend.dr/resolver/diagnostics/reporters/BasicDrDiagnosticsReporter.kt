@@ -132,11 +132,11 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         if (resolvedVersion.value != node.dependency.version) return null
 
         val dependencyVirtualFile = dependencyElement.containingFile?.virtualFile ?: return null
-        val versionFile = versionTrace.psiElement.containingFile?.virtualFile ?: return null
+        val versionFile = versionTrace.psiPointer.virtualFile
 
         val relativePath = VfsUtilCore.findRelativePath(dependencyVirtualFile, versionFile, File.separatorChar)?.takeIf {
             dependencyVirtualFile != versionFile
-        } ?: versionTrace.psiElement.containingFile.name
+        } ?: versionFile.name
         return VersionDefinition(versionTrace.psiElement, relativePath)
     }
 

@@ -1,17 +1,17 @@
 Fragments:
   main
     External dependencies:
-      BomDependency(coordinates=org.my-company:my-bom, trace=PsiTrace(psiElement=YAML key value, precedingValue=null))
+      BomDependency(coordinates=org.my-company:my-bom, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=bom: $libs.my.bom))
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-without-version, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.group.name), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.all), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.plain.string), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.version.ref), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.with.underscores), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-without-version, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.without.version), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -19,18 +19,18 @@ Fragments:
 
   test
     External dependencies:
-      BomDependency(coordinates=org.my-company:my-bom, trace=PsiTrace(psiElement=YAML key value, precedingValue=null))
+      BomDependency(coordinates=org.my-company:my-bom, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=bom: $libs.my.bom))
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib-without-version, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.my-company:my-lib:1.4, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company-group:my-lib-name:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.group.name), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-all:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.all), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.plain.string), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.version.ref), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.with.underscores), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-without-version, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib.without.version), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib:1.4, trace=PsiTrace(fileName=simple-gradle-version-catalog.yaml, text=$libs.my.lib), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       main (FRIEND)
