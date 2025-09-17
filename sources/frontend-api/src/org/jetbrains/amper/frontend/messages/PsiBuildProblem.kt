@@ -8,11 +8,12 @@ import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.createSmartPointer
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
@@ -28,7 +29,7 @@ abstract class PsiBuildProblem(
     override val type: BuildProblemType,
 ) : BuildProblem {
     abstract val element: PsiElement
-    override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element) }
+    override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element.createSmartPointer()) }
 }
 
 fun KProperty0<*>.extractPsiElement(): PsiElement = schemaDelegate.extractPsiElement()

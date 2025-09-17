@@ -22,6 +22,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.psi.impl.smartPointers.SmartPointerAnchorProvider
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
 import kotlinx.coroutines.currentCoroutineContext
@@ -81,6 +82,7 @@ object MockProjectInitializer {
             ApplicationManager.setApplication(null)
         }
 
+        @Suppress("UnstableApiUsage")
         return spanBuilder("Init mock IntelliJ project").useWithoutCoroutines {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
@@ -88,7 +90,11 @@ object MockProjectInitializer {
             val appEnv = CoreApplicationEnvironment(disposable)
             ourDisposable = disposable
             appEnv.registerLangAppServices()
-            @Suppress("UnstableApiUsage")
+            CoreApplicationEnvironment.registerExtensionPoint(
+                appEnv.application.extensionArea,
+                SmartPointerAnchorProvider.EP_NAME.name,
+                SmartPointerAnchorProvider::class.java
+            )
             appEnv.application.registerService(ProgressManager::class.java, MockProgressManager::class.java)
             appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
             intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)

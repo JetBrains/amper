@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
+import com.intellij.psi.createSmartPointer
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
@@ -33,7 +34,7 @@ class ModuleDependencyLoopProblem(
     )
     override val source: MultipleLocationsBuildProblemSource = MultipleLocationsBuildProblemSource(
         // restore the loop edges using the nodes
-        sources = loop.dropLast(1).mapNotNull { it.second.extractPsiElementOrNull() }.map(::PsiBuildProblemSource),
+        sources = loop.dropLast(1).mapNotNull { it.second.extractPsiElementOrNull()?.createSmartPointer() }.map(::PsiBuildProblemSource),
         groupingMessage = SchemaBundle.message("dependencies.modules.loop.grouping"),
     )
     override val level: Level get() = Level.Error

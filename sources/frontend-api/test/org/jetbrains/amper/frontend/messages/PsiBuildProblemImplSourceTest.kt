@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.messages
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
+import com.intellij.psi.createSmartPointer
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.amper.intellij.IntelliJApplicationConfigurator
@@ -35,7 +36,10 @@ class PsiBuildProblemImplSourceTest {
         """.trimMargin())
         val psiFile = PsiManager.getInstance(project).findFile(testFile)
         assertNotNull(psiFile)
-        val dependenciesBlock = PsiTreeUtil.findChildrenOfType(psiFile, YAMLKeyValue::class.java).find { it.keyText == "dependencies" }
+        val dependenciesBlock = PsiTreeUtil
+            .findChildrenOfType(psiFile, YAMLKeyValue::class.java)
+            .find { it.keyText == "dependencies" }
+            ?.createSmartPointer()
         assertNotNull(dependenciesBlock)
         val source = PsiBuildProblemSource(dependenciesBlock) as PsiBuildProblemSource.Element
         assertEquals(
