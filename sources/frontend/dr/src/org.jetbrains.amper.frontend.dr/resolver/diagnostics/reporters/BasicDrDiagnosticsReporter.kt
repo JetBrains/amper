@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
 
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiElement
+import com.intellij.psi.SmartPsiElementPointer
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -137,7 +138,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         val relativePath = VfsUtilCore.findRelativePath(dependencyVirtualFile, versionFile, File.separatorChar)?.takeIf {
             dependencyVirtualFile != versionFile
         } ?: versionFile.name
-        return VersionDefinition(versionTrace.psiElement, relativePath)
+        return VersionDefinition(versionTrace.psiPointer, relativePath)
     }
 
     private fun Traceable.findTraceableVersion(): TraceableVersion? {
@@ -194,12 +195,19 @@ class DependencyBuildProblem(
     private fun getVersionDefinitionMessage(): @Nls String? {
         versionDefinition ?: return null
         val node = problematicDependency as? MavenDependencyNode ?: return null
-        val range = getLineAndColumnRangeInPsiFile(versionDefinition.versionElement)
+        val element = versionDefinition.versionPointer.element
+        val definitionText = buildString {
+            append(versionDefinition.relativePath)
+            val range = element?.let(::getLineAndColumnRangeInPsiFile)
+            if (range != null) {
+                append(":${range.start.line}:${range.start.column}")
+            }
+        }
 
         return FrontendDrBundle.message(
             "dependency.problem.version.definition",
             node.dependency.version,
-            "${versionDefinition.relativePath}:${range.start.line}:${range.start.column}",
+            definitionText,
         )
     }
 
@@ -211,11 +219,16 @@ class DependencyBuildProblem(
 /**
  * Information about where the version of the dependency is defined.
  *
- * @param versionElement PSI element containing the version definition
+ * @param versionPointer pointer to the PSI element that contained the version definition
  * @param relativePath Relative path from the file containing dependency to the file containing the version definition
  * @see BasicDrDiagnosticsReporter.findVersionDefinition
  */
-data class VersionDefinition(val versionElement: PsiElement, val relativePath: String)
+data class VersionDefinition(val versionPointer: SmartPsiElementPointer<PsiElement>, val relativePath: String) {
+    @Deprecated("Use versionPointer instead", ReplaceWith("versionPointer.element"))
+    @UsedInIdePlugin
+    val versionElement: PsiElement
+        get() = versionPointer.element ?: error("Version element is invalidated")
+}
 
 internal fun DependencyNode.isTransitiveFor(fragmentDependency: DirectFragmentDependencyNodeHolder): Boolean =
     this != fragmentDependency && fragmentDependency !in parents
