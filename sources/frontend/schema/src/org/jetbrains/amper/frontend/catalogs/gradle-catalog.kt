@@ -5,11 +5,11 @@
 package org.jetbrains.amper.frontend.catalogs
 
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.FileVersionCatalog
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
 import org.toml.lang.psi.TomlFile
@@ -39,7 +39,7 @@ private fun TomlFile.findTableOrNull(headerText: String): TomlTable? =
 
 private data class TomlLibraryDefinition(
     val libraryString: String,
-    val element: PsiElement,
+    val trace: PsiTrace,
 )
 
 private class TomlCatalog(
@@ -49,7 +49,7 @@ private class TomlCatalog(
     override val entries: Map<String, TraceableString>
         get() = libraries.map {
             val definition = it.value
-            it.key to TraceableString(definition.libraryString, trace = definition.element.asTrace())
+            it.key to TraceableString(definition.libraryString, trace = definition.trace)
         }.toMap()
 }
 
@@ -81,7 +81,7 @@ private fun TomlFile.parseCatalogLibraries(): Map<String, TomlLibraryDefinition>
 
             // my-lib = "com.mycompany:mylib:1.4"
             val value = getInlineNotation(entry) ?: return@forEach
-            put(aliasKey, TomlLibraryDefinition(value, entry))
+            put(aliasKey, TomlLibraryDefinition(value, entry.asTrace()))
         }
     }
 }
