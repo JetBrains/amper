@@ -3,40 +3,34 @@
 ### Installation
 
 To use the Amper CLI, you need to download the Amper executable script to your project's root folder.
-The script is small file that downloads and runs the actual Amper CLI distribution, and serves as entry point for
+The script is small file that downloads and runs the actual Amper CLI distribution, and serves as an entry point for
 all Amper commands.
 
 Use one of the following commands to download the script:
 
 Linux/macOS:
-```
-curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/amper-cli/0.8.0-dev-3241/amper-cli-0.8.0-dev-3241-wrapper?download=true" && chmod +x amper
+```shell
+curl -fsSL -o amper https://jb.gg/amper-latest-wrapper.sh && chmod +x amper && ./amper update -c
 ```
 
 Windows PowerShell:
-```
-Invoke-WebRequest -OutFile amper.bat -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/amper-cli/0.8.0-dev-3241/amper-cli-0.8.0-dev-3241-wrapper.bat?download=true
+```powershell
+Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat; ./amper update -c
 ```
 
-Complete and check your installation by running:
-
-```
-./amper -v
-```
+> [!NOTE]
+> The `./amper update -c` command will automatically get the wrapper script for the other OS. 
+> You can check both into your VCS so your team can build and run your project without any installation, on any OS.
 
 > [!NOTE]
 > The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
 > Subsequent runs will be faster, as the downloaded files will be cached locally.
 
-> [!TIP]
-> You can automatically get the other script using `./amper update`, and then check both into your VCS so your team can
-> build and run your project without any installation, no matter their OS.
-
 ### Exploring Amper commands
 
 The root `./amper` command and all subcommands support the `-h` (or `--help`) option to explore what is possible:
 
-```
+```shell
 ./amper --help
 ```
 
@@ -48,7 +42,7 @@ Useful commands:
 - `amper clean` to remove the project's build output and caches
 
 For example, to build and run the [JVM "Hello, World"](../examples/jvm):
-```
+```shell
 cd jvm
 ./amper run 
 ```
@@ -60,14 +54,14 @@ configuration, to get tab completion for Amper commands.
 
 First, generate the completion script using the `generate-completion` command, specifying the shell you use:
 
-```
+```shell
 ./amper generate-completion zsh > ~/amper-completion.sh
 ```
 
 Then load the script in your shell (this can be added to `.bashrc`, `.zshrc`, or similar configuration files to load it
 automatically):
 
-```
+```shell
 source ~/amper-completion.sh
 ```
 
