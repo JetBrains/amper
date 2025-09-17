@@ -41,23 +41,41 @@ abstract class PsiBuildProblem(
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element.createSmartPointer()) }
 }
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 fun KProperty0<*>.extractPsiElement(): PsiElement = schemaDelegate.extractPsiElement()
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 @UsedInIdePlugin
 fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = schemaDelegate.extractPsiElementOrNull()
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
-    is PsiTrace -> psiElement
+    is PsiTrace -> psiPointer.element
     is DefaultTrace -> null
     is BuiltinCatalogTrace -> version.extractPsiElementOrNull()
     is DerivedValueTrace -> definitionTrace.extractPsiElementOrNull() ?: sourceValue.extractPsiElementOrNull()
 }
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 fun Traceable.extractPsiElementOrNull(): PsiElement? = trace.extractPsiElementOrNull()
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 fun Traceable.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from traceable $this")
 
+/**
+ * Do not store extracted [PsiElement] in any objects as it might lead to memory leaks and inconsistencies inside IDE.
+ */
 fun Trace.extractPsiElement(): PsiElement =
     extractPsiElementOrNull() ?: error("Can't extract PSI element from trace $this")
 
