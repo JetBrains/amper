@@ -5,3 +5,7 @@ apply:
 
 dependencies:
   - $libs.kotlinx.coroutines.core
+
+settings:
+  publishing:
+    enabled: true

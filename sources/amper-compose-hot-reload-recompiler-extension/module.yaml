@@ -7,6 +7,8 @@ settings:
   ktor: enabled
   kotlin:
     serialization: json
+  publishing:
+    enabled: true
 
 dependencies:
   - ../libraries/async-processes
