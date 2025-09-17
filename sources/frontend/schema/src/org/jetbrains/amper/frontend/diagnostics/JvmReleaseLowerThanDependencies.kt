@@ -4,15 +4,14 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
@@ -22,6 +21,7 @@ import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import kotlin.reflect.KProperty0
 
 // TODO Use the configured JDK version when it becomes configurable. For now we hardcoded 21 in the backend
 private val DefaultJdkVersion = JavaVersion.VERSION_21
@@ -65,23 +65,23 @@ class JvmReleaseTooLowForDependency(
 ) : BuildProblem {
     override val buildProblemId get() = diagnosticId
 
-    private val jvmReleaseElement = module.jvmReleasePsiElement()
-    private val dependencyJvmReleaseElement = dependency.module.jvmReleasePsiElement()
+    private val jvmReleaseElement = module.jvmReleaseProperty()
+    private val dependencyJvmReleaseProperty = dependency.module.jvmReleaseProperty()
 
     override val source: BuildProblemSource = MultipleLocationsBuildProblemSource(
         sources = listOfNotNull(
-            dependency.asBuildProblemSource() as? FileBuildProblemSource,
+            dependency.asBuildProblemSource(),
             jvmReleaseElement?.asBuildProblemSource(),
-            dependencyJvmReleaseElement?.asBuildProblemSource(),
-        ),
-        groupingMessage = SchemaBundle.message("module.dependency.with.incompatible.jvm.release.grouping",)
+            dependencyJvmReleaseProperty?.asBuildProblemSource(),
+        ).filterIsInstance<FileBuildProblemSource>(),
+        groupingMessage = SchemaBundle.message("module.dependency.with.incompatible.jvm.release.grouping")
     )
     override val message = SchemaBundle.message(
         "module.dependency.with.incompatible.jvm.release",
         module.userReadableName,
-        jvmRelease.withDefaultMentionIf(jvmReleaseElement == null),
+        jvmRelease.withDefaultMentionIf(jvmReleaseElement?.isExplicitlySet != true),
         dependency.module.userReadableName,
-        dependencyJvmRelease.withDefaultMentionIf(dependencyJvmReleaseElement == null),
+        dependencyJvmRelease.withDefaultMentionIf(dependencyJvmReleaseProperty?.isExplicitlySet != true),
     )
 
     private fun JavaVersion.withDefaultMentionIf(condition: Boolean): String {
@@ -93,7 +93,7 @@ class JvmReleaseTooLowForDependency(
     override val type: BuildProblemType get() = BuildProblemType.InconsistentConfiguration
 
     companion object {
-        val diagnosticId: BuildProblemId = "jvm.release.too.low.for.dependency"
+        const val diagnosticId: BuildProblemId = "jvm.release.too.low.for.dependency"
     }
 }
 
@@ -101,5 +101,5 @@ class JvmReleaseTooLowForDependency(
 private fun AmperModule.jvmRelease(): JavaVersion? = fragments.firstOrNull()?.settings?.jvm?.release
 
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
-private fun AmperModule.jvmReleasePsiElement(): PsiElement? =
-    fragments.firstOrNull()?.settings?.jvm?.let { it::release }?.extractPsiElementOrNull()
+private fun AmperModule.jvmReleaseProperty(): KProperty0<JavaVersion?>? =
+    fragments.firstOrNull()?.settings?.jvm?.let { it::release }
