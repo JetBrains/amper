@@ -73,7 +73,7 @@ enum class NoArgPreset(override val schemaValue: String, override val outdated: 
 
 class NoArgSettings : SchemaNode() {
     @Shorthand
-    @SchemaDoc("Enable the Kotlin no-arg compiler plugin")
+    @SchemaDoc("Enables the Kotlin no-arg compiler plugin")
     var enabled by value(false)
 
     @SchemaDoc("List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.")
@@ -88,7 +88,7 @@ class NoArgSettings : SchemaNode() {
 
 class AllOpenSettings : SchemaNode() {
     @Shorthand
-    @SchemaDoc("Enable the Kotlin all-open compiler plugin")
+    @SchemaDoc("Enables the Kotlin all-open compiler plugin")
     var enabled by value(false)
 
     @SchemaDoc("List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.")
@@ -100,7 +100,7 @@ class AllOpenSettings : SchemaNode() {
 
 class PowerAssertSettings : SchemaNode() {
     @Shorthand
-    @SchemaDoc("Enable the Kotlin power-assert compiler plugin")
+    @SchemaDoc("Enables the Kotlin power-assert compiler plugin")
     var enabled by value(false)
 
     @SchemaDoc("A list of fully-qualified function names that the Power-assert plugin should transform. " +
@@ -137,7 +137,7 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Suppress the compiler from displaying warnings during compilation")
     var suppressWarnings by value(false)
 
-    @SchemaDoc("Enable verbose logging output which includes details of the compilation process")
+    @SchemaDoc("Enables verbose logging output which includes details of the compilation process")
     var verbose by value(false)
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
@@ -147,17 +147,17 @@ class KotlinSettings : SchemaNode() {
     var linkerOptions by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
-            "Enable emitting debug information. Enabled in debug variants by default.")
+            "Enables emitting debug information. Enabled in debug variants by default.")
     @PlatformSpecific(Platform.NATIVE)
     var debug by nullableValue<Boolean>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
-            "Enable compilation optimizations and produce a binary with better runtime performance. " +
+            "Enables compilation optimizations and produce a binary with better runtime performance. " +
             "Enabled in release variants by default.")
     @PlatformSpecific(Platform.NATIVE)
     var optimization by nullableValue<Boolean>()
 
-    @SchemaDoc("Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
+    @SchemaDoc("Enables the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
     var progressiveMode by value(false)
 
     // TODO Add doc

@@ -156,7 +156,7 @@ class AndroidSettings : SchemaNode() {
 
 class AndroidSigningSettings : SchemaNode() {
     @Shorthand
-    @SchemaDoc("Enable signing with keystore")
+    @SchemaDoc("Enables signing with keystore")
     var enabled by value(default = false)
 
     @Misnomers("keystoreFile")
@@ -179,7 +179,7 @@ val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPass
 class ParcelizeSettings : SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
+    @SchemaDoc("Enables [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
             "implementation of the `Parcelable` interface is automatically generated for classes annotated with " +
             "`@Parcelize`.")
     var enabled by value(default = false)

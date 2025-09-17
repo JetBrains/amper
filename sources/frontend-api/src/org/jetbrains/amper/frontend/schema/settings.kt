@@ -30,15 +30,15 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 
 class Settings : SchemaNode() {
 
-    @SchemaDoc("JVM platform-specific settings")
+    @SchemaDoc("Settings that apply to all JVM-related sources (both Java and Kotlin)")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     val jvm: JvmSettings by nested()
 
-    @SchemaDoc("Java language and the compiler settings")
+    @SchemaDoc("Settings to configure the compilation of Java sources")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     val java: JavaSettings by nested()
 
-    @SchemaDoc("Kotlin language and the compiler settings")
+    @SchemaDoc("Settings to configure the compilation of Kotlin sources")
     val kotlin: KotlinSettings by nested()
 
     @SchemaDoc("Android toolchain and platform settings")
@@ -70,6 +70,7 @@ class Settings : SchemaNode() {
 
     @SchemaDoc("Native applications settings")
     @PlatformSpecific(Platform.NATIVE)
+    @ProductTypeSpecific(ProductType.MACOS_APP, ProductType.LINUX_APP, ProductType.WINDOWS_APP)
     var native by nullableValue<NativeSettings>()
 
     @SchemaDoc("Ktor server settings")
@@ -92,7 +93,7 @@ class Settings : SchemaNode() {
 class ComposeSettings : SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
+    @SchemaDoc("Enables the Compose compiler plugin, runtime dependency, and library catalog")
     var enabled by value(default = false)
 
     @SchemaDoc("The Compose plugin version")
@@ -132,7 +133,7 @@ class ComposeExperimentalSettings: SchemaNode() {
 
 class ComposeExperimentalHotReloadSettings: SchemaNode() {
     @Shorthand
-    @SchemaDoc("Enable hot reload")
+    @SchemaDoc("Enables Compose Hot Reload.")
     var enabled by value(default = false)
 
     @HiddenFromCompletion
@@ -193,7 +194,7 @@ class IosFrameworkSettings : SchemaNode() {
 class PublishingSettings : SchemaNode() {
 
     @PlatformAgnostic
-    @SchemaDoc("Enable publication of the module to Maven repositories")
+    @SchemaDoc("Enables the publication of the module to Maven repositories (via `./amper publish`)")
     var enabled by value(default = false)
 
     @PlatformAgnostic
@@ -212,7 +213,7 @@ class PublishingSettings : SchemaNode() {
 class KoverSettings : SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enable code overage with Kover")
+    @SchemaDoc("Enables code overage with Kover")
     var enabled by value(false)
 
 //    @SchemaDoc("")
@@ -254,10 +255,10 @@ class NativeSettings : SchemaNode() {
 class KtorSettings: SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enable Ktor server")
+    @SchemaDoc("Enables Ktor server")
     var enabled by value(default = false)
 
-    @SchemaDoc("Ktor version")
+    @SchemaDoc("The Ktor version, which is used for the BOM and in the generated library catalog entries")
     var version by value(default = UsedVersions.ktorVersion)
 
     @SchemaDoc("Whether to apply the Ktor BOM or not")
@@ -267,10 +268,10 @@ class KtorSettings: SchemaNode() {
 class SpringBootSettings: SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enable Spring Boot")
+    @SchemaDoc("Enables Spring Boot")
     var enabled by value(default = false)
 
-    @SchemaDoc("Spring Boot version")
+    @SchemaDoc("The Spring Boot version, which is used for the BOM and in the generated library catalog entries")
     var version by value(default = UsedVersions.springBootVersion)
 
     @SchemaDoc("Whether to apply the spring-boot-dependencies BOM or not")
@@ -280,7 +281,7 @@ class SpringBootSettings: SchemaNode() {
 class LombokSettings: SchemaNode() {
     
     @Shorthand
-    @SchemaDoc("Enable Lombok")
+    @SchemaDoc("Enables Lombok")
     var enabled by value(default = false)
 
     @SchemaDoc("The version of Lombok to use for the runtime library and the annotation processor")

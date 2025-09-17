@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.GradleSpecific
+import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -25,7 +26,7 @@ typealias Modifiers = Set<TraceableString>
 
 abstract class Base : SchemaNode() {
 
-    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. [Read more](#managing-maven-repositories)")
+    @SchemaDoc("The list of repositories used to look up and download external dependencies. [Read more](#managing-maven-repositories)")
     var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
@@ -36,6 +37,7 @@ abstract class Base : SchemaNode() {
     @SchemaDoc("Configures the toolchains used in the build process. [Read more](#settings)")
     val settings: Settings by nested()
 
+    @HiddenFromCompletion
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
     var tasks by nullableValue<Map<String, TaskSettings>>()
 }
@@ -47,7 +49,8 @@ class Module : Base() {
     @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
     var product by value<ModuleProduct>()
 
-    @SchemaDoc("Defines the names for the custom code sharing groups. [Read more](#aliases)")
+    @SchemaDoc("Defines names for custom groups of platforms. This is useful to share code between platforms if the " +
+            "group doesn't already exist in the default hierarchy. [Read more](#aliases)")
     var aliases by nullableValue<Map<TraceableString, List<TraceableEnum<Platform>>>>()
 
     @Misnomers("templates")
@@ -66,10 +69,10 @@ class Repository : SchemaNode() {
     @SchemaDoc("The url of the repository")
     var url by value<String>()
 
-    @SchemaDoc("The ID of the repository, used for to reference it. Defaults to the repository url")
+    @SchemaDoc("The ID of the repository, used to reference it. Defaults to the repository url")
     var id by dependentValue(::url)
 
-    @SchemaDoc("Credentials for the authenticated repositories")
+    @SchemaDoc("Credentials to connect to this repository")
     var credentials by nullableValue<Credentials>()
 
     @SchemaDoc("Whether this repository can be used to publish artifacts")
