@@ -353,6 +353,9 @@ internal class IncrementalCacheUsageContextElement(
     override fun toString(): String = "ResolutionCacheUsageContextElement"
 }
 
+/**
+ * Run every test twice (the first run without cache, the second with cache populated during the first run)
+ */
 internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
     val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
     runSlowTest(

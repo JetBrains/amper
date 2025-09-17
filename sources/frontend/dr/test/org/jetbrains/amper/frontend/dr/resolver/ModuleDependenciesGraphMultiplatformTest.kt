@@ -30,7 +30,6 @@ import kotlin.test.assertNotNull
  *    It will be fixed in the nearest future (as soon as Amper IDE plugin started calling
  *    CLI for running application instead of reusing module classpath from the Workspace model)
  */
-// todo (AB) : Run every test twice (the first run without cache, the second with cache)
 class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "moduleDependenciesGraphMultiplatform"
 

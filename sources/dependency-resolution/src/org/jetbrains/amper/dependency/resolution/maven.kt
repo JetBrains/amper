@@ -137,19 +137,16 @@ class MavenDependencyNodePlain internal constructor(
     override val messages: List<Message>,
     private val dependencyRef: MavenDependencyReference,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
-    override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
+    override val childrenRefs: MutableList<DependencyNodeReference> = mutableListOf(),
     internal val overriddenByRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     private val coordinatesForPublishing: MavenCoordinates,
     private val parentKmpLibraryCoordinates: MavenCoordinates?,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-) : MavenDependencyNode, DependencyNodePlain {
+) : MavenDependencyNode, DependencyNodePlainBase(graphContext) {
     override fun getMavenCoordinatesForPublishing(): MavenCoordinates = coordinatesForPublishing
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
 
-    // todo (AB) : Mode to an abstract class DependencyNodePlainBase and reuse?
-    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
-    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
     override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
 
     override val dependency: MavenDependency by lazy { dependencyRef.toNodePlain(graphContext) }
@@ -379,14 +376,11 @@ class UnresolvedMavenDependencyNodePlain internal constructor(
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-): UnresolvedMavenDependencyNode, DependencyNodePlain {
+): UnresolvedMavenDependencyNode, DependencyNodePlainBase(graphContext) {
     override val childrenRefs: List<DependencyNodeReference> = emptyList()
-    override val children: List<DependencyNode> = emptyList()
     override val messages: List<Message> = emptyList()
     @Transient
     override val key: Key<*> = Key<UnresolvedMavenDependencyNodePlain>(coordinates)
-
-    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
 
     override fun toString() = getStringRepresentation()
 }
@@ -453,12 +447,10 @@ class MavenDependencyConstraintNodePlain internal constructor(
     override val messages: List<Message>,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-) : MavenDependencyConstraintNode, DependencyNodePlain {
+) : MavenDependencyConstraintNode, DependencyNodePlainBase(graphContext) {
 
     override val dependencyConstraint: MavenDependencyConstraint by lazy { dependencyConstraintRef.toNodePlain(graphContext) }
 
-    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
-    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
     override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
 
     @Transient

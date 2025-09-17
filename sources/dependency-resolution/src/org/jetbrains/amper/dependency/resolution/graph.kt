@@ -7,6 +7,7 @@ package org.jetbrains.amper.dependency.resolution
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -486,6 +487,18 @@ interface DependencyNodePlain : DependencyNode {
     val childrenRefs: List<DependencyNodeReference>
 
     override val parents: MutableSet<DependencyNode>
+}
+
+@Serializable
+abstract class DependencyNodePlainBase(
+    @Transient
+    private val graphContext: DependencyGraphContext = currentGraphContext()
+) : DependencyNodePlain {
+    abstract override val parentsRefs: MutableSet<DependencyNodeReference>
+    abstract override val childrenRefs: List<DependencyNodeReference>
+
+    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
+    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 }
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

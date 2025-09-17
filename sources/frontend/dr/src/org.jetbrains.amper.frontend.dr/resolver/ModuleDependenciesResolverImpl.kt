@@ -178,7 +178,6 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                                 .use {
                                     resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
 
-                                    // todo (AB) : put all dependency files into the outputs
                                     val serializableGraph = this@resolveDependencies.toGraph()
                                     val serialized = json.encodeToString(serializableGraph)
                                     ExecuteOnChangedInputs.ExecutionResult(

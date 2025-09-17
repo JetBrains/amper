@@ -43,7 +43,13 @@ abstract class DependencyNodeHolderImpl(
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
 }
 
-interface DependencyNodeHolderPlain: DependencyNodeHolder, DependencyNodePlain
+@Serializable
+abstract class DependencyNodeHolderPlainBase(
+    @Transient
+    private val graphContext: DependencyGraphContext = currentGraphContext()
+): DependencyNodeHolder, DependencyNodePlainBase(graphContext) {
+
+}
 
 class RootDependencyNodeInput(
     name: String = "root",
@@ -84,10 +90,8 @@ class RootDependencyNodePlain internal constructor(
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
-): RootDependencyNode, DependencyNodeHolderPlain {
+): RootDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
     override val parentsRefs = mutableSetOf<DependencyNodeReference>()
-    override val parents = mutableSetOf<DependencyNode>()
-    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
 
     @Transient
     override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)

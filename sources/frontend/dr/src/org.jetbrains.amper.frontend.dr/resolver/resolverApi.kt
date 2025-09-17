@@ -10,7 +10,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlainBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
@@ -156,9 +156,7 @@ class ModuleDependencyNodeWithModulePlain internal constructor(
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
-): ModuleDependencyNode, DependencyNodeHolderPlain {
-    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
-    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
+): ModuleDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
 
     @Transient
     override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
@@ -226,9 +224,7 @@ class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-): DirectFragmentDependencyNode, DependencyNodeHolderPlain {
-    override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
-    override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
+): DirectFragmentDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
 
     @Transient
     override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)

@@ -110,21 +110,24 @@ class GraphSerializationTest: BaseModuleDrTest() {
      */
     private fun assertRepetitiveGraphSerialization(root: DependencyNode, testInfo: TestInfo): DependencyNode {
         println("### Asserting the first level serialization")
-        val nodeDeserialized = assertGraphSerialization(root, testInfo)
+        val nodeDeserialized = assertGraphSerialization(root, testInfo, true)
+
         println("### Asserting the the second level serialization")
         val nodeDeserializedTwice = assertGraphSerialization(nodeDeserialized, testInfo)
+
         return nodeDeserializedTwice
     }
 
     /**
      * @return deserialized graph
      */
-    private fun assertGraphSerialization(root: DependencyNode, testInfo: TestInfo): DependencyNode {
+    private fun assertGraphSerialization(root: DependencyNode, testInfo: TestInfo, printGraph: Boolean = false): DependencyNode {
         val serializableGraph = root.toGraph()
         assertGraphStructure(testInfo, root, serializableGraph)
 
         val encoded = json.encodeToString(serializableGraph)
 //        assertSerializedGraphByGoldenFile(testInfo, encoded)
+        if (printGraph) println(encoded)
 
         val decoded = json.decodeFromString(DependencyGraph.serializer(), encoded)
         val encodedOfDecoded = json.encodeToString(decoded)
