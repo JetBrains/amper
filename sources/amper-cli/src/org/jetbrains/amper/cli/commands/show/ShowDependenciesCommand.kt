@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
+import com.github.ajalt.clikt.parameters.types.choice
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.cli.options.AllModulesOptionName
@@ -71,6 +72,20 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                 "that constraint will be included in the resulting subgraph as well. "
     )
 
+    private val scopes by option("--scope",
+        help = """
+            The scope for which to show the graph. If unspecified, both graphs will be shown.
+            This option can be repeated to show the dependencies for multiple scopes.
+            
+            Compile and runtime scopes have different graphs of dependencies because the conflict resolution happens independently.
+        """.trimIndent()
+    )
+        .choice(
+            "compile" to ResolutionScope.COMPILE,
+            "runtime" to ResolutionScope.RUNTIME,
+        )
+        .multiple(default = listOf(ResolutionScope.COMPILE, ResolutionScope.RUNTIME))
+
     override fun help(context: com.github.ajalt.clikt.core.Context): String = "Print the resolved dependencies graph of the module"
 
     override suspend fun run(cliContext: CliContext, model: Model) {
@@ -100,7 +115,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val variantsToResolve = buildList {
             platformSetsToResolveFor.forEach { platforms ->
                 listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
-                    listOf(ResolutionScope.COMPILE, ResolutionScope.RUNTIME).forEach { scope ->
+                    scopes.forEach { scope ->
                         // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
                         // todo (AB) : (since it is used in Idea for symbol resolution)
                         if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)

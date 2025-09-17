@@ -78,6 +78,26 @@ class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
     }
 
     @Test
+    fun `show dependencies for jvm module with --scope=compile`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--module", "root", "--scope=compile",
+        )
+
+        CliTestRun("jvm-exported-dependencies_root_compile", base = Path("testResources/dependencies"), cliResult = r).doTest()
+    }
+
+    @Test
+    fun `show dependencies for jvm module with --scope=runtime`() = runSlowTest {
+        val r = runCli(
+            projectRoot = testProject("jvm-exported-dependencies"),
+            "show", "dependencies", "--module", "root", "--scope=runtime",
+        )
+
+        CliTestRun("jvm-exported-dependencies_root_runtime", base = Path("testResources/dependencies"), cliResult = r).doTest()
+    }
+
+    @Test
     fun `show dependencies for jvm module with group common`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("jvm-exported-dependencies"),
