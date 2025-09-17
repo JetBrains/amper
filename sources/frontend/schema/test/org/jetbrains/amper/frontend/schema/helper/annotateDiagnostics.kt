@@ -94,8 +94,8 @@ private fun BuildProblem.renderWithSanitization(sanitizeDiagnostic: (String) -> 
 private data class DiagnosticPoint(val offset: Int, val isStart: Boolean, val problem: BuildProblem)
 
 private val diagnosticComparator =
-    compareBy<Pair<BuildProblemSource, BuildProblem>> { (it.first as FileWithRangesBuildProblemSource).offsetRange.first }
-        .thenBy { (it.first as FileWithRangesBuildProblemSource).offsetRange.last }
+    compareBy<Pair<BuildProblemSource, BuildProblem>> { (it.first as FileWithRangesBuildProblemSource).offsetRange?.first }
+        .thenBy { (it.first as FileWithRangesBuildProblemSource).offsetRange?.last }
         .thenBy { it.second.message }
 
 private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
@@ -109,8 +109,8 @@ private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
         source as FileWithRangesBuildProblemSource
         if (source.file == origin) {
-            val startOffset = source.offsetRange.first
-            val endOffset = source.offsetRange.last
+            val startOffset = source.offsetRange?.first ?: error("Offset range is null for ${diagnostic.buildProblemId}")
+            val endOffset = source.offsetRange?.last ?: error("Offset range is null for ${diagnostic.buildProblemId}")
             listOf(DiagnosticPoint(startOffset, true, diagnostic), DiagnosticPoint(endOffset, false, diagnostic))
         } else emptyList()
     }.sortedBy { it.offset }

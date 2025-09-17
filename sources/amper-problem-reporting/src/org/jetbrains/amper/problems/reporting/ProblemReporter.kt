@@ -44,8 +44,10 @@ fun renderMessage(problem: BuildProblem): @Nls String = buildString {
     fun appendSource(source: FileBuildProblemSource, appendMessage: Boolean = true) {
         append(source.file.normalize())
         if (source is FileWithRangesBuildProblemSource) {
-            val start = source.range.start
-            append(':').append(start.line).append(':').append(start.column)
+            val start = source.range?.start
+            if (start != null) {
+                append(':').append(start.line).append(':').append(start.column)
+            }
         }
         if (appendMessage) {
             append(": ").append(problem.message)

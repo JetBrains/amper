@@ -57,13 +57,19 @@ interface FileWithRangesBuildProblemSource : FileBuildProblemSource {
      * Range of problematic code expressed in terms of lines and columns.
      * Can be used by clients to render the links to the exact location in the file or display an erroneous part of the
      * code.
+     *
+     * N.B. The range can be `null` if it was backed by some other information (e.g., PSI element) that got invalid
+     * and no longer represents any meaningful place in the file.
      */
-    val range: LineAndColumnRange
+    val range: LineAndColumnRange?
 
     /**
      * Range of problematic code expressed in terms of character offsets inside the file.
      * Depending on the client, it might choose [range] or [offsetRange] for displaying an error.
      * The choice depends on what primitives does the client operate with.
+     *
+     * N.B. The offset can be `null` if it was backed by some other information (e.g., PSI element) that got invalid
+     * and no longer represents any meaningful place in the file.
      */
-    val offsetRange: IntRange
+    val offsetRange: IntRange?
 }
