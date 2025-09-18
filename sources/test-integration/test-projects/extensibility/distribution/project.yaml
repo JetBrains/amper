@@ -1,0 +1,8 @@
+modules:
+  - lib
+  - core
+  - app
+  - distribution-plugin
+
+plugins:
+  - ./distribution-plugin

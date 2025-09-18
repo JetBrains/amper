@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.aomBuilder.DefaultTaskFromPluginDescription
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
@@ -23,6 +22,9 @@ import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.project.pluginInternalDataFile
@@ -57,6 +59,7 @@ import org.jetbrains.amper.stdlib.collections.distinctBy
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.pathString
 import kotlin.io.path.readText
 
 fun AmperProjectContext.loadPreparedPluginData(): List<PluginData> {
@@ -68,11 +71,11 @@ fun AmperProjectContext.loadPreparedPluginData(): List<PluginData> {
 internal fun BuildCtx.buildPlugins(
     pluginData: List<PluginData>,
     projectContext: AmperProjectContext,
-    result: List<ModuleBuildCtx>,
+    modules: List<ModuleBuildCtx>,
 ) {
     val seenPluginIds = hashMapOf<String, MutableList<TraceableString>>()
     val plugins = projectContext.pluginModuleFiles.mapNotNull mapPlugins@ { pluginModuleFile ->
-        val pluginModule = result.find { it.moduleFile == pluginModuleFile }
+        val pluginModule = modules.find { it.moduleFile == pluginModuleFile }
             ?: return@mapPlugins null
 
         run { // Report invalid product type
@@ -137,13 +140,13 @@ internal fun BuildCtx.buildPlugins(
         problemReporter.reportBundleError(source, "plugin.id.duplicate")
     }
 
-    for (moduleBuildCtx in result) for (plugin in plugins) {
+    for (moduleBuildCtx in modules) for (plugin in plugins) {
         val appliedPlugin: PluginYamlRoot = plugin.asAppliedTo(
             module = moduleBuildCtx,
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val taskInfo = task.action.taskInfo
-            val pathsCollector = InputOutputPathsCollector()
+            val pathsCollector = InputOutputCollector()
             pathsCollector.gatherPaths(task.action)
             val outputMarks = task.markOutputsAs.distinctBy(
                 selector = { it.path },
@@ -171,19 +174,51 @@ internal fun BuildCtx.buildPlugins(
                     }
                 )
             }
-            moduleBuildCtx.module.tasksFromPlugins += DefaultTaskFromPluginDescription(
+            moduleBuildCtx.module.tasksFromPlugins += TaskFromPluginDescription(
                 name = pluginTaskNameFor(moduleBuildCtx.module, plugin.pluginData.id, name),
                 actionFunctionJvmName = taskInfo.jvmFunctionName,
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
                 inputs = pathsCollector.allInputPaths.toList(),
+                requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { node ->
+                    val module = node.from.resolve(modules) ?: return@mapNotNull null
+                    TaskFromPluginDescription.ModuleSourcesRequest(node = node, from = module)
+                },
+                requestedClasspaths = pathsCollector.classpathNodes.map { node ->
+                    val localModules = node.dependencies.filterIsInstance<ShadowDependencyLocal>()
+                        .mapNotNull { it.resolve(modules) }
+                    TaskFromPluginDescription.ClasspathRequest(
+                        node = node,
+                        localDependencies = localModules,
+                        // TODO: validate maven dependencies here?
+                        //  blocker: maven coordinates diagnostics are part of the DR and are not accessible here
+                        externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
+                            .map { it.coordinates },
+                    )
+                },
                 outputs = outputsToMarks,
                 codeSource = plugin.pluginModule,
                 explicitOptOutOfExecutionAvoidance = taskInfo.optOutOfExecutionAvoidance,
             )
         }
     }
+}
+
+context(buildContext: BuildCtx)
+private fun ShadowDependencyLocal.resolve(
+    modules: List<ModuleBuildCtx>,
+): AmperModule? {
+    val module = modules.find { it.module.source.moduleDir == modulePath }
+    if (module == null) {
+        buildContext.problemReporter.reportBundleError(
+            // TODO: Relative path (as it was specified) would be better?
+            //  blocker: that information is lost currently.
+            asBuildProblemSource(), "unresolved.module", modulePath.pathString,
+        )
+        return null
+    }
+    return module.module
 }
 
 private class PluginTreeReader(
@@ -235,6 +270,7 @@ private class PluginTreeReader(
             }.orEmpty()
 
         val configurationType = pluginConfiguration.type as SchemaType.ObjectType
+        val classpathType = types.getDeclaration<ShadowClasspath>().toType()
         val moduleConfigurationDeclaration = object : SchemaObjectDeclarationBase() {
             override val properties = listOf(
                 SchemaObjectDeclaration.Property(
@@ -242,6 +278,9 @@ private class PluginTreeReader(
                 ),
                 SchemaObjectDeclaration.Property(
                     "rootDir", SchemaType.PathType, origin = SchemaOrigin.Builtin, default = null,
+                ),
+                SchemaObjectDeclaration.Property(
+                    "classpath", classpathType, origin = SchemaOrigin.Builtin, default = null,
                 ),
             )
             override fun createInstance(): SchemaNode = ExtensionSchemaNode().also {
@@ -257,6 +296,13 @@ private class PluginTreeReader(
                 "module" setTo `object`(moduleConfigurationDeclaration.toType()) {
                     "configuration" setTo pluginConfiguration
                     "rootDir" setTo scalar(moduleRootDir)
+                    "classpath" setTo `object`<ShadowClasspath> {
+                        ShadowClasspath::dependencies setToList {
+                            add(`object`<ShadowDependencyLocal> {
+                                ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
+                            })
+                        }
+                    }
                 }
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {

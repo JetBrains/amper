@@ -80,18 +80,6 @@ class DefaultCustomTaskDescription(
     override val addToModuleRootsFromCustomTask: List<AddToModuleRootsFromCustomTask>,
 ) : CustomTaskDescription
 
-class DefaultTaskFromPluginDescription(
-    override val name: TaskName,
-    override val actionClassJvmName: String,
-    override val actionFunctionJvmName: String,
-    override val actionArguments: Map<String, Any?>,
-    override val explicitDependsOn: List<String>,
-    override val inputs: List<Path>,
-    override val outputs: Map<Path, TaskFromPluginDescription.OutputMark?>,
-    override val codeSource: AmperModule,
-    override val explicitOptOutOfExecutionAvoidance: Boolean,
-) : TaskFromPluginDescription
-
 class DefaultArtifact(
     override val name: String,
     override val fragments: List<LeafFragment>,

@@ -25,7 +25,7 @@ internal class ResolveJavaAnnotationProcessorDependenciesTask(
     "Java annotation processors for ",
 ) {
     
-    override fun extractCoordinates() = fragments.flatMap { it.settings.java.annotationProcessing.processors }
+    override fun getMavenCoordinatesToResolve() = fragments.flatMap { it.settings.java.annotationProcessing.processors }
         // catalog references have been handled in the frontend, so we don't need to resolve them here
         .filterIsInstance<UnscopedExternalMavenDependency>()
         .map { it.coordinates }

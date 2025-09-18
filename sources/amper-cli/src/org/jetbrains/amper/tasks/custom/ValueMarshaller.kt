@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.custom
 
 import com.android.utils.associateByNotNull
+import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import java.lang.reflect.InvocationHandler
@@ -13,6 +14,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
 import java.lang.reflect.Type
 import java.util.*
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaMethod
 
@@ -55,25 +57,32 @@ class ValueMarshaller(
         value: SchemaNode,
         interfaceName: String,
     ): Any {
-        val interfaceClass = publicClassLoader.loadClass(interfaceName)
-        val methodsToProperties = interfaceClass.kotlin.memberProperties.associateByNotNull {
+        val publicInterfaceClass = publicClassLoader.loadClass(interfaceName)
+        val publicMethodsToProperties = publicInterfaceClass.kotlin.memberProperties.associateByNotNull {
             it.getter.javaMethod
         }
+        val internalPropertiesByName = value.javaClass.kotlin.memberProperties.associateByNotNull { it.name }
         val handler = InvocationHandler { proxy: Any, method: Method, args: Array<out Any?>? ->
             when (method.name) {
                 "toString" -> value.toStableJsonLikeString()
                 "hashCode" -> value.hashCode()
                 "equals" -> args?.get(0) === proxy
                 else -> {
-                    val property = methodsToProperties[method]
+                    val property = publicMethodsToProperties[method]
                         ?: error("Unhandled method $method: not a property getter")
                     val valueHolder = value.valueHolders[property.name]
-                        ?: error("Not reached: no value for ${property.name} in the schema node")
-                    marshallValue(valueHolder.value, method.genericReturnType)
+                    if (valueHolder != null) {
+                        marshallValue(valueHolder.value, method.genericReturnType)
+                    } else {
+                        // Public property may be backed by an internal one for @Provided things.
+                        val internalProperty = internalPropertiesByName[property.name]
+                            ?: error("Unhandled method $method: no value and no backing property found")
+                        internalProperty.get(value)
+                    }
                 }
             }
         }
-        return Proxy.newProxyInstance(publicClassLoader, arrayOf(interfaceClass), handler)
+        return Proxy.newProxyInstance(publicClassLoader, arrayOf(publicInterfaceClass), handler)
     }
 
     private fun <T> withValueCache(value: T, mapping: (T) -> Any?): Any? = synchronized(valueCache) {

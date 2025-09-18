@@ -20,7 +20,7 @@ internal class ResolveKspProcessorDependenciesTask(
     incrementalCache: IncrementalCache,
 ) : AbstractResolveJvmExternalDependenciesTask(module, userCacheRoot, incrementalCache, "KSP processors for ") {
     
-    override fun extractCoordinates() = fragments
+    override fun getMavenCoordinatesToResolve() = fragments
         .flatMap { it.settings.kotlin.ksp.processors }
         // catalog references have been handled in the frontend, so we don't need to resolve them here
         .filterIsInstance<UnscopedExternalMavenDependency>()

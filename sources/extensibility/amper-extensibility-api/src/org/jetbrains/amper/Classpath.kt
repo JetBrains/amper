@@ -7,19 +7,25 @@ package org.jetbrains.amper
 import java.nio.file.Path
 
 /**
- * TODO: docs
+ * Use to get a resolved JVM classpath for the list of [dependencies].
+ *
+ * The resulting classpath can be obtained via [resolvedFiles] property.
  */
 @Schema
 interface Classpath {
+    /**
+     * Dependencies to resolve.
+     * Version conflict resolution may apply if necessary for the given list of dependencies.
+     *
+     * @see Dependency.Local
+     * @see Dependency.Maven
+     */
     @Shorthand
     val dependencies: List<Dependency>
-    val scope: Scope get() = Scope.Runtime
 
+    /**
+     * Resolved classpath files.
+     */
     @Provided
     val resolvedFiles: List<Path>
-
-    enum class Scope {
-        Runtime,
-        Compile,
-    }
 }

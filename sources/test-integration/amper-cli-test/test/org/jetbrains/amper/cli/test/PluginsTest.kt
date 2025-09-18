@@ -9,7 +9,9 @@ import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.AmperCliResult
+import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.normalizeLineSeparators
+import java.io.File
 import kotlin.io.path.div
 import kotlin.io.path.readText
 import kotlin.test.Test
@@ -39,6 +41,37 @@ class PluginsTest : AmperCliTestBase() {
         )
 
         r2.assertStdoutContains("version: 1.0+hello; id: table-green-geese")
+    }
+
+    @Test
+    fun `distribution plugin`() = runSlowTest {
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/distribution"),
+            "task", ":app:build@distribution-plugin",
+            copyToTempDir = true,
+        )
+
+        val buildDir = tempRoot / "build"
+        val projectRoot = r1.projectRoot
+        r1.assertStdoutContains("""
+            Hello from distribution
+            classpath base.dependencies = [{modulePath: $projectRoot/app}]
+            classpath base.dependencies[0] = {modulePath: $projectRoot/app}
+            classpath base.dependencies[0].modulePath = $projectRoot/app
+            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath core.dependencies = [{modulePath: $projectRoot/core}]
+            classpath core.dependencies[0] = {modulePath: $projectRoot/core}
+            classpath core.dependencies[0].modulePath = $projectRoot/core
+            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
+            classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
+            classpath lib.dependencies[0].modulePath = $projectRoot/lib
+            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
+            classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
+            classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
+            classpath kotlin-poet.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/com/squareup/kotlinpoet-jvm/2.2.0/kotlinpoet-jvm-2.2.0.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-reflect/2.1.21/kotlin-reflect-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+        """.trimIndent().replace('/', File.separatorChar))
     }
 
     @Test

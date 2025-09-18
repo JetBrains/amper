@@ -1,0 +1,7 @@
+
+tasks:
+  build:
+    action: !com.example.distribution.buildDistribution
+      baseClasspath: ${module.classpath}
+      settings: ${module.configuration}
+      distributionDir: ${taskDir}

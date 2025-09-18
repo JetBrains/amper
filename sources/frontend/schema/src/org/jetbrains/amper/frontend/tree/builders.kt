@@ -53,6 +53,10 @@ class SyntheticBuilder(
         infix fun KProperty1<out SchemaNode, Map<String, *>?>.setToMap(
             block: MapLikeValueBuilder.() -> Unit,
         ) = setTo(map(types.getType(returnType) as SchemaType.MapType, block))
+
+        infix fun KProperty1<out SchemaNode, List<*>?>.setToList(
+            block: MutableList<TreeValue<*>>.() -> Unit,
+        ) = setTo(list(types.getType(returnType) as SchemaType.ListType, block))
     }
 
     fun `object`(type: SchemaType.ObjectType, block: MapLikeValueBuilder.() -> Unit) =

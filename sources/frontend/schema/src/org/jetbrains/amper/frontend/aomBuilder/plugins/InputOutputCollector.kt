@@ -5,15 +5,25 @@
 package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import java.nio.file.Path
 
 /**
  * See [gatherPaths]
  */
-internal class InputOutputPathsCollector {
+internal class InputOutputCollector {
     private val _allInputPaths = mutableSetOf<Path>()
     private val _allOutputPaths = mutableSetOf<Path>()
+    private val _classpathNodes = mutableSetOf<ShadowClasspath>()
+    private val _moduleSourcesNodes = mutableSetOf<ShadowModuleSources>()
+
+    val classpathNodes: Set<ShadowClasspath>
+        get() = _classpathNodes
+
+    val moduleSourcesNodes: Set<ShadowModuleSources>
+        get() = _moduleSourcesNodes
 
     val allInputPaths: Set<Path>
         get() = _allInputPaths
@@ -37,6 +47,10 @@ internal class InputOutputPathsCollector {
             is SchemaNode -> value.valueHolders.forEach { (name, holder) ->
                 val property = value.schemaType.getProperty(name)
                 gatherPaths(holder.value, property?.inputOutputMark ?: mark)
+                when (value) {
+                    is ShadowClasspath -> _classpathNodes.add(value)
+                    is ShadowModuleSources -> _moduleSourcesNodes.add(value)
+                }
             }
             is Map<*, *> -> value.values.forEach { gatherPaths(it, mark) }
             is Collection<*> -> value.forEach { gatherPaths(it, mark) }

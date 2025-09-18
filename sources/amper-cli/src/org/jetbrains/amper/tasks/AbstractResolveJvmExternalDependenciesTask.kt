@@ -33,12 +33,14 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
 ): Task {
     private val mavenResolver = MavenResolver(userCacheRoot)
 
-    internal abstract fun extractCoordinates(): List<String>
+    protected abstract fun getMavenCoordinatesToResolve(): List<String>
+
+    protected open val incrementalCacheKey: String get() = taskName.name
     
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
         
-        val externalUnscopedCoords = extractCoordinates()
+        val externalUnscopedCoords = getMavenCoordinatesToResolve()
             .ifEmpty { return Result(emptyList()) }
 
         val configuration = mapOf(
@@ -47,7 +49,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
             "dependencies-coordinates" to externalUnscopedCoords.joinToString("|"),
         )
         val resolvedExternalJars = incrementalCache.executeForFiles(
-            taskName.name,
+            incrementalCacheKey,
             configuration,
             emptyList(),
         ) {

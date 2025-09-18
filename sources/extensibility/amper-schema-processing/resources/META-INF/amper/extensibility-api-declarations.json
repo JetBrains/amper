@@ -1,19 +1,4 @@
 {
-    "enums": [
-        {
-            "schemaName": "org.jetbrains.amper/Classpath/Scope",
-            "entries": [
-                {
-                    "name": "Runtime",
-                    "schemaName": "runtime"
-                },
-                {
-                    "name": "Compile",
-                    "schemaName": "compile"
-                }
-            ]
-        }
-    ],
     "classes": [
         {
             "name": "org.jetbrains.amper/Classpath",
@@ -27,21 +12,10 @@
                             "schemaName": "org.jetbrains.amper/Dependency"
                         }
                     },
+                    "doc": "Dependencies to resolve.\nVersion conflict resolution may apply if necessary for the given list of dependencies.\n\n",
                     "internalAttributes": {
                         "isShorthand": true
                     }
-                },
-                {
-                    "name": "scope",
-                    "type": {
-                        "type": "enum",
-                        "schemaName": "org.jetbrains.amper/Classpath/Scope"
-                    },
-                    "default": {
-                        "type": "enum",
-                        "value": "Runtime"
-                    },
-                    "internalAttributes": {}
                 },
                 {
                     "name": "resolvedFiles",
@@ -51,12 +25,13 @@
                             "type": "path"
                         }
                     },
+                    "doc": "Resolved classpath files.",
                     "internalAttributes": {
                         "isProvided": true
                     }
                 }
             ],
-            "doc": "TODO: docs"
+            "doc": "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property."
         },
         {
             "name": "org.jetbrains.amper/Dependency/Local",
@@ -66,12 +41,14 @@
                     "type": {
                         "type": "path"
                     },
+                    "doc": "Path to the module root directory.\n\nMust start with the `\".\"` symbol in YAML, e.g. `\"../module-name\"`, or `\".\"`.\nJust `\"module-name\"` is treated like an external [Maven] dependency.",
                     "inputOutputMark": "ValueOnly",
                     "internalAttributes": {
                         "isDependencyNotation": true
                     }
                 }
-            ]
+            ],
+            "doc": "A dependency on a local module in the project."
         },
         {
             "name": "org.jetbrains.amper/Dependency/Maven",
@@ -81,11 +58,41 @@
                     "type": {
                         "type": "string"
                     },
+                    "doc": "Maven coordinates, in the `\"<group>:<name>:<version>\"` format.",
                     "internalAttributes": {
                         "isDependencyNotation": true
                     }
                 }
-            ]
+            ],
+            "doc": "External maven dependency."
+        },
+        {
+            "name": "org.jetbrains.amper/ModuleSources",
+            "properties": [
+                {
+                    "name": "from",
+                    "type": {
+                        "type": "object",
+                        "schemaName": "org.jetbrains.amper/Dependency/Local"
+                    },
+                    "doc": "Module to get source directories for.",
+                    "internalAttributes": {}
+                },
+                {
+                    "name": "sourceDirectories",
+                    "type": {
+                        "type": "list",
+                        "elementType": {
+                            "type": "path"
+                        }
+                    },
+                    "doc": "Kotlin/Java source directories for the [module][from].\nThere can be multiple source directories for the module.\nNot all of them may exist.",
+                    "internalAttributes": {
+                        "isProvided": true
+                    }
+                }
+            ],
+            "doc": "Use to get module [source directories][sourceDirectories] from the module.\nTakes the source layout option into account.\n\nCurrently, only JVM non-test sources are supported."
         }
     ],
     "variants": [

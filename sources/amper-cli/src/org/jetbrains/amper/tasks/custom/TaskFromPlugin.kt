@@ -110,9 +110,14 @@ class TaskFromPlugin(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
     ): TaskResult {
-        val taskCode = dependenciesResult
+        val runtimeClasspathsByModule = dependenciesResult
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()
-            .first { it.module == description.codeSource }
+            .associateBy { it.module }
+        val customResolutionByRequest = dependenciesResult
+            .filterIsInstance<ResolveCustomExternalDependenciesTask.Result>()
+            .associateBy { it.destination }
+
+        val taskCode = runtimeClasspathsByModule[description.codeSource]!!
 
         val doNotUseExecutionAvoidance = description.explicitOptOutOfExecutionAvoidance ||
                 // We do not use execution-avoidance if there are no outputs declared.
@@ -124,6 +129,15 @@ class TaskFromPlugin(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
             return EmptyTaskResult
+        }
+
+        for (classpathRequest in description.requestedClasspaths) {
+            classpathRequest.node.resolvedFiles = buildList {
+                addAll(customResolutionByRequest[classpathRequest]?.resolvedFiles.orEmpty())
+                classpathRequest.localDependencies.forEach { depModule ->
+                    addAll(runtimeClasspathsByModule[depModule]!!.jvmRuntimeClasspath)
+                }
+            }
         }
 
         incrementalCache.execute(
@@ -143,7 +157,9 @@ class TaskFromPlugin(
             ),
             inputs = buildList {
                 addAll(description.inputs)
-                addAll(taskCode.jvmRuntimeClasspath)
+                for (result in runtimeClasspathsByModule.values) {
+                    addAll(result.jvmRuntimeClasspath)
+                }
             },
         ) {
             doExecuteTaskAction(

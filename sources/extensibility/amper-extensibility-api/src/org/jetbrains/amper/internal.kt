@@ -5,7 +5,10 @@
 package org.jetbrains.amper
 
 /**
- * TODO: doc
+ * Applicable to the Paths/Path-referencing properties.
+ * Means that the execution avoidance mechanism only considers the value of the Path itself as an input, but ignores the file that it points to, which is neither an [Input] nor an [Output].
+ *
+ * @see ExecutionAvoidance
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -13,16 +16,19 @@ package org.jetbrains.amper
 internal annotation class PathValueOnly
 
 /**
- * TODO: doc
+ * Means that this value cannot be configured in YAML,
+ * but rather is resolved and provided by Amper itself by the moment the task action runs.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY)
 internal annotation class Provided
 
-
 /**
- * TODO: doc
+ * Specifies that polymorphic [Dependency] objects can be constructed from string without using YAML type tags.
+ *
+ * @see Dependency.Maven.coordinates
+ * @see Dependency.Local.modulePath
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -30,7 +36,9 @@ internal annotation class Provided
 internal annotation class DependencyNotation
 
 /**
- * TODO: doc
+ * Specifies that the whole object can be constructed from a single YAML value,
+ * that is then assigned to the `@Shorthand`-marked property.
+ * Other properties in the object have their default values.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
