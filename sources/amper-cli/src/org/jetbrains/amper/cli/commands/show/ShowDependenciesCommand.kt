@@ -138,8 +138,8 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val resolver = MavenResolver(commonOptions.sharedCachesRoot)
 
         val root = RootDependencyNodeInput(
-            resolutionId = resolvedModule.uniqueModuleKey()?.let { moduleKey ->
-                "Module ${resolvedModule.userReadableName} dependencies (moduleKey = $moduleKey), " +
+            resolutionId = module.uniqueModuleKey()?.let { moduleKey ->
+                "Module ${module.userReadableName} dependencies (moduleKey = $moduleKey), " +
                         (platformGroups.takeIf { it.isNotEmpty() }?.distinct()?.let { "platformGroups = $platformGroups," } ?: "") +
                         "includeTests = $includeTests"
             },

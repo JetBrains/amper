@@ -7,20 +7,22 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.AmperCliResult
-import org.jetbrains.amper.test.golden.GoldFileTest
+import org.jetbrains.amper.test.golden.BaseTestRun
+import org.jetbrains.amper.test.golden.GoldenTest
+import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.writeText
 import kotlin.test.Test
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
-class ShowDependenciesCommandTest : AmperCliTestBase() {
+class ShowDependenciesCommandTest : AmperCliTestBase(), GoldenTest {
 
-    private fun AmperCliResult.checkGold(caseName: String) = GoldFileTest(
-        caseName = caseName,
-        base = Path("testResources/dependencies"),
-    ) { stdoutClean }.doTest()
+    // FIXME this is not the build dir. Why are we doing this?
+    override fun buildDir(): Path = tempRoot
 
     @Test
     fun `--module cannot be used with --all-modules`() = runSlowTest {
@@ -40,7 +42,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module", "root",
         )
 
-        r.checkGold("jvm-exported-dependencies_root_default")
+        CliTestRun("jvm-exported-dependencies_root_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -50,7 +52,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module=root", "--module=cli",
         )
 
-        r.checkGold("jvm-exported-dependencies_rootAndCli_default")
+        CliTestRun("jvm-exported-dependencies_rootAndCli_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -60,7 +62,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--all-modules",
         )
 
-        r.checkGold("jvm-exported-dependencies_all_default")
+        CliTestRun("jvm-exported-dependencies_all_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -70,7 +72,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module", "root", "--include-tests",
         )
 
-        r.checkGold("jvm-exported-dependencies_root_tests")
+        CliTestRun("jvm-exported-dependencies_root_tests", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -80,7 +82,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module", "root", "--scope=compile",
         )
 
-        r.checkGold("jvm-exported-dependencies_root_compile")
+        CliTestRun("jvm-exported-dependencies_root_compile", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -90,7 +92,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module", "root", "--scope=runtime",
         )
 
-        r.checkGold("jvm-exported-dependencies_root_runtime")
+        CliTestRun("jvm-exported-dependencies_root_runtime", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -100,7 +102,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--module", "root", "--platform-group=common",
         )
 
-        r.checkGold("jvm-exported-dependencies_root_common")
+        CliTestRun("jvm-exported-dependencies_root_common", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -111,13 +113,11 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-        r.assertStderrContains(
-            """
+        r.assertStderrContains("""
             ERROR: Invalid platform group name 'notaplatform'.
             
             Supported platform groups for module 'root': common, jvm
-        """.trimIndent()
-        )
+        """.trimIndent())
     }
 
     @Test
@@ -128,13 +128,11 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-        r.assertStderrContains(
-            """
+        r.assertStderrContains("""
             ERROR: Invalid platform group name 'commno'. Did you mean common?
             
             Supported platform groups for module 'root': common, jvm
-        """.trimIndent()
-        )
+        """.trimIndent())
     }
 
     @Test
@@ -155,7 +153,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_default")
+        CliTestRun("multiplatform-lib-with-alias_default", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -165,7 +163,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--include-tests",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_tests")
+        CliTestRun("multiplatform-lib-with-alias_tests", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -175,7 +173,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--platform-group=common",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_common")
+        CliTestRun("multiplatform-lib-with-alias_common", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -185,7 +183,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--platform-group=native",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_native")
+        CliTestRun("multiplatform-lib-with-alias_native", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -195,7 +193,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--platform-group=jvm",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_jvm")
+        CliTestRun("multiplatform-lib-with-alias_jvm", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -205,7 +203,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
             "show", "dependencies", "--platform-group=jvmAndAndroid",
         )
 
-        r.checkGold("multiplatform-lib-with-alias_alias_jvmAndAndroid")
+        CliTestRun("multiplatform-lib-with-alias_alias_jvmAndAndroid", base = Path("testResources/dependencies"), cliResult = r).doTest()
     }
 
     @Test
@@ -251,5 +249,19 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
 
             Supported platform groups for module 'multiplatform-lib-with-alias': android, apple, common, ios, iosArm64, iosSimulatorArm64, iosX64, jvm, jvmAndAndroid, native
         """.trimIndent())
+    }
+}
+
+private class CliTestRun(
+    caseName: String,
+    override val base: Path,
+    private val cliResult: AmperCliResult
+) : BaseTestRun(caseName) {
+    override fun GoldenTest.getInputContent(inputPath: Path): String = cliResult.stdoutClean
+
+    override fun GoldenTest.getExpectContent(expectedPath: Path): String {
+        // This is the actual check.
+        if (!expectedPath.exists()) expectedPath.writeText("")
+        return readContentsAndReplace(expectedPath, base)
     }
 }
