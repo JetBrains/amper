@@ -45,7 +45,7 @@ class GraphConsistencyTest {
         aom: Model = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
     ) {
         val graph = with(moduleDependenciesResolver) {
-            aom.modules.resolveDependencies(resolutionInput)
+            aom.modules.resolveDependencies(resolutionInput.copy(incrementalCacheUsage = getIncrementalCacheUsage()))
         }
 
         graph.distinctBfsSequence().forEach {

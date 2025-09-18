@@ -45,8 +45,11 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.telemetry.use
+import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 import kotlin.reflect.KClass
+
+private val logger = LoggerFactory.getLogger(ModuleDependenciesResolverImpl::class.java)
 
 internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
@@ -134,12 +137,6 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                                         "[withSources=$downloadSources]"
                             }
                         }
-//                    is ModuleDependencyNodeWithModule -> {
-//                        "Module ${module.userReadableName} compile and runtime dependencies, " +
-//                                "platform = ${this.context.settings.platforms.joinToString { it.pretty }}, " +
-//                                "scope = ${this.context.settings.scope}, " +
-//                                "isTest = "
-//                    }
                         else -> null
                     }?.replaceTheEndWithMd5IfTooLong()
 
@@ -147,12 +144,13 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
                         this@resolveDependencies
                     } else {
+                        var graphResolvedInsideCache: DependencyNode? = null
                         // todo (AB): It should be adopted and moved into dependency-resolution library
                         // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
                         val executeOnChangedInputs = ExecuteOnChangedInputs(
                             // todo (AB) : It should point into project build dir instead of common DR root
                             stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
-                            "2",
+                            codeVersion = "2",
                             spanBuilder = context.settings.spanBuilder
                         )
 
@@ -163,42 +161,61 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                             },
                         )
 
-                        val resolvedGraph = executeOnChangedInputs.execute(
-                            // todo (AB): Think about id, it should specify graph all logical resolution scopes.
-                            id = resolutionId,
-                            configuration,
-                            forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
-                            inputs = listOf(),
-                        ) {
-                            context.spanBuilder("DR.graph:resolution")
-                                .setAttribute("configuration", configuration["dependencies"]) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute("userCacheRoot", configuration["userCacheRoot"]) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute("resolutionId", resolutionId) // todo (AB) : Remove it (was added for debugging purposes))
-                                .use {
-                                    resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                        val resolvedGraph = try {
+                            executeOnChangedInputs.execute(
+                                // todo (AB): Think about id, it should specify graph all logical resolution scopes.
+                                id = resolutionId,
+                                configuration,
+                                forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
+                                inputs = listOf(),
+                            ) {
+                                context.spanBuilder("DR.graph:resolution")
+                                    .setAttribute("configuration", configuration["dependencies"]) // todo (AB) : Remove it (was added for debugging purposes))
+                                    .setAttribute("userCacheRoot", configuration["userCacheRoot"]) // todo (AB) : Remove it (was added for debugging purposes))
+                                    .setAttribute("resolutionId", resolutionId) // todo (AB) : Remove it (was added for debugging purposes))
+                                    .use {
+                                        resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                                        graphResolvedInsideCache = this@resolveDependencies
 
-                                    val serializableGraph = this@resolveDependencies.toGraph()
-                                    val serialized = json.encodeToString(serializableGraph)
-                                    ExecuteOnChangedInputs.ExecutionResult(
-                                        this@resolveDependencies.dependencyPaths(),
-                                        mapOf("graph" to serialized)
-                                    )
+
+                                        val serializableGraph = graphResolvedInsideCache.toGraph()
+                                        val serialized = json.encodeToString(serializableGraph)
+                                        ExecuteOnChangedInputs.ExecutionResult(
+                                            graphResolvedInsideCache.dependencyPaths(),
+                                            mapOf("graph" to serialized)
+                                        )
+                                    }
+                            }.let {
+                                if (graphResolvedInsideCache != null) {
+                                    graphResolvedInsideCache
+                                } else {
+                                    val serialized = it.outputProperties["graph"]!!
+                                    val deserializedGraph = context.spanBuilder("DR.graph:deserialization").use {
+                                        json.decodeFromString<DependencyGraph>(serialized)
+                                    }
+                                    val resolvedGraph = deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+
+                                    // Merge the input graph (that has PSI references) with the deserialized one
+                                    resolvedGraph.fillNotation(this@resolveDependencies)
+
+                                    resolvedGraph
                                 }
-                        }.let {
-                            val serialized = it.outputProperties["graph"]!!
-                            val deserializedGraph = context.spanBuilder("DR.graph:deserialization").use {
-                                json.decodeFromString<DependencyGraph>(serialized)
                             }
-                            deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+                        } catch (e: Exception) {
+                            logger.warn("Unable to get dependency graph from incremental cache, " +
+                                    "falling back to non-cached resolution: ${e.toString()}")
+                            if (graphResolvedInsideCache != null) {
+                                graphResolvedInsideCache
+                            } else {
+                                // todo (AB) : Invalidate cache entry manually on deserialization failure
+                                // todo (AB) : (might be not needed though if cache.codeVersion is properly specified)
+
+                                // Graph was taken from the cache, but deserialization failed.
+                                // Fallback to non-cached resolution
+                                resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
+                                this@resolveDependencies
+                            }
                         }
-
-                        // todo (AB) : it might be useful to return resolved graph without serialization/deserialisation
-                        // todo (AB) : at first run when cache entry was populated and returned
-                        // if (this == resolvedGraph) return resolvedGraph
-
-                        // Merge input graph (that have PSI references) with the deserialized one
-                        // todo (AB) : Catch error and fallback to non-cached resolution
-                        resolvedGraph.fillNotation(this@resolveDependencies)
 
                         resolvedGraph
                     }
@@ -354,7 +371,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     }
 }
 
-class DirectMavenDependencyUnspecifiedVersionResolver(): UnspecifiedVersionResolver<MavenDependencyNodeImpl> {
+class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl> {
 
     override fun isApplicable(node: MavenDependencyNodeImpl): Boolean {
         return node.originalVersion() == null

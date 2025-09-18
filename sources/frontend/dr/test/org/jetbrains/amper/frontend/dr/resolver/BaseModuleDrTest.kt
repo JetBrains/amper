@@ -375,5 +375,5 @@ internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
     )
 }
 
-private suspend fun getIncrementalCacheUsage() =
+internal suspend fun getIncrementalCacheUsage() =
     currentCoroutineContext()[IncrementalCacheUsageContextElementKey]?.incrementalCacheUsage?: IncrementalCacheUsage.SKIP
