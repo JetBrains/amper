@@ -23,7 +23,7 @@ class GraphConsistencyTest {
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot))
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             ),
             aom
         )
@@ -35,7 +35,7 @@ class GraphConsistencyTest {
             ResolutionInput(
                 DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot))
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
             )
         )
     }

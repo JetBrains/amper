@@ -75,9 +75,9 @@ interface DependencyNode {
 
     // todo (AB) : We should probably move serialization-related methods outside DependencyNode
     // todo (AB) : (as an extension functions written somewhere separately)
-    fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode
+    fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain
 
-    fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+    fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
         val children = children.map { it.toSerializableReference(graphContext, nodeReference) }
 
         if (children.isNotEmpty()) {
@@ -202,10 +202,10 @@ interface DependencyNode {
 
 /**
  * This method creates serializable representation of the node
- * (which is presented by the type implementing [SerializableDependencyNode] and annotated with [Serializable]),
+ * (which is presented by the type implementing [DependencyNodePlain] and annotated with [Serializable]),
  * and register it in the given context, getting [DependencyNodeReference] as a result of the registration.
  *
- * Children of the nodes in the created [SerializableDependencyNode] are represented with the references [DependencyNodeReference]
+ * Children of the nodes in the created [DependencyNodePlain] are represented with the references [DependencyNodeReference]
  * and obtained by traversing the children of this node calling this method recursively.
  *
  * To prevent loops during serialization, the creation of the serializable object representing the node
@@ -265,14 +265,14 @@ class DependencyGraph(
 data class DependencyNodeReference(
     internal val index: DependencyNodeIndex
 ) {
-    fun toNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
+    fun toNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         graphContext.getDependencyNode(index)
 }
 
 
 @Serializable(with = DependencyGraphContextSerializer::class)
 class DependencyGraphContext(
-    val allDependencyNodes: MutableMap<SerializableDependencyNode, DependencyNodeIndex> = mutableMapOf(),
+    val allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex> = mutableMapOf(),
     val allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex> = mutableMapOf(),
     val allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex> = mutableMapOf()
 ) {
@@ -289,7 +289,7 @@ class DependencyGraphContext(
      * It is assumed that indexes used for serialization match the indexes of serialized Map
      */
     @Transient
-    var allDependencyNodesList: List<SerializableDependencyNode> = emptyList()
+    var allDependencyNodesList: List<DependencyNodePlain> = emptyList()
         get() {
             if (field.size != allDependencyNodes.size) {
                 field = allDependencyNodes.keys.toList()
@@ -318,7 +318,7 @@ class DependencyGraphContext(
         }
         private set
 
-    fun <Node: DependencyNode, NodePlain: SerializableDependencyNode> registerDependencyNodePlainWithParent(
+    fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlainWithParent(
         node: Node, nodePlain: NodePlain, parent: DependencyNodeReference?
     ): DependencyNodeReference {
         return registerDependencyNodePlain(node, nodePlain)
@@ -327,7 +327,7 @@ class DependencyGraphContext(
             }
     }
 
-    private fun <Node: DependencyNode, NodePlain: SerializableDependencyNode> registerDependencyNodePlain(
+    private fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlain(
         node: Node, nodePlain: NodePlain
     ): DependencyNodeReference {
         if (allDependencyNodeReferences[node] != null) error("Node plain for node $node is already registered")
@@ -390,7 +390,7 @@ class DependencyGraphContext(
         return allMavenDependencyConstraintReferences[constraint]
     }
 
-    inline fun <reified T: SerializableDependencyNode> getDependencyNode(index: DependencyNodeIndex): T {
+    inline fun <reified T: DependencyNodePlain> getDependencyNode(index: DependencyNodeIndex): T {
         val node = allDependencyNodesList.getOrNull(index)
 
         node ?: run {
@@ -415,8 +415,8 @@ class DependencyGraphContext(
 }
 
 private class DependencyGraphContextSerializer: KSerializer<DependencyGraphContext> {
-    private val allDependencyNodesSerializer: KSerializer<Map<SerializableDependencyNode, DependencyNodeIndex>> =
-        MapSerializer(PolymorphicSerializer(SerializableDependencyNode::class), Int.serializer())
+    private val allDependencyNodesSerializer: KSerializer<Map<DependencyNodePlain, DependencyNodeIndex>> =
+        MapSerializer(PolymorphicSerializer(DependencyNodePlain::class), Int.serializer())
     private val allMavenDependenciesSerializer: KSerializer<Map<MavenDependencyPlain, MavenDependencyIndex>> =
         MapSerializer(MavenDependencyPlain.serializer(), Int.serializer())
     private val allMavenDependencyConstraintsSerializer: KSerializer<Map<MavenDependencyConstraintPlain, DependencyNodeIndex>> =
@@ -441,7 +441,7 @@ private class DependencyGraphContextSerializer: KSerializer<DependencyGraphConte
         return decoder.decodeStructure(descriptor) {
             val graphContext = DependencyGraphContext()
 
-            var allDependencyNodes: MutableMap<SerializableDependencyNode, DependencyNodeIndex>? = null
+            var allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex>? = null
             var allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex>? = null
             var allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex>? = null
 
