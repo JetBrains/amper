@@ -12,14 +12,11 @@ import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 
-@JvmInline
-internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
-    constructor(scalar: YAMLScalar) : this(psi = scalar)
-
-    val textValue: String get() = when (psi) {
-        is YAMLScalar -> psi.textValue
-        else -> psi.text  // For YAMLKeyValue.key, which is not a YAMLValue for some reason.
-    }
+internal class YAMLScalarOrKey private constructor(
+    val psi: PsiElement,
+    val textValue: String,
+) {
+    constructor(scalar: YAMLScalar) : this(psi = scalar, textValue = scalar.textValue)
 
     companion object {
 
@@ -41,7 +38,7 @@ internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
                 reportParsing(key, "validation.types.unexpected.compound.key")
                 return null
             }
-            val scalarKey = YAMLScalarOrKey(key)
+            val scalarKey = YAMLScalarOrKey(key, textValue = keyValue.keyText)
             if (config.diagnoseReferences && containsReferenceSyntax(scalarKey)) {
                 reportParsing(key, "validation.types.unsupported.reference.key", "key", level = Level.Warning)
             }
