@@ -61,13 +61,26 @@ class TaskFromPlugin(
     ) : JvmResourcesDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
 
     override val consumes: List<ArtifactSelector<*, *>> = description.inputs
-        .map { it }
         .map { inputPath ->
             ArtifactSelector(
                 type = ArtifactType(ExternalTaskArtifact::class),
-                predicate = { it.path == inputPath },
+                predicate = {
+                    // Child paths of the produced path are also allowed
+                    inputPath.startsWith(it.path)
+                },
                 description = "with path '${inputPath}'",
-                quantifier = Quantifier.Single,
+                quantifier = if (inputPath.startsWith(buildOutputRoot.path)) {
+                    // If the inputPath points somewhere in the build directory - then this path has to be built by
+                    //  something.
+                    //  If it's not built, then it's probably an error in path wiring.
+                    Quantifier.Single
+                } else {
+                    // If the inputPath points somewhere not in the build directory (e.g., in the source tree),
+                    //  then we do not require it to be built by anything.
+                    // This is needed to allow having some custom sources as inputs without introducing any public
+                    //  mechanism to declare them as "provided".
+                    Quantifier.AnyOrNone
+                },
             )
         }
 
