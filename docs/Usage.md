@@ -3,8 +3,9 @@
 ### Installation
 
 To use the Amper CLI, you need to download the Amper executable script to your project's root folder.
-The script is small file that downloads and runs the actual Amper CLI distribution, and serves as an entry point for
-all Amper commands.
+The script is a small file that downloads and runs the actual Amper CLI distribution, and serves as an entry point for
+all Amper commands. It is meant to be checked into your VCS, so your team can build and run your project without any
+installation, no matter their OS.
 
 Use one of the following commands to download the script:
 
@@ -31,7 +32,8 @@ Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat
 The root `./amper` command and all subcommands support the `-h` (or `--help`) option to explore what is possible:
 
 ```shell
-./amper --help
+./amper --help       # shows the available commands and general options
+./amper build --help # shows the options for the 'build' command specifically
 ```
 
 Useful commands:
@@ -89,11 +91,11 @@ Open an Amper project as usual by [pointing at the root folder](https://www.jetb
 
 To run an application:
 
-* use a 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `product: ` section in a module.yaml file:\
+* use the 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `product: ` section in a `module.yaml` file:\
  ![img.png](images/ij-run-product.png)
 
 
-* use a 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `main()` function:\
+* use the 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `main()` function:\
   ![](images/ij-run-main.png)
 
 
