@@ -126,7 +126,7 @@ internal class Classpath(
 
         val node = ModuleDependencyNodeWithModule(
             module = this,
-            name = moduleName.toString(),
+            graphEntryName = moduleName.toString(),
             notation = notation,
             children = dependencies,
             templateContext = moduleContext

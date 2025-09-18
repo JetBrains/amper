@@ -40,6 +40,11 @@ interface DependencyNode {
     val messages: List<Message>
 
     /**
+     * String representation of the node used in the dependency graph output produced by the command 'show dependencies'
+     */
+    val graphEntryName: String
+
+    /**
      * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
      *
      * The given [childrenPredicate] can be used to skip parts of the graph.
@@ -106,7 +111,7 @@ interface DependencyNode {
         forMavenNode: MavenCoordinates? = null
     ) {
         val thisUnwrapped = unwrap()
-        builder.append(indent).append(toString())
+        builder.append(indent).append(graphEntryName)
 
         // key doesn't include a version on purpose,
         // but different nodes referencing the same MavenDependency result in the same dependencies
@@ -499,6 +504,8 @@ abstract class DependencyNodePlainBase(
 
     override val parents: MutableSet<DependencyNode> by lazy { parentsRefs.map { it.toNodePlain(graphContext) }.toMutableSet() }
     override val children: List<DependencyNode> by lazy { childrenRefs.map { it.toNodePlain(graphContext) } }
+
+    override fun toString() = graphEntryName
 }
 
 class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

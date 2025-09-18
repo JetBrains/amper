@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Model
@@ -17,24 +18,24 @@ class GraphConsistencyTest {
     private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
-    fun `check parents in a dependencies graph - ide`() = runSlowTest {
+    fun `check parents in a dependencies graph - ide`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot))
             ),
             aom
         )
     }
 
     @Test
-    fun `check parents in a dependencies graph - classpath`() = runSlowTest {
+    fun `check parents in a dependencies graph - classpath`() = runModuleDependenciesTest {
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot))
             )
         )
     }

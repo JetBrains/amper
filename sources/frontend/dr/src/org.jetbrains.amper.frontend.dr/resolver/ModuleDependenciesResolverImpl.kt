@@ -98,7 +98,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         .filterIsInstance<DirectFragmentDependencyNodeHolder>()
                         .distinctBy { it.dependencyNode }
                         .mapNotNull { it.toDependencyResolutionKey() }.toList()
-                    dependenciesMap[it.name + it.context.settings.key()] = coordinates
+                    dependenciesMap[it.graphEntryName + it.context.settings.key()] = coordinates
                 }
             } else if (it is DependencyNodeHolderImpl) {
                 it.fillDependenciesGraphInput(dependenciesMap)

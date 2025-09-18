@@ -785,7 +785,7 @@ class BuildGraphTest : BaseDRTest() {
             platform = setOf(ResolutionPlatform.ANDROID),
         )
         val appcompat = root.children.single() as MavenDependencyNode
-        assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.toString())
+        assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.graphEntryName)
         assertEquals(listOf("aar"), appcompat.dependency.files().map { it.extension }.sortedBy { it })
         assertFiles(testInfo, root)
     }

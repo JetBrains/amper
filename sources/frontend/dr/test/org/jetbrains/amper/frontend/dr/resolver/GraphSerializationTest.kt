@@ -167,7 +167,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
         val actual = distinctBfsSequence().flatMap { dep -> dep.parents
             .filter{ !filterOrphans || !it.isOrphan(this@assertParentsInGraph) }
             .map { it to dep } }.toSet()
-            .sortedBy { it.first.toString() + it.second.toString() }
+            .sortedBy { it.first.graphEntryName + it.second.graphEntryName }
             .joinToString(System.lineSeparator())
 
         val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.parents.txt"
@@ -189,10 +189,10 @@ class GraphSerializationTest: BaseModuleDrTest() {
                 .filter { it is MavenDependencyNode || it is MavenDependencyConstraintNode }
                 .forEach { dep ->
                     when (dep) {
-                        is MavenDependencyNode -> addAll(dep.overriddenBy.sortedBy { it.toString() }
+                        is MavenDependencyNode -> addAll(dep.overriddenBy.sortedBy { it.graphEntryName }
                             .filter{ !filterOrphans || !it.isOrphan(this@assertOverriddenByInGraph) }
                             .map { it to dep })
-                        is MavenDependencyConstraintNode -> addAll(dep.overriddenBy.sortedBy { it.toString() }
+                        is MavenDependencyConstraintNode -> addAll(dep.overriddenBy.sortedBy { it.graphEntryName }
                             .filter{ !filterOrphans || !it.isOrphan(this@assertOverriddenByInGraph) }
                             .map { it to dep })
                         else -> error("unexpected node type ${dep::class.java.simpleName}")
@@ -224,7 +224,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
      */
     private fun DependencyGraph.assertNodePlainIndexes(testInfo: TestInfo) {
         val actual = graphContext.allDependencyNodes
-            .map { "${it.value}:  ${it.key.toString()} (${(it.key as? MavenDependencyNode)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
+            .map { "${it.value}:  ${it.key.graphEntryName} (${(it.key as? MavenDependencyNode)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
             .joinToString(System.lineSeparator())
 
         val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.indexes.txt"

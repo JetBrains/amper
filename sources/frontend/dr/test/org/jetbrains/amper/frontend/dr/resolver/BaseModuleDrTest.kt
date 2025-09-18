@@ -101,7 +101,7 @@ abstract class BaseModuleDrTest {
         val subGraph = when {
             module != null && fragment != null ->
                 RootDependencyNodeStub(
-                    name = "Fragment '$module.$fragment' dependencies",
+                    graphEntryName = "Fragment '$module.$fragment' dependencies",
                     children = graph.fragmentDeps(module, fragment),
 //                    emptyContext(resolutionInput.fileCacheBuilder, resolutionInput.spanBuilder)
                 )

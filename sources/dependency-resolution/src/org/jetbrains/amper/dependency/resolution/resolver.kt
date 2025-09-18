@@ -411,7 +411,6 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
 
     override val parents: Set<DependencyNode> get() = context.nodeParents
     val context: Context
-    override val key: Key<*>
     override val children: List<DependencyNodeWithResolutionContext>
     override val messages: List<Message>
 

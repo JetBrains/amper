@@ -8,9 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 
-interface DependencyNodeHolder: DependencyNode {
-    val name: String
-}
+interface DependencyNodeHolder: DependencyNode
 
 /**
  * Serves as a higher level holder for other dependency nodes.
@@ -22,7 +20,7 @@ interface DependencyNodeHolder: DependencyNode {
  * @see [MavenDependencyNode]
  */
 abstract class DependencyNodeHolderImpl(
-    override val name: String,
+    override val graphEntryName: String,
     final override val children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
@@ -33,10 +31,10 @@ abstract class DependencyNodeHolderImpl(
     }
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
+    override val key: Key<*> = Key<DependencyNodeHolder>(graphEntryName)
     override val messages: List<Message> = listOf()
 
-    override fun toString(): String = name
+    override fun toString(): String = graphEntryName
 
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
 
@@ -48,11 +46,11 @@ abstract class DependencyNodeHolderPlainBase(
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
 ): DependencyNodeHolder, DependencyNodePlainBase(graphContext) {
-
+    override val key: Key<*> by lazy { Key<DependencyNodeHolder>(graphEntryName) }
 }
 
 class RootDependencyNodeInput(
-    name: String = "root",
+    graphEntryName: String = "root",
     /**
      * // todo (AB) : Add a better comment here
      * This field might be used as an ID of cache entry of resolution graph.
@@ -65,37 +63,33 @@ class RootDependencyNodeInput(
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : RootDependencyNode,
     DependencyNodeHolderImpl(
-        name, children, templateContext, parentNodes = parentNodes)
+        graphEntryName, children, templateContext, parentNodes = parentNodes)
 
 
 class RootDependencyNodeStub(
-    override val name: String = "root",
+    override val graphEntryName: String = "root",
     override val children: List<DependencyNode> = emptyList(),
     override val parents: Set<DependencyNode> = emptySet(),
 ): RootDependencyNode {
-    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
+    override val key: Key<*> = Key<DependencyNodeHolderImpl>(graphEntryName)
     override val messages = emptyList<Message>()
 
-    override fun toString() = name
+    override fun toString() = graphEntryName
 }
 
 interface RootDependencyNode: DependencyNodeHolder {
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        RootDependencyNodePlain(name, graphContext = graphContext)
+        RootDependencyNodePlain(graphEntryName, graphContext = graphContext)
 }
 
 @Serializable
 class RootDependencyNodePlain internal constructor(
-    override val name: String,
+    override val graphEntryName: String,
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
 ): RootDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
     override val parentsRefs = mutableSetOf<DependencyNodeReference>()
-
-    @Transient
-    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
     override val messages: List<Message> = listOf()
 
-    override fun toString() = name
 }

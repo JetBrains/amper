@@ -99,6 +99,13 @@ interface MavenDependencyNode : DependencyNode {
     override val key: Key<MavenDependency>
         get() = Key<MavenDependency>("$group:$module")
 
+    override val graphEntryName: String
+        get() = if (dependency.version == originalVersion) {
+            dependency.toString()
+        } else {
+            "$group:$module:${originalVersion.orUnspecified()} -> ${dependency.version}"
+        }
+
     fun getOriginalMavenCoordinates(): MavenCoordinates = dependency.coordinates.copy(version = originalVersion)
 
     fun getMavenCoordinatesForPublishing(): MavenCoordinates
@@ -148,14 +155,7 @@ class MavenDependencyNodePlain internal constructor(
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
 
     override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
-
     override val dependency: MavenDependency by lazy { dependencyRef.toNodePlain(graphContext) }
-
-    override fun toString(): String = if (dependency.version == originalVersion) {
-        dependency.toString()
-    } else {
-        "$group:$module:${originalVersion.orUnspecified()} -> ${dependency.version}"
-    }
 }
 
 /**
@@ -218,7 +218,6 @@ class MavenDependencyNodeImpl internal constructor(
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<MavenDependency> = Key<MavenDependency>("$group:$module")
     override val children: List<DependencyNodeWithResolutionContext> by PropertyWithDependencyGeneric(
         dependencyProviders = listOf(
             { thisRef: MavenDependencyNodeImpl -> thisRef.dependency.children },
@@ -370,6 +369,15 @@ interface MavenDependencyConstraintNode : DependencyNode {
 
     val overriddenBy: Set<DependencyNode>
 
+    override val key: Key<*> get() = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode
+
+    override val graphEntryName: String
+        get() = if (dependencyConstraint.version == version) {
+            "$group:$module:${version.resolve()}"
+        } else {
+            "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
+        }
+
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         MavenDependencyConstraintNodePlain(
             group, module, version,
@@ -415,16 +423,6 @@ class MavenDependencyConstraintNodePlain internal constructor(
 
     override val overriddenBy: Set<DependencyNode> by lazy { overriddenByRefs.map { it.toNodePlain(graphContext) }.toSet() }
 
-    @Transient
-    override val key: Key<*> = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode
-
-    override fun toString(): String {
-        return if (dependencyConstraint.version == version) {
-            "$group:$module:${version.resolve()}"
-        } else {
-            "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
-        }
-    }
 }
 
 internal class MavenDependencyConstraintNodeImpl internal constructor(
@@ -448,7 +446,6 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode
     override val children: List<DependencyNodeWithResolutionContext> = emptyList()
     override val messages: List<Message> = emptyList()
 
@@ -457,11 +454,7 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
 
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
 
-    override fun toString(): String = if (dependencyConstraint.version == version) {
-        "$group:$module:${version.resolve()}"
-    } else {
-        "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
-    }
+    override fun toString(): String = graphEntryName
 }
 
 private typealias DependencyProvider<T> = (T) -> Any?

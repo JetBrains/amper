@@ -13,7 +13,10 @@ class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
 
     override val parents: MutableSet<DependencyNode> = mutableSetOf()
 
-    override fun toString() = node.toString()
+    override val graphEntryName: String
+        get() = node.graphEntryName
+
+    override fun toString() = graphEntryName
 
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         error("${this::class.java.simpleName} is not serializable")

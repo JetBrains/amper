@@ -81,7 +81,7 @@ internal class IdeSync(
 
     private fun AmperModule.toGraph(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource): ModuleDependencyNodeWithModule {
         val node = ModuleDependencyNodeWithModule(
-            name = "module:${userReadableName}",
+            graphEntryName = "module:${userReadableName}",
             children = fragments.flatMap { it.toGraph(fileCacheBuilder, spanBuilder) },
             module = this,
             templateContext = emptyContext(fileCacheBuilder, spanBuilder)
@@ -162,7 +162,7 @@ internal class IdeSync(
         this
             .groupBy { it.fragment }
             .ensureFirstFragmentDeps(fragment)
-            .flatMap { it.value.sortedBy { it.name } }
+            .flatMap { it.value.sortedBy { it.graphEntryName } }
 
     private fun Map<Fragment, List<DirectFragmentDependencyNodeHolder>>.ensureFirstFragmentDeps(fragment: Fragment) =
         if (this.isEmpty() || this.entries.first() == fragment)

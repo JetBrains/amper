@@ -120,31 +120,31 @@ interface ModuleDependenciesResolver {
 }
 
 abstract class DependencyNodeHolderWithNotation(
-    name: String,
+    graphEntryName: String,
     children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     open val notation: Notation? = null,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : DependencyNodeHolderImpl(name, children, templateContext, parentNodes)
+) : DependencyNodeHolderImpl(graphEntryName, children, templateContext, parentNodes)
 
 interface ModuleDependencyNode: DependencyNodeHolder {
     val moduleName: String
     val notation: LocalModuleDependency?
 
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        ModuleDependencyNodeWithModulePlain(moduleName, name, graphContext = graphContext)
+        ModuleDependencyNodeWithModulePlain(moduleName, graphEntryName, graphContext = graphContext)
 }
 
 class ModuleDependencyNodeWithModule(
     val module: AmperModule,
-    name: String,
+    graphEntryName: String,
     children: List<DependencyNodeWithResolutionContext>,
     templateContext: Context,
     override val notation: LocalModuleDependency? = null,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : ModuleDependencyNode,
     DependencyNodeHolderWithNotation(
-        name, children, templateContext, notation, parentNodes = parentNodes)
+        graphEntryName, children, templateContext, notation, parentNodes = parentNodes)
 {
     override val moduleName = module.userReadableName
 }
@@ -152,21 +152,18 @@ class ModuleDependencyNodeWithModule(
 @Serializable
 internal class ModuleDependencyNodeWithModulePlain internal constructor(
     override val moduleName: String,
-    override val name: String,
+    override val graphEntryName: String,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext(),
 ): ModuleDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
 
-    @Transient
-    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
     override val messages: List<Message> = listOf()
 
     @Transient
     override var notation: LocalModuleDependency? = null
 
-    override fun toString() = name
 }
 
 interface DirectFragmentDependencyNode: DependencyNodeHolder {
@@ -177,7 +174,7 @@ interface DirectFragmentDependencyNode: DependencyNodeHolder {
 
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         DirectFragmentDependencyNodeHolderPlain(
-            fragmentName, name, notationCoordinates, messages, graphContext = graphContext)
+            fragmentName, graphEntryName, notationCoordinates, messages, graphContext = graphContext)
 
     override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
         super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
@@ -196,7 +193,7 @@ class DirectFragmentDependencyNodeHolder(
     override val messages: List<Message> = emptyList(),
 ) : DirectFragmentDependencyNode,
     DependencyNodeHolderWithNotation(
-        name = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
+        graphEntryName = "${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}${traceInfo(notation)}",
         listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
 ) {
     override val fragmentName: String = fragment.name
@@ -218,7 +215,7 @@ private fun traceInfo(notation: Notation): String {
 @Serializable
 internal class DirectFragmentDependencyNodeHolderPlain internal constructor(
     override val fragmentName: String,
-    override val name: String,
+    override val graphEntryName: String,
     override val notationCoordinates: String,
     override val messages: List<Message>,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
@@ -227,23 +224,20 @@ internal class DirectFragmentDependencyNodeHolderPlain internal constructor(
     private val graphContext: DependencyGraphContext = currentGraphContext()
 ): DirectFragmentDependencyNode, DependencyNodeHolderPlainBase(graphContext) {
 
-    @Transient
-    override val key: Key<*> = Key<DependencyNodeHolderImpl>(name)
-
     lateinit var dependencyNodeRef: DependencyNodeReference
-
-    @Transient
-    override lateinit var notation: MavenDependencyBase
 
     override val dependencyNode: DependencyNode by lazy { dependencyNodeRef.toNodePlain(graphContext) }
 
-    override fun toString() = name
+    @Transient
+    override lateinit var notation: MavenDependencyBase
 }
 
 internal interface UnresolvedMavenDependencyNode : DependencyNode {
     val coordinates: String
-    override val key: Key<*>
-    fun getStringRepresentation() = "$coordinates, unresolved"
+    override val key: Key<*> get() = Key<UnresolvedMavenDependencyNode>(coordinates)
+    override val graphEntryName: String get() = "$coordinates, unresolved"
+
+    fun key() = Key<UnresolvedMavenDependencyNode>(coordinates)
 
     override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
         UnresolvedMavenDependencyNodePlain(coordinates, graphContext = graphContext)
@@ -258,10 +252,6 @@ internal class UnresolvedMavenDependencyNodePlain internal constructor(
 ): UnresolvedMavenDependencyNode, DependencyNodePlainBase(graphContext) {
     override val childrenRefs: List<DependencyNodeReference> = emptyList()
     override val messages: List<Message> = emptyList()
-    @Transient
-    override val key: Key<*> = Key<UnresolvedMavenDependencyNodePlain>(coordinates)
-
-    override fun toString() = getStringRepresentation()
 }
 
 internal class UnresolvedMavenDependencyNodeImpl(
@@ -270,10 +260,9 @@ internal class UnresolvedMavenDependencyNodeImpl(
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : UnresolvedMavenDependencyNode, DependencyNodeWithResolutionContext {
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<UnresolvedMavenDependencyNodeImpl>(coordinates)
     override val children: List<DependencyNodeWithResolutionContext> = emptyList()
     override val messages: List<Message> = emptyList()
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
-    override fun toString(): String = getStringRepresentation()
+    override fun toString(): String = graphEntryName
 }
