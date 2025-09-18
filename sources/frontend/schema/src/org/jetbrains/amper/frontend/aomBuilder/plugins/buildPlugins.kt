@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
@@ -49,6 +50,7 @@ import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.stdlib.collections.distinctBy
 import kotlin.io.path.div
@@ -215,10 +217,15 @@ private class PluginTreeReader(
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.commonTree.asMapLikeAndGet("settings")?.asMapLikeAndGet(pluginData.id.value)
-            ?.asMapLike ?: return null
+            ?.asMapLike
 
-        val enabled = pluginConfiguration["enabled"].singleOrNull()?.value?.scalarValue<Boolean>()
-        if (enabled != true) return null
+        val enabled = pluginConfiguration?.get("enabled")?.singleOrNull()?.value?.scalarValue<Boolean>()
+        if (enabled != true) {
+            if (pluginConfiguration != null) {
+                reportExplicitValuesWhenDisabled(pluginConfiguration)
+            }
+            return null
+        }
 
         val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
             ?.refinedChildren
@@ -264,6 +271,22 @@ private class PluginTreeReader(
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
         val resolvedTree = refinedTree.resolveReferences()
         createSchemaNode<PluginYamlRoot>(resolvedTree)
+    }
+
+    context(context: BuildCtx)
+    private fun reportExplicitValuesWhenDisabled(pluginConfiguration: MapLikeValue<Refined>) {
+        val explicitValues = pluginConfiguration.children
+            .map { it.value }.filterNot { it.trace.isDefault }
+        if (explicitValues.isNotEmpty()) {
+            val source = MultipleLocationsBuildProblemSource(
+                explicitValues.mapNotNull { it.asBuildProblemSource() as? FileBuildProblemSource },
+                groupingMessage = SchemaBundle.message("plugin.unexpected.configuration.when.disabled.grouping"),
+            )
+            context.problemReporter.reportBundleError(
+                source, "plugin.unexpected.configuration.when.disabled", pluginData.id.value,
+                level = Level.Warning,
+            )
+        }
     }
 
     private fun TreeValue<Refined>.asMapLikeAndGet(property: String): TreeValue<Refined>? {

@@ -12,7 +12,7 @@ interface Schema1 {
 
     val packageName: String
 
-    val objectName: String
+    val objectName: String get() = "Konfig"
 
     val visibility: Visibility?
 }

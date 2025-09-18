@@ -102,6 +102,14 @@ class PluginsTest : AmperCliTestBase() {
         )
 
         r.assertStderrContains("Unresolved reference 'Konfig'")
+
+        val app3 = r.projectRoot / "app3" / "module.yaml"
+        r.assertStdoutContains("""
+            Plugin `build-konfig` is not enabled, but has some explicit configuration.
+            ╰─ Values explicitly set at:
+               ╰─ $app3:6:5
+               ╰─ $app3:9:5
+        """.trimIndent())
     }
 
     @Test
