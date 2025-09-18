@@ -6,14 +6,17 @@ Yes, Amper is a new build tool with a focus on user experience and IDE support.
 
 ### Do you plan to support only Kotlin?
 
-For now, the primary target is Kotlin and Kotlin Multiplatform projects. Since Kotlin is multiplatform, Amper also
-supports Java on the JVM, and Swift and Objective-C on iOS.
+Amper already supports both Kotlin and Java as first-class citizens.
+Also, because one of Amper's main targets is Kotlin Multiplatform projects, it supports Swift and Objective-C for iOS.
+
 We’ll investigate other tech stacks in the future based on the demand for them.
 
 ### Which target platforms are supported?
 
-Currently, you can create applications for the JVM, Android, iOS, macOS, and Linux. Libraries can be created for all
-Kotlin Multiplatform targets.
+Currently, you can create applications for the JVM, Android, iOS, macOS, Linux, Windows, but also JS and WASM (although
+those cannot be run directly with Amper).
+
+Libraries can be created for all Kotlin Multiplatform targets.
 
 ### Does Amper support Compose Multiplatform?
 
@@ -21,9 +24,8 @@ Yes, you can configure Compose for Android, iOS, and desktop.
 
 ### Does Amper support Kotlin/JS or Kotlin/Wasm projects?
 
-Currently, Amper doesn't support Kotlin/JS and only supports Wasm in library modules.
-Please follow [AMPER-221](https://youtrack.jetbrains.com/issue/AMPER-221) for updates on JS support, and
-[AMPER-258](https://youtrack.jetbrains.com/issue/AMPER-258) for updates on Wasm support.
+Yes, but it doesn't provide tooling to work on full stack web projects yet. For instance, Amper doesn't install any 
+browser or Node.js runtime, doesn't generate or process any HTML entrypoint, and cannot run `js/app` modules on its own.
 
 ### What functionality do you plan to support?
 
@@ -31,7 +33,8 @@ We’re working on the project library catalogs, publication, and extensibility.
 
 ### Will Amper be open source?
 
-Yes, Amper is already open source.
+Yes, Amper is already open source. The default branch is the latest stable release branch, but you can also take a look
+at the [main branch](https://github.com/JetBrains/amper/tree/main) to see what's cooking!
 
 ### When will Amper be released as stable?
 
@@ -71,8 +74,8 @@ Our final language choice will be made based on the overall UX it provides.
 
 In the initial Amper prototype, our main focus was improving the user experience and toolability of build configuration.
 Gradle, as a well-tested build engine, allowed us to start experimenting with the UX of the configuration very quickly.
-What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
-we want to get feedback from real-world use cases.
+What’s more, smooth interoperability with Gradle allowed using Amper in existing projects, which is important if we want
+to get feedback from real-world use cases.
 
 Now, Amper is a standalone build tool, which allows us to improve the IDE support and workflows even further.
 
@@ -122,37 +125,22 @@ You have several options:
 
 ### How do I create a multi-module project in Amper?
 
-See the documentation on the [project layout](Documentation.md#project-layout) and
-the [comparison of Amper and Gradle project layouts](Documentation.md#gradle-vs-amper-project-layout).
-
-### How do I migrate my existing Gradle project to Amper?
-
-Check the [tutorial](GradleMigration.md) on migrating your Gradle project and subprojects.
+See the documentation on the [project layout](Documentation.md#project-layout).
 
 ### Is there an automated migration tool?
 
-Not currently, but it's certainly something we’re looking into. See the [Gradle migration tutorial](GradleMigration.md)
-and examples.
+Not currently, but it's certainly something we’re looking into.
 
 ### Feature X is not yet supported, what can I do?
 
 We plan to expand the list of supported use cases based on demand. Please submit your requests and suggestions in
 the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join
-the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions. Meanwhile, you can use Gradle
-plugins and tasks as usual. See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
+the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
 
 ### Can I write a custom task or use a plugin?
 
 Extensibility is not currently implemented in Amper, but we are working on it.
-Meanwhile, in Gradle-based Amper projects, you can use any available Gradle plugin and write custom tasks.
-See the documentation on [Gradle interop](Documentation.md#gradle-interop).
-
-### I know how to configure "X" in Gradle, how do I do the same in Amper configuration file?
-
-If you cannot find an answer in [Amper documentation](Documentation.md) or examples, you can still
-use [Gradle interop](Documentation.md#gradle-interop) and configure as usually in your build.gradle(.kts) files.
 
 ### How can I use C-interop in Amper?
 
-For now, Amper doesn't directly support C-interop. 
-You can use [Gradle interop](Documentation.md#configuring-c-interop-using-the-gradle-build-file) as a workaround.
+For now, Amper doesn't directly support C-interop.
