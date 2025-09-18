@@ -10,7 +10,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -26,7 +26,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         platform: Platform,
         userCacheRoot: AmperUserCacheRoot,
         taskOutputRoot: TaskOutputRoot,
-        executeOnChangedInputs: ExecuteOnChangedInputs,
+        incrementalCache: IncrementalCache,
         taskName: TaskName,
         tempRoot: AmperProjectTempRoot,
         isTest: Boolean,
@@ -36,7 +36,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         platform: Platform,
         userCacheRoot: AmperUserCacheRoot,
         taskOutputRoot: TaskOutputRoot,
-        executeOnChangedInputs: ExecuteOnChangedInputs,
+        incrementalCache: IncrementalCache,
         taskName: TaskName,
         tempRoot: AmperProjectTempRoot,
         isTest: Boolean,

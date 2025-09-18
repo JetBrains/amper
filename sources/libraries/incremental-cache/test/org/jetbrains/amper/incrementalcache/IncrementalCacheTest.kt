@@ -22,12 +22,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class ExecuteOnChangedInputsTest {
+class IncrementalCacheTest {
     @TempDir
     lateinit var tempDir: Path
 
     private val executeOnChanged by lazy {
-        ExecuteOnChangedInputs(stateRoot = tempDir / "incremental.state", codeVersion = "1")
+        IncrementalCache(stateRoot = tempDir / "incremental.state", codeVersion = "1")
     }
     private val executionsCount = AtomicInteger(0)
 
@@ -38,7 +38,7 @@ class ExecuteOnChangedInputsTest {
         fun call() = runBlocking {
             executeOnChanged.execute("1", emptyMap(), listOf(file)) {
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                IncrementalCache.ExecutionResult(emptyList())
             }
         }
 
@@ -65,10 +65,10 @@ class ExecuteOnChangedInputsTest {
         val file = tempDir.resolve("file.txt").also { it.writeText("a") }
 
         fun call(codeVersion: String) = runBlocking {
-            ExecuteOnChangedInputs(tempDir / "incremental.state", codeVersion = codeVersion).execute(
+            IncrementalCache(tempDir / "incremental.state", codeVersion = codeVersion).execute(
                 "1", emptyMap(), listOf(file)) {
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                IncrementalCache.ExecutionResult(emptyList())
             }
         }
 
@@ -97,7 +97,7 @@ class ExecuteOnChangedInputsTest {
         fun call() = runBlocking {
             executeOnChanged.execute("1", emptyMap(), listOf(dir)) {
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                IncrementalCache.ExecutionResult(emptyList())
             }
         }
 
@@ -127,7 +127,7 @@ class ExecuteOnChangedInputsTest {
         fun call() = runBlocking {
             executeOnChanged.execute("1", emptyMap(), listOf(dir)) {
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                IncrementalCache.ExecutionResult(emptyList())
             }
         }
 
@@ -156,7 +156,7 @@ class ExecuteOnChangedInputsTest {
             val result1 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
                 output.writeText("1")
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(listOf(output))
+                IncrementalCache.ExecutionResult(listOf(output))
             }
             assertEquals(listOf(output), result1.outputs)
             assertEquals("1", output.readText())
@@ -165,7 +165,7 @@ class ExecuteOnChangedInputsTest {
             val result2 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
                 output.writeText("2")
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(listOf(output))
+                IncrementalCache.ExecutionResult(listOf(output))
             }
             assertEquals(listOf(output), result2.outputs)
             assertEquals("1", output.readText())
@@ -176,7 +176,7 @@ class ExecuteOnChangedInputsTest {
             val result3 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
                 output.writeText("3")
                 executionsCount.incrementAndGet()
-                ExecuteOnChangedInputs.ExecutionResult(listOf(output))
+                IncrementalCache.ExecutionResult(listOf(output))
             }
             assertEquals(listOf(output), result3.outputs)
             assertEquals("3", output.readText())
@@ -188,7 +188,7 @@ class ExecuteOnChangedInputsTest {
     fun `output properties`() {
         runBlocking {
             val result1 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
-                ExecuteOnChangedInputs.ExecutionResult(emptyList(), mapOf("k" to "v", "e" to ""))
+                IncrementalCache.ExecutionResult(emptyList(), mapOf("k" to "v", "e" to ""))
             }
             assertEquals("e:|k:v", result1.outputProperties.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
 
@@ -204,7 +204,7 @@ class ExecuteOnChangedInputsTest {
         assertFailsWith(NoSuchFileException::class) {
             runBlocking {
                 executeOnChanged.execute("1", emptyMap(), emptyList()) {
-                    ExecuteOnChangedInputs.ExecutionResult(listOf(tempDir.resolve("1.out")))
+                    IncrementalCache.ExecutionResult(listOf(tempDir.resolve("1.out")))
                 }
             }
         }
@@ -221,7 +221,7 @@ class ExecuteOnChangedInputsTest {
                     regularOutput.writeText("regular-1")
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
-                    ExecuteOnChangedInputs.ExecutionResult(
+                    IncrementalCache.ExecutionResult(
                         outputs = listOf(regularOutput, excludedOutput),
                         excludedOutputs = setOf(excludedOutput)
                     )
@@ -263,7 +263,7 @@ class ExecuteOnChangedInputsTest {
                     regularOutput.writeText("regular-1")
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
-                    ExecuteOnChangedInputs.ExecutionResult(
+                    IncrementalCache.ExecutionResult(
                         outputs = listOf(outputDir), // Only the directory is in outputs
                         excludedOutputs = setOf(excludedOutput) // But a file inside is excluded
                     )
@@ -309,7 +309,7 @@ class ExecuteOnChangedInputsTest {
                     regularOutput.writeText("regular-1")
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
-                    ExecuteOnChangedInputs.ExecutionResult(
+                    IncrementalCache.ExecutionResult(
                         outputs = listOf(outputDir), // The parent directory is in outputs
                         excludedOutputs = setOf(excludedSubdir) // An entire subdirectory is excluded
                     )

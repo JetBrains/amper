@@ -11,7 +11,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.jetbrains.amper.buildinfo.AmperBuild
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
@@ -29,7 +29,7 @@ class BuildDistCommand : CacheableTaskCommand() {
     private val cliRuntimeClasspath by option("--classpath").classpath().required()
     private val extraClasspaths by option("--extra-dir").namedClasspath().multiple()
 
-    override suspend fun ExecuteOnChangedInputs.runCached() {
+    override suspend fun IncrementalCache.runCached() {
         execute(
             id = "build-dist",
             configuration = mapOf(
@@ -52,7 +52,7 @@ class BuildDistCommand : CacheableTaskCommand() {
                 coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
             )
 
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
+            IncrementalCache.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
         }
     }
 }

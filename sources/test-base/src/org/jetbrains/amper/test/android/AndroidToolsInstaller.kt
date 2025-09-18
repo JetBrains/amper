@@ -11,18 +11,15 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
-import kotlin.io.path.createFile
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -69,7 +66,7 @@ internal object AndroidToolsInstaller {
             "toolsToInstall" to toolsToInstall.joinToString(" "),
         )
 
-        val result = ExecuteOnChangedInputs(
+        val result = IncrementalCache(
             stateRoot = androidSetupCacheDir / "incremental.state",
             // The cache should be invalidated when the code that downloads the tools changes.
             // We don't need the full classpath hash here, because it would change each time we change a test.
@@ -87,7 +84,7 @@ internal object AndroidToolsInstaller {
             val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
-            ExecuteOnChangedInputs.ExecutionResult(
+            IncrementalCache.ExecutionResult(
                 outputs = listOf(androidSdkHome, jdk.homeDir),
                 excludedOutputs = buildSet {
                     // .knownpackages changes on commands like 'create avd', so we exclude it to avoid a cache miss

@@ -15,7 +15,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.web.WebLinkTask
@@ -27,20 +27,20 @@ internal class JsLinkTask(
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
     taskOutputRoot: TaskOutputRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     taskName: TaskName,
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
     buildType: BuildType? = null,
     compileKLibTaskName: TaskName,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ) : WebLinkTask(
     module,
     platform,
     userCacheRoot,
     taskOutputRoot,
-    executeOnChangedInputs,
+    incrementalCache,
     taskName,
     tempRoot,
     isTest,

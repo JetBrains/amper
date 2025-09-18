@@ -15,7 +15,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
@@ -36,10 +36,10 @@ class JvmHotRunTask(
     tempRoot: AmperProjectTempRoot,
     terminal: Terminal,
     runSettings: JvmMainRunSettings,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     private val toolingArtifactsDownloader: ToolingArtifactsDownloader = ToolingArtifactsDownloader(
         userCacheRoot,
-        executeOnChangedInputs
+        incrementalCache
     ),
 ) : AbstractJvmRunTask(
     taskName,
@@ -49,7 +49,7 @@ class JvmHotRunTask(
     tempRoot,
     terminal,
     runSettings,
-    executeOnChangedInputs
+    incrementalCache
 ) {
     override val buildType: BuildType
         get() = BuildType.Debug

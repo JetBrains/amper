@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks.executable
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.CompressionStrategy
@@ -23,7 +23,7 @@ import kotlin.io.path.div
  */
 class ExecutableJarAssembler(
     private val userCacheRoot: AmperUserCacheRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs
+    private val incrementalCache: IncrementalCache
 ) {
 
     suspend fun ExecutableJarConfig.prepareJarInputs(
@@ -58,7 +58,7 @@ class ExecutableJarAssembler(
     )
 
     private suspend fun downloadSpringBootLoader(): Path {
-        val toolingArtifactsDownloader = ToolingArtifactsDownloader(userCacheRoot, executeOnChangedInputs)
+        val toolingArtifactsDownloader = ToolingArtifactsDownloader(userCacheRoot, incrementalCache)
         return toolingArtifactsDownloader.downloadSpringBootLoader()
     }
 

@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
@@ -37,7 +37,7 @@ class TaskFromPlugin(
     val module: AmperModule,
     val description: TaskFromPluginDescription,
     val buildOutputRoot: AmperBuildOutputRoot,
-    val executeOnChangedInputs: ExecuteOnChangedInputs,
+    val incrementalCache: IncrementalCache,
     val terminal: Terminal,
 ) : ArtifactTask {
 
@@ -112,7 +112,7 @@ class TaskFromPlugin(
             return EmptyTaskResult
         }
 
-        executeOnChangedInputs.execute(
+        incrementalCache.execute(
             id = taskName.name,
             configuration = mapOf(
                 "action" to description.actionClassJvmName + '.' + description.actionFunctionJvmName,
@@ -135,7 +135,7 @@ class TaskFromPlugin(
             doExecuteTaskAction(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
-            ExecuteOnChangedInputs.ExecutionResult(
+            IncrementalCache.ExecutionResult(
                 outputs = description.outputs.keys.toList(),
             )
         }

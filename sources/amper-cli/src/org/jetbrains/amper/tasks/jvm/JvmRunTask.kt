@@ -10,7 +10,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.util.BuildType
 
@@ -22,7 +22,7 @@ class JvmRunTask(
     tempRoot: AmperProjectTempRoot,
     terminal: Terminal,
     runSettings: JvmMainRunSettings,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
 ) : AbstractJvmRunTask(
     taskName,
     module,
@@ -31,7 +31,7 @@ class JvmRunTask(
     tempRoot,
     terminal,
     runSettings,
-    executeOnChangedInputs
+    incrementalCache
 ) {
     override val buildType: BuildType = BuildType.Debug
 }

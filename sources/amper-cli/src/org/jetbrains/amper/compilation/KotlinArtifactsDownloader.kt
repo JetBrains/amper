@@ -9,14 +9,14 @@ import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
 import java.nio.file.Path
 import kotlin.io.path.name
 
 internal class KotlinArtifactsDownloader(
     val userCacheRoot: AmperUserCacheRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
 ) {
     private val mavenResolver = MavenResolver(userCacheRoot)
 
@@ -66,7 +66,7 @@ internal class KotlinArtifactsDownloader(
 
     private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
         // using executeOnChangedInputs because currently DR takes ~3s even when the artifact is already cached
-        executeOnChangedInputs.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
+        incrementalCache.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
             val coordinates = "$groupId:$artifactId:$version"
             val resolved = mavenResolver.resolve(
                 coordinates = listOf(coordinates),
@@ -75,6 +75,6 @@ internal class KotlinArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = coordinates,
             )
-            return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
+            return@execute IncrementalCache.ExecutionResult(resolved.toList())
         }.outputs
 }

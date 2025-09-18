@@ -12,7 +12,7 @@ import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.filechannels.readText
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs.Change.ChangeType
+import org.jetbrains.amper.incrementalcache.IncrementalCache.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
 import org.jetbrains.amper.telemetry.use
@@ -28,7 +28,7 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
 import kotlin.time.measureTimedValue
 
-class ExecuteOnChangedInputs(
+class IncrementalCache(
     /**
      * The directory where the cache state should be stored.
      */
@@ -40,7 +40,7 @@ class ExecuteOnChangedInputs(
      * One suitable option for this [codeVersion] is to use the hash of the currently running code.
      * The [computeClassPathHash] helper provides a way to create a hash of all jars on the classpath.
      *
-     * Note: this doesn't denote a namespace. If multiple instances of [ExecuteOnChangedInputs] are used with the same
+     * Note: this doesn't denote a namespace. If multiple instances of [IncrementalCache] are used with the same
      * [stateRoot] but different [codeVersion]s, they will overwrite a single state, not access independent states.
      * Use different [stateRoot]s if you need independent states.
      */
@@ -299,7 +299,7 @@ class ExecuteOnChangedInputs(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ExecuteOnChangedInputs::class.java)
+        private val logger = LoggerFactory.getLogger(IncrementalCache::class.java)
 
         private val executeOnChangedLocks = ConcurrentHashMap<String, Mutex>()
 
@@ -321,7 +321,7 @@ class ExecuteOnChangedInputs(
  * Executes the given [block] and returns the output file paths, or immediately returns an existing result from the
  * incremental cache.
  *
- * This is exactly equivalent to [ExecuteOnChangedInputs.execute], but without the need to wrap and unwrap the results
+ * This is exactly equivalent to [IncrementalCache.execute], but without the need to wrap and unwrap the results
  * for cases where we don't need output properties.
  *
  * ### Caching
@@ -340,12 +340,12 @@ class ExecuteOnChangedInputs(
  * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
  * until the first call completes and then resume and use the cache immediately (if possible).
  */
-suspend fun ExecuteOnChangedInputs.executeForFiles(
+suspend fun IncrementalCache.executeForFiles(
     id: String,
     configuration: Map<String, String>,
     inputs: List<Path>,
     block: suspend () -> List<Path>,
-): List<Path> = execute(id, configuration, inputs) { ExecuteOnChangedInputs.ExecutionResult(block()) }.outputs
+): List<Path> = execute(id, configuration, inputs) { IncrementalCache.ExecutionResult(block()) }.outputs
 
 private fun String.ensureEndsWith(suffix: String) =
     if (!endsWith(suffix)) (this + suffix) else this

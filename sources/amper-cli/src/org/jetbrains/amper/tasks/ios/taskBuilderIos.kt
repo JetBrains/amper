@@ -61,7 +61,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     leafFragment = module.leafFragments.single {
                         it.platform == platform && !it.isTest
                     },
-                    executeOnChangedInputs = executeOnChangedInputs,
+                    incrementalCache = executeOnChangedInputs,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     userCacheRoot = context.userCacheRoot,
                 ),

@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInDocument
 import org.jetbrains.amper.frontend.plugins.PluginManifest
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -46,7 +46,7 @@ internal suspend fun doPreparePlugins(
     projectRoot: AmperProjectRoot,
     userCacheRoot: AmperUserCacheRoot,
     frontendPathResolver: FrontendPathResolver,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     schemaFile: Path,
     plugins: Map<Path, PluginManifest>,
 ) {
@@ -55,7 +55,7 @@ internal suspend fun doPreparePlugins(
         "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
     })
 
-    executeOnChangedInputs.executeForFiles(
+    incrementalCache.executeForFiles(
         id = "prepare-plugins",
         configuration = mapOf(
             "plugins" to plugins.values.joinToString()

@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
 import kotlin.io.path.div
 
@@ -17,7 +17,7 @@ abstract class CacheableTaskCommand : SuspendingCliktCommand() {
         .required()
 
     override suspend fun run() {
-        ExecuteOnChangedInputs(
+        IncrementalCache(
             // We store the incremental cache for our task in our task output directory
             stateRoot = taskOutputDirectory / "incremental.state",
             // The cache should be invalidated when the code of this task changes.
@@ -26,5 +26,5 @@ abstract class CacheableTaskCommand : SuspendingCliktCommand() {
         ).runCached()
     }
 
-    abstract suspend fun ExecuteOnChangedInputs.runCached()
+    abstract suspend fun IncrementalCache.runCached()
 }

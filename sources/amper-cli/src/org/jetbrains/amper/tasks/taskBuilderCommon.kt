@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
 import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 
 internal enum class CommonTaskType(override val prefix: String) : PlatformTaskType {
     Compile("compile"),
@@ -76,7 +75,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 fragment = it,
                 userCacheRoot = context.userCacheRoot,
                 taskOutputRoot = context.getTaskOutputPath(taskName),
-                executeOnChangedInputs = executeOnChangedInputs,
+                incrementalCache = executeOnChangedInputs,
                 tempRoot = context.projectTempRoot,
             )
         )
@@ -107,7 +106,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     module = module,
                     platform = platform,
                     taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
-                    executeOnChangedInputs = executeOnChangedInputs,
+                    incrementalCache = executeOnChangedInputs,
                 )
             )
         }

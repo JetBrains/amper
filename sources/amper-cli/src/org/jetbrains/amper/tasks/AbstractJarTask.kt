@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeJar
@@ -18,7 +18,7 @@ import kotlin.io.path.pathString
 
 abstract class AbstractJarTask(
     override val taskName: TaskName,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
 ) : Task {
 
     protected abstract suspend fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput>
@@ -39,9 +39,9 @@ abstract class AbstractJarTask(
             "outputJarPath" to outputJarPath.pathString,
         )
 
-        executeOnChangedInputs.execute(taskName.name, configuration, inputDirs.map { it.path }) {
+        incrementalCache.execute(taskName.name, configuration, inputDirs.map { it.path }) {
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputJarPath))
+            IncrementalCache.ExecutionResult(outputs = listOf(outputJarPath))
         }
         return createResult(outputJarPath)
     }

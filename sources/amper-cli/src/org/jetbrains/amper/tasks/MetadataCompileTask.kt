@@ -25,7 +25,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
@@ -53,9 +53,9 @@ internal class MetadataCompileTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ): ArtifactTaskBase(), BuildTask {
 
     override val buildType: Nothing? get() = null
@@ -99,7 +99,7 @@ internal class MetadataCompileTask(
         val sourceDirs = fragment.src.toAbsolutePath() + additionalKotlinJavaSourceDirs.map { it.path }
         val inputs = sourceDirs + classpath + refinesPaths + friendPaths
 
-        executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val existingSourceDirs = sourceDirs.filter { it.exists() }
@@ -122,7 +122,7 @@ internal class MetadataCompileTask(
                 logger.debug("No sources were found for ${fragment.identificationPhrase()}, skipping compilation")
             }
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
+            return@execute IncrementalCache.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
         }
 
         return Result(

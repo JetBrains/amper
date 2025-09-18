@@ -9,7 +9,6 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
@@ -19,7 +18,7 @@ import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
@@ -50,7 +49,7 @@ class JvmTestTask(
     private val buildOutputRoot: AmperBuildOutputRoot,
     private val terminal: Terminal,
     private val runSettings: JvmTestRunSettings,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     override val module: AmperModule,
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
@@ -191,7 +190,7 @@ class JvmTestTask(
     private suspend fun extractJUnitListenersClasspath(): List<Path> {
         val classpathList = javaClass.getResource("/junit-listeners/classpath.txt")?.readText()
             ?: error("JUnit listeners classpath is not in the Amper distribution")
-        val result = executeOnChangedInputs.execute(
+        val result = incrementalCache.execute(
             id = "extract-junit-listeners-classpath",
             configuration = mapOf("junit-listeners-classpath" to classpathList),
             inputs = emptyList(),
@@ -208,7 +207,7 @@ class JvmTestTask(
                     }
                 }
             }
-            ExecuteOnChangedInputs.ExecutionResult(outputs = jarNames.map { launcherDir.resolve(it) })
+            IncrementalCache.ExecutionResult(outputs = jarNames.map { launcherDir.resolve(it) })
         }
         return result.outputs
     }

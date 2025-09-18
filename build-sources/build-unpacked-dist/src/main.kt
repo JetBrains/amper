@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createDirectory
@@ -27,7 +27,7 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
 
     private val jarListFile by option("--jar-list-file")
 
-    override suspend fun ExecuteOnChangedInputs.runCached() {
+    override suspend fun IncrementalCache.runCached() {
         execute(
             id = "build-unpacked-dist",
             configuration = mapOf(
@@ -58,7 +58,7 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
                 targetDir.resolve(listFile).writeText(classpath.joinToString("\n") { it.name })
             }
 
-            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(targetDir))
+            IncrementalCache.ExecutionResult(outputs = listOf(targetDir))
         }
     }
 }

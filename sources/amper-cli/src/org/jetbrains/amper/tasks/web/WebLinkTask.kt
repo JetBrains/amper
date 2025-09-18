@@ -17,7 +17,6 @@ import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
@@ -27,7 +26,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
@@ -52,7 +51,7 @@ internal abstract class WebLinkTask(
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
@@ -65,7 +64,7 @@ internal abstract class WebLinkTask(
      * Task names that produce klibs that need to be exposed as API in the resulting artifact.
      */
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ) : BuildTask {
 
     abstract val expectedPlatform: Platform
@@ -126,7 +125,7 @@ internal abstract class WebLinkTask(
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifactPath = taskOutputRoot.path
@@ -138,7 +137,7 @@ internal abstract class WebLinkTask(
                 includeArtifact = includeArtifact,
             )
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))
+            return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
         }.outputs.single()
 
         return Result(

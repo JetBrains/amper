@@ -24,7 +24,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.ksp.Ksp
@@ -68,7 +68,7 @@ internal class KspTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
 ): ArtifactTaskBase() {
     private val mavenResolver = MavenResolver(userCacheRoot)
 
@@ -163,7 +163,7 @@ internal class KspTask(
             "kspVersion" to kspVersion,
             "respositories" to repositories.joinToString("|"),
         )
-        return executeOnChangedInputs.executeForFiles("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
+        return incrementalCache.executeForFiles("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
             spanBuilder("download-ksp-cli")
                 .setAttribute("ksp-version", kspVersion)
                 .use {
@@ -227,7 +227,7 @@ internal class KspTask(
         )
         val inputFiles = kspProcessorClasspath + sources + compileLibraries
 
-        executeOnChangedInputs.executeForFiles("${taskName.name}-run-ksp", configuration, inputFiles) {
+        incrementalCache.executeForFiles("${taskName.name}-run-ksp", configuration, inputFiles) {
             kspOutputPaths.outputDirs.forEach(::cleanDirectory)
             if (sources.isEmpty()) {
                 logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping KSP")

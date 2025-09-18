@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
 import java.nio.file.Path
@@ -23,8 +23,8 @@ class SourcesJarTask(
     private val module: AmperModule,
     private val platform: Platform,
     private val taskOutputRoot: TaskOutputRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
-) : AbstractJarTask(taskName, executeOnChangedInputs) {
+    incrementalCache: IncrementalCache,
+) : AbstractJarTask(taskName, incrementalCache) {
 
     override suspend fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> =
         module.fragments

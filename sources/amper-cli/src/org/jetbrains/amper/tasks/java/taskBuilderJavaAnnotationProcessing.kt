@@ -27,7 +27,7 @@ fun ProjectTasksBuilder.setupJavaAnnotationProcessingTasks() {
                     module = module,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
-                    executeOnChangedInputs = executeOnChangedInputs,
+                    incrementalCache = executeOnChangedInputs,
                 )
             )
 

@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -44,13 +44,13 @@ internal class NativeCompileKlibTask(
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     override val buildType: BuildType,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ): ArtifactTaskBase(), BuildTask {
     init {
         require(platform.isLeaf)
@@ -115,7 +115,7 @@ internal class NativeCompileKlibTask(
         val sources = fragments.map { it.src } + additionalSources.map { it.path }
         val inputs = sources + libraryPaths
 
-        val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             // in Kotlin >= 2.2, we need to list all source files (not just dirs)
@@ -125,7 +125,7 @@ internal class NativeCompileKlibTask(
             }
             if (sourceFiles.isEmpty()) {
                 logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
-                return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                return@execute IncrementalCache.ExecutionResult(emptyList())
             }
 
             val artifact = taskOutputRoot.path.resolve(KotlinCompilationType.LIBRARY.outputFilename(module, platform, isTest))
@@ -153,7 +153,7 @@ internal class NativeCompileKlibTask(
             logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
             nativeCompiler.compile(args, tempRoot, module)
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
+            return@execute IncrementalCache.ExecutionResult(listOf(artifact))
         }.outputs.singleOrNull()
 
         return Result(

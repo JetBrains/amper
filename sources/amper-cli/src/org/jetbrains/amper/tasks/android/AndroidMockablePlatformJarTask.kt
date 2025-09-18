@@ -10,8 +10,7 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.tasks.AdditionalClasspathProvider
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -24,7 +23,7 @@ class AndroidMockablePlatformJarTask(
     override val taskName: TaskName,
     module: AmperModule,
     buildType: BuildType,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     androidSdkPath: Path,
     fragments: List<Fragment>,
     projectRoot: AmperProjectRoot,
@@ -33,7 +32,7 @@ class AndroidMockablePlatformJarTask(
 ) : AndroidDelegatedGradleTask(
     module,
     buildType,
-    executeOnChangedInputs,
+    incrementalCache,
     androidSdkPath,
     fragments,
     projectRoot,

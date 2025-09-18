@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -31,7 +31,7 @@ class IosComposeResourcesTask(
     override val taskName: TaskName,
     private val leafFragment: LeafFragment,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     userCacheRoot: AmperUserCacheRoot,
 ) : ArtifactTaskBase() {
     private val dependenciesMerged by Selectors.fromModuleWithDependencies(
@@ -49,7 +49,7 @@ class IosComposeResourcesTask(
             return EmptyTaskResult
         }
 
-        executeOnChangedInputs.execute(
+        incrementalCache.execute(
             id = taskName.name,
             configuration = emptyMap(),
             inputs = results.map { it.path },
@@ -61,7 +61,7 @@ class IosComposeResourcesTask(
                     to = outputPath.createDirectories(),
                 )
             }
-            ExecuteOnChangedInputs.ExecutionResult(listOf(outputPath))
+            IncrementalCache.ExecutionResult(listOf(outputPath))
         }
 
         return Result(composeResourcesDirectory = outputPath)

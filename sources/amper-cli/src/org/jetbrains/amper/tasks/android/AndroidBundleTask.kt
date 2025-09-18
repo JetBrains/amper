@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -20,7 +20,7 @@ import java.nio.file.Path
 class AndroidBundleTask(
     override val module: AmperModule,
     override val buildType: BuildType,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     androidSdkPath: Path,
     fragments: List<Fragment>,
     projectRoot: AmperProjectRoot,
@@ -30,7 +30,7 @@ class AndroidBundleTask(
 ) : LastPhaseAndroidDelegatedGradleTask(
     module,
     buildType,
-    executeOnChangedInputs,
+    incrementalCache,
     androidSdkPath,
     fragments,
     projectRoot,

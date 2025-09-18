@@ -8,7 +8,7 @@ import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
@@ -29,8 +29,8 @@ class JvmClassesJarTask(
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
     private val taskOutputRoot: TaskOutputRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
-) : AbstractJarTask(taskName, executeOnChangedInputs), BuildTask {
+    incrementalCache: IncrementalCache,
+) : AbstractJarTask(taskName, incrementalCache), BuildTask {
 
     override val isTest: Boolean
         get() = false

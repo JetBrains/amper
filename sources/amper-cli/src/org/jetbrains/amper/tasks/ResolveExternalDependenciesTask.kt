@@ -28,7 +28,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
 import org.jetbrains.amper.resolver.MavenResolver
@@ -47,7 +47,7 @@ import kotlin.io.path.relativeToOrSelf
 class ResolveExternalDependenciesTask(
     private val module: AmperModule,
     private val userCacheRoot: AmperUserCacheRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val platform: Platform,
     private val isTest: Boolean,
     private val fragments: List<Fragment>,
@@ -123,7 +123,7 @@ class ResolveExternalDependenciesTask(
                 )
 
                 val result = try {
-                    executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
+                    incrementalCache.execute(taskName.name, configuration, emptyList()) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = DependencyNodeHolder(
                             name = "root",
@@ -148,7 +148,7 @@ class ResolveExternalDependenciesTask(
                         val publicationCoordsOverrides =
                             getPublicationCoordinatesOverrides(compileDependenciesRootNode, runtimeDependenciesRootNode)
 
-                        return@execute ExecuteOnChangedInputs.ExecutionResult(
+                        return@execute IncrementalCache.ExecutionResult(
                             (compileClasspath + runtimeClasspath).toSet().sorted(),
                             outputProperties = mapOf(
                                 "compile" to compileClasspath.joinToString(File.pathSeparator),

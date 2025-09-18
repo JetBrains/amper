@@ -15,7 +15,7 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
@@ -38,7 +38,7 @@ abstract class AbstractJvmRunTask(
     protected val tempRoot: AmperProjectTempRoot,
     protected val terminal: Terminal,
     protected val runSettings: JvmMainRunSettings,
-    protected val executeOnChangedInputs: ExecuteOnChangedInputs?,
+    protected val incrementalCache: IncrementalCache?,
 ) : RunTask {
     override val platform = Platform.JVM
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }

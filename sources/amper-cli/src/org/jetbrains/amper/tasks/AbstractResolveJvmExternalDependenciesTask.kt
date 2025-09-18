@@ -15,7 +15,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -28,7 +28,7 @@ import kotlin.io.path.pathString
 internal abstract class AbstractResolveJvmExternalDependenciesTask(
     private val module: AmperModule,
     private val userCacheRoot: AmperUserCacheRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val resolutionMonikerPrefix: String,
 ): Task {
     private val mavenResolver = MavenResolver(userCacheRoot)
@@ -46,7 +46,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
             "repositories" to repositories.joinToString("|"),
             "dependencies-coordinates" to externalUnscopedCoords.joinToString("|"),
         )
-        val resolvedExternalJars = executeOnChangedInputs.executeForFiles(
+        val resolvedExternalJars = incrementalCache.executeForFiles(
             taskName.name,
             configuration,
             emptyList(),

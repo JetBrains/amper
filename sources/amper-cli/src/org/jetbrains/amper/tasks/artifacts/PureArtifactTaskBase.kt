@@ -10,7 +10,7 @@ import kotlinx.serialization.serializer
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
@@ -28,7 +28,7 @@ import kotlin.reflect.KProperty
 
 /**
  * "Pure" artifact-based task. Such a task features the following traits:
- * - automatically cacheable based on input/output artifacts and extra inputs (using [ExecuteOnChangedInputs] internally)
+ * - automatically cacheable based on input/output artifacts and extra inputs (using [IncrementalCache] internally)
  * = automatically cleans its output before the action
  *
  * If one doesn't want the restrictions imposed by this class, subclass the [ArtifactTaskBase] instead.
@@ -88,7 +88,7 @@ abstract class PureArtifactTaskBase(
                 path.deleteRecursively()
             }
             run(executionContext)
-            ExecuteOnChangedInputs.ExecutionResult(
+            IncrementalCache.ExecutionResult(
                 outputs = produces.map { it.path }.filter { it.exists() },
             )
         }

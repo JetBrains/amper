@@ -48,7 +48,7 @@ suspend fun preparePlugins(
                 doPreparePlugins(
                     projectRoot = context.projectRoot,
                     userCacheRoot = context.userCacheRoot,
-                    executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot),
+                    incrementalCache = ExecuteOnChangedInputs(context.buildOutputRoot),
                     frontendPathResolver = projectContext.frontendPathResolver,
                     schemaFile = projectContext.pluginInternalDataFile,
                     plugins = pluginInfos,

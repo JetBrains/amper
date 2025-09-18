@@ -10,7 +10,7 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -23,7 +23,7 @@ class AndroidPrepareTask(
     override val taskName: TaskName,
     module: AmperModule,
     buildType: BuildType,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
     androidSdkPath: Path,
     fragments: List<Fragment>,
     projectRoot: AmperProjectRoot,
@@ -32,7 +32,7 @@ class AndroidPrepareTask(
 ) : AndroidDelegatedGradleTask(
     module,
     buildType,
-    executeOnChangedInputs,
+    incrementalCache,
     androidSdkPath,
     fragments,
     projectRoot,

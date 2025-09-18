@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.android
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.engine.BuildTask
@@ -12,7 +11,7 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeZip
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -53,7 +52,7 @@ class AndroidAarTask(
     override val taskName: TaskName,
     override val module: AmperModule,
     override val buildType: BuildType,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
 ) : BuildTask {
@@ -83,7 +82,7 @@ class AndroidAarTask(
                 additionalAssets.map { result -> result.assetsRoots.map { it.path.pathString } }
             ),
         )
-        executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        incrementalCache.execute(taskName.name, configuration, inputs) {
             outputAarPath.deleteIfExists()
             outputAarPath.createParentDirectories()
 
@@ -119,7 +118,7 @@ class AndroidAarTask(
             } finally {
                 tempDir.deleteRecursively()
             }
-            ExecuteOnChangedInputs.ExecutionResult(
+            IncrementalCache.ExecutionResult(
                 outputs = listOf(outputAarPath),
             )
         }

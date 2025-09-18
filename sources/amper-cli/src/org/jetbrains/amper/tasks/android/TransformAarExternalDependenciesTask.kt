@@ -11,7 +11,7 @@ import org.jetbrains.amper.core.extract.extractFileToLocation
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -23,7 +23,7 @@ import kotlin.io.path.nameWithoutExtension
 
 class TransformAarExternalDependenciesTask(
     override val taskName: TaskName,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val classpathExtractor: (ResolveExternalDependenciesTask.Result) -> List<Path> = { it.compileClasspath },
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
@@ -31,12 +31,12 @@ class TransformAarExternalDependenciesTask(
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { classpathExtractor(it) }
 
-        val executionResult = executeOnChangedInputs.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {
+        val executionResult = incrementalCache.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {
             if (resolvedAndroidCompileDependencies.isNotEmpty()) {
                 logger.info("Transforming AAR external dependencies...")
             }
             val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
-            ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
+            IncrementalCache.ExecutionResult(outputs, mapOf())
         }
         return Result(executionResult.outputs, executionResult.outputs)
     }

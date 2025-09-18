@@ -17,7 +17,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 description = taskDescription,
                 buildOutputRoot = context.buildOutputRoot,
                 terminal = context.terminal,
-                executeOnChangedInputs = executeOnChangedInputs,
+                incrementalCache = executeOnChangedInputs,
             )
             tasks.registerTask(
                 task, dependsOn = listOf(

@@ -18,7 +18,6 @@ import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.validSourceFileExtensions
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
@@ -28,7 +27,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
@@ -59,13 +58,13 @@ internal abstract class WebCompileKlibTask(
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     override val buildType: BuildType? = null,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ) : ArtifactTaskBase(), BuildTask {
 
     abstract val expectedPlatform: Platform
@@ -143,7 +142,7 @@ internal abstract class WebCompileKlibTask(
         val sources = fragments.map { it.src } + additionalSources.map { it.path }
         val inputs = sources + libraryPaths
 
-        val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifact = taskOutputRoot.path
@@ -155,7 +154,7 @@ internal abstract class WebCompileKlibTask(
             }
             if (sourceFiles.isEmpty()) {
                 logger.debug("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
-                return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                return@execute IncrementalCache.ExecutionResult(emptyList())
             }
 
             compileSources(
@@ -170,7 +169,7 @@ internal abstract class WebCompileKlibTask(
 
             logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
+            return@execute IncrementalCache.ExecutionResult(listOf(artifact))
         }.outputs.singleOrNull()
 
         return Result(

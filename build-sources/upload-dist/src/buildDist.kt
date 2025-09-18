@@ -5,7 +5,7 @@
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.jetbrains.amper.buildinfo.AmperBuild
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
@@ -21,7 +21,7 @@ internal data class Distribution(
     val wrappers: List<Path>,
 )
 
-internal suspend fun ExecuteOnChangedInputs.buildDist(
+internal suspend fun IncrementalCache.buildDist(
     outputDir: Path,
     cliRuntimeClasspath: List<Path>,
     extraClasspaths: List<NamedClasspath>,
@@ -48,7 +48,7 @@ internal suspend fun ExecuteOnChangedInputs.buildDist(
             coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
         )
 
-        ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
+        IncrementalCache.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
     }
     return Distribution(
         version = AmperBuild.mavenVersion,

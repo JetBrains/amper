@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 
 internal class ResolveKspProcessorDependenciesTask(
@@ -17,8 +17,8 @@ internal class ResolveKspProcessorDependenciesTask(
     module: AmperModule,
     private val fragments: List<Fragment>,
     userCacheRoot: AmperUserCacheRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
-) : AbstractResolveJvmExternalDependenciesTask(module, userCacheRoot, executeOnChangedInputs, "KSP processors for ") {
+    incrementalCache: IncrementalCache,
+) : AbstractResolveJvmExternalDependenciesTask(module, userCacheRoot, incrementalCache, "KSP processors for ") {
     
     override fun extractCoordinates() = fragments
         .flatMap { it.settings.kotlin.ksp.processors }

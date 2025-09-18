@@ -16,7 +16,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -36,7 +36,7 @@ import kotlin.io.path.exists
 abstract class AndroidDelegatedGradleTask(
     private val module: AmperModule,
     private val buildType: BuildType,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
     private val projectRoot: AmperProjectRoot,
@@ -76,7 +76,7 @@ abstract class AndroidDelegatedGradleTask(
             if (servicesJsonPath.exists()) servicesJsonPath else null
         }
 
-        val executionResult = executeOnChangedInputs.execute(
+        val executionResult = incrementalCache.execute(
             taskName.name,
             configuration,
             runtimeClasspath + additionalInputFiles + (googleServicesJson?.let { listOf(it) } ?: listOf()),
@@ -100,7 +100,7 @@ abstract class AndroidDelegatedGradleTask(
                 gradleLogStdoutPath,
                 gradleLogStderrPath,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) })
-            ExecuteOnChangedInputs.ExecutionResult(result.filter(::outputFilterPredicate))
+            IncrementalCache.ExecutionResult(result.filter(::outputFilterPredicate))
         }
         taskOutputPath.path.createDirectories()
         executionResult.outputs.map {

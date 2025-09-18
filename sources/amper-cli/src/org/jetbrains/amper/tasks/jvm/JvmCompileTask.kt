@@ -34,7 +34,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
@@ -78,9 +78,9 @@ internal class JvmCompileTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
     override val taskName: TaskName,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val buildOutputRoot: AmperBuildOutputRoot,
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
@@ -169,7 +169,7 @@ internal class JvmCompileTask(
         val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
         val inputs = sources + resources + classpath + javaAnnotationProcessorClasspath
 
-        val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val result = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val nonEmptySourceDirs = sources
@@ -215,7 +215,7 @@ internal class JvmCompileTask(
                 BuildPrimitives.copy(from = resource, to = dest)
             }
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(outputPaths)
+            return@execute IncrementalCache.ExecutionResult(outputPaths)
         }
 
         return Result(
@@ -422,7 +422,7 @@ internal class JvmCompileTask(
         val classesOutputRoot: Path,
         val module: AmperModule,
         val isTest: Boolean,
-        val changes: List<ExecuteOnChangedInputs.Change>,
+        val changes: List<IncrementalCache.Change>,
     ) : TaskResult, RuntimeClasspathElementProvider {
         override val paths: List<Path>
             get() = listOf(classesOutputRoot)

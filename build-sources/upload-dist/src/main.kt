@@ -16,13 +16,12 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.maven.publish.deployToRemoteRepo
 import org.jetbrains.amper.maven.publish.installToMavenLocal
 import org.jetbrains.amper.maven.publish.writePom
 import java.nio.file.Path
-import kotlin.io.path.createTempFile
 import kotlin.io.path.extension
 
 private const val AmperGroupId = "org.jetbrains.amper"
@@ -39,7 +38,7 @@ class UploadDistCommand : CacheableTaskCommand() {
         "jetbrains-team-amper" to Repository.JetBrainsTeamAmperMaven,
     ).required()
 
-    override suspend fun ExecuteOnChangedInputs.runCached() {
+    override suspend fun IncrementalCache.runCached() {
         val distribution = buildDist(
             outputDir = taskOutputDirectory,
             cliRuntimeClasspath = cliRuntimeClasspath,

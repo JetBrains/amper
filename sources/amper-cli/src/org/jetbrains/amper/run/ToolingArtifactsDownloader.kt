@@ -14,7 +14,7 @@ import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.Maven
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
 import java.nio.file.Path
 
@@ -23,7 +23,7 @@ val AMPER_DEV_REPOSITORY = MavenRepository("https://packages.jetbrains.team/mave
 
 class ToolingArtifactsDownloader(
     userCacheRoot: AmperUserCacheRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
 ) {
 
     private val mavenResolver = MavenResolver(userCacheRoot)
@@ -64,7 +64,7 @@ class ToolingArtifactsDownloader(
         coordinates: List<String>,
         repositories: List<Repository> = listOf(MavenCentral),
     ): List<Path> =
-        executeOnChangedInputs.execute("resolve-$coordinates", emptyMap(), emptyList()) {
+        incrementalCache.execute("resolve-$coordinates", emptyMap(), emptyList()) {
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,
                 repositories = repositories,
@@ -72,6 +72,6 @@ class ToolingArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
-            return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
+            return@execute IncrementalCache.ExecutionResult(resolved.toList())
         }.outputs
 }

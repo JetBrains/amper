@@ -18,7 +18,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -39,7 +39,7 @@ class CommonizeNativeDistributionTask(
     private val model: Model,
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
 ) : Task {
     companion object {
         val TASK_NAME = TaskName("commonizeNativeDistribution")
@@ -47,7 +47,7 @@ class CommonizeNativeDistributionTask(
 
     override val taskName = TASK_NAME
 
-    private val kotlinDownloader = KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs)
+    private val kotlinDownloader = KotlinArtifactsDownloader(userCacheRoot, incrementalCache)
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         coroutineScope {
@@ -84,7 +84,7 @@ class CommonizeNativeDistributionTask(
                 .setAttribute("compiler-version", kotlinVersion)
                 .setListAttribute("commonizer-args", commonizerArgs)
                 .use {
-                    executeOnChangedInputs.execute(
+                    incrementalCache.execute(
                         "native-dist-commonize-$todoOutputTargets",
                         mapOf("commonizerArgs" to commonizerArgs.joinToString()),
                         listOf(
@@ -105,7 +105,7 @@ class CommonizeNativeDistributionTask(
                         if (result.exitCode != 0) {
                             userReadableError("Kotlin commonizer invocation failed (see errors above)")
                         }
-                        return@execute ExecuteOnChangedInputs.ExecutionResult(emptyList())
+                        return@execute IncrementalCache.ExecutionResult(emptyList())
                     }.outputs
                 }
         }

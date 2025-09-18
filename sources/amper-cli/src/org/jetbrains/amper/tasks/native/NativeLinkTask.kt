@@ -24,7 +24,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -40,7 +40,7 @@ internal class NativeLinkTask(
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val incrementalCache: IncrementalCache,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
@@ -55,7 +55,7 @@ internal class NativeLinkTask(
      */
     val exportedKLibTaskNames: Set<TaskName>,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
-        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
+        KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ): BuildTask {
     init {
         require(platform.isLeaf)
@@ -133,7 +133,7 @@ internal class NativeLinkTask(
         )
 
         val inputs = listOfNotNull(includeArtifact) + compileKLibs
-        val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             if (isTest) {
@@ -178,7 +178,7 @@ internal class NativeLinkTask(
 
             nativeCompiler.compile(args, tempRoot, module)
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))
+            return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
         }.outputs.single()
 
         return Result(

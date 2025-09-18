@@ -32,7 +32,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     module = module,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
-                    executeOnChangedInputs = executeOnChangedInputs,
+                    incrementalCache = executeOnChangedInputs,
                 )
             )
 
@@ -75,7 +75,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(kspTaskName),
                     taskName = kspTaskName,
-                    executeOnChangedInputs = executeOnChangedInputs,
+                    incrementalCache = executeOnChangedInputs,
                     tempRoot = context.projectTempRoot,
                 ),
                 dependsOn = buildList {

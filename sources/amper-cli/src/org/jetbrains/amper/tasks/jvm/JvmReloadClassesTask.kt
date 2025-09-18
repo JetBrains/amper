@@ -8,7 +8,7 @@ import org.jetbrains.amper.composehotreload.recompiler.ENV_COMPOSE_HOT_RELOAD_OR
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.compose.reload.core.getOrThrow
@@ -43,9 +43,9 @@ class JvmReloadClassesTask(override val taskName: TaskName) : Task {
             val changedClassFiles = mutableMapOf<File, ChangeType>()
             changes.forEach { change ->
                 val changeType = when (change.type) {
-                    ExecuteOnChangedInputs.Change.ChangeType.CREATED -> ChangeType.Added
-                    ExecuteOnChangedInputs.Change.ChangeType.MODIFIED -> ChangeType.Modified
-                    ExecuteOnChangedInputs.Change.ChangeType.DELETED -> ChangeType.Removed
+                    IncrementalCache.Change.ChangeType.CREATED -> ChangeType.Added
+                    IncrementalCache.Change.ChangeType.MODIFIED -> ChangeType.Modified
+                    IncrementalCache.Change.ChangeType.DELETED -> ChangeType.Removed
                 }
                 changedClassFiles[change.path.toAbsolutePath().toFile()] = changeType
             }

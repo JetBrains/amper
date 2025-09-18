@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 
 internal class ResolveJavaAnnotationProcessorDependenciesTask(
@@ -17,11 +17,11 @@ internal class ResolveJavaAnnotationProcessorDependenciesTask(
     module: AmperModule,
     private val fragments: List<Fragment>,
     userCacheRoot: AmperUserCacheRoot,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    incrementalCache: IncrementalCache,
 ) : AbstractResolveJvmExternalDependenciesTask(
     module,
     userCacheRoot,
-    executeOnChangedInputs,
+    incrementalCache,
     "Java annotation processors for ",
 ) {
     
