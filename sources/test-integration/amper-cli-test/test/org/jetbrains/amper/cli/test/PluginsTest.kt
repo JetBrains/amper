@@ -92,6 +92,24 @@ class PluginsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `crash inside a task is correctly reported`() = runSlowTest {
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            "task", ":app:crash@hello",
+            copyToTempDir = true,
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        with(r1) {
+            assertStdoutDoesNotContain("Internal error")
+            assertStderrContains(
+                "ERROR: Task ':app:crash@hello' failed: java.lang.RuntimeException: Crashing on purpose"
+            )
+        }
+    }
+
+    @Test
     fun `single plugin - no effect when no enabled`() = runSlowTest {
         val r = runCli(
             projectRoot = testProject("extensibility/single-local-plugin"),

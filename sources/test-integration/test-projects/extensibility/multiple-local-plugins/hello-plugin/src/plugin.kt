@@ -15,3 +15,8 @@ fun sayHello(
         println(message)
     }
 }
+
+@TaskAction
+fun crash() {
+    throw RuntimeException("Crashing on purpose")
+}
