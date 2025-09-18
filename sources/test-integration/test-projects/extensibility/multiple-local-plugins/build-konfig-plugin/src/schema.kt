@@ -14,12 +14,12 @@ interface Schema1 {
 
     val objectName: String
 
-    val visibility: Visibility get() = Visibility.`public`
+    val visibility: Visibility get() = Visibility.Public
 
     val propertiesFileName: String get() = "konfig"
 }
 
 enum class Visibility {
-    `internal`,
-    `public`,
+    Internal,
+    Public,
 }

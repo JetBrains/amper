@@ -73,8 +73,8 @@ public class ShadowDependencyMaven : ShadowDependency() {
 public enum class ShadowClasspathScope(
     override val schemaValue: String,
 ) : SchemaEnum {
-    Runtime("Runtime"),
-    Compile("Compile"),
+    Runtime("runtime"),
+    Compile("compile"),
     ;
 }
 

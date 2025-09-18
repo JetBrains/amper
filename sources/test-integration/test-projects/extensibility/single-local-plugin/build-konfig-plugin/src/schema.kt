@@ -18,6 +18,6 @@ interface Schema1 {
 }
 
 enum class Visibility {
-    `internal`,
-    `public`,
+    Internal,
+    Public,
 }

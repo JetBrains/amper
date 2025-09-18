@@ -7,6 +7,7 @@ package org.jetbrains.amper.schema.processing
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
+import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotation
 import org.jetbrains.kotlin.analysis.api.symbols.KaAnonymousObjectSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaNamedClassSymbol
@@ -30,6 +31,9 @@ internal fun KtModifierListOwner.isAnnotatedWith(annotation: ClassId): Boolean =
 
 internal fun KaAnnotated.isAnnotatedWith(annotation: ClassId): Boolean =
     annotations.any { it.classId == annotation }
+
+internal fun KaAnnotated.getAnnotation(annotation: ClassId): KaAnnotation? =
+    annotations.find { it.classId == annotation }
 
 @OptIn(KaExperimentalApi::class)
 context(session: KaSession)

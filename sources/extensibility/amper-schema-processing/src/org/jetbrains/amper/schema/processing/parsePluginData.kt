@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.schema.processing
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -15,12 +14,8 @@ import org.jetbrains.amper.stdlib.collections.distinctBy
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KaEnumEntrySymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolOrigin
-import org.jetbrains.kotlin.analysis.api.symbols.psi
-import org.jetbrains.kotlin.analysis.api.symbols.psiSafe
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.modalityModifier
 
@@ -121,19 +116,8 @@ fun KaSession.parsePluginDeclarations(
         )
     }
 
-    val enums = symbolsCollector.referencedEnumSymbols.map { symbol ->
-        PluginData.EnumData(
-            schemaName = checkNotNull(symbol.classId) { "not reachable: enum" }.toSchemaName(),
-            entries = symbol.staticDeclaredMemberScope.callables.filterIsInstance<KaEnumEntrySymbol>().map {
-                PluginData.EnumData.Entry(
-                    name = it.name.asString(),
-                    schemaName = it.name.asString(),
-                    doc = it.psiSafe<KtDeclaration>()?.getDefaultDocString(),
-                    origin = it.psi<PsiElement>().getSourceLocation(),
-                )
-            }.toList(),
-            origin = symbol.psi<PsiElement>().getSourceLocation(),
-        )
+    val enums = symbolsCollector.referencedEnumSymbols.map {
+        parseEnum(it)
     }
 
     return PluginData.Declarations(

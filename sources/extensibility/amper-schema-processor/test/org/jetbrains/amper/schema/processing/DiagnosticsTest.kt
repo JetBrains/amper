@@ -236,4 +236,60 @@ fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `com.example
                 .bufferedReader().useLines { it.joinToString(separator = "\n") }
         )
     }
+
+    @Test
+    fun `enum constant names`() = runTest {
+        givenSourceFile("""
+@Schema interface Settings { val prop: MyEnum }
+enum class MyEnum {
+    MY_CONSTANT,
+    MyConstant,
+    `hello-3world`,
+    @EnumValue("yaml-name")
+    MY_CONSTANT2,
+}
+        """.trimIndent())
+
+        expectPluginData("""
+{
+  "enums": [
+    {
+      "schemaName": "com.example/MyEnum",
+      "entries": [
+        {
+          "name": "MY_CONSTANT",
+          "schemaName": "my-constant"
+        },
+        {
+          "name": "MyConstant",
+          "schemaName": "my-constant"
+        },
+        {
+          "name": "hello-3world",
+          "schemaName": "hello-3world"
+        },
+        {
+          "name": "MY_CONSTANT2",
+          "schemaName": "yaml-name"
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "name": "com.example/Settings",
+      "properties": [
+        {
+          "name": "prop",
+          "type": {
+            "type": "enum",
+            "schemaName": "com.example/MyEnum"
+          }
+        }
+      ]
+    }
+  ]
+}
+        """.trimIndent())
+    }
 }

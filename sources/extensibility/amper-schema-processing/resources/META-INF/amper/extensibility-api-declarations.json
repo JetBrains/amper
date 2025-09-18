@@ -5,11 +5,11 @@
             "entries": [
                 {
                     "name": "Runtime",
-                    "schemaName": "Runtime"
+                    "schemaName": "runtime"
                 },
                 {
                     "name": "Compile",
-                    "schemaName": "Compile"
+                    "schemaName": "compile"
                 }
             ]
         }

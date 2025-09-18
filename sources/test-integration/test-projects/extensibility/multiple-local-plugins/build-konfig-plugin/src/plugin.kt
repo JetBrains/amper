@@ -39,8 +39,8 @@ fun generateKonfig(
     val outProperties = Properties()
     val typeSpec = TypeSpec.objectBuilder(className).apply {
         when (visibility) {
-            Visibility.internal -> addModifiers(KModifier.INTERNAL)
-            Visibility.public -> addModifiers(KModifier.PUBLIC)
+            Visibility.Internal -> addModifiers(KModifier.INTERNAL)
+            Visibility.Public -> addModifiers(KModifier.PUBLIC)
         }
         config.forEach { (key, value) ->
             outProperties.setProperty(key, value)

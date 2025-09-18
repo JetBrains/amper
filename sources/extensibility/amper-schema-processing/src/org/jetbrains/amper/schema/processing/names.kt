@@ -27,6 +27,8 @@ internal val SHORTHAND_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Nam
 internal val DEP_NOTATION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("DependencyNotation"))
 internal val PATH_VALUE_ONLY_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("PathValueOnly"))
 
+internal val ENUM_VALUE_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("EnumValue"))
+
 internal val TASK_ACTION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("TaskAction"))
 internal val TASK_ACTION_EXEC_AVOIDANCE_PARAM = Name.identifier("executionAvoidance")
 internal val EXEC_AVOIDANCE_ENUM = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("ExecutionAvoidance"))

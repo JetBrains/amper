@@ -5,15 +5,15 @@
       "entries": [
         {
           "name": "Kind1",
-          "schemaName": "Kind1"
+          "schemaName": "kind1"
         },
         {
           "name": "Kind2",
-          "schemaName": "Kind2"
+          "schemaName": "kind2"
         },
         {
           "name": "Kind3",
-          "schemaName": "Kind3"
+          "schemaName": "kind3"
         }
       ]
     }
