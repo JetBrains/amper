@@ -10,9 +10,9 @@ import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
@@ -43,8 +43,8 @@ private fun BuildCtx.lombokAnnotationProcessorDefaultsTree(trace: Trace, lombokV
                 Settings::java {
                     JavaSettings::annotationProcessing {
                         JavaAnnotationProcessingSettings::processors {
-                            this += `object`<MavenJavaAnnotationProcessorDeclaration> {
-                                MavenJavaAnnotationProcessorDeclaration::coordinates setTo scalar("org.projectlombok:lombok:$lombokVersion", versionTrace)
+                            this += `object`<UnscopedExternalMavenDependency> {
+                                UnscopedExternalMavenDependency::coordinates setTo scalar("org.projectlombok:lombok:$lombokVersion", versionTrace)
                             }
                         }
                     }

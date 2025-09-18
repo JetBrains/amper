@@ -104,7 +104,7 @@ class StandaloneAmperProjectContext(
         private fun find(
             virtualFile: VirtualFile,
             buildDir: Path?,
-            frontendPathResolver: FrontendPathResolver
+            frontendPathResolver: FrontendPathResolver,
         ): AmperProjectContext? {
             val result = preSearchProjectRoot(start = virtualFile) ?: return null
 
@@ -164,7 +164,7 @@ class StandaloneAmperProjectContext(
         internal fun create(
             rootDir: VirtualFile,
             buildDir: Path?,
-            frontendPathResolver: FrontendPathResolver
+            frontendPathResolver: FrontendPathResolver,
         ): AmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
             val amperProject = with(frontendPathResolver) { parseAmperProject(rootDir) }

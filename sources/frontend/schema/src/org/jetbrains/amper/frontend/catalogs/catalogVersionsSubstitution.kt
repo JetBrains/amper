@@ -15,12 +15,10 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Merged
@@ -45,8 +43,7 @@ internal class CatalogVersionsSubstitutor(
     inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
-        getType<CatalogKspProcessorDeclaration>() to getType<MavenKspProcessorDeclaration>(),
-        getType<CatalogJavaAnnotationProcessorDeclaration>() to getType<MavenJavaAnnotationProcessorDeclaration>(),
+        getType<UnscopedCatalogDependency>() to getType<UnscopedExternalMavenDependency>(),
         getType<CatalogBomDependency>() to getType<ExternalMavenBomDependency>(),
     )
 

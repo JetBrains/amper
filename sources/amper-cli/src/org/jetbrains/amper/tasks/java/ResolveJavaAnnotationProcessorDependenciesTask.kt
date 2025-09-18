@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks.ksp
+package org.jetbrains.amper.tasks.java
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
@@ -12,16 +12,20 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
 import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 
-internal class ResolveKspProcessorDependenciesTask(
+internal class ResolveJavaAnnotationProcessorDependenciesTask(
     override val taskName: TaskName,
     module: AmperModule,
     private val fragments: List<Fragment>,
     userCacheRoot: AmperUserCacheRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
-) : AbstractResolveJvmExternalDependenciesTask(module, userCacheRoot, executeOnChangedInputs, "KSP processors for ") {
+) : AbstractResolveJvmExternalDependenciesTask(
+    module,
+    userCacheRoot,
+    executeOnChangedInputs,
+    "Java annotation processors for ",
+) {
     
-    override fun extractCoordinates() = fragments
-        .flatMap { it.settings.kotlin.ksp.processors }
+    override fun extractCoordinates() = fragments.flatMap { it.settings.java.annotationProcessing.processors }
         // catalog references have been handled in the frontend, so we don't need to resolve them here
         .filterIsInstance<UnscopedExternalMavenDependency>()
         .map { it.coordinates }

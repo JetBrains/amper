@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ksp
@@ -8,6 +8,7 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import java.nio.file.Path
@@ -27,9 +28,9 @@ class KspProcessorClasspathTask(
         val localProcessorsRuntimeClasspath = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .flatMap { it.jvmRuntimeClasspath }
         val externalProcessorDependencies =
-            dependenciesResult.filterIsInstance<ResolveKspProcessorDependenciesTask.Result>()
+            dependenciesResult.filterIsInstance<AbstractResolveJvmExternalDependenciesTask.Result>()
                 .singleOrNull()
-                ?.kspProcessorExternalJars
+                ?.externalJars
                 ?: error(
                     "${ResolveKspProcessorDependenciesTask::class.simpleName} result is not found in " +
                             "dependencies of ${KspProcessorClasspathTask::class.simpleName}"

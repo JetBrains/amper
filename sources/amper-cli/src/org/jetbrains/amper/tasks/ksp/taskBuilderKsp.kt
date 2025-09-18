@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.ksp
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -31,7 +31,6 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     taskName = processorDRTaskName,
                     module = module,
                     fragments = fragments,
-                    platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     executeOnChangedInputs = executeOnChangedInputs,
                 )
@@ -42,7 +41,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
             // This is why we use paths + the module source right now to find the actual AmperModule objects.
             // TODO rework AmperModule settings so we can use different types in parsing and processing
             val processorModuleDepsPaths = fragments.flatMap { it.settings.kotlin.ksp.processors }
-                .filterIsInstance<ModuleKspProcessorDeclaration>()
+                .filterIsInstance<UnscopedModuleDependency>()
                 .map { it.path }
             val processorModuleDeps = model.modules.filter { it.source.moduleDir in processorModuleDepsPaths }
 

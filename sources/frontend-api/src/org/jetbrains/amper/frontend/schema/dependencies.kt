@@ -67,6 +67,27 @@ class CatalogDependency : ScopedDependency() {
     var catalogKey by value<String>()
 }
 
+/**
+ * Hierarchical notation for dependencies without scope, that is identical to [ScopedDependency].
+ */
+// TODO See TODO on [Dependency].
+sealed class UnscopedDependency : SchemaNode()
+
+class UnscopedExternalMavenDependency : UnscopedDependency() {
+    @FromKeyAndTheRestIsNested
+    val coordinates by value<String>()
+}
+
+class UnscopedModuleDependency : UnscopedDependency() {
+    @FromKeyAndTheRestIsNested
+    val path by value<Path>()
+}
+
+class UnscopedCatalogDependency : UnscopedDependency() {
+    @FromKeyAndTheRestIsNested
+    val catalogKey by value<String>()
+}
+
 sealed class BomDependency : Dependency()
 
 class ExternalMavenBomDependency : BomDependency() {

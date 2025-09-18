@@ -20,28 +20,11 @@ class KspSettings : SchemaNode() {
     var version by value(UsedVersions.kspVersion)
 
     @SchemaDoc("The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.")
-    var processors by value<List<KspProcessorDeclaration>>(default = emptyList())
+    var processors by value<List<UnscopedDependency>>(default = emptyList())
 
     @Misnomers("processorSettings")
     @SchemaDoc("Some options to pass to KSP processors. Refer to each processor documentation for details.")
     var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
-}
-
-sealed class KspProcessorDeclaration : SchemaNode()
-
-class MavenKspProcessorDeclaration : KspProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    var coordinates by value<String>()
-}
-
-class ModuleKspProcessorDeclaration : KspProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    var path by value<Path>()
-}
-
-class CatalogKspProcessorDeclaration : KspProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    var catalogKey by value<String>()
 }
 
 /**

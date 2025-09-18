@@ -35,7 +35,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
-import org.jetbrains.amper.java.JavaAnnotationProcessorClasspathTask
+import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener

@@ -2,10 +2,10 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.java
+package org.jetbrains.amper.tasks.java
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.ModuleJavaAnnotationProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -26,14 +26,13 @@ fun ProjectTasksBuilder.setupJavaAnnotationProcessingTasks() {
                     taskName = processorDRTaskName,
                     module = module,
                     fragments = fragments,
-                    platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     executeOnChangedInputs = executeOnChangedInputs,
                 )
             )
 
             val processorModuleDepsPaths = fragments.flatMap { it.settings.java.annotationProcessing.processors }
-                .filterIsInstance<ModuleJavaAnnotationProcessorDeclaration>()
+                .filterIsInstance<UnscopedModuleDependency>()
                 .map { it.path }
             val processorModuleDeps = model.modules.filter { it.source.moduleDir in processorModuleDepsPaths }
 

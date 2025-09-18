@@ -74,28 +74,11 @@ enum class DependencyMode(override val schemaValue: String, override val outdate
 class JavaAnnotationProcessingSettings : SchemaNode() {
 
     @SchemaDoc("The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates")
-    var processors by value<List<JavaAnnotationProcessorDeclaration>>(default = emptyList())
+    var processors by value<List<UnscopedDependency>>(default = emptyList())
 
     @Misnomers("processorSettings")
     @SchemaDoc("Options to pass to annotation processors")
     var processorOptions by value<Map<String, TraceableString>>(default = emptyMap())
-}
-
-sealed class JavaAnnotationProcessorDeclaration : SchemaNode()
-
-class MavenJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    val coordinates by value<String>()
-}
-
-class ModuleJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    val path by value<Path>()
-}
-
-class CatalogJavaAnnotationProcessorDeclaration : JavaAnnotationProcessorDeclaration() {
-    @FromKeyAndTheRestIsNested
-    val catalogKey by value<String>()
 }
 
 /**

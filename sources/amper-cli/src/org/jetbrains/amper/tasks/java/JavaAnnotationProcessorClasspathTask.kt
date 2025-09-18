@@ -2,11 +2,12 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.java
+package org.jetbrains.amper.tasks.java
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import java.nio.file.Path
@@ -23,9 +24,9 @@ class JavaAnnotationProcessorClasspathTask(override val taskName: TaskName) : Ta
         val localProcessorsRuntimeClasspath = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .flatMap { it.jvmRuntimeClasspath }
         val externalProcessorDependencies =
-            dependenciesResult.filterIsInstance<ResolveJavaAnnotationProcessorDependenciesTask.Result>()
+            dependenciesResult.filterIsInstance<AbstractResolveJvmExternalDependenciesTask.Result>()
                 .singleOrNull()
-                ?.javaAnnotationProcessorExternalJars
+                ?.externalJars
                 ?: error(
                     "${ResolveJavaAnnotationProcessorDependenciesTask::class.simpleName} result is not found in " +
                             "dependencies of ${JavaAnnotationProcessorClasspathTask::class.simpleName}"

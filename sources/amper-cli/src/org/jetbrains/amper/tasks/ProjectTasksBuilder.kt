@@ -16,13 +16,13 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.java.setupJavaAnnotationProcessingTasks
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.compose.setupComposeTasks
 import org.jetbrains.amper.tasks.custom.setupCustomTasks
 import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.ios.setupIosTasks
+import org.jetbrains.amper.tasks.java.setupJavaAnnotationProcessingTasks
 import org.jetbrains.amper.tasks.js.setupJsTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.ksp.setupKspTasks

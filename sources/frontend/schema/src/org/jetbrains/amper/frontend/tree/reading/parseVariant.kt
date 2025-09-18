@@ -10,19 +10,15 @@ import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.schema.BomDependency
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.CatalogJavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.MavenJavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.ModuleJavaAnnotationProcessorDeclaration
-import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.ScopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
+import org.jetbrains.amper.frontend.schema.UnscopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaVariantDeclaration
@@ -66,15 +62,10 @@ internal fun parseVariant(
         '$' -> parseObject(psi, type.leafType(CatalogDependency::class))
         else -> parseObject(psi, type.leafType(ExternalMavenDependency::class))
     }
-    KspProcessorDeclaration::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
-        '.' -> parseObject(psi, type.leafType(ModuleKspProcessorDeclaration::class))
-        '$' -> parseObject(psi, type.leafType(CatalogKspProcessorDeclaration::class))
-        else -> parseObject(psi, type.leafType(MavenKspProcessorDeclaration::class))
-    }
-    JavaAnnotationProcessorDeclaration::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
-        '.' -> parseObject(psi, type.leafType(ModuleJavaAnnotationProcessorDeclaration::class))
-        '$' -> parseObject(psi, type.leafType(CatalogJavaAnnotationProcessorDeclaration::class))
-        else -> parseObject(psi, type.leafType(MavenJavaAnnotationProcessorDeclaration::class))
+    UnscopedDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
+        '.' -> parseObject(psi, type.leafType(UnscopedModuleDependency::class))
+        '$' -> parseObject(psi, type.leafType(UnscopedCatalogDependency::class))
+        else -> parseObject(psi, type.leafType(UnscopedExternalMavenDependency::class))
     }
     else -> {
         // Generic approach: deduce the type based on the explicit type tag.
