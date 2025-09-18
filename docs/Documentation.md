@@ -1545,11 +1545,9 @@ feedback loop during UI development.
 
 ### Configuration
 
-To enable Compose Hot Reload, use a `jvm/app` module, and set `compose.experimental.hotReload` to `enabled`:
+To enable Compose Hot Reload set `compose.experimental.hotReload` to `enabled`:
 
 ```yaml
-product: jvm/app
-
 settings:
   compose:
     enabled: true
@@ -1571,42 +1569,21 @@ When you run your application with Compose Hot Reload enabled:
 When running your app from the IDE, you can get automatic recompilation and reloading based on file system changes,
 using the [Amper IntelliJ plugin](https://plugins.jetbrains.com/plugin/23076-amper).
 
-To configure this:
+To configure it, you don't have to do anything, the plugin will automatically detect the presence of the Compose Hot
+Reload and enable the feature.
 
-1. Open *Settings → Tools → Actions on Save* and enable *Reload composition*
-   ![Compose Hot Reload action on save](images/hot-reload-on-save-action.png)
-2. Enable Compose Hot Reload in your `module.yaml` as shown above
-3. Sync your project again
-4. Add the `@DevelopmentEntryPoint` annotation to the composable you want to run
-5. Click the gutter icon to run a development application with the selected composable
-   ![Compose Hot Reload gutter icon](images/hot-reload-guttericon.png)
+When Compose Hot Reload is enabled, in the IDE you can see a special mode of running Amper application:
+![Compose Hot Reload special mode of running application](images/hot-reload-guttericon.png)
 
-### Running from the command line
+### DevelopmentEntryPoint
+It's also possible to run specific composables as in the Compose Hot Reload mode. To do that, you need to put 
+`@DevelopmentEntryPoint` annotation on the composable function without parameters.
+A clickable gutter icon will appear on the left side of the composable.
+![Compose Hot Reload development entry point usage](images/hot-reload-dev-entry-point.png)
 
-To use Compose Hot Reload while running the app from the command line, wrap your main composable function with the
-`DevelopmentEntryPoint` composable:
+### Current Limitations
 
-```kotlin
-fun main() = singleWindowApplication(title = "Compose for Desktop") {
-    DevelopmentEntryPoint {
-        App()
-    }
-}
-```
-
-You can then run your application normally:
-
-```bash
-./amper run
-```
-
-> Note: As Amper doesn't support observing file system changes to rebuild, you need to manually press the "reload"
-> button on the dev tool to recompile and reload code changes when running from the command line.
-
-### Limitations
-
-- Compose Hot Reload support in Amper may change in future releases
-- Only the `jvm` target is supported
+- You need to make sure that `jvm` is one of the platforms of the module.
 - Amper doesn't watch the file system, so automatic reloads are only available when using the IDE
 
 
