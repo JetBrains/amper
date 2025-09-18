@@ -157,7 +157,12 @@ private class ExternalObjectDeclaration(
             return Default.Static(toValue())
         }
 
-        if (forType is PluginData.Type.ObjectType && !forType.isNullable) {
+        if (forType.isNullable) {
+            // Nullable types are `null` by default
+            return Default.Static(null)
+        }
+
+        if (forType is PluginData.Type.ObjectType) {
             // For non-nullable objects we instantiate a nested object by default, like with `by nested()`
             // Note: the real type will be taken out of the property type, so it's not important what to put here.
             return Default.NestedObject(ExtensionSchemaNode::class)
