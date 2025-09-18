@@ -60,7 +60,8 @@ public enum CLFlags {
 
   ADD_EXPORT,
   ADD_READS,
-  NO_PROC;
+  NO_PROC,
+  OTHER;
 
   public boolean isFlagSet(Map<CLFlags, ? extends Collection<String>> flags) {
     Collection<String> value = flags.get(this);
