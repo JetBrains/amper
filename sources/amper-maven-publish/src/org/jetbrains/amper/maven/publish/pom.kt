@@ -79,7 +79,12 @@ private fun generatePomModel(
     val fragment = module.singleProductionFragmentOrNull(platform)
         ?: error("Cannot generate pom for module '${module.userReadableName}': expected a single fragment for platform $platform")
     // FIXME [distinct] can be error prone here, because we (I guess) have no guarantees about [externalDependencies] equality.
-    val dependencies = fragment.ancestralPath().flatMap { it.externalDependencies }.distinct()
+    val (bomDependencies, regularDependencies) = fragment.ancestralPath()
+        .flatMap { it.externalDependencies }
+        .distinct()
+        .partition { it is BomDependency }
+    val bomPomDependencies = bomDependencies.map { it.toPomDependency(platform, publicationCoordsOverrides) }
+    val regularPomDependencies = regularDependencies.map { it.toPomDependency(platform, publicationCoordsOverrides) }
 
     val model = Model()
     model.modelVersion = "4.0.0"
@@ -93,19 +98,11 @@ private fun generatePomModel(
     model.groupId = coords.groupId
     model.artifactId = coords.artifactId
     model.version = coords.version
+    model.dependencies.addAll(regularPomDependencies)
 
-    model.dependencies.addAll(
-        dependencies.filterNot{ it is BomDependency }
-            .map { it.toPomDependency(platform, publicationCoordsOverrides) }
-    )
-
-    dependencies.filterIsInstance<BomDependency>()
-        .map { it.toPomDependency(platform, publicationCoordsOverrides) }.toList()
-        .takeIf { it.isNotEmpty() }
-        ?.let {
-            model.dependencyManagement ?: run { model.dependencyManagement = DependencyManagement() }
-            model.dependencyManagement.dependencies.addAll(it)
-        }
+    if (bomDependencies.isNotEmpty()) {
+        model.dependencyManagement = DependencyManagement().apply { dependencies.addAll(bomPomDependencies) }
+    }
 
     // TODO add description for Maven Central compatibility
     // TODO add url for Maven Central compatibility
@@ -120,8 +117,7 @@ private fun Notation.toPomDependency(
     platform: Platform,
     publicationCoordsOverrides: PublicationCoordinatesOverrides,
 ): Dependency = when (this) {
-    is MavenDependency -> toPomDependency(publicationCoordsOverrides)
-    is BomDependency -> toPomDependency(publicationCoordsOverrides)
+    is MavenDependencyBase -> toPomDependency(publicationCoordsOverrides)
     is LocalModuleDependency -> toPomDependency(platform)
     is DefaultScopedNotation -> error("Dependency type ${this::class.simpleName} is not supported for pom.xml publication")
 }
@@ -152,15 +148,13 @@ private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: Publ
     dependency.artifactId = effectiveCoordinates.artifactId
     dependency.version = effectiveCoordinates.version
     dependency.classifier = effectiveCoordinates.classifier
-
-    when(this) {
-        is MavenDependency -> {
-            dependency.scope = mavenScopeName()
-        }
-        is BomDependency -> {
-            dependency.scope = "import"
-            dependency.type = "pom"
-        }
+    dependency.scope = when (this) {
+        is MavenDependency -> mavenScopeName()
+        is BomDependency -> "import"
+    }
+    dependency.type = when (this) {
+        is MavenDependency -> "jar"
+        is BomDependency -> "pom"
     }
     return dependency
 }
