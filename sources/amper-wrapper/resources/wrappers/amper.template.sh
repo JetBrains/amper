@@ -37,6 +37,7 @@ download_and_extract() {
   sha_size="$4"
   cache_dir="$5"
   extract_dir="$6"
+  show_banner_on_cache_miss="$7"
 
   if [ -e "$extract_dir/.flag" ] && [ "$(cat "$extract_dir/.flag")" = "${file_sha}" ]; then
     # Everything is up-to-date in $extract_dir, do nothing
@@ -81,10 +82,26 @@ download_and_extract() {
     return 0;
   fi
 
+  if [ "$show_banner_on_cache_miss" = "true" ]; then
+      echo
+      echo '        _____  Welcome to                                  '
+      echo '       /:::::|  ____   ___     ____      ____    __  ___   '
+      echo '      /::/|::| |::::\_|:::\   |:::::\   /::::\  |::|/:::|  '
+      echo '     /::/ |::| |::|\:::|\::\  |::|\::\ /:/__\:\ |:::/      '
+      echo '    /::/__|::| |::| |::| |::| |::| |::|:::::::/ |::|       '
+      echo '   /:::::::::| |::| |::| |::| |::|/::/ \::\__   |::|       '
+      echo '  /::/    |::| |::| |::| |::| |:::::/   \::::|  |::|       '
+      echo '                              |::|                         '
+      echo "                              |::|  v.$amper_version       "
+      echo
+      echo "This is the first run of this version, so we need to download the actual Amper distribution."
+      echo "Please give us a few seconds, subsequent runs will be faster."
+      echo
+  fi
+
+  echo "Downloading $moniker..."
+
   temp_file="$cache_dir/download-file-$$.bin"
-
-  echo "Downloading $moniker... (only happens on the first run of this version)"
-
   rm -f "$temp_file"
   if command -v curl >/dev/null 2>&1; then
     if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
@@ -193,7 +210,7 @@ amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$default_amper_cache_dir}"
 
 amper_url="$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/amper-cli/$amper_version/amper-cli-$amper_version-dist.tgz"
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
-download_and_extract "Amper distribution v$amper_version" "$amper_url" "$amper_sha256" 256 "$amper_cache_dir" "$amper_target_dir"
+download_and_extract "Amper distribution v$amper_version" "$amper_url" "$amper_sha256" 256 "$amper_cache_dir" "$amper_target_dir" "true"
 
 # ********** Provision JRE for Amper **********
 
@@ -223,7 +240,7 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
     *) die "Unsupported platform $platform" ;;
   esac
 
-  download_and_extract "JetBrains Runtime v$jbr_version$jbr_build" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir"
+  download_and_extract "JetBrains Runtime v$jbr_version$jbr_build" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir" "false"
 
   AMPER_JAVA_HOME=
   for d in "$jbr_target_dir" "$jbr_target_dir"/* "$jbr_target_dir"/Contents/Home "$jbr_target_dir"/*/Contents/Home; do

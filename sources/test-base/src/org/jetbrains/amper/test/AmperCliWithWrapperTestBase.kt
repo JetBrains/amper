@@ -270,11 +270,7 @@ data class AmperCliResult(
      * The contents of [stdout] without any sporadic wrapper bootstrap messages (downloads / synchronization) that can
      * sometimes appear at the beginning.
      */
-    val stdoutClean: String by lazy {
-        stdout.lines()
-            .dropWhile { it.isEmpty() || it.isSporadicWrapperBootstrapMessage() }
-            .joinToString("\n")
-    }
+    val stdoutClean: String by lazy { cleanAmperStdout(stdout) }
 
     val infoLogsPath = logsDir?.resolve("info.log")
     val debugLogsPath = logsDir?.resolve("debug.log")
@@ -298,13 +294,26 @@ data class AmperCliResult(
 private fun String.prependIndentWithEmptyMark(indent: String): String =
     trim().ifEmpty { "<empty>" }.prependIndent(indent)
 
-
 private val sporadicWrapperBootstrapMessagePrefixes = setOf(
     "Another Amper instance",
+    "Awaiting the result",
     "Downloading Amper distribution",
     "Downloading JetBrains Runtime",
     "Download complete",
 )
+
+private fun cleanAmperStdout(stdout: String): String {
+    val hasBootstrapDownloadMessage = stdout.lineSequence().take(30).any { it.isSporadicWrapperBootstrapMessage() }
+    if (hasBootstrapDownloadMessage) {
+        // we drop until we reach the download messages, and then drop them
+        return stdout
+            .lineSequence()
+            .dropWhile { it.isEmpty() || !it.isSporadicWrapperBootstrapMessage() }
+            .dropWhile { it.isEmpty() || it.isSporadicWrapperBootstrapMessage() }
+            .joinToString("\n")
+    }
+    return stdout
+}
 
 private fun String.isSporadicWrapperBootstrapMessage(): Boolean =
     sporadicWrapperBootstrapMessagePrefixes.any { this.startsWith(it) }
