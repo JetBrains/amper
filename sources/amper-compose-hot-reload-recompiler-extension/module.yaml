@@ -11,11 +11,9 @@ settings:
 
 dependencies:
   - ../libraries/async-processes
-
+  - $libs.hot.reload.devtools.api
+  - $libs.kotlinx.coroutines.core
   - $libs.ktor.client
   - $libs.ktor.client.cio
   - $libs.ktor.client.contentNegotiation
   - $libs.ktor.serialization.kotlinx.json
-
-  - $libs.hot.reload.devtools.api
-  - $libs.kotlinx.coroutines.core
