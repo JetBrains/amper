@@ -10,9 +10,12 @@ import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
+import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.outputStream
+import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
 
 internal data class Distribution(
@@ -67,8 +70,16 @@ private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths
 }
 
 private fun TarArchiveOutputStream.writeDir(files: List<Path>, targetDirName: String) {
+    // some jars have the exact same filename even though they don't come from the same artifact
+    val alreadySeenFilenames = mutableSetOf<String>()
     files.sortedBy { it.name }.forEach { path ->
-        writeFile(path, "$targetDirName/${path.name}")
+        val alreadyExists = !alreadySeenFilenames.add(path.name)
+        val filename = if (alreadyExists) {
+            "${path.nameWithoutExtension}-${path.pathString.sha256String().take(8)}.${path.extension}"
+        } else {
+            path.name
+        }
+        writeFile(path, "$targetDirName/$filename")
     }
 }
 

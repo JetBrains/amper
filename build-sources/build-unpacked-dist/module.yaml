@@ -6,3 +6,4 @@ apply:
 dependencies:
   - ../task-helpers
   - ../../sources/core
+  - ../../sources/libraries/stdlib-extended
