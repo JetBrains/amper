@@ -23,7 +23,7 @@ internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
 
     companion object {
 
-        context(reporter: ProblemReporter)
+        context(reporter: ProblemReporter, config: ParsingConfig)
         fun parseKey(keyValue: YAMLKeyValue): YAMLScalarOrKey? {
             val key = keyValue.key ?: run {
                 reportParsing(keyValue, "validation.structure.missing.key")
@@ -42,8 +42,8 @@ internal value class YAMLScalarOrKey private constructor(val psi: PsiElement) {
                 return null
             }
             val scalarKey = YAMLScalarOrKey(key)
-            if (containsReferenceSyntax(scalarKey)) {
-                reportParsing(key, "validation.types.unsupported.reference", level = Level.Warning)
+            if (config.diagnoseReferences && containsReferenceSyntax(scalarKey)) {
+                reportParsing(key, "validation.types.unsupported.reference.key", "key", level = Level.Warning)
             }
             return scalarKey
         }

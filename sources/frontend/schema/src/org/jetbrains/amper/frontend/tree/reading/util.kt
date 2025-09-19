@@ -101,3 +101,14 @@ internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue
         is NullValue<T> -> copy(trace = trace)
     }
 }
+
+internal val ParsingConfig.parseReferences: Boolean get() = when (referenceParsingMode) {
+    ReferencesParsingMode.Parse -> true
+    ReferencesParsingMode.Ignore, ReferencesParsingMode.IgnoreButWarn -> false
+}
+
+
+internal val ParsingConfig.diagnoseReferences: Boolean get() = when (referenceParsingMode) {
+    ReferencesParsingMode.Parse, ReferencesParsingMode.IgnoreButWarn -> true
+    ReferencesParsingMode.Ignore -> false
+}

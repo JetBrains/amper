@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -52,8 +53,11 @@ internal fun BuildCtx.buildCustomTask(
         return
     }
 
-    val taskTree = readTree(customTaskFile, types.getDeclaration<CustomTaskNode>())
-        .appendDefaultValues()
+    val taskTree = readTree(
+        file = customTaskFile,
+        declaration = types.getDeclaration<CustomTaskNode>(),
+        referenceParsingMode = ReferencesParsingMode.Ignore,
+    ).appendDefaultValues()
     val refined = TreeRefiner().refineTree(taskTree, EmptyContexts)
         .resolveReferences()
 

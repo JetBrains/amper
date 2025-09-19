@@ -1,0 +1,9 @@
+product: jvm/lib
+
+settings:
+  compose: enabled
+  kotlin:
+    allOpen: <![Error] Expected `AllOpenSettings ( "enabled" | {..} )`, but got `scalar`!><![Warning] References are not yet supported in this file. The string is interpreted literally!>${compose}<!><!>
+    ksp:
+      processorOptions:
+        <![Warning] References are not yet supported in the mapping keys. The string is interpreted literally!>${something}<!>: foo

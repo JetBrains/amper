@@ -25,4 +25,9 @@ class ParsingErrorsTest : GoldenTestBase(Path("testResources") / "parsing-errors
     fun `unsupported constructs`() {
         diagnosticsTest("unsupported-constructs/module")
     }
+
+    @Test
+    fun `unsupported references`() {
+        diagnosticsTest("unsupported-references/module")
+    }
 }

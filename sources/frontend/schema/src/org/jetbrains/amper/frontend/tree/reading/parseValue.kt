@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLAlias
 import org.jetbrains.yaml.psi.YAMLAnchor
@@ -71,10 +72,14 @@ internal fun parseValue(
     // TODO(*): is there a better way around it?
     val newContexts: Contexts = inheritedContexts.map { it.withoutTrace() } + explicitContexts
     context(newContexts) {
-        if (config.supportReferences && psi is YAMLScalar) {
+        if (config.diagnoseReferences && psi is YAMLScalar) {
             val scalar = YAMLScalarOrKey(psi)
             if (containsReferenceSyntax(scalar)) {
-                return parseReferenceOrInterpolation(scalar, type)
+                if (config.parseReferences) {
+                    return parseReferenceOrInterpolation(scalar, type)
+                } else {
+                    reportParsing(psi, "validation.types.unsupported.reference", level = Level.Warning)
+                }
             }
         }
 

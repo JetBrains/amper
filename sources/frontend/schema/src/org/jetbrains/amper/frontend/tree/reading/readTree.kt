@@ -31,7 +31,7 @@ internal fun BuildCtx.readTree(
     declaration: SchemaObjectDeclaration,
     vararg contexts: Context,
     reportUnknowns: Boolean = true,
-    parseReferences: Boolean = false,
+    referenceParsingMode: ReferencesParsingMode = ReferencesParsingMode.IgnoreButWarn,
     parseContexts: Boolean = true,
 ): MapLikeValue<*> {
     val psiFile = file.asPsi()
@@ -44,7 +44,7 @@ internal fun BuildCtx.readTree(
                         basePath = file.parent.toNioPath().absolute(),
                         skipUnknownProperties = !reportUnknowns,
                         supportContexts = parseContexts,
-                        supportReferences = parseReferences,
+                        referenceParsingMode = referenceParsingMode,
                     )
                     context(config, problemReporter, rootContexts) {
                         parseFile(
@@ -61,9 +61,9 @@ internal fun BuildCtx.readTree(
 
 internal class ParsingConfig(
     val basePath: Path,
-    val skipUnknownProperties: Boolean = false,
-    val supportReferences: Boolean = false,
-    val supportContexts: Boolean = true,
+    val skipUnknownProperties: Boolean,
+    val referenceParsingMode: ReferencesParsingMode,
+    val supportContexts: Boolean,
 )
 
 context(_: Contexts, _: ParsingConfig, reporter: ProblemReporter)
@@ -80,4 +80,22 @@ private fun parseFile(
     val value = documents.first() // Safe - at least one document is always present
         .topLevelValue ?: return null
     return parseValue(value, type) as? Owned?
+}
+
+internal enum class ReferencesParsingMode {
+    /**
+     * Neither parse/nor diagnose references.
+     */
+    Ignore,
+
+    /**
+     * Parse and fully validate references.
+     */
+    Parse,
+
+    /**
+     * We do not parse references as in "yield ReferenceTreeValue", but we diagnose them with warnings.
+     * Suited for files where references are not yet supported but planned.
+     */
+    IgnoreButWarn,
 }

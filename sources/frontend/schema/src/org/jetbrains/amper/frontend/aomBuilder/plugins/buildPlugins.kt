@@ -35,6 +35,7 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
@@ -203,7 +204,7 @@ private class PluginTreeReader(
             file = pluginFile,
             declaration = declaration,
             reportUnknowns = true,
-            parseReferences = true,
+            referenceParsingMode = ReferencesParsingMode.Parse,
             parseContexts = false,
         )
 
