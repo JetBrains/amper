@@ -43,7 +43,7 @@ import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHave
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesShouldBuildValidPath
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
-import org.jetbrains.amper.incrementalcache.ExecuteOnChangedInputs
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
@@ -147,7 +147,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         var graphResolvedInsideCache: DependencyNode? = null
                         // todo (AB): It should be adopted and moved into dependency-resolution library
                         // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
-                        val executeOnChangedInputs = ExecuteOnChangedInputs(
+                        val executeOnChangedInputs = IncrementalCache(
                             // todo (AB) : It should point into project build dir instead of common DR root
                             stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
                             codeVersion = "2",
@@ -180,7 +180,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
                                         val serializableGraph = graphResolvedInsideCache.toGraph()
                                         val serialized = json.encodeToString(serializableGraph)
-                                        ExecuteOnChangedInputs.ExecutionResult(
+                                        IncrementalCache.ExecutionResult(
                                             graphResolvedInsideCache.dependencyPaths(),
                                             mapOf("graph" to serialized)
                                         )
