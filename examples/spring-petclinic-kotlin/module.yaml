@@ -29,3 +29,7 @@ dependencies:
 test-dependencies:
   - $spring.boot.starter.test
   - $spring.boot.starter.webflux
+
+test-settings:
+  kotlin:
+    freeCompilerArgs: [ -Xannotation-default-target=param-property ]

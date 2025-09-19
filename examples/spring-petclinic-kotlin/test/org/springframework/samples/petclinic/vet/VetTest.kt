@@ -16,6 +16,7 @@ class VetTest {
         vet.firstName = "Zaphod"
         vet.lastName = "Beeblebrox"
         vet.id = 123
+        @Suppress("DEPRECATION")
         val other = SerializationUtils
                 .deserialize(SerializationUtils.serialize(vet)) as Vet
         assertThat(other.firstName).isEqualTo(vet.firstName)
