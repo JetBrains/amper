@@ -72,7 +72,7 @@ dependencies:
   - $libs.ktor.server.core
   - $libs.ktor.server.netty
   - $libs.ktor.server.sse
-  - $libs.ktor.server.content.negotiation
+  - $libs.ktor.server.contentNegotiation
   - $libs.ktor.serialization.kotlinx.json
   - com.google.code.findbugs:jsr305:3.0.2
 

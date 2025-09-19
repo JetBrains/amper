@@ -4,7 +4,6 @@ apply:
   - ../common.module-template.yaml
 
 settings:
-  ktor: enabled
   kotlin:
     serialization: json
   publishing:
@@ -13,10 +12,10 @@ settings:
 dependencies:
   - ../libraries/async-processes
 
-  - $ktor.client.core
-  - $ktor.client.cio
-  - $ktor.client.contentNegotiation
-  - $ktor.serialization.kotlinx.json
+  - $libs.ktor.client
+  - $libs.ktor.client.cio
+  - $libs.ktor.client.contentNegotiation
+  - $libs.ktor.serialization.kotlinx.json
 
   - $libs.hot.reload.devtools.api
   - $libs.kotlinx.coroutines.core
