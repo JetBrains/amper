@@ -1,0 +1,7 @@
+product: jvm/app
+
+dependencies: 
+  - ../lib1
+
+settings:
+  maven-surefire-plugin.test: enabled

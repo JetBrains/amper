@@ -27,4 +27,14 @@ class MavenPluginsTest : AmperCliTestBase() {
         )
         result.assertStdoutContains("Hello from surefire execution")
     }
+
+    @Test
+    fun `surefire plugin test goal executes as task with dependency between modules`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("extensibility-maven/surefire-plugin-multi-module"),
+            "task", ":app1:maven-surefire-plugin.test",
+            copyToTempDir = true,
+        )
+        result.assertStdoutContains("Hello from surefire execution")
+    }
 }
