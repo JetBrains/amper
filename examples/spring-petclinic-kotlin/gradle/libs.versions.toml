@@ -1,22 +1,11 @@
 [versions]
-webjarsLocatorLiteVersion = "1.0.1"
-webjarsFontawesomeVersion = "4.7.0"
-webjarsBootstrapVersion = "5.3.3"
-jacksonKotlinVersion = "2.18.2"
-jaxbVersion = "4.0.5"
-jakartaXmlBindVersion = "4.0.2"
-cacheApiVersion = "1.1.1"
+jakarta-xmlBind = "4.0.2"
+webjars-bootstrap = "5.3.8"
+webjars-fontawesome = "4.7.0"
+webjars-locator-lite = "1.1.0"
 
 [libraries]
-h2 = { module = "com.h2database:h2" }
-mysql-connector-j = { module = "com.mysql:mysql-connector-j" }
-webjarsLocatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjarsLocatorLiteVersion" }
-webJarsBootsrtap = { module = "org.webjars.npm:bootstrap", version.ref = "webjarsBootstrapVersion" }
-fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjarsFontawesomeVersion" }
-
-# Libraries for additional dependencies
-jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jacksonKotlinVersion" }
-jaxb-core = { module = "org.glassfish.jaxb:jaxb-core", version.ref = "jaxbVersion" }
-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbVersion" }
-jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakartaXmlBindVersion" }
-javax-cacheApi = { module = "javax.cache:cache-api", version.ref = "cacheApiVersion" }
+jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakarta-xmlBind" }
+webjars-locatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjars-locator-lite" }
+webjars-bootstrap = { module = "org.webjars.npm:bootstrap", version.ref = "webjars-bootstrap" }
+webjars-fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjars-fontawesome" }

@@ -12,21 +12,19 @@ dependencies:
   - $spring.boot.starter.validation
   - $spring.boot.starter.web
   - $spring.boot.starter.thymeleaf
-  - $libs.jackson.kotlin
-  - $libs.jaxb.core
-  - $libs.jaxb.runtime
+  - com.fasterxml.jackson.module:jackson-module-kotlin
+  - org.glassfish.jaxb:jaxb-runtime
+  - javax.cache:cache-api
   - $libs.jakarta.xml.bindApi
-  - $libs.javax.cacheApi
-  - $libs.webJarsBootsrtap
-  - $libs.fontawesome
+  - $libs.webjars.bootstrap
+  - $libs.webjars.fontawesome
 
-  - $libs.webjarsLocatorLite: runtime-only
-
-  - $libs.h2: runtime-only
-  - $libs.mysql.connector.j: runtime-only
+  - com.h2database:h2: runtime-only
+  - com.mysql:mysql-connector-j: runtime-only
+  - $libs.webjars.locatorLite: runtime-only
+  - org.glassfish.jaxb:jaxb-core: runtime-only # apparently necessary even though it wasn't in the original project
 
   - $spring.boot.devtools: runtime-only
-
 
 test-dependencies:
   - $spring.boot.starter.test
