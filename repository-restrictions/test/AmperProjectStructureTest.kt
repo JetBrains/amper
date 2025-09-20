@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.test.Dirs
@@ -38,7 +39,10 @@ import kotlin.use
 class AmperProjectStructureTest {
 
     @Serializable
-    data class ProjectFile(val modules: List<String>)
+    data class ProjectFile(
+        val modules: List<String>,
+        val plugins: List<String>,
+    )
 
     @Test
     fun `list of modules is alphabetically sorted`() {
@@ -46,6 +50,14 @@ class AmperProjectStructureTest {
         val project = projectYaml.inputStream().use { Yaml.default.decodeFromStream<ProjectFile>(it) }
         val modules = project.modules
         assertAlphabeticalOrder(modules, "Modules in project.yaml")
+    }
+
+    @Test
+    fun `list of plugins is alphabetically sorted`() {
+        val projectYaml = Dirs.amperCheckoutRoot.resolve("project.yaml")
+        val project = projectYaml.inputStream().use { Yaml.default.decodeFromStream<ProjectFile>(it) }
+        val plugins = project.plugins
+        assertAlphabeticalOrder(plugins, "Plugins in project.yaml")
     }
 
     @Test
@@ -197,6 +209,8 @@ class AmperProjectStructureTest {
         assertTrue("mavenLocal repository must not be resolved by Amper") {
             readAmperProjectModel()
                 .modules
+                // plugins declare mavenLocal when the version is SNAPSHOT to resolve amper-extensibility-api.
+                .filterNot { it.type == ProductType.JVM_AMPER_PLUGIN }
                 .flatMap { it.parts }
                 .filterIsInstance<RepositoriesModulePart>()
                 .flatMap { it.mavenRepositories }
@@ -209,7 +223,6 @@ class AmperProjectStructureTest {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
         projectContext.readProjectModel()
-            ?: error("Couldn't read Amper's project model")
     }
 
     private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean): List<String> =
