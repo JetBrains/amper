@@ -250,12 +250,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     // TODO It should be optional to publish or not to publish sources
                     val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
                     tasks.registerDependency(publishTaskName, sourcesJarTaskName)
-
-                    module.customTasks.forEach { customTask ->
-                        if (customTask.publishArtifacts.isNotEmpty()) {
-                            tasks.registerDependency(publishTaskName, dependsOn = customTask.name)
-                        }
-                    }
                 }
             }
         }

@@ -45,11 +45,6 @@ interface AmperProjectContext {
     val amperModuleFiles: List<VirtualFile>
 
     /**
-     * The paths to all custom tasks files that belong to this project.
-     */
-    val amperCustomTaskFiles: List<VirtualFile>
-
-    /**
      * Local plugin module files of this project. Subset of [amperModuleFiles].
      */
     val pluginModuleFiles: List<VirtualFile>

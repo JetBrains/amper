@@ -5,13 +5,10 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
-import org.jetbrains.amper.frontend.CompositeString
-import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
@@ -19,13 +16,9 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
@@ -47,38 +40,8 @@ internal open class DefaultModule(
 ) : AmperModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
-    override var customTasks = emptyList<CustomTaskDescription>()
     override var tasksFromPlugins = emptyList<TaskFromPluginDescription>()
 }
-
-class DefaultPublishArtifactFromCustomTask(
-    override val pathWildcard: String,
-    override val artifactId: String,
-    override val classifier: String,
-    override val extension: String,
-): PublishArtifactFromCustomTask
-
-class DefaultAddToModuleRootsFromCustomTask(
-    override val taskOutputRelativePath: Path,
-    override val type: AddToModuleRootsFromCustomTask.Type,
-    override val isTest: Boolean,
-    override val platform: Platform,
-): AddToModuleRootsFromCustomTask
-
-class DefaultCustomTaskDescription(
-    override val name: TaskName,
-    override val source: Path,
-    override val origin: CustomTaskNode,
-    override val type: CustomTaskType,
-    override val module: AmperModule,
-    override val jvmArguments: List<CompositeString>,
-    override val programArguments: List<CompositeString>,
-    override val environmentVariables: Map<String, CompositeString>,
-    override val dependsOn: List<TaskName>,
-    override val publishArtifacts: List<PublishArtifactFromCustomTask>,
-    override val customTaskCodeModule: AmperModule,
-    override val addToModuleRootsFromCustomTask: List<AddToModuleRootsFromCustomTask>,
-) : CustomTaskDescription
 
 class DefaultArtifact(
     override val name: String,

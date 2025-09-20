@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.compose.setupComposeTasks
-import org.jetbrains.amper.tasks.custom.setupCustomTasks
 import org.jetbrains.amper.tasks.custom.setupTasksFromPlugins
 import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.tasks.java.setupJavaAnnotationProcessingTasks
@@ -97,7 +96,6 @@ class ProjectTasksBuilder(
         setupJavaAnnotationProcessingTasks()
         setupComposeTasks()
         setupCustomTaskDependencies()
-        setupCustomTasks()
         setupTasksFromPlugins()
         return tasks.build()
     }

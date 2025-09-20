@@ -1,9 +1,0 @@
-product: jvm/lib
-
-apply:
-  - ../../sources/common.module-template.yaml
-
-dependencies:
-  - ../../sources/libraries/incremental-cache: exported
-  - $libs.clikt: exported
-  - $libs.slf4j.simple # incremental cache uses SLF4J logging and needs a binding

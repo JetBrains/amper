@@ -2,7 +2,6 @@ modules:
   - build-sources/amper-distribution
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
-  - build-sources/task-helpers
   - repository-restrictions
   - sources/amper-build-info
   - sources/amper-cli

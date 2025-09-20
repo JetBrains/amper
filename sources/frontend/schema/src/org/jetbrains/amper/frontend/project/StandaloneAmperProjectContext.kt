@@ -44,13 +44,6 @@ class StandaloneAmperProjectContext(
     override val pluginModuleFiles: List<VirtualFile>,
 ) : AmperProjectContext {
 
-    override val amperCustomTaskFiles: List<VirtualFile> by lazy {
-        amperModuleFiles
-            .map { it.parent }
-            .flatMap { it.children.toList() }
-            .filter { it.isAmperCustomTaskFile() }
-    }
-
     override val projectBuildDir: Path by lazy {
         (projectBuildDir ?: projectRootDir.toNioPath().resolve("build")).createDirectories()
     }

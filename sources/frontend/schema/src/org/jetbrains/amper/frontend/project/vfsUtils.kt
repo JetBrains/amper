@@ -9,21 +9,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
 
 internal val amperModuleFileNames = setOf("module.yaml", "module.amper")
-internal val amperTaskFileSuffixes = setOf(".task.yaml", ".task.amper")
-
-internal fun VirtualFile.isAmperModuleFile() = name in amperModuleFileNames
-internal fun VirtualFile.isAmperCustomTaskFile() = amperTaskFileSuffixes.any { name.endsWith(it) }
-
-/**
- * Extract the custom task name from this custom task file name.
- */
-internal fun VirtualFile.customTaskName(): String {
-    val taskName = amperTaskFileSuffixes.fold(name) { name, suffix -> name.removeSuffix(suffix) }
-    if (name == taskName) {
-        error("File '$name' is not a custom task file")
-    }
-    return taskName
-}
 
 internal fun VirtualFile.hasChildMatchingAnyOf(names: Set<String>): Boolean = findChildMatchingAnyOf(names) != null
 

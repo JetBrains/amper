@@ -26,7 +26,6 @@ import org.jetbrains.amper.maven.publish.installToMavenLocal
 import org.jetbrains.amper.maven.publish.merge
 import org.jetbrains.amper.maven.publish.publicationCoordinates
 import org.jetbrains.amper.maven.publish.writePomFor
-import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -131,29 +130,6 @@ class PublishTask(
     private fun TaskResult.toMavenArtifact(coords: MavenCoordinates) = when (this) {
         is JvmClassesJarTask.Result -> listOf(jarPath.toMavenArtifact(coords))
         is SourcesJarTask.Result -> listOf(jarPath.toMavenArtifact(coords, classifier = "sources"))
-        is CustomTask.Result -> {
-            artifactsToPublish.map { publish ->
-                // TODO wildcard matching support?
-                val path = outputDirectory.resolve(publish.pathWildcard).normalize()
-                if (!path.startsWith(outputDirectory)) {
-                    // Should not happen, task output is checked in CustomTask itself
-                    error("Task output relative path '${publish.pathWildcard}'" +
-                            "must be under task output '$outputDirectory', but got: $path")
-                }
-
-                if (!path.isRegularFile()) {
-                    // Should not happen, task output is checked in CustomTask itself
-                    error("Custom task artifact for publication was not found: $path")
-                }
-
-                path.toMavenArtifact(
-                    coords = coords,
-                    artifactId = publish.artifactId,
-                    classifier = publish.classifier,
-                    extension = publish.extension,
-                )
-            }
-        }
         is ResolveExternalDependenciesTask.Result, // this is just for coords overrides, not extra artifacts
         is Result -> emptyList()
         else -> error("Unsupported dependency result: ${javaClass.name}")

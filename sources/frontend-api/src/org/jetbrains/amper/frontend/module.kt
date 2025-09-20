@@ -105,8 +105,6 @@ interface AmperModule {
 
     val leafPlatforms: Set<Platform> get() = leafFragments.map { it.platform }.toSet()
 
-    val customTasks: List<CustomTaskDescription>
-
     val tasksFromPlugins: List<TaskFromPluginDescription>
 }
 

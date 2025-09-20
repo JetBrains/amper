@@ -114,9 +114,6 @@ internal fun doBuild(
     // Do some alterations to the built modules.
     modules.forEach { it.module.addImplicitDependencies() }
 
-    // Build custom tasks for relevant modules.
-    projectContext.amperCustomTaskFiles.forEach { buildCustomTask(it, modules) }
-
     // Load plugins that exist in the project
     buildPlugins(pluginData, projectContext, modules)
 

@@ -112,6 +112,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
         }
 }
 
+// TODO: Still in use. Redesign/remove
 fun ProjectTasksBuilder.setupCustomTaskDependencies() {
     allModules().withEach {
         val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@withEach

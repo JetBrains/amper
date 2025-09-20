@@ -1,4 +1,0 @@
-product:
-  type: lib
-  platforms:
-    - jvm

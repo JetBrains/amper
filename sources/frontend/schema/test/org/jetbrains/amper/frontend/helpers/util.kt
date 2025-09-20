@@ -22,7 +22,6 @@ data class TestProjectContext(
     override val amperModuleFiles: List<VirtualFile>,
     override val frontendPathResolver: FrontendPathResolver,
 ) : AmperProjectContext {
-    override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
     override val pluginModuleFiles: List<VirtualFile> = emptyList()
     override val projectBuildDir: Path get() = projectRootDir.toNioPath()
     override var projectVersionsCatalog: VersionCatalog? = null

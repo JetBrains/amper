@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.contexts.MinimalModule
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.plugins.MinimalPluginModule
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskAction
@@ -29,7 +28,6 @@ fun SchemaTypingContext(
         Project::class,
         MinimalModule::class,
         MinimalPluginModule::class,
-        CustomTaskNode::class,
     ) + ShadowMaps.PublicInterfaceToShadowNodeClass.values,
 ) {
     override fun discoverTypes() {
