@@ -1,9 +1,0 @@
-product: jvm/app
-
-apply:
-  - ../../sources/common.module-template.yaml
-
-dependencies:
-  - ../task-helpers
-  - ../../sources/core
-  - ../../sources/libraries/stdlib-extended

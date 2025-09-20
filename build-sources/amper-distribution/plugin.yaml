@@ -6,11 +6,11 @@ tasks:
         cliTgz: ${taskDir}/cli.tgz
         wrappersDir: ${taskDir}/wrappers
       cliRuntimeClasspath: ${module.classpath}
-      settings: ${module.configuration}
+      extraClasspaths: ${module.configuration.extraClasspaths}
 
   buildUnpacked:
     action: !buildUnpackedClasspath
-      targetDir: ${taskDir}/dist
+      outputDir: ${taskDir}/dist
       baseClasspath: ${module.classpath}
       extraClasspaths: ${module.configuration.extraClasspaths}
 
@@ -23,3 +23,13 @@ tasks:
     action: !uploadDist
       distribution: ${tasks.build.action.distribution}
       repository: jetbrains-team-amper-maven
+
+  embedClasspathAsResources:
+    action: !buildUnpackedClasspath
+      outputDir: ${taskDir}
+      baseClasspath: ${module.configuration.embedClasspathAsResources.classpath}
+      subdirectoryName: ${module.configuration.embedClasspathAsResources.resourceDirName}
+      jarListFileName: classpath.txt
+    markOutputsAs:
+      - path: ${taskDir}
+        kind: jvm-resources

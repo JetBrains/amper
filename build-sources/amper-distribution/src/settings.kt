@@ -10,6 +10,13 @@ import java.nio.file.Path
 @Schema
 interface DistributionSettings {
     val extraClasspaths: Map<String, Classpath> get() = emptyMap()
+    val embedClasspathAsResources: EmbedClasspathAsResources
+}
+
+@Schema
+interface EmbedClasspathAsResources {
+    val classpath: Classpath
+    val resourceDirName: String
 }
 
 enum class Repository {

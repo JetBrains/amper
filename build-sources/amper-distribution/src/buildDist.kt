@@ -30,10 +30,9 @@ import kotlin.io.path.readBytes
 fun buildDist(
     @Output distribution: Distribution,
     @Input cliRuntimeClasspath: Classpath,
-    @Input settings: DistributionSettings,
+    @Input extraClasspaths: Map<String, Classpath>,
 ) {
     val cliTgz = distribution.cliTgz.createParentDirectories()
-    val extraClasspaths = settings.extraClasspaths
 
     println("Writing CLI distribution to $cliTgz")
     cliTgz.writeDistTarGz(

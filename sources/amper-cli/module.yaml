@@ -85,6 +85,9 @@ settings:
     extraClasspaths:
       "plugins-processor": [ ../extensibility/amper-schema-processor ]
       "extensibility-api": [ ../extensibility/amper-extensibility-api ]
+    embedClasspathAsResources:
+      classpath: [ ../amper-junit-listeners ]
+      resourceDirName: "junit-listeners"
   publishing:
     # Old versions of Amper check the maven-metadata.xml of the old 'cli' artifact name, so we need to keep publishing
     # to this artifactId. This is because even if we publish files with both 'cli' and 'amper-cli' names, only the

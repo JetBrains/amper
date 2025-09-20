@@ -20,13 +20,19 @@ import kotlin.io.path.writeText
 
 @TaskAction
 fun buildUnpackedClasspath(
-    @Output targetDir: Path,
+    @Output outputDir: Path,
     @Input baseClasspath: Classpath,
     @Input extraClasspaths: Map<String, Classpath> = emptyMap(),
+    subdirectoryName: String?,
     jarListFileName: String?,
 ) {
+    val targetDir = subdirectoryName?.let { outputDir / it } ?: outputDir
     cleanDirectory(targetDir)
-    (extraClasspaths + ("lib" to baseClasspath)).forEach { (name, paths) ->
+    val classpaths = buildMap {
+        put("lib", baseClasspath)
+        putAll(extraClasspaths)
+    }
+    classpaths.forEach { (name, paths) ->
         val dir = (targetDir / name).createDirectory()
         // some jars have the exact same filename even though they don't come from the same artifact
         val alreadySeenFilenames = mutableSetOf<String>()
@@ -40,7 +46,7 @@ fun buildUnpackedClasspath(
             path.copyTo(dir.resolve(filename))
         }
     }
-    jarListFileName?.let { listFile ->
-        targetDir.resolve(listFile).writeText(baseClasspath.resolvedFiles.joinToString("\n") { it.name })
+    jarListFileName?.let { fileName ->
+        targetDir.resolve(fileName).writeText(baseClasspath.resolvedFiles.joinToString("\n") { it.name })
     }
 }
