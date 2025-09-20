@@ -8,5 +8,6 @@ dependencies:
   - ./amper-project-template-resources
 
 settings:
+  generate-template-resources: enabled
   kotlin:
     serialization: json

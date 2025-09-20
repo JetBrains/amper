@@ -4,10 +4,12 @@
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.Input
+import org.jetbrains.amper.Output
 import org.jetbrains.amper.templates.json.TemplateDescriptor
 import org.jetbrains.amper.templates.json.TemplateResource
+import org.jetbrains.amper.TaskAction
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
@@ -18,14 +20,14 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.io.path.writeText
 
+@TaskAction
 @OptIn(ExperimentalSerializationApi::class)
-fun main(args: Array<String>) {
-    check(args.size == 1) { "Expected 1 argument, 'taskOutputDir', but got: ${args.joinToString(" ")}" }
-    val taskOutputDir = Path(args[0]).createDirectories()
-    // FIXME use a proper task input for this, this relies on the working dir for custom tasks being the module root
-    val moduleDir = Path(System.getProperty("user.dir"))
-
-    val templateDirs = moduleDir.resolve("resources/templates").listDirectoryEntries()
+fun generateTemplateResources(
+    @Output taskOutputDir: Path,
+    @Input templatesDir: Path,
+) {
+    taskOutputDir.createDirectories()
+    val templateDirs = templatesDir.listDirectoryEntries()
     val descriptors = templateDirs.map { createTemplateDescriptor(it) }
 
     taskOutputDir.resolve("templates/templates.json")

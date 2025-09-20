@@ -49,3 +49,4 @@ modules:
 
 plugins:
   - ./build-sources/generate-build-properties
+  - ./build-sources/generate-template-resources
