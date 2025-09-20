@@ -5,6 +5,9 @@
 @file:Suppress("ReplacePrintlnWithLogging")
 
 import org.eclipse.jgit.api.Git
+import org.jetbrains.amper.ExecutionAvoidance
+import org.jetbrains.amper.Output
+import org.jetbrains.amper.TaskAction
 import org.yaml.snakeyaml.Yaml
 import java.io.StringWriter
 import java.nio.file.Path
@@ -18,9 +21,9 @@ import kotlin.io.path.writeBytes
 import kotlin.io.println
 import kotlin.use
 
-fun main(args: Array<String>) {
-    val (taskOutputDirectoryString) = args
-    val taskOutputDirectory = Path(taskOutputDirectoryString).createDirectories()
+@TaskAction(ExecutionAvoidance.Disabled)
+fun generateBuildProperties(@Output taskOutputDirectory: Path) {
+    val taskOutputDirectory = taskOutputDirectory.createDirectories()
 
     val currentDir = Path(System.getProperty("user.dir"))
     val projectRoot = generateSequence(currentDir) { it.parent }

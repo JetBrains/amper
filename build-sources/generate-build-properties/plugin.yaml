@@ -1,0 +1,7 @@
+tasks:
+  generate:
+    action: !generateBuildProperties
+      taskOutputDirectory: ${taskDir}
+    markOutputsAs:
+      - path: ${taskDir}
+        kind: jvm-resources
