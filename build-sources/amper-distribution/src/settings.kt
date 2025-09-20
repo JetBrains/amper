@@ -5,6 +5,7 @@
 import org.jetbrains.amper.Classpath
 import org.jetbrains.amper.EnumValue
 import org.jetbrains.amper.Schema
+import java.nio.file.Path
 
 @Schema
 interface DistributionSettings {
@@ -15,4 +16,10 @@ enum class Repository {
     MavenLocal,
     @EnumValue("jetbrains-team-amper-maven")
     JetBrainsTeamAmperMaven,
+}
+
+@Schema
+interface Distribution {
+    val cliTgz: Path
+    val wrappersDir: Path
 }

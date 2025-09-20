@@ -2,19 +2,18 @@
 tasks:
   build:
     action: !buildDist
-      distributionDir: ${taskDir}/distribution
-      wrappersDir: ${taskDir}/wrappers
+      distribution:
+        cliTgz: ${taskDir}/cli.tgz
+        wrappersDir: ${taskDir}/wrappers
       cliRuntimeClasspath: ${module.classpath}
       settings: ${module.configuration}
 
   upload-local:
     action: !uploadDist
-      distributionDir: ${tasks.build.action.distributionDir}
-      wrappersDir: ${tasks.build.action.wrappersDir}
+      distribution: ${tasks.build.action.distribution}
       repository: maven-local
 
   upload:
     action: !uploadDist
-      distributionDir: ${tasks.build.action.distributionDir}
-      wrappersDir: ${tasks.build.action.wrappersDir}
+      distribution: ${tasks.build.action.distribution}
       repository: jetbrains-team-amper-maven

@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
 import kotlin.collections.forEach
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
@@ -27,12 +28,11 @@ import kotlin.io.path.readBytes
 
 @TaskAction
 fun buildDist(
-    @Output distributionDir: Path,
-    @Output wrappersDir: Path,
+    @Output distribution: Distribution,
     @Input cliRuntimeClasspath: Classpath,
     @Input settings: DistributionSettings,
 ) {
-    val cliTgz = distributionDir.createDirectories().resolve("cli.tgz")
+    val cliTgz = distribution.cliTgz.createParentDirectories()
     val extraClasspaths = settings.extraClasspaths
 
     println("Writing CLI distribution to $cliTgz")
@@ -42,7 +42,7 @@ fun buildDist(
     )
 
     AmperWrappers.generate(
-        targetDir = wrappersDir.createDirectories(),
+        targetDir = distribution.wrappersDir.createDirectories(),
         amperVersion = AmperBuild.mavenVersion,
         amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
     )

@@ -18,22 +18,14 @@ import org.jetbrains.amper.maven.publish.writePom
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteRecursively
-import kotlin.io.path.div
 import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 
 @TaskAction
 fun uploadDist(
-    @Input distributionDir: Path,
-    @Input wrappersDir: Path,
+    @Input distribution: Distribution,
     repository: Repository,
 ) {
-    val distribution = Distribution(
-        version = AmperBuild.mavenVersion,
-        cliTgz = distributionDir / "cli.tgz",
-        wrappers = wrappersDir.listDirectoryEntries(),
-    )
-
     // we still publish both for backwards compatibility
     val tempDirectory = createTempDirectory() // TODO: Expose such facility via Amper
     try {
@@ -61,10 +53,12 @@ fun uploadDist(
 
 context(tempDirectory: Path)
 private fun Distribution.artifacts(artifactId: String): List<Artifact> {
-    val wrapperArtifacts = wrappers.map { amperArtifact(artifactId, classifier = "wrapper", file = it) }
+    val wrapperArtifacts = wrappersDir.listDirectoryEntries()
+        .map { amperArtifact(artifactId, classifier = "wrapper", file = it) }
     val tarGzDistArtifact = amperArtifact(artifactId, classifier = "dist", file = cliTgz)
     // we also generate a POM file to please maven and ensure maven-metadata.xml is properly updated
-    val pomArtifact = amperArtifact(artifactId, classifier = null, file = createSimplePom(artifactId, version))
+    val pomArtifact = amperArtifact(artifactId, classifier = null, file =
+        createSimplePom(artifactId, AmperBuild.mavenVersion))
     return wrapperArtifacts + tarGzDistArtifact + pomArtifact
 }
 
@@ -105,9 +99,3 @@ private val JetBrainsTeamAmperRepository by lazy {
     builder.setAuthentication(authBuilder.build())
     builder.build()
 }
-
-private data class Distribution(
-    val version: String,
-    val cliTgz: Path,
-    val wrappers: List<Path>,
-)
