@@ -8,7 +8,13 @@ tasks:
       cliRuntimeClasspath: ${module.classpath}
       settings: ${module.configuration}
 
-  upload-local:
+  buildUnpacked:
+    action: !buildUnpackedClasspath
+      targetDir: ${taskDir}/dist
+      baseClasspath: ${module.classpath}
+      extraClasspaths: ${module.configuration.extraClasspaths}
+
+  uploadLocal:
     action: !uploadDist
       distribution: ${tasks.build.action.distribution}
       repository: maven-local
