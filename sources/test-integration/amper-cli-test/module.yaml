@@ -27,5 +27,5 @@ tasks:
     # To build&publish the amper-extensibility-api.jar for the plugin tests
     dependsOn:
       - :amper-android-gradle-plugin:publishJvmToMavenLocal
-      - :amper-cli:uploadDistToMavenLocal
+      - :amper-cli:upload-local@amper-distribution
       - :amper-extensibility-api:publishJvmToMavenLocal

@@ -1,0 +1,20 @@
+
+tasks:
+  build:
+    action: !buildDist
+      distributionDir: ${taskDir}/distribution
+      wrappersDir: ${taskDir}/wrappers
+      cliRuntimeClasspath: ${module.classpath}
+      settings: ${module.configuration}
+
+  upload-local:
+    action: !uploadDist
+      distributionDir: ${tasks.build.action.distributionDir}
+      wrappersDir: ${tasks.build.action.wrappersDir}
+      repository: maven-local
+
+  upload:
+    action: !uploadDist
+      distributionDir: ${tasks.build.action.distributionDir}
+      wrappersDir: ${tasks.build.action.wrappersDir}
+      repository: jetbrains-team-amper-maven

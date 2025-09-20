@@ -1,10 +1,12 @@
-product: jvm/app
+product: jvm/amper-plugin
 
 apply:
   - ../../sources/common.module-template.yaml
 
+plugin:
+  schemaExtensionClassName: DistributionSettings
+
 dependencies:
-  - ../task-helpers
   - ../../sources/amper-build-info
   - ../../sources/amper-maven-publish
   - ../../sources/amper-wrapper

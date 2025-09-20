@@ -29,9 +29,11 @@ import java.nio.file.Path
 /**
  * Creates a new [PlexusContainer] initialized from the current context classloader.
  */
-fun createPlexusContainer(): PlexusContainer {
+fun createPlexusContainer(
+    classLoader: ClassLoader = Thread.currentThread().getContextClassLoader(),
+): PlexusContainer {
     val containerConfiguration = DefaultContainerConfiguration()
-        .setClassWorld(ClassWorld("plexus.core", Thread.currentThread().getContextClassLoader()))
+        .setClassWorld(ClassWorld("plexus.core", classLoader))
         .setName("mavenCore")
         .setClassPathScanning(PlexusConstants.SCANNING_INDEX)
         .setAutoWiring(true)

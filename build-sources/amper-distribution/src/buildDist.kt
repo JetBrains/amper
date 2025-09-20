@@ -2,14 +2,21 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("ReplacePrintlnWithLogging")
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.jetbrains.amper.Classpath
+import org.jetbrains.amper.Input
+import org.jetbrains.amper.Output
+import org.jetbrains.amper.TaskAction
 import org.jetbrains.amper.buildinfo.AmperBuild
-import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
+import kotlin.collections.forEach
+import kotlin.io.path.createDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
@@ -18,48 +25,30 @@ import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
 
-internal data class Distribution(
-    val version: String,
-    val cliTgz: Path,
-    val wrappers: List<Path>,
-)
+@TaskAction
+fun buildDist(
+    @Output distributionDir: Path,
+    @Output wrappersDir: Path,
+    @Input cliRuntimeClasspath: Classpath,
+    @Input settings: DistributionSettings,
+) {
+    val cliTgz = distributionDir.createDirectories().resolve("cli.tgz")
+    val extraClasspaths = settings.extraClasspaths
 
-internal suspend fun IncrementalCache.buildDist(
-    outputDir: Path,
-    cliRuntimeClasspath: List<Path>,
-    extraClasspaths: List<NamedClasspath>,
-): Distribution {
-    val result = execute(
-        key = "build-dist",
-        inputValues = mapOf(
-            "extraClasspaths" to extraClasspaths.joinToString { it.name },
-        ),
-        inputFiles = buildList {
-            addAll(cliRuntimeClasspath)
-            extraClasspaths.forEach { addAll(it.classpath) }
-        },
-    ) {
-        val cliTgz = outputDir.resolve("cli.tgz")
+    println("Writing CLI distribution to $cliTgz")
+    cliTgz.writeDistTarGz(
+        cliRuntimeClasspath = cliRuntimeClasspath.resolvedFiles,
+        extraClasspaths = extraClasspaths.mapValues { (_, classpath) -> classpath.resolvedFiles },
+    )
 
-        println("Writing CLI distribution to $cliTgz")
-        cliTgz.writeDistTarGz(cliRuntimeClasspath, extraClasspaths)
-
-        val wrappers = AmperWrappers.generate(
-            targetDir = outputDir,
-            amperVersion = AmperBuild.mavenVersion,
-            amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
-        )
-
-        IncrementalCache.ExecutionResult(outputFiles = listOf(cliTgz) + wrappers)
-    }
-    return Distribution(
-        version = AmperBuild.mavenVersion,
-        cliTgz = result.outputFiles[0],
-        wrappers = result.outputFiles.drop(1)
+    AmperWrappers.generate(
+        targetDir = wrappersDir.createDirectories(),
+        amperVersion = AmperBuild.mavenVersion,
+        amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
     )
 }
 
-private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths: List<NamedClasspath>) {
+private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths: Map<String, List<Path>>) {
     TarArchiveOutputStream(GZIPOutputStream(outputStream().buffered())).use { tarStream ->
         tarStream.writeFile(contents = argFileContents(), pathInTar = "amper.args")
         tarStream.writeDir(cliRuntimeClasspath, targetDirName = "lib")

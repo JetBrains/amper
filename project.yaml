@@ -1,9 +1,9 @@
 modules:
   - build-sources/build-unpacked-dist
+  - build-sources/amper-distribution
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
   - build-sources/task-helpers
-  - build-sources/upload-dist
   - repository-restrictions
   - sources/amper-build-info
   - sources/amper-cli
@@ -48,5 +48,6 @@ modules:
   - sources/test-integration/amper-wrapper-test
 
 plugins:
+  - ./build-sources/amper-distribution
   - ./build-sources/generate-build-properties
   - ./build-sources/generate-template-resources
