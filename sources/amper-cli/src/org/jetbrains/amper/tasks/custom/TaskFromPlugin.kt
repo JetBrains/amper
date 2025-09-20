@@ -173,14 +173,14 @@ class TaskFromPlugin(
         return EmptyTaskResult
     }
 
-    private suspend fun doExecuteTaskAction(
+    private fun doExecuteTaskAction(
         taskRuntimeClasspath: List<Path>,
     ) {
         // TODO: Cache the classloader per plugin?
         val classLoader = URLClassLoader(
             taskName.toString(),
             taskRuntimeClasspath.map { it.toUri().toURL() }.toTypedArray(),
-            javaClass.classLoader,
+            null,
         )
 
         val actionFacade = classLoader.loadClass(description.actionClassJvmName)
