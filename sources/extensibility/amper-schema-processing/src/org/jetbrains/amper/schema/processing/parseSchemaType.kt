@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.types.Variance
 
-context(session: KaSession, _: DiagnosticsReporter, typeCollector: SymbolsCollector, options: ParsingOptions)
+context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector, options: ParsingOptions)
 internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
     val isNullable = nullability == KaTypeNullability.NULLABLE
     val symbol = expandTypeToClassSymbol() ?: run {
@@ -65,6 +65,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         else -> when (symbol.classKind) {
             KaClassKind.INTERFACE -> {
                 if (symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS)) {
+                    symbolsCollector.onClassReferenced(symbol)
                     val schemaName = checkNotNull(symbol.classId) {
                         "not reachable: interface can't be anonymous"
                     }.toSchemaName()
@@ -76,7 +77,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                 } else { reportUnexpectedType(origin); null }
             }
             KaClassKind.ENUM_CLASS -> {
-                typeCollector.onEnumReferenced(symbol)
+                symbolsCollector.onEnumReferenced(symbol)
                 PluginData.Type.EnumType(
                     checkNotNull(symbol.classId) { "not reachable: enum can't be anonymous" }.toSchemaName(),
                     isNullable,

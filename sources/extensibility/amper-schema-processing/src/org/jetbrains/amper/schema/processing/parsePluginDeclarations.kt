@@ -15,12 +15,15 @@ import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolOrigin
+import org.jetbrains.kotlin.analysis.api.symbols.psi
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.modalityModifier
 
 internal interface SymbolsCollector {
     fun onEnumReferenced(symbol: KaClassSymbol)
+    fun onClassReferenced(symbol: KaClassSymbol)
 }
 
 class ParsingOptions(
@@ -52,18 +55,6 @@ fun KaSession.parsePluginDeclarations(
     val builtinDeclarations = if (!options.isParsingAmperApi) {
         loadBuiltinDeclarations()
     } else PluginData.Declarations()
-
-    val symbolsCollector = object : SymbolsCollector {
-        val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
-        override fun onEnumReferenced(symbol: KaClassSymbol) {
-            require(symbol.classKind == KaClassKind.ENUM_CLASS)
-            if (symbol.origin != KaSymbolOrigin.SOURCE) {
-                // skip builtin enums
-                return
-            }
-            referencedEnumSymbols += symbol
-        }
-    }
     val diagnosticCollector = object : DiagnosticsReporter {
         override fun report(diagnostic: PluginDataResponse.Diagnostic) {
             diagnostics += diagnostic
@@ -73,9 +64,33 @@ fun KaSession.parsePluginDeclarations(
     val classes = mutableListOf<PluginData.ClassData>()
     val sealedClasses = mutableListOf<PluginData.VariantData>()
 
-    files.flatMap {
-        discoverAnnotatedClassesFrom(it, SCHEMA_ANNOTATION_CLASS)
-    }.forEach { declaration ->
+    // We need to introduce a queue because this routine may be called on the subset of files.
+    // and some declarations may reference things from other unmentioned files.
+    val classesQueue = arrayListOf<KtClassOrObject>()
+    files.forEach { file ->
+        classesQueue.addAll(discoverAnnotatedClassesFrom(file, SCHEMA_ANNOTATION_CLASS))
+    }
+
+    val symbolsCollector = object : SymbolsCollector {
+        val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
+        override fun onEnumReferenced(symbol: KaClassSymbol) {
+            require(symbol.classKind == KaClassKind.ENUM_CLASS)
+            if (symbol.origin != KaSymbolOrigin.SOURCE) return  // skip builtin enums
+            referencedEnumSymbols += symbol
+        }
+        override fun onClassReferenced(symbol: KaClassSymbol) {
+            require(symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS))
+            if (symbol.origin != KaSymbolOrigin.SOURCE) return  // skip builtin declarations
+            classesQueue += symbol.psi<KtClassOrObject>()
+        }
+    }
+
+    val seenDeclarations = hashSetOf<KtClassOrObject>()
+    while (classesQueue.isNotEmpty()) {
+        val declaration = classesQueue.removeLast()
+        if (!seenDeclarations.add(declaration))
+            continue
+
         context(symbolsCollector, diagnosticCollector, options) {
             val modalityType = declaration.modalityModifier()
             if (modalityType != null && modalityType.elementType == KtTokens.SEALED_KEYWORD) {
