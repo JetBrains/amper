@@ -30,7 +30,7 @@ import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmWasiTasks
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.AmperCliIncrementalCache
 
 internal interface TaskType {
     val prefix: String
@@ -82,7 +82,7 @@ class ProjectTasksBuilder(
     val runSettings: AllRunSettings,
 ) {
     val tasks = TaskGraphBuilder()
-    val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
+    val incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot)
 
     fun build(): TaskGraph {
         setupCommonTasks()

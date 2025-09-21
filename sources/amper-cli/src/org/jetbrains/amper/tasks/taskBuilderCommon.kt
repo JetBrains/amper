@@ -52,9 +52,9 @@ fun ProjectTasksBuilder.setupCommonTasks() {
             }
             tasks.registerTask(
                 ResolveExternalDependenciesTask(
-                    module,
-                    context.userCacheRoot,
-                    executeOnChangedInputs,
+                    module = module,
+                    userCacheRoot = context.userCacheRoot,
+                    incrementalCache = incrementalCache,
                     platform = platform,
                     isTest = isTest,
                     // for test code, we resolve dependencies on union of test and prod dependencies
@@ -75,7 +75,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 fragment = it,
                 userCacheRoot = context.userCacheRoot,
                 taskOutputRoot = context.getTaskOutputPath(taskName),
-                incrementalCache = executeOnChangedInputs,
+                incrementalCache = incrementalCache,
                 tempRoot = context.projectTempRoot,
             )
         )
@@ -106,7 +106,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     module = module,
                     platform = platform,
                     taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                 )
             )
         }

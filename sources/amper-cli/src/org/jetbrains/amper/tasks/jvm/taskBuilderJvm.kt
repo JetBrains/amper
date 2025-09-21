@@ -37,7 +37,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                     taskName = compileTaskName,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     tempRoot = context.projectTempRoot,
                     buildOutputRoot = context.buildOutputRoot,
                 ),
@@ -96,7 +96,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         taskName = jarTaskName,
                         module = module,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                     ),
                     CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
                 )
@@ -158,7 +158,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         runSettings = runSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -175,7 +175,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                             runSettings = runSettings,
                             terminal = context.terminal,
                             tempRoot = context.projectTempRoot,
-                            incrementalCache = executeOnChangedInputs,
+                            incrementalCache = incrementalCache,
                         ),
                         CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                     )
@@ -186,7 +186,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     ExecutableJarTask(
                         taskName = executableJarTaskName,
                         module = module,
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(executableJarTaskName),
                     ),
@@ -274,7 +274,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
                     runSettings = runSettings,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true),

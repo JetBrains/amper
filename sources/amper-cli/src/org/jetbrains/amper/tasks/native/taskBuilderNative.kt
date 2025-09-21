@@ -26,7 +26,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         task = CommonizeNativeDistributionTask(
             model = model,
             userCacheRoot = context.userCacheRoot,
-            incrementalCache = executeOnChangedInputs,
+            incrementalCache = incrementalCache,
             tempRoot = context.projectTempRoot,
         )
     )
@@ -43,7 +43,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileKLibTaskName),
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
@@ -65,7 +65,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(linkTaskName),
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                         taskName = linkTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,

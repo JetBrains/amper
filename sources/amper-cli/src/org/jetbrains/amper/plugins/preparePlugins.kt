@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.plugins.parsePluginManifestFromModuleFile
 import org.jetbrains.amper.frontend.project.pluginInternalDataFile
 import org.jetbrains.amper.telemetry.use
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.AmperCliIncrementalCache
 
 /**
  * Silently prepares plugins on the best effort basis.
@@ -48,7 +48,7 @@ suspend fun preparePlugins(
                 doPreparePlugins(
                     projectRoot = context.projectRoot,
                     userCacheRoot = context.userCacheRoot,
-                    incrementalCache = ExecuteOnChangedInputs(context.buildOutputRoot),
+                    incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
                     frontendPathResolver = projectContext.frontendPathResolver,
                     schemaFile = projectContext.pluginInternalDataFile,
                     plugins = pluginInfos,

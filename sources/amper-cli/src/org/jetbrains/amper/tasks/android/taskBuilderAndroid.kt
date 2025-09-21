@@ -35,12 +35,12 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
 
     allModules().alsoPlatforms(Platform.ANDROID).withEach {
         tasks.registerTask(
-            CheckAndroidSdkLicenseTask(
-                androidSdkPath,
-                context.userCacheRoot,
-                AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+            task = CheckAndroidSdkLicenseTask(
+                androidSdkPath = androidSdkPath,
+                userCacheRoot = context.userCacheRoot,
+                taskName = AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
             ),
-            AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
+            dependsOn = AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
         )
         tasks.setupAndroidCommandlineTools(module, androidSdkPath, context.userCacheRoot)
     }
@@ -61,13 +61,13 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 tasks.setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
             }
             tasks.registerTask(
-                GetAndroidPlatformFileFromPackageTask(
-                    "emulator",
-                    androidSdkPath,
-                    context.userCacheRoot,
-                    AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
+                task = GetAndroidPlatformFileFromPackageTask(
+                    packageName = "emulator",
+                    androidSdkPath = androidSdkPath,
+                    userCacheRoot = context.userCacheRoot,
+                    taskName = AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
                 ),
-                AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+                dependsOn = AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
             )
         }
 
@@ -82,18 +82,18 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 module, platform, isTest, buildType,
             )
             tasks.registerTask(
-                AndroidPrepareTask(
+                task = AndroidPrepareTask(
                     taskName = prepareTaskName,
-                    module,
-                    buildType,
-                    executeOnChangedInputs,
-                    androidSdkPath,
-                    fragments,
-                    context.projectRoot,
-                    context.getTaskOutputPath(prepareTaskName),
-                    context.currentLogsRoot,
+                    module = module,
+                    buildType = buildType,
+                    incrementalCache = incrementalCache,
+                    androidSdkPath = androidSdkPath,
+                    fragments = fragments,
+                    projectRoot = context.projectRoot,
+                    taskOutputRoot = context.getTaskOutputPath(prepareTaskName),
+                    buildLogsRoot = context.currentLogsRoot,
                 ),
-                listOf(
+                dependsOn = listOf(
                     AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
                     AndroidTaskType.InstallPlatformTools.getTaskName(module, platform, isTest),
                     AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
@@ -111,11 +111,11 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 module, platform, isTest, buildType,
             )
             tasks.registerTask(
-                AndroidBuildTask(
+                task = AndroidBuildTask(
                     module = module,
                     buildType = buildType,
                     isTest = false,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     androidSdkPath = androidSdkPath,
                     fragments = module.fragments.filter { !isTest && it.platforms.contains(platform) },
                     projectRoot = context.projectRoot,
@@ -123,7 +123,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     buildLogsRoot = context.currentLogsRoot,
                     taskName = taskName,
                 ),
-                listOf(
+                dependsOn = listOf(
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
                 )
             )
@@ -135,29 +135,29 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
             tasks.registerTask(
-                TransformAarExternalDependenciesTask(
-                    CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
-                    executeOnChangedInputs,
-                    { it.runtimeClasspath }
+                task = TransformAarExternalDependenciesTask(
+                    taskName = CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
+                    incrementalCache = incrementalCache,
+                    classpathExtractor = { it.runtimeClasspath }
                 ),
-                CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
+                dependsOn = CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
             )
 
             if (isTest) {
                 val mockablePlatformJarTaskName = AndroidTaskType.MockablePlatformJar.getTaskName(module, platform, false)
                 tasks.registerTask(
-                    AndroidMockablePlatformJarTask(
+                    task = AndroidMockablePlatformJarTask(
                         taskName = mockablePlatformJarTaskName,
                         module = module,
                         buildType = buildType,
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                         androidSdkPath = androidSdkPath,
                         fragments = fragments,
                         projectRoot = context.projectRoot,
                         taskOutputRoot = context.getTaskOutputPath(mockablePlatformJarTaskName),
                         buildLogsRoot = context.currentLogsRoot,
                     ),
-                    CommonTaskType.Dependencies.getTaskName(module, platform, false)
+                    dependsOn = CommonTaskType.Dependencies.getTaskName(module, platform, false)
                 )
             }
         }
@@ -172,7 +172,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
 
             tasks.registerTask(
-                JvmCompileTask(
+                task = JvmCompileTask(
                     module = module,
                     isTest = isTest,
                     buildType = buildType,
@@ -181,12 +181,12 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                     taskName = compileTaskName,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     tempRoot = context.projectTempRoot,
                     platform = Platform.ANDROID,
                     buildOutputRoot = context.buildOutputRoot,
                 ),
-                buildList {
+                dependsOn = buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
                     add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
                     add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
@@ -198,12 +198,12 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
 
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
             tasks.registerTask(
-                JvmRuntimeClasspathTask(
+                task = JvmRuntimeClasspathTask(
                     module = module,
                     isTest = isTest,
                     taskName = runtimeClasspathTaskName,
                 ),
-                buildList {
+                dependsOn = buildList {
                     if (isTest) {
                         add(CommonTaskType.TransformDependencies.getTaskName(module, platform, true))
                     }
@@ -224,22 +224,22 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 // Production always deals with JAR -> AAR, even for `ProductType.ANDROID_APP`
                 val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, false, buildType)
                 tasks.registerTask(
-                    JvmClassesJarTask(
+                    task = JvmClassesJarTask(
                         taskName = jarTaskName,
                         module = module,
                         buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                         platform = Platform.ANDROID,
                     ),
-                    CommonTaskType.Compile.getTaskName(module, platform, false, buildType),
+                    dependsOn = CommonTaskType.Compile.getTaskName(module, platform, false, buildType),
                 )
 
                 val aarTaskName = AndroidTaskType.Aar.getTaskName(module, platform, false, buildType)
                 tasks.registerTask(
-                    AndroidAarTask(
+                    task = AndroidAarTask(
                         taskName = aarTaskName,
-                        incrementalCache = executeOnChangedInputs,
+                        incrementalCache = incrementalCache,
                         module = module,
                         buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(aarTaskName),
@@ -319,15 +319,15 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             // run
             val runTaskName = CommonTaskType.Run.getTaskName(module, platform, false, buildType)
             tasks.registerTask(
-                AndroidRunTask(
-                    runTaskName,
-                    module,
-                    buildType,
-                    runSettings,
-                    androidSdkPath,
-                    AndroidLocationsSingleton.avdLocation,
+                task = AndroidRunTask(
+                    taskName = runTaskName,
+                    module = module,
+                    buildType = buildType,
+                    runSettings = runSettings,
+                    androidSdkPath = androidSdkPath,
+                    avdPath = AndroidLocationsSingleton.avdLocation,
                 ),
-                buildList {
+                dependsOn = buildList {
                     if (needDefaultSystemImage) {
                         add(AndroidTaskType.InstallSystemImage.getTaskName(module, platform, false))
                     }
@@ -344,7 +344,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             // test
             val testTaskName = CommonTaskType.Test.getTaskName(module, platform, isTest = false, buildType)
             tasks.registerTask(
-                JvmTestTask(
+                task = JvmTestTask(
                     module = module,
                     userCacheRoot = context.userCacheRoot,
                     tempRoot = context.projectTempRoot,
@@ -353,11 +353,11 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
                     runSettings = runSettings,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     platform = Platform.ANDROID,
                     buildType = buildType,
                 ),
-                listOf(
+                dependsOn = listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
                 ),
@@ -380,18 +380,18 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.ANDROID) }
             val taskName = AndroidTaskType.Bundle.getTaskName(module, Platform.ANDROID, false)
             tasks.registerTask(
-                AndroidBundleTask(
-                    module,
-                    BuildType.Release,
-                    executeOnChangedInputs,
-                    androidSdkPath,
-                    fragments,
-                    context.projectRoot,
-                    context.getTaskOutputPath(taskName),
-                    context.currentLogsRoot,
-                    taskName
+                task = AndroidBundleTask(
+                    module = module,
+                    buildType = BuildType.Release,
+                    incrementalCache = incrementalCache,
+                    androidSdkPath = androidSdkPath,
+                    fragments = fragments,
+                    projectRoot = context.projectRoot,
+                    taskOutputPath = context.getTaskOutputPath(taskName),
+                    buildLogsRoot = context.currentLogsRoot,
+                    taskName = taskName,
                 ),
-                listOf(
+                dependsOn = listOf(
                     CommonTaskType.RuntimeClasspath.getTaskName(module, Platform.ANDROID, false, BuildType.Release),
                 )
             )
@@ -407,15 +407,15 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
     val androidFragment = getAndroidFragment(module, isTest)
     val compileSdk = androidFragment?.settings?.android?.compileSdk?.versionNumber ?: return
     registerTask(
-        GetAndroidPlatformJarTask(
-            GetAndroidPlatformFileFromPackageTask(
-                "platforms;android-$compileSdk",
-                androidSdkPath,
-                userCacheRoot,
-                AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
+        task = GetAndroidPlatformJarTask(
+            getAndroidPlatformFileFromPackageTask = GetAndroidPlatformFileFromPackageTask(
+                packageName = "platforms;android-$compileSdk",
+                androidSdkPath = androidSdkPath,
+                userCacheRoot = userCacheRoot,
+                taskName = AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
             )
         ),
-        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+        dependsOn = AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 
@@ -427,13 +427,13 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
     registerTask(
-        GetAndroidPlatformFileFromPackageTask(
-            "build-tools;${androidFragment?.settings?.android?.compileSdk?.versionNumber}.0.0",
-            androidSdkPath,
-            userCacheRoot,
-            AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)
+        task = GetAndroidPlatformFileFromPackageTask(
+            packageName = "build-tools;${androidFragment?.settings?.android?.compileSdk?.versionNumber}.0.0",
+            androidSdkPath = androidSdkPath,
+            userCacheRoot = userCacheRoot,
+            taskName = AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)
         ),
-        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+        dependsOn = AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 

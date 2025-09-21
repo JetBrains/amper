@@ -9,7 +9,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 
-fun ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot): IncrementalCache =
+fun AmperCliIncrementalCache(buildOutputRoot: AmperBuildOutputRoot): IncrementalCache =
     IncrementalCache(
         stateRoot = buildOutputRoot.path.resolve("incremental.state"),
         codeVersion = AmperVersion.codeIdentifier,

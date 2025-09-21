@@ -30,7 +30,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                     taskName = name,
                     destination = request,
                     module = module,
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     userCacheRoot = context.userCacheRoot,
                 ))
                 name
@@ -41,7 +41,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 description = taskDescription,
                 buildOutputRoot = context.buildOutputRoot,
                 terminal = context.terminal,
-                incrementalCache = executeOnChangedInputs,
+                incrementalCache = incrementalCache,
             )
             tasks.registerTask(
                 task, dependsOn = buildList {

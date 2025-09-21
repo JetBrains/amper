@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
@@ -120,7 +121,7 @@ internal abstract class WebLinkTask(
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val artifact = incrementalCache.execute(
+        val artifact = incrementalCache.executeForFiles(
             key = taskName.name,
             inputValues = mapOf(
                 "kotlin.settings" to Json.encodeToString<KotlinUserSettings>(kotlinUserSettings),
@@ -139,8 +140,8 @@ internal abstract class WebLinkTask(
                 includeArtifact = includeArtifact,
             )
 
-            return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
-        }.outputFiles.single()
+            listOf(artifactPath)
+        }.single()
 
         return Result(
             linkedBinary = artifact,

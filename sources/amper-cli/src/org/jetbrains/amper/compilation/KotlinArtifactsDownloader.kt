@@ -65,7 +65,7 @@ internal class KotlinArtifactsDownloader(
     }
 
     private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
-        // using executeOnChangedInputs because currently DR takes ~3s even when the artifact is already cached
+        // using incrementalCache because currently DR takes ~3s even when the artifact is already cached
         incrementalCache.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
             val coordinates = "$groupId:$artifactId:$version"
             val resolved = mavenResolver.resolve(
