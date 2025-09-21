@@ -90,7 +90,7 @@ class IncrementalCache(
 
             stateRoot.createDirectories()
 
-            val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9]"), "_")
+            val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9.\\-_]"), "_")
             // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
             val hash = shortHash("$key\nstate format version: ${State.formatVersion}")
             val stateFile = stateRoot.resolve("$sanitizedKey-$hash")
