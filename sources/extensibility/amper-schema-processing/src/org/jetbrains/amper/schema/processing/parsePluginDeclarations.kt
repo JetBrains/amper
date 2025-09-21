@@ -136,9 +136,9 @@ fun KaSession.parsePluginDeclarations(
     }
 
     return PluginData.Declarations(
-        enums = enums,
-        classes = classes,
-        tasks = tasks,
-        variants = sealedClasses,
+        enums = enums.sortedBy { it.schemaName },
+        classes = classes.sortedBy { it.name },
+        tasks = tasks.sortedBy { it.syntheticType.name },
+        variants = sealedClasses.sortedBy { it.name },
     )
 }

@@ -34,7 +34,7 @@ data class PluginData(
     data class SchemaName(
         val packageName: String,
         val simpleNames: List<String>,
-    ) {
+    ) : Comparable<SchemaName> {
         val qualifiedName: String by lazy {
             buildString {
                 if (packageName.isNotEmpty()) append(packageName).append('.')
@@ -46,6 +46,8 @@ data class PluginData(
             if (packageName.isNotEmpty()) append(packageName).append('.')
             simpleNames.joinTo(this, "$")
         }
+
+        override fun compareTo(other: SchemaName): Int = qualifiedName.compareTo(other.qualifiedName)
     }
 
     @Serializable
