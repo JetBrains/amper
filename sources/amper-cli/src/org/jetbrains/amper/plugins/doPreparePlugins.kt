@@ -56,11 +56,11 @@ internal suspend fun doPreparePlugins(
     })
 
     incrementalCache.executeForFiles(
-        id = "prepare-plugins",
-        configuration = mapOf(
+        key = "prepare-plugins",
+        inputValues = mapOf(
             "plugins" to plugins.values.joinToString()
         ),
-        inputs = plugins.keys.toList(),
+        inputFiles = plugins.keys.toList(),
     ) {
         val jdk = JdkDownloader.getJdk(userCacheRoot)
         val toolClasspath = distributionRoot.resolve("plugins-processor").listDirectoryEntries("*.jar")

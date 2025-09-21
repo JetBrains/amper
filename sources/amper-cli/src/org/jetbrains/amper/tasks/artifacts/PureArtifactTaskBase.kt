@@ -78,10 +78,10 @@ abstract class PureArtifactTaskBase(
         executionContext: TaskGraphExecutionContext
     ): TaskResult {
         executeOnChangedInputs.execute(
-            id = taskName.name,
-            configuration = extraInputs +
+            key = taskName.name,
+            inputValues = extraInputs +
                     ("%outputs%" to produces.joinToString(File.pathSeparator) { it.path.pathString }),
-            inputs = inputPaths,
+            inputFiles = inputPaths,
         ) {
             for (path in produces.map { it.path }) {
                 path.createParentDirectories()
@@ -89,7 +89,7 @@ abstract class PureArtifactTaskBase(
             }
             run(executionContext)
             IncrementalCache.ExecutionResult(
-                outputs = produces.map { it.path }.filter { it.exists() },
+                outputFiles = produces.map { it.path }.filter { it.exists() },
             )
         }
 

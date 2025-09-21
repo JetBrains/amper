@@ -64,7 +64,11 @@ class ToolingArtifactsDownloader(
         coordinates: List<String>,
         repositories: List<Repository> = listOf(MavenCentral),
     ): List<Path> =
-        incrementalCache.execute("resolve-$coordinates", emptyMap(), emptyList()) {
+        incrementalCache.execute(
+            key = "resolve-$coordinates",
+            inputValues = emptyMap(),
+            inputFiles = emptyList(),
+        ) {
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,
                 repositories = repositories,
@@ -73,5 +77,5 @@ class ToolingArtifactsDownloader(
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
             return@execute IncrementalCache.ExecutionResult(resolved.toList())
-        }.outputs
+        }.outputFiles
 }

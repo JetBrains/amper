@@ -141,8 +141,8 @@ class TaskFromPlugin(
         }
 
         incrementalCache.execute(
-            id = taskName.name,
-            configuration = mapOf(
+            key = taskName.name,
+            inputValues = mapOf(
                 "action" to description.actionClassJvmName + '.' + description.actionFunctionJvmName,
                 "arguments" to description.actionArguments.entries.joinToString(
                     separator = "\n",
@@ -155,7 +155,7 @@ class TaskFromPlugin(
                     },
                 ),
             ),
-            inputs = buildList {
+            inputFiles = buildList {
                 addAll(description.inputs)
                 for (result in runtimeClasspathsByModule.values) {
                     addAll(result.jvmRuntimeClasspath)
@@ -166,7 +166,7 @@ class TaskFromPlugin(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
             IncrementalCache.ExecutionResult(
-                outputs = description.outputs.keys.toList(),
+                outputFiles = description.outputs.keys.toList(),
             )
         }
 

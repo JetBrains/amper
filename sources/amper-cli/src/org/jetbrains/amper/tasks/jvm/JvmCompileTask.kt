@@ -157,7 +157,7 @@ internal class JvmCompileTask(
         val javaAnnotationProcessorsGeneratedDir =
             fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
 
-        val configuration: Map<String, String> = mapOf(
+        val inputValues = mapOf(
             "jdk.url" to jdk.downloadUrl.toString(),
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
@@ -167,9 +167,9 @@ internal class JvmCompileTask(
 
         val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
         val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
-        val inputs = sources + resources + classpath + javaAnnotationProcessorClasspath
+        val inputFiles = sources + resources + classpath + javaAnnotationProcessorClasspath
 
-        val result = incrementalCache.execute(taskName.name, configuration, inputs) {
+        val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(taskOutputRoot.path)
 
             val nonEmptySourceDirs = sources

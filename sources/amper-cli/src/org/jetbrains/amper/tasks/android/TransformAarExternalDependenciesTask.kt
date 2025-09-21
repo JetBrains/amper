@@ -31,14 +31,18 @@ class TransformAarExternalDependenciesTask(
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { classpathExtractor(it) }
 
-        val executionResult = incrementalCache.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {
+        val executionResult = incrementalCache.execute(
+            key = taskName.name,
+            inputValues = emptyMap(),
+            inputFiles = resolvedAndroidCompileDependencies,
+        ) {
             if (resolvedAndroidCompileDependencies.isNotEmpty()) {
                 logger.info("Transforming AAR external dependencies...")
             }
             val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
-            IncrementalCache.ExecutionResult(outputs, mapOf())
+            IncrementalCache.ExecutionResult(outputs, emptyMap())
         }
-        return Result(executionResult.outputs, executionResult.outputs)
+        return Result(executionResult.outputFiles, executionResult.outputFiles)
     }
 
     class Result(

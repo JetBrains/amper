@@ -65,11 +65,6 @@ abstract class AndroidDelegatedGradleTask(
             targets = setOf(moduleGradlePath),
         )
 
-        val androidConfig = fragments.joinToString {
-            it.settings.android.toStableJsonLikeString()
-        }
-        val configuration = mapOf("androidConfig" to androidConfig)
-
         val googleServicesFileName = "google-services.json"
         val googleServicesJson = module.source.moduleDir.let { moduleDir ->
             val servicesJsonPath = moduleDir / googleServicesFileName
@@ -77,9 +72,11 @@ abstract class AndroidDelegatedGradleTask(
         }
 
         val executionResult = incrementalCache.execute(
-            taskName.name,
-            configuration,
-            runtimeClasspath + additionalInputFiles + (googleServicesJson?.let { listOf(it) } ?: listOf()),
+            key = taskName.name,
+            inputValues = mapOf(
+                "androidConfig" to fragments.joinToString { it.settings.android.toStableJsonLikeString() },
+            ),
+            inputFiles = runtimeClasspath + additionalInputFiles + (googleServicesJson?.let { listOf(it) } ?: listOf()),
         ) {
             val gradleProjectPath = (taskOutputPath.path / "gradle-project").also { path -> path.createDirectories() }
             googleServicesJson?.let {
@@ -103,12 +100,12 @@ abstract class AndroidDelegatedGradleTask(
             IncrementalCache.ExecutionResult(result.filter(::outputFilterPredicate))
         }
         taskOutputPath.path.createDirectories()
-        executionResult.outputs.map {
+        executionResult.outputFiles.map {
             it.copyToRecursively(
                 taskOutputPath.path.resolve(it.fileName), followLinks = false, overwrite = true
             )
         }
-        return result(executionResult.outputs)
+        return result(executionResult.outputFiles)
     }
 
     protected abstract val phase: AndroidBuildRequest.Phase

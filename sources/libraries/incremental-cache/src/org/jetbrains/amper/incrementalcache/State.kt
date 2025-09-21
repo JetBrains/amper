@@ -27,22 +27,50 @@ private val jsonSerializer = Json {
 
 @Serializable
 internal data class State(
+    /**
+     * Represents the identity of the code being executed. It should change when the cached logic changes.
+     * The cache will be discarded and rebuilt if it was stored using a different [codeVersion].
+     *
+     * One suitable option for this [codeVersion] is to use the hash of the currently running code.
+     * The [computeClassPathHash] helper provides a way to create a hash of all jars on the classpath.
+     */
     val codeVersion: String,
+    /**
+     * Some key-value pairs used as input to the cached computation.
+     */
     @Serializable(with = SortedMapSerializer::class)
-    val configuration: Map<String, String>,
-    val inputs: Set<String>,
+    val inputValues: Map<String, String>,
+    /**
+     * Some input files used in the cached computation.
+     */
+    val inputFiles: Set<String>,
+    /**
+     * The state of each input file, in terms of size, modification time, and permissions.
+     */
     @Serializable(with = SortedMapSerializer::class)
-    val inputsState: Map<String, String>,
-    val outputs: Set<String>,
-    val excludedOutputs: Set<String>,
+    val inputFilesState: Map<String, String>,
+    /**
+     * Some key-value pairs produced as output of the cached computation.
+     */
     @Serializable(with = SortedMapSerializer::class)
-    val outputsState: Map<String, String>,
+    val outputValues: Map<String, String>,
+    /**
+     * Some output files produced by the cached computation.
+     */
+    val outputFiles: Set<String>,
+    /**
+     * The state of each output file, in terms of size, modification time, and permissions.
+     */
     @Serializable(with = SortedMapSerializer::class)
-    val outputProperties: Map<String, String>,
+    val outputFilesState: Map<String, String>,
+    /**
+     * A subset of [outputFiles] that should not be considered for cache invalidation.
+     */
+    val excludedOutputFiles: Set<String>,
 ) {
     companion object {
         // increment this counter if you change the state file format
-        const val formatVersion = 4
+        const val formatVersion = 5
     }
 }
 

@@ -33,15 +33,17 @@ abstract class AbstractJarTask(
 
         val jarConfig = jarConfig()
 
-        val configuration: Map<String, String> = mapOf(
-            "jarConfig" to Json.encodeToString(jarConfig),
-            "inputDirsDestPaths" to inputDirs.map { it.destPathInArchive }.toString(),
-            "outputJarPath" to outputJarPath.pathString,
-        )
-
-        incrementalCache.execute(taskName.name, configuration, inputDirs.map { it.path }) {
+        incrementalCache.execute(
+            key = taskName.name,
+            inputValues = mapOf(
+                "jarConfig" to Json.encodeToString(jarConfig),
+                "inputDirsDestPaths" to inputDirs.map { it.destPathInArchive }.toString(),
+                "outputJarPath" to outputJarPath.pathString,
+            ),
+            inputFiles = inputDirs.map { it.path }
+        ) {
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
-            IncrementalCache.ExecutionResult(outputs = listOf(outputJarPath))
+            IncrementalCache.ExecutionResult(outputFiles = listOf(outputJarPath))
         }
         return createResult(outputJarPath)
     }

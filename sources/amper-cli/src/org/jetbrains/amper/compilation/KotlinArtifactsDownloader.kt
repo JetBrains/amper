@@ -76,5 +76,5 @@ internal class KotlinArtifactsDownloader(
                 resolveSourceMoniker = coordinates,
             )
             return@execute IncrementalCache.ExecutionResult(resolved.toList())
-        }.outputs
+        }.outputFiles
 }

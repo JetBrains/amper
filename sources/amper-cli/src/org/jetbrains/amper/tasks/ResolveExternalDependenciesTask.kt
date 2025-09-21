@@ -112,18 +112,20 @@ class ResolveExternalDependenciesTask(
                             "wasmTarget=${resolvedPlatform.wasmTarget}"
                 )
 
-                val configuration = mapOf(
-                    "userCacheRoot" to userCacheRoot.path.pathString,
-                    "compileDependencies" to compileDependencyCoordinates.joinToString("|"),
-                    "runtimeDependencies" to (runtimeDependencyCoordinates?.joinToString("|") ?: ""),
-                    "repositories" to repositories.joinToString("|"),
-                    "resolvePlatform" to resolvedPlatform.type.value,
-                    "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
-                    "resolveWasmTarget" to (resolvedPlatform.wasmTarget ?: ""),
-                )
-
                 val result = try {
-                    incrementalCache.execute(taskName.name, configuration, emptyList()) {
+                    incrementalCache.execute(
+                        key = taskName.name,
+                        inputValues = mapOf(
+                            "userCacheRoot" to userCacheRoot.path.pathString,
+                            "compileDependencies" to compileDependencyCoordinates.joinToString("|"),
+                            "runtimeDependencies" to (runtimeDependencyCoordinates?.joinToString("|") ?: ""),
+                            "repositories" to repositories.joinToString("|"),
+                            "resolvePlatform" to resolvedPlatform.type.value,
+                            "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
+                            "resolveWasmTarget" to (resolvedPlatform.wasmTarget ?: ""),
+                        ),
+                        inputFiles = emptyList()
+                    ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = DependencyNodeHolder(
                             name = "root",
@@ -149,8 +151,8 @@ class ResolveExternalDependenciesTask(
                             getPublicationCoordinatesOverrides(compileDependenciesRootNode, runtimeDependenciesRootNode)
 
                         return@execute IncrementalCache.ExecutionResult(
-                            (compileClasspath + runtimeClasspath).toSet().sorted(),
-                            outputProperties = mapOf(
+                            outputFiles = (compileClasspath + runtimeClasspath).toSet().sorted(),
+                            outputValues = mapOf(
                                 "compile" to compileClasspath.joinToString(File.pathSeparator),
                                 "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
                                 "publicationCoordsOverrides" to Json.encodeToString(publicationCoordsOverrides),
@@ -179,13 +181,13 @@ class ResolveExternalDependenciesTask(
                 }
 
                 val compileClasspath =
-                    result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
+                    result.outputValues["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
                         .map { Path(it) }
                 val runtimeClasspath =
-                    result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
+                    result.outputValues["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
                         .map { Path(it) }
                 val publicationCoordsOverrides =
-                    Json.decodeFromString<PublicationCoordinatesOverrides>(result.outputProperties["publicationCoordsOverrides"]!!)
+                    Json.decodeFromString<PublicationCoordinatesOverrides>(result.outputValues["publicationCoordsOverrides"]!!)
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +

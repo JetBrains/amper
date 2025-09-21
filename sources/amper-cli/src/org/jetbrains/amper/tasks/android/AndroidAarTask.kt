@@ -72,17 +72,17 @@ class AndroidAarTask(
 
         val outputAarPath = taskOutputRoot.path / jarResult.jarPath.nameWithoutExtension.plus(".aar")
 
-        val inputs = buildList {
+        val inputFiles = buildList {
             additionalAssets.forEach { result -> result.assetsRoots.forEach { add(it.path) } }
             add(jarResult.jarPath)
         }
-        val configuration = mapOf(
+        val inputValues = mapOf(
             "outputPath" to outputAarPath.pathString,
             "requiredPackagingDirs" to Json.encodeToString(
                 additionalAssets.map { result -> result.assetsRoots.map { it.path.pathString } }
             ),
         )
-        incrementalCache.execute(taskName.name, configuration, inputs) {
+        incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             outputAarPath.deleteIfExists()
             outputAarPath.createParentDirectories()
 
@@ -119,7 +119,7 @@ class AndroidAarTask(
                 tempDir.deleteRecursively()
             }
             IncrementalCache.ExecutionResult(
-                outputs = listOf(outputAarPath),
+                outputFiles = listOf(outputAarPath),
             )
         }
 

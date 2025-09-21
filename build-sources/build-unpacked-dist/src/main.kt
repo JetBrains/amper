@@ -31,13 +31,13 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
 
     override suspend fun IncrementalCache.runCached() {
         execute(
-            id = "build-unpacked-dist",
-            configuration = mapOf(
+            key = "build-unpacked-dist",
+            inputValues = mapOf(
                 "targetDir" to targetDir.pathString,
                 "extraClasspaths" to extraClasspaths.joinToString { it.name },
                 "jarListFile" to (jarListFile ?: ""),
             ),
-            inputs = buildList {
+            inputFiles = buildList {
                 addAll(classpath)
                 extraClasspaths.forEach { addAll(it.classpath) }
             },
@@ -61,7 +61,7 @@ class BuildUnpackedDistCommand : CacheableTaskCommand() {
                 targetDir.resolve(listFile).writeText(classpath.joinToString("\n") { it.name })
             }
 
-            IncrementalCache.ExecutionResult(outputs = listOf(targetDir))
+            IncrementalCache.ExecutionResult(outputFiles = listOf(targetDir))
         }
     }
 }

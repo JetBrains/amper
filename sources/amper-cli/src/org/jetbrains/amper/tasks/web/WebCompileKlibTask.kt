@@ -120,11 +120,6 @@ internal abstract class WebCompileKlibTask(
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val configuration: Map<String, String> = mapOf(
-            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
-            "task.output.root" to taskOutputRoot.path.pathString,
-        )
-
         val libraryPaths = compiledKlibModuleDependencies + externalDependencies
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
@@ -140,9 +135,15 @@ internal abstract class WebCompileKlibTask(
         } else null
 
         val sources = fragments.map { it.src } + additionalSources.map { it.path }
-        val inputs = sources + libraryPaths
 
-        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(
+            key = taskName.name,
+            inputValues = mapOf(
+                "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
+                "task.output.root" to taskOutputRoot.path.pathString,
+            ),
+            inputFiles = sources + libraryPaths,
+        ) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifact = taskOutputRoot.path
@@ -170,7 +171,7 @@ internal abstract class WebCompileKlibTask(
             logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifact))
-        }.outputs.singleOrNull()
+        }.outputFiles.singleOrNull()
 
         return Result(
             compiledKlib = artifact,

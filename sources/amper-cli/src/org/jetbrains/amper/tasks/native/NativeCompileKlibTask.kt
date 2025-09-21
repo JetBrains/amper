@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
+import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
@@ -98,11 +99,6 @@ internal class NativeCompileKlibTask(
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
-        val configuration: Map<String, String> = mapOf(
-            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
-            "task.output.root" to taskOutputRoot.path.pathString,
-        )
-
         val libraryPaths = compiledModuleDependencies + externalDependencies
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
@@ -113,9 +109,15 @@ internal class NativeCompileKlibTask(
         }
 
         val sources = fragments.map { it.src } + additionalSources.map { it.path }
-        val inputs = sources + libraryPaths
 
-        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(
+            key = taskName.name,
+            inputValues = mapOf(
+                "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
+                "task.output.root" to taskOutputRoot.path.pathString,
+            ),
+            inputFiles = sources + libraryPaths,
+        ) {
             cleanDirectory(taskOutputRoot.path)
 
             // in Kotlin >= 2.2, we need to list all source files (not just dirs)
@@ -154,7 +156,7 @@ internal class NativeCompileKlibTask(
             nativeCompiler.compile(args, tempRoot, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifact))
-        }.outputs.singleOrNull()
+        }.outputFiles.singleOrNull()
 
         return Result(
             compiledKlib = artifact,

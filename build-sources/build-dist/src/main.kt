@@ -31,11 +31,11 @@ class BuildDistCommand : CacheableTaskCommand() {
 
     override suspend fun IncrementalCache.runCached() {
         execute(
-            id = "build-dist",
-            configuration = mapOf(
+            key = "build-dist",
+            inputValues = mapOf(
                 "extraClasspaths" to extraClasspaths.joinToString { it.name },
             ),
-            inputs = buildList {
+            inputFiles = buildList {
                 addAll(cliRuntimeClasspath)
                 extraClasspaths.forEach { addAll(it.classpath) }
             },
@@ -52,7 +52,7 @@ class BuildDistCommand : CacheableTaskCommand() {
                 coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
             )
 
-            IncrementalCache.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
+            IncrementalCache.ExecutionResult(outputFiles = listOf(cliTgz) + wrappers)
         }
     }
 }

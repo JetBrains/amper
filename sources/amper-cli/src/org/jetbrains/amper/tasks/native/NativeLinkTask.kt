@@ -100,7 +100,7 @@ internal class NativeLinkTask(
             .filter { it.taskName in exportedKLibTaskNames }
         check(exportedKLibDependencies.size == exportedKLibTaskNames.size)
 
-        val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
+        val compiledKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
         val exportedKLibs = exportedKLibDependencies.mapNotNull { it.compiledKlib }
 
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
@@ -125,15 +125,17 @@ internal class NativeLinkTask(
             mapOf("bundleId" to frameworkBundleId)
         } else emptyMap()
 
-        val configuration: Map<String, String> = mapOf(
-            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
-            "entry.point" to (entryPoint ?: ""),
-            "task.output.root" to taskOutputRoot.path.pathString,
-            "binary.options" to Json.encodeToString(binaryOptions),
-        )
-
-        val inputs = listOfNotNull(includeArtifact) + compileKLibs
-        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
+        val inputFiles = listOfNotNull(includeArtifact) + compiledKLibs
+        val artifact = incrementalCache.execute(
+            key = taskName.name,
+            inputValues = mapOf(
+                "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
+                "entry.point" to (entryPoint ?: ""),
+                "task.output.root" to taskOutputRoot.path.pathString,
+                "binary.options" to Json.encodeToString(binaryOptions),
+            ),
+            inputFiles = inputFiles,
+        ) {
             cleanDirectory(taskOutputRoot.path)
 
             if (isTest) {
@@ -143,11 +145,10 @@ internal class NativeLinkTask(
                     KotlinCompilationType.IOS_FRAMEWORK -> "framework"
                     else -> "executable"
                 }
-                if (inputs.isEmpty()) {
+                if (inputFiles.isEmpty()) {
                     val fragmentsString = module.fragmentsTargeting(platform, includeTestFragments = false)
                         .identificationPhrase()
-                    userReadableError("Unable to link: " +
-                            "there are no inputs (libraries or compiled source code). " +
+                    userReadableError("Unable to link: there are no inputs (libraries or compiled source code). " +
                             "Ensure that there are sources and/or dependencies for $fragmentsString")
                 }
                 logger.info("Linking native '${platform.pretty}' $binaryKind for module '${module.userReadableName}'...")
@@ -164,7 +165,7 @@ internal class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = compileKLibs + externalKLibs,
+                libraryPaths = compiledKLibs + externalKLibs,
                 exportedLibraryPaths = exportedKLibs,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),
@@ -179,7 +180,7 @@ internal class NativeLinkTask(
             nativeCompiler.compile(args, tempRoot, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
-        }.outputs.single()
+        }.outputFiles.single()
 
         return Result(
             linkedBinary = artifact,

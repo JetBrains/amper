@@ -191,9 +191,9 @@ class JvmTestTask(
         val classpathList = javaClass.getResource("/junit-listeners/classpath.txt")?.readText()
             ?: error("JUnit listeners classpath is not in the Amper distribution")
         val result = incrementalCache.execute(
-            id = "extract-junit-listeners-classpath",
-            configuration = mapOf("junit-listeners-classpath" to classpathList),
-            inputs = emptyList(),
+            key = "extract-junit-listeners-classpath",
+            inputValues = mapOf("junit-listeners-classpath" to classpathList),
+            inputFiles = emptyList(),
         ) {
             val launcherDir = tempRoot.path.resolve("amper-junit-listeners").createDirectories()
             cleanDirectory(launcherDir) // we don't want to keep old dependencies that were potentially removed
@@ -207,9 +207,9 @@ class JvmTestTask(
                     }
                 }
             }
-            IncrementalCache.ExecutionResult(outputs = jarNames.map { launcherDir.resolve(it) })
+            IncrementalCache.ExecutionResult(outputFiles = jarNames.map { launcherDir.resolve(it) })
         }
-        return result.outputs
+        return result.outputFiles
     }
 
     private fun TestFilter.toJUnitArgument(): String =

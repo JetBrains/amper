@@ -26,7 +26,7 @@ class IncrementalCacheTest {
     @TempDir
     lateinit var tempDir: Path
 
-    private val executeOnChanged by lazy {
+    private val incrementalCache by lazy {
         IncrementalCache(stateRoot = tempDir / "incremental.state", codeVersion = "1")
     }
     private val executionsCount = AtomicInteger(0)
@@ -36,7 +36,7 @@ class IncrementalCacheTest {
         val file = tempDir.resolve("file.txt")
 
         fun call() = runBlocking {
-            executeOnChanged.execute("1", emptyMap(), listOf(file)) {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = listOf(file)) {
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(emptyList())
             }
@@ -66,7 +66,10 @@ class IncrementalCacheTest {
 
         fun call(codeVersion: String) = runBlocking {
             IncrementalCache(tempDir / "incremental.state", codeVersion = codeVersion).execute(
-                "1", emptyMap(), listOf(file)) {
+                key = "1",
+                inputValues = emptyMap(),
+                inputFiles = listOf(file),
+            ) {
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(emptyList())
             }
@@ -95,7 +98,7 @@ class IncrementalCacheTest {
         val file = dir.resolve("file.txt")
 
         fun call() = runBlocking {
-            executeOnChanged.execute("1", emptyMap(), listOf(dir)) {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = listOf(dir)) {
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(emptyList())
             }
@@ -125,7 +128,7 @@ class IncrementalCacheTest {
         val subdir = dir.resolve("subdir")
 
         fun call() = runBlocking {
-            executeOnChanged.execute("1", emptyMap(), listOf(dir)) {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = listOf(dir)) {
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(emptyList())
             }
@@ -153,32 +156,32 @@ class IncrementalCacheTest {
     fun `executes on missing output`() {
         runBlocking {
             val output = tempDir.resolve("out.txt")
-            val result1 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+            val result1 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 output.writeText("1")
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(listOf(output))
             }
-            assertEquals(listOf(output), result1.outputs)
+            assertEquals(listOf(output), result1.outputFiles)
             assertEquals("1", output.readText())
 
             // up-to-date
-            val result2 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+            val result2 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 output.writeText("2")
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(listOf(output))
             }
-            assertEquals(listOf(output), result2.outputs)
+            assertEquals(listOf(output), result2.outputFiles)
             assertEquals("1", output.readText())
 
             output.deleteExisting()
 
             // output was deleted
-            val result3 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+            val result3 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 output.writeText("3")
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(listOf(output))
             }
-            assertEquals(listOf(output), result3.outputs)
+            assertEquals(listOf(output), result3.outputFiles)
             assertEquals("3", output.readText())
         }
         assertEquals(2, executionsCount.get())
@@ -187,15 +190,15 @@ class IncrementalCacheTest {
     @Test
     fun `output properties`() {
         runBlocking {
-            val result1 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+            val result1 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 IncrementalCache.ExecutionResult(emptyList(), mapOf("k" to "v", "e" to ""))
             }
-            assertEquals("e:|k:v", result1.outputProperties.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
+            assertEquals("e:|k:v", result1.outputValues.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
 
-            val result2 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+            val result2 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 fail("should not reach")
             }
-            assertEquals("e:|k:v", result2.outputProperties.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
+            assertEquals("e:|k:v", result2.outputValues.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
         }
     }
 
@@ -203,7 +206,7 @@ class IncrementalCacheTest {
     fun `reporting missing output must fail`() {
         assertFailsWith(NoSuchFileException::class) {
             runBlocking {
-                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                     IncrementalCache.ExecutionResult(listOf(tempDir.resolve("1.out")))
                 }
             }
@@ -217,13 +220,13 @@ class IncrementalCacheTest {
             val excludedOutput = tempDir.resolve("excluded.txt")
 
             fun call() = runBlocking {
-                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                     regularOutput.writeText("regular-1")
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
                     IncrementalCache.ExecutionResult(
-                        outputs = listOf(regularOutput, excludedOutput),
-                        excludedOutputs = setOf(excludedOutput)
+                        outputFiles = listOf(regularOutput, excludedOutput),
+                        excludedOutputFiles = setOf(excludedOutput)
                     )
                 }
             }
@@ -258,14 +261,14 @@ class IncrementalCacheTest {
             val excludedOutput = outputDir.resolve("excluded.txt")
 
             fun call() = runBlocking {
-                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                     outputDir.createDirectories()
                     regularOutput.writeText("regular-1")
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
                     IncrementalCache.ExecutionResult(
-                        outputs = listOf(outputDir), // Only the directory is in outputs
-                        excludedOutputs = setOf(excludedOutput) // But a file inside is excluded
+                        outputFiles = listOf(outputDir), // Only the directory is in outputs
+                        excludedOutputFiles = setOf(excludedOutput) // But a file inside is excluded
                     )
                 }
             }
@@ -301,7 +304,7 @@ class IncrementalCacheTest {
             val excludedOutput = excludedSubdir.resolve("file.txt")
 
             fun call() = runBlocking {
-                executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                     regularSubdir.createDirectories()
                     excludedSubdir.createDirectories()
 
@@ -310,8 +313,8 @@ class IncrementalCacheTest {
                     excludedOutput.writeText("excluded-1")
                     executionsCount.incrementAndGet()
                     IncrementalCache.ExecutionResult(
-                        outputs = listOf(outputDir), // The parent directory is in outputs
-                        excludedOutputs = setOf(excludedSubdir) // An entire subdirectory is excluded
+                        outputFiles = listOf(outputDir), // The parent directory is in outputs
+                        excludedOutputFiles = setOf(excludedSubdir) // An entire subdirectory is excluded
                     )
                 }
             }

@@ -90,16 +90,16 @@ internal class MetadataCompileTask(
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val configuration: Map<String, String> = mapOf(
+        val inputValues = mapOf(
             "jdk.url" to jdk.downloadUrl.toString(),
             "user.settings" to Json.encodeToString(kotlinSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
         val sourceDirs = fragment.src.toAbsolutePath() + additionalKotlinJavaSourceDirs.map { it.path }
-        val inputs = sourceDirs + classpath + refinesPaths + friendPaths
+        val inputFiles = sourceDirs + classpath + refinesPaths + friendPaths
 
-        incrementalCache.execute(taskName.name, configuration, inputs) {
+        incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(taskOutputRoot.path)
 
             val existingSourceDirs = sourceDirs.filter { it.exists() }

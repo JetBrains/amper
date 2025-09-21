@@ -85,9 +85,9 @@ class CommonizeNativeDistributionTask(
                 .setListAttribute("commonizer-args", commonizerArgs)
                 .use {
                     incrementalCache.execute(
-                        "native-dist-commonize-$todoOutputTargets",
-                        mapOf("commonizerArgs" to commonizerArgs.joinToString()),
-                        listOf(
+                        key = "native-dist-commonize-$todoOutputTargets",
+                        inputValues = mapOf("commonizerArgs" to commonizerArgs.joinToString()),
+                        inputFiles = listOf(
                             compiler.kotlinNativeHome,
                             compiler.commonizedPath,
                             *commonizerClasspath.toTypedArray()
@@ -106,7 +106,7 @@ class CommonizeNativeDistributionTask(
                             userReadableError("Kotlin commonizer invocation failed (see errors above)")
                         }
                         return@execute IncrementalCache.ExecutionResult(emptyList())
-                    }.outputs
+                    }.outputFiles
                 }
         }
     }

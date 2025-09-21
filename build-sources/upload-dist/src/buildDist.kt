@@ -30,11 +30,11 @@ internal suspend fun IncrementalCache.buildDist(
     extraClasspaths: List<NamedClasspath>,
 ): Distribution {
     val result = execute(
-        id = "build-dist",
-        configuration = mapOf(
+        key = "build-dist",
+        inputValues = mapOf(
             "extraClasspaths" to extraClasspaths.joinToString { it.name },
         ),
-        inputs = buildList {
+        inputFiles = buildList {
             addAll(cliRuntimeClasspath)
             extraClasspaths.forEach { addAll(it.classpath) }
         },
@@ -51,12 +51,12 @@ internal suspend fun IncrementalCache.buildDist(
             coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
         )
 
-        IncrementalCache.ExecutionResult(outputs = listOf(cliTgz) + wrappers)
+        IncrementalCache.ExecutionResult(outputFiles = listOf(cliTgz) + wrappers)
     }
     return Distribution(
         version = AmperBuild.mavenVersion,
-        cliTgz = result.outputs[0],
-        wrappers = result.outputs.drop(1)
+        cliTgz = result.outputFiles[0],
+        wrappers = result.outputFiles.drop(1)
     )
 }
 

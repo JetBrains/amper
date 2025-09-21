@@ -110,22 +110,24 @@ internal abstract class WebLinkTask(
             .filterIsInstance<WebCompileKlibTask.Result>()
             .filter { it.taskName != compileKLibTaskName }
 
-        val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
+        val compiledKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
 
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("${expectedPlatform.name} link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
-        val configuration: Map<String, String> = mapOf(
-            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
-            "task.output.root" to taskOutputRoot.path.pathString,
-        )
-
-        val inputs = compileKLibs + listOfNotNull(includeArtifact)
+        val inputs = compiledKLibs + listOfNotNull(includeArtifact)
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
-        val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
+        val artifact = incrementalCache.execute(
+            key = taskName.name,
+            inputValues = mapOf(
+                "kotlin.settings" to Json.encodeToString<KotlinUserSettings>(kotlinUserSettings),
+                "task.output.root" to taskOutputRoot.path.pathString,
+            ),
+            inputFiles = inputs,
+        ) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifactPath = taskOutputRoot.path
@@ -138,7 +140,7 @@ internal abstract class WebLinkTask(
             )
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
-        }.outputs.single()
+        }.outputFiles.single()
 
         return Result(
             linkedBinary = artifact,
