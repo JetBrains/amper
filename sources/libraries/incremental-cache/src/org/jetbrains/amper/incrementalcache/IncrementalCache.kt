@@ -96,8 +96,9 @@ class IncrementalCache(
         key: String,
         inputValues: Map<String, String>,
         inputFiles: List<Path>,
+        forceRecalculation: Boolean = false,
         block: suspend () -> ExecutionResult,
-    ): IncrementalExecutionResult = tracer.spanBuilder("inc $key")
+    ): IncrementalExecutionResult = spanBuilder("inc $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
         .use { span ->

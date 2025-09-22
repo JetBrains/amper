@@ -164,10 +164,10 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         val resolvedGraph = try {
                             executeOnChangedInputs.execute(
                                 // todo (AB): Think about id, it should specify graph all logical resolution scopes.
-                                id = resolutionId,
+                                key = resolutionId,
                                 configuration,
                                 forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
-                                inputs = listOf(),
+                                inputFiles = listOf(),
                             ) {
                                 context.spanBuilder("DR.graph:resolution")
                                     .setAttribute("configuration", configuration["dependencies"]) // todo (AB) : Remove it (was added for debugging purposes))
@@ -189,7 +189,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                                 if (graphResolvedInsideCache != null) {
                                     graphResolvedInsideCache
                                 } else {
-                                    val serialized = it.outputProperties["graph"]!!
+                                    val serialized = it.outputValues["graph"]!!
                                     val deserializedGraph = context.spanBuilder("DR.graph:deserialization").use {
                                         json.decodeFromString<DependencyGraph>(serialized)
                                     }
