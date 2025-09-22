@@ -166,7 +166,7 @@ internal class YamlSerializer(
 }
 
 private fun Trace.traceDescription(): String? = when (this) {
-    is PsiTrace -> psiPointer.virtualFile.name
+    is PsiTrace -> psiElement.containingFilename()
     is DefaultTrace -> "default"
     is BuiltinCatalogTrace -> "from built-in catalog"
     is DerivedValueTrace -> buildString {

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.asSafely
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -18,7 +17,6 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
 import org.jetbrains.amper.frontend.aomBuilder.plugins.loadPreparedPluginData
-import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
@@ -33,6 +31,7 @@ import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactori
 import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
@@ -272,7 +271,7 @@ private fun InternalDependency.resolveModuleDependency(
 ): DefaultScopedNotation? {
     val module = moduleDir2module[path]
     if (module == null) {
-        val originalDirectory = (trace as? PsiTrace)?.psiPointer?.originalFilePath?.parent?.absolute()
+        val originalDirectory = trace.extractPsiElementOrNull()?.originalFilePath?.parent?.absolute()
         // Do not report the same error twice from different fragments.
         if (originalDirectory != null && reportedUnresolvedModules.add(trace)) {
             val possibleCorrectPath = moduleDir2module.keys

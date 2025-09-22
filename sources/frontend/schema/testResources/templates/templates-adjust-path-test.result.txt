@@ -2,7 +2,7 @@ Fragments:
   apple
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: src@apple
     Fragment dependencies:
       native (REFINE)
@@ -14,7 +14,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test@apple
     Fragment dependencies:
       nativeTest (REFINE)
@@ -25,7 +25,7 @@ Fragments:
   common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -36,7 +36,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -46,7 +46,7 @@ Fragments:
   ios
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       apple (REFINE)
@@ -56,7 +56,7 @@ Fragments:
   iosArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: src@iosArm64
     Fragment dependencies:
       ios (REFINE)
@@ -68,7 +68,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test@iosArm64
     Fragment dependencies:
       iosTest (REFINE)
@@ -81,7 +81,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       appleTest (REFINE)
@@ -92,7 +92,7 @@ Fragments:
   native
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: src@native
     Fragment dependencies:
       common (REFINE)
@@ -104,7 +104,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(fileName=templates-adjust-path-test.yaml, text=org.yaml:snakeyaml:2.0), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test@native
     Fragment dependencies:
       commonTest (REFINE)

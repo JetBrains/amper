@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.api
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.SmartPsiElementPointer
-import com.intellij.psi.createSmartPointer
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.VersionCatalog
@@ -46,41 +44,20 @@ data object DefaultTrace : Trace {
 }
 
 /**
- * The value with this trace originates from a PSI element.
- *
- * NB: The element is saved as a pointer and could be potentially invalidated if the PSI tree changes after
- * the trace was assigned.
- *
- * @see PsiElement.asTrace
+ * The value with this trace originates from a [psiElement].
  */
 data class PsiTrace(
     /**
-     * Pointer to the [PsiElement] that was used when creating this trace.
-     */
-    val psiPointer: SmartPsiElementPointer<PsiElement>,
-    override val precedingValue: TreeValue<*>? = null,
-) : Trace {
-    /**
      * The [PsiElement] that this value was read from.
      */
-    @Deprecated("Use psiElementPointer instead", ReplaceWith("psiElementPointer.element"))
-    val psiElement: PsiElement = psiPointer.element ?: error("PsiElement is invalidated")
-
-    override fun toString(): String {
-        val fileName = psiPointer.virtualFile.name
-        val text = psiPointer.element?.text
-        return buildString {
-            append("PsiTrace(fileName=$fileName")
-            if (text != null) append(", text=$text")
-            append(")")
-        }
-    }
-}
+    val psiElement: PsiElement,
+    override val precedingValue: TreeValue<*>? = null,
+) : Trace
 
 /**
  * Creates a [PsiTrace] that points to this [PsiElement].
  */
-fun PsiElement.asTrace(): PsiTrace = PsiTrace(createSmartPointer())
+fun PsiElement.asTrace(): PsiTrace = PsiTrace(this)
 
 /**
  * The value with this trace originates from a built-in version catalog provided by a toolchain.

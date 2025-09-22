@@ -17,9 +17,9 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
@@ -83,7 +83,7 @@ private fun VersionCatalog.findInCatalogWithReport(key: String, keyTrace: Trace?
     val value = findInCatalog(key)
     if (value == null && keyTrace is PsiTrace) {
         problemReporter.reportBundleError(
-            source = keyTrace.asBuildProblemSource(),
+            source = keyTrace.psiElement.asBuildProblemSource(),
             messageKey = when {
                 key.startsWith("compose.") -> "compose.is.disabled"
                 key.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"

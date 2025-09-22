@@ -9,11 +9,12 @@ import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
-import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -32,14 +33,14 @@ class ModuleDependencyLoopProblem(
     )
     override val source: MultipleLocationsBuildProblemSource = MultipleLocationsBuildProblemSource(
         // restore the loop edges using the nodes
-        sources = loop.dropLast(1).map { it.second.asBuildProblemSource() }.filterIsInstance<FileBuildProblemSource>(),
+        sources = loop.dropLast(1).mapNotNull { it.second.extractPsiElementOrNull() }.map(::PsiBuildProblemSource),
         groupingMessage = SchemaBundle.message("dependencies.modules.loop.grouping"),
     )
     override val level: Level get() = Level.Error
     override val type: BuildProblemType get() = BuildProblemType.Generic
 
     companion object {
-        const val diagnosticId: BuildProblemId = "module.dependency.loop"
+        val diagnosticId: BuildProblemId = "module.dependency.loop"
     }
 }
 
@@ -54,7 +55,7 @@ class ModuleDependencySelfProblem(
     override val type: BuildProblemType get() = BuildProblemType.Generic
 
     companion object {
-        const val diagnosticId: BuildProblemId = "module.dependency.self"
+        val diagnosticId: BuildProblemId = "module.dependency.self"
     }
 }
 

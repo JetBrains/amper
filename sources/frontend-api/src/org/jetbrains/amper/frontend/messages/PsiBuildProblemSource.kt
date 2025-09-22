@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.messages
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileSystemItem
-import com.intellij.psi.SmartPsiElementPointer
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
@@ -25,41 +24,28 @@ private const val NO_VIRTUAL_FILE_ERROR = "PSI element doesn't have real backing
  */
 sealed interface PsiBuildProblemSource : FileBuildProblemSource {
     @UsedInIdePlugin
-    @Deprecated(
-        "Use psiElementPointer instead, as it doesn't keep long-living references to the PSI",
-        replaceWith = ReplaceWith("psiPointer.element ?: error(\"No PSI element found\")")
-    )
     val psiElement: PsiElement
-        get() = psiPointer.element ?: error(NO_VIRTUAL_FILE_ERROR)
-
-    @UsedInIdePlugin
-    val psiPointer: SmartPsiElementPointer<out PsiElement>
 
     override val file: Path
-        get() = psiPointer.originalFilePath ?: error(NO_VIRTUAL_FILE_ERROR)
+        get() = psiElement.originalFilePath ?: error(NO_VIRTUAL_FILE_ERROR)
 
-    data class FileSystemLike internal constructor(override val psiPointer: SmartPsiElementPointer<PsiFileSystemItem>) : PsiBuildProblemSource
+    data class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource
 
-    data class Element internal constructor(override val psiPointer: SmartPsiElementPointer<out PsiElement>) : PsiBuildProblemSource, FileWithRangesBuildProblemSource {
-        override val range: LineAndColumnRange?
+    data class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource, FileWithRangesBuildProblemSource {
+        override val range: LineAndColumnRange
+            get() = getLineAndColumnRangeInPsiFile(psiElement)
+
+        override val offsetRange: IntRange
             get() {
-                val psiElement = psiPointer.element ?: return null
-                return getLineAndColumnRangeInPsiFile(psiElement)
-            }
-
-        override val offsetRange: IntRange?
-            get() {
-                val psiElement = psiPointer.element ?: return null
                 val range = psiElement.textRange
                 return IntRange(range.startOffset, range.endOffset)
             }
     }
 }
 
-fun PsiBuildProblemSource(psiPointer: SmartPsiElementPointer<out PsiElement>): PsiBuildProblemSource =
-    if (psiPointer.element is PsiFileSystemItem) {
-        @Suppress("UNCHECKED_CAST")
-        PsiBuildProblemSource.FileSystemLike(psiPointer as SmartPsiElementPointer<PsiFileSystemItem>)
+fun PsiBuildProblemSource(psiElement: PsiElement): PsiBuildProblemSource =
+    if (psiElement is PsiFileSystemItem) {
+        PsiBuildProblemSource.FileSystemLike(psiElement)
     } else {
-        PsiBuildProblemSource.Element(psiPointer)
+        PsiBuildProblemSource.Element(psiElement)
     }

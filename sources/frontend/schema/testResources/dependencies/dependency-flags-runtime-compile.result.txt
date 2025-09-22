@@ -1,11 +1,9 @@
 Fragments:
   main
     External dependencies:
-      MavenDependency(coordinates=a, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=a: runtime-only), compile=false, runtime=true, exported=false)
-      MavenDependency(coordinates=b, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=b: compile-only), compile=true, runtime=false, exported=false)
-      MavenDependency(coordinates=c, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=c:
-      scope: compile-only
-      exported: true), compile=true, runtime=false, exported=true)
+      MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=false, runtime=true, exported=false)
+      MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=false)
+      MavenDependency(coordinates=c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -14,11 +12,9 @@ Fragments:
 
   test
     External dependencies:
-      MavenDependency(coordinates=a, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=a: runtime-only), compile=false, runtime=true, exported=false)
-      MavenDependency(coordinates=b, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=b: compile-only), compile=true, runtime=false, exported=false)
-      MavenDependency(coordinates=c, trace=PsiTrace(fileName=dependency-flags-runtime-compile.yaml, text=c:
-      scope: compile-only
-      exported: true), compile=true, runtime=false, exported=true)
+      MavenDependency(coordinates=a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=false, runtime=true, exported=false)
+      MavenDependency(coordinates=b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=false)
+      MavenDependency(coordinates=c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=true)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folder: test

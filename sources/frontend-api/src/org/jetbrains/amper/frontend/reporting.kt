@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
-import com.intellij.psi.createSmartPointer
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
@@ -58,7 +57,7 @@ fun Traceable.asBuildProblemSource(): BuildProblemSource = trace.asBuildProblemS
 fun Trace.asBuildProblemSource(): BuildProblemSource = extractPsiElementOrNull()?.asBuildProblemSource()
     ?: GlobalBuildProblemSource
 
-fun PsiElement.asBuildProblemSource(): PsiBuildProblemSource = PsiBuildProblemSource(this.createSmartPointer())
+fun PsiElement.asBuildProblemSource(): PsiBuildProblemSource = PsiBuildProblemSource(this)
 
 fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     val document: Document = node.containingFile.viewProvider.document
