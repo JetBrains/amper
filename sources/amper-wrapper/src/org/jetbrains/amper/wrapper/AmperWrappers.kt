@@ -58,11 +58,10 @@ object AmperWrappers {
         substituteTemplatePlaceholders(
             input = wrapperText,
             outputFile = path,
-            placeholder = "@",
-            values = listOf(
-                "AMPER_VERSION" to amperVersion,
-                "AMPER_DIST_TGZ_SHA256" to amperDistTgzSha256,
-                "COROUTINES_DEBUG_VERSION" to coroutinesDebugVersion,
+            replacementRules = listOf(
+                "@AMPER_VERSION@" to amperVersion,
+                "@AMPER_DIST_TGZ_SHA256@" to amperDistTgzSha256,
+                "@COROUTINES_DEBUG_VERSION@" to coroutinesDebugVersion,
             ),
         )
 

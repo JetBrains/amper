@@ -6,7 +6,6 @@ package org.jetbrains.amper.wrapper
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.regex.Pattern
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
@@ -16,45 +15,33 @@ private val logger = LoggerFactory.getLogger("TemplateSubstitution")
 internal fun substituteTemplatePlaceholders(
     input: String,
     outputFile: Path,
-    placeholder: String,
-    values: List<Pair<String, String>>,
+    replacementRules: List<Pair<String, String>>,
 ) {
-    var result = input
+    val result = input
+        .replaceMultiple(replacementRules)
+        .replace05ExitCommandPadding()
 
-    val missingPlaceholders = mutableListOf<String>()
-    for ((name, value) in values) {
-        check (!name.contains(placeholder)) {
-            "Do not use placeholder '$placeholder' in name: $name"
-        }
-
-        val s = "$placeholder$name$placeholder"
-        if (!result.contains(s)) {
-            missingPlaceholders.add(s)
-        }
-
-        result = result.replace(s, value)
-    }
-
-    missingPlaceholders.forEach {
-        logger.warn("Placeholder '$it' is not used in $outputFile")
-    }
-
-    result = result.replace05ExitCommandPadding()
-
-    val escapedPlaceHolder = Pattern.quote(placeholder)
-    val regex = Regex("$escapedPlaceHolder\\S+$escapedPlaceHolder")
     val unsubstituted = result
-        .splitToSequence('\n')
+        .lineSequence()
         .mapIndexed { line, s -> "line ${line + 1}: $s" }
-        .filter(regex::containsMatchIn)
+        .filter(Regex("@\\S+@")::containsMatchIn)
         .joinToString("\n")
-    check (unsubstituted.isBlank()) {
+    check(unsubstituted.isBlank()) {
         "Some template parameters were left unsubstituted in template:\n$unsubstituted"
     }
 
     outputFile.parent.createDirectories()
     outputFile.writeText(result)
 }
+
+private fun String.replaceMultiple(replacementRules: List<Pair<String, String>>): String =
+    replacementRules.fold(this) { text, rule ->
+        val (placeholder, replacement) = rule
+        if (placeholder !in text) {
+            logger.warn("Placeholder '$placeholder' is not in the input")
+        }
+        text.replace(placeholder, replacement)
+    }
 
 /**
  * See comment in amper.template.bat around the placeholder.
