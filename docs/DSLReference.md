@@ -40,7 +40,7 @@ modules:
 
 ### Product
 
-`product:` section defines what should be produced out of the module.
+The `product:` section defines what should be produced out of the module.
 Read more about the [product types](Documentation.md#product-types).
 
 | Attribute             | Description                                 |

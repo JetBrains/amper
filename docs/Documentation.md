@@ -192,7 +192,7 @@ See [details on multiplatform configuration](#multiplatform-configuration) for m
 
 #### External Maven dependencies
 
-For Maven dependencies, simply specify their coordinates:
+Maven dependencies can be added via their coordinates using the usual `:`-separated notation:
 ```yaml
 dependencies:
   - org.jetbrains.kotlin:kotlin-serialization:1.8.0
@@ -201,8 +201,8 @@ dependencies:
 
 #### Module dependencies
 
-To depend on another module, use a relative path to the folder which contains the corresponding `module.yaml`.
-Module dependency should start either with `./` or `../`.
+To depend on another Module, use a relative path to the folder which contains the corresponding `module.yaml`.
+The path should start either with `./` or `../`.
 
 > Dependencies between modules are only allowed within the project scope.
 > That is, they must be listed in the `project.yaml` file.
@@ -285,46 +285,15 @@ dependencies:
 
 #### External Maven BOM dependencies
 
-For importing BOM (Bill of materials), specify its coordinates prefixed by `bom: `
+To import a BOM (Bill of materials), specify its coordinates prefixed by `bom: `
 ```yaml
 dependencies:
   - bom: io.ktor:ktor-bom:2.2.0
   - io.ktor:ktor-client-core 
 ```
-After BOM is imported, versions of dependencies declared in the module could be omitted,
+After a BOM is imported, the versions of the dependencies declared in the module can be omitted,
 unspecified versions are resolved from the BOM.
 Dependency versions declared in the BOM participate in version conflict resolution.
-
-### Managing Maven repositories
-
-By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 
-
-```yaml
-repositories:
-  - https://repo.spring.io/ui/native/release
-  - url: https://dl.google.com/dl/android/maven2/
-  - id: jitpack
-    url: https://jitpack.io
-```
-
-To configure repository credentials, use the following snippet:
-```yaml
-repositories:
-  - url: https://my.private.repository/
-    credentials:
-      file: ../local.properties # relative path to the file with credentials
-      usernameKey: my.private.repository.username
-      passwordKey: my.private.repository.password
-```
-
-Here is the file `../local.properties`:
-```properties
-my.private.repository.username=...
-my.private.repository.password=...
-```
-
-> Currently only `*.properties` files with credentials are supported.
-
 
 ### Library Catalogs (a.k.a Version Catalogs)
 
@@ -352,13 +321,43 @@ dependencies:
   - $libs.commons.lang3  # dependency from the Gradle default libs.versions.toml catalog
 ```
 
-Module dependencies can still have a [scope and visibility](#scopes-and-visibility) even when coming from a catalog:
+Catalog dependencies can still have a [scope and visibility](#scopes-and-visibility) even when coming from a catalog:
 
 ```yaml
 dependencies:
   - $compose.foundation: exported
   - $my-catalog.db-engine: runtime-only 
 ```
+
+### Managing Maven repositories
+
+By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options:
+
+```yaml
+repositories:
+  - https://repo.spring.io/ui/native/release
+  - url: https://dl.google.com/dl/android/maven2/
+  - id: jitpack
+    url: https://jitpack.io
+```
+
+To configure repository credentials, use the following snippet:
+```yaml
+repositories:
+  - url: https://my.private.repository/
+    credentials:
+      file: ../local.properties # relative path to the file with credentials
+      usernameKey: my.private.repository.username
+      passwordKey: my.private.repository.password
+```
+
+Here is the file `../local.properties`:
+```properties
+my.private.repository.username=...
+my.private.repository.password=...
+```
+
+> Currently only `*.properties` files with credentials are supported.
 
 ### Settings
 
