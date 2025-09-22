@@ -131,9 +131,13 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         // middle of a command in the middle of the script, which will fail miserably.
         // Even with atomic moves, the new file is reloaded, so in this case we have to spawn a process that will
         // replace the old wrapper after the update command (and the current wrapper) finished executing.
+
+        // The offset of the exit command is where the script would normally resume (given the characters we use in our
+        // scripts, the UTF-8 byte offset should correspond to the character offset).
+        val runningWrapperResumeOffset = runningWrapper.readText().lastIndexOf("exit /B %ERRORLEVEL%")
         val batUpdateInPlaceWouldBreak = amperBatPath.exists()
                 && amperBatPath.isSameFileAs(runningWrapper)
-                && newBatPath.fileSize() > runningWrapper.fileSize()
+                && newBatPath.fileSize() > runningWrapperResumeOffset
         spanBuilder("Replace 'amper.bat' script").use { span ->
             if (batUpdateInPlaceWouldBreak) {
                 copyAndReplaceLaterWindows(source = newBatPath, target = amperBatPath)
