@@ -50,18 +50,22 @@ Read more about the [product types](Documentation.md#product-types).
 
 Supported product types and platforms:
 
-| Product Type  | Description                                                                            | Platforms                                                     |
-|---------------|----------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| `lib`         | A reusable library which could be used as dependency by other modules in the codebase. | any                                                           |
-| `jvm/app`     | A JVM console or desktop application.                                                  | `jvm`                                                         |
-| `linux/app`   | A native Linux application.                                                            | `linuxX86`, `linuxArm64`                                      |
-| `windows/app` | A native Windows application.                                                          | `mingwX64`                                                    |
-| `macos/app`   | A native macOS application.                                                            | `macosX64`, `macosArm64`                                      |
-| `android/app` | An Android VM application.                                                             | `android`                                                     |
-| `ios/app`     | An iOS application.                                                                    | device: `iosArm64`, simulators: `iosX64`, `iosSimulatorArm64` |
+| Product Type   | Description                                                        | Platforms                                                     |
+|----------------|--------------------------------------------------------------------|---------------------------------------------------------------|
+| `lib`          | A reusable multiplatform library that other modules can depend on. | any (the list must be specified explicitly)                   |
+| `jvm/lib`      | A JVM library that other modules can depend on.                    | `jvm`                                                         |
+| `jvm/app`      | A JVM console or desktop application.                              | `jvm`                                                         |
+| `linux/app`    | A native Linux application.                                        | `linuxX86`, `linuxArm64`                                      |
+| `windows/app`  | A native Windows application.                                      | `mingwX64`                                                    |
+| `macos/app`    | A native macOS application.                                        | `macosX64`, `macosArm64`                                      |
+| `android/app`  | An Android VM application.                                         | `android`                                                     |
+| `ios/app`      | An iOS application.                                                | device: `iosArm64`, simulators: `iosX64`, `iosSimulatorArm64` |
+| `js/app`       | A JavaScript application.                                          | `js`                                                          |
+| `wasmJs/app`   | A Wasm (JS) application.                                           | `wasmJs`                                                      |
+| `wasmWasi/app` | A Wasm (WASI) application.                                         | `wasmWasi`                                                    |
 
-Check the list of all [Kotlin Multiplatform targets](https://kotlinlang.org/docs/native-target-support.html) and level
-of their support.
+Check the list of all [Kotlin Multiplatform targets](https://kotlinlang.org/docs/native-target-support.html) and the 
+level of their support.
 
 Examples:
 
@@ -86,7 +90,10 @@ product:
 
 ### Aliases
 
-`aliases:` section defines the names for the custom code sharing groups. Aliases can be used as `@platform` qualifiers. Read more about [aliases](Documentation.md#aliases).
+An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
+have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as `@platform` qualifiers in the settings.
+
+Read more about [aliases](Documentation.md#aliases).
 
 Examples:
 

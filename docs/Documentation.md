@@ -16,7 +16,7 @@ An Amper **project** is defined by a `project.yaml` file. This file contains the
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located anywhere under
 the project root. If there is only one module in the project, a `project.yaml` file is not required.
 
-An Amper **module** is a directory with a `module.yaml` configuration file, module sources and resources.
+An Amper **module** is a directory with a `module.yaml` configuration file, sources, and resources.
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
 Each module describes a single product. Several modules can't share same sources or resources, but they can depend on
 each other.
@@ -982,7 +982,7 @@ of configuring `settings:java:annotationProcessing` directly even if your module
     lombok: enabled
 ```
 
-adds `lombok` dependency, annotation processor and kotlin compiler plugin.
+adds `lombok` dependency, annotation processor, and kotlin compiler plugin.
 
 ### Tests
 
@@ -1238,8 +1238,8 @@ We'll see how this works more precisely in the [Multiplatform Dependencies](#mul
 
 #### Aliases
 
-If the default hierarchy is not enough, you can create custom `aliases`, each corresponding to a group of target platforms.
-You can then use the alias in places where `@platform` suffixes usually appear to share code or configuration:
+If the default hierarchy is not enough, you can define new groups of platforms by giving them an alias.
+You can then use the alias in places where `@platform` suffixes usually appear to share code, settings, or dependencies:
 
 ```yaml
 product:
@@ -1256,6 +1256,11 @@ dependencies@jvmAndAndroid:
 # these dependencies will be visible in jvm code only
 dependencies@jvm:
   - org.lighthousegames:logging:1.3.0
+
+# these settings will affect both jvm and android code, and the shared code placed in src@jvmAndAndroid
+settings@jvmAndAndroid:
+  kotlin:
+    freeCompilerArgs: [ -jvm-default=no-compatibility ]
 ```
 
 ```
