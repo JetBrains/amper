@@ -10,7 +10,6 @@ private data class AmperWrapper(
     val fileName: String,
     val resourceName: String,
     val executable: Boolean,
-    val windowsLineEndings: Boolean,
 )
 
 @OptIn(ExperimentalStdlibApi::class)
@@ -21,13 +20,11 @@ object AmperWrappers {
             fileName = "amper",
             resourceName = "wrappers/amper.template.sh",
             executable = true,
-            windowsLineEndings = false,
         ),
         AmperWrapper(
             fileName = "amper.bat",
             resourceName = "wrappers/amper.template.bat",
             executable = false,
-            windowsLineEndings = true,
         ),
     )
 
@@ -67,7 +64,6 @@ object AmperWrappers {
                 "AMPER_DIST_TGZ_SHA256" to amperDistTgzSha256,
                 "COROUTINES_DEBUG_VERSION" to coroutinesDebugVersion,
             ),
-            outputWindowsLineEndings = windowsLineEndings,
         )
 
         if (executable) {

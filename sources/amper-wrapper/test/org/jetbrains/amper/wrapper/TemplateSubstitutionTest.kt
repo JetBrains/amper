@@ -15,7 +15,7 @@ class TemplateSubstitutionTest {
     lateinit var tempDir: Path
 
     @Test
-    fun substituteTemplatePlaceholders_line_endings() {
+    fun substituteTemplatePlaceholders_lineEndingsShouldBeUntouched() {
         val outputFile = tempDir.resolve("output")
 
         substituteTemplatePlaceholders(
@@ -23,9 +23,8 @@ class TemplateSubstitutionTest {
             outputFile = outputFile,
             placeholder = "@",
             values = emptyList(),
-            outputWindowsLineEndings = true,
         )
 
-        assertEquals(2, outputFile.readText().count { it == '\r' })
+        assertEquals("some\r\ntemplate\n", outputFile.readText())
     }
 }

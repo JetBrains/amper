@@ -18,9 +18,8 @@ internal fun substituteTemplatePlaceholders(
     outputFile: Path,
     placeholder: String,
     values: List<Pair<String, String>>,
-    outputWindowsLineEndings: Boolean = false,
 ) {
-    var result = input.replace("\r\n", "\n")
+    var result = input
 
     val missingPlaceholders = mutableListOf<String>()
     for ((name, value) in values) {
@@ -51,10 +50,6 @@ internal fun substituteTemplatePlaceholders(
         .joinToString("\n")
     check (unsubstituted.isBlank()) {
         "Some template parameters were left unsubstituted in template:\n$unsubstituted"
-    }
-
-    if (outputWindowsLineEndings) {
-        result = result.replace("\n", "\r\n")
     }
 
     outputFile.parent.createDirectories()
