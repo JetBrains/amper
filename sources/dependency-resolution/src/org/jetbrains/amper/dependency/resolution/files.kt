@@ -32,6 +32,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChe
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.files.Hash
+import org.jetbrains.amper.dependency.resolution.files.SimpleHash
 import org.jetbrains.amper.dependency.resolution.files.Hasher
 import org.jetbrains.amper.dependency.resolution.files.Writer
 import org.jetbrains.amper.dependency.resolution.files.computeHash
@@ -744,10 +745,7 @@ open class DependencyFile(
             val expectedHash = settings.spanBuilder("getExpectedHash").use { getExpectedHash(algorithm, settings) } ?: continue
             return checkHash(
                 hasher,
-                expectedHash = object : Hash {
-                    override val hash: String = expectedHash
-                    override val algorithm = algorithm
-                },
+                expectedHash = SimpleHash(hash = expectedHash, algorithm = algorithm),
                 diagnosticsReporter.takeIf { requestedLevel != ResolutionLevel.NETWORK })
         }
         return VerificationResult.UNKNOWN
@@ -797,10 +795,7 @@ open class DependencyFile(
             val expectedHash =
                 downloadHash(algorithm, validRepositories, progress, cache, spanBuilderSource, nestedDownloadReporter)
             if (expectedHash != null) {
-                return object : Hash {
-                    override val hash: String = expectedHash
-                    override val algorithm = algorithm
-                }
+                return SimpleHash(hash = expectedHash, algorithm = algorithm)
             }
         }
 
@@ -1084,10 +1079,7 @@ open class DependencyFile(
             for (hashAlgorithm in hashAlgorithms) {
                 val expectedHash = getExpectedHash(artifact, hashAlgorithm, settings)
                 if (expectedHash != null) {
-                    return object : Hash {
-                        override val hash: String = expectedHash
-                        override val algorithm = hashAlgorithm
-                    }
+                    return SimpleHash(hash = expectedHash, algorithm = hashAlgorithm)
                 }
             }
             return null
@@ -1138,7 +1130,7 @@ open class DependencyFile(
                         extra = DependencyResolutionBundle.message(
                             "extra.expected.actual",
                             expectedHash.hash,
-                            actualHash
+                            actualHash.hash
                         ),
                     ),
                 )

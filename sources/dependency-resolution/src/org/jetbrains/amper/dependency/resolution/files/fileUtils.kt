@@ -30,12 +30,18 @@ internal class Hasher(algorithm: String): Hash {
     val writer: Writer = Writer(digest::update)
     @OptIn(ExperimentalStdlibApi::class)
     override val hash: String by lazy { digest.digest().toHexString() }
+    override fun toString() = "$algorithm: $hash"
 }
 
 interface Hash {
     val algorithm: String
     val hash: String
 }
+
+data class SimpleHash (
+    override val hash: String,
+    override val algorithm: String,
+): Hash
 
 internal suspend fun computeHash(path: Path, algorithm: String): Hasher =
     computeHash(path) { listOf(Hasher(algorithm)) }.single()
