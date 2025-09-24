@@ -70,7 +70,7 @@ internal class KspTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val incrementalCache: IncrementalCache,
 ): ArtifactTaskBase() {
-    private val mavenResolver = MavenResolver(userCacheRoot)
+    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
     private val leafFragment = fragments
         .filterIsInstance<LeafFragment>()

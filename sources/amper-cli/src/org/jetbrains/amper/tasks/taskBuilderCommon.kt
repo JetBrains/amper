@@ -40,14 +40,15 @@ fun ProjectTasksBuilder.setupCommonTasks() {
         .withEach {
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies =
-                module.buildDependenciesGraph(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot)
+                module.buildDependenciesGraph(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache)
             val fragmentsRuntimeModuleDependencies = when {
-                platform.isDescendantOf(Platform.NATIVE) -> null  // native world doesn't distinguish compile/runtime classpath
+                platform.isDescendantOf(Platform.NATIVE) -> null  // The native world doesn't distinguish compile/runtime classpath
                 else -> module.buildDependenciesGraph(
                     isTest,
                     platform,
                     ResolutionScope.RUNTIME,
-                    context.userCacheRoot
+                    context.userCacheRoot,
+                    incrementalCache
                 )
             }
             tasks.registerTask(

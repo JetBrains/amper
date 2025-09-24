@@ -6,6 +6,7 @@
 
 package org.jetbrains.amper.tasks
 
+import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.setAmperModule
@@ -58,7 +59,7 @@ class ResolveExternalDependenciesTask(
 ): Task {
 
     private val mavenResolver by lazy {
-        MavenResolver(userCacheRoot)
+        MavenResolver(userCacheRoot, incrementalCache)
     }
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
@@ -147,7 +148,7 @@ class ResolveExternalDependenciesTask(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies
                             ),
-                            templateContext = emptyContext(userCacheRoot) { spanBuilder(it) }
+                            templateContext = emptyContext(userCacheRoot, GlobalOpenTelemetry.get(), incrementalCache)
                         )
 
                         val resolvedGraph = mavenResolver.resolve(

@@ -80,6 +80,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                                     platform = platform,
                                     dependencyReason = ResolutionScope.COMPILE,
                                     userCacheRoot = context.userCacheRoot,
+                                    incrementalCache = incrementalCache
                                 ).forEach { dependsOn ->
                                     add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType))
                                 }

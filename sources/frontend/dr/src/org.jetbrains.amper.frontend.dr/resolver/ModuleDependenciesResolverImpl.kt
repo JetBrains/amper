@@ -3,6 +3,7 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import io.opentelemetry.api.OpenTelemetry
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
@@ -24,7 +25,6 @@ import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodePlain
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.registerSerializableMessages
@@ -56,14 +56,15 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     override fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource,
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): ModuleDependencyNodeWithModule {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
+        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, openTelemetry, incrementalCache)
     }
 
     internal fun DependencyNodeWithResolutionContext.getDependenciesGraphInput(): Map<String, List<String>> {
@@ -140,19 +141,24 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         else -> null
                     }?.replaceTheEndWithMd5IfTooLong()
 
-                    if (resolutionId == null || incrementalCacheUsage == IncrementalCacheUsage.SKIP) {
+                    val incrementalCache = context.settings.incrementalCache
+
+                    if (resolutionId == null
+                        || incrementalCacheUsage == IncrementalCacheUsage.SKIP
+                        || incrementalCache == null
+                    ) {
                         resolveDependencies(resolutionLevel, resolutionDepth, downloadSources)
                         this@resolveDependencies
                     } else {
                         var graphResolvedInsideCache: DependencyNode? = null
                         // todo (AB): It should be adopted and moved into dependency-resolution library
                         // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
-                        val executeOnChangedInputs = IncrementalCache(
-                            // todo (AB) : It should point into project build dir instead of common DR root
-                            stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
-                            codeVersion = "2",
-                            spanBuilder = context.settings.spanBuilder
-                        )
+//                        val executeOnChangedInputs = IncrementalCache(
+//                            // todo (AB) : It should point into project build dir instead of common DR root
+//                            stateRoot = context.settings.fileCache.amperCache.resolve("m2.incremental.state"),
+//                            codeVersion = "2",
+//                            spanBuilder = context.settings.spanBuilder
+//                        )
 
                         val configuration = mapOf(
                             "userCacheRoot" to context.settings.fileCache.amperCache.pathString,
@@ -162,7 +168,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         )
 
                         val resolvedGraph = try {
-                            executeOnChangedInputs.execute(
+                            incrementalCache.execute(
                                 // todo (AB): Think about id, it should specify graph all logical resolution scopes.
                                 key = resolutionId,
                                 configuration,
@@ -288,7 +294,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
     override suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode {
         with(resolutionInput) {
-            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, spanBuilder)
+            val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, openTelemetry, incrementalCache)
             val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
             return resolvedGraph as ModuleDependencyNode
         }
@@ -297,20 +303,21 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     override fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource,
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): RootDependencyNodeInput {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, spanBuilder)
+        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, openTelemetry, incrementalCache)
     }
 
     override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode {
         return with(resolutionInput) {
-            resolutionInput.spanBuilder("DR: Resolving dependencies for the list of modules").use {
-                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.spanBuilder)
+            resolutionInput.openTelemetry.spanBuilder("DR: Resolving dependencies for the list of modules").use {
+                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.openTelemetry, resolutionInput.incrementalCache)
                 val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, incrementalCacheUsage)
                 resolvedGraph
             }

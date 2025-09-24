@@ -18,7 +18,7 @@ internal class KotlinArtifactsDownloader(
     val userCacheRoot: AmperUserCacheRoot,
     private val incrementalCache: IncrementalCache,
 ) {
-    private val mavenResolver = MavenResolver(userCacheRoot)
+    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
     /**
      * Downloads the implementation of the Kotlin Build Tools API (and its dependencies) in the given [version].

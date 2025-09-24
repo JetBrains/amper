@@ -38,6 +38,7 @@ class IosComposeResourcesTask(
         type = MergedPreparedComposeResourcesDirArtifact::class,
         leafFragment = leafFragment,
         userCacheRoot = userCacheRoot,
+        incrementalCache = incrementalCache,
         quantifier = Quantifier.AtLeastOne,
     )
 

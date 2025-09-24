@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.resolver
 
+import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.userReadableError
@@ -19,12 +20,12 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.renderMessage
@@ -33,7 +34,10 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 
-class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
+class MavenResolver(
+    private val userCacheRoot: AmperUserCacheRoot,
+    private val incrementalCache: IncrementalCache,
+) {
 
     suspend fun resolve(
         coordinates: List<String>,
@@ -71,13 +75,13 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             platform.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
         }
         .use {
-            val spanBuilderSource: SpanBuilderSource = { spanBuilder(it) }
             val context = Context {
                 this.cache = getAmperFileCacheBuilder(userCacheRoot)
                 this.repositories = repositories
                 this.scope = scope
                 this.platforms = setOf(platform)
-                this.spanBuilder = spanBuilderSource
+                this.openTelemetry = GlobalOpenTelemetry.get()
+                this.incrementalCache = this@MavenResolver.incrementalCache
             }
 
             val root = RootDependencyNodeInput(

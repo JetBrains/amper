@@ -26,7 +26,7 @@ class ToolingArtifactsDownloader(
     private val incrementalCache: IncrementalCache,
 ) {
 
-    private val mavenResolver = MavenResolver(userCacheRoot)
+    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
     suspend fun downloadHotReloadAgent(hotReloadVersion: String): List<Path> =
         downloadToolingArtifacts(

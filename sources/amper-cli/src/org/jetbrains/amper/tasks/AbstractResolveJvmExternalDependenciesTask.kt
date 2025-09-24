@@ -31,7 +31,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
     private val incrementalCache: IncrementalCache,
     private val resolutionMonikerPrefix: String,
 ): Task {
-    private val mavenResolver = MavenResolver(userCacheRoot)
+    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
     protected abstract fun getMavenCoordinatesToResolve(): List<String>
 

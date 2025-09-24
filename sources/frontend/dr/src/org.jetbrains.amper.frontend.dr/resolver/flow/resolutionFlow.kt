@@ -3,6 +3,7 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
+import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
@@ -10,12 +11,10 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
 import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
-import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
@@ -29,8 +28,10 @@ import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.UnresolvedMavenDependencyNodeImpl
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
 import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -41,19 +42,21 @@ interface DependenciesFlow<T: DependenciesFlowType> {
     fun directDependenciesGraph(
         module: AmperModule,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource,
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): ModuleDependencyNodeWithModule
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource,
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): RootDependencyNodeInput {
-        return spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
+        return openTelemetry.spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
             val node = RootDependencyNodeInput(
                 resolutionId = resolutionId(modules),
-                children = modules.map { directDependenciesGraph(it, fileCacheBuilder, spanBuilder) },
-                templateContext = emptyContext(fileCacheBuilder, spanBuilder)
+                children = modules.map { directDependenciesGraph(it, fileCacheBuilder, openTelemetry, incrementalCache) },
+                templateContext = emptyContext(fileCacheBuilder, openTelemetry, incrementalCache)
             )
             node
         }
@@ -137,7 +140,8 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         platforms: Set<ResolutionPlatform>,
         scope: ResolutionScope,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?,
     ): Context {
         val repositories = getValidRepositories()
         val context = contextMap.computeIfAbsent(
@@ -152,7 +156,8 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.platforms = key.platforms
                 this.repositories = repositories
                 this.cache = fileCacheBuilder
-                this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
+                this.openTelemetry = openTelemetry
+                this.incrementalCache = incrementalCache
                 fragments.firstOrNull()?.let { rootFragment ->
                     this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
                         val groupAndArtifact = it.split(":", limit = 2)

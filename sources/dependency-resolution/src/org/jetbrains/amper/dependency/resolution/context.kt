@@ -4,18 +4,14 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.SpanBuilder
-import io.opentelemetry.api.trace.SpanContext
-import io.opentelemetry.api.trace.SpanKind
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
-import java.util.concurrent.TimeUnit
 import kotlin.io.path.Path
 
 /**
@@ -112,7 +108,8 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
     var repositories: List<Repository> = listOf(MavenRepository.MavenCentral)
     var cache: FileCacheBuilder.() -> Unit = {}
-    var spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() }
+    var openTelemetry: OpenTelemetry? = null
+    var incrementalCache: IncrementalCache? = null
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
     var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
 
@@ -127,7 +124,8 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             platforms,
             repositories,
             FileCacheBuilder(cache).build(),
-            spanBuilder,
+            openTelemetry ?: OpenTelemetry.noop(),
+            incrementalCache,
             conflictResolutionStrategies,
             dependenciesBlocklist,
         )
@@ -202,10 +200,17 @@ data class Settings(
     override val platforms: Set<ResolutionPlatform>,
     override val repositories: List<Repository>,
     val fileCache: FileCache,
-    var spanBuilder: SpanBuilderSource,
+    val openTelemetry: OpenTelemetry,
+    val incrementalCache: IncrementalCache?,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
     val dependenciesBlocklist: Set<MavenGroupAndArtifact>
-): ResolutionConfig
+): ResolutionConfig {
+    val spanBuilder: SpanBuilderSource
+        get() = { openTelemetry
+            .getTracer("org.jetbrains.amper.dr")
+            .spanBuilder(it)
+        }
+}
 
 interface ResolutionConfig {
     val scope: ResolutionScope
@@ -287,43 +292,3 @@ data object MavenLocal : Repository{
 typealias SpanBuilderSource = (String) -> SpanBuilder
 
 fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
-
-class NoopSpanBuilder : SpanBuilder {
-    private constructor()
-
-    private var spanContext: SpanContext? = null
-
-    override fun startSpan(): Span? {
-        if (spanContext == null) {
-            spanContext = Span.current().spanContext
-        }
-        return Span.wrap(spanContext!!)
-    }
-
-    override fun setParent(context: io.opentelemetry.context.Context): NoopSpanBuilder {
-        spanContext = Span.fromContext(context).spanContext
-        return this
-    }
-
-    override fun setNoParent(): NoopSpanBuilder {
-        spanContext = SpanContext.getInvalid()
-        return this
-    }
-
-    override fun addLink(spanContext: SpanContext): NoopSpanBuilder = this
-    override fun addLink(spanContext: SpanContext, attributes: Attributes): NoopSpanBuilder = this
-    override fun setAttribute(key: String, value: String): NoopSpanBuilder = this
-    override fun setAttribute(key: String, value: Long): NoopSpanBuilder = this
-    override fun setAttribute(key: String, value: Double): NoopSpanBuilder  = this
-    override fun setAttribute(key: String, value: Boolean): NoopSpanBuilder = this
-    override fun <T> setAttribute(key: AttributeKey<T?>, value: T?): NoopSpanBuilder = this
-    override fun setAllAttributes(attributes: Attributes): NoopSpanBuilder  = this
-    override fun setSpanKind(spanKind: SpanKind): NoopSpanBuilder  = this
-    override fun setStartTimestamp(startTimestamp: Long, unit: TimeUnit): NoopSpanBuilder = this
-
-    companion object {
-        fun create(): NoopSpanBuilder {
-            return NoopSpanBuilder()
-        }
-    }
-}

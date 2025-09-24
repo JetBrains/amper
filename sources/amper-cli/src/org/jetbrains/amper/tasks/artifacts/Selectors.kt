@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
@@ -23,7 +24,7 @@ import kotlin.reflect.KClass
  * NOTE: `type` argument is specified explicitly instead of relying on `inline` with `reified` because
  * Kotlin deduces the `T` as an intersection type of explicitly specified property type and the upper `T`'s bound.
  * And for the reified type it "decays" into a common supertype, which becomes out of type bounds.
- * This is a deprecated behavior, but it still allowed in the current Kotlin version.
+ * This is a deprecated behavior, but it is still allowed in the current Kotlin version.
  */
 object Selectors {
     /**
@@ -116,6 +117,7 @@ object Selectors {
         type: KClass<T>,
         leafFragment: LeafFragment,
         userCacheRoot: AmperUserCacheRoot,
+        incrementalCache: IncrementalCache,
         quantifier: Q,
         includeSelf: Boolean = true,
         additionalFilter: (ModuleScopedArtifact) -> Boolean = { true },
@@ -129,6 +131,7 @@ object Selectors {
                     platform = leafFragment.platform,
                     dependencyReason = ResolutionScope.RUNTIME,
                     userCacheRoot = userCacheRoot,
+                    incrementalCache = incrementalCache
                 )
             )
         }

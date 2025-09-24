@@ -8,7 +8,7 @@ package org.jetbrains.amper.incrementalcache
 
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.SpanBuilder
+import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.filechannels.readText
@@ -45,27 +45,13 @@ class IncrementalCache(
      * Use different [stateRoot]s if you need independent states.
      */
     private val codeVersion: String,
-
     /**
-     * Span builder
+     * The telemetry instance to use for tracing. If not provided, a no-op instance will be used.
      */
-    // todo (AB): this should be eliminated (after DR started using OpenTelemetry in input instead of SpanBuilderProvider)
-    private val spanBuilder: (String) -> SpanBuilder
+    private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
 ) {
-
-    constructor(
-        stateRoot: Path,
-        codeVersion: String,
-        /**
-         * The telemetry instance to use for tracing. If not provided, a no-op instance will be used.
-         */
-        openTelemetry: OpenTelemetry = OpenTelemetry.noop()
-    ): this(
-        stateRoot,
-        codeVersion,
-        {  openTelemetry.getTracer("org.jetbrains.amper.incrementalcache").spanBuilder(it) }
-    )
-
+    private val tracer: Tracer
+        get() = openTelemetry.getTracer("org.jetbrains.amper.incrementalcache")
 
     /**
      * Executes the given [block] or returns an existing result from the incremental cache for the given [key].
@@ -98,7 +84,7 @@ class IncrementalCache(
         inputFiles: List<Path>,
         forceRecalculation: Boolean = false,
         block: suspend () -> ExecutionResult,
-    ): IncrementalExecutionResult = spanBuilder("inc $key")
+    ): IncrementalExecutionResult = tracer.spanBuilder("inc $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
         .use { span ->

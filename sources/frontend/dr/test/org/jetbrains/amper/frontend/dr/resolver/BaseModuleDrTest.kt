@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import io.opentelemetry.api.OpenTelemetry
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
@@ -15,19 +16,18 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
-import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.TestInfo
@@ -42,8 +42,8 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
-import kotlin.test.assertIs
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -103,7 +103,6 @@ abstract class BaseModuleDrTest {
                 RootDependencyNodeStub(
                     graphEntryName = "Fragment '$module.$fragment' dependencies",
                     children = graph.fragmentDeps(module, fragment),
-//                    emptyContext(resolutionInput.fileCacheBuilder, resolutionInput.spanBuilder)
                 )
             module != null -> graph.moduleDeps(module)
             else -> graph
@@ -330,12 +329,14 @@ abstract class BaseModuleDrTest {
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null,
+        incrementalCache: IncrementalCache? = null
     ) = Context {
         this.scope = scope
         this.platforms = platform
         this.cache = cacheBuilder
-        this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
+        this.openTelemetry = openTelemetry
+        this.incrementalCache = incrementalCache
     }
 
     protected fun String.toMavenCoordinates() =

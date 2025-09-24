@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.tasks
 
+import io.opentelemetry.api.GlobalOpenTelemetry
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 
 /**
  * Returns a dependencies sequence of the given module in the resolution scope
@@ -24,9 +25,10 @@ internal fun AmperModule.getModuleDependencies(
     platform: Platform,
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
+    incrementalCache: IncrementalCache
 ) : Sequence<AmperModule> {
     val fragmentsModuleDependencies =
-        buildDependenciesGraph(isTest, platform, dependencyReason, userCacheRoot)
+        buildDependenciesGraph(isTest, platform, dependencyReason, userCacheRoot, incrementalCache)
     return fragmentsModuleDependencies.getModuleDependencies()
 }
 
@@ -34,14 +36,16 @@ internal fun AmperModule.buildDependenciesGraph(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: ResolutionScope,
-    userCacheRoot: AmperUserCacheRoot
-): ModuleDependencyNodeWithModule = buildDependenciesGraph(isTest, setOf(platform), dependencyReason, userCacheRoot)
+    userCacheRoot: AmperUserCacheRoot,
+    incrementalCache: IncrementalCache
+): ModuleDependencyNodeWithModule = buildDependenciesGraph(isTest, setOf(platform), dependencyReason, userCacheRoot, incrementalCache)
 
 internal fun AmperModule.buildDependenciesGraph(
     isTest: Boolean,
     platforms: Set<Platform>,
     dependencyReason: ResolutionScope,
-    userCacheRoot: AmperUserCacheRoot
+    userCacheRoot: AmperUserCacheRoot,
+    incrementalCache: IncrementalCache
 ): ModuleDependencyNodeWithModule {
     val resolutionPlatform = platforms.map { it.toResolutionPlatform()
         ?: throw IllegalArgumentException("Dependency resolution is not supported for the platform $it") }.toSet()
@@ -50,7 +54,8 @@ internal fun AmperModule.buildDependenciesGraph(
         resolveDependenciesGraph(
             DependenciesFlowType.ClassPathType(dependencyReason, resolutionPlatform, isTest),
             getAmperFileCacheBuilder(userCacheRoot),
-            { spanBuilder(it) }
+            GlobalOpenTelemetry.get(),
+            incrementalCache
         )
     }
 }

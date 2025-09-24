@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.unique
 import com.github.ajalt.clikt.parameters.types.choice
+import io.opentelemetry.api.GlobalOpenTelemetry
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.commands.AmperModelAwareCommand
 import org.jetbrains.amper.cli.options.AllModulesOptionName
@@ -21,7 +22,6 @@ import org.jetbrains.amper.cli.options.platformGroupOption
 import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -35,6 +35,7 @@ import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
+import org.jetbrains.amper.util.AmperCliIncrementalCache
 
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
@@ -94,7 +95,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val selectedModules = moduleFilter.selectModules(projectModules = model.modules)
         selectedModules.forEach { selectedModule ->
             printModuleDependencies(
-                module = selectedModule,
+                module = selectedModule, cliContext = cliContext,
                 // When using --all-modules, the user most likely just wants to filter "all" dependencies based on the
                 // platforms and is ok ignoring some modules that don't have these platforms.
                 failOnUnsupportedPlatforms = moduleFilter !is ModuleFilter.All,
@@ -102,7 +103,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         }
     }
 
-    private suspend fun printModuleDependencies(module: AmperModule, failOnUnsupportedPlatforms: Boolean) {
+    private suspend fun printModuleDependencies(module: AmperModule, cliContext: CliContext, failOnUnsupportedPlatforms: Boolean) {
         val platformSetsToResolveFor = if (platformGroups.isEmpty()) {
             module.fragments.map { it.platforms }.distinct()
         } else {
@@ -113,6 +114,8 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         }
 
         val mavenCoordinates = filter?.resolveFilter()
+
+        val incrementalCache = AmperCliIncrementalCache(cliContext.buildOutputRoot)
 
         val variantsToResolve = buildList {
             platformSetsToResolveFor.forEach { platforms ->
@@ -128,6 +131,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                                 platforms,
                                 scope,
                                 commonOptions.sharedCachesRoot,
+                                incrementalCache
                             )
                         )
                     }
@@ -135,7 +139,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             }
         }
 
-        val resolver = MavenResolver(commonOptions.sharedCachesRoot)
+        val resolver = MavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
 
         val root = RootDependencyNodeInput(
             resolutionId = module.uniqueModuleKey()?.let { moduleKey ->
@@ -144,7 +148,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                         "includeTests = $includeTests"
             },
             children = variantsToResolve,
-            templateContext = emptyContext(commonOptions.sharedCachesRoot, { spanBuilder(it) })
+            templateContext = emptyContext(commonOptions.sharedCachesRoot, GlobalOpenTelemetry.get(), incrementalCache)
         )
 
         val resolvedGraph = resolver.resolve(

@@ -50,7 +50,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         add(JvmSpecificTaskType.JavaAnnotationProcessorClasspath.getTaskName(module, platform, isTest))
                     }
 
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot)
+                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache)
                         .forEach {
                             add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
                         }
@@ -85,7 +85,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     add(mode.getTaskName(module, platform, isTest = false))
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
 
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot)
+                    module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot, incrementalCache)
                         .forEach { add(mode.getTaskName(it, platform, isTest = false)) }
                 }
             )
@@ -120,7 +120,8 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                                     isTest = false,
                                     platform,
                                     ResolutionScope.RUNTIME,
-                                    context.userCacheRoot
+                                    context.userCacheRoot,
+                                    incrementalCache
                                 )
                                     .forEach {
                                         add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))

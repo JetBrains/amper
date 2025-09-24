@@ -91,7 +91,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                         // test compilation depends on main classes
                         add(compilationTaskNameFor(module, platform, isTest = false, buildType = BuildType.Debug))
                     }
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot).forEach {
+                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache).forEach {
                         add(compilationTaskNameFor(it, platform, isTest = false,  buildType = BuildType.Debug))
 
                         // TODO add transitive 'exported' dependencies from module deps

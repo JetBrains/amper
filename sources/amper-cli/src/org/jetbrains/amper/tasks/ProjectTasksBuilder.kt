@@ -129,7 +129,8 @@ class ProjectTasksBuilder(
             ctx.isTest,
             ctx.platform,
             dependencyReason,
-            context.userCacheRoot
+            context.userCacheRoot,
+            incrementalCache
         ).map {
             ModuleDependencySequenceCtx(
                 module = ctx.module,

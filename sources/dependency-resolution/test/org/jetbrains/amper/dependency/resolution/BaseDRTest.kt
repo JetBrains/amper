@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.OpenTelemetry
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -79,10 +81,10 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNodeHolderImpl =
-        context(scope, platform, repositories, cacheBuilder, spanBuilder)
+        context(scope, platform, repositories, cacheBuilder, openTelemetry)
             .use { context ->
                 val root = dependency.toRootNode(context)
                 doTest(root, verifyMessages, expected, filterMessages)
@@ -98,7 +100,7 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null,
     ): DependencyNodeHolderImpl = doTest(
         testInfo,
         listOf(dependency),
@@ -109,7 +111,7 @@ abstract class BaseDRTest {
         expected,
         cacheBuilder,
         filterMessages,
-        spanBuilder
+        openTelemetry
     )
 
     protected suspend fun doTestByFile(
@@ -121,7 +123,7 @@ abstract class BaseDRTest {
         verifyMessages: Boolean = true,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null,
     ): DependencyNodeHolderImpl {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
@@ -137,7 +139,7 @@ abstract class BaseDRTest {
                 expected,
                 cacheBuilder,
                 filterMessages,
-                spanBuilder
+                openTelemetry
             )
         }
     }
@@ -170,7 +172,7 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null,
     ): DependencyNodeHolderImpl = doTestImpl(
         testInfo,
         dependency,
@@ -180,7 +182,7 @@ abstract class BaseDRTest {
         verifyMessages,
         expected,
         cacheBuilder,
-        spanBuilder,
+        openTelemetry,
         filterMessages,
     )
 
@@ -190,13 +192,14 @@ abstract class BaseDRTest {
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        spanBuilder: SpanBuilderSource? = null,
+        openTelemetry: OpenTelemetry? = null
     ) = Context {
         this.scope = scope
         this.platforms = platform
         this.repositories = repositories
         this.cache = cacheBuilder
-        this.spanBuilder = spanBuilder ?: { NoopSpanBuilder.create() }
+        this.openTelemetry = openTelemetry
+        this.incrementalCache = null // no cache in DR tests
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {

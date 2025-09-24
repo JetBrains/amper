@@ -3,13 +3,14 @@
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
+import io.opentelemetry.api.OpenTelemetry
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderPlainBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlainBase
@@ -17,12 +18,10 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.Key
-import org.jetbrains.amper.dependency.resolution.NoopSpanBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.currentGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.toSerializableReference
@@ -37,6 +36,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -59,8 +59,8 @@ data class ResolutionInput(
     val downloadSources: Boolean = false,
     val incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
     val fileCacheBuilder: FileCacheBuilder.() -> Unit,
-    // todo (AB) : Replace it with OpenTelemetry (it could provide tracer as well as other useful stuff: meters)
-    val spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
+    val openTelemetry: OpenTelemetry? = null,
+    val incrementalCache: IncrementalCache? = null,
 )
 
 sealed interface DependenciesFlowType {
@@ -78,13 +78,15 @@ interface ModuleDependenciesResolver {
     fun AmperModule.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): ModuleDependencyNodeWithModule
 
     fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
-        spanBuilder: SpanBuilderSource = { NoopSpanBuilder.create() },
+        openTelemetry: OpenTelemetry?,
+        incrementalCache: IncrementalCache?
     ): RootDependencyNodeInput
 
     /**

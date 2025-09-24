@@ -4,16 +4,18 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.SpanBuilder
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.MavenDependencyBase
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import java.nio.file.InvalidPathException
 import java.security.MessageDigest
@@ -67,17 +69,19 @@ fun getAmperFileCacheBuilder(userCacheRoot: AmperUserCacheRoot): FileCacheBuilde
  * Creates empty DR Context.
  * It might be used for initializing supplementary node holders in a resolution graph only.
  */
-fun emptyContext(userCacheRoot: AmperUserCacheRoot, spanBuilder: SpanBuilderSource?): Context =
-    emptyContext(getAmperFileCacheBuilder(userCacheRoot), spanBuilder)
+fun emptyContext(userCacheRoot: AmperUserCacheRoot, openTelemetry: OpenTelemetry?, incrementalCache: IncrementalCache?): Context =
+    emptyContext(getAmperFileCacheBuilder(userCacheRoot),  openTelemetry, incrementalCache)
 
 /**
  * Creates empty DR Context.
  * It might be used for initializing supplementary node holders in a resolution graph only.
  */
-fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, spanBuilder: SpanBuilderSource?): Context = Context {
-    cache = fileCacheBuilder
-    spanBuilder?.let { this.spanBuilder = it }
-}
+fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, openTelemetry: OpenTelemetry?, incrementalCache: IncrementalCache?): Context =
+    Context {
+        cache = fileCacheBuilder
+        openTelemetry?.let { this.openTelemetry = it }
+        incrementalCache?.let { this.incrementalCache = it }
+    }
 
 @OptIn(ExperimentalStdlibApi::class)
 internal fun String.md5(): String = MessageDigest.getInstance("MD5")
@@ -85,3 +89,7 @@ internal fun String.md5(): String = MessageDigest.getInstance("MD5")
     .toHexString()
 
 fun AmperModule.uniqueModuleKey(): String? = source.moduleDir?.absolutePathString()?.md5()
+
+internal fun OpenTelemetry?.spanBuilder(spanName: String): SpanBuilder = (this ?: OpenTelemetry.noop())
+    .getTracer("org.jetbrains.amper.dr")
+    .spanBuilder(spanName)
