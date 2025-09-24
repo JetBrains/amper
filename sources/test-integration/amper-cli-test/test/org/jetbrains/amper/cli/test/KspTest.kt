@@ -76,7 +76,7 @@ class KspTest: AmperCliTestBase() {
     @Test
     fun `ksp kmp local processor`() = runSlowTest {
         val projectRoot = testProject("ksp-kmp-local-processor")
-        val buildResult = runCli(projectRoot, "build")
+        val buildResult = runCli(projectRoot, "build", configureAndroidHome = true)
 
         buildResult.generatedFilesDir(module = "consumer", fragment = "jvm").assertContainsRelativeFiles(
             "classes/ksp/com/sample/myprocessor/gen/MyGeneratedClass.class",
@@ -215,7 +215,7 @@ class KspTest: AmperCliTestBase() {
         val generatedSchemaPath = projectRoot / "generated-db-schema"
         generatedSchemaPath.deleteRecursively()
 
-        val buildResult = runCli(projectRoot, "build")
+        val buildResult = runCli(projectRoot, "build", configureAndroidHome = true)
 
         val generatedFilesDir = buildResult.generatedFilesDir(module = "ksp-android-room", fragment = "main")
 
@@ -293,7 +293,11 @@ class KspTest: AmperCliTestBase() {
 
         // [AMPER-3957]: Should be changed back to build for all platforms
         // AMPER-395 is fixed, but some other stuff is still broken that prevent it from being uncommented
-        val buildResult = runCli(projectRoot, "build", "--platform=jvm", /* "--platform=android" */)
+        val buildResult = runCli(
+            projectRoot,
+            "build", "--platform=jvm", /* "--platform=android", */
+            configureAndroidHome = true,
+        )
 
         // [AMPER-3957]:
 //        buildResult.generatedFilesDir(module = "shared", fragment = "android").assertContainsRelativeFiles(

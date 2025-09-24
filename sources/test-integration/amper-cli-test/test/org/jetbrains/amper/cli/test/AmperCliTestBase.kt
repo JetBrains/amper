@@ -75,7 +75,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         stdin: ProcessInput = ProcessInput.Empty,
         amperJvmArgs: List<String> = emptyList(),
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
-        configureAndroidHome: Boolean = true,
+        configureAndroidHome: Boolean = false,
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")

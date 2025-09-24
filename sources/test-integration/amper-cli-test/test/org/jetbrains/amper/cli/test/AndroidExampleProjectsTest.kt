@@ -45,6 +45,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/simple"),
             "task", ":simple:testAndroidDebug",
+            configureAndroidHome = true,
         )
         result.assertStdoutContains("1 tests successful")
     }
@@ -54,6 +55,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/simple"),
             "task", ":simple:testAndroidRelease",
+            configureAndroidHome = true,
         )
         result.assertStdoutContains("1 tests successful")
     }
@@ -64,6 +66,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/simple"),
             "task", taskName,
+            configureAndroidHome = true,
         )
         val apkPath = result.getArtifactPath(taskName)
         assertClassContainsInApk("Lcom/google/common/collect/Synchronized\$SynchronizedBiMap;", apkPath)
@@ -72,7 +75,12 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `appcompat compiles successfully and contains dependencies`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
-        val result = runCli(projectRoot = testProject("android/appcompat"), "task", taskName)
+        val result = runCli(
+            projectRoot = testProject("android/appcompat"),
+            "task",
+            taskName,
+            configureAndroidHome = true,
+        )
         val apkPath = result.getArtifactPath(taskName)
         assertClassContainsInApk("Landroidx/appcompat/app/AppCompatActivity;", apkPath)
     }
@@ -80,7 +88,12 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
-        val result = runCli(projectRoot = testProject("android/appcompat"), "task", taskName)
+        val result = runCli(
+            projectRoot = testProject("android/appcompat"),
+            "task",
+            taskName,
+            configureAndroidHome = true,
+        )
         val apkPath = result.getArtifactPath(taskName)
         val extractedApkPath = apkPath.parent.resolve("extractedApk")
         extractZip(apkPath, extractedApkPath, false)
@@ -123,7 +136,12 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `bundle without signing enabled has no signature`() = runSlowTest {
         val taskName = ":simple:bundleAndroid"
-        val result = runCli(projectRoot = testProject("android/simple"), "task", taskName)
+        val result = runCli(
+            projectRoot = testProject("android/simple"),
+            "task",
+            taskName,
+            configureAndroidHome = true,
+        )
         val bundlePath = result.getArtifactPath(taskName, "aab")
         assertFileWithExtensionDoesNotContainInBundle("RSA", bundlePath)
     }
@@ -131,14 +149,23 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `bundle with signing enabled and properties file has signature`() = runSlowTest {
         val taskName = ":signed:bundleAndroid"
-        val result = runCli(projectRoot = testProject("android/signed"), "task", taskName)
+        val result = runCli(
+            projectRoot = testProject("android/signed"),
+            "task",
+            taskName,
+            configureAndroidHome = true,
+        )
         val bundlePath = result.getArtifactPath(taskName, "aab")
         assertFileContainsInBundle("ALIAS.RSA", bundlePath)
     }
 
     @Test
     fun `task graph is correct for downloading and installing android sdk components`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("android/simple"), "show", "tasks")
+        val result = runCli(
+            projectRoot = testProject("android/simple"),
+            "show", "tasks",
+            configureAndroidHome = true,
+        )
         // debug
         result.assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")
         result.assertStdoutContains("task :simple:compileAndroidDebug -> :simple:installPlatformAndroid, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid, :simple:prepareAndroidDebug")
@@ -177,7 +204,11 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `package command produce aab bundle`() = runSlowTest {
         val taskName = ":signed:bundleAndroid"
-        val result = runCli(projectRoot = testProject("android/signed"), "package")
+        val result = runCli(
+            projectRoot = testProject("android/signed"),
+            "package",
+            configureAndroidHome = true,
+        )
         val bundlePath = result.getArtifactPath(taskName, "aab")
         assertFileContainsInBundle("ALIAS.RSA", bundlePath)
     }
@@ -187,7 +218,8 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/mockable-jar"), 
             "test",
-            assertEmptyStdErr = false // Allow stderr output from Mockito warnings
+            configureAndroidHome = true,
+            assertEmptyStdErr = false, // Allow stderr output from Mockito warnings
         )
         result.assertStdoutContains("5 tests successful")
     }
@@ -197,7 +229,8 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/multi-module-mockable-jar"),
             "test",
-            assertEmptyStdErr = false // Allow stderr output from Mockito warnings
+            configureAndroidHome = true,
+            assertEmptyStdErr = false, // Allow stderr output from Mockito warnings
         )
         result.assertStdoutContains("5 tests successful")
     }
@@ -207,7 +240,8 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
         val result = runCli(
             projectRoot = testProject("android/robolectric"),
             "test",
-            assertEmptyStdErr = false // Allow stderr output from Robolectric
+            configureAndroidHome = true,
+            assertEmptyStdErr = false, // Allow stderr output from Robolectric
         )
         result.assertStdoutContains("1 tests successful")
     }

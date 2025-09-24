@@ -19,6 +19,7 @@ class ComposeResourcesTest : AmperCliTestBase() {
         runCli(
             projectRoot = testProject("compose-resources-demo"),
             "task", ":app-android:buildAndroidDebug",
+            configureAndroidHome = true,
         )
     }
 

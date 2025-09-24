@@ -4,12 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.cli.test.utils.UpdatedAttribute
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
@@ -22,7 +20,6 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
@@ -56,7 +53,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         // Can't easily get rid of output associated with
         // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
         // See https://youtrack.jetbrains.com/issue/KT-55177
-        runCli(tempRoot, "build", assertEmptyStdErr = false)
+        runCli(tempRoot, "build", configureAndroidHome = true, assertEmptyStdErr = false)
     }
 
     @Test
@@ -77,7 +74,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     @Test
     fun `compose-multiplatform`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
-        val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
+        val result = runCli(tempRoot, "build", configureAndroidHome = true, assertEmptyStdErr = false)
         if (DefaultSystemInfo.detect().family.isMac) {
             result.readTelemetrySpans().assertXcodeProjectIsValid()
         }
@@ -134,7 +131,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     @Test
     fun `compose-android`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
-        runCli(tempRoot, "build")
+        runCli(tempRoot, "build", configureAndroidHome = true)
     }
 
     @Test

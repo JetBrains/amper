@@ -15,21 +15,21 @@ class ParcelizeTest : AmperCliTestBase() {
 
     @Test
     fun `parcelize android lib - build`() = runSlowTest {
-        runCli(testProject("parcelize-android-lib"), "build")
+        runCli(testProject("parcelize-android-lib"), "build", configureAndroidHome = true)
     }
 
     @Test
     fun `parcelize android lib - test`() = runSlowTest {
-        runCli(testProject("parcelize-android-lib"), "test")
+        runCli(testProject("parcelize-android-lib"), "test", configureAndroidHome = true)
     }
 
     @Test
     fun `parcelize android app - build`() = runSlowTest {
-        runCli(testProject("parcelize-android-app"), "build")
+        runCli(testProject("parcelize-android-app"), "build", configureAndroidHome = true)
     }
 
     @Test
     fun `parcelize with shared kmp model`() = runSlowTest {
-        runCli(testProject("parcelize-shared-kmp-model"), "build")
+        runCli(testProject("parcelize-shared-kmp-model"), "build", configureAndroidHome = true)
     }
 }

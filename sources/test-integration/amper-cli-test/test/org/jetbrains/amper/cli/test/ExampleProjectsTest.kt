@@ -48,6 +48,7 @@ class ExampleProjectsTest: AmperCliTestBase() {
         val tasksResult = runCli(
             projectRoot = exampleProject("compose-multiplatform"),
             "show", "tasks",
+            configureAndroidHome = true,
             copyToTempDir = true,
         )
         with(tasksResult) {
@@ -62,6 +63,7 @@ class ExampleProjectsTest: AmperCliTestBase() {
         val buildResult = runCli(
             projectRoot = tasksResult.projectRoot,
             "build",
+            configureAndroidHome = true,
             assertEmptyStdErr = false,
         )
         buildResult.withTelemetrySpans {
@@ -82,7 +84,12 @@ class ExampleProjectsTest: AmperCliTestBase() {
     @Test
     fun `compose-android_signing`() = runSlowTest {
         val bundleAndroidTask = ":compose-android:bundleAndroid"
-        val result = runCli(exampleProject("compose-android"), "task", bundleAndroidTask)
+        val result = runCli(
+            projectRoot = exampleProject("compose-android"),
+            "task",
+            bundleAndroidTask,
+            configureAndroidHome = true,
+        )
         val apk = result.getTaskOutputPath(bundleAndroidTask) / "gradle-project-release.aab"
         JarFile(apk.toFile()).use {
             assertTrue(it.getEntry("META-INF/KEYALIAS.RSA").size > 0)
@@ -91,7 +98,11 @@ class ExampleProjectsTest: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform_r8`() = runSlowTest {
-        val result = runCli(exampleProject("compose-multiplatform"), "task", ":android-app:bundleAndroid")
+        val result = runCli(
+            projectRoot = exampleProject("compose-multiplatform"),
+            "task", ":android-app:bundleAndroid",
+            configureAndroidHome = true,
+        )
         assertTrue {
             // FIXME: R8 config is not placed in the actual build directory, but rather relative to the project dir.
             (result.projectRoot / "build" / "temp" / "full-r8-config.txt").exists()
@@ -106,7 +117,12 @@ class ExampleProjectsTest: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform_buildAndroidDebug`() = runSlowTest {
-        runCli(exampleProject("compose-multiplatform"), "task", ":android-app:buildAndroidDebug")
+        runCli(
+            projectRoot = exampleProject("compose-multiplatform"),
+            "task",
+            ":android-app:buildAndroidDebug",
+            configureAndroidHome = true,
+        )
     }
 
     @Test
@@ -154,12 +170,20 @@ class ExampleProjectsTest: AmperCliTestBase() {
     @Test
     fun `compose-android`() = runSlowTest {
         val projectRoot = exampleProject("compose-android")
-        with(runCli(projectRoot, "show", "tasks")) {
-            androidAppTasks.forEach { assertContains(stdout, ":compose-android:$it") }
-        }
+        val result1 = runCli(
+            projectRoot = projectRoot,
+            "show",
+            "tasks",
+            configureAndroidHome = true,
+        )
+        androidAppTasks.forEach { assertContains(result1.stdout, ":compose-android:$it") }
 
-        val result = runCli(projectRoot, "build", "--variant", "debug", "--variant", "release")
-        result.readTelemetrySpans().kotlinJvmCompilationSpans.assertTimes(2) // debug + release
+        val result2 = runCli(
+            projectRoot = projectRoot,
+            "build", "--variant=debug", "--variant=release",
+            configureAndroidHome = true,
+        )
+        result2.readTelemetrySpans().kotlinJvmCompilationSpans.assertTimes(2) // debug + release
     }
 
     @Test
