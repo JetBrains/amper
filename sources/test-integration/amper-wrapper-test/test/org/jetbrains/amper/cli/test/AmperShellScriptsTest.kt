@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
@@ -19,6 +21,7 @@ import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.div
@@ -160,16 +163,16 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
             bootstrapCacheDir.listDirectoryEntries("amper-cli-*").isNotEmpty()
         }
-        assertTrue("Bootstrap cache dir should now have the JBR, but got:\n" +
+        assertTrue("Bootstrap cache dir should now have the JRE, but got:\n" +
                 bootstrapCacheDir.listDirectoryEntries().joinToString("\n")) {
-            bootstrapCacheDir.listDirectoryEntries("jbr-*").isNotEmpty()
+            bootstrapCacheDir.listDirectoryEntries("zulu*").isNotEmpty()
         }
     }
 
     @Test
     fun `custom java home`() = runBlocking {
         val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
-        val jdkHome = JdkDownloader.getJdk(fakeUserCacheRoot).homeDir
+        val jdkHome = JdkDownloader.download(URI(zuluJdk25Url()), fakeUserCacheRoot, version = "25.0.0").homeDir
 
         val expectedAmperVersion = cliScript
             .readLines()
@@ -200,6 +203,22 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         // TODO Somehow assert that exactly this JRE is used by amper bootstrap
     }
 
+    private fun zuluJdk25Url(): String {
+        val systemInfo = DefaultSystemInfo.detect()
+        val zuluOs = when (systemInfo.family) {
+            OsFamily.FreeBSD,
+            OsFamily.Solaris,
+            OsFamily.Linux -> "linux"
+            OsFamily.MacOs -> "macosx"
+            OsFamily.Windows -> "win"
+        }
+        val zuluArch = when (systemInfo.arch) {
+            Arch.X64 -> "x64"
+            Arch.Arm64 -> "aarch64"
+        }
+        return "https://cache-redirector.jetbrains.com/cdn.azul.com/zulu/bin/zulu25.28.85-ca-jdk25.0.0-${zuluOs}_${zuluArch}.zip"
+    }
+
     @Test
     fun `fails on wrong amper distribution checksum`() = runBlocking {
         assertWrongChecksum(Regex("\\b(amper_sha256=)[0-9a-fA-F]+"))
@@ -207,7 +226,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     @Test
     fun `fails on wrong jre distribution checksum`() = runBlocking {
-        assertWrongChecksum(Regex("\\b(jbr_sha512=)[0-9a-fA-F]+"))
+        assertWrongChecksum(Regex("\\b(jre_sha256=)[0-9a-fA-F]+"))
     }
 
     private suspend fun assertWrongChecksum(checksumRegex: Regex) {

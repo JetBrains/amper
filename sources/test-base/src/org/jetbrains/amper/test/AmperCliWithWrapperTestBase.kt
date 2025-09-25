@@ -298,7 +298,7 @@ private val sporadicWrapperBootstrapMessagePrefixes = setOf(
     "Another Amper instance",
     "Awaiting the result",
     "Downloading Amper distribution",
-    "Downloading JetBrains Runtime",
+    "Downloading Amper runtime",
     "Download complete",
 )
 

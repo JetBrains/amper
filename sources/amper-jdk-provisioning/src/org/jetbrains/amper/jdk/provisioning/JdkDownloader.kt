@@ -29,7 +29,7 @@ object JdkDownloader {
         arch: Arch = Arch.current,
     ): Jdk {
         val version = hardcodedVersionFor(os, arch)
-        return downloadJdk(
+        return download(
             downloadUri = jdkDownloadUrlFor(os, arch, version),
             userCacheRoot = userCacheRoot,
             version = version,
@@ -40,13 +40,13 @@ object JdkDownloader {
         userCacheRoot: AmperUserCacheRoot,
         os: OsFamily = OsFamily.current,
         arch: Arch = Arch.current,
-    ): Jdk = downloadJdk(
+    ): Jdk = download(
         downloadUri = jbrJdkUrl(os, arch, jbrJdkVersion, jbrBuild),
         userCacheRoot = userCacheRoot,
         version = jbrJdkVersion,
     )
 
-    private suspend fun downloadJdk(downloadUri: URI, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
+    suspend fun download(downloadUri: URI, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
         val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
         val extractedJdkRoot = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
         // Some archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
