@@ -88,7 +88,7 @@ internal class Classpath(
     override fun resolutionId(modules: List<AmperModule>): String {
         return "compile and runtime dependencies of modules " +
                 "${modules.sortedBy { it.userReadableName }
-                    .map { it.userReadableName + (it.uniqueModuleKey() ?: "") }}}" +
+                    .map { it.userReadableName + it.uniqueModuleKey() }}}" +
                 "platform = ${flowType.platforms.joinToString { it.pretty }}, " +
                 "isTest = ${flowType.isTest}" +
                 "scope = ${flowType.scope}" +
