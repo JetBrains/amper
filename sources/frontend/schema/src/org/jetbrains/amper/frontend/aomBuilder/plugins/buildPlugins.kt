@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
-import kotlinx.serialization.json.Json
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
@@ -27,7 +26,6 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
-import org.jetbrains.amper.frontend.project.pluginInternalDataFile
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MapLikeValue
@@ -57,16 +55,8 @@ import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.stdlib.collections.distinctBy
 import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
-
-fun AmperProjectContext.loadPreparedPluginData(): List<PluginData> {
-    return if (pluginModuleFiles.isNotEmpty() && pluginInternalDataFile.exists()) {
-        Json.decodeFromString<List<PluginData>>(pluginInternalDataFile.readText())
-    } else emptyList()
-}
 
 internal fun BuildCtx.buildPlugins(
     pluginData: List<PluginData>,
