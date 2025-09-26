@@ -79,22 +79,9 @@ internal class InitCommand : AmperSubcommand(name = "init") {
             targetDir = targetRootDir,
             amperVersion = AmperBuild.mavenVersion,
             amperDistTgzSha256 = sha256,
-            coroutinesDebugVersion = currentCoroutinesDebugVersion(),
         )
         return true
     }
-
-    private val coroutinesDebugJarNameRegex = Regex("kotlinx-coroutines-debug-(?<version>.*)\\.jar")
-
-    private fun currentCoroutinesDebugVersion(): String = System.getProperty("java.class.path")
-        .splitToSequence(File.pathSeparatorChar)
-        .filter { "intellij" !in it } // to avoid intellij's fork of coroutines
-        .map { Path(it) }
-        .firstNotNullOfOrNull { coroutinesDebugJarNameRegex.matchEntire(it.name) }
-        ?.groups
-        ?.get("version")
-        ?.value
-        ?: error("kotlinx-coroutines-debug jar not found in classpath")
 
     private fun checkTemplateFilesConflicts(templateFiles: List<TemplateFile>, outputDir: Path) {
         val filesToCheck = templateFiles.map { it.relativePath }

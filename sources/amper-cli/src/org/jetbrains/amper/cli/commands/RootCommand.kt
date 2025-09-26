@@ -20,6 +20,8 @@ import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.terminal.warning
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.Kernel32Util
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.commands.show.ShowCommand
@@ -112,6 +114,14 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
+    private val coroutinesDebug by option(
+        "--coroutines-debug",
+        help = "Enable coroutines debug probes. This allows to dump the running coroutines in case of deadlock.",
+    ).flag(
+        "--no-coroutines-debug",
+        default = false,
+    )
+
     private val buildOutputRoot by option(
         "--build-output",
         help = "Root directory for build outputs. By default, this is the `build` directory under the project root."
@@ -135,6 +145,16 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         }
 
         fixSystemOutEncodingOnWindows()
+
+        if (coroutinesDebug) {
+            if (isWindowsArm64()) {
+                // Always fails on Windows Arm64 because ByteBuddy doesn't support it:
+                // https://github.com/raphw/byte-buddy/issues/1336
+                terminal.warning("Coroutines debug probes are not supported on Windows Arm64")
+            } else {
+                installCoroutinesDebugProbes()
+            }
+        }
     }
 
     data class CommonOptions(
@@ -155,7 +175,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
      * See https://github.com/ajalt/mordant/issues/249 for details.
      */
     private fun fixSystemOutEncodingOnWindows() {
-        if (!System.getProperty("os.name").lowercase().contains("win")) return
+        if (!isWindows()) return
         if (System.out.charset() == Charsets.UTF_8) return
 
         spanBuilder("Fix stdout encoding").useWithoutCoroutines {
@@ -170,4 +190,20 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             }
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun installCoroutinesDebugProbes() {
+        spanBuilder("Install coroutines debug probes").useWithoutCoroutines {
+            // coroutines debug probes, required to dump coroutines
+            try {
+                DebugProbes.install()
+            } catch (e: Throwable) {
+                terminal.warning("Failed to install coroutines debug probes: $e")
+            }
+        }
+    }
+
+    private fun isWindowsArm64(): Boolean = isWindows() && System.getProperty("os.arch") == "aarch64"
+
+    private fun isWindows(): Boolean = System.getProperty("os.name").lowercase().contains("win")
 }

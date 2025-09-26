@@ -292,20 +292,12 @@ wrapper_path=$(realpath "$0")
 
 # 1. Prepend basic launch arguments
 if [ "$simpleOs" = "windows" ]; then
-  libDirSlash="$(cygpath -w "$script_dir")\\build\\tasks\\_amper-cli_unpackedDist\\dist\\lib\\"
+  classpath="$(cygpath -w "$script_dir")\\build\\tasks\\_amper-cli_unpackedDist\\dist\\lib\\*"
 else
-  libDirSlash="$script_dir/build/tasks/_amper-cli_unpackedDist/dist/lib/"
+  classpath="$script_dir/build/tasks/_amper-cli_unpackedDist/dist/lib/*"
 fi
 
-coroutinesDebugJar=""
-for f in "$script_dir"/build/tasks/_amper-cli_unpackedDist/dist/lib/*kotlinx-coroutines-debug*.jar; do
-    if [[ -f "$f" ]]; then
-        coroutinesDebugJar="$f"
-        break
-    fi
-done
-
-set -- -cp "$libDirSlash*" "-javaagent:$coroutinesDebugJar" org.jetbrains.amper.cli.MainKt "--build-output=build-from-sources" "$@"
+set -- -cp "$classpath" org.jetbrains.amper.cli.MainKt "--build-output=build-from-sources" "$@"
 
 # 2. Prepend user JVM args from AMPER_JAVA_OPTS
 #

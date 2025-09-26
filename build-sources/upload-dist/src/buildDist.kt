@@ -48,7 +48,6 @@ internal suspend fun IncrementalCache.buildDist(
             targetDir = outputDir,
             amperVersion = AmperBuild.mavenVersion,
             amperDistTgzSha256 = cliTgz.readBytes().sha256String(),
-            coroutinesDebugVersion = cliRuntimeClasspath.coroutinesDebugVersion(),
         )
 
         IncrementalCache.ExecutionResult(outputFiles = listOf(cliTgz) + wrappers)

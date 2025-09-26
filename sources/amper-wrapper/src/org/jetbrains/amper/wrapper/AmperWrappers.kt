@@ -36,18 +36,13 @@ object AmperWrappers {
      *
      * @return the paths to the generated wrapper scripts
      */
-    fun generate(
-        targetDir: Path,
-        amperVersion: String,
-        amperDistTgzSha256: String,
-        coroutinesDebugVersion: String,
-    ): List<Path> = wrappers.map { it.generate(targetDir, amperVersion, amperDistTgzSha256, coroutinesDebugVersion) }
+    fun generate(targetDir: Path, amperVersion: String, amperDistTgzSha256: String): List<Path> =
+        wrappers.map { it.generate(targetDir, amperVersion, amperDistTgzSha256) }
 
     private fun AmperWrapper.generate(
         targetDir: Path,
         amperVersion: String,
-        amperDistTgzSha256: String,
-        coroutinesDebugVersion: String,
+        amperDistTgzSha256: String
     ): Path {
         val path = targetDir.resolve(fileName)
 
@@ -61,7 +56,6 @@ object AmperWrappers {
             replacementRules = listOf(
                 "@AMPER_VERSION@" to amperVersion,
                 "@AMPER_DIST_TGZ_SHA256@" to amperDistTgzSha256,
-                "@COROUTINES_DEBUG_VERSION@" to coroutinesDebugVersion,
             ),
         )
 
