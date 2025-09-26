@@ -108,7 +108,7 @@ abstract class AmperCliWithWrapperTestBase {
         assertEmptyStdErr: Boolean = true,
         bootstrapCacheDir: Path? = null,
         amperJvmArgs: List<String> = emptyList(),
-        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
+        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         customAmperScriptPath: Path? = null,
         stdin: ProcessInput = ProcessInput.Empty,
     ): AmperCliResult {

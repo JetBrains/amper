@@ -76,7 +76,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         stdin: ProcessInput = ProcessInput.Empty,
         amperJvmArgs: List<String> = emptyList(),
         customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
-        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.Inherit,
+        amperJavaHomeMode: AmperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
         configureAndroidHome: Boolean = false,
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
