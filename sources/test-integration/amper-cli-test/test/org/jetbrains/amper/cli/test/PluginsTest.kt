@@ -58,7 +58,7 @@ class PluginsTest : AmperCliTestBase() {
             classpath base.dependencies = [{modulePath: $projectRoot/app}]
             classpath base.dependencies[0] = {modulePath: $projectRoot/app}
             classpath base.dependencies[0].modulePath = $projectRoot/app
-            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath core.dependencies = [{modulePath: $projectRoot/core}]
             classpath core.dependencies[0] = {modulePath: $projectRoot/core}
             classpath core.dependencies[0].modulePath = $projectRoot/core
@@ -66,7 +66,7 @@ class PluginsTest : AmperCliTestBase() {
             classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
             classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
             classpath lib.dependencies[0].modulePath = $projectRoot/lib
-            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0

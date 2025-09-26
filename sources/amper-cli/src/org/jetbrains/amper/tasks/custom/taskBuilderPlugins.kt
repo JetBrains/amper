@@ -4,11 +4,13 @@
 
 package org.jetbrains.amper.tasks.custom
 
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
+import org.jetbrains.amper.tasks.getModuleDependencies
 
 fun ProjectTasksBuilder.setupTasksFromPlugins() {
     allModules().withEach {
@@ -17,23 +19,42 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 sourcesRequest.node.sourceDirectories =
                     sourcesRequest.from.fragmentsTargeting(Platform.JVM, includeTestFragments = false).map { it.src }
             }
-            val runtimeClasspathTasks = taskDescription.requestedClasspaths.flatMap {
-                it.localDependencies.map { module ->
-                    CommonTaskType.RuntimeClasspath.getTaskName(module, Platform.JVM)
-                }
-            }
-            val customResolveTasks = taskDescription.requestedClasspaths.filter {
-                it.externalDependencies.isNotEmpty()
-            }.mapIndexed { index, request ->
-                val name = TaskName(taskDescription.name.name + "*resolve$index")
-                tasks.registerTask(ResolveCustomExternalDependenciesTask(
-                    taskName = name,
-                    destination = request,
-                    module = module,
-                    incrementalCache = incrementalCache,
-                    userCacheRoot = context.userCacheRoot,
-                ))
-                name
+            val classpathRequestTasks = taskDescription.requestedClasspaths.map { classpathRequest ->
+                val taskName = TaskName(taskDescription.name.name + "*resolve-${classpathRequest.propertyLocation}")
+                val task = ResolveClasspathRequestTask(
+                    taskName = taskName,
+                    classpathRequest = classpathRequest,
+                )
+                tasks.registerTask(
+                    task,
+                    dependsOn = buildList {
+                        classpathRequest.localDependencies.forEach { module ->
+                            add(CommonTaskType.Jar.getTaskName(module, Platform.JVM))
+                            module.getModuleDependencies(
+                                isTest = false,
+                                Platform.JVM,
+                                ResolutionScope.RUNTIME,
+                                context.userCacheRoot,
+                            ).forEach {
+                                // FIXME: Get those in the TaskFromPlugin task
+                                add(CommonTaskType.Jar.getTaskName(it, Platform.JVM))
+                            }
+                        }
+
+                        val resolveExternalTaskName = TaskName(taskName.name + "*external")
+                        tasks.registerTask(ResolveCustomExternalDependenciesTask(
+                            taskName = resolveExternalTaskName,
+                            module = module,
+                            incrementalCache = incrementalCache,
+                            userCacheRoot = context.userCacheRoot,
+                            resolutionScope = ResolutionScope.RUNTIME,
+                            localDependencies = classpathRequest.localDependencies,
+                            externalDependencies = classpathRequest.externalDependencies,
+                        ))
+                        add(resolveExternalTaskName)
+                    }
+                )
+                taskName
             }
             val task = TaskFromPlugin(
                 taskName = taskDescription.name,
@@ -45,8 +66,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
             )
             tasks.registerTask(
                 task, dependsOn = buildList {
-                    addAll(runtimeClasspathTasks)
-                    addAll(customResolveTasks)
+                    addAll(classpathRequestTasks)
                     // TODO: Take explicit dependencies into account
                     add(CommonTaskType.RuntimeClasspath.getTaskName(taskDescription.codeSource, Platform.JVM, isTest = false))
                 }

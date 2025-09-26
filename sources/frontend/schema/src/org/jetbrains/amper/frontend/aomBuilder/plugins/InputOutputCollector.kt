@@ -16,10 +16,18 @@ import java.nio.file.Path
 internal class InputOutputCollector {
     private val _allInputPaths = mutableSetOf<Path>()
     private val _allOutputPaths = mutableSetOf<Path>()
-    private val _classpathNodes = mutableSetOf<ShadowClasspath>()
+    private val _classpathNodes = mutableSetOf<NodeWithPropertyLocation<ShadowClasspath>>()
     private val _moduleSourcesNodes = mutableSetOf<ShadowModuleSources>()
 
-    val classpathNodes: Set<ShadowClasspath>
+    /**
+     * @property propertyLocation a property path in a data tree, e.g. `[settings, myMap, myKey, 0]` of the [node].
+     */
+    data class NodeWithPropertyLocation<T : SchemaNode>(
+        val node: T,
+        val propertyLocation: List<String>,
+    )
+
+    val classpathNodes: Set<NodeWithPropertyLocation<ShadowClasspath>>
         get() = _classpathNodes
 
     val moduleSourcesNodes: Set<ShadowModuleSources>
@@ -36,24 +44,33 @@ internal class InputOutputCollector {
      * The result is accessible via the [allInputPaths] and [allOutputPaths] properties.
      */
     fun gatherPaths(value: Any?) {
-        gatherPaths(value, mark = null)
+        gatherPaths(value, mark = null, location = listOf())
     }
 
-    fun gatherPaths(
+    private fun gatherPaths(
         value: Any?,
         mark: InputOutputMark?,
+        location: List<String>,
     ) {
         when(value) {
             is SchemaNode -> value.valueHolders.forEach { (name, holder) ->
                 val property = value.schemaType.getProperty(name)
-                gatherPaths(holder.value, property?.inputOutputMark ?: mark)
+                gatherPaths(
+                    value = holder.value,
+                    mark = property?.inputOutputMark ?: mark,
+                    location = location + name,
+                )
                 when (value) {
-                    is ShadowClasspath -> _classpathNodes.add(value)
+                    is ShadowClasspath -> _classpathNodes.add(NodeWithPropertyLocation(value, location))
                     is ShadowModuleSources -> _moduleSourcesNodes.add(value)
                 }
             }
-            is Map<*, *> -> value.values.forEach { gatherPaths(it, mark) }
-            is Collection<*> -> value.forEach { gatherPaths(it, mark) }
+            is Map<*, *> -> value.forEach { (key, value) ->
+                gatherPaths(value = value, mark = mark, location = location + key.toString())
+            }
+            is Collection<*> -> value.forEachIndexed { i, value ->
+                gatherPaths(value = value, mark = mark, location = location + i.toString())
+            }
             is Path -> when (mark) {
                 InputOutputMark.Input -> _allInputPaths.add(value)
                 InputOutputMark.Output -> _allOutputPaths.add(value)

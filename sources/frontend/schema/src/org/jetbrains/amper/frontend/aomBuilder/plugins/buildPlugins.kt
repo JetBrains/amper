@@ -175,16 +175,17 @@ internal fun BuildCtx.buildPlugins(
                     val module = node.from.resolve(modules) ?: return@mapNotNull null
                     TaskFromPluginDescription.ModuleSourcesRequest(node = node, from = module)
                 },
-                requestedClasspaths = pathsCollector.classpathNodes.map { node ->
+                requestedClasspaths = pathsCollector.classpathNodes.map { (node, propertyLocation) ->
                     val localModules = node.dependencies.filterIsInstance<ShadowDependencyLocal>()
                         .mapNotNull { it.resolve(modules) }
                     TaskFromPluginDescription.ClasspathRequest(
                         node = node,
-                        localDependencies = localModules,
+                        localDependencies = localModules.distinct(),
                         // TODO: validate maven dependencies here?
                         //  blocker: maven coordinates diagnostics are part of the DR and are not accessible here
                         externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
                             .map { it.coordinates },
+                        propertyLocation = propertyLocation,
                     )
                 },
                 outputs = outputsToMarks,

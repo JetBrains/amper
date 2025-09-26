@@ -124,5 +124,6 @@ class TaskFromPluginDescription(
         val node: ShadowClasspath,
         val localDependencies: List<AmperModule>,
         val externalDependencies: List<String>,
+        val propertyLocation: List<String>,
     )
 }

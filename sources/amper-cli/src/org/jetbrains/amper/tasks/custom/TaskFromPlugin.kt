@@ -25,6 +25,7 @@ import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
@@ -110,14 +111,9 @@ class TaskFromPlugin(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
     ): TaskResult {
-        val runtimeClasspathsByModule = dependenciesResult
+        val taskCode = dependenciesResult
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()
-            .associateBy { it.module }
-        val customResolutionByRequest = dependenciesResult
-            .filterIsInstance<ResolveCustomExternalDependenciesTask.Result>()
-            .associateBy { it.destination }
-
-        val taskCode = runtimeClasspathsByModule[description.codeSource]!!
+            .single()
 
         val doNotUseExecutionAvoidance = description.explicitOptOutOfExecutionAvoidance ||
                 // We do not use execution-avoidance if there are no outputs declared.
@@ -129,15 +125,6 @@ class TaskFromPlugin(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
             return EmptyTaskResult
-        }
-
-        for (classpathRequest in description.requestedClasspaths) {
-            classpathRequest.node.resolvedFiles = buildList {
-                addAll(customResolutionByRequest[classpathRequest]?.resolvedFiles.orEmpty())
-                classpathRequest.localDependencies.forEach { depModule ->
-                    addAll(runtimeClasspathsByModule[depModule]!!.jvmRuntimeClasspath)
-                }
-            }
         }
 
         incrementalCache.execute(
@@ -157,9 +144,8 @@ class TaskFromPlugin(
             ),
             inputFiles = buildList {
                 addAll(description.inputs)
-                for (result in runtimeClasspathsByModule.values) {
-                    addAll(result.jvmRuntimeClasspath)
-                }
+                for (resolvedRequest in description.requestedClasspaths) addAll(resolvedRequest.node.resolvedFiles)
+                for (sourcesRequest in description.requestedModuleSources) addAll(sourcesRequest.node.sourceDirectories)
             },
         ) {
             doExecuteTaskAction(
