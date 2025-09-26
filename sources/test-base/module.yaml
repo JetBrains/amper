@@ -17,8 +17,8 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $kotlin.test.junit5
-  - net.java.dev.jna:jna:5.16.0
-  - net.java.dev.jna:jna-platform:5.16.0
+  - $libs.jna
+  - $libs.jna.platform
   - ../amper-jdk-provisioning
   - ../amper-build-info
   - ../amper-problem-reporting

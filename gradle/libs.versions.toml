@@ -13,6 +13,7 @@ intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "252.25557.178"
 intellij-xcodemodel = "241.14980"
+jna = "5.18.0"
 junit-jupiter = "5.13.4"
 junit-platform = "1.13.4" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kaml = "0.76.0"
@@ -68,6 +69,8 @@ intellij-platform-ideCore = { module = "com.jetbrains.intellij.platform:ide-core
 intellij-platform-util = { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
 intellij-platform-utilEx = { module = "com.jetbrains.intellij.platform:util-ex", version.ref = "intellij-platform" }
 intellij-platform-utilJdom = { module = "com.jetbrains.intellij.platform:util-jdom", version.ref = "intellij-platform" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 junit-engine-jupiter = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 junit-engine-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }

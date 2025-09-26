@@ -15,8 +15,8 @@ dependencies:
   - $libs.ktor.client
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
-  - net.java.dev.jna:jna:5.13.0
-  - net.java.dev.jna:jna-platform:5.13.0
+  - $libs.jna
+  - $libs.jna.platform
 
 test-dependencies:
   - uk.org.webcompere:system-stubs-jupiter:2.1.7
