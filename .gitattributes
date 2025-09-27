@@ -1,8 +1,10 @@
 * text=auto
 
-amper text eol=lf
 *.sh text eol=lf
 *.bat text eol=crlf
+
+amper text eol=lf
+amper-from-sources text eol=lf
 
 gradlew text eol=lf
 
