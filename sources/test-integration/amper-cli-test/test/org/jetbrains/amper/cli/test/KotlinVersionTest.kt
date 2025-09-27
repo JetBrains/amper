@@ -23,15 +23,15 @@ import kotlin.test.Test
 class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
-    fun `run kotlin hello world with compiler version 2_0_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.0.0"), "run")
+    fun `run kotlin hello world with compiler version 2_1_10`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.1.10"), "run")
 
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
             doesNotHaveCompilerArgument("-language-version")
             doesNotHaveCompilerArgument("-api-version")
-            hasAmperModule("kotlin-helloworld-custom-version-2.0.0")
+            hasAmperModule("kotlin-helloworld-custom-version-2.1.10")
         }
     }
 

@@ -22,7 +22,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object KotlinCompilerVersionDiagnosticsFactory : MergedTreeDiagnostic {
 
-    private val MinimumSupportedKotlinVersion = ComparableVersion("2.0.0")
+    private val MinimumSupportedKotlinVersion = ComparableVersion("2.1.10")
 
     // TODO remove this entire property everywhere, it's unused
     override val diagnosticId: BuildProblemId = "kotlin.compiler.version.diagnostics"
