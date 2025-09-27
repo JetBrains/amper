@@ -16,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.9.0-dev-3273
+amper_version=0.9.0-dev-3277
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=a13246a18d8e0e9dad2e0a7670411f98f76fcbc2afbf813b88bd94600aaa4c1d
+amper_sha256=097312152572c1aead907a2bdd83dfa97cad47f7914b59b1a3108c9d39aba1eb
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -273,12 +273,13 @@ wrapper_path=$(realpath "$0")
 
 # 1. Prepend basic launch arguments
 if [ "$simpleOs" = "windows" ]; then
-  libDirSlash="$(cygpath -w "$amper_target_dir")\lib\\"
+  # Can't cygpath the '*' so it has to be outside
+  classpath="$(cygpath -w "$amper_target_dir")\lib\*"
 else
-  libDirSlash="$amper_target_dir/lib/"
+  classpath="$amper_target_dir/lib/*"
 fi
 
-set -- -cp "$libDirSlash*" "-javaagent:${libDirSlash}kotlinx-coroutines-debug-1.9.0.jar" org.jetbrains.amper.cli.MainKt "$@"
+set -- -cp "$classpath" org.jetbrains.amper.cli.MainKt "$@"
 
 # 2. Prepend user JVM args from AMPER_JAVA_OPTS
 #
