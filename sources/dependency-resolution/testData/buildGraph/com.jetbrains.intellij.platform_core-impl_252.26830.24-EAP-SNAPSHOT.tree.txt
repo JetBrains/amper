@@ -1,0 +1,4 @@
+root
+╰─── com.jetbrains.intellij.platform:core-impl:252.26830.24-EAP-SNAPSHOT
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0
+          ╰─── org.jetbrains:annotations:13.0
