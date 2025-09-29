@@ -891,9 +891,11 @@ class BuildGraphTest : BaseDRTest() {
     /**
      * This test checks that a library published with the version '*-SNAPSHOT' but without maven-metadata.xml is
      * downloaded as a usual library (fallback to release flow).
+     *
+     * SNAPSHOT libraries are published to https://www.jetbrains.com/intellij-repository/snapshots
      */
     @Test
-    fun `com_jetbrains_intellij_platform core-impl 252_23309-EAP-CANDIDATE-SNAPSHOT`(testInfo: TestInfo) = runTest {
+    fun `com_jetbrains_intellij_platform core-impl 252_26830_24-EAP-SNAPSHOT`(testInfo: TestInfo) = runTest {
         doTestByFile(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS)
