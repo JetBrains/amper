@@ -36,15 +36,17 @@ import kotlin.io.path.exists
  * This is how one can download 'kotlin-test' and all its JVM dependencies from Maven Central.
  *
  * ```Kotlin
- * Resolver(
- *     MavenDependencyNode(
- *         Context {
- *             scope = Scope.COMPILE
- *             platform = "jvm"
- *         },
- *         "org.jetbrains.kotlin", "kotlin-test", "1.9.20"
- *     )
- * ).buildGraph().downloadDependencies().root
+ * val node = MavenDependencyNode(
+ *   Context {
+ *     scope = ResolutionScope.COMPILE
+ *     platforms = setOf(ResolutionPlatform.JVM)
+ *   },
+ *   "org.jetbrains.kotlin", "kotlin-test", "1.9.20",
+ *   isBom = false
+ * )
+ * Resolver().buildGraph(node)
+ * node.downloadDependencies()
+ * val paths = node.dependencyPaths()
  * ```
  *
  * @see DependencyNodeHolder
