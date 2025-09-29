@@ -63,6 +63,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                                 platform = Platform.JVM,
                                 dependencyReason = resolutionScope,
                                 userCacheRoot = context.userCacheRoot,
+                                incrementalCache = incrementalCache,
                             ).forEach {
                                 add(CommonTaskType.Jar.getTaskName(it, Platform.JVM))
                             }

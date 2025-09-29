@@ -8,10 +8,10 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -40,7 +40,7 @@ internal class ResolveCustomExternalDependenciesTask(
     private val externalDependencies: List<String>,
     private val localDependencies: List<AmperModule>,
 ) : Task {
-    private val mavenResolver = MavenResolver(userCacheRoot)
+    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -55,15 +55,14 @@ internal class ResolveCustomExternalDependenciesTask(
         }
         val externalDependencyNodes = externalDependencies.map {
             // It's safe to split here, because, validation was already done in the frontend
-            val coordinates = it.split(":")
-            MavenDependencyNode(drContext, coordinates[0], coordinates[1], coordinates.getOrNull(2), isBom = false)
+            val (group, module, version) = it.split(":") // FIXME: This has to be done in frontend
+            MavenDependencyNodeImpl(drContext, group, module, version, isBom = false)
         }
         val localDependencyNodes = localDependencies.map {
-            it.buildDependenciesGraph(isTest = false, Platform.JVM, resolutionScope, userCacheRoot)
+            it.buildDependenciesGraph(isTest = false, Platform.JVM, resolutionScope, userCacheRoot, incrementalCache)
         }
 
-        val root = DependencyNodeHolder(
-            name = "root",
+        val root = RootDependencyNodeInput(
             children = localDependencyNodes + externalDependencyNodes,
             templateContext = drContext,
         )
@@ -83,8 +82,8 @@ internal class ResolveCustomExternalDependenciesTask(
                 .setAmperModule(module)
                 .setListAttribute("dependencies-coordinates", externalDependencies.map { it.toString() })
                 .use {
-                    mavenResolver.resolve(root, "custom external dependencies")
-                    root.dependencyPaths()
+                    val resolvedRoot = mavenResolver.resolve(root, "custom external dependencies")
+                    resolvedRoot.dependencyPaths()
                 }
         }
 
