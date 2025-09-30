@@ -6,7 +6,6 @@ apply:
 
 dependencies:
   - ../../core
-  - $libs.slf4j.api
 
 settings:
   publishing:
