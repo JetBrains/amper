@@ -182,13 +182,12 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             amperJavaHomeMode = AmperJavaHomeMode.Custom(jreHomePath = jdkHome),
             bootstrapCacheDir = tempDir.resolve("boot strap"),
         )
-        val expectedVersionStringOld = "amper version $expectedAmperVersion"
         val expectedVersionString = Regex(
             Regex.escape("JetBrains Amper version $expectedAmperVersion ") + """\([A-Fa-f0-9]+, \d{4}-\d{2}-\d{2}\)"""
         )
 
-        assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n${result.stdout}") {
-            result.stdout.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
+        assertTrue("Process output must contain '${expectedVersionString.pattern}'. Output:\n${result.stdout}") {
+            result.stdout.lines().any { expectedVersionString.matches(it) }
         }
 
         val nDownloadingLines = result.stdout.lines().count { it.startsWith("Downloading ") }
