@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -27,6 +28,7 @@ class AndroidBuildTask(
     projectRoot: AmperProjectRoot,
     taskOutputPath: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
+    userCacheRoot: AmperUserCacheRoot,
     override val taskName: TaskName,
 ) : AndroidDelegatedGradleTask(
     module,
@@ -37,7 +39,8 @@ class AndroidBuildTask(
     projectRoot,
     taskOutputPath,
     buildLogsRoot,
-    taskName
+    userCacheRoot,
+    taskName,
 ), BuildTask {
     override val platform: Platform
         get() = Platform.ANDROID

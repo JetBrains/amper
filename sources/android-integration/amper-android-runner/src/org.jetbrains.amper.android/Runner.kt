@@ -37,6 +37,7 @@ fun runAndroidBuild(
     gradleLogStderrPath: Path,
     debug: Boolean = false,
     eventHandler: (ProgressEvent) -> Unit,
+    javaHomeDir: Path,
 ): List<Path> {
     val settingsGradlePath = buildPath.createSettingsGradle(buildRequest)
     buildPath.createBuildGradle()
@@ -66,7 +67,15 @@ fun runAndroidBuild(
                             try {
                                 gradleLogStdoutPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stdout ->
                                     gradleLogStderrPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stderr ->
-                                        connection.runBuild(tasks, eventHandler, stdout, stderr, buildRequest, debug)
+                                        connection.runBuild(
+                                            tasks = tasks,
+                                            eventHandler = eventHandler,
+                                            stdoutStream = stdout,
+                                            stderrStream = stderr,
+                                            buildRequest = buildRequest,
+                                            debug = debug,
+                                            javaHomeDir = javaHomeDir,
+                                        )
                                     }
                                 }
                             } catch (t: RuntimeException) {
@@ -203,9 +212,11 @@ private fun ProjectConnection.runBuild(
     stdoutStream: BufferedOutputStream,
     stderrStream: BufferedOutputStream,
     buildRequest: AndroidBuildRequest,
-    debug: Boolean
+    debug: Boolean,
+    javaHomeDir: Path,
 ) {
     val buildLauncher = newBuild()
+        .setJavaHome(javaHomeDir.toFile())
         .forTasks(*tasks.toTypedArray())
         .withArguments("--stacktrace")
         .addJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=1G")

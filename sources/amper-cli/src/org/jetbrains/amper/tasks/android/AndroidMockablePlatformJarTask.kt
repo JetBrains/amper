@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
@@ -29,6 +30,7 @@ class AndroidMockablePlatformJarTask(
     projectRoot: AmperProjectRoot,
     taskOutputRoot: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
+    userCacheRoot: AmperUserCacheRoot,
 ) : AndroidDelegatedGradleTask(
     module,
     buildType,
@@ -38,7 +40,8 @@ class AndroidMockablePlatformJarTask(
     projectRoot,
     taskOutputRoot,
     buildLogsRoot,
-    taskName
+    userCacheRoot,
+    taskName,
 ) {
     override val phase: AndroidBuildRequest.Phase
         get() = AndroidBuildRequest.Phase.Test

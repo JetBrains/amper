@@ -92,6 +92,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputRoot = context.getTaskOutputPath(prepareTaskName),
                     buildLogsRoot = context.currentLogsRoot,
+                    userCacheRoot = context.userCacheRoot,
                 ),
                 dependsOn = listOf(
                     AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
@@ -121,6 +122,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputPath = context.getTaskOutputPath(taskName),
                     buildLogsRoot = context.currentLogsRoot,
+                    userCacheRoot = context.userCacheRoot,
                     taskName = taskName,
                 ),
                 dependsOn = listOf(
@@ -156,6 +158,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         projectRoot = context.projectRoot,
                         taskOutputRoot = context.getTaskOutputPath(mockablePlatformJarTaskName),
                         buildLogsRoot = context.currentLogsRoot,
+                        userCacheRoot = context.userCacheRoot,
                     ),
                     dependsOn = CommonTaskType.Dependencies.getTaskName(module, platform, false)
                 )
@@ -389,6 +392,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputPath = context.getTaskOutputPath(taskName),
                     buildLogsRoot = context.currentLogsRoot,
+                    userCacheRoot = context.userCacheRoot,
                     taskName = taskName,
                 ),
                 dependsOn = listOf(
