@@ -23,9 +23,11 @@ object JdkDownloader {
     private const val jbrJdkVersion = "21.0.5"
     private const val jbrBuild = "b631.30"
 
-    suspend fun getJdk(userCacheRoot: AmperUserCacheRoot): Jdk = getJdk(userCacheRoot, OsFamily.current, Arch.current)
-
-    internal suspend fun getJdk(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk {
+    suspend fun getJdk(
+        userCacheRoot: AmperUserCacheRoot,
+        os: OsFamily = OsFamily.current,
+        arch: Arch = Arch.current,
+    ): Jdk {
         val version = hardcodedVersionFor(os, arch)
         return downloadJdk(
             downloadUri = jdkDownloadUrlFor(os, arch, version),
@@ -34,9 +36,11 @@ object JdkDownloader {
         )
     }
 
-    suspend fun getJbr(userCacheRoot: AmperUserCacheRoot): Jdk = getJbr(userCacheRoot, OsFamily.current, Arch.current)
-
-    internal suspend fun getJbr(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk = downloadJdk(
+    suspend fun getJbr(
+        userCacheRoot: AmperUserCacheRoot,
+        os: OsFamily = OsFamily.current,
+        arch: Arch = Arch.current,
+    ): Jdk = downloadJdk(
         downloadUri = jbrJdkUrl(os, arch, jbrJdkVersion, jbrBuild),
         userCacheRoot = userCacheRoot,
         version = jbrJdkVersion,
@@ -72,14 +76,14 @@ object JdkDownloader {
     // See releases: https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html
     private fun correttoJdkUrl(os: OsFamily, arch: Arch, version: String): URI {
         val ext = if (os == OsFamily.Windows) "-jdk.zip" else ".tar.gz"
-        val osString: String = os.forCorrettoUrl()
-        val archString: String = arch.forUrl()
+        val osString = os.forCorrettoUrl()
+        val archString = arch.forUrl()
         return URI("https://corretto.aws/downloads/resources/$version/amazon-corretto-$version-$osString-$archString$ext")
     }
 
     private fun jbrJdkUrl(os: OsFamily, arch: Arch, version: String, build: String): URI {
-        val osString: String = os.forJbrUrl()
-        val archString: String = arch.forUrl()
+        val osString = os.forJbrUrl()
+        val archString = arch.forUrl()
         return URI("https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-$version-$osString-$archString-$build.tar.gz")
     }
 }
@@ -92,15 +96,15 @@ private fun Arch.forUrl() = when (this) {
 private fun OsFamily.forCorrettoUrl() = when(this) {
     OsFamily.Windows -> "windows"
     OsFamily.MacOs -> "macosx"
-    OsFamily.Linux -> "linux"
-    OsFamily.FreeBSD -> "linux"
+    OsFamily.Linux,
+    OsFamily.FreeBSD,
     OsFamily.Solaris -> "linux"
 }
 
 private fun OsFamily.forJbrUrl() = when(this) {
     OsFamily.Windows -> "windows"
     OsFamily.MacOs -> "osx"
-    OsFamily.Linux -> "linux"
-    OsFamily.FreeBSD -> "linux"
+    OsFamily.Linux,
+    OsFamily.FreeBSD,
     OsFamily.Solaris -> "linux"
 }
