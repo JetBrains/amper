@@ -26,7 +26,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
-import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
@@ -138,11 +137,7 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeInput(
-                            // todo (AB) : resolutionId = taskName
-                            resolutionId = "Module ${module.userReadableName} compile and runtime dependencies " +
-                                    "(moduleKey = ${module.uniqueModuleKey()}), " +
-                                    "platform = $resolvedPlatform, " +
-                                    "isTest = $isTest",
+                            resolutionId = taskName.name,
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies
