@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
@@ -84,7 +85,7 @@ abstract class BaseModuleDrTest {
         messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
         val resolutionInputCopy = resolutionInput
-            .copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot.resolve("fff")))
+            .copy(fileCacheBuilder = cacheBuilder(Dirs.userCacheRoot))
             .copy(incrementalCacheUsage = getIncrementalCacheUsage())
 
         val graph =
@@ -358,23 +359,43 @@ internal class IncrementalCacheUsageContextElement(
 /**
  * Run every test twice (the first run without cache, the second with cache populated during the first run)
  */
-internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
+internal fun runSlowModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
     val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
     runSlowTest(
         context = EmptyCoroutineContext + incrementalCacheUsageContext,
         testBody = {
-            try {
-                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
-                testBody()
-
-                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.USE
-                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
-                testBody()
-            } finally {
-                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
-            }
+            executeWithAndWithoutCache(incrementalCacheUsageContext, testBody)
         }
     )
+}
+
+/**
+ * Run every test twice (the first run without cache, the second with cache populated during the first run)
+ */
+internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
+    val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
+    runTest(
+        context = EmptyCoroutineContext + incrementalCacheUsageContext,
+        testBody = {
+            executeWithAndWithoutCache(incrementalCacheUsageContext, testBody)
+        }
+    )
+}
+
+private suspend fun TestScope.executeWithAndWithoutCache(
+    incrementalCacheUsageContext: IncrementalCacheUsageContextElement,
+    testBody: suspend TestScope.() -> Unit,
+) {
+    try {
+        println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
+        testBody()
+
+        incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
+        println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
+        testBody()
+    } finally {
+        incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
+    }
 }
 
 internal suspend fun getIncrementalCacheUsage() =

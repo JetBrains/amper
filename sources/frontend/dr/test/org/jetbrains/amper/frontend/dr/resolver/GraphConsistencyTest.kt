@@ -18,7 +18,7 @@ class GraphConsistencyTest {
     private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
 
     @Test
-    fun `check parents in a dependencies graph - ide`() = runModuleDependenciesTest {
+    fun `check parents in a dependencies graph - ide`() = runSlowModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
         checkParentsInDependenciesGraph(
             ResolutionInput(
@@ -30,7 +30,7 @@ class GraphConsistencyTest {
     }
 
     @Test
-    fun `check parents in a dependencies graph - classpath`() = runModuleDependenciesTest {
+    fun `check parents in a dependencies graph - classpath`() = runSlowModuleDependenciesTest {
         checkParentsInDependenciesGraph(
             ResolutionInput(
                 DependenciesFlowType.ClassPathType(ResolutionScope.RUNTIME, setOf(ResolutionPlatform.JVM), isTest = false),

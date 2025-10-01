@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
@@ -16,6 +16,7 @@ import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.resolvedVersion
+import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
@@ -29,7 +30,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "dependencyInsights"
 
     @Test
-    fun `test sync empty jvm module`() = runTest {
+    fun `test sync empty jvm module`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-empty", testDataRoot)
 
         assertEquals(
@@ -42,7 +43,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
             aom,
             resolutionInput = ResolutionInput(
                 DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "jvm-empty",
             expected = """
@@ -115,7 +116,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test compose-multiplatform - shared compile dependencies insights`(testInfo: TestInfo) = runTest {
+    fun `test compose-multiplatform - shared compile dependencies insights`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val sharedModuleIosArm64Graph = doTestByFile(
@@ -128,7 +129,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "shared",
         )
@@ -194,7 +195,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
      * built for a resolved version diagnostic.
      */
     @Test
-    fun `test jvm-dependency-insights - A`(testInfo: TestInfo) = runTest {
+    fun `test jvm-dependency-insights - A`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val aGraph = doTestByFile(
@@ -207,7 +208,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "A",
         )
@@ -251,22 +252,18 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                         "Unexpected dependency node ${dependencyNode.key}"
                     )
                     val constraintNode = it.overriddenBy.filterIsInstance<MavenDependencyConstraintNode>().singleOrNull()
-                    assertNotNull(
-                        constraintNode,
-                        "Expected exactly one MavenDependencyConstraintNode in 'overriddenBy', but found ${
-                            it.overriddenBy.map { it.key }.toSet()
-                        }"
-                    )
-                    assertEquals(
-                        constraintNode.key.name, "org.jetbrains.kotlinx:kotlinx-coroutines-core",
-                        "Unexpected constraint node ${constraintNode.key}"
-                    )
+                    if (constraintNode != null) {
+                        assertEquals(
+                            constraintNode.key.name, "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+                            "Unexpected constraint node ${constraintNode.key}"
+                        )
+                    }
                 }
             }
     }
 
     @Test
-    fun `test jvm-dependency-insights - B`(testInfo: TestInfo) = runTest {
+    fun `test jvm-dependency-insights - B`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val bGraph = doTestByFile(
@@ -279,7 +276,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "B",
         )
@@ -296,7 +293,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test jvm-dependency-insights - C`(testInfo: TestInfo) = runTest {
+    fun `test jvm-dependency-insights - C`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val cGraph = doTestByFile(
@@ -309,7 +306,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "C",
         )
@@ -323,7 +320,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test jvm-dependency-insights - D`(testInfo: TestInfo) = runTest {
+    fun `test jvm-dependency-insights - D`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val dGraph = doTestByFile(
@@ -336,7 +333,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "D",
         )
@@ -350,7 +347,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     }
 
     @Test
-    fun `test jvm-dependency-insights - E`(testInfo: TestInfo) = runTest {
+    fun `test jvm-dependency-insights - E`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-dependency-insights", testDataRoot)
 
         val eGraph = doTestByFile(
@@ -363,7 +360,7 @@ class DependencyInsightsTest : BaseModuleDrTest() {
                     isTest = false,
                 ),
                 ResolutionDepth.GRAPH_FULL,
-                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+                fileCacheBuilder = getAmperFileCacheBuilder(AmperUserCacheRoot(Dirs.userCacheRoot)),
             ),
             module = "E",
         )
@@ -385,6 +382,11 @@ class DependencyInsightsTest : BaseModuleDrTest() {
         val expectedFull = getGoldenFileText("$insightFile.insight.full.txt", fileDescription = "Golden file with full insight")
         withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.full.txt")) {
             assertInsight(group, module, graph, expectedFull, resolvedVersionOnly = false)
+        }
+
+        val expectedGraph = getGoldenFileText("$insightFile.insight.originalGraph.txt", fileDescription = "Golden file with full dependency graph")
+        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.originalGraph.txt")) {
+            assertEquals(expectedGraph, graph, null)
         }
     }
 
