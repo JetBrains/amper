@@ -67,9 +67,12 @@ class RootDependencyNodeInput(
     templateContext: Context,
     parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
 ) : RootDependencyNode,
-    DependencyNodeHolderImpl(
-        graphEntryName, children, templateContext, parentNodes = parentNodes)
+    DependencyNodeHolderImpl(graphEntryName, children, templateContext, parentNodes = parentNodes) {
 
+    override val cacheEntryKey: CacheEntryKey = resolutionId
+        ?.let { CacheEntryKey.CompositeCacheEntryKey(listOf(it)) }
+        ?: CacheEntryKey.NotCached
+}
 
 class RootDependencyNodeStub(
     override val graphEntryName: String = "root",

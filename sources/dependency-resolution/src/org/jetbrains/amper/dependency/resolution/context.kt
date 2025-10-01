@@ -228,7 +228,10 @@ data class ResolutionConfigPlain(
     override val scope: ResolutionScope,
     override val platforms: Set<ResolutionPlatform>,
     override val repositories: List<Repository>
-): ResolutionConfig
+): ResolutionConfig {
+    constructor(other: ResolutionConfig) : this(other.scope, other.platforms, other.repositories)
+}
+
 
 /**
  * Defines locations within the resolution session.

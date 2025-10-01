@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
@@ -17,6 +18,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodePlainBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithResolutionContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.Key
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -44,12 +46,6 @@ enum class ResolutionDepth {
     GRAPH_ONLY,
     GRAPH_WITH_DIRECT_DEPENDENCIES,
     GRAPH_FULL
-}
-
-enum class IncrementalCacheUsage {
-    SKIP,
-    USE,
-    REFRESH_AND_USE,
 }
 
 data class ResolutionInput(
@@ -149,6 +145,11 @@ class ModuleDependencyNodeWithModule(
         graphEntryName, children, templateContext, notation, parentNodes = parentNodes)
 {
     override val moduleName = module.userReadableName
+
+    override val cacheEntryKey: CacheEntryKey
+        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(
+            module.uniqueModuleKey(),
+        ))
 }
 
 @Serializable
@@ -200,6 +201,12 @@ class DirectFragmentDependencyNodeHolder(
 ) {
     override val fragmentName: String = fragment.name
     override val notationCoordinates: String = notation.coordinates.value
+
+    override val cacheEntryKey: CacheEntryKey
+        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(
+            fragment.module.uniqueModuleKey(),
+            fragment.name,
+        ))
 }
 
 private fun traceInfo(notation: Notation): String {
@@ -267,4 +274,6 @@ internal class UnresolvedMavenDependencyNodeImpl(
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
     override fun toString(): String = graphEntryName
+    override val cacheEntryKey: CacheEntryKey
+        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(coordinates))
 }

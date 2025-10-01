@@ -71,7 +71,7 @@ internal class IdeSync(
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
 
     override fun resolutionId(modules: List<AmperModule>): String {
-        return "Project compile dependencies: ${flowType.aom.projectRoot.absolutePathString().md5()}"
+        return "Project compile dependencies: ${flowType.aom.projectRoot.absolutePathString()}"
     }
 
     override fun directDependenciesGraph(

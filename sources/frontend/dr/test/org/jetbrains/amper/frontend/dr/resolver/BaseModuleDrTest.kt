@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl

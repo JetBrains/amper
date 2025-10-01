@@ -13,10 +13,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
+import org.slf4j.LoggerFactory
+import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.pathString
+
+private val logger = LoggerFactory.getLogger("resolver.kt")
 
 /**
  * This is the entry point to the library.
@@ -49,6 +56,201 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @see Context
  */
 class Resolver {
+
+    suspend fun resolveDependencies(
+        root: DependencyNodeWithResolutionContext,
+        resolutionLevel: ResolutionLevel,
+        downloadSources: Boolean,
+        transitive: Boolean = true,
+        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.SKIP,
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null,
+        postProcessDeserializedGraph: (DependencyNodePlain) -> Unit = {},
+    ): DependencyNode {
+        return root.context.spanBuilder("DR.graph:resolveDependencies").use {
+            val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources)
+
+            val incrementalCache = root.context.settings.incrementalCache
+
+            if (resolutionId == null
+                || incrementalCacheUsage == IncrementalCacheUsage.SKIP
+                || incrementalCache == null
+            ) {
+                root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                root
+            } else {
+                val graphEntryKeys = getDependenciesGraphInput(root)
+                if (graphEntryKeys.contains(CacheEntryKey.NotCached)) {
+                    root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                    root
+                } else {
+                    var graphResolvedInsideCache: DependencyNode? = null
+
+                    // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
+                    val configuration = mapOf(
+                        "userCacheRoot" to root.context.settings.fileCache.amperCache.pathString,
+                        "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
+                    )
+
+                    println("########## dependencies = ${graphEntryKeys.joinToString("|") { "${ it.computeKey() }" }}")
+
+                    val resolvedGraph = try {
+                        incrementalCache.execute(
+                            key = resolutionId,
+                            configuration,
+                            forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
+                            inputFiles = listOf(),
+                        ) {
+                            root.context.spanBuilder("DR.graph:resolution")
+                                .setAttribute(
+                                    "configuration",
+                                    configuration["dependencies"]
+                                ) // todo (AB) : Remove it (was added for debugging purposes))
+                                .setAttribute(
+                                    "userCacheRoot",
+                                    configuration["userCacheRoot"]
+                                ) // todo (AB) : Remove it (was added for debugging purposes))
+                                .setAttribute(
+                                    "resolutionId",
+                                    resolutionId
+                                ) // todo (AB) : Remove it (was added for debugging purposes))
+                                .use {
+                                    root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                                    graphResolvedInsideCache = root
+
+                                    val serializableGraph = graphResolvedInsideCache.toGraph()
+                                    val serialized = GraphJson.json.encodeToString(serializableGraph)
+                                    IncrementalCache.ExecutionResult(
+                                        graphResolvedInsideCache.dependencyPaths(),
+                                        mapOf("graph" to serialized)
+                                    )
+                                }
+                        }.let {
+                            if (graphResolvedInsideCache != null) {
+                                graphResolvedInsideCache
+                            } else {
+                                val serialized = it.outputValues["graph"]!!
+                                val deserializedGraph: DependencyGraph = root.context.spanBuilder("DR.graph:deserialization").use {
+                                    GraphJson.json.decodeFromString<DependencyGraph>(serialized)
+                                }
+                                val resolvedGraph = deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+
+                                // Post-process deserialized graph enriching it with the state from the input graph.
+                                // Any exception thrown during this phase results in fallback to non-cached resolution of input graph
+                                postProcessDeserializedGraph(resolvedGraph)
+
+                                resolvedGraph
+                            }
+                        }
+                    } catch (e: Exception) {
+                        logger.warn(
+                            "Unable to get dependency graph from incremental cache, " +
+                                    "falling back to non-cached resolution: ${e.toString()}"
+                        )
+                        if (graphResolvedInsideCache != null) {
+                            graphResolvedInsideCache
+                        } else {
+                            // todo (AB) : Invalidate cache entry manually on deserialization failure
+                            // todo (AB) : (might be not needed though if cache.codeVersion is properly specified)
+
+                            // Graph was taken from the cache, but deserialization failed.
+                            // Fallback to non-cached resolution
+                            root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                            root
+                        }
+                    }
+
+                    resolvedGraph
+                }
+            }
+        }
+    }
+
+    // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)
+    internal fun getDependenciesGraphInput(node: DependencyNodeWithResolutionContext): Set<CacheEntryKey> {
+        val cacheEntryKeys: MutableSet<CacheEntryKey> = mutableSetOf()
+        node.distinctBfsSequence().forEach {
+            // skip the parent node, its cacheEntryKey is used as a cache entry identifier
+            // and is not a part of cache configuration that affects entry invalidation
+            if (it == node) return@forEach
+
+            if (it !is DependencyNodeWithResolutionContext) {
+                cacheEntryKeys.add(CacheEntryKey.NotCached)
+                return cacheEntryKeys
+            }
+
+            val cacheEntryKey = getCacheEntryKeyForCacheConfiguration(it)
+            cacheEntryKeys.add(cacheEntryKey)
+
+            if (cacheEntryKey == CacheEntryKey.NotCached) {
+                return cacheEntryKeys
+            }
+        }
+        return cacheEntryKeys
+    }
+
+    private fun getContextAwareRootCacheEntryKey(
+        root: DependencyNodeWithResolutionContext,
+        transitive: Boolean,
+        downloadSources: Boolean,
+    ): String? {
+        val cacheEntryKey = when (val rootCacheEntryKey = root.cacheEntryKey) {
+            is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
+            is CacheEntryKey.CompositeCacheEntryKey -> {
+                if (root is RootDependencyNode)
+                    rootCacheEntryKey
+                else
+                    rootCacheEntryKey.copy(components = rootCacheEntryKey.components + listOf(
+                        ResolutionConfigPlain(root.context.settings),
+                        downloadSources,
+                        transitive,
+                    ))
+            }
+        }.computeKey()?.replaceTheEndWithMd5IfTooLong()
+
+        return cacheEntryKey
+    }
+
+    private fun getCacheEntryKeyForCacheConfiguration(node: DependencyNodeWithResolutionContext): CacheEntryKey {
+        val cacheEntryKey = when (val cacheEntryKey = node.cacheEntryKey) {
+            is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
+            is CacheEntryKey.CompositeCacheEntryKey -> {
+                if (node is RootDependencyNode)
+                    cacheEntryKey
+                else {
+                    val skipContext = node.parents.isNotEmpty() && node.parents.all {
+                        (it is DependencyNodeWithResolutionContext)
+                                && ResolutionConfigPlain(node.context.settings) == ResolutionConfigPlain(it.context.settings)
+                    }
+                    if (skipContext)
+                        cacheEntryKey
+                    else
+                        cacheEntryKey.copy(
+                            components = cacheEntryKey.components + listOf(
+                                ResolutionConfigPlain(node.context.settings)
+                            )
+                        )
+                }
+            }
+        }
+
+        return cacheEntryKey
+    }
+
+    private suspend fun DependencyNodeWithResolutionContext.resolveDependencies(
+        resolutionLevel: ResolutionLevel,
+        transitive: Boolean,
+        downloadSources: Boolean,
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>?
+    ) {
+        val resolver = Resolver()
+        resolver.buildGraph(
+            this,
+            level = resolutionLevel,
+            transitive = transitive,
+            unspecifiedVersionResolver = unspecifiedVersionResolver
+        )
+        resolver.downloadDependencies(this, downloadSources)
+    }
 
     /**
      * Builds a dependency graph starting from [root].
@@ -431,6 +633,24 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
      * Ensures that the dependency-relevant files are on disk, according to settings.
      */
     suspend fun downloadDependencies(downloadSources: Boolean = false)
+
+    /**
+     * Key that identifies this [DependencyNode] in the cache used for Dependency Resolution.
+     * All parameters that affect the resolution of this node should be taken into account
+     * while computing the cache entry key.
+     *
+     * For instance, ktor.io:ktor-client-core:1.6.7 resolved for jvm platform
+     * is different from ktor.io:ktor-client-core:1.6.7 resolved for iosX64
+     *
+     * This key might be used for storing this particular node in the cache alone.
+     * In this case, [DependencyNode.cacheEntryKey] all transitive children together
+     * represent configuration of such an entry.
+     *
+     * If the node configuration changes, then the cache entry related to this node is recalculated.
+     *
+     * @see [org.jetbrains.amper.incrementalcache.IncrementalCache.execute] for details
+     */
+    val cacheEntryKey: CacheEntryKey
 }
 
 /**
@@ -492,3 +712,32 @@ interface UnspecifiedVersionResolver<T> {
 }
 
 class Progress
+
+sealed class CacheEntryKey {
+    object NotCached: CacheEntryKey() {
+        override fun computeKey() = null
+    }
+
+    data class CompositeCacheEntryKey(val components: List<Any>): CacheEntryKey() {
+        override fun computeKey(): String {
+            return components.joinToString(",") { it.toString() }
+        }
+    }
+
+    abstract fun computeKey(): String?
+}
+
+enum class IncrementalCacheUsage {
+    SKIP,
+    USE,
+    REFRESH_AND_USE,
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+private fun String.md5(): String = MessageDigest.getInstance("MD5")
+    .digest(this.toByteArray())
+    .toHexString()
+
+private fun String.replaceTheEndWithMd5IfTooLong() = this
+    .takeIf { it.length <= 50 }
+    ?: (this.substring(0, 50) + md5())

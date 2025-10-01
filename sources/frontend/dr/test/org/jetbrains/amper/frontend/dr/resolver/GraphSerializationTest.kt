@@ -13,6 +13,8 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.GraphJson
+import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
@@ -33,7 +35,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
     override val testGoldenFilesRoot: Path = super.testGoldenFilesRoot / "graphSerialization"
 
-    val json = ModuleDependenciesResolverImpl.json
+    val json = GraphJson.json
 
     @Test
     fun serializationTestJava(testInfo: TestInfo) = runSlowTest {

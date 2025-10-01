@@ -137,7 +137,7 @@ val MavenDependencyNode.module
     get() = dependency.module
 
 @Serializable
-class MavenDependencyNodePlain internal constructor(
+internal class MavenDependencyNodePlain internal constructor(
     override val originalVersion: String?,
     override val versionFromBom: String?,
     override val isBom: Boolean,
@@ -266,6 +266,12 @@ class MavenDependencyNodeImpl internal constructor(
     } else {
         "$group:$module:${originalVersion.orUnspecified()} -> ${dependency.version}"
     }
+
+    override val cacheEntryKey: CacheEntryKey
+        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(
+            getOriginalMavenCoordinates(),
+            isBom
+        ))
 
     private fun DependencyNode.isDescendantOf(
         parent: DependencyNode,
@@ -406,7 +412,7 @@ class MavenDependencyConstraintReference(
 
 
 @Serializable
-class MavenDependencyConstraintNodePlain internal constructor(
+internal class MavenDependencyConstraintNodePlain internal constructor(
     override val group: String,
     override val module: String,
     override val version: Version,
@@ -455,6 +461,9 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
 
     override fun toString(): String = graphEntryName
+
+    override val cacheEntryKey: CacheEntryKey
+        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(group, module, version))
 }
 
 private typealias DependencyProvider<T> = (T) -> Any?

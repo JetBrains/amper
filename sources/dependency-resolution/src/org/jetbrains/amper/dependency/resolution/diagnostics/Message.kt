@@ -102,7 +102,7 @@ internal data class SimpleMessage(
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 }
 
-fun SerializersModuleBuilder.registerSerializableMessages() {
+internal fun SerializersModuleBuilder.registerSerializableMessages() {
     polymorphic(Message::class, SimpleMessage::class, SimpleMessage.serializer())
     polymorphic(Message::class, BomDeclaredAsRegularDependency::class, BomDeclaredAsRegularDependency.serializer())
     polymorphic(Message::class, RegularDependencyDeclaredAsBom::class, RegularDependencyDeclaredAsBom.serializer())

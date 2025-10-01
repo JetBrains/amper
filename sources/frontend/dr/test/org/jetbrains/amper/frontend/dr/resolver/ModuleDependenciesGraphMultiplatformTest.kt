@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope

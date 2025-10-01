@@ -6,7 +6,12 @@ package org.jetbrains.amper.dependency.resolution
 
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 
-class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
+/**
+ * Wraps given dependency node overriding its parents and children.
+ * It is intended to be used to filter out redundant information from the graph representing
+ * a partial subgraph of the original graph.
+ */
+internal class DependencyNodeWithChildren(val node: DependencyNode): DependencyNode {
     override val children: MutableList<DependencyNode> = mutableListOf()
     override val key: Key<*> = node.key
     override val messages: List<Message> = node.messages.toMutableList()

@@ -88,7 +88,7 @@ internal fun String.md5(): String = MessageDigest.getInstance("MD5")
     .digest(this.toByteArray())
     .toHexString()
 
-fun AmperModule.uniqueModuleKey(): String = source.moduleDir.absolutePathString().md5()
+fun AmperModule.uniqueModuleKey(): String = source.moduleDir.absolutePathString()
 
 internal fun OpenTelemetry?.spanBuilder(spanName: String): SpanBuilder = (this ?: OpenTelemetry.noop())
     .getTracer("org.jetbrains.amper.dr")
