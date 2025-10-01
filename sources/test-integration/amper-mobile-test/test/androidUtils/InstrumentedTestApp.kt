@@ -58,6 +58,7 @@ object InstrumentedTestApp  {
                 cmdName = "gradle (test-apk)",
                 testReporter = testReporter,
                 additionalEnv = AndroidTools.getOrInstallForTests().environment(),
+                gradleVersion = "9.1.0",
             )
         } finally {
             // Restore the original content of the test file and build.gradle.kts
