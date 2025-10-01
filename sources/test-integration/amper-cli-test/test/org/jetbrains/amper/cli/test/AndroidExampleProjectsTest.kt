@@ -219,7 +219,6 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
             projectRoot = testProject("android/mockable-jar"), 
             "test",
             configureAndroidHome = true,
-            assertEmptyStdErr = false, // Allow stderr output from Mockito warnings
         )
         result.assertStdoutContains("5 tests successful")
     }
@@ -230,7 +229,6 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
             projectRoot = testProject("android/multi-module-mockable-jar"),
             "test",
             configureAndroidHome = true,
-            assertEmptyStdErr = false, // Allow stderr output from Mockito warnings
         )
         result.assertStdoutContains("5 tests successful")
     }

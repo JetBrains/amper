@@ -16,3 +16,12 @@ settings:
     namespace: "com.jetbrains.sample.app"
   compose: enabled
   junit: junit-4
+  jvm:
+    test:
+      freeJvmArgs:
+        # Mockito loads an agent. Since we don't support passing it statically, we need to enable dynamic agent loading.
+        - -XX:+EnableDynamicAgentLoading
+        # Mockito appends to the bootclasspath via the instrumentation API, which triggers a CDS-related warning because
+        # it only partially works in this case. CDS is not that important in this test project, so we disable it.
+        # See https://github.com/mockito/mockito/issues/3111
+        - -Xshare:off
