@@ -1,0 +1,13 @@
+modules:
+  - consume-sources-plugin
+  - produce-sources-plugin
+  - app1
+  - app2
+  - app3
+  - kmp-lib
+  - kmp-lib2
+  - ksp-processor
+
+plugins:
+  - consume-sources-plugin
+  - produce-sources-plugin

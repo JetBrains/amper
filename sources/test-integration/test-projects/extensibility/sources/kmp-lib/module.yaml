@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [ jvm, android ]
+
+settings:
+  consume-sources-plugin:
+    enabled: true
+    sources:
+      from: .

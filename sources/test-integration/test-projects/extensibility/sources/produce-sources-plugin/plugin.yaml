@@ -1,0 +1,11 @@
+
+tasks:
+  produceSources:
+    action: !com.example.amper.plugin.produce_sources.produce
+      kotlin: ${taskDir}/kotlin
+      resources: ${taskDir}/resources
+    markOutputsAs:
+      - path: ${action.kotlin}
+        kind: kotlin-sources
+      - path: ${action.resources}
+        kind: jvm-resources

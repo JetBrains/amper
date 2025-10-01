@@ -71,7 +71,66 @@ class PluginsTest : AmperCliTestBase() {
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
             classpath kotlin-poet.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/com/squareup/kotlinpoet-jvm/2.2.0/kotlinpoet-jvm-2.2.0.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-reflect/2.1.21/kotlin-reflect-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath compile.dependencies = [{modulePath: $projectRoot/app}]
+            classpath compile.dependencies[0] = {modulePath: $projectRoot/app}
+            classpath compile.dependencies[0].modulePath = $projectRoot/app
+            classpath compile.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
         """.trimIndent().replace('/', File.separatorChar))
+    }
+
+    @Test
+    fun `sources injection test`() = runSlowTest {
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/sources"),
+            "task", ":app1:consume@consume-sources-plugin",
+            copyToTempDir = true,
+        )
+
+        val projectRoot = r1.projectRoot
+        val buildDir = tempRoot / "build"
+        r1.assertStdoutContains("""
+            Consuming sources: 1
+            Got source path: ${projectRoot / "app1" / "src"} - [main.kt]
+        """.trimIndent())
+
+        runCli(
+            projectRoot = projectRoot,
+            "task", ":app2:consume@consume-sources-plugin",
+        ).assertStdoutContains("""
+            Consuming sources: 4
+            Got source path: ${projectRoot / "app2" / "src"} - [main.kt]
+            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "kotlin" } - [kspGenerated.kt]
+            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "java" } - []
+            Got source path: ${buildDir / "tasks" / "_app2_produceSources@produce-sources-plugin" / "kotlin"} - [generated.kt]
+        """.trimIndent())
+
+        runCli(
+            projectRoot = projectRoot,
+            "task", ":app3:consume@consume-sources-plugin",
+        ).assertStdoutContains("""
+            Consuming sources: 3
+            Got source path: ${projectRoot / "app3" / "resources"} - [hello]
+            Got source path: ${buildDir / "generated" / "app3" / "main" / "resources" / "ksp" } - [com.example.amper.app.Greeter]
+            Got source path: ${buildDir / "tasks" / "_app3_produceSources@produce-sources-plugin" / "resources"} - [generated.properties]
+        """.trimIndent())
+
+        runCli(
+            projectRoot = projectRoot,
+            "task", ":kmp-lib:consume@consume-sources-plugin",
+        ).assertStdoutContains("""
+            Consuming sources: 2
+            Got source path: ${projectRoot / "kmp-lib" / "src"} - null
+            Got source path: ${projectRoot / "kmp-lib" / "src@jvm"} - null
+        """.trimIndent())
+
+        runCli(
+            projectRoot = projectRoot,
+            "task", ":kmp-lib2:consume@consume-sources-plugin",
+        ).assertStdoutContains("""
+            Consuming sources: 2
+            Got source path: ${projectRoot / "kmp-lib2" / "resources"} - null
+            Got source path: ${projectRoot / "kmp-lib2" / "resources@jvm"} - null
+        """.trimIndent())
     }
 
     @Test

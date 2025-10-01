@@ -7,8 +7,11 @@ settings:
       "core": [ ../core ]
       "lib": [ ../lib ]
       "kotlin-poet": [ "com.squareup:kotlinpoet:2.2.0" ]
+      "compile":
+        dependencies: [ . ]
+        scope: compile
   kotlin:
     version: 2.2.10
 
 dependencies:
-  - ../lib
+  - ../lib: runtime-only
