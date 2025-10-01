@@ -171,9 +171,13 @@ internal fun BuildCtx.buildPlugins(
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
                 inputs = pathsCollector.allInputPaths.toList(),
-                requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { node ->
+                requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { (node, location) ->
                     val module = node.from.resolve(modules) ?: return@mapNotNull null
-                    TaskFromPluginDescription.ModuleSourcesRequest(node = node, from = module)
+                    TaskFromPluginDescription.ModuleSourcesRequest(
+                        node = node,
+                        from = module,
+                        propertyLocation = location,
+                    )
                 },
                 requestedClasspaths = pathsCollector.classpathNodes.map { (node, propertyLocation) ->
                     val localModules = node.dependencies.filterIsInstance<ShadowDependencyLocal>()
@@ -293,7 +297,7 @@ private class PluginTreeReader(
                                 ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
                             })
                         }
-                    }
+                    }.appendDefaultValues()
                 }
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {

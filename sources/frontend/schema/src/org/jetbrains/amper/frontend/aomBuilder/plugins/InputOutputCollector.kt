@@ -17,7 +17,7 @@ internal class InputOutputCollector {
     private val _allInputPaths = mutableSetOf<Path>()
     private val _allOutputPaths = mutableSetOf<Path>()
     private val _classpathNodes = mutableSetOf<NodeWithPropertyLocation<ShadowClasspath>>()
-    private val _moduleSourcesNodes = mutableSetOf<ShadowModuleSources>()
+    private val _moduleSourcesNodes = mutableSetOf<NodeWithPropertyLocation<ShadowModuleSources>>()
 
     /**
      * @property propertyLocation a property path in a data tree, e.g. `[settings, myMap, myKey, 0]` of the [node].
@@ -30,7 +30,7 @@ internal class InputOutputCollector {
     val classpathNodes: Set<NodeWithPropertyLocation<ShadowClasspath>>
         get() = _classpathNodes
 
-    val moduleSourcesNodes: Set<ShadowModuleSources>
+    val moduleSourcesNodes: Set<NodeWithPropertyLocation<ShadowModuleSources>>
         get() = _moduleSourcesNodes
 
     val allInputPaths: Set<Path>
@@ -62,7 +62,7 @@ internal class InputOutputCollector {
                 )
                 when (value) {
                     is ShadowClasspath -> _classpathNodes.add(NodeWithPropertyLocation(value, location))
-                    is ShadowModuleSources -> _moduleSourcesNodes.add(value)
+                    is ShadowModuleSources -> _moduleSourcesNodes.add(NodeWithPropertyLocation(value, location))
                 }
             }
             is Map<*, *> -> value.forEach { (key, value) ->

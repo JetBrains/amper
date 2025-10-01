@@ -112,6 +112,7 @@ class TaskFromPluginDescription(
     class ModuleSourcesRequest(
         val node: ShadowModuleSources,
         val from: AmperModule,
+        val propertyLocation: List<String>,
     )
 
     /**

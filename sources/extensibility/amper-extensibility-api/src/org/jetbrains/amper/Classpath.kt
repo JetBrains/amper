@@ -24,6 +24,11 @@ interface Classpath {
     val dependencies: List<Dependency>
 
     /**
+     * Resolution scope to use to resolve [dependencies].
+     */
+    val scope: ResolutionScope get() = ResolutionScope.Runtime
+
+    /**
      * Resolved classpath files.
      */
     @Provided
