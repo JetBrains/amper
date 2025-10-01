@@ -182,7 +182,6 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
                     projectRoot = context.projectRoot,
-                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                     taskName = compileTaskName,
                     incrementalCache = incrementalCache,
                     tempRoot = context.projectTempRoot,

@@ -50,4 +50,4 @@ class MergedPreparedComposeResourcesDirArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     module: AmperModule,
     platform: Platform,
-) : PlatformScopedArtifact(buildOutputRoot, module, platform)
+) : PlatformScopedArtifact(buildOutputRoot, module, platform, false)

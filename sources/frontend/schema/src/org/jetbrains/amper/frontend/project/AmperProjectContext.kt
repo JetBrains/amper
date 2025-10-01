@@ -48,10 +48,10 @@ interface AmperProjectContext {
     /**
      * Local plugin module files of this project. Subset of [amperModuleFiles].
      */
-    val externalPluginDependencies: List<UnscopedExternalMavenDependency>?
+    val externalMavenPluginDependencies: List<UnscopedExternalMavenDependency>?
 
     /**
      * Local plugin module files of this project. Subset of [amperModuleFiles].
      */
-    val localPluginsModuleFiles: List<VirtualFile>
+    val pluginsModuleFiles: List<VirtualFile>
 }

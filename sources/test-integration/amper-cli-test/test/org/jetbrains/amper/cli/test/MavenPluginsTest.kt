@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
+import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import kotlin.test.Test
 
@@ -15,7 +16,7 @@ class MavenPluginsTest : AmperCliTestBase() {
             projectRoot = testProject("extensibility-maven/surefire-plugin"),
             "show", "tasks",
             copyToTempDir = true,
-        )
+        ).assertStdoutContains("maven-surefire-plugin.test")
     }
 
     @Test
@@ -36,5 +37,15 @@ class MavenPluginsTest : AmperCliTestBase() {
             copyToTempDir = true,
         )
         result.assertStdoutContains("Hello from surefire execution")
+    }
+
+    @Test
+    fun `no maven tasks appear on the task list if no maven plugins are specified`() = runSlowTest {
+        runCli(
+            // Just some project with java source code.
+            projectRoot = testProject("java-kotlin-mixed"),
+            "show", "tasks",
+            copyToTempDir = true,
+        ).assertStdoutDoesNotContain("maven")
     }
 }

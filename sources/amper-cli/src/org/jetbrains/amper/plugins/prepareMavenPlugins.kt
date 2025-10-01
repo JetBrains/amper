@@ -31,7 +31,7 @@ suspend fun prepareMavenPlugins(
     mavenResolver: MavenResolver = MavenResolver(context.userCacheRoot),
 ) = coroutineScope prepare@{
     spanBuilder("Prepare Maven plugins").use {
-        val externalPlugins = context.projectContext.externalPluginDependencies ?: return@use
+        val externalPlugins = context.projectContext.externalMavenPluginDependencies ?: return@use
 
         externalPlugins.mapNotNull { extDep ->
             val pluginXmlCopyName = extDep.coordinates.replace(":", "-")

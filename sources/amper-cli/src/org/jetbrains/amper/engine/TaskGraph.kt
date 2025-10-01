@@ -10,21 +10,22 @@ import org.jetbrains.amper.stdlib.graphs.depthFirstDetectLoops
 
 class TaskGraph(
     val nameToTask: Map<TaskName, Task>,
-    initialDependencies: Map<TaskName, Set<TaskName>>,
+    val dependencies: Map<TaskName, Set<TaskName>>,
 ) {
-    val dependencies: Map<TaskName, Set<TaskName>>
     val tasks = nameToTask.values
 
     init {
         // verify all dependencies are resolved
-        val finalDependencies = mutableMapOf<TaskName, Set<TaskName>>()
-        for ((name, dependsOn) in initialDependencies) {
+        for ((name, dependsOn) in dependencies) {
             if (!nameToTask.containsKey(name)) {
                 userReadableError("Task '$name' does not exist, yet it depends on ${dependsOn.map { it.name }.sorted().joinToString()}")
             }
-            finalDependencies[name] = dependsOn.filter { nameToTask.containsKey(it) }.toSet()
+            for (dependency in dependsOn) {
+                if (!nameToTask.containsKey(dependency)) {
+                    userReadableError("Task '$name' depends on task '$dependency' which does not exist")
+                }
+            }
         }
-        dependencies = finalDependencies
 
         // verify no dependency loops
         val allTasks = nameToTask.keys.distinct()

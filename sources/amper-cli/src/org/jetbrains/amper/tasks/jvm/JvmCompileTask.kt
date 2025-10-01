@@ -35,7 +35,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -44,7 +43,6 @@ import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
-import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
@@ -52,6 +50,7 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
+import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
@@ -75,7 +74,6 @@ internal class JvmCompileTask(
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
-    private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
     override val taskName: TaskName,
     private val incrementalCache: IncrementalCache,
@@ -92,6 +90,13 @@ internal class JvmCompileTask(
         }
     }
 
+    private val compiledJvmClassesArtifact by CompiledJvmClassesArtifact(
+        buildOutputRoot = buildOutputRoot,
+        module = module,
+        platform = platform,
+        isTest = isTest,
+    )
+    
     private val additionalKotlinJavaSourceDirs by Selectors.fromMatchingFragments(
         type = KotlinJavaSourceDirArtifact::class,
         module = module,
@@ -107,6 +112,8 @@ internal class JvmCompileTask(
         hasPlatforms = setOf(platform),
         quantifier = Quantifier.AnyOrNone,
     )
+    
+    val taskOutputRoot get() = compiledJvmClassesArtifact.path
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {
@@ -161,7 +168,7 @@ internal class JvmCompileTask(
             "jdk.version" to jdk.version,
             "jdk.home" to jdk.homeDir.pathString,
             "user.settings" to Json.encodeToString(userSettings),
-            "task.output.root" to taskOutputRoot.path.pathString,
+            "task.output.root" to taskOutputRoot.pathString,
             "target.platforms" to module.leafPlatforms.map { it.name }.sorted().joinToString(),
             "java.annotation.processor.generated.dir" to javaAnnotationProcessorsGeneratedDir.pathString
         )
@@ -171,7 +178,7 @@ internal class JvmCompileTask(
         val inputFiles = sources + resources + classpath + javaAnnotationProcessorClasspath
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
-            cleanDirectory(taskOutputRoot.path)
+            cleanDirectory(taskOutputRoot)
 
             val nonEmptySourceDirs = sources
                 .filter {
@@ -184,7 +191,7 @@ internal class JvmCompileTask(
                 }
 
             val outputPaths = mutableListOf<Path>()
-            outputPaths.add(taskOutputRoot.path.toAbsolutePath())
+            outputPaths.add(taskOutputRoot.toAbsolutePath())
 
             if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
@@ -208,9 +215,9 @@ internal class JvmCompileTask(
             val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
                 val dest = if (resource.isDirectory()) {
-                    taskOutputRoot.path
+                    taskOutputRoot
                 } else {
-                    taskOutputRoot.path.resolve(resource.fileName)
+                    taskOutputRoot.resolve(resource.fileName)
                 }
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
                 BuildPrimitives.copy(from = resource, to = dest)
@@ -220,7 +227,7 @@ internal class JvmCompileTask(
         }
 
         return Result(
-            classesOutputRoot = taskOutputRoot.path.toAbsolutePath(),
+            classesOutputRoot = taskOutputRoot.toAbsolutePath(),
             module = module,
             isTest = isTest,
             changes = result.changes,
@@ -265,7 +272,7 @@ internal class JvmCompileTask(
         }
 
         if (javaFilesToCompile.isNotEmpty()) {
-            val kotlinClassesPath = listOf(taskOutputRoot.path)
+            val kotlinClassesPath = listOf(taskOutputRoot)
             compileJavaSources(
                 jdk = jdk,
                 userSettings = userSettings,
@@ -311,7 +318,7 @@ internal class JvmCompileTask(
             userSettings = userSettings,
             classpath = classpath,
             jdkHome = jdk.homeDir,
-            outputPath = taskOutputRoot.path,
+            outputPath = taskOutputRoot,
             compilerPlugins = compilerPlugins,
             fragments = fragments,
             additionalSourceRoots = additionalSourceRoots,
@@ -390,7 +397,7 @@ internal class JvmCompileTask(
             add("-implicit:none")
 
             add("-d")
-            add(taskOutputRoot.path.pathString)
+            add(taskOutputRoot.pathString)
 
             addAll(userSettings.java.freeCompilerArgs)
 

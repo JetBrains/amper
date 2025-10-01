@@ -80,11 +80,11 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
  */
 fun mavenCompatPluginId(plugin: MavenPluginXml, mojo: Mojo): String = "${plugin.artifactId}.${mojo.goal}"
 
-internal class MavenSchemaObjectDeclaration(
+private class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,
     override val properties: List<SchemaObjectDeclaration.Property>,
     override val origin: SchemaOrigin = SchemaOrigin.MavenPlugin,
 ) : SchemaObjectDeclarationBase() {
     override val qualifiedName by ::mojoImplementation
-    override fun createInstance() = ExtensionSchemaNode(null)
+    override fun createInstance() = ExtensionSchemaNode()
 }

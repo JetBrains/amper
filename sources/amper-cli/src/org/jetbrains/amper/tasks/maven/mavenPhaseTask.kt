@@ -16,7 +16,7 @@ import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import org.jetbrains.amper.tasks.jvm.CompiledJvmClassesArtifact
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.reflect.KFunction3
@@ -30,7 +30,7 @@ enum class KnownMavenPhase(
     private val isTest: Boolean = false,
 ) {
     validate,
-    
+
     initialize(
         validate
     ),
@@ -100,15 +100,16 @@ enum class KnownMavenPhase(
         `process-test-classes`
     ),
 
-    `prepare-package`(
-        `process-classes`
-    ),
-
-    `package`(
-        `prepare-package`
-    );
-
     // Now we don't know how to run these:
+//    `prepare-package`(
+//        `process-classes`
+//    ),
+//
+//    `package`(
+//        `prepare-package`
+//    ),
+    ;
+    
     //   pre-integration-test,
     //   integration-test,
     //   post-integration-test,
@@ -224,12 +225,14 @@ class AdditionalResourcesAwareMavenPhaseTask(taskName: TaskName, module: AmperMo
 class ClassesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean) :
     BaseUmbrellaMavenPhaseTask(taskName, module, isTest) {
 
-    override fun embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
-        val compileResult = dependenciesResult
-            .filterIsInstance<JvmCompileTask.Result>()
-            .singleOrNull() ?: return MavenProjectEmbryo()
+    private val compiledJvmClassesDirs by Selectors.fromModuleOnly(
+        type = CompiledJvmClassesArtifact::class,
+        module = module,
+        platform = Platform.JVM,
+        isTest = isTest,
+    )
 
-        return if (!isTest) MavenProjectEmbryo(classesOutputPath = compileResult.classesOutputRoot)
-        else MavenProjectEmbryo(testClassesOutputPath = compileResult.classesOutputRoot)
-    }
+    override fun embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo =
+        if (!isTest) MavenProjectEmbryo(classesOutputPath = compiledJvmClassesDirs.singleOrNull()?.path)
+        else MavenProjectEmbryo(testClassesOutputPath = compiledJvmClassesDirs.singleOrNull()?.path)
 }

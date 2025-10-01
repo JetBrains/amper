@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import java.io.Serializable
 import java.nio.file.Path
@@ -60,6 +61,7 @@ abstract class PlatformScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     val module: AmperModule,
     val platform: Platform,
+    val isTest: Boolean,
 ) : ArtifactBase(buildOutputRoot) {
     val moduleName = module.userReadableName
 
@@ -67,7 +69,7 @@ abstract class PlatformScopedArtifact(
         require(platform.isLeaf) { "Only leaf platforms are expected here" }
     }
 
-    override fun idComponents() = listOf(module.userReadableName, platform.pretty)
+    override fun idComponents() = listOf(module.userReadableName, platform.pretty, isTest.testSuffix)
 }
 
 /**

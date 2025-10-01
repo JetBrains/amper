@@ -20,9 +20,14 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
 // Set up maven tasks only for JVM modules. 
-fun ProjectTasksBuilder.setupMavenCompatibilityTasks() = allModules().alsoPlatforms(Platform.JVM).withEach {
-    setupUmbrellaMavenTasks()
-    setupMavenPluginTasks()
+fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
+    // Skip maven tasks registration if we have no maven plugins specified.
+    if (context.projectContext.externalMavenPluginDependencies.isNullOrEmpty()) return
+    
+    allModules().alsoPlatforms(Platform.JVM).withEach {
+        setupUmbrellaMavenTasks()
+        setupMavenPluginTasks()
+    }
 }
 
 context(taskBuilder: ProjectTasksBuilder)
@@ -42,10 +47,6 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
         )
     }
 
-    // Sources/resources generation.
-    CommonTaskType.Ksp.getTaskName(module, Platform.JVM, false)
-        .dependencyOf(KnownMavenPhase.`generate-sources`, KnownMavenPhase.`generate-resources`)
-
     // Generated sources/resources procession.
     CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = false)
         .dependsOn(KnownMavenPhase.`process-sources`, KnownMavenPhase.`process-resources`)
@@ -60,10 +61,6 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
     CommonTaskType.Jar.getTaskName(module, Platform.JVM, isTest = false)
         .dependsOn(KnownMavenPhase.compile)
 
-    // Test sources/resources generation.
-    CommonTaskType.Ksp.getTaskName(module, Platform.JVM, true)
-        .dependencyOf(KnownMavenPhase.`generate-test-sources`, KnownMavenPhase.`generate-test-resources`)
-
     // Generated test sources/resources procession.
     CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = true)
         .dependsOn(KnownMavenPhase.`process-test-sources`, KnownMavenPhase.`process-test-resources`)
@@ -74,10 +71,6 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
     // Before we will run tests, we need to run maven test compile phase plugins.
     CommonTaskType.Test.getTaskName(module, Platform.JVM)
         .dependsOn(KnownMavenPhase.`test-compile`)
-
-    // Jar packaging.
-    CommonTaskType.Jar.getTaskName(module, Platform.JVM, isTest = false)
-        .dependsOn(KnownMavenPhase.`prepare-package`, KnownMavenPhase.`package`)
 }
 
 context(taskBuilder: ProjectTasksBuilder)

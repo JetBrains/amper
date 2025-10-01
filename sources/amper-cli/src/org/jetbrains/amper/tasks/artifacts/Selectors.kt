@@ -87,6 +87,24 @@ object Selectors {
     }
 
     /**
+     * From the [module] only that matches [platform], [isTest].
+     */
+    // TODO Should introduce `SingleOrNone` quantifier.
+    fun <T : PlatformScopedArtifact> fromModuleOnly(
+        type: KClass<T>,
+        module: AmperModule,
+        isTest: Boolean,
+        platform: Platform,
+    ): ArtifactSelector<T, Quantifier.AnyOrNone> {
+        return ArtifactSelector(
+            type = ArtifactType(type),
+            predicate = { it.moduleName == module.userReadableName && it.platform == platform && it.isTest == isTest },
+            description = "from module ${module.userReadableName} with platform $platform and its dependencies",
+            quantifier = Quantifier.AnyOrNone,
+        )
+    }
+
+    /**
      * From the [leafFragment]'s module and its dependencies, which has [LeafFragment.platform] matching.
      */
     fun <T : PlatformScopedArtifact, Q : Quantifier.Multiple> fromModuleWithDependencies(
@@ -109,9 +127,7 @@ object Selectors {
         }
         return ArtifactSelector(
             type = ArtifactType(type),
-            predicate = {
-                it.module in modules && it.platform == platform
-            },
+            predicate = { it.module in modules && it.platform == platform && it.isTest == leafFragment.isTest },
             description = "from module ${leafFragment.module.userReadableName} with platform $platform and its dependencies",
             quantifier = quantifier,
         )
