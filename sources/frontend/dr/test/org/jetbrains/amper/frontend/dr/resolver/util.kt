@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
+import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -46,7 +47,7 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
 
 internal val amperUserCacheRoot: AmperUserCacheRoot
     get() {
-        val result = AmperUserCacheRoot.fromCurrentUserResult()
+        val result = AmperUserCacheRoot(Dirs.userCacheRoot)
         assertIs<AmperUserCacheRoot>(result)
         return result
     }
