@@ -38,7 +38,7 @@ object Selectors {
         val fragmentName = fragment.name
         return ArtifactSelector(
             type = ArtifactType(type),
-            predicate = { it.moduleName == moduleName && it.fragmentName == fragmentName },
+            predicate = { it.fragment == fragment },
             description = "from fragment `$moduleName:$fragmentName`",
             quantifier = quantifier,
         )
@@ -52,15 +52,12 @@ object Selectors {
         fragment: Fragment,
         quantifier: Q,
     ): ArtifactSelector<T, Q> {
-        val moduleName = fragment.module.userReadableName
         val dependencies by lazy {
-            fragment.allFragmentDependencies(includeSelf = true).mapTo(hashSetOf()) { it.name }
+            fragment.allFragmentDependencies(includeSelf = true).toSet()
         }
         return ArtifactSelector(
             type = ArtifactType(type),
-            predicate = {
-                it.moduleName == moduleName && it.fragmentName in dependencies
-            },
+            predicate = { it.fragment in dependencies },
             description = "from fragment `${fragment.module.userReadableName}:${fragment.name}` and its dependencies",
             quantifier = quantifier,
         )
@@ -80,7 +77,9 @@ object Selectors {
         return ArtifactSelector(
             type = ArtifactType(type),
             predicate = {
-                it.moduleName == moduleName && it.isTest == isTest && it.platforms.containsAll(hasPlatforms)
+                it.module.userReadableName == moduleName &&
+                        it.isTest == isTest &&
+                        it.platforms.containsAll(hasPlatforms)
             },
             description = "from fragments matching ${module.userReadableName}:{isTest=$isTest, platforms=$hasPlatforms} and its dependencies",
             quantifier = quantifier,
@@ -97,21 +96,21 @@ object Selectors {
         quantifier: Q,
     ): ArtifactSelector<T, Q> {
         val platform = leafFragment.platform
-        val moduleNames = buildSet {
-            add(leafFragment.module.userReadableName)
+        val modules = buildSet {
+            add(leafFragment.module)
             addAll(
                 leafFragment.module.getModuleDependencies(
                     isTest = leafFragment.isTest,
                     platform = leafFragment.platform,
                     dependencyReason = ResolutionScope.RUNTIME,
                     userCacheRoot = userCacheRoot,
-                ).map { it.userReadableName }
+                )
             )
         }
         return ArtifactSelector(
             type = ArtifactType(type),
             predicate = {
-                it.moduleName in moduleNames && it.platform == platform
+                it.module in modules && it.platform == platform
             },
             description = "from module ${leafFragment.module.userReadableName} with platform $platform and its dependencies",
             quantifier = quantifier,

@@ -43,14 +43,14 @@ abstract class ArtifactBase(
  */
 abstract class FragmentScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
-    fragment: Fragment,
+    val fragment: Fragment,
 ) : ArtifactBase(buildOutputRoot) {
-    val moduleName = fragment.module.userReadableName
-    val fragmentName = fragment.name
-    val isTest = fragment.isTest
-    val platforms = fragment.platforms
+    val module get() = fragment.module
+    val fragmentName get() = fragment.name
+    val isTest get() = fragment.isTest
+    val platforms get() = fragment.platforms
 
-    override fun idComponents() = listOf(moduleName, fragmentName)
+    override fun idComponents() = listOf(module.userReadableName, fragmentName)
 }
 
 /**
@@ -58,7 +58,7 @@ abstract class FragmentScopedArtifact(
  */
 abstract class PlatformScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
-    module: AmperModule,
+    val module: AmperModule,
     val platform: Platform,
 ) : ArtifactBase(buildOutputRoot) {
     val moduleName = module.userReadableName
@@ -67,7 +67,7 @@ abstract class PlatformScopedArtifact(
         require(platform.isLeaf) { "Only leaf platforms are expected here" }
     }
 
-    override fun idComponents() = listOf(moduleName, platform.pretty)
+    override fun idComponents() = listOf(module.userReadableName, platform.pretty)
 }
 
 /**

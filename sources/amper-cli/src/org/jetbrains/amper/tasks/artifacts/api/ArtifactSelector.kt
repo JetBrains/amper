@@ -22,9 +22,7 @@ data class ArtifactSelector<T : Artifact, out Q : Quantifier>(
     }
 
     override fun toString(): String {
-        // TODO: Remove cast after Kotlin 2.1
-        @Suppress("USELESS_CAST")
-        val quantifierString = when (quantifier as Quantifier) {
+        val quantifierString = when (quantifier) {
             Quantifier.Single -> "single artifact"
             Quantifier.AnyOrNone -> "any/none artifacts"
             Quantifier.AtLeastOne -> "at least one artifact"
