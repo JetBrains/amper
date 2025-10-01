@@ -28,7 +28,7 @@ private val logger = LoggerFactory.getLogger("resolver.kt")
 /**
  * This is the entry point to the library.
  *
- * The suggested usage as is follows.
+ * The suggested usage is as follows.
  *
  * 1. Create a resolver instance providing an initial graph of nodes.
  * 2. Build a dependency graph, optionally providing a desired [ResolutionLevel].
@@ -86,7 +86,7 @@ class Resolver {
                     var graphResolvedInsideCache: DependencyNode? = null
 
                     // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
-                    val configuration = mapOf(
+                    val cacheInputValues = mapOf(
                         "userCacheRoot" to root.context.settings.fileCache.amperCache.pathString,
                         "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
                     )
@@ -96,18 +96,18 @@ class Resolver {
                     val resolvedGraph = try {
                         incrementalCache.execute(
                             key = resolutionId,
-                            configuration,
+                            cacheInputValues,
                             forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
                             inputFiles = listOf(),
                         ) {
                             root.context.spanBuilder("DR.graph:resolution")
                                 .setAttribute(
                                     "configuration",
-                                    configuration["dependencies"]
+                                    cacheInputValues["dependencies"]
                                 ) // todo (AB) : Remove it (was added for debugging purposes))
                                 .setAttribute(
                                     "userCacheRoot",
-                                    configuration["userCacheRoot"]
+                                    cacheInputValues["userCacheRoot"]
                                 ) // todo (AB) : Remove it (was added for debugging purposes))
                                 .setAttribute(
                                     "resolutionId",
@@ -135,7 +135,7 @@ class Resolver {
                                 val resolvedGraph = deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
 
                                 // Post-process deserialized graph enriching it with the state from the input graph.
-                                // Any exception thrown during this phase results in fallback to non-cached resolution of input graph
+                                // Any exception thrown during this phase results in fallback to non-cached resolution of the input graph
                                 postProcessDeserializedGraph(resolvedGraph)
 
                                 resolvedGraph
@@ -635,7 +635,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
     suspend fun downloadDependencies(downloadSources: Boolean = false)
 
     /**
-     * Key that identifies this [DependencyNode] in the cache used for Dependency Resolution.
+     * Key that identifies this [DependencyNodeWithResolutionContext] in the cache used for Dependency Resolution.
      * All parameters that affect the resolution of this node should be taken into account
      * while computing the cache entry key.
      *
@@ -643,7 +643,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
      * is different from ktor.io:ktor-client-core:1.6.7 resolved for iosX64
      *
      * This key might be used for storing this particular node in the cache alone.
-     * In this case, [DependencyNode.cacheEntryKey] all transitive children together
+     * In this case, [DependencyNodeWithResolutionContext.cacheEntryKey] all transitive children together
      * represent configuration of such an entry.
      *
      * If the node configuration changes, then the cache entry related to this node is recalculated.
@@ -656,7 +656,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
 /**
  * A mutex to protect the resolution of a node.
  * This prevents two jobs from resolving the same node (and children), while
- * still allowing to spawn multiple jobs for the same node (which happens in case of diamonds).
+ * still allowing to spawn multiple jobs for the same node (which happens in the case of diamonds).
  *
  * Why multiple jobs per node? Why not reuse a single job? The nodes are a graph, while structured concurrency is a tree
  * of jobs. We want to be able to cancel a subgraph of jobs without caring about whether another non-canceled parent
@@ -669,7 +669,7 @@ private val DependencyNodeWithResolutionContext.resolutionMutex: Mutex
 /**
  * The thread-safe list of coroutine [Job]s currently resolving this node.
  *
- * We use a copy-on-write array list here, so that we can iterate it safely for cancellation despite the fact that the
+ * We use a copy-on-write array list here so that we can iterate it safely for cancellation, although the
  * cancellation itself ultimately modifies the list (removes terminated jobs).
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
@@ -725,6 +725,10 @@ sealed class CacheEntryKey {
     }
 
     abstract fun computeKey(): String?
+
+    companion object {
+        fun fromString(value: String) = CompositeCacheEntryKey(listOf(value))
+    }
 }
 
 enum class IncrementalCacheUsage {

@@ -84,8 +84,8 @@ class MavenResolver(
                 this.incrementalCache = this@MavenResolver.incrementalCache
             }
 
+            // cacheEntryKey is not defined preventing too granular caching
             val root = RootDependencyNodeInput(
-                resolutionId = null, // avoid too granular caching
                 children = coordinates.map {
                     val (group, module, version) = it.split(":")
                     MavenDependencyNodeImpl(context, group, module, version, false)

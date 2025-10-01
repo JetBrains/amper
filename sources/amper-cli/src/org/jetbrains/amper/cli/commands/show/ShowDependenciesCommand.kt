@@ -22,6 +22,7 @@ import org.jetbrains.amper.cli.options.platformGroupOption
 import org.jetbrains.amper.cli.options.selectModules
 import org.jetbrains.amper.cli.options.validLeavesIn
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -142,9 +143,15 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         val resolver = MavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
 
         val root = RootDependencyNodeInput(
-            resolutionId = "Module ${module.userReadableName} dependencies (moduleKey = ${module.uniqueModuleKey()}), " +
-                        (platformGroups.takeIf { it.isNotEmpty() }?.distinct()?.let { "platformGroups = $platformGroups," } ?: "") +
-                        "includeTests = $includeTests",
+            // If the incremental cache is on, a separate cache entry is calculated and maintained for every unique combination of parameters:
+            //  - module
+            //  - set of platforms
+            //  - includeTests flag
+            cacheEntryKey = CacheEntryKey.CompositeCacheEntryKey(listOfNotNull(
+                module.uniqueModuleKey(),
+                platformGroups.takeIf { it.isNotEmpty() }?.distinct(),
+                includeTests
+            )),
             children = variantsToResolve,
             templateContext = emptyContext(commonOptions.sharedCachesRoot, GlobalOpenTelemetry.get(), incrementalCache)
         )

@@ -147,9 +147,7 @@ class ModuleDependencyNodeWithModule(
     override val moduleName = module.userReadableName
 
     override val cacheEntryKey: CacheEntryKey
-        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(
-            module.uniqueModuleKey(),
-        ))
+        get() = CacheEntryKey.fromString(module.uniqueModuleKey())
 }
 
 @Serializable
@@ -275,5 +273,5 @@ internal class UnresolvedMavenDependencyNodeImpl(
     override suspend fun downloadDependencies(downloadSources: Boolean) {}
     override fun toString(): String = graphEntryName
     override val cacheEntryKey: CacheEntryKey
-        get() = CacheEntryKey.CompositeCacheEntryKey(listOf(coordinates))
+        get() = CacheEntryKey.fromString(coordinates)
 }

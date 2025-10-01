@@ -13,6 +13,7 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -137,7 +138,7 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeInput(
-                            resolutionId = taskName.name,
+                            cacheEntryKey = CacheEntryKey.fromString("${taskName.name} dependencies"),
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies

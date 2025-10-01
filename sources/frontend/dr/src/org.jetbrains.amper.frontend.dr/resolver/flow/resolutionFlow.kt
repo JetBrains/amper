@@ -4,6 +4,7 @@
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import io.opentelemetry.api.OpenTelemetry
+import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
@@ -54,7 +55,7 @@ interface DependenciesFlow<T: DependenciesFlowType> {
     ): RootDependencyNodeInput {
         return openTelemetry.spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
             val node = RootDependencyNodeInput(
-                resolutionId = resolutionId(modules),
+                cacheEntryKey = resolutionCacheEntryKey(modules),
                 children = modules.map { directDependenciesGraph(it, fileCacheBuilder, openTelemetry, incrementalCache) },
                 templateContext = emptyContext(fileCacheBuilder, openTelemetry, incrementalCache)
             )
@@ -62,7 +63,7 @@ interface DependenciesFlow<T: DependenciesFlowType> {
         }
     }
 
-    fun resolutionId(modules: List<AmperModule>): String
+    fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey
 }
 
 abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(

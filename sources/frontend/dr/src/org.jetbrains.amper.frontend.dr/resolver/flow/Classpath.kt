@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import io.opentelemetry.api.OpenTelemetry
+import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
@@ -85,14 +86,18 @@ internal class Classpath(
             fileCacheBuilder = fileCacheBuilder, openTelemetry = openTelemetry, incrementalCache = incrementalCache)
     }
 
-    override fun resolutionId(modules: List<AmperModule>): String {
-        return "compile and runtime dependencies of modules " +
-                "${modules.sortedBy { it.userReadableName }
-                    .map { it.userReadableName + it.uniqueModuleKey() }}}" +
-                "platform = ${flowType.platforms.joinToString { it.pretty }}, " +
-                "isTest = ${flowType.isTest}" +
-                "scope = ${flowType.scope}" +
-                "includeNonExportedNative = ${flowType.includeNonExportedNative}"
+    override fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey {
+        return CacheEntryKey.CompositeCacheEntryKey(
+            components = buildList {
+                modules.sortedBy { it.userReadableName }.map { it.userReadableName + it.uniqueModuleKey() }.let {
+                    addAll(it)
+                }
+                add(flowType.platforms)
+                add(flowType.scope)
+                add(flowType.isTest)
+                add(flowType.includeNonExportedNative)
+            }
+        )
     }
 
     private fun AmperModule.fragmentsModuleDependencies(
