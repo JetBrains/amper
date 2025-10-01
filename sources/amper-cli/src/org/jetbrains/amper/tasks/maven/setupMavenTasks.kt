@@ -8,6 +8,7 @@ import org.eclipse.aether.impl.ArtifactResolver
 import org.eclipse.aether.impl.DependencyCollector
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLikeAndGet
@@ -23,7 +24,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
     // Skip maven tasks registration if we have no maven plugins specified.
     if (context.projectContext.externalMavenPluginDependencies.isNullOrEmpty()) return
-    
+
     allModules().alsoPlatforms(Platform.JVM).withEach {
         setupUmbrellaMavenTasks()
         setupMavenPluginTasks()
@@ -86,9 +87,9 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         val moduleMavenProject = MockedMavenProject()
 
         // TODO Reporting.
-        val jvmFragmentTree = module.leafFragments
+        val jvmFragmentSettings = module.leafFragments
             .singleOrNull { it.platform == Platform.JVM && !it.isTest }
-            ?.usedTree ?: return@plugin
+            ?.settings ?: return@plugin
 
         val mavenPlugin = MavenPlugin().apply {
             artifactId = pluginXml.artifactId
@@ -99,11 +100,17 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         // Create mojo execution tasks.
         val mojoTasks = pluginXml.mojos.mapNotNull { mojo ->
             val mavenCompatPluginId = mavenCompatPluginId(pluginXml, mojo)
-            val correspondingTree = jvmFragmentTree["settings"][mavenCompatPluginId] ?: return@mapNotNull null
+
+            val correspondingNode =
+                jvmFragmentSettings.valueHolders[mavenCompatPluginId]?.value ?: return@mapNotNull null
+            if (correspondingNode !is SchemaNode) return@mapNotNull null
 
             // TODO Handle enabled property more delicately, since it can be defined both in Amper
             //  and in the plugin configuration.
-            val dumpedProperties = correspondingTree.mavenXmlDump(module.source.moduleDir, "  ") { it.key != "enabled" }
+            val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key, _ ->
+                key != "enabled"
+            }.prependIndent("  ")
+            
             val configString = "<properties>\n$dumpedProperties\n</properties>"
 
             val taskName = TaskName.moduleTask(module, mavenCompatPluginId)

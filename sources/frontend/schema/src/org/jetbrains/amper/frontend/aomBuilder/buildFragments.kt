@@ -19,8 +19,6 @@ import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -35,9 +33,8 @@ class DefaultLeafFragment(
     isTest: Boolean,
     externalDependencies: List<Notation>,
     relevantSettings: Settings,
-    usedTree: TreeValue<Refined>,
     moduleFile: VirtualFile,
-) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, usedTree, moduleFile), LeafFragment {
+) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, moduleFile), LeafFragment {
     init {
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
@@ -51,7 +48,6 @@ open class DefaultFragment(
     final override val isTest: Boolean,
     override var externalDependencies: List<Notation>,
     override val settings: Settings,
-    override val usedTree: TreeValue<Refined>,
     moduleFile: VirtualFile,
 ) : Fragment {
     final override val modifier = seed.modifier
@@ -227,7 +223,6 @@ internal fun BuildCtx.createFragments(
             isTest,
             refinedModule.dependencies.orEmpty().mapNotNull { resolveDependency(it) },
             refinedModule.settings,
-            refinedTree,
             ctx.moduleFile,
         )
     }

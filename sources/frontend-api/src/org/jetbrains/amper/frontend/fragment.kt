@@ -8,10 +8,7 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.TreeValue
 import java.nio.file.Path
-
 
 /**
  * Some part of the module that supports "single resolve context" invariant for
@@ -53,11 +50,6 @@ interface Fragment {
      * For instance, the settings of the iosArm64 fragment contain merged settings from iosArm64, ios, native, and common.
      */
     val settings: Settings
-
-    /**
-     * Refined tree, used to construct fragment settings.
-     */
-    val usedTree: TreeValue<Refined>
 
     /**
      * Leaf platforms that this fragment is compiled to.
