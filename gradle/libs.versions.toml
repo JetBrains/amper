@@ -1,7 +1,7 @@
 [versions]
 # The version of AGP used in Amper to delegate Android builds to Gradle
 agp = "8.10.1"
-android-tools = "31.10.0"
+android-tools = "31.13.0"
 apache-commons = "1.27.1"
 bouncycastle = "1.78.1"
 clikt = "5.0.3"

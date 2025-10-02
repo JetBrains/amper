@@ -173,8 +173,8 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             AndroidSdkHandler.getAddonModule(),
             AndroidSdkHandler.getSysImgModule(),
             AndroidSdkHandler.getCommonModule(),
-            RepoManager.getGenericModule(),
-            RepoManager.getCommonModule(),
+            RepoManager.genericModule,
+            RepoManager.commonModule,
         ),
         true,
         ConsoleProgressIndicator(),
@@ -187,8 +187,8 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             AndroidSdkHandler.getAddonModule(),
             AndroidSdkHandler.getSysImgModule(),
             AndroidSdkHandler.getCommonModule(),
-            RepoManager.getGenericModule(),
-            RepoManager.getCommonModule(),
+            RepoManager.genericModule,
+            RepoManager.commonModule,
         )
         val resourceResolver = SchemaModuleUtil.createResourceResolver(allModules, ConsoleProgressIndicator())
         SchemaModuleUtil.marshal(
