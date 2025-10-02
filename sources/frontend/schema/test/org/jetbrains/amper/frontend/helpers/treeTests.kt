@@ -2,21 +2,15 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.tree.helpers
+package org.jetbrains.amper.frontend.helpers
 
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.schema.helper.BaseFrontendTestRun
-import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
-import org.jetbrains.amper.frontend.schema.helper.annotateTextWithDiagnostics
-import org.jetbrains.amper.frontend.schema.helper.removeDiagnosticAnnotations
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
@@ -24,15 +18,73 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.test.golden.GoldenTest
-import org.jetbrains.amper.test.golden.readContentsAndReplace
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
+/**
+ * Test that the passed module file is read correctly.
+ */
+fun FrontendTestCaseBase.testModuleRead(
+    caseName: String,
+    types: SchemaTypingContext = SchemaTypingContext(),
+    expectPostfix: String = ".result.json",
+) = TreeTestRun(
+    caseName = caseName,
+    testCase = this,
+    types = types,
+    expectPostfix = expectPostfix,
+    treeBuilder = readModule,
+).doTest()
+
+/**
+ * Tests that the passed module file is read and refined correctly.
+ */
+fun FrontendTestCaseBase.testRefineModule(
+    caseName: String,
+    selectedContexts: Contexts,
+    types: SchemaTypingContext = SchemaTypingContext(),
+    expectPostfix: String = ".result.json",
+    withDefaults: Boolean = false,
+) = TreeTestRun(
+    caseName = caseName,
+    testCase = this,
+    types = types,
+    expectPostfix = expectPostfix,
+    treeBuilder = readAndRefineModule(selectedContexts, withDefaults),
+).doTest()
+
+/**
+ * Tests that the passed module file with templates is read and refined correctly.
+ */
+fun FrontendTestCaseBase.testRefineModuleWithTemplates(
+    caseName: String,
+    selectedContexts: (VirtualFile) -> Contexts,
+    types: SchemaTypingContext = SchemaTypingContext(),
+    expectPostfix: String = ".result.json",
+) = TreeTestRun(
+    caseName = caseName,
+    testCase = this,
+    types = types,
+    expectPostfix = expectPostfix,
+    treeBuilder = readAndRefineModuleWithTemplates(selectedContexts),
+    dumpPathContexts = true,
+).doTest()
+
+/**
+ * Tests that the diagnostics created during module read are the same as in the file.
+ */
+fun FrontendTestCaseBase.diagnoseModuleRead(
+    caseName: String,
+    types: SchemaTypingContext = SchemaTypingContext(),
+) = DiagnosticsTreeTestRun(
+    caseName = caseName,
+    testCase = this,
+    types = types,
+    treeBuilder = readModule,
+).doTest()
 
 /**
  * Test run that:
@@ -42,22 +94,19 @@ import kotlin.test.fail
  */
 internal open class TreeTestRun(
     caseName: String,
-    override val base: Path,
+    testCase: FrontendTestCaseBase,
     protected val types: SchemaTypingContext,
     override val expectPostfix: String,
     protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
     protected val dumpPathContexts: Boolean = false,
-) : BaseFrontendTestRun(caseName) {
+) : FrontendTest(caseName, testCase) {
 
     protected val diagnostics get() = problemReporter.problems
 
     protected val buildCtx = BuildCtx(
         problemReporter = problemReporter,
         types = types,
-        pathResolver = FrontendPathResolver(
-            transformPsiFile = PsiFile::removeDiagnosticAnnotations,
-            intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
-        ),
+        pathResolver = pathResolver,
     )
 
     protected fun doReadTree(inputPath: Path): TreeValue<*> {
@@ -67,12 +116,9 @@ internal open class TreeTestRun(
         return readTree
     }
 
-    override fun GoldenTest.getInputContent(inputPath: Path): String {
+    override fun getInputContent(): String {
         val readTree = doReadTree(inputPath)
-        assertTrue(
-            diagnostics.isEmpty(),
-            "Expected no problems after reading, but got:\n\t${diagnostics.joinToString("\n\t")}"
-        )
+        assertNoReportedErrors()
         return readTree.jsonDump(base.absolute()) { dumpPathContexts || it !is PathCtx }
     }
 }
@@ -85,16 +131,15 @@ internal open class TreeTestRun(
  */
 internal open class DiagnosticsTreeTestRun(
     caseName: String,
-    base: Path,
+    testCase: FrontendTestCaseBase,
     types: SchemaTypingContext,
     treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
     dumpPathContexts: Boolean = false,
-) : TreeTestRun(caseName, base, types, "", treeBuilder, dumpPathContexts) {
+) : TreeTestRun(caseName, testCase, types, "", treeBuilder, dumpPathContexts) {
 
     override val expectPostfix: String = ".yaml"
-    override val expectAmperPostfix: String = ".amper"
 
-    override fun GoldenTest.getInputContent(inputPath: Path): String {
+    override fun getInputContent(): String {
         // Read tree to fill the diagnostics
         doReadTree(inputPath)
 
@@ -103,9 +148,6 @@ internal open class DiagnosticsTreeTestRun(
         return annotateTextWithDiagnostics(inputPath, psiFile.text, diagnostics) { it }
             .trimTrailingWhitespacesAndEmptyLines()
     }
-
-    override fun GoldenTest.getExpectContent(expectedPath: Path) =
-        readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
 }
 
 // Helper function to just read the module.
@@ -125,9 +167,10 @@ internal fun readAndRefineModule(
 }
 
 // Helper function read the module with templates and refine it with selected contexts.
-internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> = {
-    val minimalModule = tryReadMinimalModule(it)!!
-    val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))
-    val resultTree = treeMerger.mergeTrees(ownedTrees)
-    resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
-}
+internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> =
+    {
+        val minimalModule = tryReadMinimalModule(it)!!
+        val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))
+        val resultTree = treeMerger.mergeTrees(ownedTrees)
+        resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
+    }

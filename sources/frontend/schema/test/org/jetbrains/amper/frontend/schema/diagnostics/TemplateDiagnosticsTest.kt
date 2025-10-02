@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class TemplateDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics" / "templates") {
+class TemplateDiagnosticsTest : FrontendTestCaseBase(Path("testResources") / "diagnostics" / "templates") {
     @Test
     fun `unresolved template`() {
         diagnosticsTest("unresolved-template")

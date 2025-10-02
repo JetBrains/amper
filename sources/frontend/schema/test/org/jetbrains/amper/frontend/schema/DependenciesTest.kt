@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.schema.helper.aomTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.aomTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class DependenciesTest : GoldenTestBase(Path("testResources") / "dependencies") {
+internal class DependenciesTest : FrontendTestCaseBase(Path("testResources") / "dependencies") {
 
     @Test
     fun exported() {

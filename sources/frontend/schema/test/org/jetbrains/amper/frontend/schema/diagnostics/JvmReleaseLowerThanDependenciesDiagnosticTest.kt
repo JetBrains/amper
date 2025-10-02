@@ -4,14 +4,14 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class JvmReleaseLowerThanDependenciesDiagnosticTest : GoldenTestBase(Path("testResources") / "diagnostics" / "jvm-release-mismatch") {
+class JvmReleaseLowerThanDependenciesDiagnosticTest : FrontendTestCaseBase(Path("testResources") / "diagnostics" / "jvm-release-mismatch") {
 
     @ParameterizedTest
     @MethodSource("allModulesInTestProject")

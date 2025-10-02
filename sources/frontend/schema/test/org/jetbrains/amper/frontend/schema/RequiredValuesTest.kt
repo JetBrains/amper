@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class RequiredValuesTest : GoldenTestBase(Path("testResources") / "required-values") {
+class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "required-values") {
     @Test
     fun `invalid platforms`() {
         diagnosticsTest("0-invalid-platforms/module")

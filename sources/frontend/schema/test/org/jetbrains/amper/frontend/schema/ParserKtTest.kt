@@ -7,15 +7,15 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.schema.helper.TestSystemInfo
-import org.jetbrains.amper.frontend.schema.helper.aomTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.TestSystemInfo
+import org.jetbrains.amper.frontend.helpers.aomTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class ParserKtTest : GoldenTestBase(Path("testResources") / "parser") {
+internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "parser") {
 
     @Test
     fun `single platform`() {

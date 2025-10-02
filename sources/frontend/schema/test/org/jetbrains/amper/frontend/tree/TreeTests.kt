@@ -7,19 +7,19 @@ package org.jetbrains.amper.frontend.tree
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.PlatformCtx
-import org.jetbrains.amper.frontend.tree.helpers.diagnoseModuleRead
-import org.jetbrains.amper.frontend.tree.helpers.testModuleRead
-import org.jetbrains.amper.frontend.tree.helpers.testRefineModule
-import org.jetbrains.amper.frontend.tree.helpers.testRefineModuleWithTemplates
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnoseModuleRead
+import org.jetbrains.amper.frontend.helpers.testModuleRead
+import org.jetbrains.amper.frontend.helpers.testRefineModule
+import org.jetbrains.amper.frontend.helpers.testRefineModuleWithTemplates
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.SourceLocation
-import org.jetbrains.amper.test.golden.GoldenTestBase
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class TreeTests : GoldenTestBase(Path(".") / "testResources" / "valueTree") {
+class TreeTests : FrontendTestCaseBase(Path(".") / "testResources" / "valueTree") {
 
     @Test
     fun `all settings read`() =

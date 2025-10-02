@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.schema.helper.aomTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.aomTest
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class AliasesTest : GoldenTestBase(Path("testResources") / "parser" / "aliases") {
+class AliasesTest : FrontendTestCaseBase(Path("testResources") / "parser" / "aliases") {
     @Test
     fun `regular alias`() {
         aomTest("regular-alias")

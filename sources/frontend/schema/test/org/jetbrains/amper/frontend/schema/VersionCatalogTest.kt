@@ -5,14 +5,14 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
-import org.jetbrains.amper.frontend.schema.helper.aomTest
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.aomTest
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class VersionCatalogTest : GoldenTestBase(Path("testResources") / "catalogs") {
+internal class VersionCatalogTest : FrontendTestCaseBase(Path("testResources") / "catalogs") {
 
     @Test
     fun `check build in compose catalog versions`() {
@@ -27,7 +27,7 @@ internal class VersionCatalogTest : GoldenTestBase(Path("testResources") / "cata
     @Test
     fun `check simple gradle catalog`() {
         aomTest("simple-gradle-version-catalog") {
-            val catalogFile = frontendPathResolver.loadVirtualFile(baseTestResourcesPath / "simple-gradle-version-catalog.toml")
+            val catalogFile = frontendPathResolver.loadVirtualFile(base / "simple-gradle-version-catalog.toml")
             projectVersionsCatalog = frontendPathResolver.parseGradleVersionCatalog(catalogFile)
         }
     }

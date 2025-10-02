@@ -14,7 +14,6 @@ import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.android.AndroidTools
-import org.jetbrains.amper.test.golden.GoldenTest
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path

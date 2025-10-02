@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class ParsingErrorsTest : GoldenTestBase(Path("testResources") / "parsing-errors") {
+class ParsingErrorsTest : FrontendTestCaseBase(Path("testResources") / "parsing-errors") {
     @Test
     fun `unexpected value type`() {
         diagnosticsTest("unexpected-value-type/module")

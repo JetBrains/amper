@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class AliasesDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics" / "aliases") {
+class AliasesDiagnosticsTest : FrontendTestCaseBase(Path("testResources") / "diagnostics" / "aliases") {
     @Test
     fun `aliases are not supported in single-platform modules`() {
         diagnosticsTest("alias-in-single-platform-module")

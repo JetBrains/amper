@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.diagnostics
 
-import org.jetbrains.amper.frontend.schema.helper.diagnosticsTest
-import org.jetbrains.amper.test.golden.GoldenTestBase
+import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
+import org.jetbrains.amper.frontend.helpers.diagnosticsTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class ModuleDependencyDiagnosticsTest : GoldenTestBase(Path("testResources") / "diagnostics" / "module-dependency") {
+class ModuleDependencyDiagnosticsTest : FrontendTestCaseBase(Path("testResources") / "diagnostics" / "module-dependency") {
     @Test
     fun `product with unsupported type`() {
         diagnosticsTest(
