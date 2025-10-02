@@ -240,7 +240,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
             "test",
             configureAndroidHome = true,
         )
-        result.assertStdoutContains("1 tests successful")
+        result.assertStdoutContains("2 tests successful")
     }
 
 
