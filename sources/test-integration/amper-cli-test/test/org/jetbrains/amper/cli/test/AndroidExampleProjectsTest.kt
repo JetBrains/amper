@@ -239,7 +239,6 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
             projectRoot = testProject("android/robolectric"),
             "test",
             configureAndroidHome = true,
-            assertEmptyStdErr = false, // Allow stderr output from Robolectric
         )
         result.assertStdoutContains("1 tests successful")
     }
