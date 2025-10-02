@@ -61,12 +61,20 @@ internal suspend fun IncrementalCache.buildDist(
 
 private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths: List<NamedClasspath>) {
     TarArchiveOutputStream(GZIPOutputStream(outputStream().buffered())).use { tarStream ->
+        tarStream.writeFile(contents = argFileContents(), pathInTar = "amper.args")
         tarStream.writeDir(cliRuntimeClasspath, targetDirName = "lib")
         extraClasspaths.forEach { (name, paths) ->
             tarStream.writeDir(paths, targetDirName = name)
         }
     }
 }
+
+private fun argFileContents(): String = commonDefaultJvmArgs().joinToString("\n")
+
+private fun commonDefaultJvmArgs(): List<String> = listOf(
+    "-ea",
+    "-XX:+EnableDynamicAgentLoading",
+)
 
 private fun TarArchiveOutputStream.writeDir(files: List<Path>, targetDirName: String) {
     // some jars have the exact same filename even though they don't come from the same artifact
@@ -86,5 +94,13 @@ private fun TarArchiveOutputStream.writeFile(file: Path, pathInTar: String) {
     val entry = TarArchiveEntry(file, pathInTar)
     putArchiveEntry(entry)
     file.inputStream().use { input -> input.copyTo(this) }
+    closeArchiveEntry()
+}
+
+private fun TarArchiveOutputStream.writeFile(contents: String, pathInTar: String) {
+    val bytes = contents.encodeToByteArray()
+    val entry = TarArchiveEntry(pathInTar).also { it.size = bytes.size.toLong() }
+    putArchiveEntry(entry)
+    write(bytes)
     closeArchiveEntry()
 }

@@ -267,7 +267,7 @@ wrapper_path=$(realpath "$0")
 # ********** Launch Amper **********
 
 # In this section we construct the command line by prepending arguments from biggest to lowest precedence:
-#   1. basic main class and classpath
+#   1. basic main class, CLI arguments, and classpath
 #   2. user JVM args (AMPER_JAVA_OPTIONS)
 #   3. default JVM args (prepended last, which means they appear first, so they are overridden by user args)
 
@@ -310,8 +310,7 @@ fi
 
 # 3. Prepend default JVM args
 set -- \
-    "-ea" \
-    "-XX:+EnableDynamicAgentLoading" \
+    @"$amper_target_dir/amper.args" \
     "-Damper.wrapper.dist.sha256=$amper_sha256" \
     "-Damper.dist.path=$amper_target_dir" \
     "-Damper.wrapper.path=$wrapper_path" \
