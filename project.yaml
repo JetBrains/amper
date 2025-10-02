@@ -1,5 +1,4 @@
 modules:
-  - build-sources/build-dist
   - build-sources/build-unpacked-dist
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
