@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -25,7 +25,7 @@ val logger = LoggerFactory.getLogger(object {}.javaClass)
 internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
     if (this is ProblemEvent) {
         val (definition, detailsList) = when(this) {
-            is SingleProblemEvent -> definition to listOf(details)
+            is SingleProblemEvent -> problem.definition to listOf(problem.details)
             is ProblemAggregationEvent ->
                 problemAggregation.definition to problemAggregation.problemContext.map { it.details }
             else -> null to emptyList()
