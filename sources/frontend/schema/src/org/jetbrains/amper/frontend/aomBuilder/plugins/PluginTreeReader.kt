@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
@@ -48,6 +49,8 @@ import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
+import org.jetbrains.amper.problems.reporting.WholeFileBuildProblemSource
 import kotlin.collections.iterator
 
 internal class PluginTreeReader(
@@ -75,6 +78,18 @@ internal class PluginTreeReader(
         val withDefaults = treeMerger.mergeTrees(tree)
             .appendDefaultValues()
         treeRefiner.refineTree(withDefaults, EmptyContexts) as MapLikeValue<Refined>
+    }
+
+    init {
+        val tasks = pluginTree["tasks"].singleOrNull()?.value as? MapLikeValue<*>
+        if (tasks == null || tasks.children.isEmpty()) {
+            buildCtx.problemReporter.reportBundleError(
+                source = tasks?.asBuildProblemSource() as? PsiBuildProblemSource
+                    ?: @OptIn(NonIdealDiagnostic::class) WholeFileBuildProblemSource(pluginFile.toNioPath()),
+                messageKey = "plugin.missing.tasks",
+                level = Level.Warning,
+            )
+        }
     }
 
     fun asAppliedTo(

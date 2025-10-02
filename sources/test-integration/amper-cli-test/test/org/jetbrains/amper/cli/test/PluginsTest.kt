@@ -326,6 +326,25 @@ class PluginsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `incomplete plugins`() = runSlowTest {
+        val result = runCli(
+            projectRoot = testProject("extensibility/incomplete-plugins"),
+            "show", "tasks",
+            copyToTempDir = true,
+        )
+
+        with(result) {
+            assertEquals(
+                expected = sortedSetOf(
+                    "${projectRoot / "empty-plugin" }: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
+                    "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
+                ),
+                actual = parseWarnings(),
+            )
+        }
+    }
+
+    @Test
     fun `invalid references`() = runSlowTest {
         val result = runCli(
             projectRoot = testProject("extensibility/invalid-references"),
@@ -353,6 +372,11 @@ class PluginsTest : AmperCliTestBase() {
     private fun AmperCliResult.parseErrors(): Set<String> = CliErrorLikeRegex.findAll(stderr).map {
         it.groups["error"]!!.value
     }.toSortedSet()
+
+    private fun AmperCliResult.parseWarnings(): Set<String> = CliWarningLikeRegex.findAll(stdout).map {
+        it.groups["warning"]!!.value
+    }.toSortedSet()
 }
 
 private val CliErrorLikeRegex = "ERROR\\s+(?<error>.*)".toRegex()
+private val CliWarningLikeRegex = "WARN\\s+(?<warning>.*)".toRegex()

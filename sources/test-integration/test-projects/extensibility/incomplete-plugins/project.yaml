@@ -1,0 +1,7 @@
+modules:
+  - empty-plugin
+  - no-tasks-plugin
+
+plugins:
+  - ./empty-plugin
+  - ./no-tasks-plugin

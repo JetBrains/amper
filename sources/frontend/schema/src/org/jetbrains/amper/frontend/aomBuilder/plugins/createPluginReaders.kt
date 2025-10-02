@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import kotlin.collections.iterator
 import kotlin.io.path.div
@@ -64,11 +65,14 @@ internal fun createPluginReaders(
         }
 
         val pluginFile = run { // Locate plugin.yaml
-            val pluginModuleRoot = pluginModule.moduleFile.parent.toNioPath()
-            val pluginFile = pluginModuleRoot / "plugin.yaml"
+            val pluginModuleRoot = pluginModule.moduleFile.parent
+            val pluginFile = pluginModuleRoot.toNioPath() / "plugin.yaml"
             if (!pluginFile.isRegularFile()) {
-                // We assume for now that missing plugin.yaml is a valid scenario
-                // TODO: Maybe at least report it?
+                buildContext.problemReporter.reportBundleError(
+                    source = buildContext.pathResolver.toPsiDirectory(pluginModuleRoot)!!.asBuildProblemSource(),
+                    messageKey = "plugin.missing.plugin.yaml",
+                    level = Level.Warning,
+                )
                 return@mapPlugins null
             }
             pluginFile
