@@ -8,8 +8,8 @@ dependencies:
   - androidx.appcompat:appcompat:1.6.1
 
 test-dependencies:
-  - org.mockito:mockito-core:5.18.0
-  - org.mockito.kotlin:mockito-kotlin:5.4.0
+  - org.mockito:mockito-core:5.20.0
+  - org.mockito.kotlin:mockito-kotlin:6.0.0
 
 settings:
   android:
