@@ -102,8 +102,8 @@ abstract class AndroidDelegatedGradleTask(
                 gradleProjectPath,
                 gradleLogStdoutPath,
                 gradleLogStderrPath,
+                jdk.homeDir,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) },
-                javaHomeDir = jdk.homeDir,
             )
             IncrementalCache.ExecutionResult(result.filter(::outputFilterPredicate))
         }

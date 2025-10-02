@@ -6,6 +6,7 @@ package org.jetbrains.amper.android
 
 import com.android.builder.model.v2.models.AndroidProject
 import kotlinx.serialization.json.Json
+import org.gradle.tooling.BuildActionExecuter
 import org.gradle.tooling.ConfigurableLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
@@ -35,9 +36,9 @@ fun runAndroidBuild(
     buildPath: Path,
     gradleLogStdoutPath: Path,
     gradleLogStderrPath: Path,
+    jdkDir: Path,
     debug: Boolean = false,
     eventHandler: (ProgressEvent) -> Unit,
-    javaHomeDir: Path,
 ): List<Path> {
     val settingsGradlePath = buildPath.createSettingsGradle(buildRequest)
     buildPath.createBuildGradle()
@@ -55,15 +56,15 @@ fun runAndroidBuild(
         .forProjectDirectory(settingsGradlePath.parent.toFile())
         .connect()
         .use { connection ->
-            val androidProjects = connection.extractAndroidProjectModelsFromBuild(debug)
+            val androidProjects = connection.extractAndroidProjectModelsFromBuild(jdkDir, debug)
             val lazyArtifacts = buildList {
                 for (target in buildRequest.targets) {
                     val androidProject = androidProjects[target] ?: continue
-                    androidProject.lazyArtifacts(connection, buildRequest, debug).also { addAll(it) }
+                    androidProject.lazyArtifacts(connection, buildRequest, jdkDir, debug).also { addAll(it) }
                     when(buildRequest.phase) {
                         AndroidBuildRequest.Phase.Test -> { /* nothing to do here, just return the artifact */ }
                         else -> {
-                            val tasks = androidProject.taskList(connection, buildRequest, target)
+                            val tasks = androidProject.taskList(connection, buildRequest, target, jdkDir)
                             try {
                                 gradleLogStdoutPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stdout ->
                                     gradleLogStderrPath.outputStream(WRITE, CREATE, APPEND).buffered().use { stderr ->
@@ -74,7 +75,7 @@ fun runAndroidBuild(
                                             stderrStream = stderr,
                                             buildRequest = buildRequest,
                                             debug = debug,
-                                            javaHomeDir = javaHomeDir,
+                                            jdkDir = jdkDir,
                                         )
                                     }
                                 }
@@ -142,7 +143,8 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
 private fun AndroidProject.lazyArtifacts(
     connection: ProjectConnection,
     buildRequest: AndroidBuildRequest,
-    debug: Boolean = false
+    jdkDir: Path,
+    debug: Boolean = false,
 ): List<LazyArtifact> = buildList {
     for (buildType in buildRequest.buildTypes) {
         variants.filter { it.name == buildType.value }.forEach { variant ->
@@ -151,22 +153,16 @@ private fun AndroidProject.lazyArtifacts(
                     .forEach { add(DirectLazyArtifact(it)) }
 
                 AndroidBuildRequest.Phase.Build -> add(
-                    redirect(
-                        variant.mainArtifact.assembleTaskOutputListingFile ?: error("File must exist")
-                    )
+                    redirect(variant.mainArtifact.assembleTaskOutputListingFile ?: error("File must exist"))
                 )
 
                 AndroidBuildRequest.Phase.Bundle -> add(
-                    redirect(
-                        variant.mainArtifact.bundleInfo?.bundleTaskOutputListingFile
-                            ?: error("File must exist")
-                    )
+                    redirect(variant.mainArtifact.bundleInfo?.bundleTaskOutputListingFile ?: error("File must exist"))
                 )
 
                 AndroidBuildRequest.Phase.Test -> {
                     val actionLauncher = connection.action { it.findModel(MockableJarModel::class.java).file }
-                        .addDebugJvmArgumentsIf(debug)
-                    actionLauncher.run()?.toPath()?.let {
+                    actionLauncher.run(jdkDir, debug)?.toPath()?.let {
                         add(DirectLazyArtifact(it))
                     }
                 }
@@ -178,13 +174,16 @@ private fun AndroidProject.lazyArtifacts(
 private fun AndroidProject.taskList(
     connection: ProjectConnection,
     buildRequest: AndroidBuildRequest,
-    projectPath: String
+    projectPath: String,
+    jdkDir: Path,
 ): List<String> = buildList {
     for (buildType in buildRequest.buildTypes) {
         for (variant in variants.filter { it.name == buildType.value }) {
             val taskName = when (buildRequest.phase) {
                 AndroidBuildRequest.Phase.Prepare -> {
-                    val processResourcesProviderData = connection.model(ProcessResourcesProviderData::class.java).get()
+                    val processResourcesProviderData = connection.model(ProcessResourcesProviderData::class.java)
+                        .setJavaHome(jdkDir.toFile())
+                        .get()
                     processResourcesProviderData.data[projectPath]?.get(variant.name)
                         ?: error("Incorrect ProcessResourcesProviderData for variant: ${variant.displayName}, data: $processResourcesProviderData")
                 }
@@ -213,13 +212,14 @@ private fun ProjectConnection.runBuild(
     stderrStream: BufferedOutputStream,
     buildRequest: AndroidBuildRequest,
     debug: Boolean,
-    javaHomeDir: Path,
+    jdkDir: Path,
 ) {
     val buildLauncher = newBuild()
-        .setJavaHome(javaHomeDir.toFile())
+        .setJavaHome(jdkDir.toFile())
         .forTasks(*tasks.toTypedArray())
         .withArguments("--stacktrace")
         .addJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=1G")
+        .addDebugJvmArgumentsIf(debug)
         .addProgressListener(ProgressListener { eventHandler(it) })
         .setStandardOutput(stdoutStream)
         .setStandardError(stderrStream)
@@ -232,12 +232,13 @@ private fun ProjectConnection.runBuild(
         )
     }
 
-    buildLauncher
-        .addDebugJvmArgumentsIf(debug)
-        .run()
+    buildLauncher.run()
 }
 
-private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolean): Map<String, AndroidProject> {
+private fun ProjectConnection.extractAndroidProjectModelsFromBuild(
+    jdkDir: Path,
+    debug: Boolean,
+): Map<String, AndroidProject> {
     val actionLauncher = action { controller ->
         val gradleProject = controller.findModel(GradleProject::class.java)
         val q = ArrayDeque<GradleProject>()
@@ -254,7 +255,10 @@ private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolea
         }
     }
 
-    return actionLauncher
+    return actionLauncher.run(jdkDir, debug)
+}
+
+private fun <T> BuildActionExecuter<T>.run(jdkDir: Path, debug: Boolean): T =
+    setJavaHome(jdkDir.toFile())
         .addDebugJvmArgumentsIf(debug)
         .run()
-}
