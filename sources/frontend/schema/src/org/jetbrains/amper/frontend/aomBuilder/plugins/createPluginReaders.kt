@@ -17,7 +17,6 @@ import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
-import kotlin.collections.iterator
 import kotlin.io.path.div
 import kotlin.io.path.isRegularFile
 
@@ -28,7 +27,7 @@ internal fun createPluginReaders(
     pluginData: List<PluginData>,
 ): List<PluginTreeReader> {
     val seenPluginIds = hashMapOf<String, MutableList<TraceableString>>()
-    val pluginReaders = projectContext.pluginModuleFiles.mapNotNull mapPlugins@{ pluginModuleFile ->
+    val pluginReaders = projectContext.pluginsModuleFiles.mapNotNull mapPlugins@{ pluginModuleFile ->
         val pluginModule = modules.find { it.moduleFile == pluginModuleFile }
             ?: return@mapPlugins null
 

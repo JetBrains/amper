@@ -47,7 +47,7 @@ class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "require
         val problemReporter = CollectingProblemReporter()
         val model = with(problemReporter) {
             val context = readProjectContextWithTestFrontendResolver(testProjectDir)
-            context.doReadProjectModel(pluginData = emptyList())
+            context.doReadProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
         }
         val actual = model.unreadableModuleFiles.map { it.toNioPath().relativeTo(testProjectDir) }
         val expectedUnreadableModulePaths = listOf(Path("b/module.yaml"), Path("c/module.yaml"))

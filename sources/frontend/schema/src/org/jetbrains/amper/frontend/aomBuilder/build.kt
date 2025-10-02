@@ -79,7 +79,8 @@ import kotlin.reflect.KProperty0
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(
     pluginData: List<PluginData>,
-): Model = doReadProjectModel(pluginData)
+    mavenPluginXmls: List<MavenPluginXml>,
+): Model = doReadProjectModel(pluginData, mavenPluginXmls)
 
 /**
  * Testable version of [readProjectModel].
@@ -87,6 +88,7 @@ fun AmperProjectContext.readProjectModel(
 context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
+    mavenPluginXmls: List<MavenPluginXml>,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): Model = with(
     BuildCtx(

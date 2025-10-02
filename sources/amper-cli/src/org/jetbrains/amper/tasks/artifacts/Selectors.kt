@@ -95,10 +95,15 @@ object Selectors {
         module: AmperModule,
         isTest: Boolean,
         platform: Platform,
+        additionalFilter: (PlatformScopedArtifact) -> Boolean = { true },
     ): ArtifactSelector<T, Quantifier.AnyOrNone> {
         return ArtifactSelector(
             type = ArtifactType(type),
-            predicate = { it.moduleName == module.userReadableName && it.platform == platform && it.isTest == isTest },
+            predicate = {
+                it.moduleName == module.userReadableName &&
+                        it.platform == platform &&
+                        it.isTest == isTest && additionalFilter(it)
+            },
             description = "from module ${module.userReadableName} with platform $platform and its dependencies",
             quantifier = Quantifier.AnyOrNone,
         )
@@ -112,10 +117,12 @@ object Selectors {
         leafFragment: LeafFragment,
         userCacheRoot: AmperUserCacheRoot,
         quantifier: Q,
+        includeSelf: Boolean = true,
+        additionalFilter: (PlatformScopedArtifact) -> Boolean = { true },
     ): ArtifactSelector<T, Q> {
         val platform = leafFragment.platform
         val modules = buildSet {
-            add(leafFragment.module)
+            if (includeSelf) add(leafFragment.module)
             addAll(
                 leafFragment.module.getModuleDependencies(
                     isTest = leafFragment.isTest,
@@ -127,7 +134,12 @@ object Selectors {
         }
         return ArtifactSelector(
             type = ArtifactType(type),
-            predicate = { it.module in modules && it.platform == platform && it.isTest == leafFragment.isTest },
+            predicate = {
+                it.module in modules &&
+                        it.platform == platform &&
+                        it.isTest == leafFragment.isTest &&
+                        additionalFilter(it)
+            },
             description = "from module ${leafFragment.module.userReadableName} with platform $platform and its dependencies",
             quantifier = quantifier,
         )

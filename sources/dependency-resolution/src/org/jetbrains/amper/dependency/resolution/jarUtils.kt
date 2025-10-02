@@ -35,7 +35,7 @@ internal suspend fun hasJarEntry(jarPath: Path, entryPath: String) : Boolean? =
  *
  * @return null if the entry is not found, and result of the given [block] otherwise
  */
-suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (InputStream) -> T) : T? =
+suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: suspend (InputStream) -> T) : T? =
     withContext(Dispatchers.IO) {
         val jarFile = jarPath.toJarFile()
         jarFile.use {

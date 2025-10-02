@@ -54,15 +54,16 @@ internal suspend fun findProjectContext(explicitProjectRoot: Path?, explicitBuil
  * @throws UserReadableError if any error (or fatal error) is diagnosed in the model
  */
 internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
-    val pluginData = spanBuilder("Prepare plugins").use {
-        preparePlugins(context = this@preparePluginsAndReadModel)
-    }
-    prepareMavenPlugins(context = this@preparePluginsAndReadModel)
-
+    val pluginData = spanBuilder("Prepare plugins")
+        .use { preparePlugins(context = this@preparePluginsAndReadModel) }
+    val mavenPluginsXmls = spanBuilder("Prepare Maven plugins")
+        .use { prepareMavenPlugins(context = this@preparePluginsAndReadModel) }
+    
     val model = spanBuilder("Read model from Amper files").use {
         with(CliProblemReporter) {
             projectContext.readProjectModel(
                 pluginData = pluginData,
+                mavenPluginXmls = mavenPluginsXmls,
             )
         }
     }

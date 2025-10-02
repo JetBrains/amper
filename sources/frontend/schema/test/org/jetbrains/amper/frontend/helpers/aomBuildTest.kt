@@ -33,6 +33,7 @@ open class BuildAomTestRun(
         val module = with(problemReporter) {
             fioCtx.doReadProjectModel(
                 pluginData = emptyList(),
+                mavenPluginXmls = emptyList(),
                 systemInfo = systemInfo,
             ).modules.firstOrNull()
         }

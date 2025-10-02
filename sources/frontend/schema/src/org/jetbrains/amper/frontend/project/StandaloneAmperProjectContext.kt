@@ -43,7 +43,7 @@ class StandaloneAmperProjectContext(
     projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
     override val pluginsModuleFiles: List<VirtualFile>,
-    override val externalMavenPluginDependencies: List<UnscopedExternalMavenDependency>?,
+    override val externalMavenPluginDependencies: List<UnscopedExternalMavenDependency>,
 ) : AmperProjectContext {
 
     override val projectBuildDir: Path by lazy {
@@ -120,7 +120,7 @@ class StandaloneAmperProjectContext(
                     projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
                     pluginsModuleFiles = emptyList(), // no plugins for the single-module project.
-                    externalMavenPluginDependencies = null, // no external plugins for the single-module project.
+                    externalMavenPluginDependencies = emptyList(), // no maven plugins for the single-module project.
                 )
             }
             return potentialContext
@@ -207,7 +207,7 @@ class StandaloneAmperProjectContext(
                 projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
                 pluginsModuleFiles = localPluginDependencies,
-                externalMavenPluginDependencies = amperProject?.mavenPlugins,
+                externalMavenPluginDependencies = amperProject?.mavenPlugins.orEmpty(),
             )
         }
     }

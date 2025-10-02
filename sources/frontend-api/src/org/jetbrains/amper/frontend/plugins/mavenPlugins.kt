@@ -5,8 +5,10 @@
 package org.jetbrains.amper.frontend.plugins
 
 /**
- * Interface decoupled from maven `DefaultMavenPluginXml` serial description
- * to use without `kotlinx.serialization` dependency.
+ * Interface representing the maven "plugin.xml" structure that is used to:
+ * 1. generate schema types, accessible in the module file.
+ * 2. resolve maven plugin dependencies.
+ * 3. create corresponding tasks.
  */
 interface MavenPluginXml {
     val name: String

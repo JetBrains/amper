@@ -55,7 +55,7 @@ abstract class FragmentScopedArtifact(
 }
 
 /**
- * An artifact is associated with a leaf platform and is accessible from the other modules.
+ * An artifact is associated with a module, leaf platform and test modifier..
  */
 abstract class PlatformScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
@@ -63,7 +63,7 @@ abstract class PlatformScopedArtifact(
     val platform: Platform,
     val isTest: Boolean,
 ) : ArtifactBase(buildOutputRoot) {
-    val moduleName = module.userReadableName
+    val moduleName get() = module.userReadableName
 
     init {
         require(platform.isLeaf) { "Only leaf platforms are expected here" }

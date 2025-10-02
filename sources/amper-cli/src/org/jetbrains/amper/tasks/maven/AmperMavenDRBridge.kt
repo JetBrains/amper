@@ -7,12 +7,8 @@ package org.jetbrains.amper.tasks.maven
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.eclipse.aether.RepositorySystemSession
-import org.eclipse.aether.artifact.Artifact
-import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.collection.CollectRequest
 import org.eclipse.aether.collection.CollectResult
-import org.eclipse.aether.graph.DefaultDependencyNode
-import org.eclipse.aether.graph.Dependency
 import org.eclipse.aether.impl.ArtifactResolver
 import org.eclipse.aether.impl.DependencyCollector
 import org.eclipse.aether.resolution.ArtifactRequest
@@ -85,43 +81,9 @@ class AmperMavenDRBridge(private val mavenResolver: MavenResolver) : DependencyC
 
         // The first element is known to be a MavenDependencyNode as we had set it.
         return resolved.children.filterIsInstance<MavenDependencyNode>()
-            .map { it.toAetherDependencyRecursive(extension) }
+            .mapNotNull { it.toAetherDependencyRecursive(extension) }
     }
 
     override fun resolveArtifacts(session: RepositorySystemSession, requests: Collection<ArtifactRequest>) =
         requests.map { resolveArtifact(session, it) }
 }
-
-typealias AetherDependencyNode = DefaultDependencyNode
-typealias DefaultAetherArtifact = DefaultArtifact
-typealias AetherArtifact = Artifact
-typealias AetherDependency = Dependency
-
-suspend fun MavenDependencyNode.toAetherDependencyRecursive(extension: String?): AetherDependencyNode =
-    toAetherDependency(extension).apply {
-        children = this@toAetherDependencyRecursive.children
-            .filterIsInstance<MavenDependencyNode>()
-            .map { it.toAetherDependencyRecursive(extension) }
-    }
-
-suspend fun MavenDependencyNode.toAetherDependency(extension: String?): AetherDependencyNode =
-    AetherDependencyNode(AetherDependency(toAetherArtifact(extension), "runtime"))
-
-suspend fun MavenDependencyNode.toAetherArtifact(extension: String?): Artifact =
-    DefaultAetherArtifact(
-        /* groupId = */ group,
-        /* artifactId = */ module,
-        /* classifier = */ "runtime",
-        /* extension = */ extension,
-        /* version = */ version,
-        /* type = */ null,
-    ).run {
-        setFile(
-            when (extension) {
-                null, "", "jar" -> dependency.files().first().getPath()!!.toFile()
-                "pom" -> dependency.pom.getPath()!!.toFile()
-                // TODO Think about that?
-                else -> error("Unsupported extension: $extension")
-            }
-        )
-    }

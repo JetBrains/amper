@@ -83,6 +83,14 @@ class ResolveExternalDependenciesTask(
             return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
         }
 
+        // We capture these nodes bypassing the incremental result because we can
+        // rely on the plain paths list of the dependencies to act as an indicator
+        // for incrementality.
+        // Also, `DependencyNode` generally is not serializable.
+        
+        var compileDependenciesRootNode: DependencyNode? = null
+        var runtimeDependenciesRootNode: DependencyNode? = null
+        
         val compileDependencyCoordinates = fragmentsCompileModuleDependencies.getExternalDependencies()
         val runtimeDependencyCoordinates = fragmentsRuntimeModuleDependencies?.getExternalDependencies()
         return spanBuilder("resolve-dependencies")
@@ -140,9 +148,9 @@ class ResolveExternalDependenciesTask(
                             root = root,
                             resolveSourceMoniker = resolveSourceMoniker,
                         )
-
-                        val compileDependenciesRootNode = root.children[0]
-                        val runtimeDependenciesRootNode = if (root.children.size == 2) root.children[1] else null
+                        
+                        compileDependenciesRootNode = root.children[0]
+                        runtimeDependenciesRootNode = if (root.children.size == 2) root.children[1] else null
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
                         val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()
@@ -209,6 +217,8 @@ class ResolveExternalDependenciesTask(
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,
+                    compileClasspathTree = compileDependenciesRootNode,
+                    runtimeClasspathTree = runtimeDependenciesRootNode,
                     coordinateOverridesForPublishing = publicationCoordsOverrides,
                 )
             }
@@ -250,6 +260,8 @@ class ResolveExternalDependenciesTask(
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
+        val compileClasspathTree: DependencyNode? = null,
+        val runtimeClasspathTree: DependencyNode? = null,
         val coordinateOverridesForPublishing: PublicationCoordinatesOverrides = PublicationCoordinatesOverrides(),
     ) : TaskResult
 

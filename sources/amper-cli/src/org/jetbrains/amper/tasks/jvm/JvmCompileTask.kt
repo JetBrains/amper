@@ -90,11 +90,12 @@ internal class JvmCompileTask(
         }
     }
 
-    private val compiledJvmClassesArtifact by CompiledJvmClassesArtifact(
+    private val compiledJvmClassesPath by CompiledJvmClassesArtifact(
         buildOutputRoot = buildOutputRoot,
         module = module,
         platform = platform,
         isTest = isTest,
+        buildType = buildType,
     )
     
     private val additionalKotlinJavaSourceDirs by Selectors.fromMatchingFragments(
@@ -113,7 +114,7 @@ internal class JvmCompileTask(
         quantifier = Quantifier.AnyOrNone,
     )
     
-    val taskOutputRoot get() = compiledJvmClassesArtifact.path
+    val taskOutputRoot get() = compiledJvmClassesPath.path
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {

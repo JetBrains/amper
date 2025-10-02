@@ -15,31 +15,35 @@ import kotlin.io.path.relativeTo
  */
 fun SchemaNode.mavenXmlDump(
     root: Path,
-    propFilter: (String, Any?) -> Boolean = { _, _, -> true },
+    propFilter: (String, Any?) -> Boolean = { _, _ -> true },
 ): String {
     val normalizedRoot = root.absolute().normalize()
     fun Path.normalizedPath(): String = absolute().relativeTo(normalizedRoot).toString().replace('\\', '/')
     val sb = StringBuilder()
 
-    // Hiding actual logic in internal function. Also, convenient for parameters passing.
     fun Any.doXmlDump(indent: String, parentPropName: String? = null): Boolean {
         val newIdent = "$indent  "
-        return when (this@doXmlDump) {
+        return when (this) {
             is SchemaNode -> {
-                valueHolders.filter { propFilter(it.key, it.value.value) }.forEach {
-                    sb.append("\n$newIdent<${it.key}>")
-                    val withNewLine = it.value.doXmlDump(newIdent, it.key)
-                    if (withNewLine) sb.append(newIdent)
-                    sb.append("</${it.key}>")
-                }
+                valueHolders
+                    .filter { it.value.value != null }
+                    // Unwrap value holders.
+                    .map { it.key to it.value.value!! }
+                    .filter { propFilter(it.first, it.second) }
+                    .forEach {
+                        sb.append("\n$indent<${it.first}>")
+                        val withNewLine = it.second.doXmlDump(newIdent, it.first)
+                        if (withNewLine) sb.append("\n$indent")
+                        sb.append("</${it.first}>")
+                    }
                 true
             }
 
             is Map<*, *> -> {
-                this.filter { propFilter(it.key?.toString() ?: return@filter false, it.value) }.forEach {
-                    sb.append("\n$newIdent<${it.key}>")
+                filter { propFilter(it.key?.toString() ?: return@filter false, it.value) }.forEach {
+                    sb.append("\n$indent<${it.key}>")
                     val withNewLine = it.value?.doXmlDump(newIdent, it.key.toString()) ?: false
-                    if (withNewLine) sb.append(newIdent)
+                    if (withNewLine) sb.append("\n$indent")
                     sb.append("</${it.key}>")
                 }
                 true
@@ -50,9 +54,9 @@ fun SchemaNode.mavenXmlDump(
                 // Ugly maven convention for naming list elements.
                 val elementName = parentPropName?.removeSuffix("s") ?: return false
                 forEach {
-                    sb.append("\n$newIdent<$elementName>")
+                    sb.append("\n$indent<$elementName>")
                     val withNewLine = it?.doXmlDump(newIdent, null) ?: false
-                    if (withNewLine) sb.append(newIdent)
+                    if (withNewLine) sb.append("\n$indent")
                     sb.append("</$elementName>")
                 }
                 isNotEmpty()
@@ -68,5 +72,6 @@ fun SchemaNode.mavenXmlDump(
         }
     }
 
-    return doXmlDump("").toString()
+    doXmlDump("")
+    return sb.toString().trim()
 }

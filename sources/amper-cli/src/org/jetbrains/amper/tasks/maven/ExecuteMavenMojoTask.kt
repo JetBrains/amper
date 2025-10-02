@@ -28,7 +28,7 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.use
 import kotlin.io.path.Path
-import kotlin.io.path.pathString
+import kotlin.io.path.absolutePathString
 
 typealias MavenPlugin = Plugin
 typealias MojoDesc = org.jetbrains.amper.frontend.plugins.Mojo
@@ -62,8 +62,8 @@ class ExecuteMavenMojoTask(
         val request = mavenRepositorySystem.createMavenExecutionRequest(Path(""))
 
         val newMavenProject = MavenProject(mavenProject).apply {
-            build.directory = buildOutputRoot.path.pathString
-            artifact = DefaultArtifact("dummy", "dummy", "dummy", "runtime", "jar")
+            build.directory = buildOutputRoot.path.absolutePathString()
+            artifact = module.asMavenArtifact("runtime")
             projectEmbryo.configureProject(this)
         }
         

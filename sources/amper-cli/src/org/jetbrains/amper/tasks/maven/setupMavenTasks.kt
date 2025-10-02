@@ -47,6 +47,13 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
             dependsOn = phase.dependsOn.map { it.taskName },
         )
     }
+    
+    // Our source generation is aware of external module dependencies, so we
+    // shall provide a corresponding task dependency for maven phases as well.
+    CommonTaskType.Dependencies.getTaskName(module, Platform.JVM, isTest = false)
+        .dependencyOf(KnownMavenPhase.`generate-sources`)
+    CommonTaskType.Dependencies.getTaskName(module, Platform.JVM, isTest = true)
+        .dependencyOf(KnownMavenPhase.`generate-test-sources`)
 
     // Generated sources/resources procession.
     CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = false)

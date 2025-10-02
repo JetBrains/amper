@@ -19,8 +19,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
-import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType

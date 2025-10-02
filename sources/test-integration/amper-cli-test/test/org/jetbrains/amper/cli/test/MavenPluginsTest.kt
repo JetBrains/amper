@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
@@ -20,26 +21,6 @@ class MavenPluginsTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `surefire plugin test goal executes as task`() = runSlowTest {
-        val result = runCli(
-            projectRoot = testProject("extensibility-maven/surefire-plugin"),
-            "task", ":app1:maven-surefire-plugin.test",
-            copyToTempDir = true,
-        )
-        result.assertStdoutContains("Hello from surefire execution")
-    }
-
-    @Test
-    fun `surefire plugin test goal executes as task with dependency between modules`() = runSlowTest {
-        val result = runCli(
-            projectRoot = testProject("extensibility-maven/surefire-plugin-multi-module"),
-            "task", ":app1:maven-surefire-plugin.test",
-            copyToTempDir = true,
-        )
-        result.assertStdoutContains("Hello from surefire execution")
-    }
-
-    @Test
     fun `no maven tasks appear on the task list if no maven plugins are specified`() = runSlowTest {
         runCli(
             // Just some project with java source code.
@@ -48,4 +29,44 @@ class MavenPluginsTest : AmperCliTestBase() {
             copyToTempDir = true,
         ).assertStdoutDoesNotContain("maven")
     }
+
+    @Test
+    fun `surefire plugin test goal executes as task`() = runSlowTest {
+        `run app-maven-surefire-plugin-test task`("surefire-plugin")
+            .assertStdoutContains("Hello from surefire execution")
+    }
+
+    @Test
+    fun `surefire plugin test goal executes as task with dependency between modules`() = runSlowTest {
+        `run app-maven-surefire-plugin-test task`("surefire-plugin-multi-module")
+            .assertStdoutContains("Hello from surefire execution")
+    }
+
+    @Test
+    fun `surefire plugin test goal executes with junit assertion and test fails`() = runSlowTest {
+        `run app-maven-surefire-plugin-test task`("surefire-plugin-junit-assertion", expectedExitCode = 1)
+            .assertStderrContains("expected: <foo> but was: <bar>")
+    }
+    
+    @Test
+    fun `surefire plugin test goal executes with junit filter and skips one test`() = runSlowTest {
+        `run app-maven-surefire-plugin-test task`("surefire-plugin-two-tests-with-filter").apply {
+            assertStdoutContains("Hello from firstTest")
+            assertStdoutDoesNotContain("Hello from secondTest")
+        }
+    }
+
+    /**
+     * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.
+     */
+    private suspend fun `run app-maven-surefire-plugin-test task`(
+        projectWithMavenPath: String,
+        expectedExitCode: Int = 0,
+    ) = runCli(
+        projectRoot = testProject("extensibility-maven/$projectWithMavenPath"),
+        "task", ":app:maven-surefire-plugin.test",
+        copyToTempDir = true,
+        expectedExitCode = expectedExitCode,
+        assertEmptyStdErr = expectedExitCode == 0
+    )
 }

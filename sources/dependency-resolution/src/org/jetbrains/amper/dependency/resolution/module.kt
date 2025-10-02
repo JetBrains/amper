@@ -10,9 +10,9 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
  * Serves as a higher level holder for other dependency nodes.
  * It's statically defined, thus always resolved and has NO-OP implementations of the interface methods.
  * Its name must be unique to distinguish it from other `ModuleDependencyNode`s.
- * 
+ *
  * It's a responsibility of the caller to set a parent for this node if none was provided via the constructor.
- * 
+ *
  * @see [MavenDependencyNode]
  */
 open class DependencyNodeHolder(
@@ -40,7 +40,5 @@ open class DependencyNodeHolder(
 /**
  * Convenience method for creating a root node.
  */
-fun Context.RootDependencyNodeHolder(
-    children: List<DependencyNode>,
-    parentNodes: List<DependencyNode> = emptyList(),
-) = DependencyNodeHolder("root", children, this, parentNodes)
+fun Context.RootDependencyNodeHolder(children: List<DependencyNode>) =
+    DependencyNodeHolder("root", children, this, emptyList())

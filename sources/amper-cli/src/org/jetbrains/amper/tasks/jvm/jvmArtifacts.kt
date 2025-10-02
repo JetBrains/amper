@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.artifacts.PlatformScopedArtifact
+import org.jetbrains.amper.util.BuildType
 
 /**
  * An artifact that is associated with a directory where compiled jvm classes are located.
@@ -17,4 +18,7 @@ class CompiledJvmClassesArtifact(
     module: AmperModule,
     platform: Platform,
     isTest: Boolean,
-) : PlatformScopedArtifact(buildOutputRoot, module, platform, isTest)
+    val buildType: BuildType?,
+) : PlatformScopedArtifact(buildOutputRoot, module, platform, isTest) {
+    override fun idComponents() = super.idComponents() + listOfNotNull(buildType?.value)
+}
