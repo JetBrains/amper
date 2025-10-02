@@ -48,7 +48,7 @@ if exist "%flag_file%" (
 
 @rem This multiline string is actually passed as a single line to powershell, meaning #-comments are not possible.
 @rem So here are a few comments about the code below:
-@rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JBR)
+@rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JRE)
 @rem  - tar should be present in all Windows machines since 2018 (and usable from both cmd and powershell)
 @rem  - tar requires the destination dir to exist
 @rem  - We use (New-Object Net.WebClient).DownloadFile instead of Invoke-WebRequest for performance. See the issue
@@ -173,9 +173,9 @@ call :download_and_extract "Amper runtime v%zulu_version%" "%jre_url%" "%jre_tar
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
-for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
+for /d %%d in ("%jre_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
 if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
-  echo Unable to find java.exe under %jbr_target_dir%
+  echo Unable to find java.exe under %jre_target_dir%
   goto fail
 )
 :jre_provisioned
