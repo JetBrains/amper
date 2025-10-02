@@ -23,7 +23,6 @@ import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHold
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
-import org.jetbrains.amper.frontend.dr.resolver.md5
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.useWithoutCoroutines

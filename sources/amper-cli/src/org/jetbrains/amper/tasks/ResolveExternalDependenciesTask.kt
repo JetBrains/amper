@@ -138,7 +138,7 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeInput(
-                            cacheEntryKey = CacheEntryKey.fromString("${taskName.name} dependencies"),
+                            cacheEntryKey = CacheEntryKey.fromString("${taskName.name}: dependencies graph"),
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies

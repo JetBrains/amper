@@ -486,7 +486,6 @@ typealias MavenDependencyConstraintIndex = Int
 fun currentGraphContext(): DependencyGraphContext = DependencyGraphContext.currentGraphContext.get()
     ?: error("Instance of DependencyGraphContext should be either explicitly passed to the constructor or presented in the dedicated ThreadLocal")
 
-// todo (AB) : Leaf implementations of this node should be internal
 interface DependencyNodePlain : DependencyNode {
     val parentsRefs: MutableSet<DependencyNodeReference>
     val childrenRefs: List<DependencyNodeReference>
@@ -507,8 +506,6 @@ abstract class DependencyNodePlainBase(
 
     override fun toString() = graphEntryName
 }
-
-class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 /**
  * @return true if there is no path (even transitive) to the given root from the node via node's parents

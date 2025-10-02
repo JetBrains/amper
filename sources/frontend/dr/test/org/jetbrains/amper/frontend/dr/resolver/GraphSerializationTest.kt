@@ -77,7 +77,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     fun serializationTestInvalidDependencies(testInfo: TestInfo) = runSlowTest {
         val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
 
-        // Run the test that calculates diagnostics for all invalid dependencies, including the diagnostic with stack trace
+        // Run the test that calculates diagnostics for all invalid dependencies
         val root = doTestByFile(
             testInfo,
             aom,

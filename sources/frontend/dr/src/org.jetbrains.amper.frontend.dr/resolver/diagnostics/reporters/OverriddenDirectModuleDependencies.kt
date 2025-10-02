@@ -36,22 +36,19 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
         graphRoot: DependencyNode,
     ) {
         if (node !is DirectFragmentDependencyNode) return
-        if (node.dependencyNode !is MavenDependencyNode) return
-        val originalVersion = node.dependencyNode.originalVersion()
+        val dependencyNode = node.dependencyNode as? MavenDependencyNode ?: return
+        val originalVersion = dependencyNode.originalVersion() ?: return
 
-        if (originalVersion == null) return
-
-        if (originalVersion != node.dependencyNode.resolvedVersion()) {
+        if (originalVersion != dependencyNode.resolvedVersion()) {
             // for every direct module dependency referencing this dependency node
-            val psiElement = node.notation.trace?.extractPsiElementOrNull()
+            val psiElement = node.notation.trace.extractPsiElementOrNull()
             if (psiElement != null) {
-                node.dependencyNode as MavenDependencyNode
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
                         node,
                         overrideInsight = moduleDependenciesResolver.dependencyInsight(
-                            (node.dependencyNode as MavenDependencyNode).group,
-                            (node.dependencyNode as MavenDependencyNode).module,
+                            dependencyNode.group,
+                            dependencyNode.module,
                             graphRoot,
                             resolvedVersionOnly = true,
                         ),

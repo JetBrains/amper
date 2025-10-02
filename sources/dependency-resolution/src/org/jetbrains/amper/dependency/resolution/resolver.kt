@@ -745,3 +745,7 @@ private fun String.md5(): String = MessageDigest.getInstance("MD5")
 private fun String.replaceTheEndWithMd5IfTooLong() = this
     .takeIf { it.length <= 50 }
     ?: (this.substring(0, 50) + md5())
+
+// todo (AB) : Check all places where this exception is thrown,
+// todo (AB) : it might be better to convert it either to diagnostic or to error.
+class AmperDependencyResolutionException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

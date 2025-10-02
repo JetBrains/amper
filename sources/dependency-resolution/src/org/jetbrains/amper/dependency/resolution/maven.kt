@@ -537,9 +537,12 @@ interface MavenDependencyConstraint {
     fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyConstraintReference {
         return graphContext.getMavenDependencyConstraintReference(this)
             ?: run {
-                // 1. register empty reference first (to break cycles)
+                // 1. register plain
                 val newNodePlain = MavenDependencyConstraintPlain(group, module, version)
                 val newReference = graphContext.registerMavenDependencyConstraintPlain(this, newNodePlain)
+
+                // 2. enrich it with references
+
                 newReference
             }
     }
@@ -585,11 +588,9 @@ interface MavenDependency {
     fun files(withSources: Boolean = false): List<DependencyFile>
 
     fun toSerializableReference(graphContext: DependencyGraphContext): MavenDependencyReference {
-        // 1. register plain
-        // 2. enrich it with references
-
         return graphContext.getMavenDependencyReference(this)
             ?: run {
+                // 1. register plain
                 val mavenDependencyPlain = MavenDependencyPlain(
                     coordinates,
                     packaging,
@@ -598,13 +599,13 @@ interface MavenDependency {
                     // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
                     ResolutionConfigPlain(
                         resolutionConfig.scope, resolutionConfig.platforms,
-                        // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
-                        resolutionConfig.repositories
-                    ),
+                        // todo (AB) : List<Repositories> could be deduplicated
+                        resolutionConfig.repositories),
                     state
-                    // todo (AB) : Could be deduplicated
                 )
                 graphContext.registerMavenDependencyPlain(this, mavenDependencyPlain)
+
+                // 2. enrich it with references
             }
     }
 }

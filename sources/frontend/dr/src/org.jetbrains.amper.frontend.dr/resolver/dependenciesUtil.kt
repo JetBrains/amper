@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import java.nio.file.InvalidPathException
-import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -82,11 +81,6 @@ fun emptyContext(fileCacheBuilder: FileCacheBuilder.() -> Unit, openTelemetry: O
         openTelemetry?.let { this.openTelemetry = it }
         incrementalCache?.let { this.incrementalCache = it }
     }
-
-@OptIn(ExperimentalStdlibApi::class)
-internal fun String.md5(): String = MessageDigest.getInstance("MD5")
-    .digest(this.toByteArray())
-    .toHexString()
 
 fun AmperModule.uniqueModuleKey(): String = source.moduleDir.absolutePathString()
 
