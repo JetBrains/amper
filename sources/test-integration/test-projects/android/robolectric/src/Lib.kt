@@ -1,3 +1,1 @@
-expect class Lib() {
-    fun get() : String
-}
+expect fun getKmpText() : String

@@ -7,3 +7,5 @@ test-dependencies@android:
 
 settings:
   junit: junit-4
+  kotlin:
+    freeCompilerArgs: [ -Xexpect-actual-classes ]
