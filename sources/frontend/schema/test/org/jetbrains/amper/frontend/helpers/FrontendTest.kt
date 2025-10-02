@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.helpers
 
-import com.intellij.psi.PsiFile
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.test.golden.GoldFileTest
 import java.nio.file.Path
@@ -26,10 +24,7 @@ abstract class FrontendTest(
 
     protected val problemReporter = CollectingProblemReporter()
 
-    protected val pathResolver = FrontendPathResolver(
-        intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
-        transformPsiFile = PsiFile::removeDiagnosticAnnotations
-    )
+    protected val pathResolver = TestFrontendPathResolver()
 
     protected val buildDir by lazy { testCase.buildDir.absolute() }
 

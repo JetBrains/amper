@@ -4,11 +4,16 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.aomBuilder.doReadProjectModel
 import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
 import org.jetbrains.amper.frontend.helpers.diagnosticsTest
+import org.jetbrains.amper.frontend.helpers.readProjectContextWithTestFrontendResolver
+import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.relativeTo
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "required-values") {
     @Test
@@ -34,5 +39,20 @@ class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "require
     @Test
     fun `serialization enabled invalid`() {
         diagnosticsTest("4-serialization-enabled-invalid/module")
+    }
+
+    @Test
+    fun `invalid modules`() {
+        val testProjectDir = base.resolve("multi-module-with-invalids")
+        val problemReporter = CollectingProblemReporter()
+        val model = with(problemReporter) {
+            val context = readProjectContextWithTestFrontendResolver(testProjectDir)
+            context.doReadProjectModel()
+        }
+        val actual = model.unreadableModuleFiles.map { it.toNioPath().relativeTo(testProjectDir) }
+        val expectedUnreadableModulePaths = listOf(Path("b/module.yaml"), Path("c/module.yaml"))
+        assertEquals(expectedUnreadableModulePaths, actual)
+        assertEquals(3, problemReporter.problems.size)
+        assertEquals(1, model.modules.size) // module 'a'
     }
 }

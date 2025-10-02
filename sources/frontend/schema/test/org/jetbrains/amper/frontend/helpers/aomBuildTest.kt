@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.helpers
 
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.aomBuilder.doBuild
+import org.jetbrains.amper.frontend.aomBuilder.doReadProjectModel
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import kotlin.test.assertNotNull
 
@@ -31,7 +31,7 @@ open class BuildAomTestRun(
         // Read module.
         val fioCtx = projectContext.apply(adjustCtx)
         val module = with(problemReporter) {
-            doBuild(fioCtx, systemInfo).firstOrNull()
+            fioCtx.doReadProjectModel(systemInfo = systemInfo).modules.firstOrNull()
         }
 
         // Check errors absence.

@@ -27,6 +27,7 @@ import kotlin.io.path.pathString
 data class DefaultModel(
     override val projectRoot: Path,
     override val modules: List<AmperModule>,
+    override val unreadableModuleFiles: Set<VirtualFile>,
 ) : Model
 
 internal open class DefaultModule(

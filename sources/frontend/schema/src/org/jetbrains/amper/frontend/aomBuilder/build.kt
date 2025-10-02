@@ -78,35 +78,32 @@ import kotlin.io.path.relativeTo
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(
     pluginData: List<PluginData> = loadPreparedPluginData(),
-): Model {
-    val resultModules = doBuild(this@readProjectModel, pluginData = pluginData)
-    val model = DefaultModel(projectRootDir.toNioPath(), resultModules)
-    AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
-    return model
-}
+): Model = doReadProjectModel(pluginData)
 
 /**
- * AOM build function, introduced for testing.
+ * Testable version of [readProjectModel].
  */
 context(problemReporter: ProblemReporter)
-internal fun doBuild(
-    projectContext: AmperProjectContext,
+internal fun AmperProjectContext.doReadProjectModel(
+    pluginData: List<PluginData> = loadPreparedPluginData(),
     systemInfo: SystemInfo = DefaultSystemInfo,
-    pluginData: List<PluginData> = projectContext.loadPreparedPluginData(),
-): List<AmperModule> = with(
+): Model = with(
     BuildCtx(
-        pathResolver = projectContext.frontendPathResolver,
+        pathResolver = frontendPathResolver,
         problemReporter = problemReporter,
         types = SchemaTypingContext(pluginData),
         systemInfo = systemInfo,
     )
 ) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val rawModules = caching { templateCache ->
-        projectContext.amperModuleFiles.mapNotNull {
-            readModuleMergedTree(it, projectContext.projectVersionsCatalog, templateCache)
+    val rawModulesByFile = caching { templateCache ->
+        amperModuleFiles.associateWith {
+            readModuleMergedTree(it, projectVersionsCatalog, templateCache)
         }
     }
+
+    val unreadableModuleFiles = rawModulesByFile.filterValues { it == null }.keys
+    val rawModules = rawModulesByFile.values.filterNotNull()
 
     // Build [AmperModule]s.
     val modules = buildAmperModules(rawModules)
@@ -115,13 +112,19 @@ internal fun doBuild(
     modules.forEach { it.module.addImplicitDependencies() }
 
     // Load plugins that exist in the project
-    buildPlugins(pluginData, projectContext, modules)
+    buildPlugins(pluginData, projectContext = this@doReadProjectModel, modules)
 
     // Perform diagnostics.
     AomSingleModuleDiagnosticFactories.forEach { diagnostic ->
         modules.forEach { diagnostic.analyze(it.module, problemReporter) }
     }
-    return modules.map { it.module }
+    val model = DefaultModel(
+        projectRoot = projectRootDir.toNioPath(),
+        modules = modules.map { it.module },
+        unreadableModuleFiles = unreadableModuleFiles,
+    )
+    AomModelDiagnosticFactories.forEach { it.analyze(model, problemReporter) }
+    return model
 }
 
 context(problemReporter: ProblemReporter)

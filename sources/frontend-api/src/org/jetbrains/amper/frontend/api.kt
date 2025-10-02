@@ -24,6 +24,14 @@ interface Model {
      * The modules declared in this project.
      */
     val modules: List<AmperModule>
+
+    /**
+     * The module files that are too broken to even create an [AmperModule] instance.
+     *
+     * If not empty, the corresponding errors have been reported via the
+     * [ProblemReporter][org.jetbrains.amper.problems.reporting.ProblemReporter] passed when creating this [Model].
+     */
+    val unreadableModuleFiles: Set<VirtualFile>
 }
 
 /**
