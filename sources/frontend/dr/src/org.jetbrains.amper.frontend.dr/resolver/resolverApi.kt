@@ -12,9 +12,6 @@ import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeHolderBase
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeBase
 import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
@@ -24,9 +21,10 @@ import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeBase
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeHolderBase
 import org.jetbrains.amper.dependency.resolution.currentGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
-import org.jetbrains.amper.dependency.resolution.toSerializableReference
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -128,9 +126,6 @@ abstract class DependencyNodeHolderWithNotationAndContext(
 interface ModuleDependencyNode: DependencyNodeHolder {
     val moduleName: String
     val notation: LocalModuleDependency?
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableModuleDependencyNodeWithModule(moduleName, graphEntryName, graphContext = graphContext)
 }
 
 class ModuleDependencyNodeWithModuleAndContext(
@@ -172,17 +167,6 @@ interface DirectFragmentDependencyNode: DependencyNodeHolder {
     val dependencyNode: DependencyNode
     val notationCoordinates: String
     val notation: MavenDependencyBase
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableDirectFragmentDependencyNodeHolder(
-            fragmentName, graphEntryName, notationCoordinates, messages, graphContext = graphContext)
-
-    override fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
-        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
-        (nodePlain as SerializableDirectFragmentDependencyNodeHolder).dependencyNodeRef =
-            graphContext.getDependencyNodeReferenceAndSetParent(dependencyNode, nodeReference)
-                ?: dependencyNode.toSerializableReference(graphContext,nodeReference)
-    }
 }
 
 class DirectFragmentDependencyNodeHolderWithContext(
@@ -246,8 +230,6 @@ internal interface UnresolvedMavenDependencyNode : DependencyNode {
 
     fun key() = Key<UnresolvedMavenDependencyNode>(coordinates)
 
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableUnresolvedMavenDependencyNode(coordinates, graphContext = graphContext)
 }
 
 @Serializable

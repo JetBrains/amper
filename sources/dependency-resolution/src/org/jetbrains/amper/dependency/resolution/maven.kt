@@ -111,24 +111,6 @@ interface MavenDependencyNode : DependencyNode {
     fun getMavenCoordinatesForPublishing(): MavenCoordinates
 
     fun getParentKmpLibraryCoordinates(): MavenCoordinates?
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableMavenDependencyNode(
-            originalVersion, versionFromBom, isBom, messages,
-            dependencyRef = dependency.toSerializableReference(graphContext),
-            coordinatesForPublishing = getMavenCoordinatesForPublishing(),
-            parentKmpLibraryCoordinates = getParentKmpLibraryCoordinates(),
-            graphContext = graphContext
-        )
-
-    override fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
-        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
-
-        val overriddenBy = overriddenBy
-            .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
-            .map { it.toSerializableReference(graphContext, null) }
-        (nodePlain as SerializableMavenDependencyNode).overriddenByRefs.addAll(overriddenBy)
-    }
 }
 
 val MavenDependencyNode.group
@@ -383,23 +365,6 @@ interface MavenDependencyConstraintNode : DependencyNode {
         } else {
             "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
         }
-
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableMavenDependencyConstraintNode(
-            group, module, version,
-            dependencyConstraintRef = dependencyConstraint.toSerializableReference(graphContext),
-            messages = messages,
-            graphContext = graphContext,
-        )
-
-    override fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
-        super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
-
-        val overriddenBy = overriddenBy
-            .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
-            .map { it.toSerializableReference(graphContext, null) }
-        (nodePlain as SerializableMavenDependencyConstraintNode).overriddenByRefs.addAll(overriddenBy)
-    }
 }
 
 @Serializable

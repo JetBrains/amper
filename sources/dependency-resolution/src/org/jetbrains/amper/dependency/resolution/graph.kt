@@ -21,6 +21,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.exists
+import kotlin.reflect.KClass
 
 /**
  * A dependency node is a graph element.
@@ -70,18 +71,6 @@ interface DependencyNode {
                 yield(node)
                 queue.addAll(node.children.filter { it !in visited && childrenPredicate(it, node) })
             }
-        }
-    }
-
-    // todo (AB) : We should probably move serialization-related methods outside DependencyNode
-    // todo (AB) : (as an extension functions written somewhere separately)
-    fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain
-
-    fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
-        val children = children.map { it.toSerializableReference(graphContext, nodeReference) }
-
-        if (children.isNotEmpty()) {
-            (nodePlain.childrenRefs as MutableList<DependencyNodeReference>).addAll(children)
         }
     }
 
@@ -200,52 +189,6 @@ interface DependencyNode {
     }
 }
 
-/**
- * This method creates serializable representation of the node
- * (which is presented by the type implementing [DependencyNodePlain] and annotated with [Serializable]),
- * and register it in the given context, getting [DependencyNodeReference] as a result of the registration.
- *
- * Children of the nodes in the created [DependencyNodePlain] are represented with the references [DependencyNodeReference]
- * and obtained by traversing the children of this node calling this method recursively.
- *
- * To prevent loops during serialization, the creation of the serializable object representing the node
- * is split into two steps:
- * 1. First, a plain data object is created with help of [DependencyNode.toEmptyNodePlain] with all references on other nodes left empty,
- * but all other plain data get filled.
- * This plain object is immediately registered in the given context,
- * getting [DependencyNodeReference] as a result of the registration.
- * 2. Before the method returns the resulting reference,
- * the second step is performed that populates references to other nodes: [DependencyNode.fillEmptyNodePlain].
- * First, children of the node are populated calling this method recursively.
- * Since the resolution graph doesn't contain loops, after recursion is finished,
- * all nodes of the graph will be registered in the given context.
- * After that, all other kinds of references to the nodes might be populated (in an overridden [DependencyNode.fillEmptyNodePlain])
- *
- * @context holds reusable objects that could be referenced from the node. Context is mutable.
- * If the node references some reusable object,
- * then this method should add the object into the context and use a Reference type for the returned Serializable form.
- * This way the same object won't be stored several times in JSON and will be correctly deserialized
- * from the given context
- *
- * @parent is a reference to the parent node of the node that is being serialized.
- * it is propagated to the API of [DependencyGraphContext] that registers it as a parent of the node.
- */
-fun DependencyNode.toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
-    return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-        ?: run {
-            // 1. Create an empty reference first (to break cycles)
-            val newNodePlain = toEmptyNodePlain(graphContext)
-
-            // 2. register empty reference (to break cycles)
-            val newReference = graphContext.registerDependencyNodePlainWithParent(this, newNodePlain, parent)
-
-            // 3. enrich it with references
-            fillEmptyNodePlain(newNodePlain, graphContext, newReference)
-
-            newReference
-        }
-}
-
 @Serializable
 class DependencyGraph(
     val graphContext: DependencyGraphContext,
@@ -254,9 +197,80 @@ class DependencyGraph(
     companion object {
         fun DependencyNode.toGraph(): DependencyGraph {
             val graphContext = DependencyGraphContext()
-            val serializableNode = this.toSerializableReference(graphContext, null)
+            val serializableNode = toSerializableReference(graphContext, null)
             return DependencyGraph(graphContext, serializableNode)
         }
+
+        internal val providers = listOf(DefaultSerializableTypesProvider()) +
+                ServiceLoader.load(GraphSerializableTypesProvider::class.java)
+
+        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>> =
+            buildMap {
+                providers
+                    .flatMap { it.getSerializableConverters() }
+                    .register(this)
+            }
+
+        private fun <T: DependencyNode, P: SerializableDependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, P> =
+            converters[node::class] as? SerializableDependencyNodeConverter<T, P>
+                ?: error("Converter for the node ${node::class} is not registered")
+
+        private fun List<SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>.register(
+            map: MutableMap<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+        )= forEach {
+            if (map.contains(it.applicableTo()))
+                error("Converter for the node of type ${it.applicableTo()} is already registered: (${map[it.applicableTo()]!!::class}), " +
+                        "can't register one more converter of type  ${it::class} for the same node type")
+            map[it.applicableTo()] = it
+        }
+
+        /**
+         * This method creates serializable representation of the node
+         * (which is presented by the type implementing [SerializableDependencyNode] and annotated with [Serializable]),
+         * and register it in the given context, getting [DependencyNodeReference] as a result of the registration.
+         *
+         * Children of the nodes in the created [SerializableDependencyNode] are represented with the references [DependencyNodeReference]
+         * and obtained by traversing the children of this node calling this method recursively.
+         *
+         * To prevent loops during serialization, the creation of the serializable object representing the node
+         * is split into two steps:
+         * 1. First, a plain data object is created with help of [SerializableDependencyNodeConverter.toEmptyNodePlain] with all references on other nodes left empty,
+         * but all other plain data get filled.
+         * This plain object is immediately registered in the given context,
+         * getting [DependencyNodeReference] as a result of the registration.
+         * 2. Before the method returns the resulting reference,
+         * the second step is performed that populates references to other nodes: [SerializableDependencyNodeConverter.fillEmptyNodePlain].
+         * First, children of the node are populated calling this method recursively.
+         * Since the resolution graph doesn't contain loops, after recursion is finished,
+         * all nodes of the graph will be registered in the given context.
+         * After that, all other kinds of references to the nodes might be populated (in an overridden [SerializableDependencyNodeConverter.fillEmptyNodePlain])
+         *
+         * @context holds reusable objects that could be referenced from the node. Context is mutable.
+         * If the node references some reusable object,
+         * then this method should add the object into the context and use a Reference type for the returned Serializable form.
+         * This way the same object won't be stored several times in JSON and will be correctly deserialized
+         * from the given context
+         *
+         * @parent is a reference to the parent node of the node that is being serialized.
+         * it is propagated to the API of [DependencyGraphContext] that registers it as a parent of the node.
+         */
+        fun DependencyNode.toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
+            return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
+                ?: run {
+                    val converter = getConverter<DependencyNode, SerializableDependencyNode>(this)
+                    // 1. Create an empty reference first (to break cycles)
+                    val newNodePlain = converter.toEmptyNodePlain(this, graphContext)
+
+                    // 2. register empty reference (to break cycles)
+                    val newReference = graphContext.registerSerializableDependencyNodeWithParent(this, newNodePlain, parent)
+
+                    // 3. enrich it with references
+                    converter.fillEmptyNodePlain(newNodePlain, this, graphContext, newReference)
+
+                    newReference
+                }
+        }
+
     }
 }
 
@@ -265,14 +279,14 @@ class DependencyGraph(
 data class DependencyNodeReference(
     internal val index: DependencyNodeIndex
 ) {
-    fun toNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+    fun toNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
         graphContext.getDependencyNode(index)
 }
 
 
 @Serializable(with = DependencyGraphContextSerializer::class)
 class DependencyGraphContext(
-    val allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex> = mutableMapOf(),
+    val allDependencyNodes: MutableMap<SerializableDependencyNode, DependencyNodeIndex> = mutableMapOf(),
     val allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex> = mutableMapOf(),
     val allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex> = mutableMapOf()
 ) {
@@ -289,7 +303,7 @@ class DependencyGraphContext(
      * It is assumed that indexes used for serialization match the indexes of serialized Map
      */
     @Transient
-    var allDependencyNodesList: List<DependencyNodePlain> = emptyList()
+    var allDependencyNodesList: List<SerializableDependencyNode> = emptyList()
         get() {
             if (field.size != allDependencyNodes.size) {
                 field = allDependencyNodes.keys.toList()
@@ -318,16 +332,16 @@ class DependencyGraphContext(
         }
         private set
 
-    fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlainWithParent(
+    fun <Node: DependencyNode, NodePlain: SerializableDependencyNode> registerSerializableDependencyNodeWithParent(
         node: Node, nodePlain: NodePlain, parent: DependencyNodeReference?
     ): DependencyNodeReference {
-        return registerDependencyNodePlain(node, nodePlain)
+        return registerSerializableDependencyNode(node, nodePlain)
             .also {
                 parent?.let { nodePlain.parentsRefs.add(it) }
             }
     }
 
-    private fun <Node: DependencyNode, NodePlain: DependencyNodePlain> registerDependencyNodePlain(
+    private fun <Node: DependencyNode, NodePlain: SerializableDependencyNode> registerSerializableDependencyNode(
         node: Node, nodePlain: NodePlain
     ): DependencyNodeReference {
         if (allDependencyNodeReferences[node] != null) error("Node plain for node $node is already registered")
@@ -390,7 +404,7 @@ class DependencyGraphContext(
         return allMavenDependencyConstraintReferences[constraint]
     }
 
-    inline fun <reified T: DependencyNodePlain> getDependencyNode(index: DependencyNodeIndex): T {
+    inline fun <reified T: SerializableDependencyNode> getDependencyNode(index: DependencyNodeIndex): T {
         val node = allDependencyNodesList.getOrNull(index)
 
         node ?: run {
@@ -415,8 +429,8 @@ class DependencyGraphContext(
 }
 
 private class DependencyGraphContextSerializer: KSerializer<DependencyGraphContext> {
-    private val allDependencyNodesSerializer: KSerializer<Map<DependencyNodePlain, DependencyNodeIndex>> =
-        MapSerializer(PolymorphicSerializer(DependencyNodePlain::class), Int.serializer())
+    private val allDependencyNodesSerializer: KSerializer<Map<SerializableDependencyNode, DependencyNodeIndex>> =
+        MapSerializer(PolymorphicSerializer(SerializableDependencyNode::class), Int.serializer())
     private val allMavenDependenciesSerializer: KSerializer<Map<MavenDependencyPlain, MavenDependencyIndex>> =
         MapSerializer(MavenDependencyPlain.serializer(), Int.serializer())
     private val allMavenDependencyConstraintsSerializer: KSerializer<Map<MavenDependencyConstraintPlain, DependencyNodeIndex>> =
@@ -441,7 +455,7 @@ private class DependencyGraphContextSerializer: KSerializer<DependencyGraphConte
         return decoder.decodeStructure(descriptor) {
             val graphContext = DependencyGraphContext()
 
-            var allDependencyNodes: MutableMap<DependencyNodePlain, DependencyNodeIndex>? = null
+            var allDependencyNodes: MutableMap<SerializableDependencyNode, DependencyNodeIndex>? = null
             var allMavenDependencies: MutableMap<MavenDependencyPlain, MavenDependencyIndex>? = null
             var allMavenDependencyConstraints: MutableMap<MavenDependencyConstraintPlain, MavenDependencyConstraintIndex>? = null
 

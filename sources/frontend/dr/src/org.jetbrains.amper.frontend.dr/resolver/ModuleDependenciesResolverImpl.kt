@@ -5,9 +5,11 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.serialization.modules.SerializersModuleBuilder
+import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toSerializableReference
+import org.jetbrains.amper.dependency.resolution.DependencyGraphContext
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
+import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.GraphSerializableTypesProvider
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
@@ -17,6 +19,8 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeConverter
 import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
@@ -175,6 +179,11 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 }
 
 internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider {
+    override fun getSerializableConverters() =
+        ModuleDependencyNodeWithModuleConverter.converters() +
+                DirectFragmentDependencyNodeConverter.converters() +
+                UnresolvedMavenDependencyNodeConverter.converters()
+
     override fun SerializersModuleBuilder.registerPolymorphic() {
         moduleForDependencyNodePlainHierarchy()
         moduleForDependencyNodeHierarchy()
@@ -212,6 +221,67 @@ internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider 
             MavenCoordinatesShouldBuildValidPath::class,MavenCoordinatesShouldBuildValidPath.serializer())
         polymorphic(Message::class,
             DependencyCoordinatesInGradleFormat::class,DependencyCoordinatesInGradleFormat.serializer())
+    }
+}
+
+private sealed class ModuleDependencyNodeWithModuleConverter<T: ModuleDependencyNode>: SerializableDependencyNodeConverter<T, SerializableModuleDependencyNodeWithModule>  {
+    object Input: ModuleDependencyNodeWithModuleConverter<ModuleDependencyNodeWithModuleAndContext>() {
+        override fun applicableTo() = ModuleDependencyNodeWithModuleAndContext::class
+    }
+    object Plain: ModuleDependencyNodeWithModuleConverter<SerializableModuleDependencyNodeWithModule>() {
+        override fun applicableTo() = SerializableModuleDependencyNodeWithModule::class
+    }
+
+    override fun toEmptyNodePlain(node: T, graphContext: DependencyGraphContext): SerializableModuleDependencyNodeWithModule =
+        SerializableModuleDependencyNodeWithModule(node.moduleName, node.graphEntryName, graphContext = graphContext)
+
+    companion object {
+        fun converters()= listOf(Input, Plain)
+    }
+}
+
+private sealed class DirectFragmentDependencyNodeConverter<T: DirectFragmentDependencyNode>
+    : SerializableDependencyNodeConverter<T, SerializableDirectFragmentDependencyNodeHolder>
+{
+    object Input: DirectFragmentDependencyNodeConverter<DirectFragmentDependencyNodeHolderWithContext>() {
+        override fun applicableTo() = DirectFragmentDependencyNodeHolderWithContext::class
+    }
+    object Plain: DirectFragmentDependencyNodeConverter<SerializableDirectFragmentDependencyNodeHolder>() {
+        override fun applicableTo() = SerializableDirectFragmentDependencyNodeHolder::class
+    }
+
+    override fun toEmptyNodePlain(node: T, graphContext: DependencyGraphContext): SerializableDirectFragmentDependencyNodeHolder =
+        SerializableDirectFragmentDependencyNodeHolder(
+            node.fragmentName, node.graphEntryName, node.notationCoordinates, node.messages, graphContext = graphContext)
+
+    override fun fillEmptyNodePlain(nodePlain: SerializableDirectFragmentDependencyNodeHolder, node: T, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+        super.fillEmptyNodePlain(nodePlain, node, graphContext, nodeReference)
+        nodePlain.dependencyNodeRef =
+            graphContext.getDependencyNodeReferenceAndSetParent(node.dependencyNode, nodeReference)
+                ?: node.dependencyNode.toSerializableReference(graphContext,nodeReference)
+    }
+
+    companion object {
+        fun converters() = listOf(Input, Plain)
+    }
+}
+
+private sealed class UnresolvedMavenDependencyNodeConverter<T: UnresolvedMavenDependencyNode>
+    : SerializableDependencyNodeConverter<T, SerializableUnresolvedMavenDependencyNode>
+{
+    object Input: UnresolvedMavenDependencyNodeConverter<UnresolvedMavenDependencyNodeWithContext>() {
+        override fun applicableTo() = UnresolvedMavenDependencyNodeWithContext::class
+    }
+    object Plain: UnresolvedMavenDependencyNodeConverter<SerializableUnresolvedMavenDependencyNode>() {
+        override fun applicableTo() = SerializableUnresolvedMavenDependencyNode::class
+    }
+
+    override fun toEmptyNodePlain(node: T, graphContext: DependencyGraphContext): SerializableUnresolvedMavenDependencyNode =
+        SerializableUnresolvedMavenDependencyNode(node.coordinates, graphContext = graphContext)
+
+    companion object {
+        fun converters(): List<SerializableDependencyNodeConverter<out DependencyNode, SerializableUnresolvedMavenDependencyNode>> =
+            listOf(Input, Plain)
     }
 }
 

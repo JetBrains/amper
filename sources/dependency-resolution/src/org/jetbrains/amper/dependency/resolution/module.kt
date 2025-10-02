@@ -80,10 +80,7 @@ class RootDependencyNodeStub(
     override fun toString() = graphEntryName
 }
 
-interface RootDependencyNode: DependencyNodeHolder {
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
-        SerializableRootDependencyNode(graphEntryName, graphContext = graphContext)
-}
+interface RootDependencyNode: DependencyNodeHolder
 
 @Serializable
 class SerializableRootDependencyNode internal constructor(

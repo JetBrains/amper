@@ -91,8 +91,6 @@ class Resolver {
                         "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
                     )
 
-                    println("########## dependencies = ${graphEntryKeys.joinToString("|") { "${ it.computeKey() }" }}")
-
                     val resolvedGraph = try {
                         incrementalCache.execute(
                             key = resolutionId,
