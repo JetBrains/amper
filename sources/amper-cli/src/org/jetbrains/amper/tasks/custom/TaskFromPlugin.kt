@@ -142,6 +142,7 @@ class TaskFromPlugin(
                 ),
             ),
             inputFiles = buildList {
+                addAll(taskCode.jvmRuntimeClasspath)
                 addAll(description.inputs)
                 for (resolvedRequest in description.requestedClasspaths) addAll(resolvedRequest.node.resolvedFiles)
                 for (sourcesRequest in description.requestedModuleSources) addAll(sourcesRequest.node.sourceDirectories)
