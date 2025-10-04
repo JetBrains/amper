@@ -4,9 +4,12 @@
 
 package org.jetbrains.amper.frontend.plugins.generated
 
+import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
+
 /**
  * A version catalog dependency node for [ShadowDependency].
  */
 class ShadowDependencyCatalog : ShadowDependency() {
+    @FromKeyAndTheRestIsNested
     val catalogKey: String by value()
 }
