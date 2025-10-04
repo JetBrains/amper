@@ -12,3 +12,4 @@ dependencies:
   - ../../sources/amper-wrapper
   - ../../sources/libraries/stdlib-extended
   - $libs.apacheCommons.compress
+  - $libs.slf4j.simple
