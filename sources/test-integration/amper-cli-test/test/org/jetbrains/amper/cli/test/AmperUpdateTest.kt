@@ -122,10 +122,9 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertCanUpdateToCurrent(projectDir)
     }
 
-    // TODO change to 0.8.0 after the release
     @Test
-    fun `can update from 0_8_0-dev-3250 to current`() = runSlowTest {
-        val projectDir = createEmptyProjectWithWrappers(version = "0.8.0-dev-3250")
+    fun `can update from 0_8_0 to current`() = runSlowTest {
+        val projectDir = createEmptyProjectWithWrappers(version = "0.8.0")
         assertCanUpdateToCurrent(projectDir)
     }
 
