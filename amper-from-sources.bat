@@ -147,7 +147,7 @@ pushd "%~dp0"
 if errorlevel 1 goto fail
 
 echo Building Amper distribution from sources...
-call amper.bat --log-level=warn task :amper-cli:unpackedDist
+call amper.bat --log-level=warn task :amper-cli:buildUnpacked@amper-distribution
 if errorlevel 1 goto fail
 
 echo Publishing Amper Android support plugin for delegated Gradle builds...
@@ -164,10 +164,10 @@ REM ********** Launch Amper from unpacked dist **********
 set jvm_args=-ea -XX:+EnableDynamicAgentLoading %AMPER_JAVA_OPTIONS%
 "%AMPER_JAVA_HOME%\bin\java.exe" ^
   "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
-  "-Damper.dist.path=%~dp0build\tasks\_amper-cli_unpackedDist\dist" ^
+  "-Damper.dist.path=%~dp0build\tasks\_amper-cli_buildUnpacked@amper-distribution\dist" ^
   "-Damper.wrapper.path=%~f0" ^
   %jvm_args% ^
-  -cp "%~dp0build\tasks\_amper-cli_unpackedDist\dist\lib\*" ^
+  -cp "%~dp0build\tasks\_amper-cli_buildUnpacked@amper-distribution\dist\lib\*" ^
   org.jetbrains.amper.cli.MainKt ^
   --build-output="build-from-sources" ^
   %*
