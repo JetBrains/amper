@@ -16,9 +16,9 @@
 set -e -u
 
 # The version of the Amper distribution to provision and use
-amper_version=0.9.0-dev-3285
+amper_version=0.9.0-dev-3307
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=735fcda57d84191db9da2dfdaf6b78f80df177a286c49979b9912adf8e95d720
+amper_sha256=33d5ba76be849a7473d160eae46c407fa35d2b5f27b6dc0d5d2542853f685c1b
 
 AMPER_DOWNLOAD_ROOT="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}"
 AMPER_JRE_DOWNLOAD_ROOT="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
@@ -178,12 +178,14 @@ arch=$(uname -m)
 case "$kernelName" in
   Darwin* )
     simpleOs="macos"
-    jbr_os="osx"
+    jre_os="macosx"
+    jre_archive_type="tar.gz"
     default_amper_cache_dir="$HOME/Library/Caches/JetBrains/Amper"
     ;;
   Linux* )
     simpleOs="linux"
-    jbr_os="linux"
+    jre_os="linux"
+    jre_archive_type="tar.gz"
     default_amper_cache_dir="$HOME/.cache/JetBrains/Amper"
     # If linux runs in 32-bit mode, we want the "fake" 32-bit architecture, not the real hardware,
     # because in this mode linux cannot run 64-bit binaries.
@@ -192,7 +194,8 @@ case "$kernelName" in
     ;;
   CYGWIN* | MSYS* | MINGW* )
     simpleOs="windows"
-    jbr_os="windows"
+    jre_os="win"
+    jre_archive_type=zip
     if command -v cygpath >/dev/null 2>&1; then
       default_amper_cache_dir=$(cygpath -u "$LOCALAPPDATA\JetBrains\Amper")
     else
@@ -216,41 +219,44 @@ download_and_extract "Amper distribution v$amper_version" "$amper_url" "$amper_s
 
 if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   case $arch in
-    x86_64 | x64)    jbr_arch="x64" ;;
-    aarch64 | arm64) jbr_arch="aarch64" ;;
+    x86_64 | x64)    jre_arch="x64" ;;
+    aarch64 | arm64) jre_arch="aarch64" ;;
     *) die "Unsupported architecture $arch" ;;
   esac
 
   # Auto-updated from syncVersions.main.kts, do not modify directly here
-  jbr_version=21.0.8
-  jbr_build=b1038.68
+  zulu_version=25.28.85
+  java_version=25.0.0
 
-  # URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
-  jbr_url="$AMPER_JRE_DOWNLOAD_ROOT/cache-redirector.jetbrains.com/intellij-jbr/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build.tar.gz"
-  jbr_target_dir="$amper_cache_dir/jbr-$jbr_version-$jbr_os-$jbr_arch-$jbr_build"
-
-  platform="$jbr_os $jbr_arch"
+  pkg_type=jre
+  platform="$jre_os $jre_arch"
   case $platform in
-    "osx x64")         jbr_sha512=40b57086c22a8feaea30b541a5e45b4c5ceb6ac2df11a7caae81f272e713be401a0a0e0241db271041e995805b68f2684f0deccc3a044a4b7d4c7562d74e9839 ;;
-    "osx aarch64")     jbr_sha512=e1212681d12d7b75a6fec39180d54b94d5cd63949c433f7552821c90783b0388f3a27eda712a6339fd2c21a25cc0b8a0846c5808ba7901e97e5c8a543dc6a55f ;;
-    "linux x64")       jbr_sha512=796337b4ff95e91fa0812d62d68f6952fcb19e2f62174756d33ebcbbade08137bd92169a96688f02f4131831baa0132210a4289d8e216757cb895f44ea9b2cd7 ;;
-    "linux aarch64")   jbr_sha512=cb047bf912395dd843c306e90ce4b4600c88f9bcb7742341d809d67d762bbb4e4edc936bc2be2589f7e5b050ad0513ba1a8deb6e0b481009d31e14aab9c2fe3b ;;
-    "windows x64")     jbr_sha512=b59b6c9dd5194c93c3b8512e788fea08cef97e6c1b9108591f72ecdddc6fdbd95999db1e44b382cb5c74202b5ae016da5aa1c21883cefe50c23f8d2d0f3f7434 ;;
-    "windows aarch64") jbr_sha512=fb784bf1c0842ff788479e05d65e7d6e7c92545d006a753a158e3f00d17a52fe0f8e4b0aa6081fabe0443219682ec03f726daacd7bf2ea28ddd31bd3ae7b7f22 ;;
+    "macosx x64")     jre_sha256=a73455c80413daa31af6b09589e3655bb8b8b91e4aa884ca7c91dc5552b9e974 ;;
+    "macosx aarch64") jre_sha256=37316ebea9709eb4f8bc58f0ddd2f58e53720d3e7df6f78c64125915b44d322d ;;
+    "linux x64")      jre_sha256=807e96e43db00af3390a591ed40f2c8c35f7f475fb14b6061dfb19db33702cba ;;
+    "linux aarch64")  jre_sha256=ad75e426e3f101cfa018f65fde07d82b10337d4f85250ca988474d59891c5f50 ;;
+    "win x64")        jre_sha256=d3c5db7864e6412ce3971c0b065def64942d7b0f3d02581f7f0472cac21fbba9 ;;
+    "win aarch64")    jre_sha256=f5f6d8a913695649e8e2607fe0dc79c81953b2583013ac1fb977c63cb4935bfb; pkg_type=jdk ;;
     *) die "Unsupported platform $platform" ;;
   esac
 
-  download_and_extract "JetBrains Runtime v$jbr_version$jbr_build" "$jbr_url" "$jbr_sha512" 512 "$amper_cache_dir" "$jbr_target_dir" "false"
+  # URL for the JRE (see https://api.azul.com/metadata/v1/zulu/packages?release_status=ga&include_fields=java_package_features,os,arch,hw_bitness,abi,java_package_type,sha256_hash,size,archive_type,lib_c_type&java_version=25&os=macos,linux,win)
+  # https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-macosx_aarch64.tar.gz
+  # https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-linux_x64.tar.gz
+  jre_url="$AMPER_JRE_DOWNLOAD_ROOT/cdn.azul.com/zulu/bin/zulu$zulu_version-ca-$pkg_type$java_version-${jre_os}_$jre_arch.$jre_archive_type"
+  jre_target_dir="$amper_cache_dir/zulu$zulu_version-ca-$pkg_type$java_version-${jre_os}_$jre_arch"
+
+  download_and_extract "Amper runtime v$zulu_version" "$jre_url" "$jre_sha256" 256 "$amper_cache_dir" "$jre_target_dir" "false"
 
   AMPER_JAVA_HOME=
-  for d in "$jbr_target_dir" "$jbr_target_dir"/* "$jbr_target_dir"/Contents/Home "$jbr_target_dir"/*/Contents/Home; do
+  for d in "$jre_target_dir" "$jre_target_dir"/* "$jre_target_dir"/Contents/Home "$jre_target_dir"/*/Contents/Home; do
     if [ -e "$d/bin/java" ]; then
       AMPER_JAVA_HOME="$d"
     fi
   done
 
   if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
-    die "Unable to find bin/java under $jbr_target_dir"
+    die "Unable to find bin/java under $jre_target_dir"
   fi
 fi
 
@@ -267,7 +273,7 @@ wrapper_path=$(realpath "$0")
 # ********** Launch Amper **********
 
 # In this section we construct the command line by prepending arguments from biggest to lowest precedence:
-#   1. basic main class and classpath
+#   1. basic main class, CLI arguments, and classpath
 #   2. user JVM args (AMPER_JAVA_OPTIONS)
 #   3. default JVM args (prepended last, which means they appear first, so they are overridden by user args)
 
@@ -309,9 +315,9 @@ if [ -n "${AMPER_JAVA_OPTIONS:-}" ]; then
 fi
 
 # 3. Prepend default JVM args
+
 set -- \
-    "-ea" \
-    "-XX:+EnableDynamicAgentLoading" \
+    @"$amper_target_dir/amper.args" \
     "-Damper.wrapper.dist.sha256=$amper_sha256" \
     "-Damper.dist.path=$amper_target_dir" \
     "-Damper.wrapper.path=$wrapper_path" \

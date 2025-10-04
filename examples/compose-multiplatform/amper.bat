@@ -16,9 +16,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.9.0-dev-3285
+set amper_version=0.9.0-dev-3307
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=735fcda57d84191db9da2dfdaf6b78f80df177a286c49979b9912adf8e95d720
+set amper_sha256=33d5ba76be849a7473d160eae46c407fa35d2b5f27b6dc0d5d2542853f685c1b
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -48,7 +48,7 @@ if exist "%flag_file%" (
 
 @rem This multiline string is actually passed as a single line to powershell, meaning #-comments are not possible.
 @rem So here are a few comments about the code below:
-@rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JBR)
+@rem  - we need to support both .zip and .tar.gz archives (for the Amper distribution and the JRE)
 @rem  - tar should be present in all Windows machines since 2018 (and usable from both cmd and powershell)
 @rem  - tar requires the destination dir to exist
 @rem  - We use (New-Object Net.WebClient).DownloadFile instead of Invoke-WebRequest for performance. See the issue
@@ -149,41 +149,45 @@ REM ********** Provision JRE for Amper **********
 if defined AMPER_JAVA_HOME goto jre_provisioned
 
 @rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set jbr_version=21.0.8
-set jbr_build=b1038.68
+set zulu_version=25.28.85
+set java_version=25.0.0
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set jbr_arch=aarch64
-    set jbr_sha512=fb784bf1c0842ff788479e05d65e7d6e7c92545d006a753a158e3f00d17a52fe0f8e4b0aa6081fabe0443219682ec03f726daacd7bf2ea28ddd31bd3ae7b7f22
+    set pkg_type=jdk
+    set jre_arch=aarch64
+    set jre_sha256=f5f6d8a913695649e8e2607fe0dc79c81953b2583013ac1fb977c63cb4935bfb
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set jbr_arch=x64
-    set jbr_sha512=b59b6c9dd5194c93c3b8512e788fea08cef97e6c1b9108591f72ecdddc6fdbd95999db1e44b382cb5c74202b5ae016da5aa1c21883cefe50c23f8d2d0f3f7434
+    set pkg_type=jre
+    set jre_arch=x64
+    set jre_sha256=d3c5db7864e6412ce3971c0b065def64942d7b0f3d02581f7f0472cac21fbba9
 ) else (
     echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail
 )
 
-@rem URL for JBR (vanilla) - see https://github.com/JetBrains/JetBrainsRuntime/releases
-set jbr_url=%AMPER_JRE_DOWNLOAD_ROOT%/cache-redirector.jetbrains.com/intellij-jbr/jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%.tar.gz
-set jbr_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\jbr-%jbr_version%-windows-%jbr_arch%-%jbr_build%
-call :download_and_extract "JetBrains Runtime v%jbr_version%%jbr_build%" "%jbr_url%" "%jbr_target_dir%" "%jbr_sha512%" "512" "false"
+@rem URL for the JRE (see https://api.azul.com/metadata/v1/zulu/packages?release_status=ga&include_fields=java_package_features,os,arch,hw_bitness,abi,java_package_type,sha256_hash,size,archive_type,lib_c_type&java_version=25&os=macos,linux,win)
+@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-win_x64.zip
+@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jdk25.0.0-win_aarch64.zip
+set jre_url=%AMPER_JRE_DOWNLOAD_ROOT%/cdn.azul.com/zulu/bin/zulu%zulu_version%-ca-%pkg_type%%java_version%-win_%jre_arch%.zip
+set jre_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\zulu%zulu_version%-ca-%pkg_type%%java_version%-win_%jre_arch%
+call :download_and_extract "Amper runtime v%zulu_version%" "%jre_url%" "%jre_target_dir%" "%jre_sha256%" "256" "false"
 if errorlevel 1 goto fail
 
 set AMPER_JAVA_HOME=
-for /d %%d in ("%jbr_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
+for /d %%d in ("%jre_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
 if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
-  echo Unable to find java.exe under %jbr_target_dir%
+  echo Unable to find java.exe under %jre_target_dir%
   goto fail
 )
 :jre_provisioned
 
 REM ********** Launch Amper **********
 
-set jvm_args=-ea -XX:+EnableDynamicAgentLoading %AMPER_JAVA_OPTIONS%
 "%AMPER_JAVA_HOME%\bin\java.exe" ^
+  @"%amper_target_dir%\amper.args" ^
   "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
   "-Damper.dist.path=%amper_target_dir%" ^
   "-Damper.wrapper.path=%~f0" ^
-  %jvm_args% ^
+  %AMPER_JAVA_OPTIONS% ^
   -cp "%amper_target_dir%\lib\*" ^
   org.jetbrains.amper.cli.MainKt ^
   %*
