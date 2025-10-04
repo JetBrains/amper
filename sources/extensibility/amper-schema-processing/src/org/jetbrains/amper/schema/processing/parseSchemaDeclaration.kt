@@ -35,14 +35,13 @@ internal fun parseVariantDeclaration(
 context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, options: ParsingOptions)
 internal fun parseSchemaDeclaration(
     schemaDeclaration: KtClassOrObject,
+    name: PluginData.SchemaName,
     primarySchemaFqnString: String?,
 ): PluginData.ClassData? {
     if (!schemaDeclaration.isInterface()) {
         reportError(schemaDeclaration.getDeclarationKeyword() ?: schemaDeclaration, "schema.not.interface")
         return null  // fatal - no need to parse further
     }
-    val classId = schemaDeclaration.getClassId() ?: return null // invalid Kotlin
-    val name = classId.toSchemaName()
     val nameIdentifier = schemaDeclaration.nameIdentifier ?: return null // invalid Kotlin
     when (with(session) { schemaDeclaration.symbol }.visibility) {
         KaSymbolVisibility.PUBLIC, KaSymbolVisibility.UNKNOWN -> Unit // okay/ignore

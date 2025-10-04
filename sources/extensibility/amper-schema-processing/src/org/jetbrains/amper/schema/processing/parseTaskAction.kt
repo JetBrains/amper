@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
 
-context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsResolver, _: ParsingOptions)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsProvider, _: ParsingOptions)
 internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     if (!function.isTopLevel) return null.also { reportError(function, "schema.task.action.not.toplevel") }
     val nameIdentifier = function.nameIdentifier ?: return null // invalid Kotlin (top-level functions are named)
@@ -78,7 +78,7 @@ internal fun parseTaskAction(function: KtNamedFunction): PluginData.TaskInfo? {
     )
 }
 
-context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsResolver, _: ParsingOptions)
+context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, _: DeclarationsProvider, _: ParsingOptions)
 private fun parseTaskParameter(
     parameter: KtParameter,
     docProvider: (name: String) -> String?,
@@ -121,7 +121,7 @@ private fun parseTaskParameter(
     )
 }
 
-context(resolver: DeclarationsResolver)
+context(resolver: DeclarationsProvider)
 private fun PluginData.Type.mustBeInputOutputMarked(): Boolean = when(this) {
     is PluginData.Type.ListType -> elementType.mustBeInputOutputMarked()
     is PluginData.Type.MapType -> valueType.mustBeInputOutputMarked()

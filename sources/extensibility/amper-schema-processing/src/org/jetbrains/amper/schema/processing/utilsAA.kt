@@ -29,11 +29,10 @@ context(session: KaSession)
 internal fun KtModifierListOwner.isAnnotatedWith(annotation: ClassId): Boolean =
     getAnnotation(annotation) != null
 
-internal fun KaAnnotated.isAnnotatedWith(annotation: ClassId): Boolean =
-    annotations.any { it.classId == annotation }
+internal fun KaAnnotated.isAnnotatedWith(annotation: ClassId): Boolean = annotations.contains(annotation)
 
 internal fun KaAnnotated.getAnnotation(annotation: ClassId): KaAnnotation? =
-    annotations.find { it.classId == annotation }
+    annotations[annotation].firstOrNull()
 
 @OptIn(KaExperimentalApi::class)
 context(session: KaSession)

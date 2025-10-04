@@ -9,7 +9,6 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind.ErrorGeneric
-import org.jetbrains.amper.plugins.schema.model.plus
 import org.jetbrains.amper.stdlib.collections.distinctBy
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
@@ -20,15 +19,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.modalityModifier
-
-internal interface SymbolsCollector {
-    fun onEnumReferenced(symbol: KaClassSymbol)
-    fun onClassReferenced(symbol: KaClassSymbol)
-}
-
-class ParsingOptions(
-    val isParsingAmperApi: Boolean,
-)
+import kotlin.context
 
 internal fun loadSerializedBuiltinDeclarations(): String = ParsingOptions::class.java.classLoader
     .getResourceAsStream("META-INF/amper/extensibility-api-declarations.json")
@@ -61,59 +52,82 @@ fun KaSession.parsePluginDeclarations(
         }
     }
 
-    val classes = mutableListOf<PluginData.ClassData>()
-    val sealedClasses = mutableListOf<PluginData.VariantData>()
+    val resolver = object : SymbolsCollector, DeclarationsProvider {
+        // Need a separate hash-set for tracking seen name to prevent infinite recursive resolution
+        private val seenNames = hashSetOf<PluginData.SchemaName>()
 
-    // We need to introduce a queue because this routine may be called on the subset of files.
-    // and some declarations may reference things from other unmentioned files.
-    val classesQueue = arrayListOf<KtClassOrObject>()
-    files.forEach { file ->
-        classesQueue.addAll(discoverAnnotatedClassesFrom(file, SCHEMA_ANNOTATION_CLASS))
-    }
+        private val enums = mutableMapOf<PluginData.SchemaName, PluginData.EnumData>()
+        private val classes = mutableMapOf<PluginData.SchemaName, PluginData.ClassData>()
+        private val variants = mutableMapOf<PluginData.SchemaName, PluginData.VariantData>()
 
-    val symbolsCollector = object : SymbolsCollector {
-        val referencedEnumSymbols = mutableSetOf<KaClassSymbol>()
-        override fun onEnumReferenced(symbol: KaClassSymbol) {
+        fun resolvedEnums() = enums.values.sortedBy { it.schemaName }
+        fun resolvedClasses() = classes.values.sortedBy { it.name }
+        fun resolvedVariants() = variants.values.sortedBy { it.name }
+
+        init {
+            builtinDeclarations.enums.forEach { seenNames += it.schemaName }
+            builtinDeclarations.classes.forEach { seenNames += it.name }
+            builtinDeclarations.variants.forEach { seenNames += it.name }
+        }
+
+        override fun onEnumReferenced(symbol: KaClassSymbol, name: PluginData.SchemaName) {
             require(symbol.classKind == KaClassKind.ENUM_CLASS)
-            if (symbol.origin != KaSymbolOrigin.SOURCE) return  // skip builtin enums
-            referencedEnumSymbols += symbol
+            if (!seenNames.add(name)) return
+            check(symbol.origin == KaSymbolOrigin.SOURCE) { "Non-source declarations must've been preprocessed: $name" }
+
+            enums[name] = parseEnum(symbol)
         }
-        override fun onClassReferenced(symbol: KaClassSymbol) {
+
+        override fun onClassReferenced(symbol: KaClassSymbol, name: PluginData.SchemaName) {
             require(symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS))
-            if (symbol.origin != KaSymbolOrigin.SOURCE) return  // skip builtin declarations
-            classesQueue += symbol.psi<KtClassOrObject>()
-        }
-    }
+            if (!seenNames.add(name)) return
+            check(symbol.origin == KaSymbolOrigin.SOURCE) { "Non-source declarations must've been preprocessed: $name" }
 
-    val seenDeclarations = hashSetOf<KtClassOrObject>()
-    while (classesQueue.isNotEmpty()) {
-        val declaration = classesQueue.removeLast()
-        if (!seenDeclarations.add(declaration))
-            continue
-
-        context(symbolsCollector, diagnosticCollector, options) {
+            val declaration = symbol.psi<KtClassOrObject>()
             val modalityType = declaration.modalityModifier()
-            if (modalityType != null && modalityType.elementType == KtTokens.SEALED_KEYWORD) {
-                if (options.isParsingAmperApi) {
-                    sealedClasses += parseVariantDeclaration(declaration)
+            context(diagnosticCollector, options) {
+                if (modalityType?.elementType == KtTokens.SEALED_KEYWORD) {
+                    if (name in variants) return
+                    check(symbol.origin == KaSymbolOrigin.SOURCE)
+                    if (options.isParsingAmperApi) {
+                        variants[name] = parseVariantDeclaration(declaration)
+                    } else {
+                        reportError(modalityType, "schema.forbidden.sealed")
+                    }
                 } else {
-                    reportError(modalityType, "schema.forbidden.sealed")
+                    if (name in classes) return
+                    check(symbol.origin == KaSymbolOrigin.SOURCE)
+                    classes[name] = parseSchemaDeclaration(
+                        schemaDeclaration = declaration,
+                        name = name,
+                        primarySchemaFqnString = moduleExtensionSchemaName,
+                    ) ?: PluginData.ClassData(name) // Empty stub for invalid
                 }
-            } else {
-                parseSchemaDeclaration(declaration, primarySchemaFqnString = moduleExtensionSchemaName)
-                    ?.let { classes += it }
             }
         }
+
+        override fun declarationFor(type: PluginData.Type.ObjectType): PluginData.ClassData {
+            return classes[type.schemaName]
+                ?: builtinDeclarations.classes.find { it.name == type.schemaName }
+                ?: error("not reached: $type is created, but was not resolved")
+        }
+
+        override fun declarationFor(type: PluginData.Type.VariantType): PluginData.VariantData {
+            return variants[type.schemaName]
+                ?: builtinDeclarations.variants.find { it.name == type.schemaName }
+                ?: error("not reached: $type is created, but was not resolved")
+        }
     }
 
-    val parsedClassesResolver = DeclarationsResolver(
-        declarations = PluginData.Declarations(
-            classes = classes,
-            variants = sealedClasses,
-        ) + builtinDeclarations,
-    )
+    for (file in files) {
+        for (declaration in discoverAnnotatedClassesFrom(file, SCHEMA_ANNOTATION_CLASS)) {
+            val symbol = declaration.classSymbol
+            val name = symbol?.classId?.toSchemaName() ?: continue  // invalid Kotlin
+            resolver.onClassReferenced(symbol, name)
+        }
+    }
 
-    val tasks = context(diagnosticCollector, symbolsCollector, parsedClassesResolver, options) {
+    val tasks = context(diagnosticCollector, resolver, options) {
         files.flatMap {
             discoverAnnotatedFunctionsFrom(it, TASK_ACTION_ANNOTATION_CLASS)
         }.mapNotNull {
@@ -131,14 +145,10 @@ fun KaSession.parsePluginDeclarations(
         )
     }
 
-    val enums = symbolsCollector.referencedEnumSymbols.map {
-        parseEnum(it)
-    }
-
     return PluginData.Declarations(
-        enums = enums.sortedBy { it.schemaName },
-        classes = classes.sortedBy { it.name },
+        enums = resolver.resolvedEnums(),
+        classes = resolver.resolvedClasses(),
+        variants = resolver.resolvedVariants(),
         tasks = tasks.sortedBy { it.syntheticType.name },
-        variants = sealedClasses.sortedBy { it.name },
     )
 }

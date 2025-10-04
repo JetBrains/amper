@@ -211,6 +211,12 @@
       ]
     },
     {
+      "name": "com.example/NoSchema2"
+    },
+    {
+      "name": "com.example/NoSchemaEnum"
+    },
+    {
       "name": "com.example/Nullable",
       "properties": [
         {

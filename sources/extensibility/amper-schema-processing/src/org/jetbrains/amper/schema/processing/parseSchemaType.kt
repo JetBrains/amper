@@ -65,10 +65,10 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         else -> when (symbol.classKind) {
             KaClassKind.INTERFACE -> {
                 if (symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS)) {
-                    symbolsCollector.onClassReferenced(symbol)
                     val schemaName = checkNotNull(symbol.classId) {
                         "not reachable: interface can't be anonymous"
                     }.toSchemaName()
+                    symbolsCollector.onClassReferenced(symbol, schemaName)
                     when (symbol.modality) {
                         KaSymbolModality.SEALED if options.isParsingAmperApi ->
                             PluginData.Type.VariantType(schemaName, isNullable)
@@ -77,11 +77,9 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                 } else { reportUnexpectedType(origin); null }
             }
             KaClassKind.ENUM_CLASS -> {
-                symbolsCollector.onEnumReferenced(symbol)
-                PluginData.Type.EnumType(
-                    checkNotNull(symbol.classId) { "not reachable: enum can't be anonymous" }.toSchemaName(),
-                    isNullable,
-                )
+                val name = checkNotNull(symbol.classId) { "not reachable: enum can't be anonymous" }.toSchemaName()
+                symbolsCollector.onEnumReferenced(symbol, name)
+                PluginData.Type.EnumType(name, isNullable)
             }
             else -> { reportUnexpectedType(origin); null }
         }
