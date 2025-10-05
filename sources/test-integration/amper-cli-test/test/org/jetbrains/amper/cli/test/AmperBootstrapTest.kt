@@ -14,11 +14,7 @@ class AmperBootstrapTest : AmperCliTestBase() {
 
     @Test
     fun `amper can build itself`() = runTest(timeout = 30.minutes) {
-        val result = runCli(projectRoot = Dirs.amperCheckoutRoot, "build", assertEmptyStdErr = false)
-        // FIXME: Fix SLF4J classpath for plugin tasks
-        result.stderr.lines().filter { it.isNotBlank() }.forEach {
-            assertTrue(it.startsWith("SLF4J(W)"), message = "line `$it` must start with `SLF4J(W)`")
-        }
+        runCli(projectRoot = Dirs.amperCheckoutRoot, "build")
     }
 
     @Test
