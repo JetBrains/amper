@@ -315,7 +315,6 @@ if [ -n "${AMPER_JAVA_OPTIONS:-}" ]; then
 fi
 
 # 3. Prepend default JVM args
-
 set -- \
     @"$amper_target_dir/amper.args" \
     "-Damper.wrapper.dist.sha256=$amper_sha256" \
