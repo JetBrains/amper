@@ -8,11 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 import java.util.jar.JarEntry
+import java.util.jar.JarFile
 import java.util.jar.JarInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -28,17 +30,18 @@ internal suspend fun readJarEntry(jarPath: Path, entryPath: String) : String? =
 internal suspend fun hasJarEntry(jarPath: Path, entryPath: String) : Boolean? =
     withJarEntry(jarPath, entryPath) { _ -> true }
 
-internal suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (JarInputStream) -> T) : T? =
+/**
+ * Find an entry with the given [entryPath] in the given [jarPath] and run the lambda [block] on it.
+ *
+ * @return null if the entry is not found, and result of the given [block] otherwise
+ */
+internal suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (InputStream) -> T) : T? =
     withContext(Dispatchers.IO) {
-        val jarInputStream = JarInputStream(FileInputStream(jarPath.toFile()))
-        jarInputStream.use {
-            var entry: JarEntry?
-            do {
-                entry = jarInputStream.nextJarEntry
-            } while (entry != null && entry.let { if (it.isDirectory) it.name.trimEnd('/') else it.name } != entryPath)
-
-            entry?.let {
-                block(jarInputStream)
+        val jarFile = jarPath.toJarFile()
+        jarFile.use {
+            val jarEntry: JarEntry = jarFile.getJarEntry(entryPath) ?: return@withContext null
+            jarFile.getInputStream(jarEntry).use {
+                block(it)
             }
         }
     }
@@ -118,3 +121,5 @@ private fun addDirectoryEntry(output: ZipOutputStream, relativePath: String) {
     output.putNextEntry(e)
     output.closeEntry()
 }
+
+fun Path.toJarFile() = JarFile(toFile())
