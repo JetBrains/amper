@@ -101,6 +101,12 @@ sealed interface JvmMainRunSettings : JvmRunSettings, DesktopRunSettings {
      *  2. For hot-reload using dev entry point (especially for Compose libs, where you have no jvm app to run)
      */
     val userJvmMainClass: String?
+
+    /**
+     * Indicates that the app must be run in a special mode where code is hot-swappable. It is Compose Hot Reload
+     * specific for now
+     */
+    val composeHotReloadMode: Boolean
 }
 
 /**
@@ -138,4 +144,5 @@ data class AllRunSettings(
     override val userJvmArgs: List<String> = emptyList(),
     override val userJvmMainClass: String? = null,
     override val deviceId: String? = null,
+    override val composeHotReloadMode: Boolean = false,
 ) : JvmMainRunSettings, NativeDesktopRunSettings, MobileRunSettings, JvmTestRunSettings, NativeTestRunSettings

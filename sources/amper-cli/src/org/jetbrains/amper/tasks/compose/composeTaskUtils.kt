@@ -12,7 +12,3 @@ private val AmperModule.commonSettings get() = rootFragment.settings
 // TODO Fix that with new frontend!
 internal fun isComposeEnabledFor(module: AmperModule) =
     module.commonSettings.compose.enabled
-
-// TODO Fix that with new frontend!
-internal fun isHotReloadEnabledFor(module: AmperModule) =
-    module.commonSettings.compose.experimental.hotReload.enabled

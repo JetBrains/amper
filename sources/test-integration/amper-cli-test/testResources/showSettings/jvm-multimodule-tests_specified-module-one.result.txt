@@ -4,8 +4,7 @@ settings@jvm:
   compose:
     enabled: false  # default
     experimental:
-      hotReload:
-        enabled: false  # default
+      hotReload: {}  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default

@@ -25,6 +25,8 @@ import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.net.ServerSocket
 import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
@@ -73,10 +75,16 @@ class JvmHotRunTask(
         val agent = agentClasspath.singleOrNull { it.name.startsWith("hot-reload-agent") }
                 ?: error("Can't find hot-reload-agent in agent classpath:\n${agentClasspath.joinToString("\n")}")
 
+        val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
+            "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
+        })
+
+        val recompilerExtensionClasspath = distributionRoot.resolve("recompiler-extension").listDirectoryEntries("*.jar")
+
         val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools(
             hotReloadVersion = composeSettingsJvm.experimental.hotReload.version,
             composeVersion = composeSettingsJvm.version,
-        )
+        ) + recompilerExtensionClasspath
 
         val amperJvmArgs = buildList {
             add("-ea")

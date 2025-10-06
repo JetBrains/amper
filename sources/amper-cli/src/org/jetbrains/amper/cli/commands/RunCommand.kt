@@ -7,6 +7,7 @@ package org.jetbrains.amper.cli.commands
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.cli.CliContext
@@ -58,6 +59,13 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
             "applications (the working directory is not customizable in mobile emulator runs).")
         .path(mustExist = true, canBeFile = false, canBeDir = true)
 
+    private val composeHotReloadMode by option("--compose-hot-reload-mode", help = "Enable Compose Hot Reload " +
+            "mode for Compose Multiplatform applications (for desktop applications and libraries which have jvm platform). " +
+            "This mode makes the application reloadable while running, which significantly reduces the development round-trip" +
+            " to see code changes in action. \n\n" +
+            "Note: in this mode, the Java runtime is overridden to the JetBrains Runtime, which is required for Compose Hot Reload to work.")
+        .flag()
+
     private val programArguments by argument(name = "app_arguments").multiple()
 
     override fun help(context: Context): String = "Run your application"
@@ -66,7 +74,7 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
 
     override suspend fun run(cliContext: CliContext, model: Model) {
         withBackend(
-            cliContext = cliContext,
+            cliContext,
             model = model,
             runSettings = AllRunSettings(
                 programArgs = programArguments,
@@ -74,6 +82,7 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
                 userJvmArgs = jvmArgs,
                 userJvmMainClass = jvmMainClass,
                 deviceId = deviceId,
+                composeHotReloadMode = composeHotReloadMode,
             ),
         ) { backend ->
             backend.runApplication(moduleName = module, platform = platform, buildType = variant)

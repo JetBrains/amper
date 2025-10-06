@@ -29,3 +29,4 @@ tasks:
       - :amper-android-gradle-plugin:publishJvmToMavenLocal
       - :amper-cli:uploadLocal@amper-distribution
       - :amper-extensibility-api:publishJvmToMavenLocal
+      - :amper-compose-hot-reload-recompiler-extension:publishJvmToMavenLocal

@@ -43,11 +43,9 @@ class ToolingArtifactsDownloader(
         listOf(
             "org.jetbrains.compose.hot-reload:hot-reload-devtools:$hotReloadVersion",
             "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion",
-            "org.jetbrains.amper:amper-compose-hot-reload-recompiler-extension:${AmperBuild.mavenVersion}"
         ),
         buildList {
             addAll(listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY))
-            if (AmperBuild.isSNAPSHOT) add(MavenLocal)
         }
     )
 

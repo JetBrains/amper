@@ -35,7 +35,6 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
-import org.jetbrains.amper.frontend.processing.configureHotReloadDefaults
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
 import org.jetbrains.amper.frontend.processing.configurePluginDefaults
 import org.jetbrains.amper.frontend.processing.configureSpringBootDefaults
@@ -167,7 +166,6 @@ internal fun BuildCtx.readModuleMergedTree(
         .substituteCatalogDependencies(effectiveCatalog)
         .substituteComposeOsSpecific()
         .configureSpringBootDefaults(commonModule)
-        .configureHotReloadDefaults(commonModule)
         .configureLombokDefaults(commonModule)
 
     // Perform diagnostics for the merged tree.

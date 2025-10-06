@@ -38,11 +38,6 @@ private fun lombokDependency(version: TraceableString, dependencyTrace: Trace) =
     trace = dependencyTrace,
 )
 
-private fun hotReloadDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.jetbrains.compose.hot-reload:hot-reload-runtime-api", version),
-    trace = dependencyTrace,
-)
-
 private fun kotlinxSerializationCoreDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = coords("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
     trace = dependencyTrace,
@@ -145,15 +140,6 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         //  traces here in the AOM.
         add(kotlinDependencyOf("kotlin-stdlib-jdk7", kotlinVersion, DefaultTrace))
         add(kotlinDependencyOf("kotlin-stdlib-jdk8", kotlinVersion, DefaultTrace))
-    }
-
-    if (settings.compose.enabled && settings.compose.experimental.hotReload.enabled) {
-        val hotReloadVersion = settings.compose.experimental.hotReload::version.schemaDelegate.asTraceableString()
-        val hotReloadEnabledTrace = TransformedValueTrace(
-            description = "because Compose Hot Reload is enabled",
-            sourceValue = settings.compose.experimental.hotReload::enabled.schemaDelegate,
-        )
-        add(hotReloadDependency(hotReloadVersion, hotReloadEnabledTrace))
     }
 
     if (isTest) {
