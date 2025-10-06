@@ -36,7 +36,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -185,7 +184,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -332,7 +330,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -482,7 +479,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -629,7 +625,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -779,7 +774,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -926,7 +920,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {
@@ -1076,7 +1069,6 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
-            enabled: <default> false
           }
         }
         resources: <default> {

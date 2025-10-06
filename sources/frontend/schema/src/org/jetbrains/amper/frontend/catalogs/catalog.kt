@@ -33,6 +33,7 @@ internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
         .takeIf { ktor.enabled },
     springBootVersion = springBoot::version.asTraceableVersion(UsedVersions.springBootVersion)
         .takeIf { springBoot.enabled },
+    composeHotReloadVersion = compose.experimental.hotReload::version.asTraceableVersion(UsedVersions.composeHotReloadVersion),
 )
 
 context(problemReporter: ProblemReporter)
@@ -62,6 +63,7 @@ private class BuiltInCatalog(
     composeVersion: TraceableVersion?,
     ktorVersion: TraceableVersion?,
     springBootVersion: TraceableVersion?,
+    composeHotReloadVersion: TraceableVersion,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : InMemoryVersionCatalog {
 
@@ -116,6 +118,7 @@ private class BuiltInCatalog(
             put("compose.uiTest", library("org.jetbrains.compose.ui:ui-test", composeVersion))
             put("compose.uiTooling", library("org.jetbrains.compose.ui:ui-tooling", composeVersion))
 
+            put("compose.hotReload.runtimeApi", library("org.jetbrains.compose.hot-reload:hot-reload-runtime-api", composeHotReloadVersion))
         }
 
         // add ktor

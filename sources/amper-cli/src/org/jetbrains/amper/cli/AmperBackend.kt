@@ -24,12 +24,15 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.ios.IosPreBuildTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
+import org.jetbrains.amper.tasks.jvm.JvmHotRunTask
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
@@ -299,11 +302,14 @@ class AmperBackend(
     }
 
     suspend fun runApplication(moduleName: String?, platform: Platform?, buildType: BuildType?) {
+        if (platform != null && platform != Platform.JVM && runSettings.composeHotReloadMode) {
+            userReadableError("Compose Hot Reload doesn't support running on the '${platform.pretty}' platform")
+        }
         val moduleToRun = if (moduleName != null) {
             resolveModule(moduleName)
         } else {
             val candidates = model.modules
-                .filter { it.type.isApplication() }
+                .filter { if (runSettings.composeHotReloadMode) it.type == ProductType.JVM_APP else it.type.isApplication() }
                 .filter { platform == null || platform in it.leafPlatforms }
             when {
                 candidates.isEmpty() -> {
@@ -334,7 +340,22 @@ class AmperBackend(
             }
         }
 
-        val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>()
+        val runTasks = if (runSettings.composeHotReloadMode) {
+            if (!isComposeEnabledFor(moduleToRun)) {
+                userReadableError("Compose must be enabled to use Compose Hot Reload mode")
+            }
+            if (moduleToRun.type.isApplication() && moduleToRun.type != ProductType.JVM_APP) {
+                userReadableError("Compose Hot Reload is only supported in jvm/app applications")
+            }
+            if (Platform.JVM !in moduleToRun.leafPlatforms) {
+                userReadableError("Compose Hot Reload is only available for modules with jvm target")
+            }
+            taskGraph.tasks.filterIsInstance<JvmHotRunTask>()
+        } else {
+            taskGraph.tasks.filterIsInstance<RunTask>().filter { it !is JvmHotRunTask }
+        }
+
+        val moduleRunTasks = runTasks
             .filter { it.module == moduleToRun }
             .filterByBuildTypeAndReport(
                 explicit = buildType?.let(::setOf),

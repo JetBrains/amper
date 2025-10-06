@@ -18,7 +18,6 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
-import org.jetbrains.amper.tasks.compose.isHotReloadEnabledFor
 import org.jetbrains.amper.tasks.getModuleDependencies
 
 fun ProjectTasksBuilder.setupJvmTasks() {
@@ -61,10 +60,14 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
 
-            val runtimeClasspathMode = fragments.firstOrNull { Platform.JVM in it.platforms }
-                ?.settings
-                ?.jvm
-                ?.runtimeClasspathMode ?: DependencyMode.JARS
+            val runtimeClasspathMode = if (runSettings.composeHotReloadMode) {
+                DependencyMode.CLASSES
+            } else {
+                fragments.firstOrNull { Platform.JVM in it.platforms }
+                    ?.settings
+                    ?.jvm
+                    ?.runtimeClasspathMode ?: DependencyMode.JARS
+            }
 
             tasks.registerTask(
                 task = JvmRuntimeClasspathTask(
@@ -108,7 +111,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 )
 
                 if (isComposeEnabledFor(module)) {
-                    if (isHotReloadEnabledFor(module)) {
+                    if (runSettings.composeHotReloadMode) {
                         val reloadTaskName = HotReloadTaskType.Reload.getTaskName(module, platform, isTest = false)
                         tasks.registerTask(
                             JvmReloadClassesTask(reloadTaskName),
@@ -148,7 +151,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
     allModules()
         .alsoPlatforms(Platform.JVM)
         .withEach {
-            if (isComposeEnabledFor(module) && isHotReloadEnabledFor(module)) {
+            if (isComposeEnabledFor(module) && runSettings.composeHotReloadMode) {
                 tasks.registerTask(
                     JvmHotRunTask(
                         module = module,
@@ -165,21 +168,19 @@ fun ProjectTasksBuilder.setupJvmTasks() {
             }
 
             if (module.type.isApplication()) {
-                if (!(isComposeEnabledFor(module) && isHotReloadEnabledFor(module))) {
-                    tasks.registerTask(
-                        JvmRunTask(
-                            module = module,
-                            userCacheRoot = context.userCacheRoot,
-                            projectRoot = context.projectRoot,
-                            taskName = CommonTaskType.Run.getTaskName(module, platform),
-                            runSettings = runSettings,
-                            terminal = context.terminal,
-                            tempRoot = context.projectTempRoot,
-                            incrementalCache = executeOnChangedInputs,
-                        ),
-                        CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
-                    )
-                }
+                tasks.registerTask(
+                    JvmRunTask(
+                        module = module,
+                        userCacheRoot = context.userCacheRoot,
+                        projectRoot = context.projectRoot,
+                        taskName = CommonTaskType.Run.getTaskName(module, platform),
+                        runSettings = runSettings,
+                        terminal = context.terminal,
+                        tempRoot = context.projectTempRoot,
+                        incrementalCache = executeOnChangedInputs,
+                    ),
+                    CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
+                )
 
                 val executableJarTaskName = JvmSpecificTaskType.ExecutableJar.getTaskName(module, platform)
                 tasks.registerTask(

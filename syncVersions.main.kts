@@ -44,8 +44,8 @@ val amperInternalJbrVersion = "21.0.8b1038.68"
  */
 val kotlinVersion = "2.2.10" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 
+val composeHotReloadVersion = "1.0.0-beta05"
 val composeVersion = "1.8.2"
-val hotReloadVersion = "1.0.0-beta05"
 val junitPlatformVersion = "1.13.4"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.2.10-2.0.2" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
@@ -75,7 +75,7 @@ fun updateVersionsCatalog() {
         text
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
             .replaceCatalogVersionVariable(variableName = "ksp", newValue = kspVersion)
-            .replaceCatalogVersionVariable(variableName = "hot-reload-version", newValue = hotReloadVersion)
+            .replaceCatalogVersionVariable(variableName = "compose-hot-reload-version", newValue = composeHotReloadVersion)
             .replaceCatalogVersionVariable(variableName = "junit-platform", newValue = junitPlatformVersion)
     }
 }
@@ -93,7 +93,7 @@ fun updateUsedVersionsKt() {
             .replaceBundledVersionVariable(variableName = "composeVersion", newValue = composeVersion)
             .replaceBundledVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
             .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
-            .replaceBundledVersionVariable(variableName = "hotReloadVersion", newValue = hotReloadVersion)
+            .replaceBundledVersionVariable(variableName = "composeHotReloadVersion", newValue = composeHotReloadVersion)
             .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
             .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
     }

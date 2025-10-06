@@ -67,8 +67,8 @@ dependencies:
   - $libs.kotlinx.datetime
   - $libs.teamcity.serviceMessages
   - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 # required by Android SDK tools but somehow not brought transitively
-  - $libs.hot.reload.core
-  - $libs.hot.reload.orchestration
+  - $libs.compose.hot.reload.core
+  - $libs.compose.hot.reload.orchestration
   - $libs.ktor.server.core
   - $libs.ktor.server.netty
   - $libs.ktor.server.sse

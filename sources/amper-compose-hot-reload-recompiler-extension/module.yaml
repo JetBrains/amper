@@ -18,5 +18,5 @@ dependencies:
   - $ktor.client.contentNegotiation
   - $ktor.serialization.kotlinx.json
 
-  - $libs.hot.reload.devtools.api
+  - $libs.compose.hot.reload.devtools.api
   - $libs.kotlinx.coroutines.core

@@ -117,6 +117,7 @@ class AmperRecompiler() : Recompiler, AutoCloseable {
             }
 
             override fun onStderrLine(line: String, pid: Long) {
+                logger.error("Amper server error: $line")
                 completableDeferred.completeExceptionally(Throwable("Amper server error: $line"))
             }
         }
