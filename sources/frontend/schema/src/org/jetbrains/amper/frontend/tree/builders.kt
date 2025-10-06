@@ -8,7 +8,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.contexts.Contexts
-import org.jetbrains.amper.frontend.contexts.DefaultCtxs
+import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
@@ -19,7 +19,7 @@ import kotlin.reflect.full.createType
 fun <R : TreeValue<*>> syntheticBuilder(
     types: SchemaTypingContext,
     trace: Trace,
-    contexts: Contexts = DefaultCtxs,
+    contexts: Contexts = listOf(DefaultContext.ReactivelySet),
     block: SyntheticBuilder.() -> R,
 ) = SyntheticBuilder(types, trace, contexts).run(block)
 

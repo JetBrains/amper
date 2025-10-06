@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.tree
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.contexts.DefaultCtxs
+import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.stdlib.collections.IdentityHashSet
@@ -100,7 +100,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
 
 
 /**
- * Visitor that is adding default values with special [DefaultTrace] trace and [DefaultCtxs] context to the tree.
+ * Visitor that is adding default values with special [DefaultTrace] trace and [TypeLevelDefaultContexts] context to the tree.
  */
 private class DefaultsAppender(
     val rootsForDefaults: Set<MapLikeValue<*>>,
@@ -139,9 +139,9 @@ private fun Default<*>.toTreeValue(type: SchemaType): TreeValue<TreeState>? = wh
     is Default.Static -> toTreeValue(type)
     is Default.NestedObject -> {
         check(type is SchemaType.ObjectType)
-        Owned(createDefaultProperties(type.declaration), type, DefaultTrace, DefaultCtxs)
+        Owned(createDefaultProperties(type.declaration), type, DefaultTrace, TypeLevelDefaultContexts)
     }
-    is Default.DirectDependent -> ReferenceValue(listOf(property.name), type, DefaultTrace, DefaultCtxs)
+    is Default.DirectDependent -> ReferenceValue(listOf(property.name), type, DefaultTrace, TypeLevelDefaultContexts)
     is Default.TransformedDependent<*, *> -> {
         // FIXME: Not yet supported! Need to rethink this default kind and implement it in another way
         null
@@ -152,26 +152,28 @@ private fun Default.Static<*>.toTreeValue(type: SchemaType): TreeValue<TreeState
     val value = value
     return if (value == null) {
         check(type.isMarkedNullable)
-        NullValue(DefaultTrace, DefaultCtxs)
+        NullValue(DefaultTrace, TypeLevelDefaultContexts)
     } else when (type) {
-        is SchemaType.ScalarType -> ScalarValue(value, type, DefaultTrace, DefaultCtxs)
+        is SchemaType.ScalarType -> ScalarValue(value, type, DefaultTrace, TypeLevelDefaultContexts)
         is SchemaType.ListType -> {
             check(value is List<*>)
             check(value.isEmpty() || type.elementType is SchemaType.ScalarType) {
                 "Non-empty lists as defaults are allowed only for lists with scalar element types"
             }
             val children = value.map { Default.Static(it).toTreeValue(type.elementType) }
-            ListValue(children, type, DefaultTrace, DefaultCtxs)
+            ListValue(children, type, DefaultTrace, TypeLevelDefaultContexts)
         }
         is SchemaType.MapType -> {
             check(value == emptyMap<Nothing, Nothing>()) {
                 "Only an empty map is permitted as a default for a map property. " +
                         "If there are cases, you'll need to extend the implementation here"
             }
-            Owned(emptyList(), type, DefaultTrace, DefaultCtxs)
+            Owned(emptyList(), type, DefaultTrace, TypeLevelDefaultContexts)
         }
         is SchemaType.ObjectType, is SchemaType.VariantType -> {
             error("Static defaults for object types are not supported")
         }
     }
 }
+
+private val TypeLevelDefaultContexts = listOf(DefaultContext.TypeLevel)

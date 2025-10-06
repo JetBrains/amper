@@ -3,143 +3,143 @@
     "type" : "jvm/app"
   },
   "module" : {
-    "layout(DefaultCtx)" : "AMPER(DefaultCtx)"
+    "layout(DefaultContext.TypeLevel)" : "AMPER(DefaultContext.TypeLevel)"
   },
   "settings" : {
     "android" : {
       "parcelize" : {
-        "additionalAnnotations(DefaultCtx)" : ,
-        "enabled(DefaultCtx)" : "false(DefaultCtx)"
+        "additionalAnnotations(DefaultContext.TypeLevel)" : ,
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)"
       },
       "resourcePackaging" : {
-        "excludes(DefaultCtx)" : ,
-        "merges(DefaultCtx)" : ,
-        "pickFirsts(DefaultCtx)" :
+        "excludes(DefaultContext.TypeLevel)" : ,
+        "merges(DefaultContext.TypeLevel)" : ,
+        "pickFirsts(DefaultContext.TypeLevel)" :
       },
       "signing" : {
-        "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "propertiesFile(DefaultCtx)" : "../../keystore.properties(DefaultCtx)"
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "propertiesFile(DefaultContext.TypeLevel)" : "../../keystore.properties(DefaultContext.TypeLevel)"
       },
-      "applicationId(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
-      "compileSdk(DefaultCtx)" : "VERSION_36(DefaultCtx)",
-      "maxSdk(DefaultCtx)" : "null(DefaultCtx)",
-      "minSdk(DefaultCtx)" : "VERSION_21(DefaultCtx)",
-      "namespace(DefaultCtx)" : "org.example.namespace(DefaultCtx)",
-      "targetSdk(DefaultCtx)" : "VERSION_36(DefaultCtx)",
-      "versionCode(DefaultCtx)" : "1(DefaultCtx)",
-      "versionName(DefaultCtx)" : "unspecified(DefaultCtx)"
+      "applicationId(DefaultContext.TypeLevel)" : "org.example.namespace(DefaultContext.TypeLevel)",
+      "compileSdk(DefaultContext.TypeLevel)" : "VERSION_36(DefaultContext.TypeLevel)",
+      "maxSdk(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "minSdk(DefaultContext.TypeLevel)" : "VERSION_21(DefaultContext.TypeLevel)",
+      "namespace(DefaultContext.TypeLevel)" : "org.example.namespace(DefaultContext.TypeLevel)",
+      "targetSdk(DefaultContext.TypeLevel)" : "VERSION_36(DefaultContext.TypeLevel)",
+      "versionCode(DefaultContext.TypeLevel)" : "1(DefaultContext.TypeLevel)",
+      "versionName(DefaultContext.TypeLevel)" : "unspecified(DefaultContext.TypeLevel)"
     },
     "compose" : {
       "experimental" : {
         "hotReload" : {
-          "version(DefaultCtx)" : "1.0.0-beta05(DefaultCtx)"
+          "version(DefaultContext.TypeLevel)" : "1.0.0-beta05(DefaultContext.TypeLevel)"
         }
       },
       "resources" : {
-        "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "exposedAccessors(DefaultCtx)" : "false(DefaultCtx)",
-        "packageName(DefaultCtx)" : "(DefaultCtx)"
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "exposedAccessors(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "packageName(DefaultContext.TypeLevel)" : "(DefaultContext.TypeLevel)"
       },
-      "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "1.8.2(DefaultCtx)"
+      "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "1.8.2(DefaultContext.TypeLevel)"
     },
     "internal" : {
-      "excludeDependencies(DefaultCtx)" :
+      "excludeDependencies(DefaultContext.TypeLevel)" :
     },
     "ios" : {
       "framework" : {
-        "basename(DefaultCtx)" : "kotlin(DefaultCtx)",
-        "isStatic(DefaultCtx)" : "false(DefaultCtx)"
+        "basename(DefaultContext.TypeLevel)" : "kotlin(DefaultContext.TypeLevel)",
+        "isStatic(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)"
       },
-      "teamId(DefaultCtx)" : "null(DefaultCtx)"
+      "teamId(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
     },
     "java" : {
       "annotationProcessing" : {
         "processorOptions" : ,
-        "processors(DefaultCtx)" :
+        "processors(DefaultContext.TypeLevel)" :
       },
-      "freeCompilerArgs(DefaultCtx)" :
+      "freeCompilerArgs(DefaultContext.TypeLevel)" :
     },
     "jvm" : {
       "test" : {
         "systemProperties" : ,
-        "freeJvmArgs(DefaultCtx)" : ,
-        "junitPlatformVersion(DefaultCtx)" : "1.13.4(DefaultCtx)"
+        "freeJvmArgs(DefaultContext.TypeLevel)" : ,
+        "junitPlatformVersion(DefaultContext.TypeLevel)" : "1.13.4(DefaultContext.TypeLevel)"
       },
-      "mainClass(DefaultCtx)" : "null(DefaultCtx)",
-      "release(DefaultCtx)" : "VERSION_17(DefaultCtx)",
-      "runtimeClasspathMode(DefaultCtx)" : "JARS(DefaultCtx)",
-      "storeParameterNames(DefaultCtx)" : "false(DefaultCtx)"
+      "mainClass(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "release(DefaultContext.TypeLevel)" : "VERSION_17(DefaultContext.TypeLevel)",
+      "runtimeClasspathMode(DefaultContext.TypeLevel)" : "JARS(DefaultContext.TypeLevel)",
+      "storeParameterNames(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)"
     },
     "kotlin" : {
       "allOpen" : {
-        "annotations(DefaultCtx)" : "null(DefaultCtx)",
-        "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "presets(DefaultCtx)" : "null(DefaultCtx)"
+        "annotations(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "presets(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
       },
       "ksp" : {
         "processorOptions" : ,
-        "processors(DefaultCtx)" : ,
-        "version(DefaultCtx)" : "2.2.10-2.0.2(DefaultCtx)"
+        "processors(DefaultContext.TypeLevel)" : ,
+        "version(DefaultContext.TypeLevel)" : "2.2.10-2.0.2(DefaultContext.TypeLevel)"
       },
       "noArg" : {
-        "annotations(DefaultCtx)" : "null(DefaultCtx)",
-        "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "invokeInitializers(DefaultCtx)" : "false(DefaultCtx)",
-        "presets(DefaultCtx)" : "null(DefaultCtx)"
+        "annotations(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "invokeInitializers(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "presets(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
       },
       "powerAssert" : {
-        "enabled(DefaultCtx)" : "false(DefaultCtx)",
-        "functions(DefaultCtx)" : [
-          "kotlin.assert(DefaultCtx)"
+        "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+        "functions(DefaultContext.TypeLevel)" : [
+          "kotlin.assert(DefaultContext.TypeLevel)"
         ]
       },
       "serialization" : {
-        "format(DefaultCtx)" : "null(DefaultCtx)",
-        "version(DefaultCtx)" : "1.9.0(DefaultCtx)"
+        "format(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+        "version(DefaultContext.TypeLevel)" : "1.9.0(DefaultContext.TypeLevel)"
       },
-      "allWarningsAsErrors(DefaultCtx)" : "false(DefaultCtx)",
-      "apiVersion(DefaultCtx)" : "null(DefaultCtx)",
-      "debug(DefaultCtx)" : "null(DefaultCtx)",
-      "freeCompilerArgs(DefaultCtx)" : "null(DefaultCtx)",
-      "languageFeatures(DefaultCtx)" : "null(DefaultCtx)",
-      "languageVersion(DefaultCtx)" : "null(DefaultCtx)",
-      "linkerOptions(DefaultCtx)" : "null(DefaultCtx)",
-      "optIns(DefaultCtx)" : "null(DefaultCtx)",
-      "optimization(DefaultCtx)" : "null(DefaultCtx)",
-      "progressiveMode(DefaultCtx)" : "false(DefaultCtx)",
-      "suppressWarnings(DefaultCtx)" : "false(DefaultCtx)",
-      "verbose(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "2.2.10(DefaultCtx)"
+      "allWarningsAsErrors(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "apiVersion(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "debug(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "freeCompilerArgs(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "languageFeatures(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "languageVersion(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "linkerOptions(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "optIns(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "optimization(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "progressiveMode(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "suppressWarnings(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "verbose(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "2.2.10(DefaultContext.TypeLevel)"
     },
     "ktor" : {
-      "applyBom(DefaultCtx)" : "true(DefaultCtx)",
-      "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "3.2.3(DefaultCtx)"
+      "applyBom(DefaultContext.TypeLevel)" : "true(DefaultContext.TypeLevel)",
+      "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "3.2.3(DefaultContext.TypeLevel)"
     },
     "lombok" : {
-      "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "1.18.38(DefaultCtx)"
+      "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "1.18.38(DefaultContext.TypeLevel)"
     },
     "publishing" : {
-      "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "group(DefaultCtx)" : "null(DefaultCtx)",
-      "name(DefaultCtx)" : "null(DefaultCtx)",
-      "version(DefaultCtx)" : "null(DefaultCtx)"
+      "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "group(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "name(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
     },
     "springBoot" : {
-      "applyBom(DefaultCtx)" : "true(DefaultCtx)",
-      "enabled(DefaultCtx)" : "false(DefaultCtx)",
-      "version(DefaultCtx)" : "3.5.5(DefaultCtx)"
+      "applyBom(DefaultContext.TypeLevel)" : "true(DefaultContext.TypeLevel)",
+      "enabled(DefaultContext.TypeLevel)" : "false(DefaultContext.TypeLevel)",
+      "version(DefaultContext.TypeLevel)" : "3.5.5(DefaultContext.TypeLevel)"
     },
-    "junit(DefaultCtx)" : "JUNIT5(DefaultCtx)",
-    "kover(DefaultCtx)" : "null(DefaultCtx)",
-    "native(DefaultCtx)" : "null(DefaultCtx)"
+    "junit(DefaultContext.TypeLevel)" : "JUNIT5(DefaultContext.TypeLevel)",
+    "kover(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+    "native(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
   },
-  "aliases(DefaultCtx)" : "null(DefaultCtx)",
-  "apply(DefaultCtx)" : "null(DefaultCtx)",
-  "plugin(DefaultCtx)" : "null(DefaultCtx)",
-  "dependencies(DefaultCtx)" : "null(DefaultCtx)",
-  "repositories(DefaultCtx)" : "null(DefaultCtx)",
-  "tasks(DefaultCtx)" : "null(DefaultCtx)"
+  "aliases(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "apply(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "plugin(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "dependencies(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "repositories(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "tasks(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
 }
