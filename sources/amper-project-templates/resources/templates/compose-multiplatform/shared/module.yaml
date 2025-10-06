@@ -6,11 +6,6 @@ dependencies:
   - $compose.foundation: exported
   - $compose.material3: exported
 
-dependencies@android:
-  # Compose integration with Android activities
-  - androidx.activity:activity-compose:1.7.2: exported
-  - androidx.appcompat:appcompat:1.6.1: exported
-
 settings:
   compose:
     enabled: true
