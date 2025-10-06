@@ -49,7 +49,6 @@ suspend fun preparePlugins(
                     projectRoot = context.projectRoot,
                     userCacheRoot = context.userCacheRoot,
                     incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
-                    frontendPathResolver = projectContext.frontendPathResolver,
                     schemaFile = projectContext.pluginInternalDataFile,
                     plugins = pluginInfos,
                 )

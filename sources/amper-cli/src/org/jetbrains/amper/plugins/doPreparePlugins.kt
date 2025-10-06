@@ -4,15 +4,13 @@
 
 package org.jetbrains.amper.plugins
 
-import com.intellij.openapi.vfs.findDocument
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.getLineAndColumnRangeInDocument
+import org.jetbrains.amper.frontend.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
@@ -24,10 +22,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
-import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
-import org.jetbrains.amper.problems.reporting.LineAndColumn
-import org.jetbrains.amper.problems.reporting.LineAndColumnRange
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.ProcessInput
@@ -45,7 +40,6 @@ import kotlin.io.path.writeText
 internal suspend fun doPreparePlugins(
     projectRoot: AmperProjectRoot,
     userCacheRoot: AmperUserCacheRoot,
-    frontendPathResolver: FrontendPathResolver,
     incrementalCache: IncrementalCache,
     schemaFile: Path,
     plugins: Map<Path, PluginManifest>,
@@ -102,12 +96,8 @@ internal suspend fun doPreparePlugins(
 
         val reporter = CollectingProblemReporter()
         results.flatMap { it.diagnostics }.forEach { diagnostic ->
-            val document = frontendPathResolver.loadVirtualFileOrNull(diagnostic.location.path)?.findDocument()
             reporter.reportMessage(
-                SchemaDiagnostic(
-                    diagnostic = diagnostic,
-                    range = document?.let { getLineAndColumnRangeInDocument(it, diagnostic.location.textRange) },
-                )
+                SchemaDiagnostic(diagnostic = diagnostic)
             )
         }
 
@@ -138,14 +128,9 @@ internal suspend fun doPreparePlugins(
 
 private class SchemaDiagnostic(
     diagnostic: PluginDataResponse.Diagnostic,
-    range: LineAndColumnRange?,
 ) : BuildProblem {
     override val buildProblemId = diagnostic.diagnosticId
-    override val source = object : FileWithRangesBuildProblemSource {
-        override val range = range ?: LineAndColumnRange(LineAndColumn.NONE, LineAndColumn.NONE)
-        override val offsetRange = diagnostic.location.textRange
-        override val file = diagnostic.location.path
-    }
+    override val source = FileWithRangesBuildProblemSource(diagnostic.location.path, diagnostic.location.textRange)
     override val message = diagnostic.message
     override val level = when(diagnostic.kind) {
         DiagnosticKind.ErrorGeneric,
