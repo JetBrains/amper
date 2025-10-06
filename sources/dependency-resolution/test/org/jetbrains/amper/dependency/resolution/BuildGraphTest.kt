@@ -104,6 +104,12 @@ class BuildGraphTest : BaseDRTest() {
         assertFiles(testInfo, root)
     }
 
+    @Test
+    fun `com_github_sarxos webcam-capture-driver-opencv 0_3_12`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
     /**
      * This test checks that some missing fields in pom.xml doesn't fail resolution.
      * Details: pom.xml of com.sun.jns:jns:3.0.9 omit field name in license block

@@ -366,8 +366,10 @@ private fun String.expandTemplate(project: Project): String {
     val value = if (key.startsWith("project.")) {
         when (key.removePrefix("project.")) {
             "groupId" -> project.groupId
+            "artifactId" -> project.artifactId
             "version" -> project.version
             "parent.groupId" -> project.parent?.groupId
+            "parent.artifactId" -> project.parent?.artifactId
             "parent.version" -> project.parent?.version
             else -> project.properties?.properties?.get(key)
         }
