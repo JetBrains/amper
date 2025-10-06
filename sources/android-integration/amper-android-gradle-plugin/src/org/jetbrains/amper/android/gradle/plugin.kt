@@ -282,7 +282,12 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         val model = with(NoopProblemReporter) {
             val projectContext = StandaloneAmperProjectContext.create(projectRoot, buildDir = null, project = null)
                 ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
-            projectContext.readProjectModel()
+            projectContext.readProjectModel(
+                // We do not recover/pass plugin data here,
+                // as it currently can't influence project configuration (besides tasks)
+                // Any "unknown property" errors are going to be ignored here.
+                pluginData = emptyList(),
+            )
         }
 
         settings.gradle.knownModel = model

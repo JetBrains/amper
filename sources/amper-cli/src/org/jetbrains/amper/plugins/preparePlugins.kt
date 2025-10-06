@@ -8,7 +8,7 @@ import com.android.utils.associateNotNull
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.plugins.parsePluginManifestFromModuleFile
-import org.jetbrains.amper.frontend.project.pluginInternalDataFile
+import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.AmperCliIncrementalCache
 
@@ -18,8 +18,8 @@ import org.jetbrains.amper.util.AmperCliIncrementalCache
  */
 suspend fun preparePlugins(
     context: CliContext,
-) {
-    spanBuilder("Prepare plugins").use {
+): List<PluginData> {
+    return spanBuilder("Prepare plugins").use {
         val projectContext = context.projectContext
         val seenPluginIds = hashSetOf<String>()
         val pluginInfos = projectContext.pluginModuleFiles.associateNotNull { pluginModuleFile ->
@@ -38,7 +38,7 @@ suspend fun preparePlugins(
         }
 
         if (pluginInfos.isEmpty()) {
-            return@use  // Nothing to prepare after validation
+            return@use emptyList() // Nothing to prepare after validation
         }
 
         // Note: plugin may have duplicate ids at this point.
@@ -49,7 +49,6 @@ suspend fun preparePlugins(
                     projectRoot = context.projectRoot,
                     userCacheRoot = context.userCacheRoot,
                     incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
-                    schemaFile = projectContext.pluginInternalDataFile,
                     plugins = pluginInfos,
                 )
             }

@@ -31,7 +31,10 @@ open class BuildAomTestRun(
         // Read module.
         val fioCtx = projectContext.apply(adjustCtx)
         val module = with(problemReporter) {
-            fioCtx.doReadProjectModel(systemInfo = systemInfo).modules.firstOrNull()
+            fioCtx.doReadProjectModel(
+                pluginData = emptyList(),
+                systemInfo = systemInfo,
+            ).modules.firstOrNull()
         }
 
         // Check errors absence.

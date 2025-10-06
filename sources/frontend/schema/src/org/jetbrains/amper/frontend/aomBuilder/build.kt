@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
-import org.jetbrains.amper.frontend.aomBuilder.plugins.loadPreparedPluginData
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
@@ -76,7 +75,7 @@ import kotlin.io.path.relativeTo
 @UsedInIdePlugin
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(
-    pluginData: List<PluginData> = loadPreparedPluginData(),
+    pluginData: List<PluginData>,
 ): Model = doReadProjectModel(pluginData)
 
 /**
@@ -84,7 +83,7 @@ fun AmperProjectContext.readProjectModel(
  */
 context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
-    pluginData: List<PluginData> = loadPreparedPluginData(),
+    pluginData: List<PluginData>,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): Model = with(
     BuildCtx(

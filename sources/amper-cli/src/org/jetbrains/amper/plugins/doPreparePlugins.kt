@@ -13,7 +13,6 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
@@ -31,25 +30,22 @@ import org.jetbrains.amper.processes.runJava
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.relativeTo
-import kotlin.io.path.writeText
 
 internal suspend fun doPreparePlugins(
     projectRoot: AmperProjectRoot,
     userCacheRoot: AmperUserCacheRoot,
     incrementalCache: IncrementalCache,
-    schemaFile: Path,
     plugins: Map<Path, PluginManifest>,
-) {
+): List<PluginData> {
     require(plugins.isNotEmpty())
     val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
         "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
     })
 
-    incrementalCache.executeForFiles(
+    val result = incrementalCache.execute(
         key = "prepare-plugins",
         inputValues = mapOf(
             "plugins" to plugins.values.joinToString()
@@ -114,17 +110,21 @@ internal suspend fun doPreparePlugins(
                 declarations = result.declarations,
             )
         }
-        schemaFile.createParentDirectories()
-            .writeText(Json.encodeToString(allPluginData))
 
         reporter.replayProblemsTo(CliProblemReporter)
         if (reporter.problems.any { it.level.atLeastAsSevereAs(Level.Error) }) {
             userReadableError("Local plugins pre-processing failed, see the errors above.")
         }
 
-        listOf(schemaFile)
+        IncrementalCache.ExecutionResult(
+            outputFiles = emptyList(),
+            outputValues = mapOf(CACHE_OUTPUT_KEY to Json.encodeToString(allPluginData))
+        )
     }
+    return Json.decodeFromString(result.outputValues[CACHE_OUTPUT_KEY]!!)
 }
+
+private const val CACHE_OUTPUT_KEY = "pluginData"
 
 private class SchemaDiagnostic(
     diagnostic: PluginDataResponse.Diagnostic,
