@@ -11,6 +11,8 @@ import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.output.MordantMarkdownHelpFormatter
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -111,20 +113,12 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         // Detecting this path eagerly allows showing the default value in the help.
         .default(AmperUserCacheRoot.fromCurrentUserResult().unwrap())
 
-    private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
-
-    private val coroutinesDebug by option(
-        "--coroutines-debug",
-        help = "Enable coroutines debug probes. This allows to dump the running coroutines in case of deadlock.",
-    ).flag(
-        "--no-coroutines-debug",
-        default = false,
-    )
-
     private val buildOutputRoot by option(
         "--build-output",
         help = "Root directory for build outputs. By default, this is the `build` directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
+
+    private val debuggingOptions by InternalDebuggingOptions()
 
     override suspend fun run() {
         // Ensure we're writing traces to the configured user cache (we start with the default in early telemetry).
@@ -134,7 +128,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         currentContext.obj = CommonOptions(
             explicitProjectRoot = root,
             consoleLogLevel = consoleLogLevel,
-            asyncProfiler = asyncProfiler,
+            profilerEnabled = debuggingOptions.asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
             explicitBuildOutputRoot = buildOutputRoot,
         )
@@ -145,7 +139,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
         fixSystemOutEncodingOnWindows()
 
-        if (coroutinesDebug) {
+        if (debuggingOptions.coroutinesDebugEnabled) {
             if (isWindowsArm64()) {
                 // Always fails on Windows Arm64 because ByteBuddy doesn't support it:
                 // https://github.com/raphw/byte-buddy/issues/1336
@@ -205,4 +199,22 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     private fun isWindowsArm64(): Boolean = isWindows() && System.getProperty("os.arch") == "aarch64"
 
     private fun isWindows(): Boolean = System.getProperty("os.name").lowercase().contains("win")
+}
+
+private class InternalDebuggingOptions : OptionGroup(
+    // The name might feel weird, but it needs to be alphabetically after "Options" if we want them to appear after
+    // in the help. See https://github.com/ajalt/clikt/issues/617
+    name = "Options to debug Amper",
+) {
+    val asyncProfiler by option(
+        "--async-profiler",
+        help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
+                "The snapshot file is generated in the build logs.",
+        hidden = true,
+    ).flag(default = false)
+
+    val coroutinesDebugEnabled by option(
+        "--coroutines-debug",
+        help = "Enable coroutines debug probes. This allows to dump the running coroutines in case of deadlock.",
+    ).flag(default = false)
 }
