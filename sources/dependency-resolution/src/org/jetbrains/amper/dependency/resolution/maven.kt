@@ -112,8 +112,8 @@ interface MavenDependencyNode : DependencyNode {
 
     fun getParentKmpLibraryCoordinates(): MavenCoordinates?
 
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        MavenDependencyNodePlain(
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
+        SerializableMavenDependencyNode(
             originalVersion, versionFromBom, isBom, messages,
             dependencyRef = dependency.toSerializableReference(graphContext),
             coordinatesForPublishing = getMavenCoordinatesForPublishing(),
@@ -121,13 +121,13 @@ interface MavenDependencyNode : DependencyNode {
             graphContext = graphContext
         )
 
-    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+    override fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
         super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
 
         val overriddenBy = overriddenBy
             .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
             .map { it.toSerializableReference(graphContext, null) }
-        (nodePlain as MavenDependencyNodePlain).overriddenByRefs.addAll(overriddenBy)
+        (nodePlain as SerializableMavenDependencyNode).overriddenByRefs.addAll(overriddenBy)
     }
 }
 
@@ -137,7 +137,7 @@ val MavenDependencyNode.module
     get() = dependency.module
 
 @Serializable
-internal class MavenDependencyNodePlain internal constructor(
+internal class SerializableMavenDependencyNode internal constructor(
     override val originalVersion: String?,
     override val versionFromBom: String?,
     override val isBom: Boolean,
@@ -150,7 +150,7 @@ internal class MavenDependencyNodePlain internal constructor(
     private val parentKmpLibraryCoordinates: MavenCoordinates?,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-) : MavenDependencyNode, DependencyNodePlainBase(graphContext) {
+) : MavenDependencyNode, SerializableDependencyNodeBase(graphContext) {
     override fun getMavenCoordinatesForPublishing(): MavenCoordinates = coordinatesForPublishing
     override fun getParentKmpLibraryCoordinates(): MavenCoordinates? = parentKmpLibraryCoordinates
 
@@ -169,13 +169,13 @@ internal class MavenDependencyNodePlain internal constructor(
  *
  * It's the responsibility of the caller to set a parent for this node if none was provided via the constructor.
  *
- * @see [DependencyNodeHolderImpl]
+ * @see [DependencyNodeHolderWithContext]
  */
-class MavenDependencyNodeImpl internal constructor(
+class MavenDependencyNodeWithContext internal constructor(
     templateContext: Context,
     dependency: MavenDependencyImpl,
-    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-) : MavenDependencyNode, DependencyNodeWithResolutionContext {
+    parentNodes: Set<DependencyNodeWithContext> = emptySet(),
+) : MavenDependencyNode, DependencyNodeWithContext {
 
     override val parents: Set<DependencyNode> get() = context.nodeParents
 
@@ -185,7 +185,7 @@ class MavenDependencyNodeImpl internal constructor(
         module: String,
         version: String?,
         isBom: Boolean,
-        parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
+        parentNodes: Set<DependencyNodeWithContext> = emptySet(),
     ) : this(
         templateContext,
         templateContext.createOrReuseDependency(group, module, version, isBom),
@@ -218,10 +218,10 @@ class MavenDependencyNodeImpl internal constructor(
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val children: List<DependencyNodeWithResolutionContext> by PropertyWithDependencyGeneric(
+    override val children: List<DependencyNodeWithContext> by PropertyWithDependencyGeneric(
         dependencyProviders = listOf(
-            { thisRef: MavenDependencyNodeImpl -> thisRef.dependency.children },
-            { thisRef: MavenDependencyNodeImpl -> thisRef.dependency.dependencyConstraints }
+            { thisRef: MavenDependencyNodeWithContext -> thisRef.dependency.children },
+            { thisRef: MavenDependencyNodeWithContext -> thisRef.dependency.dependencyConstraints }
         ),
         valueProvider = { dependencies ->
             val children = dependencies[0] as List<*>
@@ -313,7 +313,7 @@ class MavenDependencyNodeImpl internal constructor(
 
         val thisCoordinates = dependency.coordinates
         for (parent in parents) {
-            if (parent !is MavenDependencyNodeImpl) continue
+            if (parent !is MavenDependencyNodeWithContext) continue
 
             if (parent.isKmpLibrary()) {
                 val availableAtCoordinates = with(parent.dependency) { variants.withoutDocumentationAndMetadata }
@@ -351,7 +351,7 @@ class MavenDependencyNodeImpl internal constructor(
     override fun getMavenCoordinatesForPublishing(): MavenCoordinates {
         if (context.settings.platforms.size == 1 && isKmpLibrary()) {
             val childrenOriginalCoordinates = children
-                .filterIsInstance<MavenDependencyNodeImpl>()
+                .filterIsInstance<MavenDependencyNodeWithContext>()
                 .mapNotNull { nested ->
                     nested.originalVersion()?.let { nested.dependency.coordinates.copy(version = it) }
                 }
@@ -384,21 +384,21 @@ interface MavenDependencyConstraintNode : DependencyNode {
             "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
         }
 
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
-        MavenDependencyConstraintNodePlain(
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
+        SerializableMavenDependencyConstraintNode(
             group, module, version,
             dependencyConstraintRef = dependencyConstraint.toSerializableReference(graphContext),
             messages = messages,
             graphContext = graphContext,
         )
 
-    override fun fillEmptyNodePlain(nodePlain: DependencyNodePlain, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
+    override fun fillEmptyNodePlain(nodePlain: SerializableDependencyNode, graphContext: DependencyGraphContext, nodeReference: DependencyNodeReference?) {
         super.fillEmptyNodePlain(nodePlain, graphContext, nodeReference)
 
         val overriddenBy = overriddenBy
             .filter { !it.isOrphan(root = graphContext.allDependencyNodeReferences.entries.first().key) }
             .map { it.toSerializableReference(graphContext, null) }
-        (nodePlain as MavenDependencyConstraintNodePlain).overriddenByRefs.addAll(overriddenBy)
+        (nodePlain as SerializableMavenDependencyConstraintNode).overriddenByRefs.addAll(overriddenBy)
     }
 }
 
@@ -412,7 +412,7 @@ class MavenDependencyConstraintReference(
 
 
 @Serializable
-internal class MavenDependencyConstraintNodePlain internal constructor(
+internal class SerializableMavenDependencyConstraintNode internal constructor(
     override val group: String,
     override val module: String,
     override val version: Version,
@@ -423,7 +423,7 @@ internal class MavenDependencyConstraintNodePlain internal constructor(
     override val messages: List<Message>,
     @Transient
     private val graphContext: DependencyGraphContext = currentGraphContext()
-) : MavenDependencyConstraintNode, DependencyNodePlainBase(graphContext) {
+) : MavenDependencyConstraintNode, SerializableDependencyNodeBase(graphContext) {
 
     override val dependencyConstraint: MavenDependencyConstraint by lazy { dependencyConstraintRef.toNodePlain(graphContext) }
 
@@ -431,11 +431,11 @@ internal class MavenDependencyConstraintNodePlain internal constructor(
 
 }
 
-internal class MavenDependencyConstraintNodeImpl internal constructor(
+internal class MavenDependencyConstraintNodeWithContext internal constructor(
     templateContext: Context,
     dependencyConstraint: MavenDependencyConstraintImpl,
-    parentNodes: Set<DependencyNodeWithResolutionContext> = emptySet(),
-):  MavenDependencyConstraintNode, DependencyNodeWithResolutionContext {
+    parentNodes: Set<DependencyNodeWithContext> = emptySet(),
+):  MavenDependencyConstraintNode, DependencyNodeWithContext {
     @Volatile
     override var dependencyConstraint: MavenDependencyConstraintImpl = dependencyConstraint
         set(value) {
@@ -452,7 +452,7 @@ internal class MavenDependencyConstraintNodeImpl internal constructor(
         internal set
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val children: List<DependencyNodeWithResolutionContext> = emptyList()
+    override val children: List<DependencyNodeWithContext> = emptyList()
     override val messages: List<Message> = emptyList()
 
 

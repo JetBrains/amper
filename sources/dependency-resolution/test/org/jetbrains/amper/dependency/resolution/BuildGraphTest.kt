@@ -798,7 +798,7 @@ class BuildGraphTest : BaseDRTest() {
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
         )
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) },
             templateContext = context()
         )
@@ -1834,7 +1834,7 @@ class BuildGraphTest : BaseDRTest() {
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_DL_GOOGLE_ANDROID)
         val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = listOf(
                 "androidx.appcompat:appcompat:1.6.1".toMavenNode(context),
                 "androidx.appcompat:appcompat:1.6.1".toMavenNode(context)

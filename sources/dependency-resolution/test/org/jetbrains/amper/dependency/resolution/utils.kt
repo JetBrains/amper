@@ -15,7 +15,7 @@ fun TestInfo.nameToGoldenFile(): String = testMethod.get().name.replace("_", "."
 fun computeHash(algorithm: String, bytes: ByteArray): String =
     MessageDigest.getInstance(algorithm).digest(bytes).toHexString()
 
-internal fun String.toMavenNode(context: Context): MavenDependencyNodeImpl {
+internal fun String.toMavenNode(context: Context): MavenDependencyNodeWithContext {
     val (group, module, version) = split(":")
     val mavenDependency = context.createOrReuseDependency(group, module, version, isBom = false)
     return context.getOrCreateNode(mavenDependency, null)

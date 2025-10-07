@@ -258,7 +258,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             readOnlyExternalRepositories = emptyList()
         })
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = listOf(atomicfuCoordinates.toMavenNode(context)),
             templateContext = context()
         )
@@ -306,7 +306,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
 
         val nodeInCompileContext = mavenCoordinates.toMavenNode(context)
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = listOf(nodeInCompileContext),
             templateContext = context()
         )

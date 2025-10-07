@@ -23,7 +23,7 @@ internal class DependencyNodeWithChildren(val node: DependencyNode): DependencyN
 
     override fun toString() = graphEntryName
 
-    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): DependencyNodePlain =
+    override fun toEmptyNodePlain(graphContext: DependencyGraphContext): SerializableDependencyNode =
         error("${this::class.java.simpleName} is not serializable")
 }
 

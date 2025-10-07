@@ -155,7 +155,7 @@ class LocalRepositoryTest : BaseDRTest() {
             readOnlyExternalRepositories = emptyList()
         })
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = listOf(atomicfuCoordinates.toMavenNode(context)),
             templateContext = context()
         )
@@ -194,7 +194,7 @@ class LocalRepositoryTest : BaseDRTest() {
 
         val nodeInCompileContext = atomicfuCoordinates.toMavenNode(context)
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = listOf(nodeInCompileContext),
             templateContext = context()
         )

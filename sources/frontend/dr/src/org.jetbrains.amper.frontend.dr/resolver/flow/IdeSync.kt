@@ -19,9 +19,9 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
-import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
+import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolderWithContext
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNode
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -79,15 +79,15 @@ internal class IdeSync(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): ModuleDependencyNodeWithModule =
+    ): ModuleDependencyNodeWithModuleAndContext =
         module.toGraph(fileCacheBuilder, openTelemetry, incrementalCache)
 
     private fun AmperModule.toGraph(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): ModuleDependencyNodeWithModule {
-        val node = ModuleDependencyNodeWithModule(
+    ): ModuleDependencyNodeWithModuleAndContext {
+        val node = ModuleDependencyNodeWithModuleAndContext(
             graphEntryName = "module:${userReadableName}",
             children = fragments.flatMap { it.toGraph(fileCacheBuilder, openTelemetry, incrementalCache) },
             module = this,
@@ -122,7 +122,7 @@ internal class IdeSync(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): List<DirectFragmentDependencyNodeHolder> {
+    ): List<DirectFragmentDependencyNodeHolderWithContext> {
         return openTelemetry.spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
             val moduleDependencies = openTelemetry.spanBuilder("DR: directDependenciesGraph").useWithoutCoroutines {
                 Classpath(
@@ -151,7 +151,7 @@ internal class IdeSync(
             val allMavenDeps = openTelemetry.spanBuilder("DR: allMavenDeps").useWithoutCoroutines {
                 moduleDependencies
                     .distinctBfsSequence()
-                    .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+                    .filterIsInstance<DirectFragmentDependencyNodeHolderWithContext>()
                     .sortedByDescending { it.fragment == this }
 //                    .sortedForIdeSync(this@toGraph)
                     .distinctBy { it.dependencyNode }
@@ -169,13 +169,13 @@ internal class IdeSync(
     /**
      * Returns all fragments in this module that target the given [platforms].
      */
-    private fun Sequence<DirectFragmentDependencyNodeHolder>.sortedForIdeSync(fragment: Fragment): List<DirectFragmentDependencyNodeHolder> =
+    private fun Sequence<DirectFragmentDependencyNodeHolderWithContext>.sortedForIdeSync(fragment: Fragment): List<DirectFragmentDependencyNodeHolderWithContext> =
         this
             .groupBy { it.fragment }
             .ensureFirstFragmentDeps(fragment)
             .flatMap { it.value.sortedBy { it.graphEntryName } }
 
-    private fun Map<Fragment, List<DirectFragmentDependencyNodeHolder>>.ensureFirstFragmentDeps(fragment: Fragment) =
+    private fun Map<Fragment, List<DirectFragmentDependencyNodeHolderWithContext>>.ensureFirstFragmentDeps(fragment: Fragment) =
         if (this.isEmpty() || this.entries.first() == fragment)
             this
         else {
@@ -209,7 +209,7 @@ internal class IdeSync(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?,
-    ): DirectFragmentDependencyNodeHolder? {
+    ): DirectFragmentDependencyNodeHolderWithContext? {
         val context = resolveFragmentContext(fragment, fileCacheBuilder, openTelemetry, incrementalCache)
             ?: return null
         return toFragmentDirectDependencyNode(fragment, context)

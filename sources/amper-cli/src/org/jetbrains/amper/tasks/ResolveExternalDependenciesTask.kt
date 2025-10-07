@@ -17,7 +17,7 @@ import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -26,7 +26,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
@@ -53,8 +53,8 @@ class ResolveExternalDependenciesTask(
     private val platform: Platform,
     private val isTest: Boolean,
     private val fragments: List<Fragment>,
-    private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModule,
-    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModule?,
+    private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
+    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
     override val taskName: TaskName,
 ): Task {
 
@@ -137,7 +137,7 @@ class ResolveExternalDependenciesTask(
                         inputFiles = emptyList()
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
-                        val root = RootDependencyNodeInput(
+                        val root = RootDependencyNodeWithContext(
                             cacheEntryKey = CacheEntryKey.fromString("${taskName.name}: dependencies graph"),
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,

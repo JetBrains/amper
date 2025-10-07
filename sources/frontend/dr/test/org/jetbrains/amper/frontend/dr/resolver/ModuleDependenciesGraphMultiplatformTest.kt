@@ -310,7 +310,7 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
             expectedMapping.map { it.key.toMavenCoordinates() to it.value.toMavenCoordinates() }.toMap()
         this
             .children
-            .filterIsInstance<DirectFragmentDependencyNodeHolder>()
+            .filterIsInstance<DirectFragmentDependencyNodeHolderWithContext>()
             .filter { it.dependencyNode is MavenDependencyNode }
             .forEach { directMavenDependency ->
                 val node = directMavenDependency.dependencyNode as MavenDependencyNode

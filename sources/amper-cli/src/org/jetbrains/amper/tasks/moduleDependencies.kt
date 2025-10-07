@@ -10,7 +10,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -38,7 +38,7 @@ internal fun AmperModule.buildDependenciesGraph(
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
     incrementalCache: IncrementalCache
-): ModuleDependencyNodeWithModule = buildDependenciesGraph(isTest, setOf(platform), dependencyReason, userCacheRoot, incrementalCache)
+): ModuleDependencyNodeWithModuleAndContext = buildDependenciesGraph(isTest, setOf(platform), dependencyReason, userCacheRoot, incrementalCache)
 
 internal fun AmperModule.buildDependenciesGraph(
     isTest: Boolean,
@@ -46,7 +46,7 @@ internal fun AmperModule.buildDependenciesGraph(
     dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
     incrementalCache: IncrementalCache
-): ModuleDependencyNodeWithModule {
+): ModuleDependencyNodeWithModuleAndContext {
     val resolutionPlatform = platforms.map { it.toResolutionPlatform()
         ?: throw IllegalArgumentException("Dependency resolution is not supported for the platform $it") }.toSet()
 
@@ -60,9 +60,9 @@ internal fun AmperModule.buildDependenciesGraph(
     }
 }
 
-private fun ModuleDependencyNodeWithModule.getModuleDependencies(): Sequence<AmperModule> {
-    return distinctBfsSequence { child, _ ->  child is ModuleDependencyNodeWithModule }
+private fun ModuleDependencyNodeWithModuleAndContext.getModuleDependencies(): Sequence<AmperModule> {
+    return distinctBfsSequence { child, _ ->  child is ModuleDependencyNodeWithModuleAndContext }
         .drop(1)
-        .filterIsInstance<ModuleDependencyNodeWithModule>()
+        .filterIsInstance<ModuleDependencyNodeWithModuleAndContext>()
         .map { it.module }
 }

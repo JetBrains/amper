@@ -26,7 +26,7 @@ import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
@@ -142,7 +142,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         val resolver = MavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             // If the incremental cache is on, a separate cache entry is calculated and maintained for every unique combination of parameters:
             //  - module
             //  - set of platforms

@@ -20,8 +20,8 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.allFragmentDependencies
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
-import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotation
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.DependencyNodeHolderWithNotationAndContext
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -71,7 +71,7 @@ internal class Classpath(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?,
-    ): ModuleDependencyNodeWithModule {
+    ): ModuleDependencyNodeWithModuleAndContext {
         return module.fragmentsModuleDependencies(flowType, fileCacheBuilder = fileCacheBuilder,
             openTelemetry = openTelemetry, incrementalCache = incrementalCache)
     }
@@ -81,7 +81,7 @@ internal class Classpath(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): ModuleDependencyNodeWithModule {
+    ): ModuleDependencyNodeWithModuleAndContext {
         return fragment.module.fragmentsModuleDependencies(flowType, initialFragment = fragment,
             fileCacheBuilder = fileCacheBuilder, openTelemetry = openTelemetry, incrementalCache = incrementalCache)
     }
@@ -109,7 +109,7 @@ internal class Classpath(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?,
-    ): ModuleDependencyNodeWithModule {
+    ): ModuleDependencyNodeWithModuleAndContext {
 
         visitedModules.add(this)
 
@@ -139,7 +139,7 @@ internal class Classpath(
 
         val moduleName = getModuleName(addContextInfo = directDependencies, flowType, resolutionPlatforms)
 
-        val node = ModuleDependencyNodeWithModule(
+        val node = ModuleDependencyNodeWithModuleAndContext(
             module = this,
             graphEntryName = moduleName.toString(),
             notation = notation,
@@ -177,7 +177,7 @@ internal class Classpath(
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?,
-    ): List<DependencyNodeHolderWithNotation> {
+    ): List<DependencyNodeHolderWithNotationAndContext> {
         val fragmentDependencies = externalDependencies
             .distinct()
             .mapNotNull { dependency ->

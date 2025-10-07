@@ -12,16 +12,16 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -126,7 +126,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
@@ -142,7 +142,7 @@ abstract class BaseModuleDrTest {
 
     protected suspend fun downloadAndAssertFiles(
         files: List<String>,
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
@@ -313,7 +313,7 @@ abstract class BaseModuleDrTest {
     protected suspend fun populateLocalCacheWithDependencies(cacheRoot: Path, coordinates: List<MavenCoordinates>) {
         val context = context(cacheBuilder = cacheBuilder(cacheRoot))
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = coordinates.map{ it.toMavenNode(context) },
             templateContext = context
         )
@@ -322,9 +322,9 @@ abstract class BaseModuleDrTest {
         Resolver().downloadDependencies(root)
     }
 
-    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeImpl {
+    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
         val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeImpl(context, groupId, artifactId, version, isBom = isBom)
+        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
     }
 
     protected fun context(

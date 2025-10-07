@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.OpenTelemetry
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
@@ -37,11 +36,11 @@ abstract class BaseDRTest {
         get() = Path("testData")
 
     protected suspend fun doTest(
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNodeHolderImpl {
+    ): DependencyNodeHolderWithContext {
         val resolver = Resolver()
         resolver.buildGraph(root, ResolutionLevel.NETWORK)
         root.verifyGraphConnectivity()
@@ -54,7 +53,7 @@ abstract class BaseDRTest {
 
     protected suspend fun doTestByFile(
         testInfo: TestInfo,
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
@@ -83,7 +82,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         openTelemetry: OpenTelemetry? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
-    ): DependencyNodeHolderImpl =
+    ): DependencyNodeHolderWithContext =
         context(scope, platform, repositories, cacheBuilder, openTelemetry)
             .use { context ->
                 val root = dependency.toRootNode(context)
@@ -101,7 +100,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
-    ): DependencyNodeHolderImpl = doTest(
+    ): DependencyNodeHolderWithContext = doTest(
         testInfo,
         listOf(dependency),
         scope,
@@ -124,7 +123,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
-    ): DependencyNodeHolderImpl {
+    ): DependencyNodeHolderWithContext {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
@@ -173,7 +172,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
-    ): DependencyNodeHolderImpl = doTestImpl(
+    ): DependencyNodeHolderWithContext = doTestImpl(
         testInfo,
         dependency,
         scope,
@@ -222,11 +221,11 @@ abstract class BaseDRTest {
         assertEqualsWithDiff(expected.trimEnd().lines(), root.prettyPrint().trimEnd().lines())
 
     protected fun List<String>.toRootNode(context: Context) =
-        RootDependencyNodeInput(children = map { it.toMavenNode(context) }, templateContext = context)
+        RootDependencyNodeWithContext(children = map { it.toMavenNode(context) }, templateContext = context)
 
-    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeImpl {
+    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
         val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeImpl(context, groupId, artifactId, version, isBom = isBom)
+        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
     }
 
     protected fun String.toMavenCoordinates(): MavenCoordinates {
@@ -237,13 +236,13 @@ abstract class BaseDRTest {
         return MavenCoordinates(group, module, version)
     }
 
-    private fun String.toMavenNode(context: Context): MavenDependencyNodeImpl {
+    private fun String.toMavenNode(context: Context): MavenDependencyNodeWithContext {
         val isBom = startsWith("bom:")
         val parts = removePrefix("bom:").trim().split(":")
         val group = parts[0]
         val module = parts[1]
         val version = if (parts.size > 2) parts[2] else null
-        return MavenDependencyNodeImpl(context, group, module, version, isBom = isBom)
+        return MavenDependencyNodeWithContext(context, group, module, version, isBom = isBom)
     }
 
     protected fun assertFiles(
@@ -297,7 +296,7 @@ abstract class BaseDRTest {
 
     protected suspend fun downloadAndAssertFiles(
         testInfo: TestInfo,
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         withSources: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false,
@@ -314,7 +313,7 @@ abstract class BaseDRTest {
     }
 
     protected suspend fun downloadAndAssertFiles(
-        files: List<String>, root: DependencyNodeHolderImpl, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
+        files: List<String>, root: DependencyNodeHolderWithContext, withSources: Boolean = false, checkAutoAddedDocumentation: Boolean = true,
         verifyMessages: Boolean = false, filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ) {
         downloadDependencies(root, withSources, verifyMessages, filterMessages)
@@ -328,7 +327,7 @@ abstract class BaseDRTest {
     }
 
     private suspend fun downloadDependencies(
-        root: DependencyNodeHolderImpl,
+        root: DependencyNodeHolderWithContext,
         withSources: Boolean,
         verifyMessages: Boolean,
         filterMessages: List<Message>.() -> List<Message>

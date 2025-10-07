@@ -47,15 +47,15 @@ class Context internal constructor(
      * version. This way, whenever another node is created for the exact same version, it will also benefit from
      * the conflict resolution.
      */
-    private val nodesByMavenDependency: MutableMap<MavenDependencyImpl, MavenDependencyNodeImpl> = ConcurrentHashMap(),
-    private val constraintsByMavenDependency: MutableMap<MavenDependencyConstraintImpl, MavenDependencyConstraintNodeImpl> = ConcurrentHashMap(),
+    private val nodesByMavenDependency: MutableMap<MavenDependencyImpl, MavenDependencyNodeWithContext> = ConcurrentHashMap(),
+    private val constraintsByMavenDependency: MutableMap<MavenDependencyConstraintImpl, MavenDependencyConstraintNodeWithContext> = ConcurrentHashMap(),
 ) : Closeable {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: Set<DependencyNodeWithResolutionContext>, repositories: List<Repository>? = null): Context =
+    fun copyWithNewNodeCache(parentNodes: Set<DependencyNodeWithContext>, repositories: List<Repository>? = null): Context =
         Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency, constraintsByMavenDependency)
             .apply {
                 nodeParents.addAll(parentNodes)
@@ -75,14 +75,14 @@ class Context internal constructor(
      * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.version] is
      * guaranteed to match.
      */
-    fun getOrCreateNode(dependency: MavenDependencyImpl, parentNode: DependencyNodeWithResolutionContext?): MavenDependencyNodeImpl =
+    fun getOrCreateNode(dependency: MavenDependencyImpl, parentNode: DependencyNodeWithContext?): MavenDependencyNodeWithContext =
         nodesByMavenDependency
-            .computeIfAbsent(dependency) { MavenDependencyNodeImpl(templateContext = this, dependency) }
+            .computeIfAbsent(dependency) { MavenDependencyNodeWithContext(templateContext = this, dependency) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
-    internal fun getOrCreateConstraintNode(dependencyConstraint: MavenDependencyConstraintImpl, parentNode: DependencyNodeWithResolutionContext?): MavenDependencyConstraintNodeImpl =
+    internal fun getOrCreateConstraintNode(dependencyConstraint: MavenDependencyConstraintImpl, parentNode: DependencyNodeWithContext?): MavenDependencyConstraintNodeWithContext =
         constraintsByMavenDependency
-            .computeIfAbsent(dependencyConstraint) { MavenDependencyConstraintNodeImpl(templateContext = this, dependencyConstraint) }
+            .computeIfAbsent(dependencyConstraint) { MavenDependencyConstraintNodeWithContext(templateContext = this, dependencyConstraint) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
     override fun close() {

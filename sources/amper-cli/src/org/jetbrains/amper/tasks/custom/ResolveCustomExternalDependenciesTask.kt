@@ -8,10 +8,10 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -56,13 +56,13 @@ internal class ResolveCustomExternalDependenciesTask(
         val externalDependencyNodes = externalDependencies.map {
             // It's safe to split here, because, validation was already done in the frontend
             val (group, module, version) = it.split(":") // FIXME: This has to be done in frontend
-            MavenDependencyNodeImpl(drContext, group, module, version, isBom = false)
+            MavenDependencyNodeWithContext(drContext, group, module, version, isBom = false)
         }
         val localDependencyNodes = localDependencies.map {
             it.buildDependenciesGraph(isTest = false, Platform.JVM, resolutionScope, userCacheRoot, incrementalCache)
         }
 
-        val root = RootDependencyNodeInput(
+        val root = RootDependencyNodeWithContext(
             children = localDependencyNodes + externalDependencyNodes,
             templateContext = drContext,
         )

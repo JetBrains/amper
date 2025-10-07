@@ -15,11 +15,11 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
@@ -85,10 +85,10 @@ class MavenResolver(
             }
 
             // cacheEntryKey is not defined preventing too granular caching
-            val root = RootDependencyNodeInput(
+            val root = RootDependencyNodeWithContext(
                 children = coordinates.map {
                     val (group, module, version) = it.split(":")
-                    MavenDependencyNodeImpl(context, group, module, version, false)
+                    MavenDependencyNodeWithContext(context, group, module, version, false)
                 },
                 templateContext = context
             )
@@ -98,7 +98,7 @@ class MavenResolver(
         }
 
     suspend fun resolve(
-        root: RootDependencyNodeInput,
+        root: RootDependencyNodeWithContext,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
     ): DependencyNode = spanBuilder("mavenResolve")

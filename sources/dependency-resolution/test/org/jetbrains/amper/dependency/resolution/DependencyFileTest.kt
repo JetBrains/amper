@@ -179,7 +179,7 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.22"
             )
-            val root = MavenDependencyNodeImpl(context, dependency)
+            val root = MavenDependencyNodeWithContext(context, dependency)
              val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -218,7 +218,7 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
-            val root = MavenDependencyNodeImpl(context, dependency)
+            val root = MavenDependencyNodeWithContext(context, dependency)
             val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -241,7 +241,7 @@ class DependencyFileTest {
             )
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
         }.use { context ->
-            val root = RootDependencyNodeInput(
+            val root = RootDependencyNodeWithContext(
                 children = listOf(
                     context.getOrCreateNode(
                         context.createOrReuseDependency(
@@ -285,7 +285,7 @@ class DependencyFileTest {
                 context.settings,
                 "org.jetbrains.skiko", "skiko", "0.8.4"
             )
-            val root = MavenDependencyNodeImpl(context, dependency)
+            val root = MavenDependencyNodeWithContext(context, dependency)
             val resolver = Resolver()
             resolver.buildGraph(root)
             resolver.downloadDependencies(root)
@@ -400,7 +400,7 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependencyNode = MavenDependencyNodeImpl(context,
+            val dependencyNode = MavenDependencyNodeWithContext(context,
                 MavenDependencyImpl(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
             )
 
@@ -425,7 +425,7 @@ class DependencyFileTest {
             val hasMatchingChecksumAfterCorruption = dependencyFile.isDownloadedWithVerification(settings = context.settings)
             assertFalse (hasMatchingChecksumAfterCorruption, "File was corrupted, checksum check should have failed")
 
-            val dependencyNodeDuplicate = MavenDependencyNodeImpl(context,
+            val dependencyNodeDuplicate = MavenDependencyNodeWithContext(context,
                 MavenDependencyImpl(context.settings, "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.7.3")
             )
             val dependencyFileDuplicate = getDependencyFile(dependencyNodeDuplicate.dependency, getNameWithoutExtension(dependencyNodeDuplicate.dependency), "module")

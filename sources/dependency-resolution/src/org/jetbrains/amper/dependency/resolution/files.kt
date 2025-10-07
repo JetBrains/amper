@@ -354,7 +354,7 @@ open class DependencyFileImpl(
             // runBlocking could be called for the first time only until the path is not resolved yet.
             // Calling path should be avoided from inside the resolution process. it is here to comply with the base interface.
             // Use suspendable getPath() instead.
-            ?: runBlocking { getPath() }
+            ?: runBlocking { getPath() } // todo (AB) : replace with error?
 
     @Volatile
     private var downloadedFilePath: Path? = null

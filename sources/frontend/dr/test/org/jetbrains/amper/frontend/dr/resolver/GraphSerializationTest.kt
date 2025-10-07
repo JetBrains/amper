@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.GraphJson
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
@@ -262,7 +262,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
     @Test
     fun `all classes implementing DependencyNodePlain are annotated with Serializable and properly registered`() = runTest {
-        checkPolymorphicRequirements(DependencyNodePlain::class)
+        checkPolymorphicRequirements(SerializableDependencyNode::class)
     }
 
     /**
@@ -307,7 +307,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
      */
     @Test
     fun `all classes implementing DependencyNodePlain are not data classes`() = runTest {
-        val kClass = DependencyNodePlain::class
+        val kClass = SerializableDependencyNode::class
 
         val reflections = Reflections("org.jetbrains.amper")
         val allNonAbstractChildrenJava = reflections

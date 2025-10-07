@@ -6,18 +6,18 @@ package org.jetbrains.amper.frontend.dr.resolver
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.serialization.modules.SerializersModuleBuilder
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderImpl
-import org.jetbrains.amper.dependency.resolution.DependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.GraphSerializableTypesProvider
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeImpl
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeInput
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodePlain
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.filterGraph
@@ -49,7 +49,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): ModuleDependencyNodeWithModule {
+    ): ModuleDependencyNodeWithModuleAndContext {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
@@ -58,7 +58,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, openTelemetry, incrementalCache)
     }
 
-    override suspend fun DependencyNodeHolderImpl.resolveDependencies(
+    override suspend fun DependencyNodeHolderWithContext.resolveDependencies(
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
@@ -92,23 +92,23 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         }
     }
 
-    private fun DependencyNodePlain.fillNotation(sourceNode: DependencyNodeHolderImpl) {
+    private fun SerializableDependencyNode.fillNotation(sourceNode: DependencyNodeHolderWithContext) {
         val sourceDirectDeps = sourceNode.children.groupBy { it.key }
         this.children.forEach { node ->
             when (node) {
-                is DirectFragmentDependencyNodeHolderPlain -> {
-                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<DirectFragmentDependencyNodeHolder>(node) {
+                is SerializableDirectFragmentDependencyNodeHolder -> {
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<DirectFragmentDependencyNodeHolderWithContext>(node) {
                         node.notationCoordinates == notation.coordinates.value
                     }
                     node.notation = sourceNode.notation
                 }
-                is ModuleDependencyNodeWithModulePlain -> {
-                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<ModuleDependencyNodeWithModule>(node)
+                is SerializableModuleDependencyNodeWithModule -> {
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<ModuleDependencyNodeWithModuleAndContext>(node)
                     node.notation = sourceNode.notation
                     node.fillNotation(sourceNode)
                 }
-                is RootDependencyNodePlain -> {
-                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<RootDependencyNodeInput>(node)
+                is SerializableRootDependencyNode -> {
+                    val sourceNode = sourceDirectDeps[node.key].resolveCorrespondingSourceNode<RootDependencyNodeWithContext>(node)
                     node.fillNotation(sourceNode)
                 }
             }
@@ -116,7 +116,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
     }
 
     private inline fun <reified T: DependencyNode> List<DependencyNode>?.resolveCorrespondingSourceNode(
-        node: DependencyNodePlain,
+        node: SerializableDependencyNode,
         additionalMatch: T.() -> Boolean = { true }
     ): T {
         if (this == null || this.isEmpty())
@@ -146,7 +146,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
-    ): RootDependencyNodeInput {
+    ): RootDependencyNodeWithContext {
         val resolutionFlow = when (dependenciesFlowType) {
             is DependenciesFlowType.ClassPathType -> Classpath(dependenciesFlowType)
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
@@ -182,15 +182,15 @@ internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider 
     }
 
     fun SerializersModuleBuilder.moduleForDependencyNodePlainHierarchy() =
-        moduleForDependencyNodeHierarchy(DependencyNodePlain::class as KClass<DependencyNode>)
+        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class as KClass<DependencyNode>)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy() =
         moduleForDependencyNodeHierarchy(DependencyNode::class)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<DependencyNode>) {
-        polymorphic(kClass,ModuleDependencyNodeWithModulePlain::class, ModuleDependencyNodeWithModulePlain.serializer())
-        polymorphic(kClass,DirectFragmentDependencyNodeHolderPlain::class, DirectFragmentDependencyNodeHolderPlain.serializer())
-        polymorphic(kClass,UnresolvedMavenDependencyNodePlain::class,UnresolvedMavenDependencyNodePlain.serializer())
+        polymorphic(kClass,SerializableModuleDependencyNodeWithModule::class, SerializableModuleDependencyNodeWithModule.serializer())
+        polymorphic(kClass,SerializableDirectFragmentDependencyNodeHolder::class, SerializableDirectFragmentDependencyNodeHolder.serializer())
+        polymorphic(kClass,SerializableUnresolvedMavenDependencyNode::class,SerializableUnresolvedMavenDependencyNode.serializer())
     }
 
     fun SerializersModuleBuilder.moduleMessageHierarchy() {
@@ -215,13 +215,13 @@ internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider 
     }
 }
 
-class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl> {
+class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext> {
 
-    override fun isApplicable(node: MavenDependencyNodeImpl): Boolean {
+    override fun isApplicable(node: MavenDependencyNodeWithContext): Boolean {
         return node.originalVersion() == null
     }
 
-    override fun resolveVersions(nodes: Set<MavenDependencyNodeImpl>): Map<MavenDependencyNodeImpl, String> {
+    override fun resolveVersions(nodes: Set<MavenDependencyNodeWithContext>): Map<MavenDependencyNodeWithContext, String> {
         return nodes.mapNotNull { node ->
             if (!isApplicable(node)) {
                 null
@@ -235,7 +235,7 @@ class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolve
      * Resolve an unspecified dependency version from the BOM imported in the same module.
      * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
      */
-    private fun resolveVersionFromBom(node: MavenDependencyNodeImpl): String? {
+    private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
         val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNode> = when {
             // Direct dependency
             node.parents.any { it is DirectFragmentDependencyNode } -> node.parents.filterIsInstance<DirectFragmentDependencyNode>()

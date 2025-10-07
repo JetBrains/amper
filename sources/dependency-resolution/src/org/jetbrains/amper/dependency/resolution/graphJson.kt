@@ -44,15 +44,15 @@ internal class DefaultSerializableTypesProvider: GraphSerializableTypesProvider 
     }
 
     fun SerializersModuleBuilder.moduleForDependencyNodePlainHierarchy() =
-        moduleForDependencyNodeHierarchy(DependencyNodePlain::class as KClass<DependencyNode>)
+        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class as KClass<DependencyNode>)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy() =
         moduleForDependencyNodeHierarchy(DependencyNode::class)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<DependencyNode>) {
-        polymorphic(kClass, MavenDependencyNodePlain::class, MavenDependencyNodePlain.serializer())
-        polymorphic(kClass, RootDependencyNodePlain::class, RootDependencyNodePlain.serializer())
-        polymorphic(kClass,MavenDependencyConstraintNodePlain::class,MavenDependencyConstraintNodePlain.serializer()        )
+        polymorphic(kClass, SerializableMavenDependencyNode::class, SerializableMavenDependencyNode.serializer())
+        polymorphic(kClass, SerializableRootDependencyNode::class, SerializableRootDependencyNode.serializer())
+        polymorphic(kClass,SerializableMavenDependencyConstraintNode::class,SerializableMavenDependencyConstraintNode.serializer()        )
     }
 
     fun SerializersModuleBuilder.moduleMessageHierarchy() =

@@ -51,20 +51,20 @@ private val logger = LoggerFactory.getLogger("resolver.kt")
  * val paths = node.dependencyPaths()
  * ```
  *
- * @see DependencyNodeHolderImpl
+ * @see DependencyNodeHolderWithContext
  * @see MavenDependencyNode
  * @see Context
  */
 class Resolver {
 
     suspend fun resolveDependencies(
-        root: DependencyNodeWithResolutionContext,
+        root: DependencyNodeWithContext,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.SKIP,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null,
-        postProcessDeserializedGraph: (DependencyNodePlain) -> Unit = {},
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
+        postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
     ): DependencyNode {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
             val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources)
@@ -142,17 +142,17 @@ class Resolver {
                             }
                         }
                     } catch (e: Exception) {
-                        logger.warn(
-                            "Unable to get dependency graph from incremental cache, " +
-                                    "falling back to non-cached resolution: ${e.toString()}"
+                        logger.error(
+                            "Unable to calculate dependency graph based on incremental cache, " +
+                                    "falling back to non-cached resolution: ${e.toString()}",
+                            e
                         )
                         if (graphResolvedInsideCache != null) {
                             graphResolvedInsideCache
                         } else {
-                            // todo (AB) : Invalidate cache entry manually on deserialization failure
+                            // todo (AB) : Invalidate cache entry manually on any failure
                             // todo (AB) : (might be not needed though if cache.codeVersion is properly specified)
 
-                            // Graph was taken from the cache, but deserialization failed.
                             // Fallback to non-cached resolution
                             root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                             root
@@ -166,14 +166,14 @@ class Resolver {
     }
 
     // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)
-    internal fun getDependenciesGraphInput(node: DependencyNodeWithResolutionContext): Set<CacheEntryKey> {
+    internal fun getDependenciesGraphInput(node: DependencyNodeWithContext): Set<CacheEntryKey> {
         val cacheEntryKeys: MutableSet<CacheEntryKey> = mutableSetOf()
         node.distinctBfsSequence().forEach {
             // skip the parent node, its cacheEntryKey is used as a cache entry identifier
             // and is not a part of cache configuration that affects entry invalidation
             if (it == node) return@forEach
 
-            if (it !is DependencyNodeWithResolutionContext) {
+            if (it !is DependencyNodeWithContext) {
                 cacheEntryKeys.add(CacheEntryKey.NotCached)
                 return cacheEntryKeys
             }
@@ -189,7 +189,7 @@ class Resolver {
     }
 
     private fun getContextAwareRootCacheEntryKey(
-        root: DependencyNodeWithResolutionContext,
+        root: DependencyNodeWithContext,
         transitive: Boolean,
         downloadSources: Boolean,
     ): String? {
@@ -205,12 +205,12 @@ class Resolver {
                         transitive,
                     ))
             }
-        }.computeKey()?.replaceTheEndWithMd5IfTooLong()
+        }.computeKey()
 
         return cacheEntryKey
     }
 
-    private fun getCacheEntryKeyForCacheConfiguration(node: DependencyNodeWithResolutionContext): CacheEntryKey {
+    private fun getCacheEntryKeyForCacheConfiguration(node: DependencyNodeWithContext): CacheEntryKey {
         val cacheEntryKey = when (val cacheEntryKey = node.cacheEntryKey) {
             is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
             is CacheEntryKey.CompositeCacheEntryKey -> {
@@ -218,7 +218,7 @@ class Resolver {
                     cacheEntryKey
                 else {
                     val skipContext = node.parents.isNotEmpty() && node.parents.all {
-                        (it is DependencyNodeWithResolutionContext)
+                        (it is DependencyNodeWithContext)
                                 && ResolutionConfigPlain(node.context.settings) == ResolutionConfigPlain(it.context.settings)
                     }
                     if (skipContext)
@@ -236,11 +236,11 @@ class Resolver {
         return cacheEntryKey
     }
 
-    private suspend fun DependencyNodeWithResolutionContext.resolveDependencies(
+    private suspend fun DependencyNodeWithContext.resolveDependencies(
         resolutionLevel: ResolutionLevel,
         transitive: Boolean,
         downloadSources: Boolean,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>?
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>?
     ) {
         val resolver = Resolver()
         resolver.buildGraph(
@@ -262,10 +262,10 @@ class Resolver {
      * @return current instance
      */
     suspend fun buildGraph(
-        root: DependencyNodeWithResolutionContext,
+        root: DependencyNodeWithContext,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         transitive: Boolean = true,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null
     ) {
         root.context.spanBuilder("Resolver.buildGraph").use {
             val conflictResolver =
@@ -301,7 +301,7 @@ class Resolver {
      * Launches a new coroutine to resolve this [DependencyNode], keeping track of the resolution job in the node cache.
      */
     context(coroutineScope: CoroutineScope)
-    private fun DependencyNodeWithResolutionContext.launchRecursiveResolution(
+    private fun DependencyNodeWithContext.launchRecursiveResolution(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
@@ -321,7 +321,7 @@ class Resolver {
         resolutionJobs.add(job)
     }
 
-    private suspend fun DependencyNodeWithResolutionContext.resolveRecursively(
+    private suspend fun DependencyNodeWithContext.resolveRecursively(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
@@ -363,13 +363,13 @@ class Resolver {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies(node: DependencyNodeWithResolutionContext, downloadSources: Boolean = false) {
+    suspend fun downloadDependencies(node: DependencyNodeWithContext, downloadSources: Boolean = false) {
         node.context.spanBuilder("Resolver.downloadDependencies").use {
             coroutineScope {
                 node
                     .distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                     .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
-                    .filterIsInstance<DependencyNodeWithResolutionContext>()
+                    .filterIsInstance<DependencyNodeWithContext>()
                     .forEach {
                         launch {
                             it.downloadDependencies(downloadSources)
@@ -381,11 +381,11 @@ class Resolver {
         }
     }
 
-    private suspend fun DependencyNodeWithResolutionContext.closeResolutionContexts() {
+    private suspend fun DependencyNodeWithContext.closeResolutionContexts() {
         coroutineScope {
             distinctBfsSequence { child, _ -> child !is MavenDependencyConstraintNode }
                 .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
-                .mapNotNull { (it as? DependencyNodeWithResolutionContext)?.context }.distinct()
+                .mapNotNull { (it as? DependencyNodeWithContext)?.context }.distinct()
                 .forEach {
                     launch {
                         it.close()
@@ -397,7 +397,7 @@ class Resolver {
 
 private class ConflictResolver(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
-    unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeImpl>? = null
+    unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null
 ) {
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
@@ -406,7 +406,7 @@ private class ConflictResolver(
      * different keys can access the map at the same time).
      * The list values, however, aren't thread-safe, but they are key-specific.
      */
-    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNodeWithResolutionContext>>()
+    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNodeWithContext>>()
     private val conflictedKeys = ConcurrentHashMap.newKeySet<Key<*>>()
     private val conflictDetectionMutexByKey = StripedMutex(64)
 
@@ -417,7 +417,7 @@ private class ConflictResolver(
      * if the node has not been seen yet.
      * Can be called concurrently with any node, including those sharing the same key.
      */
-    suspend fun registerAndDetectConflictsWithChildren(node: DependencyNodeWithResolutionContext) {
+    suspend fun registerAndDetectConflictsWithChildren(node: DependencyNodeWithContext) {
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
 
@@ -428,7 +428,7 @@ private class ConflictResolver(
 
         // Node is not known to conflict resolver, register it together with all children transitively
         node.distinctBfsSequence()
-            .filterIsInstance<DependencyNodeWithResolutionContext>()
+            .filterIsInstance<DependencyNodeWithContext>()
             .forEach {
                 registerAndDetectConflicts(it)
             }
@@ -450,7 +450,7 @@ private class ConflictResolver(
      * // todo (AB) : as a part of conflict resolution winning subgraph, but some will be eliminated (not reachable from the root).
      * // todo (AB) : The question is: how to detect such "stale" parents? how to get rid of them on conflict resolution-loosing subgraphs?
      */
-    private suspend fun unregisterOrphanNodes(nodes: Map<DependencyNodeWithResolutionContext, List<DependencyNodeWithResolutionContext>>) {
+    private suspend fun unregisterOrphanNodes(nodes: Map<DependencyNodeWithContext, List<DependencyNodeWithContext>>) {
         val nodesToUnregister = nodes.keys +
                 nodes.values.flatMap { oldChildren ->
                     // old children of the node before the conflict was resolved
@@ -464,7 +464,7 @@ private class ConflictResolver(
                                 child.isOrphanChildOfConflictingNodes(nodes)
                                 // otherwise, the node is referenced from some resolved non-conflicted node
                                 // => it should be kept with all children (avoid unregistering)
-                            }.filterIsInstance<DependencyNodeWithResolutionContext>()
+                            }.filterIsInstance<DependencyNodeWithContext>()
                         }
                 }
 
@@ -478,7 +478,7 @@ private class ConflictResolver(
     }
 
     private fun DependencyNode.isOrphanChildOfConflictingNodes(
-        nodes: Map<DependencyNodeWithResolutionContext, List<DependencyNodeWithResolutionContext>>,
+        nodes: Map<DependencyNodeWithContext, List<DependencyNodeWithContext>>,
     ): Boolean =
         // there is the single parent that is to be unregistered
         // => the child node can be unregistered as well with all children (except those referenced outside)
@@ -487,7 +487,7 @@ private class ConflictResolver(
                 // => the node could be unregistered as well with all children
                 || !isThereAPathToTopBypassing(nodes.keys)
 
-    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNodeWithResolutionContext>): Boolean {
+    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Set<DependencyNodeWithContext>): Boolean {
         if (parents.isEmpty()) return true // we reach the root
 
         val nonBypassedParents = parents - nodes
@@ -498,7 +498,7 @@ private class ConflictResolver(
      * Registers this node for potential conflict resolution and returns whether it already conflicts with a previously
      * seen node. Can be called concurrently with any node, including those sharing the same key.
      */
-    suspend fun registerAndDetectConflicts(node: DependencyNodeWithResolutionContext): Boolean =
+    suspend fun registerAndDetectConflicts(node: DependencyNodeWithContext): Boolean =
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
             similarNodes.add(node) // register the node for potential future conflict resolution
@@ -526,7 +526,7 @@ private class ConflictResolver(
      * Resolves conflicts and returns the nodes that must be resolved as a result.
      * Must not be called concurrently with [registerAndDetectConflicts].
      */
-    suspend fun resolveConflicts(): Set<DependencyNodeWithResolutionContext> = coroutineScope {
+    suspend fun resolveConflicts(): Set<DependencyNodeWithContext> = coroutineScope {
         conflictingNodes()
             .map { candidates ->
                 async {
@@ -540,7 +540,7 @@ private class ConflictResolver(
                 }
             }
             .awaitAll()
-            .fold(emptyMap<DependencyNodeWithResolutionContext,List<DependencyNodeWithResolutionContext>>()) { acc, map ->  acc + map }
+            .fold(emptyMap<DependencyNodeWithContext,List<DependencyNodeWithContext>>()) { acc, map ->  acc + map }
             .also {
                 unregisterOrphanNodes(it)
                 conflictedKeys.clear()
@@ -550,32 +550,32 @@ private class ConflictResolver(
             }
     }
 
-    private fun conflictingNodes(): List<Set<DependencyNodeWithResolutionContext>> = conflictedKeys.map { key ->
+    private fun conflictingNodes(): List<Set<DependencyNodeWithContext>> = conflictedKeys.map { key ->
         similarNodesByKey[key] ?: throw AmperDependencyResolutionException("Nodes are missing for ${key.name}")
     }
 
-    private fun Collection<DependencyNodeWithResolutionContext>.resolveConflict(): Boolean {
+    private fun Collection<DependencyNodeWithContext>.resolveConflict(): Boolean {
         val strategy = conflictResolutionStrategies.find { it.isApplicableFor(this) && it.seesConflictsIn(this) }
             ?: return true // if no strategy sees the conflict, there is no conflict, so it is considered resolved
         return strategy.resolveConflictsIn(this)
     }
 }
 
-private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProvider: UnspecifiedVersionResolver<MavenDependencyNodeImpl>) {
-    private val unversionedNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<MavenDependencyNodeImpl>>()
+private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProvider: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>) {
+    private val unversionedNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<MavenDependencyNodeWithContext>>()
 
-    fun registerNode(node: DependencyNodeWithResolutionContext) = doIfApplicable(node) {
+    fun registerNode(node: DependencyNodeWithContext) = doIfApplicable(node) {
         val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
         unversionedNodes.add(it)
     }
 
-    fun unregisterNode(node: DependencyNodeWithResolutionContext) = doIfApplicable(node) {
+    fun unregisterNode(node: DependencyNodeWithContext) = doIfApplicable(node) {
         val unversionedNodes = unversionedNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
         unversionedNodes.remove(it)
     }
 
-    private fun doIfApplicable(node: DependencyNodeWithResolutionContext, block: (MavenDependencyNodeImpl) -> Unit) {
-        if (node is MavenDependencyNodeImpl && node.resolvedVersion() == null && unspecifiedVersionProvider.isApplicable(node)) {
+    private fun doIfApplicable(node: DependencyNodeWithContext, block: (MavenDependencyNodeWithContext) -> Unit) {
+        if (node is MavenDependencyNodeWithContext && node.resolvedVersion() == null && unspecifiedVersionProvider.isApplicable(node)) {
             block(node)
         }
     }
@@ -585,7 +585,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
      *
      * @return successfully resolved unspecified versions
      */
-    fun resolveVersions(): List<MavenDependencyNodeImpl> {
+    fun resolveVersions(): List<MavenDependencyNodeWithContext> {
         return unversionedNodesByKey.values.flatMap { nodes ->
             val resolvedNodes = unspecifiedVersionProvider.resolveVersions(nodes)
 
@@ -609,11 +609,11 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
  * By the resolution process we mean finding the node's dependencies (children) according to provided context,
  * namely, a [ResolutionScope] and a set of [ResolutionPlatform]s.
  */
-interface DependencyNodeWithResolutionContext: DependencyNode {
+interface DependencyNodeWithContext: DependencyNode {
 
     override val parents: Set<DependencyNode> get() = context.nodeParents
     val context: Context
-    override val children: List<DependencyNodeWithResolutionContext>
+    override val children: List<DependencyNodeWithContext>
     override val messages: List<Message>
 
     /**
@@ -635,7 +635,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
     suspend fun downloadDependencies(downloadSources: Boolean = false)
 
     /**
-     * Key that identifies this [DependencyNodeWithResolutionContext] in the cache used for Dependency Resolution.
+     * Key that identifies this [DependencyNodeWithContext] in the cache used for Dependency Resolution.
      * All parameters that affect the resolution of this node should be taken into account
      * while computing the cache entry key.
      *
@@ -643,7 +643,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
      * is different from ktor.io:ktor-client-core:1.6.7 resolved for iosX64
      *
      * This key might be used for storing this particular node in the cache alone.
-     * In this case, [DependencyNodeWithResolutionContext.cacheEntryKey] all transitive children together
+     * In this case, [DependencyNodeWithContext.cacheEntryKey] all transitive children together
      * represent configuration of such an entry.
      *
      * If the node configuration changes, then the cache entry related to this node is recalculated.
@@ -663,7 +663,7 @@ interface DependencyNodeWithResolutionContext: DependencyNode {
  * requires one of the child dependencies: this parent just launches its own job for the node, and that one is not canceled.
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
-private val DependencyNodeWithResolutionContext.resolutionMutex: Mutex
+private val DependencyNodeWithContext.resolutionMutex: Mutex
     get() = context.nodeCache.computeIfAbsent(Key<Mutex>("resolutionMutex")) { Mutex() }
 
 /**
@@ -673,7 +673,7 @@ private val DependencyNodeWithResolutionContext.resolutionMutex: Mutex
  * cancellation itself ultimately modifies the list (removes terminated jobs).
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
-private val DependencyNodeWithResolutionContext.resolutionJobs: MutableList<Job>
+private val DependencyNodeWithContext.resolutionJobs: MutableList<Job>
     get() = context.nodeCache.computeIfAbsent(Key<MutableList<Job>>("resolutionJobs")) { CopyOnWriteArrayList() }
 
 /**
@@ -720,7 +720,7 @@ sealed class CacheEntryKey {
 
     data class CompositeCacheEntryKey(val components: List<Any>): CacheEntryKey() {
         override fun computeKey(): String {
-            return components.joinToString(",") { it.toString() }
+            return components.joinToString(",")
         }
     }
 
@@ -741,10 +741,6 @@ enum class IncrementalCacheUsage {
 private fun String.md5(): String = MessageDigest.getInstance("MD5")
     .digest(this.toByteArray())
     .toHexString()
-
-private fun String.replaceTheEndWithMd5IfTooLong() = this
-    .takeIf { it.length <= 50 }
-    ?: (this.substring(0, 50) + md5())
 
 // todo (AB) : Check all places where this exception is thrown,
 // todo (AB) : it might be better to convert it either to diagnostic or to error.

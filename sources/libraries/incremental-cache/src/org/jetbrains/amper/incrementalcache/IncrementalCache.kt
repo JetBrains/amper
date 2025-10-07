@@ -91,7 +91,7 @@ class IncrementalCache(
 
             stateRoot.createDirectories()
 
-            val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9.\\-_]"), "_")
+            val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9.\\-_]"), "_").take(50)
             // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
             val hash = shortHash("$key\nstate format version: ${State.formatVersion}")
             val stateFile = stateRoot.resolve("$sanitizedKey-$hash")
@@ -144,7 +144,7 @@ class IncrementalCache(
         }
 
     @OptIn(ExperimentalStdlibApi::class)
-    private fun shortHash(key: String): String = MessageDigest.getInstance("SHA-256")
+    private fun shortHash(key: String): String = MessageDigest.getInstance("MD5")
         .digest(key.encodeToByteArray())
         .toHexString()
         .take(10)
