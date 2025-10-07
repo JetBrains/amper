@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isExplicitlySet
+import org.jetbrains.amper.frontend.api.isSetInTemplate
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -28,7 +29,9 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
         module.fragments.forEach { fragment ->
             val settings = fragment.settings.kotlin.serialization
             val versionProp = settings::version
-            if (versionProp.isExplicitlySet && !settings.enabled) {
+            // We don't want to report anything if the version is set in a template, because users might just want
+            // to set a central version for all modules (like a catalog) regardless of whether they use it.
+            if (versionProp.isExplicitlySet && !versionProp.isSetInTemplate && !settings.enabled) {
                 if (!reportedPlaces.add(versionProp.schemaDelegate.trace)) return@forEach
                 problemReporter.reportMessage(SerializationVersionWithoutSerialization(versionProp))
             }

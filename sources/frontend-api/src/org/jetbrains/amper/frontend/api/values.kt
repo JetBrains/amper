@@ -216,6 +216,12 @@ val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
 val <T> KProperty0<T>.isExplicitlySet: Boolean
     get() = !schemaDelegate.trace.isDefault
 
+/**
+ * Whether this property is set in a template file.
+ */
+val <T> KProperty0<T>.isSetInTemplate: Boolean
+    get() = schemaDelegate.trace.isFromTemplate
+
 val SchemaNode.propertyDelegates: List<SchemaValueDelegate<*>> get() = allValues
 
 /**

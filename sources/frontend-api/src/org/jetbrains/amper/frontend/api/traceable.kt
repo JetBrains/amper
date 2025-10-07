@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.api
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.UsedInIdePlugin
@@ -34,6 +35,23 @@ val Trace.isDefault: Boolean
         is DerivedValueTrace -> definitionTrace.isDefault
         is PsiTrace -> false
     }
+
+/**
+ * The file within which this trace points to, or null if this trace doesn't point to a file (or a place inside a file).
+ */
+val Trace.containingFile: VirtualFile?
+    get() = when(this) {
+        is PsiTrace -> psiElement.containingFile.originalFile.virtualFile
+        is DefaultTrace -> null
+        is BuiltinCatalogTrace -> null
+        is DerivedValueTrace -> definitionTrace.containingFile
+    }
+
+/**
+ * Whether this trace points to a template file.
+ */
+val Trace.isFromTemplate: Boolean
+    get() = containingFile?.let { ".module-template." in it.name } ?: false
 
 /**
  * A trace indicating that the value is a static default value (hardcoded in the schema, or in the code).

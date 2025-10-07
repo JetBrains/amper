@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isExplicitlySet
+import org.jetbrains.amper.frontend.api.isSetInTemplate
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -25,12 +26,15 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
         module.fragments.forEach { fragment ->
-            val settings = fragment.settings.compose
-            if (!settings.enabled) {
-                val versionProp = settings::version
+            val composeSettings = fragment.settings.compose
+            if (!composeSettings.enabled) {
+                val versionProp = composeSettings::version
                 val trace = versionProp.schemaDelegate.trace
-                if (versionProp.isExplicitlySet && reportedPlaces.add(trace))
+                // We don't want to report anything if the version is set in a template, because users might just want
+                // to set a central version for all modules (like a catalog) regardless of whether they use it.
+                if (versionProp.isExplicitlySet && !versionProp.isSetInTemplate && reportedPlaces.add(trace)) {
                     problemReporter.reportMessage(ComposeVersionWithoutCompose(versionProp))
+                }
             }
         }
     }
