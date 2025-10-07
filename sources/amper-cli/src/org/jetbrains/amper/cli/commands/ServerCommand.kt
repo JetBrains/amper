@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli.commands
 
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import io.ktor.http.*
@@ -34,6 +35,7 @@ import org.jetbrains.amper.cli.options.choiceWithTypoSuggestion
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AllRunSettings
 import org.slf4j.MDC
 import org.tinylog.Level
 import kotlin.uuid.ExperimentalUuidApi
@@ -51,6 +53,13 @@ internal class ServerCommand : AmperModelAwareCommand(name = "server") {
     private val port by option("-p", "--port", help = "The port to listen on")
         .int(acceptsValueWithoutName = true)
         .default(defaultPort)
+
+    private val composeHotReloadMode by option("--compose-hot-reload-mode", help = "Enable Compose Hot Reload " +
+            "mode for Compose Multiplatform applications (for desktop applications and libraries which have jvm platform). " +
+            "This mode makes the application reloadable while running, which significantly reduces the development round-trip" +
+            " to see code changes in action. \n\n" +
+            "Note: in this mode, the Java runtime is overridden to the JetBrains Runtime, which is required for Compose Hot Reload to work.")
+        .flag()
 
     private val logLevel by option("-l", "--log-level", help = "The task log level")
         .choiceWithTypoSuggestion(
@@ -70,7 +79,7 @@ internal class ServerCommand : AmperModelAwareCommand(name = "server") {
     override suspend fun run(cliContext: CliContext, model: Model) {
         // Note: with the current approach, the server will not see changes in Amper module files.
         // TODO should we re-parse the model every time /task is called?
-        withBackend(cliContext, model = model) { backend ->
+        withBackend(cliContext, model = model, runSettings = AllRunSettings(composeHotReloadMode = composeHotReloadMode)) { backend ->
             embeddedServer(Netty, port = port) {
                 install(ContentNegotiation) { json() }
                 install(SSE)

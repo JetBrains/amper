@@ -124,7 +124,7 @@ class AmperRecompiler() : Recompiler, AutoCloseable {
         coroutineScope.launch {
             val exitCode = runProcess(
                 workingDir = amperBuildRoot,
-                command = listOf("./amper", "server", "--port", amperServerPort),
+                command = listOf("./amper", "server", "--compose-hot-reload-mode", "--port", amperServerPort),
                 environment = mapOf(ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT to orchestrationPort.toString()),
                 outputListener = streamingOutputListener
             )
