@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.deprecated
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
@@ -128,7 +129,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         currentContext.obj = CommonOptions(
             explicitProjectRoot = root,
             consoleLogLevel = consoleLogLevel,
-            profilerEnabled = debuggingOptions.asyncProfiler,
+            profilerEnabled = debuggingOptions.profilerEnabled || debuggingOptions.asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
             explicitBuildOutputRoot = buildOutputRoot,
         )
@@ -156,7 +157,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
          */
         val explicitProjectRoot: Path?,
         val consoleLogLevel: Level,
-        val asyncProfiler: Boolean,
+        val profilerEnabled: Boolean,
         val sharedCachesRoot: AmperUserCacheRoot,
         val explicitBuildOutputRoot: Path?,
     )
@@ -206,12 +207,20 @@ private class InternalDebuggingOptions : OptionGroup(
     // in the help. See https://github.com/ajalt/clikt/issues/617
     name = "Options to debug Amper",
 ) {
+    val profilerEnabled by option(
+        "--profile",
+        help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
+                "The snapshot file is generated in the build logs."
+    ).flag(default = false)
+
     val asyncProfiler by option(
         "--async-profiler",
         help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
                 "The snapshot file is generated in the build logs.",
         hidden = true,
-    ).flag(default = false)
+    )
+        .flag(default = false)
+        .deprecated(message = "WARN: --async-profiler is deprecated, use --profile instead")
 
     val coroutinesDebugEnabled by option(
         "--coroutines-debug",

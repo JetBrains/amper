@@ -12,19 +12,32 @@ import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.div
 import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
 import kotlin.io.path.writeBytes
 
-object AsyncProfilerMode {
-    fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, userCacheRoot: AmperUserCacheRoot) {
+internal object Profiler {
+
+    /**
+     * Starts the Async Profiler, extracting the native library to the [userCacheRoot] if it wasn't done before.
+     * The snapshot file will be placed in the build logs directory defined by [logsRoot].
+     */
+    fun start(userCacheRoot: AmperUserCacheRoot, logsRoot: AmperBuildLogsRoot) {
+        start(userCacheRoot, logsRoot.path.resolve("async-profiler-snapshot.jfr"))
+    }
+
+    /**
+     * Starts the Async Profiler, extracting the native library to the [userCacheRoot] if it wasn't done before.
+     * The results will be written to the given [snapshotFile].
+     */
+    private fun start(userCacheRoot: AmperUserCacheRoot, snapshotFile: Path) {
         val profiler = getInstanceWithCachedLib(userCacheRoot = userCacheRoot)
-
-        val snapshotFile = logsDir.path.resolve("async-profiler-snapshot.jfr")
-        val startCommand = "start,file=$snapshotFile,event=wall,interval=10ms,jfr,jfrsync=profile"
-
+        val snapshotFile = snapshotFile.absolute()
+        val startCommand = "start,file=${snapshotFile.pathString},event=wall,interval=10ms,jfr,jfrsync=profile"
         logger.info("Starting async profiler with command: $startCommand")
         profiler.execute(startCommand)
         logger.info("Async profiler started, snapshot file: $snapshotFile")
