@@ -57,7 +57,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
-        val (bashVersion, batVersion, result) = runAmperUpdate(projectDir)
+        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir)
 
         assertTrue(result.stdout.contains("Update successful"), "Update should be successful")
         assertNotEquals("1.0-SNAPSHOT", bashVersion, "amper bash script should have the new version")
@@ -71,7 +71,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
-        val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--dev")
+        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir, "--dev")
 
         assertTrue(result.stdout.contains("Update successful"), "Update should be successful")
         // This is not technically correct: right after a release, the release version should be picked up
@@ -85,7 +85,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
-        val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--target-version=0.6.0-dev-2229")
+        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir, "--target-version=0.6.0-dev-2229")
 
         assertTrue(result.stdout.contains("Update successful"), "Update should be successful")
         assertEquals("0.6.0-dev-2229", bashVersion, "amper bash script should have the new version")
@@ -97,7 +97,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
-        val (bashVersion, batVersion, result) = runAmperUpdate(projectDir, "--target-version=0.5.0")
+        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir, "--target-version=0.5.0")
 
         assertTrue(result.stdout.contains("Update successful"), "Update should be successful")
         assertEquals("0.5.0", bashVersion, "amper bash script should have the new version")
@@ -143,7 +143,7 @@ class AmperUpdateTest : AmperCliTestBase() {
     }
 
     private suspend fun assertCanUpdateToCurrent(projectDir: Path) {
-        val (bashVersion, batVersion) = runAmperUpdate(
+        val (bashVersion, batVersion) = runAmperUpdateAndAwaitWinWrapper(
             projectDir,
             "--target-version=1.0-SNAPSHOT",
             "--repository=$localAmperDistRepoUrl",
@@ -158,7 +158,11 @@ class AmperUpdateTest : AmperCliTestBase() {
         val commandResult: AmperCliResult,
     )
 
-    private suspend fun runAmperUpdate(projectDir: Path, vararg options: String): UpdateResult {
+    /**
+     * Runs the `./amper update` command with the given [options] and waits for the Windows wrapper to match the linux
+     * one (in case the wrapper is updated asynchronously after the update command exits).
+     */
+    private suspend fun runAmperUpdateAndAwaitWinWrapper(projectDir: Path, vararg options: String): UpdateResult {
         val result = runCli(
             projectRoot = projectDir,
             "update", *options,
@@ -197,8 +201,19 @@ class AmperUpdateTest : AmperCliTestBase() {
     private fun Path.readVersionInBashScript(): String =
         resolve("amper").readAmperVersionVariable(versionVariablePrefix = "amper_version=")
 
-    private fun Path.readVersionInBatchScript(): String =
-        resolve("amper.bat").readAmperVersionVariable(versionVariablePrefix = "set amper_version=")
+    private suspend fun Path.readVersionInBatchScript(): String {
+        val batchWrapper = resolve("amper.bat")
+        lateinit var exception: FileSystemException
+        repeat(20) {
+            try {
+                return batchWrapper.readAmperVersionVariable(versionVariablePrefix = "set amper_version=")
+            } catch (e: FileSystemException) { // happens when the async process is still writing to the file
+                exception = e
+                delay(100.milliseconds)
+            }
+        }
+        throw exception
+    }
 
     private fun Path.readAmperVersionVariable(versionVariablePrefix: String): String {
         val scriptContents = readLines()
