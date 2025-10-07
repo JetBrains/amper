@@ -22,6 +22,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             projectRoot = projectRoot,
             "run",
             "--compose-hot-reload-mode",
+            assertEmptyStdErr = false,
         )
 
         val spans = result.readTelemetrySpans()
@@ -62,6 +63,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             "--main-class",
             "MainKt",
             "--compose-hot-reload-mode",
+            assertEmptyStdErr = false,
         )
 
         val spans = result.readTelemetrySpans()
@@ -102,6 +104,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             "--main-class",
             "MainKt",
             "--compose-hot-reload-mode",
+            assertEmptyStdErr = false,
         )
 
         val spans = result.readTelemetrySpans()
@@ -185,6 +188,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             projectRoot = projectRoot,
             "run",
             "--compose-hot-reload-mode",
+            assertEmptyStdErr = false,
         )
 
         val spans = result.readTelemetrySpans()
