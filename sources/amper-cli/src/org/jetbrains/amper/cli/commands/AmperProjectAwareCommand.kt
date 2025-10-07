@@ -27,8 +27,10 @@ internal abstract class AmperProjectAwareCommand(name: String) : AmperSubcommand
         spanBuilder("Setup file logging and monitoring").use {
             DeadLockMonitor.install(cliContext.currentLogsRoot)
             LoggingInitializer.setupFileLogging(cliContext.currentLogsRoot)
+        }
 
-            if (commonOptions.asyncProfiler) {
+        if (commonOptions.asyncProfiler) {
+            spanBuilder("Setup profiler").use {
                 AsyncProfilerMode.attachAsyncProfiler(cliContext.currentLogsRoot, cliContext.userCacheRoot)
             }
         }
