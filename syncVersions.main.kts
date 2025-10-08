@@ -44,7 +44,7 @@ val amperInternalJbrVersion = "21.0.8b1038.68"
  */
 val kotlinVersion = "2.2.10" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 
-val composeHotReloadVersion = "1.0.0-beta05"
+val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.8.2"
 val junitPlatformVersion = "1.13.4"
 val kotlinxSerializationVersion = "1.9.0"
