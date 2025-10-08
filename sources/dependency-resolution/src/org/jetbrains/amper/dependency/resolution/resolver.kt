@@ -57,6 +57,44 @@ private val logger = LoggerFactory.getLogger("resolver.kt")
  */
 class Resolver {
 
+    /**
+     * Main entry point into the dependency resolution.
+     * It receives an unresolved input graph as the input,
+     * resolves transitive dependencies if requested (default behavior) and downloads artifacts corresponding
+     * to the nodes of the resolved graph.
+     *
+     * @param root
+     * represents the root node of the input dependencies graph to be resolved.
+     * To resolve single maven dependency [MavenDependencyNodeWithContext] might be used,
+     * to resolve a list of dependencies [RootDependencyNodeWithContext] might be used,
+     * specifying an input dependencies list as children of the root node.
+     * Consumers might use other nodes for grouping dependencies, the only requirements to such nodes is that those
+     * should be serializable if a consumer wants to benefit from graph resolution cache and specifies non-null [incrementalCacheUsage].
+     * See more details on serialization in [org.jetbrains.amper.dependency.resolution.GraphSerializableTypesProvider]
+     *
+     * @param resolutionLevel
+     * If [ResolutionLevel.LOCAL] is passed, dependencies and their artifacts are resolved from
+     * local file storage only, if artifact is missing there it is left unresolved. With this resolution level, DR doesn't
+     * use network at all.
+     * [ResolutionLevel.NETWORK] implies full resolution. If node metadata or artifact is messing locally, it is resolved
+     * from the repositories (defined in the resolution context of the node).
+     *
+     * @param downloadSources Artifacts containing source and documentation (sources, javadocs) are downloaded from the repositories together
+     * with the main artifacts if this flag is set to true.
+     *
+     * @param transitive Resolve the direct dependencies from the input graph only without transitive ones.
+     *
+     * @param incrementalCacheUsage instance of the incremental cache to get cached resolution graph from (and store to).
+     *
+     * @param unspecifiedVersionResolver instance of the [UnspecifiedVersionResolver] to resolve version of dependencies
+     * that don't have a version specified in the input graph (or transitive dependencies with an unspecified version as well)
+     *
+     * @param postProcessDeserializedGraph callback to be called after the graph is resolved and deserialized from the cache.
+     * It is useful if some data in the nput graph can't be serialized and thus is marked as [kotlinx.serialization.Transient],
+     * but still has to be populated from the input graph to the restored one before it is started using.
+     *
+     * @return resolved dependencies graph
+     */
     suspend fun resolveDependencies(
         root: DependencyNodeWithContext,
         resolutionLevel: ResolutionLevel,
@@ -359,7 +397,7 @@ class Resolver {
     }
 
     /**
-     * Downloads dependencies of all nodes by traversing a dependency graph.
+     * Downloads dependencies of all nodes by traversing a dependency graph built by the method [buildGraph].
      */
     suspend fun downloadDependencies(node: DependencyNodeWithContext, downloadSources: Boolean = false) {
         node.context.spanBuilder("Resolver.downloadDependencies").use {

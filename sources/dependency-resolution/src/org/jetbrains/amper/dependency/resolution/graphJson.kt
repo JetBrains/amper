@@ -29,8 +29,21 @@ object GraphJson {
     }
 }
 
+/**
+ * If a consumer of the dependency-resolution library defines its own types of dependency nodes
+ * and want to benefit from using resolution graph incremental cache,
+ * then it should implement this interface registering consumer-specific node types together with converters that
+ * helps those nodes to be serialized to the cache as a part of the resulting graph.
+ */
 interface GraphSerializableTypesProvider {
+    /**
+     * @return list of converters that can be used to serialize/deserialize the consumer-specific dependency nodes.
+     */
     fun getSerializableConverters(): List<SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+
+    /**
+     * Registers polymorphic serializers for the types used by consumer-specific dependency nodes.
+     */
     fun SerializersModuleBuilder.registerPolymorphic()
 }
 
