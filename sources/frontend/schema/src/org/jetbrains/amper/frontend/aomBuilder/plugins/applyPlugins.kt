@@ -86,8 +86,6 @@ internal fun applyPlugins(
                     TaskFromPluginDescription.ClasspathRequest(
                         node = node,
                         localDependencies = localModules.distinct(),
-                        // TODO: validate maven dependencies here?
-                        //  blocker: maven coordinates diagnostics are part of the DR and are not accessible here
                         externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
                             .map { it.coordinates },
                         propertyLocation = propertyLocation,

@@ -38,7 +38,16 @@ sealed interface SchemaType {
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
         val knownStringValues: Set<String>? = null,
-    ) : ScalarType, StringInterpolatableType
+        val semantics: Semantics? = null,
+    ) : ScalarType, StringInterpolatableType {
+        enum class Semantics {
+            /**
+             * String has maven coordinates format: <groupId>:<artifactId>(:<version>)?(:<qualifier>)?
+             */
+            MavenCoordinates,
+            // ClassReference, ?
+        }
+    }
 
     data class PathType(
         override val isMarkedNullable: Boolean = false,

@@ -89,6 +89,11 @@ private fun generateShadowSchemaNode(
                     addAnnotation(SHORTHAND)
                 }
                 if (internal.isDependencyNotation) {
+                    if (property.type is PluginData.Type.StringType && property.name == "coordinates") {
+                        // We know that we need maven coordinates semantics for a string that is dependency notation
+                        addAnnotation(AnnotationSpec.builder(STRING_SEMANTICS)
+                            .addMember("%T.%N", STRING_SEMANTICS_KIND, "MavenCoordinates").build())
+                    }
                     addAnnotation(FROM_KEY_AND_THE_REST_NESTED)
                 }
                 if (internal.isProvided) {
@@ -211,6 +216,8 @@ private val IGNORE_FOR_SCHEMA = ClassName("org.jetbrains.amper.frontend.api", "I
 private val SCHEMA_DOC = ClassName("org.jetbrains.amper.frontend.api", "SchemaDoc")
 private val SHORTHAND = ClassName("org.jetbrains.amper.frontend.api", "Shorthand")
 private val FROM_KEY_AND_THE_REST_NESTED = ClassName("org.jetbrains.amper.frontend.api", "FromKeyAndTheRestIsNested")
+private val STRING_SEMANTICS = ClassName("org.jetbrains.amper.frontend.api", "StringSemantics")
+private val STRING_SEMANTICS_KIND = ClassName("org.jetbrains.amper.frontend.types", "SchemaType", "StringType", "Semantics")
 private val PATH_MARK = ClassName("org.jetbrains.amper.frontend.api", "PathMark")
 private val PATH_MARK_TYPE = ClassName("org.jetbrains.amper.plugins.schema.model", "InputOutputMark")
 private val SCHEMA_ENUM = ClassName("org.jetbrains.amper.frontend", "SchemaEnum")

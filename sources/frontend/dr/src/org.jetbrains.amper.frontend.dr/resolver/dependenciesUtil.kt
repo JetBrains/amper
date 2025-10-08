@@ -5,28 +5,15 @@
 package org.jetbrains.amper.frontend.dr.resolver
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
-import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.MavenDependencyBase
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DependencyCoordinatesInGradleFormat
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenClassifiersAreNotSupported
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveLineBreak
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHavePartEndingWithDot
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSlash
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveSpace
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooFewParts
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesHaveTooManyParts
-import org.jetbrains.amper.frontend.dr.resolver.diagnostics.MavenCoordinatesShouldBuildValidPath
 import org.jetbrains.amper.problems.reporting.MessageBundle
-import java.nio.file.InvalidPathException
-import kotlin.io.path.Path
 
 object FrontendDrBundle : MessageBundle("messages.FrontendDrBundle")
 
@@ -55,122 +42,12 @@ private fun <T : DependencyNode> DependencyNode.findParentsImpl(
     }
 }
 
-sealed class ParsedCoordinates(val messages: List<Message>) {
-    class Success(val coordinates: MavenCoordinates, messages: List<Message> = emptyList()) :
-        ParsedCoordinates(messages)
-
-    class Failure(messages: List<Message>) : ParsedCoordinates(messages) {
-        constructor(error: Message) : this(listOf(error))
-    }
-}
-
-fun MavenDependencyBase.parseCoordinates(): ParsedCoordinates = parseCoordinates(coordinates.value.trim())
-
-private fun parseCoordinates(coordinates: String): ParsedCoordinates {
-    if (' ' in coordinates) {
-        return ParsedCoordinates.Failure(MavenCoordinatesHaveSpace(coordinates))
-    }
-
-    if ('\n' in coordinates || '\r' in coordinates) {
-        return ParsedCoordinates.Failure(MavenCoordinatesHaveLineBreak(coordinates))
-    }
-
-    if ('/' in coordinates || '\\' in coordinates) {
-        return ParsedCoordinates.Failure(MavenCoordinatesHaveSlash(coordinates))
-    }
-
-    val parts = coordinates.trim().split(":")
-
-    if (parts.size < 2) {
-        val errors = buildList {
-            add(MavenCoordinatesHaveTooFewParts(coordinates, parts.size))
-            reportIfCoordinatesAreGradleLike(coordinates, this)
-        }
-        return ParsedCoordinates.Failure(errors)
-    }
-
-    if (parts.size > 4) {
-        return ParsedCoordinates.Failure(MavenCoordinatesHaveTooManyParts(coordinates, parts.size))
-    }
-
-    parts.forEach { part ->
-        try {
-            // It throws InvalidPathException in case coordinates contain some restricted symbols.
-            Path(part)
-        } catch (e: InvalidPathException) {
-            val errors = buildList {
-                add(MavenCoordinatesShouldBuildValidPath(coordinates, part, e))
-                reportIfCoordinatesAreGradleLike(coordinates, this)
-            }
-            return ParsedCoordinates.Failure(errors)
-        }
-
-        if (part.endsWith(".")) {
-            return ParsedCoordinates.Failure(MavenCoordinatesHavePartEndingWithDot(coordinates))
-        }
-    }
-
-    val groupId = parts[0].trim()
-    val artifactId = parts[1].trim()
-    val version = if (parts.size > 2) parts[2].trim() else null
-    val classifier = if (parts.size > 3) parts[3].trim() else null
-
-    val messages = mutableListOf<Message>()
-
-    if (classifier != null) {
-        messages.add(MavenClassifiersAreNotSupported(coordinates, classifier))
-    }
-
-    return ParsedCoordinates.Success(
-        MavenCoordinates(groupId = groupId, artifactId = artifactId, version = version, classifier = classifier),
-        messages = messages,
-    )
-}
-
-private fun reportIfCoordinatesAreGradleLike(coordinates: String, messages: MutableList<Message>) {
-    val probableGradleScope = GradleScope.parseGradleScope(coordinates)
-    if (probableGradleScope != null) {
-        val (gradleScope, trimmedCoordinates) = probableGradleScope
-        messages.add(
-            DependencyCoordinatesInGradleFormat(
-                coordinates = coordinates,
-                gradleScope = gradleScope,
-                trimmedCoordinates = trimmedCoordinates
-            )
-        )
-    }
-}
-
-@UsedInIdePlugin
-enum class GradleScope {
-    api,
-    implementation, compile,
-    testImplementation, testCompile,
-    compileOnly,
-    compileOnlyApi,
-    testCompileOnly,
-    runtimeOnly, runtime,
-    testRuntimeOnly, testRuntime;
-
-    companion object {
-        fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
-            GradleScope.entries
-                .firstOrNull { coordinates.startsWith("${it.name}(") }
-                ?.let { gradleScope ->
-                    val gradleScopePrefix = "${gradleScope.name}("
-                    val trimmedCoordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
-                        ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
-                        ?: return@let null
-                    gradleScope to trimmedCoordinates
-                }
-
-        private fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
-            coordinates
-                .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
-                ?.substringAfter(prefix)
-                ?.substringBefore(suffix)
-    }
-}
+fun MavenDependencyBase.toMavenCoordinates() = MavenCoordinates(
+    groupId = coordinates.groupId,
+    artifactId = coordinates.artifactId,
+    version = coordinates.version,
+    classifier = coordinates.classifier,
+)
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {
     return this.dependency

@@ -38,7 +38,10 @@ fun SchemaType.render(
         }
         is SchemaType.IntType -> append("integer")
         is SchemaType.PathType -> append("path")
-        is SchemaType.StringType -> append("string")
+        is SchemaType.StringType -> when (semantics) {
+            null -> append("string")
+            SchemaType.StringType.Semantics.MavenCoordinates -> append("maven-coordinates")
+        }
         is SchemaType.ListType -> append("sequence [${elementType.render(false)}]")
         is SchemaType.MapType -> append("mapping {${keyType.render(false)} : ${valueType.render(false)}}")
         is SchemaType.EnumType -> {

@@ -25,6 +25,8 @@ import org.jetbrains.amper.frontend.api.PathMark
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.api.StringSemantics
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 /**
@@ -69,6 +71,7 @@ public class ShadowDependencyLocal : ShadowDependency() {
  */
 @SchemaDoc(doc = "External maven dependency.")
 public class ShadowDependencyMaven : ShadowDependency() {
+    @StringSemantics(SchemaType.StringType.Semantics.MavenCoordinates)
     @FromKeyAndTheRestIsNested
     @SchemaDoc(doc = "Maven coordinates, in the `\"<group>:<name>:<version>\"` format.")
     public val coordinates: String by value()

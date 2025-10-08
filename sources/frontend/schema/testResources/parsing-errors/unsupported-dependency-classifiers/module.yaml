@@ -1,0 +1,7 @@
+product: jvm/app
+
+dependencies:
+  - <![Warning] Maven classifiers are currently not supported!>com.fasterxml.jackson.core:jackson-core:2.17.2:abc<!>
+  - <![Warning] Maven classifiers are currently not supported!>com.fasterxml.jackson.core:jackson-core:2.17.2:compile-only<!>
+  - <![Warning] Maven classifiers are currently not supported!>com.fasterxml.jackson.core:jackson-core:2.17.2:exported<!>
+  - <![Warning] Maven classifiers are currently not supported!>com.fasterxml.jackson.core:jackson-core:2.17.2:runtime-only<!>

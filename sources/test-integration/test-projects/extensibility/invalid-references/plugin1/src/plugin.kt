@@ -43,4 +43,5 @@ fun someAction(
     nullableInt: Int?,
     nested1: Nested,
     nested2: Nested,
+    dependencies: List<Dependency.Maven>,
 ) {}

@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.ModulePart
@@ -29,44 +30,44 @@ import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
 
 private fun kotlinDependencyOf(artifactId: String, version: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.jetbrains.kotlin:$artifactId", version),
+    coordinates = coords("org.jetbrains.kotlin", artifactId, version),
     trace = dependencyTrace,
 )
 
 private fun lombokDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.projectlombok:lombok", version),
+    coordinates = coords("org.projectlombok", "lombok", version),
     trace = dependencyTrace,
 )
 
 private fun kotlinxSerializationCoreDependency(version: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.jetbrains.kotlinx:kotlinx-serialization-core", version),
+    coordinates = coords("org.jetbrains.kotlinx", "kotlinx-serialization-core", version),
     trace = dependencyTrace,
 )
 
 private fun kotlinxSerializationFormatDependency(format: String, version: TraceableString, dependencyTrace: Trace) =
     MavenDependency(
-        coordinates = coords("org.jetbrains.kotlinx:kotlinx-serialization-$format", version),
+        coordinates = coords("org.jetbrains.kotlinx", "kotlinx-serialization-$format", version),
         trace = dependencyTrace,
     )
 
 private fun composeRuntimeDependency(composeVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.jetbrains.compose.runtime:runtime", composeVersion),
+    coordinates = coords("org.jetbrains.compose.runtime", "runtime", composeVersion),
     trace = dependencyTrace,
 )
 
 private fun composeResourcesDependency(composeVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
-    coordinates = coords("org.jetbrains.compose.components:components-resources", composeVersion),
+    coordinates = coords("org.jetbrains.compose.components", "components-resources", composeVersion),
     trace = dependencyTrace,
 )
 
 private fun ktorBomDependency(ktorVersion: TraceableString, dependencyTrace: Trace): BomDependency = BomDependency(
-    coordinates = coords("io.ktor:ktor-bom", ktorVersion),
+    coordinates = coords("io.ktor", "ktor-bom", ktorVersion),
     trace = dependencyTrace,
 )
 
 private fun springBootBomDependency(springBootVersion: TraceableString, dependencyTrace: Trace): BomDependency =
     BomDependency(
-        coordinates = coords("org.springframework.boot:spring-boot-dependencies", springBootVersion),
+        coordinates = coords("org.springframework.boot", "spring-boot-dependencies", springBootVersion),
         trace = dependencyTrace,
     )
 
@@ -74,8 +75,10 @@ private fun springBootBomDependency(springBootVersion: TraceableString, dependen
  * Creates a new [TraceableString] with a value computed from this [TraceableString]'s value.
  * The new trace will be the same as this one.
  */
-private fun coords(groupAndArtifact: String, version: TraceableString) = TraceableString(
-    value = "$groupAndArtifact:${version.value}",
+private fun coords(group: String, artifact: String, version: TraceableString) = MavenCoordinates(
+    groupId = group,
+    artifactId = artifact,
+    version = version.value,
     trace = TransformedValueTrace(
         description = "injected version ${version.value} into default coordinates",
         sourceValue = version,
@@ -88,7 +91,7 @@ private fun coords(groupAndArtifact: String, version: TraceableString) = Traceab
 internal fun DefaultModule.addImplicitDependencies() {
     fragments.associateWith {
         // Precompute allExternalMavenDependencies because addImplicitDependencies would affect these.
-        it.allExternalMavenDependencies().mapTo(hashSetOf()) { it.groupAndArtifact }
+        it.allExternalMavenDependencies().mapTo(hashSetOf()) { it.coordinates.groupAndArtifact }
     }.forEach { (fragment, deps) -> fragment.addImplicitDependencies(deps) }
 
     parts = parts.map {
@@ -109,7 +112,9 @@ private fun Fragment.addImplicitDependencies(
     }
 
     // we don't add an implicit dependency if it is already defined explicitly by the user (in any version)
-    val nonOverriddenImplicitDeps = implicitDependencies.filterNot { it.groupAndArtifact in explicitMavenDependencies }
+    val nonOverriddenImplicitDeps = implicitDependencies.filterNot {
+        it.coordinates.groupAndArtifact in explicitMavenDependencies
+    }
 
     // TODO report cases where explicit dependencies only partially override a group of related implicit dependencies.
     //   For example, an explicit `kotlin-test` dependency, but no explicit `kotlin-test-junit` dependency (in JVM).
@@ -226,8 +231,10 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (module.type == ProductType.JVM_AMPER_PLUGIN) {
         // TODO: It'd be better to have some builtin dependency that resolves to a jar inside Amper distribution.
         add(MavenDependency(
-            coordinates = TraceableString(
-                value = "org.jetbrains.amper:amper-extensibility-api:${AmperBuild.mavenVersion}",
+            coordinates = MavenCoordinates(
+                groupId = "org.jetbrains.amper",
+                artifactId = "amper-extensibility-api",
+                version = AmperBuild.mavenVersion,
                 trace = DefaultTrace,
             ),
             // TODO we should trace to the product type, but we don't seem to have this trace in the AOM
@@ -260,13 +267,8 @@ private fun SchemaValueDelegate<String>.asTraceableString() = TraceableString(va
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 
-private val MavenDependencyBase.groupAndArtifact: String
-    get() {
-        val parts = coordinates.value.split(":", limit = 3)
-        // Some tests don't have actual coordinates, maybe in real life we might also not have a group:artifact prefix.
-        // This is not the place to fail if we want validation on maven coordinates, so we just go "best effort" here.
-        return if (parts.size >= 2) "${parts[0]}:${parts[1]}" else coordinates.value
-    }
+private val MavenCoordinates.groupAndArtifact: String
+    get() = "${groupId}:${artifactId}"
 
 private fun RepositoriesModulePart.withImplicitMavenRepositories(productType: ProductType, fragments: List<Fragment>): ModulePart<*> {
     val repositories = buildList {
@@ -274,7 +276,7 @@ private fun RepositoriesModulePart.withImplicitMavenRepositories(productType: Pr
         val isHotReloadRuntimeApiPresent = fragments
             .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
-            .any { it.groupAndArtifact == "org.jetbrains.compose.hot-reload:hot-reload-runtime-api" }
+            .any { it.coordinates.groupAndArtifact == "org.jetbrains.compose.hot-reload:hot-reload-runtime-api" }
         if (isHotReloadRuntimeApiPresent) {
             add(RepositoriesModulePart.Repository(
                 id = "amper-hot-reload-dev",

@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
@@ -59,6 +60,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.name
 import kotlin.io.path.relativeTo
+import kotlin.reflect.KProperty0
 
 /**
  * Parses the configuration files of this [AmperProjectContext] and builds the project model.
@@ -246,7 +248,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = TraceableString(coordinates, this::coordinates.schemaDelegate.trace),
+        coordinates = MavenCoordinates(::coordinates.traceableString()),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -254,11 +256,30 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = TraceableString(coordinates, trace = ::coordinates.schemaDelegate.trace),
+        coordinates = MavenCoordinates(::coordinates.traceableString()),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     else -> error("Unknown dependency type: ${this::class}")
+}
+
+private fun KProperty0<String>.traceableString(): TraceableString {
+    return TraceableString(get(), schemaDelegate.trace)
+}
+
+private fun MavenCoordinates(coordinates: TraceableString): MavenCoordinates {
+    val parts = coordinates.value.trim().split(":")
+    check(parts.size in 2..4) {
+        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $coordinates. " +
+                "Ensure that the coordinates were properly validated in the parser."
+    }
+    return MavenCoordinates(
+        groupId = parts[0],
+        artifactId = parts[1],
+        version = if (parts.size > 2) parts[2] else null,
+        classifier = if (parts.size > 3) parts[3] else null,
+        trace = coordinates.trace,
+    )
 }
 
 context(problemReporter: ProblemReporter)

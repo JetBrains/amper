@@ -180,11 +180,25 @@ interface LocalModuleDependency : DefaultScopedNotation {
 }
 
 sealed interface MavenDependencyBase : Notation {
-    val coordinates: TraceableString
+    val coordinates: MavenCoordinates
+}
+
+data class MavenCoordinates(
+    val groupId: String,
+    val artifactId: String,
+    val version: String?,
+    val classifier: String? = null,
+    override val trace: Trace,
+) : Traceable {
+    override fun toString() = buildString {
+        append(groupId).append(':').append(artifactId)
+        version?.let { append(':').append(it) }
+        classifier?.let { append(':').append(it) }
+    }
 }
 
 data class MavenDependency(
-    override val coordinates: TraceableString,
+    override val coordinates: MavenCoordinates,
     override val trace: Trace,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
@@ -192,7 +206,7 @@ data class MavenDependency(
 ) : MavenDependencyBase, DefaultScopedNotation
 
 data class BomDependency(
-    override val coordinates: TraceableString,
+    override val coordinates: MavenCoordinates,
     override val trace: Trace,
 ) : MavenDependencyBase
 

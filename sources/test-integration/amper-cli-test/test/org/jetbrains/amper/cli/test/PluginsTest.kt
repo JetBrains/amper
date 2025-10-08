@@ -357,6 +357,8 @@ class PluginsTest : AmperCliTestBase() {
             val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
             assertEquals(
                 expected = sortedSetOf(
+                    "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
+                    "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
                     "${pluginYaml}:11:7: The value of type `ModuleConfigurationForPlugin` cannot be assigned to the type `Nested`",
                     "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
                     "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
@@ -365,6 +367,12 @@ class PluginsTest : AmperCliTestBase() {
                     "${pluginYaml}:4:5: No value for required property 'int'.",
                 ),
                 actual = parseErrors(),
+            )
+            assertEquals(
+                expected = sortedSetOf(
+                    "${pluginYaml}:16:11: Maven classifiers are currently not supported",
+                ),
+                actual = parseWarnings()
             )
         }
     }

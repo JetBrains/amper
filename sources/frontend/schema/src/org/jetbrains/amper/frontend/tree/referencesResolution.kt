@@ -17,8 +17,10 @@ import org.jetbrains.amper.frontend.api.TraceableValue
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.reading.copyWithTrace
+import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.frontend.types.withNullability
@@ -139,17 +141,8 @@ private class TreeReferencesResolver(
             }
         }.joinToString("")
 
-        val typedInterpolated = when (value.type) {
-            is SchemaType.PathType -> try {
-                Path(interpolated)
-            } catch (e: InvalidPathException) {
-                reporter.reportBundleError(value.trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
-                return NotChanged
-            }
-            is SchemaType.StringType -> interpolated
-        }
         val trace = TransformedValueTrace(
-            description = "string interpolation: ${value.parts.joinToString("") { 
+            description = "string interpolation: ${value.parts.joinToString("") {
                 when(it) {
                     is StringInterpolationValue.Part.Reference -> $$"${$${it.referencePath.joinToString(".")}}"
                     is StringInterpolationValue.Part.Text -> it.text
@@ -160,6 +153,28 @@ private class TreeReferencesResolver(
             // first() is safe because of StringInterpolationValue contract.
             sourceValue = allResolvedValues.first(),
         )
+        val typedInterpolated = when (val type = value.type) {
+            is SchemaType.PathType -> try {
+                Path(interpolated)
+            } catch (e: InvalidPathException) {
+                reporter.reportBundleError(value.trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
+                return NotChanged
+            }
+            is SchemaType.StringType -> {
+                when (type.semantics) {
+                    SchemaType.StringType.Semantics.MavenCoordinates -> context(reporter) {
+                        validateAndReportMavenCoordinates(
+                            origin = checkNotNull(trace.extractPsiElementOrNull()) {
+                                "String interpolation is expected to always originate from the PSI"
+                            },
+                            coordinates = interpolated
+                        )
+                    }
+                    null -> {}
+                }
+                interpolated
+            }
+        }
         return Changed(ScalarValue(typedInterpolated, value.type, trace, value.contexts))
     }
 
@@ -240,7 +255,8 @@ private fun <TS : TreeState> TreeValue<TS>.cast(targetType: SchemaType): TreeVal
                 else -> return null
             }.wrapTraceable(targetType, trace)
         )
-        is SchemaType.StringType if this is ScalarValue -> copy(
+        is SchemaType.StringType if this is ScalarValue
+                && type.stringSemantics() assignableTo targetType.semantics -> copy(
             value = when (val value = value.unwrapTraceable()) {
                 is String -> value // also goes for external enums
                 is SchemaEnum -> value.schemaValue
@@ -265,6 +281,16 @@ private fun <TS : TreeState> TreeValue<TS>.cast(targetType: SchemaType): TreeVal
         )
         else -> null
     }
+}
+
+private fun SchemaType.stringSemantics() = when(this) {
+    is SchemaType.StringType -> semantics
+    else -> null // a potential string representation of everything else is a raw string
+}
+
+private infix fun SchemaType.StringType.Semantics?.assignableTo(other: SchemaType.StringType.Semantics?): Boolean {
+    return other == null  // Everything is assignable to raw string
+            || this == other
 }
 
 private fun renderTypeOf(value: TreeValue<*>): String = when(value) {

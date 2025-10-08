@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.KnownStringValues
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.PathMark
@@ -205,7 +206,9 @@ internal abstract class BuiltInTypingContext protected constructor(
                 .map { prop ->
                     SchemaObjectDeclaration.Property(
                         name = prop.name,
-                        type = getType(prop.returnType).addKnownStringValuesIfAny(prop),
+                        type = getType(prop.returnType)
+                            .addKnownStringValuesIfAny(prop)
+                            .addStringSemanticsIfAny(prop),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
                         default = prop.schemaDelegate(exampleInstance)?.default,
@@ -229,6 +232,15 @@ internal abstract class BuiltInTypingContext protected constructor(
             if (stringValues != null) {
                 check(this is SchemaType.StringType) { "@KnownStringValues is only supported for String properties" }
                 return copy(knownStringValues = stringValues.values.toSet())
+            }
+            return this
+        }
+
+        private fun SchemaType.addStringSemanticsIfAny(property: KProperty<*>): SchemaType {
+            val semantics = property.findAnnotation<StringSemantics>()?.value
+            if (semantics != null) {
+                check(this is SchemaType.StringType) { "@StringSemantics is only supported for String properties" }
+                return copy(semantics = semantics)
             }
             return this
         }

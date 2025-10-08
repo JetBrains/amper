@@ -2,8 +2,27 @@ product:
   type: jvm/lib
 
 dependencies:
-  - <![Error] While parsing `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>maven:notation:1: exported
+  - <![Error] While parsing `ExternalMavenDependency ( maven-coordinates | maven-coordinates: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>maven:notation:1: exported
     another: key<!>
-  - <![Error] While parsing `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>{}<!>
-  - <![Error] Expected a value!>notation:<!>
-  - notation: <![Error] Unknown value 'invalid-value'. Expected one of: [exported, compile-only, runtime-only, all]!>invalid-value<!>
+  - <![Error] While parsing `ExternalMavenDependency ( maven-coordinates | maven-coordinates: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>{}<!>
+  - <![Error] Expected a value!>foo:bar:baz:<!>
+  - foo:bar:baz2: <![Error] Unknown value 'invalid-value'. Expected one of: [exported, compile-only, runtime-only, all]!>invalid-value<!>
+
+  # This multiline dependency, in fact, is parsed as a single line scalar value due to incorrect indentation
+  - <![Error] Maven coordinates should not contain spaces!>com.fasterxml.jackson.core:jackson-core:2.17.2
+    - ../shared<!>
+  # This dependency is invalid since it contains spaces inside one of the parts
+  - <![Error] Maven coordinates should not contain spaces!>com.fasterxml.     jackson.core:jackson-core:2.17.2<!>
+  - <![Error] Maven coordinates should not contain spaces!>com.fasterxml.jackson.core:jackson-core:2.17.2 :exported<!>
+  # This dependency is invalid since it contains slash inside one of the parts
+  - <![Error] Maven coordinates should not contain slashes!>com.fasterx/ml.jackson.core:jackson-core:2.17.2<!>
+  # This dependency is invalid since it contains too few parts
+  - <![Error] Maven coordinates com.fasterxml.jackson.core should contain at least two parts separated by ':', but got 1!>com.fasterxml.jackson.core<!>
+  # This dependency is invalid since it contains too many parts
+  - <![Error] Maven coordinates com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2 should contain at most four parts separated by ':', but got 6!>com.fasterxml.jackson.core:jackson-core:jackson-core:jackson-core:jackson-core:2.17.2<!>
+  # This dependency is invalid since it is multi-line
+  - <![Error] Maven coordinates should not contain line breaks!>|-
+    com.fasterxml.jackson.core:jackson-core:
+    2.17.2<!>
+  # This dependency has parts ending with dots
+  - <![Error] Maven coordinates should not contain parts ending with dots!>com.fasterxml.jackson.core:jackson-core.:2.17.2.<!>

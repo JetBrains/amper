@@ -73,6 +73,8 @@ internal fun parseValue(
     val newContexts: Contexts = inheritedContexts.map { it.withoutTrace() } + explicitContexts
     context(newContexts) {
         if (config.diagnoseReferences && psi is YAMLScalar) {
+            // FIXME: This might be a shorthand/from-key-and-the-rest-nested which contains a reference.
+            //  Then we can't really parse it here, so we need this rather on `parseScalar` level.
             val scalar = YAMLScalarOrKey(psi)
             if (containsReferenceSyntax(scalar)) {
                 if (config.parseReferences) {
@@ -92,7 +94,7 @@ internal fun parseValue(
             is SchemaType.VariantType -> parseVariant(psi, type)
             else -> {
                 reportUnexpectedValue(psi, type)
-                return null
+                null
             }
         }
     }

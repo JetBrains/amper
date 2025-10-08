@@ -10,19 +10,19 @@ aliases:
   - jvmAndAndroid: [jvm, android]
 
 dependencies:
-  - test
+  - test:dep
 
 dependencies@jvmAndAndroid:
-  - test
+  - test:dep
 
 <![Error] Unknown qualifier: wrong!>dependencies@wrong<!>:
-  - test
+  - test:dep
 
 test-dependencies@iosArm64:
-  - test
+  - test:dep
 
 <![Error] Unknown qualifier: wrong!>test-dependencies@wrong<!>:
-  - test
+  - test:dep
 
 settings@ios:
   kotlin:

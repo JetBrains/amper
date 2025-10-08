@@ -8,7 +8,6 @@ import org.apache.maven.model.DependencyManagement
 import org.apache.maven.model.Model
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer
 import org.codehaus.plexus.util.xml.XmlStreamWriter
-import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
@@ -18,8 +17,7 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
-import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
-import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -140,8 +138,7 @@ private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if 
 }
 
 private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: PublicationCoordinatesOverrides): Dependency {
-    val coords = readMavenCoordinates()
-    val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(coords)
+    val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(toMavenCoordinates())
 
     val dependency = Dependency()
     dependency.groupId = effectiveCoordinates.groupId
@@ -157,16 +154,6 @@ private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: Publ
         is BomDependency -> "pom"
     }
     return dependency
-}
-
-// TODO the knowledge of this representation should live in the frontend only, and the components should be
-//  accessible in a type-safe way directly on the MavenDependency type.
-private fun MavenDependencyBase.readMavenCoordinates(): MavenCoordinates {
-    val parsedCoordinates = parseCoordinates()
-    return when(parsedCoordinates) {
-        is ParsedCoordinates.Success -> parsedCoordinates.coordinates
-        is ParsedCoordinates.Failure ->  error(parsedCoordinates.messages.joinToString("\n") { it.message })
-    }
 }
 
 /**
@@ -201,7 +188,7 @@ private fun DefaultScopedNotation.mavenScopeName(): String = when {
 }
 
 private fun DefaultScopedNotation.userReadableCoordinates(): String = when (this) {
-    is MavenDependency -> coordinates.value
+    is MavenDependency -> coordinates.toString()
     is LocalModuleDependency -> module.userReadableName
     else -> toString()
 }

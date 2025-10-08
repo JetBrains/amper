@@ -10,3 +10,7 @@ tasks:
       nullableInt: ${module.configuration.nullablePath}
       nested1: ${module}
       nested2: ${module.configuration.nested.map}
+      dependencies:
+        - hel:lo/foo
+        - one-part
+        - foo:bar:12:compile

@@ -18,4 +18,4 @@ settings:
       <![Error] Expected `sequence [string]`, but got `mapping {}`!>args: value<!>
 
 dependencies:
-  - <![Error] Expected `ExternalMavenDependency ( string | string: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`, but got `sequence []`!>[1,2,3]<!>
+  - <![Error] Expected `ExternalMavenDependency ( maven-coordinates | maven-coordinates: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`, but got `sequence []`!>[1,2,3]<!>

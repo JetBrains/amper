@@ -8,9 +8,11 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 import java.nio.file.Path
 
 @EnumOrderSensitive
@@ -49,6 +51,7 @@ sealed class ScopedDependency : Dependency() {
 class ExternalMavenDependency : ScopedDependency() {
 
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
+    @StringSemantics(Semantics.MavenCoordinates)
     @FromKeyAndTheRestIsNested
     var coordinates by value<String>()
 }
@@ -75,6 +78,7 @@ sealed class UnscopedDependency : SchemaNode()
 
 class UnscopedExternalMavenDependency : UnscopedDependency() {
     @FromKeyAndTheRestIsNested
+    @StringSemantics(Semantics.MavenCoordinates)
     val coordinates by value<String>()
 }
 
@@ -94,6 +98,7 @@ class ExternalMavenBomDependency : BomDependency() {
 
     @SchemaDoc("Dependency on [a BOM](#external-maven-dependencies) in a Maven repository")
     @FromKeyAndTheRestIsNested
+    @StringSemantics(Semantics.MavenCoordinates)
     var coordinates by value<String>()
 }
 

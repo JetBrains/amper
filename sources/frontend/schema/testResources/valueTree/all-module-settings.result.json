@@ -29,11 +29,11 @@
       "coordinates(jvm)" : "org.jetbrains.compose.material3:material3:1.4.1(jvm)"
     },
     {
-      "coordinates(jvm)" : "some.dep(jvm)",
+      "coordinates(jvm)" : "some:dep(jvm)",
       "scope(jvm)" : "COMPILE_ONLY(jvm)"
     },
     {
-      "coordinates(jvm)" : "other.dep(jvm)",
+      "coordinates(jvm)" : "other:dep(jvm)",
       "scope(jvm)" : "COMPILE_ONLY(jvm)",
       "exported(jvm)" : "true(jvm)"
     },

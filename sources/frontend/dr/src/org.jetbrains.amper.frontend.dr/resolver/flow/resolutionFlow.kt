@@ -16,7 +16,6 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.SpanBuilderSource
-import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
@@ -26,9 +25,8 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolder
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
-import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
-import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -63,18 +61,14 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     protected fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
-        val result = parseCoordinates()
-        val dependencyNode = when (result) {
-            is ParsedCoordinates.Failure -> UnresolvedMavenDependencyNode(this.coordinates.value, context)
-            is ParsedCoordinates.Success -> context.toMavenDependencyNode(result.coordinates, this is BomDependency)
-        }
+        val dependencyNode = context.toMavenDependencyNode(toMavenCoordinates(), this is BomDependency)
 
         val node = DirectFragmentDependencyNodeHolder(
             dependencyNode,
             notation = this,
             fragment = fragment,
             templateContext = context,
-            messages = result.messages,
+            messages = emptyList(),
         )
 
         return node

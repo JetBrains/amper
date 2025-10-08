@@ -54,8 +54,9 @@ internal class ResolveCustomExternalDependenciesTask(
             this.platforms = setOf(ResolutionPlatform.JVM)
         }
         val externalDependencyNodes = externalDependencies.map {
-            val (group, module, version) = it.split(":") // FIXME: This has to be done in frontend
-            MavenDependencyNode(drContext, group, module, version, isBom = false)
+            // It's safe to split here, because, validation was already done in the frontend
+            val coordinates = it.split(":")
+            MavenDependencyNode(drContext, coordinates[0], coordinates[1], coordinates.getOrNull(2), isBom = false)
         }
         val localDependencyNodes = localDependencies.map {
             it.buildDependenciesGraph(isTest = false, Platform.JVM, resolutionScope, userCacheRoot)

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 /**
@@ -179,3 +180,12 @@ annotation class HiddenFromCompletion
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class PathMark(val type: InputOutputMark)
+
+/**
+ * For [String]/[TraceableString] schema properties.
+ *
+ * @see SchemaType.StringType.Semantics
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class StringSemantics(val value: SchemaType.StringType.Semantics)

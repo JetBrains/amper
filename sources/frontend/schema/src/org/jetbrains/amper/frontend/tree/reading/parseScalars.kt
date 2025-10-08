@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -34,7 +35,15 @@ internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): 
     is SchemaType.StringType -> {
         val string = scalar.textValue
         val value = if (type.isTraceableWrapped) string.asTraceable(scalar.psi.asTrace()) else string
-        scalarValue(scalar, type, value)
+        scalarValue(scalar, type, value).takeIf {
+            when (type.semantics) {
+                null -> true
+                SchemaType.StringType.Semantics.MavenCoordinates -> validateAndReportMavenCoordinates(
+                    origin = scalar.psi,
+                    coordinates = scalar.textValue,
+                )
+            }
+        }
     }
     is SchemaType.EnumType -> parseEnum(scalar, type)
     is SchemaType.PathType -> parsePath(scalar, type)

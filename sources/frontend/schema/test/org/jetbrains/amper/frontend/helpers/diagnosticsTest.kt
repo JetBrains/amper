@@ -5,21 +5,31 @@
 package org.jetbrains.amper.frontend.helpers
 
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
+import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.io.File
 import kotlin.io.path.div
 import kotlin.io.path.pathString
 
-fun FrontendTestCaseBase.diagnosticsTest(caseName: String, additionalFiles: List<String> = emptyList()) =
-    DiagnosticsTestRun(caseName, this, additionalFiles).doTest()
+fun FrontendTestCaseBase.diagnosticsTest(
+    caseName: String,
+    additionalFiles: List<String> = emptyList(),
+    additionalProblemChecks: (List<BuildProblem>) -> Unit = {},
+) = DiagnosticsTestRun(caseName, this, additionalFiles, additionalProblemChecks).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,
     testCase: FrontendTestCaseBase,
     private val additionalPaths: List<String>,
+    private val additionalProblemChecks: (List<BuildProblem>) -> Unit,
 ) : FrontendTest(caseName, testCase) {
 
     override val expectPostfix: String = ".yaml"
+
+    override fun doTest() {
+        super.doTest()
+        additionalProblemChecks(problemReporter.problems)
+    }
 
     override fun getInputContent(): String {
         // Fix paths, so they will point to the resources.

@@ -10,19 +10,19 @@ aliases:
   - jvmAndAndroid: [jvm, android]
 
 dependencies:
-  - test
+  - test:dep
 
 dependencies@jvmAndAndroid:
-  - test
+  - test:dep
 
 <![Error] Multiple qualifiers are not supported yet!>dependencies@jvm+android<!>:
-  - test
+  - test:dep
 
 test-dependencies@iosArm64:
-  - test
+  - test:dep
 
 <![Error] Multiple qualifiers are not supported yet!>test-dependencies@jvm+android<!>:
-  - test
+  - test:dep
 
 settings@ios:
   kotlin:
