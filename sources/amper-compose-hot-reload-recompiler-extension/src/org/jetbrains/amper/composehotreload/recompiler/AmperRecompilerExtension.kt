@@ -2,6 +2,8 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(InternalHotReloadApi::class, DelicateHotReloadApi::class)
+
 package org.jetbrains.amper.composehotreload.recompiler
 
 import io.ktor.client.*
@@ -26,6 +28,8 @@ import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.compose.devtools.api.Recompiler
 import org.jetbrains.compose.devtools.api.RecompilerContext
 import org.jetbrains.compose.devtools.api.RecompilerExtension
+import org.jetbrains.compose.reload.DelicateHotReloadApi
+import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.core.ExitCode
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.createLogger

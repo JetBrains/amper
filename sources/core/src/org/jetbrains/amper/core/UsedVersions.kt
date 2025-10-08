@@ -10,7 +10,7 @@ package org.jetbrains.amper.core
  */
 object UsedVersions {
 
-    /*magic_replacement*/ val composeHotReloadVersion = "1.0.0-beta05"
+    /*magic_replacement*/ val composeHotReloadVersion = "1.0.0-rc01"
     /*magic_replacement*/ val composeVersion = "1.8.2"
     /*magic_replacement*/ val defaultKotlinVersion = "2.2.10"
     /*magic_replacement*/ val junitPlatform = "1.13.4"

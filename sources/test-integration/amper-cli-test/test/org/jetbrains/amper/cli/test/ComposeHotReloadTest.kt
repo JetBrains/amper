@@ -12,6 +12,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertContains
 
+/**
+ * Since on the CI there is no X11 environment, an app cannot be run because the agent also launches a desktop devtools
+ * app. The only what happens in this test is it verified that everything is wired correctly.
+ *
+ * Note: asserting that stderr is empty makes no sense in this case because when there is no X11 the agent writes to
+ * stderr about it.
+ */
 class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test

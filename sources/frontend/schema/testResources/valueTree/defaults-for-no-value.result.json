@@ -32,7 +32,7 @@
     "compose" : {
       "experimental" : {
         "hotReload" : {
-          "version(DefaultCtx)" : "1.0.0-beta05(DefaultCtx)"
+          "version(DefaultCtx)" : "1.0.0-rc01(DefaultCtx)"
         }
       },
       "resources" : {
