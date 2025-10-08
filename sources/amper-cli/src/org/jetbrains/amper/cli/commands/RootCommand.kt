@@ -10,12 +10,10 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.core.terminal
-import com.github.ajalt.clikt.output.MordantMarkdownHelpFormatter
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.deprecated
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
@@ -26,6 +24,7 @@ import com.sun.jna.platform.win32.Kernel32Util
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.debug.DebugProbes
 import org.jetbrains.amper.buildinfo.AmperBuild
+import org.jetbrains.amper.cli.AmperHelpFormatter
 import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.commands.show.ShowCommand
 import org.jetbrains.amper.cli.commands.tools.ToolCommand
@@ -72,18 +71,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         context {
             // one would be created by default, but we manually set it to customize the theme
             terminal = createMordantTerminal()
-
-            helpFormatter = { context ->
-                object : MordantMarkdownHelpFormatter(context, showDefaultValues = true) {
-                    override fun renderRepeatedMetavar(metavar: String): String {
-                        // make it clear that arguments should be separated by '--'
-                        if (metavar in setOf("[<app_arguments>]", "[<tool_arguments>]", "[<jaeger_arguments>]")) {
-                            return "-- ${metavar}..."
-                        }
-                        return super.renderRepeatedMetavar(metavar)
-                    }
-                }
-            }
+            helpFormatter = { context -> AmperHelpFormatter(context) }
             suggestTypoCorrection = suggestTypoCorrection.withShowCommandSuggestions()
         }
     }
@@ -119,7 +107,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         help = "Root directory for build outputs. By default, this is the `build` directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
-    private val debuggingOptions by InternalDebuggingOptions()
+    private val debuggingOptions by DebuggingOptions()
 
     override suspend fun run() {
         // Ensure we're writing traces to the configured user cache (we start with the default in early telemetry).
@@ -129,7 +117,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         currentContext.obj = CommonOptions(
             explicitProjectRoot = root,
             consoleLogLevel = consoleLogLevel,
-            profilerEnabled = debuggingOptions.profilerEnabled || debuggingOptions.asyncProfiler,
+            profilerEnabled = debuggingOptions.profilerEnabled,
             sharedCachesRoot = sharedCachesRoot,
             explicitBuildOutputRoot = buildOutputRoot,
         )
@@ -202,25 +190,12 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     private fun isWindows(): Boolean = System.getProperty("os.name").lowercase().contains("win")
 }
 
-private class InternalDebuggingOptions : OptionGroup(
-    // The name might feel weird, but it needs to be alphabetically after "Options" if we want them to appear after
-    // in the help. See https://github.com/ajalt/clikt/issues/617
-    name = "Options to debug Amper",
-) {
+private class DebuggingOptions : OptionGroup(name = "Debugging options") {
     val profilerEnabled by option(
         "--profile",
         help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
                 "The snapshot file is generated in the build logs."
     ).flag(default = false)
-
-    val asyncProfiler by option(
-        "--async-profiler",
-        help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
-                "The snapshot file is generated in the build logs.",
-        hidden = true,
-    )
-        .flag(default = false)
-        .deprecated(message = "WARN: --async-profiler is deprecated, use --profile instead")
 
     val coroutinesDebugEnabled by option(
         "--coroutines-debug",
