@@ -209,10 +209,10 @@ class AmperUpdateTest : AmperCliTestBase() {
                 return batchWrapper.readAmperVersionVariable(versionVariablePrefix = "set amper_version=")
             } catch (e: FileSystemException) { // happens when the async process is still writing to the file
                 exception = e
-                delay(100.milliseconds)
+                delay(300.milliseconds)
             }
         }
-        throw exception
+        throw RuntimeException("Failed to read version from $batchWrapper after 20 attempts: $exception", exception)
     }
 
     private fun Path.readAmperVersionVariable(versionVariablePrefix: String): String {
