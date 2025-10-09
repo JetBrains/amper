@@ -201,15 +201,20 @@ class DependencyGraph(
             return DependencyGraph(graphContext, serializableNode)
         }
 
-        internal val providers = listOf(DefaultSerializableTypesProvider()) +
-                ServiceLoader.load(GraphSerializableTypesProvider::class.java)
+        internal val providers by lazy {
+            listOf(DefaultSerializableTypesProvider()) +
+                    ServiceLoader.load(GraphSerializableTypesProvider::class.java,
+                        GraphSerializableTypesProvider::class.java.classLoader)
+        }
 
-        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>> =
-            buildMap {
-                providers
-                    .flatMap { it.getSerializableConverters() }
-                    .register(this)
-            }
+        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+                by lazy {
+                    buildMap {
+                        providers
+                            .flatMap { it.getSerializableConverters() }
+                            .register(this)
+                    }
+                }
 
         private fun <T: DependencyNode, P: SerializableDependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, P> =
             converters[node::class] as? SerializableDependencyNodeConverter<T, P>
