@@ -85,12 +85,6 @@ interface DependencyNode {
         prettyPrint(this, allMavenDepsKeys,forMavenNode = forMavenNode)
     }
 
-    private fun DependencyNode.unwrap(): DependencyNode =
-        when (this) {
-            is DependencyNodeWithChildren -> node.unwrap()
-            else -> this
-        }
-
     private fun prettyPrint(
         builder: StringBuilder,
         allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
@@ -188,6 +182,12 @@ interface DependencyNode {
         return files.toList()
     }
 }
+
+fun DependencyNode.unwrap(): DependencyNode =
+    when (this) {
+        is DependencyNodeWithChildren -> node.unwrap()
+        else -> this
+    }
 
 @Serializable
 class DependencyGraph(
