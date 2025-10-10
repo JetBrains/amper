@@ -104,8 +104,34 @@ class BuildGraphTest : BaseDRTest() {
         assertFiles(testInfo, root)
     }
 
+    /**
+     * This test checks that property 'project.artifactId' in pom.xml is correctly sustituted
+     */
     @Test
     fun `com_github_sarxos webcam-capture-driver-opencv 0_3_12`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
+     * This test checks that COMPILE dependency on 'org.glassfish.jaxb:jaxb-core:4.0.5'
+     * is correctly resolved.
+     *
+     * Dependency declaration leaves the version unspecified,
+     * this way it should be resolved from the dependencyManagement section of one of the parent projects.
+     *
+     * groupId is parametrized, it should be substifuted early enough
+     * to be able to match the dependency declared in the dependencyManagement section of parent BOM.
+     *
+     * The test checks that such a parametrized and unversioned dependency is correctly resolved
+     *
+     * <dependency>
+     *     <groupId>${project.groupId}</groupId>
+     *     <artifactId>jaxb-core</artifactId>
+     * </dependency>
+     */
+    @Test
+    fun `org_glassfish_jaxb jaxb-runtime 4_0_5`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(testInfo)
         assertFiles(testInfo, root)
     }

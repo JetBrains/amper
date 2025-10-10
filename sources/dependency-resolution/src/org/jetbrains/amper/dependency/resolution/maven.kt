@@ -1624,9 +1624,9 @@ class MavenDependency internal constructor(
             }.filterNot {
                 shouldIgnoreDependency(it.groupId, it.artifactId, context)
             }.filter {
-                it.version != null && it.optional != true
+                it.optional != true
             }.map {
-                context.createOrReuseDependency(it.groupId, it.artifactId, it.version!!, false)
+                context.createOrReuseDependency(it.groupId, it.artifactId, it.version, false)
             }.let {
                 children = it
             }
@@ -1777,6 +1777,7 @@ class MavenDependency internal constructor(
 
         val dependencies = project.dependencies
             ?.dependencies
+            ?.map { it.expandTemplates(project) } // expanding properties used in groupId/artifactId
             ?.map { dep ->
                 if (dep.version != null && dep.scope != null) {
                     return@map if (dep.version.resolveSingleVersion() != dep.version) {
