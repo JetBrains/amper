@@ -203,8 +203,24 @@ class DependencyGraph(
 
         internal val providers by lazy {
             listOf(DefaultSerializableTypesProvider()) +
-                    ServiceLoader.load(GraphSerializableTypesProvider::class.java,
-                        GraphSerializableTypesProvider::class.java.classLoader)
+                    ServiceLoader.load(
+                        GraphSerializableTypesProvider::class.java,
+                        // By default, if the parameter loader is left unspecified,
+                        // Thread Context ClassLoader (CCTL) is used for loading services.
+                        // When this code is called inside Amper Idea Plugin,
+                        // CCTL is assigned to the instance com.intellij.util.lang.UrlClassLoader
+                        // that is unaware of the plugin's classpath (see https://youtrack.jetbrains.com/issue/IJPL-116331).
+                        // Thus, if we don't specify a classloader,
+                        // implementations of [GraphSerializableTypesProvider] from the Amper plugin classpath won't be found.
+                        // To make it work, we pass the classloader used for loading 'dependency-resolution' library itself.
+                        // Although this works for both primary use cases of the DR library
+                        // (which are usages in Amper CLI and Amper Idea plugin),
+                        // it implies the following limitation in general:
+                        // if a consumer extends DR with new types of graph nodes and declares implementation of
+                        // [GraphSerializableTypesProvider], such an implementation should be loadable by the
+                        // classloader that was used for loading 'dependency-resolution' library on consumer side.
+                        GraphSerializableTypesProvider::class.java.classLoader
+                    )
         }
 
         private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
