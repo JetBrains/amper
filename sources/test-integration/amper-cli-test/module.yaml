@@ -7,6 +7,7 @@ test-dependencies:
   - ../../core
   - ../../libraries/telemetry
   - ../../test-base
+  - $libs.junit.jupiter.params
   - $libs.kotlinx.coroutines.test
   - $libs.teamcity.serviceMessages # to parse service messages in tests
   - com.android.tools.apkparser:apkanalyzer:31.2.0

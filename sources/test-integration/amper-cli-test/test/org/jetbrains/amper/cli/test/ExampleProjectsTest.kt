@@ -10,11 +10,14 @@ import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.withTelemetrySpans
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.jetbrains.amper.test.spans.assertJavaCompilationSpan
 import org.jetbrains.amper.test.spans.assertKotlinJvmCompilationSpan
 import org.jetbrains.amper.test.spans.kotlinJvmCompilationSpans
 import org.jetbrains.amper.test.spans.kotlinNativeCompilationSpans
 import org.jetbrains.amper.test.spans.withAmperModule
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Path
 import java.util.jar.JarFile
 import kotlin.io.path.div
@@ -22,7 +25,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
@@ -31,15 +33,47 @@ class ExampleProjectsTest: AmperCliTestBase() {
 
     private fun exampleProject(name: String): Path = Dirs.examplesRoot.resolve(name)
 
-    @Test
-    fun `all examples are covered`() {
-        val methods = javaClass.declaredMethods.map { it.name.substringBefore("_") }.toSet()
+    companion object {
 
-        val exampleProjects = Dirs.examplesRoot.listDirectoryEntries().filter { it.isDirectory() }
-        for (entry in exampleProjects) {
-            assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
-                    "Please add a test method named '${entry.name}'")
-        }
+        private val knownWarnings = listOf(
+            // TODO fix Android Gradle builds to avoid this warning - we should use Gradle 9 anyway
+            // https://youtrack.jetbrains.com/issue/AMPER-4751/Gradle-warning-in-Android-based-example-projects
+            // https://youtrack.jetbrains.com/issue/AMPER-4752/Upgrade-to-Gradle-9-in-Android-delegated-builds
+            "Starting with Gradle 9.0, this property will be ignored by Gradle",
+            // From iOS builds - shouldn't really be a warning at all
+            "The Info.plist already exists, no need to generate the default one.",
+            // Probably shouldn't warn in debug mode - is this an Amper bug or a config issue?
+            // https://youtrack.jetbrains.com/issue/AMPER-4753/iOS-warning-in-compose-multiplatform-example-project
+            "`DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. You can still sign the app manually later.",
+            // Maybe this can be fixed with iOS project configuration
+            // https://youtrack.jetbrains.com/issue/AMPER-4757/iOS-warning-in-compose-multiplatform-example-project-All-interface-orientations-must-be-supported
+            "All interface orientations must be supported unless the app requires full screen",
+        )
+
+        // Linking and xcodebuild produce some warnings on stderr (said warnings are ignored specifically)
+        private val knownProjectsWithNonEmptyStderr = setOf(
+            "compose-desktop",
+            "compose-ios",
+        )
+
+        // We use directory names, not paths, so the preview of the tests in IDE and TC is more readable
+        @JvmStatic
+        private fun findExampleProjects(): List<String> =
+            Dirs.examplesRoot.listDirectoryEntries().filter { it.isDirectory() }.map { it.name }
+    }
+
+    @ParameterizedTest
+    @MethodSource("findExampleProjects")
+    fun `example project can be built without errors or warnings`(projectName: String) = runSlowTest {
+        val buildResult = runCli(
+            projectRoot = exampleProject(projectName),
+            "build",
+            assertEmptyStdErr = projectName !in knownProjectsWithNonEmptyStderr,
+            configureAndroidHome = true, // no need to be granular by project here, we'll install them once
+        )
+        val warnings = buildResult.stdoutClean.lines().filter { "WARN" in it }
+        val unexpectedWarnings = warnings.filterNot { knownWarnings.any { warning -> it.contains(warning) } }
+        assertEqualsWithDiff(unexpectedWarnings, emptyList(), "Unexpected warnings in $projectName")
     }
 
     @Test
@@ -187,23 +221,8 @@ class ExampleProjectsTest: AmperCliTestBase() {
     }
 
     @Test
-    @MacOnly
-    fun `compose-ios`() = runSlowTest {
-        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
-        // that are treated like errors.
-        runCli(
-            projectRoot = exampleProject("compose-ios"),
-            "build", "-p", "iosSimulatorArm64",
-            assertEmptyStdErr = false,
-            copyToTempDir = true,
-        )
-        // TODO Can we run it somehow?
-    }
-
-    @Test
     fun `new-project-template`() = runSlowTest {
         val projectRoot = exampleProject("new-project-template")
-        runCli(projectRoot, "build")
         // TODO Assert output
         runCli(projectRoot, "run")
         runCli(projectRoot, "test")
@@ -231,13 +250,6 @@ class ExampleProjectsTest: AmperCliTestBase() {
             assertContains(stdout, "tests successful")
             assertContains(stdout, "0 tests failed")
         }
-    }
-
-    @Test
-    fun `ktor-simplest-sample`() = runSlowTest {
-        val projectRoot = exampleProject("ktor-simplest-sample")
-
-        runCli(projectRoot, "build")
     }
 }
 
