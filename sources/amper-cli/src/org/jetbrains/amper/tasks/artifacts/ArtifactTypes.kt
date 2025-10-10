@@ -34,8 +34,8 @@ abstract class ArtifactBase(
     protected open val conventionPath: Path? get() = null
 
     override val path: Path by lazy {
-        conventionPath ?: idComponents()
-            .fold(buildOutputRoot.path / "artifacts" / javaClass.simpleName, Path::resolve)
+        conventionPath ?: idComponents().joinToString(separator = "")
+            .let { buildOutputRoot.path / "artifacts" / javaClass.simpleName / it }
     }
 }
 
@@ -55,9 +55,9 @@ abstract class FragmentScopedArtifact(
 }
 
 /**
- * An artifact is associated with a module, leaf platform and test modifier..
+ * An artifact is associated with a module, leaf platform and test modifier.
  */
-abstract class PlatformScopedArtifact(
+abstract class ModuleScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     val module: AmperModule,
     val platform: Platform,

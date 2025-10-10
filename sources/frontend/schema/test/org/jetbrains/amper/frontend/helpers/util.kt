@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
 import kotlin.test.fail
@@ -26,9 +27,10 @@ data class TestProjectContext(
     override val amperModuleFiles: List<VirtualFile>,
     override val frontendPathResolver: FrontendPathResolver,
 ) : AmperProjectContext {
-    override val pluginModuleFiles: List<VirtualFile> = emptyList()
+    override val pluginsModuleFiles = emptyList<VirtualFile>()
     override val projectBuildDir: Path get() = projectRootDir.toNioPath()
     override var projectVersionsCatalog: VersionCatalog? = null
+    override val externalMavenPluginDependencies = emptyList<UnscopedExternalMavenDependency>()
 }
 
 /**

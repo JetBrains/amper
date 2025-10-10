@@ -88,6 +88,9 @@ class UnscopedModuleDependency : UnscopedDependency() {
 }
 
 class UnscopedCatalogDependency : UnscopedDependency() {
+    
+    // Actual usage of this property is indirect and located within [CatalogVersionsSubstitutor] within the tree.
+    // The value of this property is to provide the schema.
     @Suppress("unused")
     @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()

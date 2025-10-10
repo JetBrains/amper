@@ -8,7 +8,6 @@ import com.intellij.util.io.copyToAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.SerializationException
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
@@ -20,11 +19,14 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.withJarEntry
+import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.project.mavenPluginXmlsDir
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.types.maven.DefaultMavenPluginXml
 import org.jetbrains.amper.resolver.MavenResolver
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.div
@@ -32,6 +34,9 @@ import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
 
+/**
+ * Download specified maven plugins jars, extract their `plugin.xml` metadata and parse it.
+ */
 internal suspend fun prepareMavenPlugins(
     context: CliContext,
     mavenResolver: MavenResolver = MavenResolver(context.userCacheRoot),
@@ -40,8 +45,8 @@ internal suspend fun prepareMavenPlugins(
     val mavenPluginXmlsDir = context.projectContext.mavenPluginXmlsDir
 
     val pluginDeclarationsToCopyPaths = externalPlugins.map {
-        val pluginXmlCopyName = it.coordinates.replace(":", "-")
-        val pluginXmlCopyPath = (mavenPluginXmlsDir / "$pluginXmlCopyName.xml").apply {
+        val pluginXmlCopyName = it.coordinates.split(":")
+        val pluginXmlCopyPath = (mavenPluginXmlsDir / "${pluginXmlCopyName.joinToString(separator = "/")}.xml").apply {
             parent.createDirectories()
             if (!exists()) createFile()
         }
@@ -49,56 +54,75 @@ internal suspend fun prepareMavenPlugins(
     }
 
     // TODO Here later we should add download evading in case of directory contents are still valid.
-    pluginDeclarationsToCopyPaths.mapNotNull { (declaration, copyPath) ->
-        val resolvedRoot = mavenResolver.resolveWithContext(
-            repositories = listOf(MavenCentral),
-            scope = ResolutionScope.RUNTIME,
-            platform = ResolutionPlatform.JVM,
-            resolveSourceMoniker = declaration.coordinates,
-        ) {
-            val (group, module, version) = declaration.coordinates.split(":")
-            RootDependencyNodeHolder(listOf(MavenDependencyNode(group, module, version, false)))
-        }
-
-        resolvedRoot.downloadDependencies()
-
-        // Get plugin dependency. We can safely assume that there is only 
-        // one dependency here, because we created root holder that way.
-        val pluginDep = resolvedRoot.children.first() as MavenDependencyNode
-        val pluginJarFile = pluginDep.dependency.files()
-            .filter { it.extension == "jar" }
-            .mapNotNull { it.getPath() }
-            .singleOrNull()
-
-        // Copy `plugin.xml`s from jars to a conventional location.
-        pluginJarFile?.let { pluginJar ->
-            async {
-                withJarEntry(pluginJar, "META-INF/maven/plugin.xml") { input ->
-                    @Suppress("UnstableApiUsage")
-                    copyPath.outputStream().use { input.copyToAsync(it) }
-                }
-            }
+    pluginDeclarationsToCopyPaths.map { (declaration, copyPath) ->
+        async {
+            val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, declaration) ?: return@async
+            copyPluginXmlAsync(pluginJarFile, copyPath)
         }
     }.awaitAll()
 
     pluginDeclarationsToCopyPaths.mapNotNull { (declaration, copyPath) ->
-        copyPath.inputStream().use { parseMavenPluginXml(it, declaration.coordinates) }
+        copyPath
+            // In case we failed to download the plugin jar.
+            .takeIf { it.exists() }
+            ?.inputStream()
+            ?.use { parseMavenPluginXml(it, declaration.coordinates) }
     }
 }
 
-internal val xml = XML {
+/**
+ * Copy `plugin.xml`s from plugin jar to a convention location.
+ */
+private suspend fun copyPluginXmlAsync(pluginJarFile: Path, copyPath: Path) =
+    withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") { input ->
+        @Suppress("UnstableApiUsage")
+        copyPath.outputStream().use { input.copyToAsync(it) }
+    }
+
+/**
+ * Resolve and download the plugin and its direct dependencies.
+ */
+// TODO Actually, here we need only the plugin jar. But right now we only have an API to resolve/download.
+private suspend fun downloadPluginAndDirectDependencies(
+    mavenResolver: MavenResolver,
+    declaration: UnscopedExternalMavenDependency,
+): Path? {
+    val resolvedRoot = mavenResolver.resolveWithContext(
+        repositories = listOf(MavenCentral),
+        scope = ResolutionScope.RUNTIME,
+        platform = ResolutionPlatform.JVM,
+        resolveSourceMoniker = declaration.coordinates,
+        resolutionDepth = ResolutionDepth.GRAPH_FULL,
+    ) {
+        val (group, module, version) = declaration.coordinates.split(":")
+        RootDependencyNodeHolder(listOf(MavenDependencyNode(group, module, version, false)))
+    }
+
+    resolvedRoot.downloadDependencies()
+    
+    // We can safely assume that there is only one dependency here, because we created root holder that way.
+    val pluginDep = resolvedRoot.children.first() as MavenDependencyNode
+    return pluginDep.dependency.files()
+        .filter { it.extension == "jar" }
+        .mapNotNull { it.getPath() }
+        .singleOrNull()
+}
+
+private val xml = XML {
     defaultPolicy { ignoreUnknownChildren() }
 }
 
 /**
- * Parse maven plugin xml from a passed stream. Stream closing is on the caller side.
+ * Parse maven plugin XML from a passed stream. Stream closing is on the caller side.
  */
 @OptIn(ExperimentalXmlUtilApi::class)
 private fun parseMavenPluginXml(inputStream: InputStream, moniker: String): MavenPluginXml? = try {
     val reader = KtXmlReader(inputStream.reader(Charsets.UTF_8))
     xml.decodeFromReader<DefaultMavenPluginXml>(reader)
-} catch (e: SerializationException) {
-    logger.error("Error while parsing plugin XML, plugin \"$moniker\" will be ignored", e)
+} catch (e: Exception) {
+    // TODO Need to pass a problem reporter here somehow to be able to report this on
+    //  the plugin element that was provided in `project.yaml`.
+    logger.error("Error while parsing plugin XML. Maven plugin \"$moniker\" will be ignored", e)
     null
 }
 

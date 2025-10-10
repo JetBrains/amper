@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.artifacts.FragmentScopedArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
-import org.jetbrains.amper.tasks.artifacts.PlatformScopedArtifact
+import org.jetbrains.amper.tasks.artifacts.ModuleScopedArtifact
 import java.nio.file.Path
 
 /**
@@ -50,4 +50,4 @@ class MergedPreparedComposeResourcesDirArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     module: AmperModule,
     platform: Platform,
-) : PlatformScopedArtifact(buildOutputRoot, module, platform, false)
+) : ModuleScopedArtifact(buildOutputRoot, module, platform, false)

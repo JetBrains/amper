@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
-import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 import org.jetbrains.amper.dependency.resolution.attributes.Usage
 import org.jetbrains.amper.dependency.resolution.attributes.getAttributeValue
 import org.jetbrains.amper.dependency.resolution.attributes.hasKotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.isDocumentation
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
+import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 
 /**
  * Represent an Amper dependency resolution scope.
@@ -31,15 +31,6 @@ enum class ResolutionScope(
     RUNTIME(
         variantMatcher = { it.getAttributeValue(Usage)?.isRuntime() == true || it.isScopeAgnostic() },
         dependencyMatcher = { it.scope in setOf(null, "compile", "runtime") },
-        // 'org.gradle.usage' equal to 'kotlin-runtime' is somewhat artificial for Gradle module metadata,
-        // 'kotlin-runtime' value is never resolved in the wild for anything but sources, thus fallback to COMPILE is
-        // in fact what is expected
-        // (again it might, perhaps, have some questionable implications for Maven dependencies resolved from pom)
-        fallback = { COMPILE }
-    ),
-    TEST(
-        variantMatcher = { it.getAttributeValue(Usage)?.isApi() == true || it.isScopeAgnostic() },
-        dependencyMatcher = { it.scope in setOf(null, "compile", "test") },
         // 'org.gradle.usage' equal to 'kotlin-runtime' is somewhat artificial for Gradle module metadata,
         // 'kotlin-runtime' value is never resolved in the wild for anything but sources, thus fallback to COMPILE is
         // in fact what is expected

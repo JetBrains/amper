@@ -90,12 +90,12 @@ object Selectors {
      * From the [module] only that matches [platform], [isTest].
      */
     // TODO Should introduce `SingleOrNone` quantifier.
-    fun <T : PlatformScopedArtifact> fromModuleOnly(
+    fun <T : ModuleScopedArtifact> fromModuleOnly(
         type: KClass<T>,
         module: AmperModule,
         isTest: Boolean,
         platform: Platform,
-        additionalFilter: (PlatformScopedArtifact) -> Boolean = { true },
+        additionalFilter: (ModuleScopedArtifact) -> Boolean = { true },
     ): ArtifactSelector<T, Quantifier.AnyOrNone> {
         return ArtifactSelector(
             type = ArtifactType(type),
@@ -112,13 +112,13 @@ object Selectors {
     /**
      * From the [leafFragment]'s module and its dependencies, which has [LeafFragment.platform] matching.
      */
-    fun <T : PlatformScopedArtifact, Q : Quantifier.Multiple> fromModuleWithDependencies(
+    fun <T : ModuleScopedArtifact, Q : Quantifier.Multiple> fromModuleWithDependencies(
         type: KClass<T>,
         leafFragment: LeafFragment,
         userCacheRoot: AmperUserCacheRoot,
         quantifier: Q,
         includeSelf: Boolean = true,
-        additionalFilter: (PlatformScopedArtifact) -> Boolean = { true },
+        additionalFilter: (ModuleScopedArtifact) -> Boolean = { true },
     ): ArtifactSelector<T, Q> {
         val platform = leafFragment.platform
         val modules = buildSet {

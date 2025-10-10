@@ -3,5 +3,5 @@ product: jvm/app
 dependencies: 
   - ../lib
 
-settings:
+plugins:
   maven-surefire-plugin.test: enabled

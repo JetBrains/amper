@@ -86,9 +86,7 @@ fun PlexusContainer.installToMavenLocal(localRepositoryPath: Path, artifacts: Li
 }
 
 fun PlexusContainer.createRepositorySession(localRepositoryPath: Path): RepositorySystemSession {
-    val request = mavenRepositorySystem.createMavenExecutionRequest(localRepositoryPath).apply { 
-        systemProperties = System.getProperties()
-    }
+    val request = mavenRepositorySystem.createMavenExecutionRequest(localRepositoryPath)
     val session = repositorySystemSessionFactory.newRepositorySession(request)
     session.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")
     // Disable caching HTTP connection pooling between sessions, to allow closing the connection pool later.
@@ -100,6 +98,7 @@ fun PlexusContainer.createRepositorySession(localRepositoryPath: Path): Reposito
 fun MavenRepositorySystem.createMavenExecutionRequest(localRepositoryPath: Path): MavenExecutionRequest {
     val request = DefaultMavenExecutionRequest()
     request.localRepository = createLocalRepository(request, localRepositoryPath.toFile())
+    request.systemProperties = System.getProperties()
     return request
 }
 

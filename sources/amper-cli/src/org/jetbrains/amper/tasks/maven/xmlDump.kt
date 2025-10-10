@@ -18,7 +18,7 @@ fun SchemaNode.mavenXmlDump(
     propFilter: (String, Any?) -> Boolean = { _, _ -> true },
 ): String {
     val normalizedRoot = root.absolute().normalize()
-    fun Path.normalizedPath(): String = absolute().relativeTo(normalizedRoot).toString().replace('\\', '/')
+    fun Path.normalizedPath(): String = absolute().relativeTo(normalizedRoot).joinToString("/")
     val sb = StringBuilder()
 
     fun Any.doXmlDump(indent: String, parentPropName: String? = null): Boolean {

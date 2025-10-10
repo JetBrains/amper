@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLikeAndGet
-import org.jetbrains.amper.frontend.types.maven.mavenCompatPluginId
+import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -23,7 +23,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 // Set up maven tasks only for JVM modules. 
 fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
     // Skip maven tasks registration if we have no maven plugins specified.
-    if (context.projectContext.externalMavenPluginDependencies.isNullOrEmpty()) return
+    if (context.projectContext.externalMavenPluginDependencies.isEmpty()) return
 
     allModules().alsoPlatforms(Platform.JVM).withEach {
         setupUmbrellaMavenTasks()
@@ -94,9 +94,9 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         val moduleMavenProject = MockedMavenProject()
 
         // TODO Reporting.
-        val jvmFragmentSettings = module.leafFragments
-            .singleOrNull { it.platform == Platform.JVM && !it.isTest }
-            ?.settings ?: return@plugin
+        val jvmFragment = module.leafFragments
+            .singleOrNull { it.platform == Platform.JVM && !it.isTest } ?: return@plugin
+        val jvmFragmentSettings = jvmFragment.pluginsSettings
 
         val mavenPlugin = MavenPlugin().apply {
             artifactId = pluginXml.artifactId
@@ -106,12 +106,16 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
 
         // Create mojo execution tasks.
         val mojoTasks = pluginXml.mojos.mapNotNull { mojo ->
-            val mavenCompatPluginId = mavenCompatPluginId(pluginXml, mojo)
+            val mavenCompatPluginId = amperMavenPluginId(pluginXml, mojo)
 
+            // There must be a node, at least to read "enabled" property.
             val correspondingNode =
                 jvmFragmentSettings.valueHolders[mavenCompatPluginId]?.value ?: return@mapNotNull null
             if (correspondingNode !is SchemaNode) return@mapNotNull null
 
+            val isEnabled = correspondingNode.valueHolders["enabled"]?.value as? Boolean ?: false
+            if (!isEnabled) return@mapNotNull null
+            
             // TODO Handle enabled property more delicately, since it can be defined both in Amper
             //  and in the plugin configuration.
             val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key, _ ->

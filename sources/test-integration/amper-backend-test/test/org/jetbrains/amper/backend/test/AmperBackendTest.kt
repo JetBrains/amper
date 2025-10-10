@@ -40,7 +40,9 @@ class AmperBackendTest : AmperIntegrationTestBase() {
             copyToTemp = copyToTemp,
         )
         val problemReporter = CollectingProblemReporter()
-        val model = with(problemReporter) { cliContext.projectContext.readProjectModel(pluginData = emptyList()) }
+        val model = with(problemReporter) { 
+            cliContext.projectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList()) 
+        }
             ?: error("Couldn't read project model for test project '$testProjectName'")
         if (problemReporter.problems.isNotEmpty()) {
             fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n")}")

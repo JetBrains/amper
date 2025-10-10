@@ -59,12 +59,14 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         scope: ResolutionScope,
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
+        resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
         root: Context.() -> DependencyNodeHolder,
     ): DependencyNodeHolder = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
         .setAttribute("platform", platform.name)
+        .setAttribute("resolutionDepth", resolutionDepth.name)
         .also { builder ->
             platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
             platform.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
@@ -76,12 +78,13 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.scope = scope
                 this.platforms = setOf(platform)
             }
-            root(context).apply { resolve(this, resolveSourceMoniker) }
+            root(context).apply { resolve(this, resolveSourceMoniker, resolutionDepth) }
         }
 
     suspend fun resolve(
         root: DependencyNodeHolder,
         resolveSourceMoniker: String,
+        resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
     ) = spanBuilder("mavenResolve")
         .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
         .also { builder -> root.children.firstOrNull()?.let{
@@ -91,7 +94,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         }}
         .use { span ->
             with(moduleDependenciesResolver) {
-                root.resolveDependencies(ResolutionDepth.GRAPH_FULL, downloadSources = false)
+                root.resolveDependencies(resolutionDepth, downloadSources = false)
             }
 
             reportDiagnostics(root, span, resolveSourceMoniker)

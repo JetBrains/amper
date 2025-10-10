@@ -1,5 +1,5 @@
 product: 
   type: jvm/app
 
-settings:
+plugins:
   maven-surefire-plugin.test: enabled

@@ -39,7 +39,8 @@ class DiagnosticsTestRun(
 
         with(problemReporter) {
             val moduleFiles = listOf(inputFile).plus(additionalModules).sortedBy { it.path }
-            projectContext.copy(amperModuleFiles = moduleFiles).readProjectModel(pluginData = emptyList())
+            projectContext.copy(amperModuleFiles = moduleFiles)
+                .readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
         }
 
         // Collect errors.

@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.plugins
 
 /**
  * Interface representing the maven "plugin.xml" structure that is used to:
- * 1. generate schema types, accessible in the module file.
- * 2. resolve maven plugin dependencies.
- * 3. create corresponding tasks.
+ * 1. Generate schema types, accessible in the module file.
+ * 2. Resolve maven plugin dependencies.
+ * 3. Create corresponding tasks.
  */
 interface MavenPluginXml {
     val name: String

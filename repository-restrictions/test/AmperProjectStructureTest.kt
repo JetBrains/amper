@@ -6,7 +6,6 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
@@ -222,7 +221,7 @@ class AmperProjectStructureTest {
     private fun readAmperProjectModel(): Model = with(NoopProblemReporter) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
-        projectContext.readProjectModel(pluginData = emptyList())
+        projectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
     }
 
     private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean): List<String> =

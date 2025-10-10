@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
 import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.settingsTypeKey
+import org.jetbrains.amper.frontend.types.pluginSettingsTypeKey
 
 data class MavenDeclarationKey(val artifactId: String, val mojoImplementation: String) : DeclarationKey
 
@@ -63,10 +63,10 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
             )
 
         addCustomProperty(
-            settingsTypeKey,
+            pluginSettingsTypeKey,
             ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
                 // TODO Think about uniqueness of mojos goal identifiers.
-                propertyName = mavenCompatPluginId(plugin, mojo),
+                propertyName = amperMavenPluginId(plugin, mojo),
                 propertyType = mavenDeclarationKey,
                 description = mojo.description,
                 origin = SchemaOrigin.MavenPlugin,
@@ -76,9 +76,9 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
 }
 
 /**
- * Id string of a compatibility maven plugin that is launching a given mojo.
+ * ID string of a Maven mojo that is applied as an Amper plugin.
  */
-fun mavenCompatPluginId(plugin: MavenPluginXml, mojo: Mojo): String = "${plugin.artifactId}.${mojo.goal}"
+fun amperMavenPluginId(plugin: MavenPluginXml, mojo: Mojo): String = "${plugin.artifactId}.${mojo.goal}"
 
 private class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,
