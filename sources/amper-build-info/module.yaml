@@ -4,5 +4,5 @@ apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml
 
-settings:
+plugins:
   generate-build-properties: enabled

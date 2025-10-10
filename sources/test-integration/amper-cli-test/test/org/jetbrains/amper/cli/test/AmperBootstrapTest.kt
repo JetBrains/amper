@@ -6,12 +6,9 @@ package org.jetbrains.amper.cli.test
 
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.Dirs
-import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
-@Ignore // TODO: enable back when Amper version is updated
 class AmperBootstrapTest : AmperCliTestBase() {
 
     @Test

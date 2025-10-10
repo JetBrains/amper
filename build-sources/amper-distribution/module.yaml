@@ -3,7 +3,7 @@ product: jvm/amper-plugin
 apply:
   - ../../sources/common.module-template.yaml
 
-plugin:
+pluginInfo:
   schemaExtensionClassName: DistributionSettings
 
 dependencies:
