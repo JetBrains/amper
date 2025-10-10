@@ -102,11 +102,16 @@ class JvmSettings : SchemaNode() {
     @PlatformAgnostic
     @Misnomers("jdk", "source", "target", "apiVersion")
     @SchemaDoc("The minimum JVM release version that the code should be compatible with. " +
-            "This enforces compatibility on 3 levels. " +
-            "First, it is used as the target version for the bytecode generated from Kotlin and Java sources. " +
-            "Second, it limits the Java platform APIs available to Kotlin and Java sources. " +
-            "Third, it limits the Java language constructs in Java sources. " +
-            "If this is set to null, these constraints are not applied and the compiler defaults are used.")
+            "This enforces compatibility on 3 levels.\n" +
+            "* First, it is used as the target version for the bytecode generated from Kotlin and Java sources " +
+            "(equivalent to -target).\n" +
+            "* Second, it limits the Java platform APIs available to Kotlin and Java sources.\n" +
+            "* Third, it limits the Java language constructs in Java sources (equivalent to -source).\n\n" +
+            "If this is set to null, these constraints are not applied and the Java and Kotlin compiler defaults are " +
+            "used. Note that those compilers have different defaults. Therefore, in mixed Java/Kotlin projects, " +
+            "using 'null' will lead to different targets for Kotlin and Java code. If you really need to disable API " +
+            "checks but want to align targets, use the freeCompilerArgs on both compilers to set the JVM target.")
+    // null is intentionally supported, see docs
     var release by nullableValue(JavaVersion.VERSION_17) // TODO discuss the default
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
