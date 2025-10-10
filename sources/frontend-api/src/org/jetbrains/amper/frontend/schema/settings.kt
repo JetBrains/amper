@@ -90,6 +90,14 @@ class Settings : SchemaNode() {
     val internal: InternalSettings by nested()
 }
 
+/**
+ * All the plugin settings are linked under here, dynamically.
+ * The properties are plugin IDs that are made available in the project.
+ *
+ * @see org.jetbrains.amper.plugins.schema.model.PluginData
+ */
+class PluginSettings : SchemaNode()
+
 class ComposeSettings : SchemaNode() {
 
     @Shorthand

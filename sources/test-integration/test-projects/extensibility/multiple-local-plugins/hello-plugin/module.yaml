@@ -1,8 +1,8 @@
 product:
   type: jvm/amper-plugin
 
-plugin:
+pluginInfo:
   id: hello
 
-settings:
+plugins:
   hello: enabled  # shorthand

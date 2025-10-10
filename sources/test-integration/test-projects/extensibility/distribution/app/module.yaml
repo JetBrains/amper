@@ -1,6 +1,6 @@
 product: jvm/app
 
-settings:
+plugins:
   distribution-plugin:
     enabled: true
     extraNamedClasspaths:
@@ -10,6 +10,8 @@ settings:
       "compile":
         dependencies: [ . ]
         scope: compile
+
+settings:
   kotlin:
     version: 2.2.10
 

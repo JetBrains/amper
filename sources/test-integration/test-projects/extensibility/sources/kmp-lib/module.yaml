@@ -2,7 +2,7 @@ product:
   type: lib
   platforms: [ jvm, android ]
 
-settings:
+plugins:
   consume-sources-plugin:
     enabled: true
     sources:

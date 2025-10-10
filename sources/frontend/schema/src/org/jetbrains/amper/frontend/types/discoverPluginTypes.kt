@@ -87,7 +87,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
         }
         // Load custom properties for a [Settings] schema type.
         addCustomProperty(
-            settingsTypeKey,
+            pluginSettingsTypeKey,
             ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
                 propertyName = pluginData.id.value,
                 propertyType = pluginData.id / pluginSettingsExtensionSchemaName,

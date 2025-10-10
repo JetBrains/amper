@@ -28,7 +28,7 @@ import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 class MinimalPluginModule : SchemaNode() {
     var product by value<ModuleProduct>()
 
-    val plugin: MinimalPluginDeclarationSchema by nested()
+    val pluginInfo: MinimalPluginDeclarationSchema by nested()
 }
 
 class MinimalPluginDeclarationSchema : SchemaNode() {
@@ -70,12 +70,12 @@ fun parsePluginManifestFromModuleFile(
             return null
 
         return object : PluginManifest {
-            override val id: String = moduleHeader.plugin.id?.value ?: moduleFile.parent.name
-            override val description: String? = moduleHeader.plugin.description
-            override val schemaExtensionClassName: String? = moduleHeader.plugin.schemaExtensionClassName?.value
+            override val id: String = moduleHeader.pluginInfo.id?.value ?: moduleFile.parent.name
+            override val description: String? = moduleHeader.pluginInfo.description
+            override val schemaExtensionClassName: String? = moduleHeader.pluginInfo.schemaExtensionClassName?.value
 
             override fun toString(): String {
-                return "{schema='${moduleHeader.plugin.toStableJsonLikeString()}', moduleFile='${moduleFile.path}'}"
+                return "{schema='${moduleHeader.pluginInfo.toStableJsonLikeString()}', moduleFile='${moduleFile.path}'}"
             }
         }
     }

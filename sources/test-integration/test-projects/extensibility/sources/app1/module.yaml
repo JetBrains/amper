@@ -1,12 +1,14 @@
 product: jvm/app
 
-settings:
+plugins:
   produce-sources-plugin: enabled
   consume-sources-plugin:
     enabled: true
     sources:
       from: .
       includeGenerated: false
+
+settings:
   kotlin:
     ksp:
       processors:

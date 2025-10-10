@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.lang.reflect.Field
@@ -40,7 +41,7 @@ import kotlin.reflect.full.starProjectedType
 
 data class BuiltInKey(private val kClass: KClass<*>) : DeclarationKey
 
-val settingsTypeKey = BuiltInKey(Settings::class)
+val pluginSettingsTypeKey = BuiltInKey(PluginSettings::class)
 
 val KClass<*>.builtInKey get() = BuiltInKey(this)
 

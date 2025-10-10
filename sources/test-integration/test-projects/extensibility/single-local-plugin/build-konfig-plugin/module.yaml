@@ -1,7 +1,7 @@
 product:
   type: jvm/amper-plugin
 
-plugin:
+pluginInfo:
   id: build-konfig
   description: |
     Generates the Kotlin object with all the supplied properties (String)

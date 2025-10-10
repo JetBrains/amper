@@ -2,7 +2,7 @@
   "product" : {
     "type" : "jvm/app"
   },
-  "settings" : {
+  "plugins" : {
     "myPlugin" : {
       "foo" : "123",
       "bar" : "i am a string"

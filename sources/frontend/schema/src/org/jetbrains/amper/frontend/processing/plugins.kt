@@ -47,7 +47,7 @@ internal fun Merged.configurePluginDefaults(moduleDir: PsiDirectory, product: Mo
 private fun BuildCtx.pluginIdDefaultsTree(moduleName: String, trace: Trace, idTrace: Trace) =
     syntheticBuilder(types, trace) {
         `object`<Module> {
-            Module::plugin {
+            Module::pluginInfo {
                 PluginDeclarationSchema::id setTo scalar(TraceableString(moduleName, idTrace), idTrace)
             }
         }

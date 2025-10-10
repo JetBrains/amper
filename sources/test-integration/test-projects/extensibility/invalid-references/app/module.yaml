@@ -1,7 +1,7 @@
 product:
   type: jvm/app
 
-settings:
+plugins:
   plugin1:
     enabled: true
     requiredBoolean: false

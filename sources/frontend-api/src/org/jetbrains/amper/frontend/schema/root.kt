@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
+import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -21,8 +22,6 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import java.nio.file.Path
 
-
-typealias Modifiers = Set<TraceableString>
 
 abstract class Base : SchemaNode() {
 
@@ -36,6 +35,10 @@ abstract class Base : SchemaNode() {
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process. [Read more](#settings)")
     val settings: Settings by nested()
+
+    @PlatformAgnostic
+    @SchemaDoc("Plugins applied in `project.yaml` can be enabled and configured here")
+    val plugins: PluginSettings by nested()
 
     @HiddenFromCompletion
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
@@ -61,7 +64,7 @@ class Module : Base() {
     val module: Meta by nested()
 
     @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
-    var plugin by nullableValue<PluginDeclarationSchema>()
+    var pluginInfo by nullableValue<PluginDeclarationSchema>()
 }
 
 class Repository : SchemaNode() {

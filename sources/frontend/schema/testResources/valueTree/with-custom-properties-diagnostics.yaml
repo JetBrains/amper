@@ -1,6 +1,6 @@
 product: jvm/app
 
-settings:
+plugins:
   myPlugin:
     foo: <![Error] Expected: integer!>"i am a string"<!>
     bar: 123

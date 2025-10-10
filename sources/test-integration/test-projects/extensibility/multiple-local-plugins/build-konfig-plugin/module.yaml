@@ -1,13 +1,13 @@
 product:
   type: jvm/amper-plugin
 
-plugin:
+pluginInfo:
   id: build-konfig
   description: |
     Generates the Kotlin object with all the supplied properties (String)
   schemaExtensionClassName: org.jetbrains.amper.plugins.buildkonfig.Schema1
 
-settings:
+plugins:
   hello:
     enabled: true
 

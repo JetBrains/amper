@@ -43,7 +43,7 @@ internal fun createPluginReaders(
             }
         }
 
-        val pluginId = pluginModule.moduleCtxModule.plugin!!.id // safe - default is always set
+        val pluginId = pluginModule.moduleCtxModule.pluginInfo!!.id // safe - default is always set
         if (pluginId.value in seenPluginIds) {
             seenPluginIds[pluginId.value]!!.add(pluginId)
             return@mapPlugins null // Skip the duplicate
@@ -54,7 +54,7 @@ internal fun createPluginReaders(
         val pluginData = pluginData.find { it.id.value == pluginId.value }
             ?: return@mapPlugins null
 
-        pluginModule.moduleCtxModule.plugin?.schemaExtensionClassName?.let { moduleExtensionSchemaName ->
+        pluginModule.moduleCtxModule.pluginInfo?.schemaExtensionClassName?.let { moduleExtensionSchemaName ->
             if (pluginData.declarations.classes.none { it.name.qualifiedName == moduleExtensionSchemaName.value }) {
                 buildContext.problemReporter.reportBundleError(
                     source = moduleExtensionSchemaName.asBuildProblemSource(),

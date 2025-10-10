@@ -1,7 +1,7 @@
 product: 
   type: jvm/app
 
-settings:
+plugins:
   build-konfig:
     enabled: true  # synthetic property
     packageName: "com.example"

@@ -5,6 +5,7 @@
   "module" : {
     "layout(DefaultContext.TypeLevel)" : "AMPER(DefaultContext.TypeLevel)"
   },
+  "plugins" : ,
   "settings" : {
     "android" : {
       "parcelize" : {
@@ -138,7 +139,7 @@
   },
   "aliases(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "apply(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
-  "plugin(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "pluginInfo(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "dependencies(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "repositories(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "tasks(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)"
