@@ -30,12 +30,13 @@ Execute the following command to run [jaeger](https://www.jaegertracing.io):
 
 ### Profiling
 
-Amper has embedded profiling feature, so you can [async-profiler](https://github.com/async-profiler/async-profiler)
-right from command line and collect .jfr profiling snapshot.
+Amper has an embedded profiling feature, so you can enable the 
+[async-profiler](https://github.com/async-profiler/async-profiler)
+right from the command line and collect a .jfr profiling snapshot.
 Drag and drop .jfr file to IntelliJ Ultimate window to analyze the snapshot.
 
 ```
-./amper --async-profiler build
+./amper --profile build
 ```
 
 ### Reporting issues
