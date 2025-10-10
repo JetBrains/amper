@@ -15,14 +15,14 @@ dependencies:
   - com.fasterxml.jackson.module:jackson-module-kotlin
   - org.glassfish.jaxb:jaxb-runtime
   - javax.cache:cache-api
+  - $kotlin.reflect
   - $libs.jakarta.xml.bindApi
-  - $libs.webjars.bootstrap
-  - $libs.webjars.fontawesome
+  - $libs.webjarsNpm.bootstrap
+  - $libs.webjarsNpm.fontawesome
 
   - com.h2database:h2: runtime-only
   - com.mysql:mysql-connector-j: runtime-only
   - $libs.webjars.locatorLite: runtime-only
-  - org.glassfish.jaxb:jaxb-core: runtime-only # apparently necessary even though it wasn't in the original project
 
   - $spring.boot.devtools: runtime-only
 
