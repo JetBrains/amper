@@ -105,7 +105,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test checks that property 'project.artifactId' in pom.xml is correctly sustituted
+     * This test checks that the property 'project.artifactId' in pom.xml is correctly substituted
      */
     @Test
     fun `com_github_sarxos webcam-capture-driver-opencv 0_3_12`(testInfo: TestInfo) = runTest {
@@ -120,7 +120,7 @@ class BuildGraphTest : BaseDRTest() {
      * Dependency declaration leaves the version unspecified,
      * this way it should be resolved from the dependencyManagement section of one of the parent projects.
      *
-     * groupId is parametrized, it should be substifuted early enough
+     * groupId is parametrized, it should be substituted early enough
      * to be able to match the dependency declared in the dependencyManagement section of parent BOM.
      *
      * The test checks that such a parametrized and unversioned dependency is correctly resolved
@@ -137,8 +137,8 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test checks that some missing fields in pom.xml doesn't fail resolution.
-     * Details: pom.xml of com.sun.jns:jns:3.0.9 omit field name in license block
+     * This test checks that some missing fields in pom.xml don't fail resolution.
+     * Details: pom.xml of com.sun.jns:jns:3.0.9 omit field name in the license block
      */
     @Test
     fun `com_sun_jna jna 3_0_9`(testInfo: TestInfo) = runTest {
@@ -543,8 +543,10 @@ class BuildGraphTest : BaseDRTest() {
      *  2. Absent dependency on a BOM file in Gradle metadata `.module` file is fallbacked
      *     by the imported BOM in a corresponding `.pom` file
      *     For instance, `dev.gitlive:firebase-analytics-android` declares dependency on `com.google.firebase:firebase-analytics`
-     *     without specifying a version in Gradle metadata file, it lacks dependency on a BOM file where dependencies' versions are defined.
-     *     Though the version is defined in a BOM file imported in a corresponding '.pom' of `dev.gitlive:firebase-analytics-android`.
+     *     without specifying a version in a Gradle metadata file.
+     *     It lacks dependency on a BOM file where dependencies' versions are defined.
+     *     Though the version is defined in a BOM file
+     *     imported in a corresponding '.pom' of `dev.gitlive:firebase-analytics-android`.
      */
     @Test
     fun `dev_gitlive firebase-analytics 2_1_0`(testInfo: TestInfo) = runTest {
@@ -993,7 +995,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * If the regular dependency is declared as BOM we can notice it and suggest removing BOM prefix.
+     * If the regular dependency is declared as BOM, we can notice it and suggest removing the BOM prefix.
      */
     @Test
     fun `declaring regular dependency published with Gradle metadata as BOM`(testInfo: TestInfo) = runTest {
@@ -1331,7 +1333,7 @@ class BuildGraphTest : BaseDRTest() {
 
     /**
      * The test checks that dependencies defined with test scope in pom.xml are ignored by dependency resolution.
-     * Such dependencies are not transitive and are used for compiling and running tests of dependency itself.
+     * Such dependencies are not transitive and are used for compiling and running tests of the dependency itself.
      *
      * Library org.apache.logging.log4j:log4j-api:2.17.1 defines test dependencies on:
      *  - org.junit.vintage:junit-vintage-engine:5.7.2
@@ -1447,7 +1449,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
+     * This test check that kotlin Gradle plugin and its dependency are successfully resolved to the single variants.
      */
     @Test
     fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 RUNTIME`(testInfo: TestInfo) = runTest {
@@ -1461,7 +1463,7 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test check that kotlin gradle plugin and its dependency are successfully resolved to the single variants.
+     * This test check that kotlin Gradle plugin and its dependency are successfully resolved to the single variants.
      */
     @Test
     fun `org_jetbrains_kotlin kotlin-gradle-plugin 2_1_20 COMPILE`(testInfo: TestInfo) = runTest {
