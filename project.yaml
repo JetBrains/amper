@@ -43,6 +43,7 @@ modules:
   - sources/libraries/binary-compatibility-validation
   - sources/libraries/compose-resources
   - sources/libraries/concurrency
+  - sources/libraries/foojay-kotlin-client
   - sources/libraries/incremental-cache
   - sources/libraries/nio-filechannels
   - sources/libraries/stdlib-extended

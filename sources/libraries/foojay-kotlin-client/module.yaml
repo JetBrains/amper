@@ -1,0 +1,14 @@
+product: jvm/lib
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - $libs.ktor.client.core
+  - $libs.ktor.client.contentNegotiation
+  - $libs.ktor.client.encoding
+  - $libs.ktor.serialization.kotlinx.json
+
+settings:
+  kotlin:
+    serialization: json
