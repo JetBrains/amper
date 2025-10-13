@@ -25,10 +25,7 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHolderWithContext
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
-import org.jetbrains.amper.frontend.dr.resolver.ParsedCoordinates
-import org.jetbrains.amper.frontend.dr.resolver.UnresolvedMavenDependencyNodeWithContext
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
-import org.jetbrains.amper.frontend.dr.resolver.parseCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
 import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl

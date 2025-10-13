@@ -1,0 +1,5 @@
+product: jvm/app
+
+dependencies:
+  # Unresolved dependency (the repository that has this library is not declared)
+  - com.jetbrains.intellij.platform:core:233.13763.1

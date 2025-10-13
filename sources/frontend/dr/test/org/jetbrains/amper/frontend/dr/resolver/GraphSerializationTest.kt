@@ -75,7 +75,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
     @Test
     fun serializationTestInvalidDependencies(testInfo: TestInfo) = runSlowTest {
-        val aom = getTestProjectModel("jvm-invalid-dependencies", testDataRoot)
+        val aom = getTestProjectModel("jvm-unresolved-dependencies", testDataRoot)
 
         // Run the test that calculates diagnostics for all invalid dependencies
         val root = doTestByFile(
@@ -98,10 +98,18 @@ class GraphSerializationTest: BaseModuleDrTest() {
                 .let { it as MavenDependencyNode }
                 .messages.map { it.message }.toSet()
 
+        val expectedDiagnostic = "Unable to resolve dependency com.jetbrains.intellij.platform:core:233.13763.1"
+
         kotlin.test.assertEquals(
-            root.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform"),
-            deserializedRoot.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform"),
-            "Diagnostic messages taken from deserializaed graph differs from original ones"
+            expectedDiagnostic,
+            root.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform").single(),
+            "Diagnostic messages taken from deserialized graph differs from original ones"
+        )
+
+        kotlin.test.assertEquals(
+            expectedDiagnostic,
+            deserializedRoot.children.single().getErrorMessagesForChild("com.jetbrains.intellij.platform").single(),
+            "Diagnostic messages taken from deserialized graph differs from original ones"
         )
     }
 

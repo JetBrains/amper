@@ -16,12 +16,12 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.DependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
-import org.jetbrains.amper.dependency.resolution.Key
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeBase
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeHolderBase
 import org.jetbrains.amper.dependency.resolution.currentGraphContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
@@ -37,6 +37,7 @@ import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import kotlin.error
 
 val moduleDependenciesResolver: ModuleDependenciesResolver = ModuleDependenciesResolverImpl()
 
@@ -165,12 +166,11 @@ internal class SerializableModuleDependencyNodeWithModule internal constructor(
 interface DirectFragmentDependencyNode: DependencyNodeHolder {
     val fragmentName: String
     val dependencyNode: DependencyNode
-    val notationCoordinates: String
     val notation: MavenDependencyBase
 }
 
 class DirectFragmentDependencyNodeHolderWithContext(
-    override val dependencyNode: DependencyNodeWithContext,
+    override val dependencyNode: MavenDependencyNodeWithContext,
     val fragment: Fragment,
     templateContext: Context,
     override val notation: MavenDependencyBase,
@@ -182,7 +182,6 @@ class DirectFragmentDependencyNodeHolderWithContext(
         listOf(dependencyNode), templateContext, notation, parentNodes = parentNodes
 ) {
     override val fragmentName: String = fragment.name
-    override val notationCoordinates: String = notation.coordinates.value
 
     override val cacheEntryKey: CacheEntryKey
         get() = CacheEntryKey.CompositeCacheEntryKey(listOf(
@@ -207,7 +206,6 @@ private fun traceInfo(notation: Notation): String {
 internal class SerializableDirectFragmentDependencyNodeHolder internal constructor(
     override val fragmentName: String,
     override val graphEntryName: String,
-    override val notationCoordinates: String,
     override val messages: List<Message>,
     override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
     override val childrenRefs: List<DependencyNodeReference> = mutableListOf(),
@@ -217,43 +215,14 @@ internal class SerializableDirectFragmentDependencyNodeHolder internal construct
 
     lateinit var dependencyNodeRef: DependencyNodeReference
 
-    override val dependencyNode: DependencyNode by lazy { dependencyNodeRef.toNodePlain(graphContext) }
+    override val dependencyNode: MavenDependencyNode by lazy {
+        dependencyNodeRef.toNodePlain(graphContext)
+            .let {
+                it as? MavenDependencyNode
+                    ?: error("Unexpected dependency node type [${it::class.simpleName}]")
+            }
+    }
 
     @Transient
     override lateinit var notation: MavenDependencyBase
-}
-
-internal interface UnresolvedMavenDependencyNode : DependencyNode {
-    val coordinates: String
-    override val key: Key<*> get() = Key<UnresolvedMavenDependencyNode>(coordinates)
-    override val graphEntryName: String get() = "$coordinates, unresolved"
-
-    fun key() = Key<UnresolvedMavenDependencyNode>(coordinates)
-
-}
-
-@Serializable
-internal class SerializableUnresolvedMavenDependencyNode internal constructor(
-    override val coordinates: String,
-    override val parentsRefs: MutableSet<DependencyNodeReference> = mutableSetOf(),
-    @Transient
-    private val graphContext: DependencyGraphContext = currentGraphContext()
-): UnresolvedMavenDependencyNode, SerializableDependencyNodeBase(graphContext) {
-    override val childrenRefs: List<DependencyNodeReference> = emptyList()
-    override val messages: List<Message> = emptyList()
-}
-
-internal class UnresolvedMavenDependencyNodeWithContext(
-    override val coordinates: String,
-    templateContext: Context,
-    parentNodes: Set<DependencyNodeWithContext> = emptySet(),
-) : UnresolvedMavenDependencyNode, DependencyNodeWithContext {
-    override val context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val children: List<DependencyNodeWithContext> = emptyList()
-    override val messages: List<Message> = emptyList()
-    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
-    override suspend fun downloadDependencies(downloadSources: Boolean) {}
-    override fun toString(): String = graphEntryName
-    override val cacheEntryKey: CacheEntryKey
-        get() = CacheEntryKey.fromString(coordinates)
 }

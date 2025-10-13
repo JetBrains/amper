@@ -16,6 +16,7 @@
         <option value="misc/compose-ios" />
         <option value="misc/jvm" />
         <option value="misc/new-project-template" />
+        <option value="sources/frontend/dr/testData/projects/jvm-invalid-dependencies" />
         <option value="sources/frontend/dr/testData/projects/kmp-library" />
         <option value="sources/frontend/schema/testResources/diagnostics/module-dependency/needed-platforms" />
         <option value="sources/frontend/schema/testResources/diagnostics/module-dependency/needed-platforms/sub-module" />

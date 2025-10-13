@@ -25,5 +25,5 @@ class MavenCoordinatesShouldBuildValidPath(
     }
 
     override val buildProblemId get() = ID
-    override val message: @Nls String = SchemaBundle.message(ID, coordinates, badPart, exception.message)
+    override val message: @Nls String = SchemaBundle.message(ID, coordinates, badPart, exceptionMessage)
 }

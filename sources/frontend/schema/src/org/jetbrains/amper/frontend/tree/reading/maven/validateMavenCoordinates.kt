@@ -51,7 +51,7 @@ internal fun validateAndReportMavenCoordinates(
             // It throws InvalidPathException in case coordinates contain some restricted symbols.
             Path(part)
         } catch (e: InvalidPathException) {
-            reporter.reportMessage(MavenCoordinatesShouldBuildValidPath(origin, coordinates, part, e))
+            reporter.reportMessage(MavenCoordinatesShouldBuildValidPath(origin, coordinates, part, e.toString()))
             reportIfCoordinatesAreGradleLike(origin, coordinates)
             return false
         }
