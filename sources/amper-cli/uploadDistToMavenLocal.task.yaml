@@ -7,4 +7,5 @@ programArguments:
   - --classpath=${module(.).runtimeClasspathJvm}
   - --extra-dir=plugins-processor=${module(../extensibility/amper-schema-processor).runtimeClasspathJvm}
   - --extra-dir=extensibility-api=${module(../extensibility/amper-extensibility-api).runtimeClasspathJvm}
+  - --extra-dir=recompiler-extension=${module(../amper-compose-hot-reload-recompiler-extension).runtimeClasspathJvm}
   - --repository=maven-local
