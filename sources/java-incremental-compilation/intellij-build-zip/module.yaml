@@ -1,0 +1,9 @@
+product: jvm/lib
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - io.netty:netty-buffer:4.1.116.Final
+  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.16-jb1
+  - com.dynatrace.hash4j:hash4j:0.26.0
