@@ -1418,6 +1418,40 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the version 6.0.0 of the library junit-jupiter-params
+     * is correctly resolved
+     * (DR had a resolution issue with version 5.7.2, resolving two jars for RUNTIME scope, see the test above)
+     */
+    @Test
+    fun `org_junit_jupiter junit-jupiter-params 6_0_0`(testInfo: TestInfo) = runTest {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            verifyMessages = true,
+            expected = """
+                root
+                ╰─── org.junit.jupiter:junit-jupiter-params:6.0.0
+                     ├─── org.junit:junit-bom:6.0.0
+                     ╰─── org.junit.jupiter:junit-jupiter-api:6.0.0
+                          ├─── org.junit:junit-bom:6.0.0
+                          ├─── org.opentest4j:opentest4j:1.3.0
+                          ╰─── org.junit.platform:junit-platform-commons:6.0.0
+                               ╰─── org.junit:junit-bom:6.0.0
+            """.trimIndent()
+        )
+
+        downloadAndAssertFiles(
+            listOf(
+                "junit-jupiter-api-6.0.0.jar",
+                "junit-jupiter-params-6.0.0.jar",
+                "junit-platform-commons-6.0.0.jar",
+                "opentest4j-1.3.0.jar",
+            ),
+            root
+        )
+    }
+
+    /**
      * This test checks that the errors occurred on resolving .module file are suppressed if the
      * resolution was successfully finished with the help of pom.xml.
      *
