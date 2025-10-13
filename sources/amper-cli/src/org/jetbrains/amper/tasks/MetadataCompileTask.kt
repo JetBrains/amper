@@ -91,7 +91,8 @@ internal class MetadataCompileTask(
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val inputValues = mapOf(
-            "jdk.url" to jdk.downloadUrl.toString(),
+            "jdk.version" to jdk.version,
+            "jdk.home" to jdk.homeDir.pathString,
             "user.settings" to Json.encodeToString(kotlinSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
         )

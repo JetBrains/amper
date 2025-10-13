@@ -158,7 +158,8 @@ internal class JvmCompileTask(
             fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
 
         val inputValues = mapOf(
-            "jdk.url" to jdk.downloadUrl.toString(),
+            "jdk.version" to jdk.version,
+            "jdk.home" to jdk.homeDir.pathString,
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.leafPlatforms.map { it.name }.sorted().joinToString(),

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
-import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -13,10 +12,6 @@ class Jdk(
      * The root directory of this JDK installation (which could be used as JAVA_HOME).
      */
     val homeDir: Path,
-    /**
-     * The URI from which this JDK was downloaded.
-     */
-    val downloadUrl: URI,
     /**
      * The full version number, including major/minor/path, but also potential extra numbers.
      */

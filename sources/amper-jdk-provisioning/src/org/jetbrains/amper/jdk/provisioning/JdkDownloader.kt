@@ -52,7 +52,7 @@ object JdkDownloader {
         // Some archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
         val contentsHome = extractedJdkRoot.resolve("Contents/Home")
         val jdkHome = if (contentsHome.isDirectory()) contentsHome else extractedJdkRoot
-        return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = version)
+        return Jdk(homeDir = jdkHome, version = version)
     }
 
     private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch, version: String): URI =

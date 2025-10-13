@@ -34,6 +34,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.pathString
 
 abstract class AndroidDelegatedGradleTask(
     private val module: AmperModule,
@@ -79,7 +80,8 @@ abstract class AndroidDelegatedGradleTask(
         val executionResult = incrementalCache.execute(
             key = taskName.name,
             inputValues = mapOf(
-                "jdk.url" to jdk.downloadUrl.toString(),
+                "jdk.version" to jdk.version,
+                "jdk.home" to jdk.homeDir.pathString,
                 "androidConfig" to fragments.joinToString { it.settings.android.toStableJsonLikeString() },
             ),
             inputFiles = runtimeClasspath + additionalInputFiles + (googleServicesJson?.let { listOf(it) } ?: listOf()),
