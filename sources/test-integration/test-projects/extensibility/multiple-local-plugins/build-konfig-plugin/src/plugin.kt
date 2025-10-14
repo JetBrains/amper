@@ -22,6 +22,22 @@ fun printSources(
     }
 }
 
+@TaskAction
+fun checkBaseline(
+    config: Map<String, String>,
+    @Input(inferTaskDependency = false) baselinePropertiesFile: Path,
+) {
+    val baselineProperties = baselinePropertiesFile.bufferedReader().use { reader ->
+        Properties().apply { load(reader) }
+    }.toMap()
+
+    if (config != baselineProperties) {
+        error("Baseline check failed! Current = $config, Baseline = $baselineProperties")
+    } else {
+        println("Baseline check successful!")
+    }
+}
+
 @TaskAction(ExecutionAvoidance.Disabled)
 fun generateKonfig(
     config: Map<String, String>,

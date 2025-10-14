@@ -20,6 +20,7 @@ private val KOTLIN_COLLECTIONS_PACKAGE = FqName("kotlin.collections")
 
 internal val SCHEMA_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Schema"))
 internal val INPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Input"))
+internal val INFER_TASK_DEPENDENCY_PARAM = Name.identifier("inferTaskDependency")
 internal val OUTPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Output"))
 
 internal val PROVIDED_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Provided"))

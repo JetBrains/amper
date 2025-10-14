@@ -71,7 +71,9 @@ internal fun applyPlugins(
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 explicitDependsOn = task.dependsOnSideEffectsOf,
-                inputs = pathsCollector.allInputPaths.toList(),
+                inputs = pathsCollector.allInputPaths.map { (path, inferTaskDependency) ->
+                    TaskFromPluginDescription.InputPath(path, inferTaskDependency)
+                },
                 requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { (node, location) ->
                     val module = node.from.resolve(allModules) ?: return@mapNotNull null
                     TaskFromPluginDescription.ModuleSourcesRequest(

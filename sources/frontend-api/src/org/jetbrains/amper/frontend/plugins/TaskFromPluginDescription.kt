@@ -52,7 +52,7 @@ class TaskFromPluginDescription(
     /**
      * Paths (from the [actionArguments]) that are to be considered as inputs to the task action.
      */
-    val inputs: List<Path>,
+    val inputs: List<InputPath>,
 
     /**
      * Requested module sources. All the nodes are from the [actionArguments].
@@ -92,6 +92,18 @@ class TaskFromPluginDescription(
      */
     val explicitOptOutOfExecutionAvoidance: Boolean,
 ) {
+
+    /**
+     * A marked path to be used as a task input.
+     */
+    data class InputPath(
+        val path: Path,
+        /**
+         * If true, and if the [path] is the output of another task, a dependency is automatically inferred
+         * between the task declaring this input and the task declaring the same path as output.
+         */
+        val inferTaskDependency: Boolean,
+    )
 
     /**
      * Signals that a path points to the generated contents of a certain [kind] (an Artifact), so that the backend

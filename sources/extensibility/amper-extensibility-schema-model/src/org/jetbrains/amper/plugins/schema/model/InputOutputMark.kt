@@ -6,6 +6,7 @@ package org.jetbrains.amper.plugins.schema.model
 
 enum class InputOutputMark {
     Input,
+    InputNoDependencyInference,
     Output,
     ValueOnly,
 }

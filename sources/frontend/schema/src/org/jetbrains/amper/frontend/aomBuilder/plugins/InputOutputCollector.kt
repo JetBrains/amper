@@ -15,7 +15,7 @@ import java.nio.file.Path
  * See [gatherPaths]
  */
 internal class InputOutputCollector {
-    private val _allInputPaths = mutableSetOf<Path>()
+    private val _allInputPaths = mutableSetOf<InputPath>()
     private val _allOutputPaths = mutableSetOf<Path>()
     private val _classpathNodes = mutableSetOf<NodeWithPropertyLocation<ShadowClasspath>>()
     private val _moduleSourcesNodes = mutableSetOf<NodeWithPropertyLocation<ShadowModuleSources>>()
@@ -29,6 +29,11 @@ internal class InputOutputCollector {
         val propertyLocation: List<String>,
     )
 
+    data class InputPath(
+        val path: Path,
+        val inferTaskDependency: Boolean = true,
+    )
+
     val classpathNodes: Set<NodeWithPropertyLocation<ShadowClasspath>>
         get() = _classpathNodes
 
@@ -38,7 +43,7 @@ internal class InputOutputCollector {
     val compilationArtifactNodes: Set<ShadowCompilationArtifact>
         get() = _compilationArtifactNodes
 
-    val allInputPaths: Set<Path>
+    val allInputPaths: Set<InputPath>
         get() = _allInputPaths
 
     val allOutputPaths: Set<Path>
@@ -78,7 +83,8 @@ internal class InputOutputCollector {
                 gatherPaths(value = value, mark = mark, location = location + i.toString())
             }
             is Path -> when (mark) {
-                InputOutputMark.Input -> _allInputPaths.add(value)
+                InputOutputMark.Input -> _allInputPaths.add(InputPath(value))
+                InputOutputMark.InputNoDependencyInference -> _allInputPaths.add(InputPath(value, false))
                 InputOutputMark.Output -> _allOutputPaths.add(value)
                 InputOutputMark.ValueOnly, null -> {}
             }

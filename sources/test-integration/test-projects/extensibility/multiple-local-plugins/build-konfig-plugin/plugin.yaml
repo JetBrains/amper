@@ -21,3 +21,8 @@ tasks:
   print-generated-sources:
     action: !org.jetbrains.amper.plugins.buildkonfig.printSources
       directory: ${generate-konfig.action.outputDir}
+
+  checkBaseline:
+    action: !org.jetbrains.amper.plugins.buildkonfig.checkBaseline
+      config: ${module.configuration.config}
+      baselinePropertiesFile: ${generate-konfig.action.baselinePropertiesFile}

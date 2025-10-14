@@ -186,6 +186,39 @@ class PluginsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `inferTaskDependency disabled`() = runSlowTest {
+        // 1. check fails at first because the baseline is outdated.
+        val r1 = runCli(
+            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            "task", ":app:checkBaseline@build-konfig",
+            copyToTempDir = true,
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        )
+        r1.assertStderrContains("Baseline check failed! Current = {VERSION=1.0, ID=chair-red-dog}, Baseline = {invalid=value}")
+
+        // 1.1 check again - fails because failures are not cached
+        runCli(
+            projectRoot = r1.projectRoot,
+            "task", ":app:checkBaseline@build-konfig",
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        ).assertStderrContains("Baseline check failed!")
+
+        // 2. Update the baseline
+        runCli(
+            projectRoot = r1.projectRoot,
+            "task", ":app:generate-konfig@build-konfig",
+        )
+
+        // 3. Check again - doesn't fail
+        runCli(
+            projectRoot = r1.projectRoot,
+            "task", ":app:checkBaseline@build-konfig",
+        ).assertStdoutContains("Baseline check successful!")
+    }
+
+    @Test
     fun `crash inside a task is correctly reported`() = runSlowTest {
         val r1 = runCli(
             projectRoot = testProject("extensibility/multiple-local-plugins"),

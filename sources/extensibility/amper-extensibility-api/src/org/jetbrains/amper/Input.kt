@@ -16,4 +16,24 @@ package org.jetbrains.amper
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.VALUE_PARAMETER)
-annotation class Input
+annotation class Input(
+    /**
+     * If true, and if the path is the output of another task, a dependency is automatically inferred
+     * between the task declaring this input and the task declaring the *matching* path as output.
+     *
+     * Input path *matches* the output path means that the input is either exactly the output or any of its subpaths.
+     *
+     * Note: if disabled,
+     * the path's content may still be considered in [execution avoidance][ExecutionAvoidance] computation.
+     *
+     * A typical case where this should be disabled is when there is a "baseline" file that can be updated and checked.
+     * So there is an "update" task that overwrites the baseline with the up-to-date data and a "check" task that
+     * checks if the baseline is, in fact, up to date.
+     * Now, because the "check" task has the baseline file as an input and the "update" task has it as an output,
+     * a dependency would've been inferred between the two. And that is undesired, because then "update" would always
+     * run before the "check" and the latter would always succeed.
+     * So in this case one would disable the dependency inference on the "check" task's input.
+     * Examples of such cases could include linter's baseline, ABI dump file, etc.
+     */
+    val inferTaskDependency: Boolean = true,
+)

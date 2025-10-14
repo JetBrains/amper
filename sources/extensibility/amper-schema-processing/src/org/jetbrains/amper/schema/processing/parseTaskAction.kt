@@ -8,6 +8,7 @@ import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotation
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotationValue
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolVisibility
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -85,16 +86,27 @@ private fun parseTaskParameter(
 ): PluginData.ClassData.Property? {
     val parameterName = parameter.name ?: return null // invalid Kotlin
     val typeReference = parameter.typeReference ?: return null // invalid Kotlin
-    val type = with(session) { typeReference.type }.parseSchemaType(origin = { typeReference }) ?: return null
-    val inputMark = parameter.getAnnotation(INPUT_ANNOTATION_CLASS)
-    val outputMark = parameter.getAnnotation(OUTPUT_ANNOTATION_CLASS)
+    val parameterSymbol = with(session) { parameter.symbol }
+    val type = parameterSymbol.returnType.parseSchemaType(origin = { typeReference }) ?: return null
+    val inputMark = parameterSymbol.getAnnotation(INPUT_ANNOTATION_CLASS)
+    val outputMark = parameterSymbol.getAnnotation(OUTPUT_ANNOTATION_CLASS)
     val inputOutputMark: InputOutputMark? = if (type.mustBeInputOutputMarked()) {
         when {
             inputMark != null && outputMark != null -> {  // both
                 reportError(parameter, "schema.task.action.parameter.path.conflicting")
                 null
             }
-            inputMark != null -> InputOutputMark.Input  // input only
+            inputMark != null -> {
+                val inferTaskDependency = inputMark.arguments
+                    .find { it.name == INFER_TASK_DEPENDENCY_PARAM }?.expression
+                    ?.let { it as? KaAnnotationValue.ConstantValue }
+                    ?.value?.value
+                if (inferTaskDependency == false) {
+                    InputOutputMark.InputNoDependencyInference
+                } else {
+                    InputOutputMark.Input
+                }
+            }
             outputMark != null -> InputOutputMark.Output  // output only
             else -> {  // none
                 reportError(parameter, "schema.task.action.parameter.path.unmarked")
@@ -102,8 +114,8 @@ private fun parseTaskParameter(
             }
         }
     } else {
-        if (outputMark != null) reportError(outputMark, "schema.task.action.parameter.not.path")
-        if (inputMark != null) reportError(inputMark, "schema.task.action.parameter.not.path")
+        if (outputMark != null) reportError(outputMark.psi(), "schema.task.action.parameter.not.path")
+        if (inputMark != null) reportError(inputMark.psi(), "schema.task.action.parameter.not.path")
         null
     }
 
@@ -134,4 +146,8 @@ private fun PluginData.Type.mustBeInputOutputMarked(): Boolean = when(this) {
     is PluginData.Type.VariantType -> declaration.variants.any { it.mustBeInputOutputMarked() }
     is PluginData.Type.PathType -> true
     else -> false
+}
+
+private fun KaAnnotation.psi() = checkNotNull(psi) {
+    "Annotations backed by source files are expected to have PSI available"
 }

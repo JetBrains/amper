@@ -62,7 +62,8 @@ class TaskFromPlugin(
     ) : JvmResourcesDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
 
     override val consumes: List<ArtifactSelector<*, *>> = description.inputs
-        .map { inputPath ->
+        .filter { it.inferTaskDependency }
+        .map { (inputPath, _) ->
             ArtifactSelector(
                 type = ArtifactType(ExternalTaskArtifact::class),
                 predicate = {
@@ -151,7 +152,7 @@ class TaskFromPlugin(
             ),
             inputFiles = buildList {
                 addAll(taskCode.jvmRuntimeClasspath)
-                addAll(description.inputs)
+                for (input in description.inputs) add(input.path)
                 for (resolvedRequest in description.requestedClasspaths) addAll(resolvedRequest.node.resolvedFiles)
                 for (sourcesRequest in description.requestedModuleSources) addAll(sourcesRequest.node.sourceDirectories)
                 for (artifactRequest in description.requestedCompilationArtifacts) add(artifactRequest.node.artifact)
