@@ -91,6 +91,13 @@ internal fun applyPlugins(
                         propertyLocation = propertyLocation,
                     )
                 },
+                requestedCompilationArtifacts = pathsCollector.compilationArtifactNodes.mapNotNull { node ->
+                    val from = node.from.resolve(allModules) ?: return@mapNotNull null
+                    TaskFromPluginDescription.CompilationResultRequest(
+                        node = node,
+                        from = from,
+                    )
+                },
                 outputs = outputsToMarks,
                 codeSource = plugin.pluginModule,
                 explicitOptOutOfExecutionAvoidance = taskInfo.optOutOfExecutionAvoidance,

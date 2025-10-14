@@ -5,3 +5,5 @@ tasks:
       baseClasspath: ${module.classpath}
       settings: ${module.configuration}
       distributionDir: ${taskDir}
+      baseJar:
+        from: ${module.dependency}

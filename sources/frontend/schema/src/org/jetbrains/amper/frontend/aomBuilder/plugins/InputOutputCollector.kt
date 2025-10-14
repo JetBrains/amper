@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import java.nio.file.Path
@@ -18,6 +19,7 @@ internal class InputOutputCollector {
     private val _allOutputPaths = mutableSetOf<Path>()
     private val _classpathNodes = mutableSetOf<NodeWithPropertyLocation<ShadowClasspath>>()
     private val _moduleSourcesNodes = mutableSetOf<NodeWithPropertyLocation<ShadowModuleSources>>()
+    private val _compilationArtifactNodes = mutableSetOf<ShadowCompilationArtifact>()
 
     /**
      * @property propertyLocation a property path in a data tree, e.g. `[settings, myMap, myKey, 0]` of the [node].
@@ -32,6 +34,9 @@ internal class InputOutputCollector {
 
     val moduleSourcesNodes: Set<NodeWithPropertyLocation<ShadowModuleSources>>
         get() = _moduleSourcesNodes
+
+    val compilationArtifactNodes: Set<ShadowCompilationArtifact>
+        get() = _compilationArtifactNodes
 
     val allInputPaths: Set<Path>
         get() = _allInputPaths
@@ -63,6 +68,7 @@ internal class InputOutputCollector {
                 when (value) {
                     is ShadowClasspath -> _classpathNodes.add(NodeWithPropertyLocation(value, location))
                     is ShadowModuleSources -> _moduleSourcesNodes.add(NodeWithPropertyLocation(value, location))
+                    is ShadowCompilationArtifact -> _compilationArtifactNodes.add(value)
                 }
             }
             is Map<*, *> -> value.forEach { (key, value) ->

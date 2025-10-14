@@ -40,6 +40,9 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                         }
                 }
             }
+            for (request in taskDescription.requestedCompilationArtifacts) {
+                 taskDependencies += CommonTaskType.Jar.getTaskName(request.from, Platform.JVM)
+            }
             taskDependencies += taskDescription.requestedClasspaths.map { classpathRequest ->
                 val resolutionScope = when(classpathRequest.node.scope) {
                     ShadowResolutionScope.Runtime -> ResolutionScope.RUNTIME

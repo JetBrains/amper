@@ -55,6 +55,20 @@ public class ShadowClasspath : SchemaNode() {
 
 /**
  * Generated!
+ * Shadow for `org.jetbrains.amper.CompilationArtifact`
+ */
+@SchemaDoc(doc = "Provides the compilation result of the [given][from] module.\n\nWarning: only JVM platform is currently supported.")
+public class ShadowCompilationArtifact : SchemaNode() {
+    @SchemaDoc(doc = "The local module to get the compilation result from.")
+    public val from: ShadowDependencyLocal by nested()
+
+    @IgnoreForSchema
+    @SchemaDoc(doc = "Path to the compilation artifact.\nIt's a JAR for JVM.")
+    public lateinit var artifact: Path
+}
+
+/**
+ * Generated!
  * Shadow for `org.jetbrains.amper.Dependency.Local`
  */
 @SchemaDoc(doc = "A dependency on a local module in the project.")
@@ -128,6 +142,7 @@ public enum class ShadowSourcesKind(
 public object ShadowMaps {
     public val PublicInterfaceToShadowNodeClass: Map<String, KClass<*>> = mapOf(
             "org.jetbrains.amper.Classpath" to ShadowClasspath::class,
+            "org.jetbrains.amper.CompilationArtifact" to ShadowCompilationArtifact::class,
             "org.jetbrains.amper.Dependency.Local" to ShadowDependencyLocal::class,
             "org.jetbrains.amper.Dependency.Maven" to ShadowDependencyMaven::class,
             "org.jetbrains.amper.ModuleSources" to ShadowModuleSources::class,
@@ -138,6 +153,7 @@ public object ShadowMaps {
 
     public val ShadowNodeClassToPublicReflectionName: Map<KClass<*>, String> = mapOf(
             ShadowClasspath::class to "org.jetbrains.amper.Classpath",
+            ShadowCompilationArtifact::class to "org.jetbrains.amper.CompilationArtifact",
             ShadowDependencyLocal::class to "org.jetbrains.amper.Dependency${'$'}Local",
             ShadowDependencyMaven::class to "org.jetbrains.amper.Dependency${'$'}Maven",
             ShadowModuleSources::class to "org.jetbrains.amper.ModuleSources",

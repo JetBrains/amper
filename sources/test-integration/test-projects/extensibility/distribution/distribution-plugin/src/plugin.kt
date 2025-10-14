@@ -13,6 +13,7 @@ interface DistributionSettings {
 @TaskAction
 fun buildDistribution(
     @Output distributionDir: Path,
+    @Input baseJar: CompilationArtifact,
     @Input baseClasspath: Classpath,
     @Input settings: DistributionSettings,
 ) {
@@ -22,6 +23,8 @@ fun buildDistribution(
     settings.extraNamedClasspaths.forEach { (name, classpath) ->
         printClasspathInfo(name, classpath)
     }
+    println("compilation result: ${baseJar}")
+    println("compilation result path: ${baseJar.artifact}")
 }
 
 private fun printClasspathInfo(name: String, classpath: Classpath) {

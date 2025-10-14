@@ -25,6 +25,7 @@ import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
+import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
@@ -113,6 +114,12 @@ class TaskFromPlugin(
         val taskCode = dependenciesResult
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .single()
+
+        description.requestedCompilationArtifacts.forEach { request ->
+            val result = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>()
+                .first { it.module == request.from }
+            request.node.artifact = result.jarPath
+        }
 
         val doNotUseExecutionAvoidance = description.explicitOptOutOfExecutionAvoidance ||
                 // We do not use execution-avoidance if there are no outputs declared.

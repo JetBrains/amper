@@ -79,6 +79,31 @@
             "doc": "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property."
         },
         {
+            "name": "org.jetbrains.amper/CompilationArtifact",
+            "properties": [
+                {
+                    "name": "from",
+                    "type": {
+                        "type": "object",
+                        "schemaName": "org.jetbrains.amper/Dependency/Local"
+                    },
+                    "doc": "The local module to get the compilation result from.",
+                    "internalAttributes": {}
+                },
+                {
+                    "name": "artifact",
+                    "type": {
+                        "type": "path"
+                    },
+                    "doc": "Path to the compilation artifact.\nIt's a JAR for JVM.",
+                    "internalAttributes": {
+                        "isProvided": true
+                    }
+                }
+            ],
+            "doc": "Provides the compilation result of the [given][from] module.\n\nWarning: only JVM platform is currently supported."
+        },
+        {
             "name": "org.jetbrains.amper/Dependency/Local",
             "properties": [
                 {

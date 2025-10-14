@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import java.nio.file.Path
 
@@ -68,6 +69,13 @@ class TaskFromPluginDescription(
     val requestedClasspaths: List<ClasspathRequest>,
 
     /**
+     * Requested compilation artifacts to be resolved. All the nodes are from the [actionArguments].
+     *
+     * @see ShadowCompilationArtifact
+     */
+    val requestedCompilationArtifacts: List<CompilationResultRequest>,
+
+    /**
      * Paths (from the [actionArguments]) that are to be considered as outputs to the task action as keys.
      * These paths are optionally marked with the additional semantics.
      */
@@ -126,5 +134,16 @@ class TaskFromPluginDescription(
         val localDependencies: List<AmperModule>,
         val externalDependencies: List<String>,
         val propertyLocation: List<String>,
+    )
+
+    /**
+     * A wrapper around [ShadowCompilationArtifact] that was validated
+     * and pre-resolved with frontend-level data ([from]).
+     *
+     * [ShadowCompilationArtifact.artifact] must be set to finish resolution.
+     */
+    class CompilationResultRequest(
+        val node: ShadowCompilationArtifact,
+        val from: AmperModule,
     )
 }
