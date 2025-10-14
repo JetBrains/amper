@@ -140,6 +140,7 @@ internal class PluginTreeReader(
         val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
             `object`<PluginYamlRoot> {
                 "module" setTo `object`(moduleConfigurationDeclaration.toType()) {
+                    "name" setTo scalar(module.module.userReadableName)
                     "configuration" setTo pluginConfiguration
                     "rootDir" setTo scalar(moduleRootDir)
                     "classpath" setTo `object`<ShadowClasspath> {
