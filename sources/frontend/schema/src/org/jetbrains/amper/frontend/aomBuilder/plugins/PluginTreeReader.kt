@@ -143,6 +143,9 @@ internal class PluginTreeReader(
                     "name" setTo scalar(module.module.userReadableName)
                     "configuration" setTo pluginConfiguration
                     "rootDir" setTo scalar(moduleRootDir)
+                    "dependency" setTo `object`<ShadowDependencyLocal> {
+                        ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
+                    }
                     "classpath" setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList {
                             add(`object`<ShadowDependencyLocal> {
