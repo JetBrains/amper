@@ -22,6 +22,7 @@ import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.io.path.pathString
+import kotlin.time.Instant
 
 private val logger = LoggerFactory.getLogger("resolver.kt")
 
@@ -157,7 +158,8 @@ class Resolver {
                                     val serialized = GraphJson.json.encodeToString(serializableGraph)
                                     IncrementalCache.ExecutionResult(
                                         graphResolvedInsideCache.dependencyPaths(),
-                                        mapOf("graph" to serialized)
+                                        mapOf("graph" to serialized),
+                                        expirationTime = root.calculateGraphExpirationTime()
                                     )
                                 }
                         }.let {
@@ -199,6 +201,17 @@ class Resolver {
                 }
             }
         }
+    }
+
+    private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
+        return distinctBfsSequence()
+            .filterIsInstance<MavenDependencyNodeWithContext>()
+            .flatMap {
+                it.dependency.files(false).filterIsInstance<SnapshotDependencyFileImpl>()
+            }
+            .toSet()
+            .mapNotNull { it.getExpirationTime() }
+            .minByOrNull { it }
     }
 
     // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)

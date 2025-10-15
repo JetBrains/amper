@@ -26,6 +26,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.measureTimedValue
 
 class IncrementalCache(
@@ -171,6 +173,7 @@ class IncrementalCache(
             failOnMissing = true
         ),
         excludedOutputFiles = result.excludedOutputFiles.map { it.pathString }.toSet(),
+        expirationTime = result.expirationTime
     )
 
     private fun ensureStateFileIsConsistent(
@@ -233,6 +236,14 @@ class IncrementalCache(
             return CachedState(state = state, outdated = true)
         }
 
+        if (state.expirationTime != null && state.expirationTime < Clock.System.now()) {
+            logger.debug(
+                "[inc] State file '$stateFile' contains expiration time date is passed already\n" +
+                        "expiration time: ${state.expirationTime}\n"
+            )
+            return CachedState(state = state, outdated = true)
+        }
+
         if (state.inputValues != inputValues) {
             // TODO better reporting what was exactly changed
             logger.debug(
@@ -283,7 +294,7 @@ class IncrementalCache(
          * The output files and directories created by the computation.
          *
          * The state of these files is recorded and persisted on disk. The next time the computation is run, the new
-         * state of the files is compared to the recorded state, and the computation is re-run if anything changed.
+         * state of the files is compared to the recorded state, and the computation is re-run if anything is changed.
          */
         val outputFiles: List<Path>,
         /**
@@ -295,6 +306,10 @@ class IncrementalCache(
          * Changes in these files do not invalidate the cache state.
          */
         val excludedOutputFiles: Set<Path> = emptySet(),
+        /**
+         * Date and time the cache entry is no longer valid after, and should be recalculated
+         */
+        val expirationTime: Instant? = null
     )
     
     data class IncrementalExecutionResult(

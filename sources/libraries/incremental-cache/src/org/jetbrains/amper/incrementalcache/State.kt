@@ -8,6 +8,8 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -17,6 +19,7 @@ import org.jetbrains.amper.filechannels.writeText
 import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
 import java.nio.file.Path
+import kotlin.time.Instant
 
 private val logger = LoggerFactory.getLogger(State::class.java)
 
@@ -67,6 +70,11 @@ internal data class State(
      * A subset of [outputFiles] that should not be considered for cache invalidation.
      */
     val excludedOutputFiles: Set<String>,
+    /**
+     * Date and time the cache entry is no longer valid after, and should be recalculated
+     */
+    @Serializable(with = InstantSerializer::class)
+    val expirationTime: Instant? = null,
 ) {
     companion object {
         // increment this counter if you change the state file format
@@ -117,5 +125,17 @@ private object SortedMapSerializer: KSerializer<Map<String, String>> {
 
     override fun deserialize(decoder: Decoder): Map<String, String> {
         return mapSerializer.deserialize(decoder)
+    }
+}
+
+internal object InstantSerializer: KSerializer<Instant> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlin.time.Instant", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant =
+        Instant.parse(decoder.decodeString())
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(value.toString())
     }
 }

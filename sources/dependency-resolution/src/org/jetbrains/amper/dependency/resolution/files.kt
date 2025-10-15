@@ -35,8 +35,8 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChe
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.files.Hash
-import org.jetbrains.amper.dependency.resolution.files.SimpleHash
 import org.jetbrains.amper.dependency.resolution.files.Hasher
+import org.jetbrains.amper.dependency.resolution.files.SimpleHash
 import org.jetbrains.amper.dependency.resolution.files.Writer
 import org.jetbrains.amper.dependency.resolution.files.computeHash
 import org.jetbrains.amper.dependency.resolution.files.deleteIfExistsWithLogging
@@ -65,11 +65,9 @@ import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.FileTime
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
@@ -85,6 +83,10 @@ import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 private val logger = LoggerFactory.getLogger("files.kt")
 
@@ -320,7 +322,7 @@ open class DependencyFileImpl(
 
         return fileCache.mavenLocalRepository.guessPath(dependency, fileName).takeIf {
             // Dependencies are published to mavenLocal without checksums by default
-            // (neither by Gradle plugin nor by mvn install)
+            // (neither by Gradle plugin nor by 'mvn install')
             isValidMavenLocalPath(it)
                     /*&& getDependencyFile(
                 dependency, nameWithoutExtension, extension, isAutoAddedDocumentation,
@@ -1196,10 +1198,6 @@ open class DependencyFileImpl(
     }
 }
 
-interface SnapshotDependencyFile: DependencyFile {
-
-}
-
 class SnapshotDependencyFileImpl(
     dependency: MavenDependencyImpl,
     name: String,
@@ -1225,6 +1223,8 @@ class SnapshotDependencyFileImpl(
 
     private suspend fun getVersionFile() = mavenMetadata.getPath()?.parent?.resolve("$extension.version")
 
+    private suspend fun getChecksumFile(algorithm: String) = mavenMetadata.getPath()?.parent?.resolve("$extension.$algorithm") // pom -> pom.sha256
+
     @Volatile
     private var snapshotVersion: String? = null
     private var mutex = Mutex()
@@ -1246,6 +1246,48 @@ class SnapshotDependencyFileImpl(
     }
 
     override suspend fun isDownloaded(): Boolean = isSnapshotDownloaded()
+
+    /**
+     * @return file expiration time: the moment in time after which
+     * this file corresponding to the SNAPSHOT version of maven dependency is no longer up to date
+     * and should be refreshed.
+     */
+    internal suspend fun getExpirationTime(): Instant? {
+        val path = getPath()
+        if (path?.exists() != true) {
+            return null
+        }
+
+        // Any SNAPSHOT dependency resolved from mavenLocal should be re-resolved on every usage,
+        // because it could be updated at any time and that change is intended to affect the resolution graph immediately
+        // (primary use case for the usage of mavenLocal).
+        // This way expiration time is set as 'now' indicating that SNAPSHOT dependency should be re-resolved the next time again
+        if (mavenLocalPath != null) return Clock.System.now()
+
+        return if (nameWithoutExtension == "maven-metadata")
+            // maven-metadata file is the primary source of information about SNAPSHOT dependency versions,
+            // its expiration time is calculated very straightforwardly as an expiration time of the file itself.
+            path.expirationTime()
+        else {
+            // downloadable resource (artifact or checksum or documentation)
+            if (mavenMetadata.isDownloaded())
+                // If maven-metadata is there, then its expiration time is the expiration time
+                // of all other downloadable resources of this library
+                mavenMetadata.getPath()?.expirationTime()
+            else {
+                // maven-metadata is missing, we rely on checksums expiration time
+                // (checksum is redownloaded after expiration time passed,
+                // but not the artifact, that is just reused if it matches redownloaded checksum, keeping its own expiration time outdated)
+                if (isChecksum())
+                    path.expirationTime()
+                else
+                    // find the last downloaded checksum and use its expiration time
+                    hashAlgorithms
+                        .mapNotNull { getChecksumFile(it)?.expirationTime() }
+                        .maxByOrNull { it }
+            }
+        }
+    }
 
     private suspend fun isSnapshotDownloaded(): Boolean {
         val path = getPath()
@@ -1282,8 +1324,9 @@ class SnapshotDependencyFileImpl(
         return true
     }
 
-    private fun Path.isUpToDate(): Boolean =
-        getLastModifiedTime() > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
+    private fun Path.isUpToDate(): Boolean = expirationTime() > Clock.System.now()
+
+    private fun Path.expirationTime(): Instant = getLastModifiedTime().toInstant().toKotlinInstant().plus(snapshotValidityPeriod)
 
     override suspend fun getNamePart(
         repository: MavenRepository,
@@ -1379,11 +1422,13 @@ class SnapshotDependencyFileImpl(
          * maven-metadata.xml is downloaded on demand when downloading of the artifact (pom or module or jar)
          * is in progress, and file lock is already taken.
          * This lock source is used for nested locking under the main artifact lock.
-         * It is safe since it is always ordered, it is taken under the artifact's ock, not vice versa.
+         * It is safe since it is always ordered, it is taken under the artifact's lock, not vice versa.
          * It protects from concurrent attempts to download maven-metadata
          * while downloading pom/module/different artifacts in parallel
          */
         private val mavenMetadataFilesLock = FileMutexGroup.striped(stripeCount = 512)
+
+        val snapshotValidityPeriod = 1.days
     }
 }
 

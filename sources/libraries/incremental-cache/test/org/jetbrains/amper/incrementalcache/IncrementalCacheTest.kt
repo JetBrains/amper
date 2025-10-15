@@ -21,6 +21,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
 class IncrementalCacheTest {
     @TempDir
@@ -355,5 +357,53 @@ class IncrementalCacheTest {
             assertEquals("regular-1", regularOutput.readText(), "The new exec should overwrite the regular file")
             assertEquals("excluded-1", excludedOutput.readText(), "The new exec should overwrite the excluded file")
         }
+    }
+
+    @Test
+    fun expirationTimeInFuture() {
+        val file = tempDir.resolve("file.txt").also { it.writeText("a") }
+
+        fun call(codeVersion: String) = runBlocking {
+            IncrementalCache(tempDir / "incremental.state", codeVersion = codeVersion).execute(
+                key = "1",
+                inputValues = emptyMap(),
+                inputFiles = listOf(file),
+            ) {
+                executionsCount.incrementAndGet()
+                IncrementalCache.ExecutionResult(emptyList(), expirationTime = Clock.System.now().plus(1.days))
+            }
+        }
+
+        // initial
+        call("1")
+        assertEquals(executionsCount.get(), 1)
+
+        // up-to-date
+        call("1")
+        assertEquals(executionsCount.get(), 1)
+    }
+
+    @Test
+    fun expirationTimeInPast() {
+        val file = tempDir.resolve("file.txt").also { it.writeText("a") }
+
+        fun call(codeVersion: String) = runBlocking {
+            IncrementalCache(tempDir / "incremental.state", codeVersion = codeVersion).execute(
+                key = "1",
+                inputValues = emptyMap(),
+                inputFiles = listOf(file),
+            ) {
+                executionsCount.incrementAndGet()
+                IncrementalCache.ExecutionResult(emptyList(), expirationTime = Clock.System.now().minus(1.days))
+            }
+        }
+
+        // initial
+        call("1")
+        assertEquals(executionsCount.get(), 1)
+
+        // expired => recalculated
+        call("1")
+        assertEquals(executionsCount.get(), 2)
     }
 }
