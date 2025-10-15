@@ -116,7 +116,15 @@ private fun Path.createSettingsGradle(buildRequest: AndroidBuildRequest): Path {
 
     settingsGradleFile.writeText(
         """
-pluginManagement {
+buildscript {
+    configurations {
+        classpath {
+            attributes {
+                attribute(Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java), "jvm")
+            }
+        }
+    }
+    
     repositories {
         ${if (fromSources) "mavenLocal()" else ""}
         mavenCentral()
@@ -126,11 +134,13 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
         ${if (fromSources) "" else "maven(\"https://packages.jetbrains.team/maven/p/amper/amper\")"}
     }
+    
+    dependencies {
+        classpath("org.jetbrains.amper.android.settings.plugin:org.jetbrains.amper.android.settings.plugin.gradle.plugin:${AmperBuild.mavenVersion}")
+    }
 }
 
-plugins {
-    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.mavenVersion}")
-}
+plugins.apply(org.jetbrains.amper.android.gradle.AmperAndroidIntegrationSettingsPlugin::class.java)
 
 configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
     jsonData = ${"\"\"\""}${Json.encodeToString(buildRequest).replace("$", "\${'$'}")}${"\"\"\""}
