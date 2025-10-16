@@ -18,9 +18,9 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
-import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.pathString
 import kotlin.time.Instant
 
@@ -80,7 +80,7 @@ class Resolver {
      * [ResolutionLevel.NETWORK] implies full resolution. If node metadata or artifact is messing locally, it is resolved
      * from the repositories (defined in the resolution context of the node).
      *
-     * @param downloadSources Artifacts containing source and documentation (sources, javadocs) are downloaded from the repositories together
+     * @param downloadSources Artifacts containing source and documentation (sources, Javadocs) are downloaded from the repositories together
      * with the main artifacts if this flag is set to true.
      *
      * @param transitive Resolve the direct dependencies from the input graph only without transitive ones.
@@ -179,6 +179,8 @@ class Resolver {
                                 resolvedGraph
                             }
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         logger.error(
                             "Unable to calculate dependency graph based on incremental cache, " +
@@ -203,7 +205,7 @@ class Resolver {
         }
     }
 
-    // todo (AB) : If node was not reolved due to network error and has ERROR diagnostc assigned,
+    // todo (AB) : If node was not resolved due to network error and has ERROR diagnostic assigned,
     // todo (AB) : such a node should be recalculated next time and thus providing expirationTime as NOW.
     private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
         return distinctBfsSequence()
@@ -787,11 +789,6 @@ enum class IncrementalCacheUsage {
     USE,
     REFRESH_AND_USE,
 }
-
-@OptIn(ExperimentalStdlibApi::class)
-private fun String.md5(): String = MessageDigest.getInstance("MD5")
-    .digest(this.toByteArray())
-    .toHexString()
 
 // todo (AB) : Check all places where this exception is thrown,
 // todo (AB) : it might be better to convert it either to diagnostic or to error.
