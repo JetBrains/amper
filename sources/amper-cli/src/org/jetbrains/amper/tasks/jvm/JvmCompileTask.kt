@@ -189,7 +189,7 @@ internal class JvmCompileTask(
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(javaAnnotationProcessorsGeneratedDir)
-            if (!shouldCompileJavaIncrementally()) {
+            if (!shouldCompileJavaIncrementally(userSettings.java)) {
                 cleanDirectory(taskOutputRoot)
             }
             javaCompilerOutputRoot.createDirectories()
@@ -239,7 +239,7 @@ internal class JvmCompileTask(
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
 
                 // if we compile incrementally, then we don't clean the output dir => overwrite instead of failing that a file exists
-                val overwrite = shouldCompileJavaIncrementally()
+                val overwrite = shouldCompileJavaIncrementally(userSettings.java)
                 BuildPrimitives.copy(from = resource, to = dest, overwrite = overwrite)
             }
 
@@ -414,7 +414,7 @@ internal class JvmCompileTask(
 
         val freeCompilerArgs = userSettings.java.freeCompilerArgs
 
-        val success = if (shouldCompileJavaIncrementally()) {
+        val success = if (shouldCompileJavaIncrementally(userSettings.java)) {
             jicDataDir.createDirectories()
             val jicJavacArgs = commonArgs + freeCompilerArgs
             spanBuilder("JIC").use {
@@ -477,8 +477,8 @@ internal class JvmCompileTask(
         return exitCode == 0
     }
 
-    fun shouldCompileJavaIncrementally() : Boolean {
-        return System.getProperty("org.jetbrains.amper.jic").toBoolean()
+    fun shouldCompileJavaIncrementally(javaUserSettings: JavaUserSettings): Boolean {
+        return javaUserSettings.compileIncrementally || System.getProperty("org.jetbrains.amper.jic").toBoolean()
     }
 
     class Result(

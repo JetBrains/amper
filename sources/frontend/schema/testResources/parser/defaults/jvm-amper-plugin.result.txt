@@ -61,6 +61,7 @@ Fragments:
           processors: <default> [
           ]
         }
+        compileIncrementally: <default> false
         freeCompilerArgs: <default> [
         ]
       }
@@ -210,6 +211,7 @@ Fragments:
           processors: <default> [
           ]
         }
+        compileIncrementally: <default> false
         freeCompilerArgs: <default> [
         ]
       }

@@ -41,6 +41,7 @@ internal data class JavaUserSettings(
     val parameters: Boolean = false,
     val freeCompilerArgs: List<String>,
     val annotationProcessorOptions: Map<String, String>,
+    val compileIncrementally: Boolean,
 )
 
 @Serializable
@@ -96,7 +97,8 @@ private fun Fragment.serializableJavaSettings(): JavaUserSettings = JavaUserSett
     freeCompilerArgs = settings.java.freeCompilerArgs.values(),
     annotationProcessorOptions = settings.java.annotationProcessing.processorOptions.mapValues {
         (_, value) -> value.value
-    }
+    },
+    compileIncrementally = settings.java.compileIncrementally,
 )
 
 /**

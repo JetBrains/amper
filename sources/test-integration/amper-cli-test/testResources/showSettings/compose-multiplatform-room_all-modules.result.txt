@@ -32,6 +32,7 @@ settings@android:
     annotationProcessing:
       processorOptions: {}  # default
       processors: []  # default
+    compileIncrementally: false  # default
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
@@ -104,6 +105,7 @@ settings@jvm:
     annotationProcessing:
       processorOptions: {}  # default
       processors: []  # default
+    compileIncrementally: false  # default
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
@@ -190,6 +192,7 @@ settings@jvm+android:
     annotationProcessing:
       processorOptions: {}  # default
       processors: []  # default
+    compileIncrementally: false  # default
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
@@ -265,6 +268,7 @@ settings@jvm:
     annotationProcessing:
       processorOptions: {}  # default
       processors: []  # default
+    compileIncrementally: false  # default
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
@@ -349,6 +353,7 @@ settings@android:
     annotationProcessing:
       processorOptions: {}  # default
       processors: []  # default
+    compileIncrementally: false  # default
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:

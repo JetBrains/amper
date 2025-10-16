@@ -186,7 +186,6 @@ class AmperJavaBuildTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "run", "-m", moduleName,
-            amperJvmArgs = listOf("-Dorg.jetbrains.amper.jic=true")
         )
 
     private fun AmperCliResult.realStdout(): String {

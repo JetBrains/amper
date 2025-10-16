@@ -7,3 +7,5 @@ dependencies:
 settings:
   jvm:
     mainClass: com.Main
+  java:
+    compileIncrementally: true

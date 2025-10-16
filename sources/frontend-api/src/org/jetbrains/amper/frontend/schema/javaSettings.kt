@@ -44,6 +44,10 @@ class JavaSettings : SchemaNode() {
     @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any compiler option directly to the Java compiler")
     var freeCompilerArgs by value<List<TraceableString>>(emptyList())
+
+    @Misnomers("compilation", "incremental")
+    @SchemaDoc("Enables incremental compilation for Java sources")
+    var compileIncrementally by value(default = false)
 }
 
 class JvmSettings : SchemaNode() {

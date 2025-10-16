@@ -3,3 +3,6 @@ product:
   platforms:
     - jvm
 
+settings:
+  java:
+    compileIncrementally: true
