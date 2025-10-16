@@ -13,6 +13,8 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.isDefault
+import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.relativeTo
 import kotlin.reflect.full.hasAnnotation
 
 /**
@@ -39,7 +41,10 @@ internal fun AmperModule.prettyPrintForGoldFile(printDefaults: Boolean = false):
         for (dependency in fragment.externalDependencies.sortedBy { it.toString() }) {
             appendLine("      $dependency")
         }
-        appendLine("    Src folder: ${fragment.src.fileName}")
+        appendLine("    Src folders:")
+        for (source in fragment.sourceRoots) {
+            appendLine("      ${source.relativeTo(this@prettyPrintForGoldFile.source.moduleDir).invariantSeparatorsPathString}")
+        }
         appendLine("    Fragment dependencies:")
         for (dependency in fragment.fragmentDependencies) {
             appendLine("      ${dependency.target.name} (${dependency.type})")

@@ -2,7 +2,8 @@ Fragments:
   main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src
+    Src folders:
+      src
     Fragment dependencies:
     Settings: {
       kover: {
@@ -14,7 +15,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-    Src folder: test
+    Src folders:
+      test
     Fragment dependencies:
       main (FRIEND)
     Settings: {

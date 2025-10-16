@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
@@ -60,8 +59,8 @@ class Module : Base() {
     @SchemaDoc("Lists the templates applied to the module. [Read more](#templates)")
     var apply by nullableValue<List<TraceablePath>>()
 
-    @SchemaDoc("Configures various aspects of the module, such as file layout")
-    val module: Meta by nested()
+    @SchemaDoc("File layout of the module. [Read more](#maven-like-module-layout)")
+    var layout by value(AmperLayout.AMPER)
 
     @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
     var pluginInfo by nullableValue<PluginDeclarationSchema>()
@@ -106,26 +105,18 @@ class TaskSettings: SchemaNode() {
     var dependsOn by nullableValue<List<TraceableString>>()
 }
 
-@SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interoperability)")
+@SchemaDoc("File layout of the module. [Read more](##maven-like-module-layout)")
 enum class AmperLayout(
     override var schemaValue: String,
     override val outdated: Boolean = false
 ) : SchemaEnum {
-    @SchemaDoc("The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets)")
-    GRADLE("gradle-kmp"),
 
-    @SchemaDoc("The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html)")
-    GRADLE_JVM("gradle-jvm"),
+    @SchemaDoc("Maven like layout. [Read more](#maven-like-module-layout)")
+    MAVEN_LIKE("maven-like"),
 
     @SchemaDoc("The [default Amper file layout](#project-layout) is used")
-    AMPER("default"),;
+    AMPER("amper"),;
 
     companion object : EnumMap<AmperLayout, String>(AmperLayout::values, AmperLayout::schemaValue)
 }
 
-class Meta : SchemaNode() {
-
-    @GradleSpecific("custom file layouts are not supported in standalone Amper")
-    @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interoperability)")
-    var layout by value(AmperLayout.AMPER)
-}

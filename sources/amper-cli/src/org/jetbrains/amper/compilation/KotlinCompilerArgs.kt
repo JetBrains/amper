@@ -114,7 +114,7 @@ private fun kotlinCommonCompilerArgs(
 }
 
 private fun Fragment.allSourceFiles(additionalSourceRoots: List<Path>): List<Path> =
-    (listOf(src) + additionalSourceRoots).flatMap { srcRoot ->
+    (sourceRoots + additionalSourceRoots).flatMap { srcRoot ->
         // In Kotlin >= 2.2, we need to list all source files (not just dirs).
         // Also, we don't want swift or plist files here
         srcRoot.walk().filter { it.extension in validSourceFileExtensions }
@@ -145,7 +145,7 @@ internal fun kotlinJvmCompilerArgs(
     }
 
     // FIXME remove in Kotlin 2.2.20 (this is needed only in 2.2.0, not before, not after)
-    val javaSourceRoots = (fragments.map { it.src } + additionalSourceRoots.map { it.path })
+    val javaSourceRoots = (fragments.flatMap { it.sourceRoots } + additionalSourceRoots.map { it.path })
         .filter { it.exists() && it.listDirectoryEntries().isNotEmpty() }
     javaSourceRoots.forEach {
         add("-Xjava-source-roots=${it.pathString}")

@@ -1591,6 +1591,48 @@ A clickable gutter icon will appear on the left side of the composable.
 - Amper doesn't watch the file system, so automatic reloads are only available when using the IDE
 
 
+## Maven-like module layout
+ 
+Amper is very opinionated about where to put your sources, resources, and tests. Read more about the standard project 
+layout in the [corresponding section](#project-layout) of the documentation. This makes transitioning from other 
+tools harder because not only build scripts/files converting is required but also files must be moved manually according
+to Amper's conventions. To simplify transitioning, Amper provides an alternative layout that is compatible with Maven 
+and Gradle. The layout conforms to the
+[Maven Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html).
+
+Example:
+
+```
+module/
+├── module.yaml
+└── src/
+    ├── main/
+    │   ├── java/
+    │   │   └── Main.java
+    │   ├── kotlin/
+    │   │   └── func.kt
+    │   └── resources/
+    │       └── input.txt
+    └── test/
+        ├── java/
+        │   └── JavaTest.java
+        ├── kotlin/
+        │   └── KotlinTest.kt
+        └── resources/
+            └── test-input.txt
+```
+
+Note: there is no difference between `java/` and `kotlin/` folders, Amper will look for java and kotlin sources in both 
+folders. It is only necessary for the sake of transitioning simplicity.
+
+Choosing the file layout is possible per module. 
+
+To enable maven-like module layout, add the following to the `module.yaml` file:
+
+```yaml
+layout: maven-like
+```
+
 ## Templates
 
 In modularized projects, there is often a need to have a certain common configuration for all or some modules.

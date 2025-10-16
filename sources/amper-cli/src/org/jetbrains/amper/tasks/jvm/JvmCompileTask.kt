@@ -174,8 +174,8 @@ internal class JvmCompileTask(
             "java.annotation.processor.generated.dir" to javaAnnotationProcessorsGeneratedDir.pathString
         )
 
-        val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
-        val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
+        val sources = fragments.flatMap { it.sourceRoots }.map { it.toAbsolutePath() } + additionalSources.map { it.path }
+        val resources = fragments.map { it.resourcesPath }.map { it.toAbsolutePath() } + additionalResources.map { it.path }
         val inputFiles = sources + resources + classpath + javaAnnotationProcessorClasspath
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {

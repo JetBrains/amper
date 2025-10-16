@@ -180,7 +180,7 @@ internal class KspTask(
     ) {
         val compilationSettings = fragments.singleLeafFragment().serializableCompilationSettings()
         val kspCompilationType = KspCompilationType.forPlatform(platform)
-        val sources = (fragments.map { it.src } + additionalSourceDirs.map { it.path }).filter { it.exists() }
+        val sources = (fragments.flatMap { it.sourceRoots } + additionalSourceDirs.map { it.path }).filter { it.exists() }
         val sharedConfig: KspConfig.Builder.() -> Unit = {
             moduleName = module.kotlinModuleName(isTest = isTest)
 

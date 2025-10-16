@@ -2,7 +2,8 @@ Fragments:
   common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src
+    Src folders:
+      src
     Fragment dependencies:
     Settings: {
       android: <default> {
@@ -149,7 +150,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test
+    Src folders:
+      test
     Fragment dependencies:
       common (FRIEND)
     Settings: {
@@ -295,7 +297,8 @@ Fragments:
   linux
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@linux
+    Src folders:
+      src@linux
     Fragment dependencies:
       native (REFINE)
     Settings: {
@@ -441,7 +444,8 @@ Fragments:
   linuxArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@linuxArm64
+    Src folders:
+      src@linuxArm64
     Fragment dependencies:
       linux (REFINE)
     Settings: {
@@ -589,7 +593,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@linuxArm64
+    Src folders:
+      test@linuxArm64
     Fragment dependencies:
       linuxTest (REFINE)
       linuxArm64 (FRIEND)
@@ -738,7 +743,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@linux
+    Src folders:
+      test@linux
     Fragment dependencies:
       nativeTest (REFINE)
       linux (FRIEND)
@@ -885,7 +891,8 @@ Fragments:
   linuxX64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@linuxX64
+    Src folders:
+      src@linuxX64
     Fragment dependencies:
       linux (REFINE)
     Settings: {
@@ -1033,7 +1040,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@linuxX64
+    Src folders:
+      test@linuxX64
     Fragment dependencies:
       linuxTest (REFINE)
       linuxX64 (FRIEND)
@@ -1180,7 +1188,8 @@ Fragments:
   native
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@native
+    Src folders:
+      src@native
     Fragment dependencies:
       common (REFINE)
     Settings: {
@@ -1328,7 +1337,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@native
+    Src folders:
+      test@native
     Fragment dependencies:
       commonTest (REFINE)
       native (FRIEND)

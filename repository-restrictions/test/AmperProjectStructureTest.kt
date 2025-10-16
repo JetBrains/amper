@@ -137,7 +137,9 @@ class AmperProjectStructureTest {
     private fun AmperModule.linesWithTheWordAmper(): List<String> = fragments.flatMap { it.linesWithTheWordAmper() }
 
     private fun Fragment.linesWithTheWordAmper(): Sequence<String> =
-        (src.walk() + resourcesPath.walk()).flatMap { it.linesWithTheWordAmper() }
+        (sourceRoots.flatMap { it.walk() } + resourcesPath.walk())
+            .flatMap { it.linesWithTheWordAmper() }
+            .asSequence()
 
     /**
      * We are still in the Amper repo, and the libraries are not yet (or maybe ever) separated from Amper, so they still

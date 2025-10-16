@@ -10,6 +10,7 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModuleFileSource
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedTemplate
@@ -66,6 +67,7 @@ internal data class ModuleBuildCtx(
                 usedCatalog = catalog,
                 usedTemplates = moduleCtxModule.apply?.mapNotNull(::readTemplateFromPath).orEmpty(),
                 parts = moduleCtxModule.convertModuleParts(),
+                layout = Layout.valueOf(moduleCtxModule.layout.name)
             )
         }
     }

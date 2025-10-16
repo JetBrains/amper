@@ -73,12 +73,12 @@ interface Fragment {
     val isDefault: Boolean
 
     /**
-     * Path to the sources' directory.
+     * Sources directories
      */
-    val src: Path
+    val sourceRoots: List<Path>
 
     /**
-     * Path to the resources' directory.
+     * Resources directories
      */
     val resourcesPath: Path
 
@@ -226,3 +226,12 @@ interface FragmentLink {
     val target: Fragment
     val type: FragmentDependencyType
 }
+
+/**
+ * Returns the path to the single source root directory of this [Fragment], or fails if there is more than one.
+ *
+ * The given [reason] should explain why it is expected for this fragment to have only one source root
+ * (typically, this function should only be used with fragments that are not allowed to use the maven-like layout).
+ */
+fun Fragment.singleSourceRoot(reason: String): Path =
+    sourceRoots.singleOrNull() ?: error("Expected a single source root in fragment '$name' ($reason). Got:\n${sourceRoots.joinToString("\n")}")

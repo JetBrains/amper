@@ -97,7 +97,7 @@ internal class MetadataCompileTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val sourceDirs = fragment.src.toAbsolutePath() + additionalKotlinJavaSourceDirs.map { it.path }
+        val sourceDirs = fragment.sourceRoots.map { it.toAbsolutePath() } + additionalKotlinJavaSourceDirs.map { it.path }
         val inputFiles = sourceDirs + classpath + refinesPaths + friendPaths
 
         incrementalCache.execute(taskName.name, inputValues, inputFiles) {

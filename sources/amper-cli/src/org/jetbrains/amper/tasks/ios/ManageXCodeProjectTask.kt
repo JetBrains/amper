@@ -30,6 +30,7 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.singleSourceRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.rootFragment
 import org.jetbrains.amper.telemetry.use
@@ -184,7 +185,7 @@ class ManageXCodeProjectTask(
             manipulator.addConfiguration(name = buildType.name, map = emptyMap(), target = null)
         }
 
-        val src = module.rootFragment.src
+        val src = module.rootFragment.singleSourceRoot("iOS applications must have a single source root")
         val infoPlistFile = src / "Info.plist"
         if (!infoPlistFile.exists()) {
             // Do not override the file if already exists

@@ -50,10 +50,10 @@ internal class ModuleSourcesResolveTask(
     ): TaskResult {
         request.node.sourceDirectories = buildList {
             fragmentsForSources.forEach {
-                add(when(request.node.kind) {
-                    ShadowSourcesKind.KotlinJavaSources -> it.src
-                    ShadowSourcesKind.Resources -> it.resourcesPath
-                })
+                when(request.node.kind) {
+                    ShadowSourcesKind.KotlinJavaSources -> addAll(it.sourceRoots)
+                    ShadowSourcesKind.Resources -> add(it.resourcesPath)
+                }
             }
             generated.forEach {
                 add(it.path)

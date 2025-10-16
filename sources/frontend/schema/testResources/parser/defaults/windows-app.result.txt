@@ -2,7 +2,8 @@ Fragments:
   common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src
+    Src folders:
+      src
     Fragment dependencies:
     Settings: {
       android: <default> {
@@ -149,7 +150,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test
+    Src folders:
+      test
     Fragment dependencies:
       common (FRIEND)
     Settings: {
@@ -295,7 +297,8 @@ Fragments:
   mingw
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@mingw
+    Src folders:
+      src@mingw
     Fragment dependencies:
       native (REFINE)
     Settings: {
@@ -443,7 +446,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@mingw
+    Src folders:
+      test@mingw
     Fragment dependencies:
       nativeTest (REFINE)
       mingw (FRIEND)
@@ -590,7 +594,8 @@ Fragments:
   mingwX64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@mingwX64
+    Src folders:
+      src@mingwX64
     Fragment dependencies:
       mingw (REFINE)
     Settings: {
@@ -738,7 +743,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@mingwX64
+    Src folders:
+      test@mingwX64
     Fragment dependencies:
       mingwTest (REFINE)
       mingwX64 (FRIEND)
@@ -885,7 +891,8 @@ Fragments:
   native
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: src@native
+    Src folders:
+      src@native
     Fragment dependencies:
       common (REFINE)
     Settings: {
@@ -1033,7 +1040,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-    Src folder: test@native
+    Src folders:
+      test@native
     Fragment dependencies:
       commonTest (REFINE)
       native (FRIEND)

@@ -45,16 +45,23 @@ data class ModuleTasksPart(
 
 enum class Layout {
     /**
-     * Mode, when Gradle kotlin source sets layout is preserved.
-     * `commonMain` directory is renamed to `common`.
+     * Maven-like mode. Main and test sources are located inside src/ and sources are split by type (language, purpose,
+     * etc.). The Gradle `java` plugin also uses this layout. It helps to simplify the transition between Amper and 
+     * Maven/Gradle builds.
+     *
+     * Example:
+     *
+     * src/
+     *   main/
+     *     java/
+     *     kotlin/
+     *     resources/
+     *   test/
+     *     java/
+     *     kotlin/
+     *     resources/
      */
-    GRADLE,
-
-    /**
-     * Mode, like [GRADLE], except that `jvm` source set is
-     * renamed by `main` to be compatible with kotlin("jvm")
-     */
-    GRADLE_JVM,
+    MAVEN_LIKE,
 
     /**
      * Mode, when `src` and `src@jvm` like platform
@@ -63,10 +70,6 @@ enum class Layout {
      */
     AMPER,
 }
-
-data class MetaModulePart(
-    val layout: Layout = Layout.AMPER
-) : ModulePart<MetaModulePart>
 
 /**
  * Just an aggregator for fragments and artifacts.
@@ -107,7 +110,9 @@ interface AmperModule {
     val leafPlatforms: Set<Platform> get() = leafFragments.map { it.platform }.toSet()
 
     val tasksFromPlugins: List<TaskFromPluginDescription>
-    
+
+    val layout: Layout
+
     val mavenPluginXmls: List<MavenPluginXml>
 }
 

@@ -32,6 +32,7 @@ import org.jetbrains.amper.frontend.schema.keyAlias
 import org.jetbrains.amper.frontend.schema.keyPassword
 import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.frontend.schema.storePassword
+import org.jetbrains.amper.frontend.singleSourceRoot
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
 import java.io.File
@@ -193,7 +194,10 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             ?.associate { it.modulePath to it } ?: mapOf()
 
         androidExtension.sourceSets.matching { it.name == "main" }.all {
-            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
+            val androidApplicationSourceRoot = androidFragment
+                .singleSourceRoot("Android application must have a single source root")
+                .resolve("AndroidManifest.xml")
+            it.manifest.srcFile(androidApplicationSourceRoot)
             it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
         }
 

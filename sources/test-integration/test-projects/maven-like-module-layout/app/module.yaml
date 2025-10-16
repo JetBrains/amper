@@ -1,0 +1,6 @@
+product: jvm/app
+
+layout: maven-like
+
+dependencies:
+  - ../lib

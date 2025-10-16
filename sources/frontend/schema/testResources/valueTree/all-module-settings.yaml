@@ -5,8 +5,7 @@ product:
     - android
     - iosArm64
 
-module:
-  layout: gradle-kmp
+layout: amper
 
 aliases:
   - jvmAndAndroid: [ jvm, android ]

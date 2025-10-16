@@ -73,6 +73,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                     conventionPath = fragment.composeResourcesPath,
                 )
             )
+
             tasks.registerTask(
                 PrepareComposeResourcesTask(
                     buildOutputRoot = context.buildOutputRoot,

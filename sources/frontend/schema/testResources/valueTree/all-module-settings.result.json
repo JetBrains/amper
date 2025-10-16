@@ -7,9 +7,7 @@
       "IOS_ARM64"
     ]
   },
-  "module" : {
-    "layout" : "GRADLE"
-  },
+  "layout" : "AMPER",
   "aliases" : {
     "jvmAndAndroid" : [
       "JVM",

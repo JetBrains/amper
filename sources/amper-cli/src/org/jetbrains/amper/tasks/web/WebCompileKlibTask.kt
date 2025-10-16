@@ -134,7 +134,7 @@ internal abstract class WebCompileKlibTask(
                 ?: error("${expectedPlatform.name} compilation result from production compilation result was not found for module=${module.userReadableName}, task=$taskName")
         } else null
 
-        val sources = fragments.map { it.src } + additionalSources.map { it.path }
+        val sources = fragments.flatMap { it.sourceRoots } + additionalSources.map { it.path }
 
         val artifact = incrementalCache.execute(
             key = taskName.name,

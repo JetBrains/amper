@@ -248,6 +248,23 @@ repositories:
       passwordKey: my.private.repository.password  
 ```
 
+### Layout
+
+`layout` is a top-level field defines the module file structure. Field can accept values: `amper` and `maven-like`. The 
+default value is `amper` which is the default module file layout. 
+
+Examples:
+
+```yaml
+product: jvm/app
+
+layout: maven-like
+
+settings:
+  # ...
+
+```
+
 ### Settings and test settings
 
 `settings:` section configures the toolchains used in the build process. Read more

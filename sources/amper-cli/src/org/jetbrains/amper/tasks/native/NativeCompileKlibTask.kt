@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
-import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
@@ -108,7 +107,7 @@ internal class NativeCompileKlibTask(
             )
         }
 
-        val sources = fragments.map { it.src } + additionalSources.map { it.path }
+        val sources = fragments.flatMap { it.sourceRoots } + additionalSources.map { it.path }
 
         val artifact = incrementalCache.execute(
             key = taskName.name,

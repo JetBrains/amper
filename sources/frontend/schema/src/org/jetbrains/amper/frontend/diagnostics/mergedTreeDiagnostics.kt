@@ -30,5 +30,6 @@ fun MergedTreeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
     AndroidTooOldVersionFactory,
     TemplateNameWithoutPostfix,
     KotlinCompilerVersionDiagnosticsFactory,
+    UnsupportedLayoutDiagnosticFactory,
 //    UselessSettingValue(refiner), // TODO fix it if we want to restore it: AMPER-4489, AMPER-4490
 )

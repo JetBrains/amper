@@ -5,8 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.ClassBasedSet
-import org.jetbrains.amper.frontend.Layout
-import org.jetbrains.amper.frontend.MetaModulePart
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -34,10 +32,6 @@ private val defaultMavenRepositories = listOf(
 context(problemReporter: ProblemReporter)
 fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
     val parts = classBasedSet<ModulePart<*>>()
-
-    parts += MetaModulePart(
-        layout = Layout.valueOf(module.layout.name)
-    )
 
     parts += RepositoriesModulePart(
         mavenRepositories = run {

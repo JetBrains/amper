@@ -3,7 +3,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=TransformedValueTrace(description=because Lombok is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.LombokSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-    Src folder: src
+    Src folders:
+      src
     Fragment dependencies:
     Settings: {
       lombok: {
@@ -17,7 +18,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=TransformedValueTrace(description=because Lombok is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.LombokSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-    Src folder: test
+    Src folders:
+      test
     Fragment dependencies:
       common (FRIEND)
     Settings: {
@@ -31,7 +33,8 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=TransformedValueTrace(description=because Lombok is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.LombokSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-    Src folder: src@jvm
+    Src folders:
+      src@jvm
     Fragment dependencies:
       common (REFINE)
     Settings: {
@@ -46,7 +49,8 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.Settings.junit: org.jetbrains.amper.frontend.schema.JUnitVersion, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.projectlombok:lombok:1.18.35, trace=TransformedValueTrace(description=because Lombok is enabled, sourceValue=SchemaValue(property = var org.jetbrains.amper.frontend.schema.LombokSettings.enabled: kotlin.Boolean, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-    Src folder: test@jvm
+    Src folders:
+      test@jvm
     Fragment dependencies:
       commonTest (REFINE)
       jvm (FRIEND)

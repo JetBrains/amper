@@ -7,9 +7,6 @@
       "IOS_ARM64"
     ]
   },
-  "module" : {
-    "layout" : "GRADLE"
-  },
   "aliases" : {
     "jvmAndAndroid" : [
       "JVM",
@@ -76,6 +73,7 @@
     },
     "junit" : "NONE"
   },
+  "layout" : "AMPER",
   "dependencies(jvm)" : [
     {
       "coordinates(jvmAndAndroid)" : "org.jetbrains.compose.runtime:runtime:1.4.1(jvmAndAndroid)"

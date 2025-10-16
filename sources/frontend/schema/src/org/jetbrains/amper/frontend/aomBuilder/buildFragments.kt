@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
+import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.api.Trace
@@ -75,16 +76,35 @@ open class DefaultFragment(
 
     override val isDefault = true
 
-    override val src: Path by lazy {
-        moduleFile.parent.toNioPath().resolve("${if (isTest) "test" else "src"}$modifier")
+    override val sourceRoots: List<Path> by lazy {
+        when (module.layout) {
+            Layout.AMPER -> listOf(moduleFile.parent.toNioPath() / "${if (isTest) "test" else "src"}$modifier")
+            Layout.MAVEN_LIKE -> {
+                val sourcesRoot = moduleFile.parent.toNioPath() / "src"
+                listOf(
+                    sourcesRoot / (if (isTest) "test" else "main") / "java",
+                    sourcesRoot / (if (isTest) "test" else "main") / "kotlin",
+                )
+            }
+        }
     }
 
     override val resourcesPath: Path by lazy {
-        moduleFile.parent.toNioPath().resolve("${if (isTest) "testResources" else "resources"}$modifier")
+        when (module.layout) {
+            Layout.AMPER -> moduleFile.parent.toNioPath() / "${if (isTest) "testResources" else "resources"}$modifier"
+            Layout.MAVEN_LIKE -> {
+                moduleFile.parent.toNioPath() / "src" / (if (isTest) "test" else "main") / "resources"
+            }
+        }
     }
 
     override val composeResourcesPath: Path by lazy {
-        moduleFile.parent.toNioPath().resolve("${if (isTest) "testComposeResources" else "composeResources"}$modifier")
+        when (module.layout) {
+            Layout.AMPER -> moduleFile.parent.toNioPath().resolve("${if (isTest) "testComposeResources" else "composeResources"}$modifier")
+            Layout.MAVEN_LIKE -> {
+                moduleFile.parent.toNioPath() / "src" / (if (isTest) "test" else "main") / "composeResources"
+            }
+        }
     }
 
     override val hasAnyComposeResources: Boolean by lazy {

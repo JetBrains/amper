@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.LocalModuleDependency
 import org.jetbrains.amper.frontend.Model
@@ -39,6 +40,7 @@ internal open class DefaultModule(
     override val usedCatalog: VersionCatalog?,
     override val usedTemplates: List<VirtualFile>,
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
+    override val layout: Layout = Layout.AMPER,
 ) : AmperModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()

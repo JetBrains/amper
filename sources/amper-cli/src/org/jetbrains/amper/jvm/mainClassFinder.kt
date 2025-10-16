@@ -31,7 +31,7 @@ internal fun List<Fragment>.getEffectiveJvmMainClass(): String {
     if (effectiveMainClass == null) {
         userReadableError(
             "The JVM main class was not found for application module '${module.userReadableName}' in any of the " +
-                    "following source directories:\n${joinToString("\n") { "- ${it.src.pathString}" }}\n" +
+                    "following source directories:\n${flatMap { it.sourceRoots }.joinToString("\n") { "- ${it.pathString}" }}\n" +
                     "Make sure a main.kt file is present in your sources with a valid `main` function, or declare " +
                     "the fully-qualified main class explicitly with `settings.jvm.mainClass` in your module file."
         )
@@ -62,21 +62,24 @@ internal fun List<Fragment>.findEffectiveJvmMainClass(): String? {
  * This is the convention defined in Amper documentation.
  */
 private fun Fragment.findConventionalEntryPoint(): String? {
-    if (!src.isDirectory()) {
-        return null
+    for (sourceRoot in sourceRoots) {
+        if (!sourceRoot.isDirectory()) {
+            continue
+        }
+
+        val firstMainKtFile = sourceRoot.walk(PathWalkOption.BREADTH_FIRST)
+            .firstOrNull { it.name.equals("main.kt", ignoreCase = true) }
+
+        if (firstMainKtFile == null) {
+            continue
+        }
+
+        val pkg = firstMainKtFile.readPackageName()
+        val prefix = if (pkg != null) "${pkg}." else ""
+
+        return "${prefix}MainKt"
     }
-
-    val firstMainKtFile = src.walk(PathWalkOption.BREADTH_FIRST)
-        .firstOrNull { it.name.equals("main.kt", ignoreCase = true) }
-
-    if (firstMainKtFile == null) {
-        return null
-    }
-
-    val pkg = firstMainKtFile.readPackageName()
-    val prefix = if (pkg != null) "${pkg}." else ""
-
-    return "${prefix}MainKt"
+    return null
 }
 
 private val packageRegex = "^package\\s+([\\w.]+)".toRegex(RegexOption.MULTILINE)

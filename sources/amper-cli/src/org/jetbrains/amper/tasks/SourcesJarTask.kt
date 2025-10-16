@@ -34,7 +34,7 @@ class SourcesJarTask(
             // To match current KMP publications, sources for common should be in "/commonMain", jvm in "/jvmMain" etc.
             // TODO check whether this is necessary, or if using the src directory name would be understood by IDEs
             // TODO: Migrate to KotlinJavaSourcesDirArtifact
-            .map { ZipInput(path = it.src, destPathInArchive = Path("${it.name}Main")) }
+            .flatMap { f -> f.sourceRoots.map { ZipInput(path = it, destPathInArchive = Path("${f.name}Main")) } }
             .filter { it.path.exists() }
             .toList()
 

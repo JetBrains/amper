@@ -2,9 +2,6 @@
   "product" : {
     "type" : "jvm/app"
   },
-  "module" : {
-    "layout(DefaultContext.TypeLevel)" : "AMPER(DefaultContext.TypeLevel)"
-  },
   "plugins" : ,
   "settings" : {
     "android" : {
@@ -139,6 +136,7 @@
   },
   "aliases(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "apply(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
+  "layout(DefaultContext.TypeLevel)" : "AMPER(DefaultContext.TypeLevel)",
   "pluginInfo(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "dependencies(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",
   "repositories(DefaultContext.TypeLevel)" : "null(DefaultContext.TypeLevel)",

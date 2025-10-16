@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.singleSourceRoot
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
 import org.jetbrains.amper.tasks.MobileRunSettings
@@ -39,6 +40,8 @@ import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
+import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.time.Duration
@@ -84,7 +87,7 @@ class AndroidRunTask(
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
         device.installPackage(apk.pathString, true, "--bypass-low-target-sdk-block")
 
-        val activityName = findActivityToLaunch(androidFragment) ?: error("Could not find activity to launch")
+        val activityName = findActivityToLaunch(androidFragment) ?: userReadableError("Could not find activity to launch")
 
         val outputReceiver = CollectingOutputReceiver()
         device.executeShellCommand(
@@ -134,8 +137,16 @@ class AndroidRunTask(
         return adb
     }
 
-    private fun findActivityToLaunch(androidFragment: LeafFragment): String? =
-        parseManifest(androidFragment.src.resolve("AndroidManifest.xml"))
+    private fun findActivityToLaunch(androidFragment: LeafFragment): String? {
+        // It is safe to assume android/app has only one source directory because the maven-like layout is not supported for them
+        val manifestPath = androidFragment
+            .singleSourceRoot("Android application must have a single source root")
+            .resolve("AndroidManifest.xml")
+
+        if (!manifestPath.exists()) {
+            userReadableError("AndroidManifest.xml not found in ${manifestPath.parent}")
+        }
+        return parseManifest(manifestPath)
             .application
             .activities
             .firstOrNull {
@@ -144,6 +155,7 @@ class AndroidRunTask(
                 isMain && isLauncher
             }
             ?.name
+    }
 
     private fun parseManifest(manifestPath: Path) = xml.decodeFromString<AndroidManifest>(manifestPath.readText())
 

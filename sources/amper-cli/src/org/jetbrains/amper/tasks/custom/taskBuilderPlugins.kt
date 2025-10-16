@@ -32,10 +32,10 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                     taskDependencies.add(taskName)
                 } else {
                     sourcesRequest.node.sourceDirectories =
-                        sourcesRequest.from.fragmentsTargeting(Platform.JVM, includeTestFragments = false).map {
+                        sourcesRequest.from.fragmentsTargeting(Platform.JVM, includeTestFragments = false).flatMap {
                             when (sourcesRequest.node.kind) {
-                                ShadowSourcesKind.KotlinJavaSources -> it.src
-                                ShadowSourcesKind.Resources -> it.resourcesPath
+                                ShadowSourcesKind.KotlinJavaSources -> it.sourceRoots
+                                ShadowSourcesKind.Resources -> listOf(it.resourcesPath)
                             }
                         }
                 }
