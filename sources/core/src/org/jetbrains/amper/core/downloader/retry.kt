@@ -35,13 +35,11 @@ suspend fun <T> suspendingRetryWithExponentialBackOff(
                 exceptions.forEach(this::addSuppressed)
             }
         }
-        exceptions += if (effectiveDelay > 0) {
-            Exception("Attempt $attempt failed with '${e.message}', retrying in ${effectiveDelay}ms", e)
-        } else e
+        exceptions += e
         if (attempt == attempts) {
-            throw Exception("$attempts attempts failed, see suppressed exceptions for details").apply {
-                exceptions.forEach(this::addSuppressed)
-            }
+            val mainException = exceptions.first()
+            exceptions.drop(1).forEach { mainException.addSuppressed(it) }
+            throw mainException
         }
         if (effectiveDelay > 0) {
             delay(effectiveDelay)
