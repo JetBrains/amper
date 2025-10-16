@@ -90,7 +90,8 @@ class TaskFromPlugin(
             when (mark?.kind) {
                 null -> ExternalTaskRawArtifact(output)
                 GeneratedPathKind.KotlinSources,
-                GeneratedPathKind.JavaSources -> ExternalTaskGeneratedKotlinJavaSourcesArtifact(
+                GeneratedPathKind.JavaSources,
+                    -> ExternalTaskGeneratedKotlinJavaSourcesArtifact(
                     buildOutputRoot = buildOutputRoot,
                     fragment = mark.associateWith,
                     path = output,
@@ -140,7 +141,7 @@ class TaskFromPlugin(
                 "arguments" to description.actionArguments.entries.joinToString(
                     separator = "\n",
                     transform = { (arg, value) ->
-                        val valueRepresentation = when(value) {
+                        val valueRepresentation = when (value) {
                             is SchemaNode -> value.toStableJsonLikeString()
                             else -> value.toString()
                         }
@@ -172,7 +173,7 @@ class TaskFromPlugin(
     ) {
         // TODO: Cache the classloader per plugin?
         val classLoader = URLClassLoader(
-            taskName.toString(),
+            taskName.name,
             taskRuntimeClasspath.map { it.toUri().toURL() }.toTypedArray(),
             null,
         )
@@ -189,9 +190,29 @@ class TaskFromPlugin(
         try {
             actionMethod.callBy(argumentsMap)
         } catch (e: InvocationTargetException) {
-            userReadableError(e.targetException.stackTraceToString())
+            // We do not include the "system" part of the stack trace, only the user-code part.
+            val targetException = e.targetException
+            val stackTrace = targetException.stackTrace.toList()
+
+            // Remove the "system" part of the stacktrace - it is of no interest to the user.
+            targetException.stackTrace = stackTrace.subList(
+                fromIndex = 0,
+                toIndex = stackTrace.indexOfLast { it.classLoaderName == classLoader.name } + 1,
+            ).map { it.withoutClassloaderName() }.toTypedArray()
+
+            userReadableError(targetException.stackTraceToString())
         }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }
+
+private fun StackTraceElement.withoutClassloaderName() = StackTraceElement(
+    /* classLoaderName = */ null,  // remove the classloader name
+    /* moduleName = */ moduleName,
+    /* moduleVersion = */ moduleVersion,
+    /* declaringClass = */ className,
+    /* methodName = */ methodName,
+    /* fileName = */ fileName,
+    /* lineNumber = */lineNumber,
+)

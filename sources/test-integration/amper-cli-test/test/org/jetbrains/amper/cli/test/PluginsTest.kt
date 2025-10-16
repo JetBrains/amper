@@ -198,7 +198,10 @@ class PluginsTest : AmperCliTestBase() {
         with(r1) {
             assertStdoutDoesNotContain("Internal error")
             assertStderrContains(
-                "ERROR: Task ':app:crash@hello' failed: java.lang.RuntimeException: Crashing on purpose"
+                """ERROR: Task ':app:crash@hello' failed: java.lang.RuntimeException: Crashing on purpose
+                    |        at org.jetbrains.amper.plugins.hello.PluginKt.crash(plugin.kt:21)
+                    |
+                """.trimMargin()
             )
         }
     }
