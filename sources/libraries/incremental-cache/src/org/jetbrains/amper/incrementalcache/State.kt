@@ -130,7 +130,7 @@ private object SortedMapSerializer: KSerializer<Map<String, String>> {
 
 internal object InstantSerializer: KSerializer<Instant> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("kotlin.time.Instant", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("CustomDurationSerializer", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Instant =
         Instant.parse(decoder.decodeString())
