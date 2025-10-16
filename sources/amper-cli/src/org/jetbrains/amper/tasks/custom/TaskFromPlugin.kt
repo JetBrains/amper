@@ -153,6 +153,7 @@ class TaskFromPlugin(
                 addAll(description.inputs)
                 for (resolvedRequest in description.requestedClasspaths) addAll(resolvedRequest.node.resolvedFiles)
                 for (sourcesRequest in description.requestedModuleSources) addAll(sourcesRequest.node.sourceDirectories)
+                for (artifactRequest in description.requestedCompilationArtifacts) add(artifactRequest.node.artifact)
             },
         ) {
             doExecuteTaskAction(
