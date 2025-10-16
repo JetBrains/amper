@@ -5,7 +5,7 @@
 package org.jetbrains.amper.core.downloader
 
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.compression.*
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -41,8 +41,9 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.moveTo
 import kotlin.io.path.pathString
 import kotlin.io.path.setLastModifiedTime
-
-// initially from intellij:community/platform/build-scripts/downloader/src/ktor.kt
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 object Downloader {
 
@@ -54,6 +55,28 @@ object Downloader {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val fileLocks = FileMutexGroup.striped(stripeCount = 256)
+
+    private val archivesDownloadClient = httpClient.config {
+
+        install(HttpTimeout) {
+            connectTimeoutMillis = 10.seconds.inWholeMilliseconds
+            // we're downloading big things, potentially on slow networks
+            requestTimeoutMillis = 2.hours.inWholeMilliseconds
+            socketTimeoutMillis = 2.minutes.inWholeMilliseconds
+        }
+
+        install(ContentEncoding) {
+            // Any `Content-Encoding` will make nginx servers/proxies remove the `Content-Length` header in responses,
+            // but we rely on this header for file-length checks after download.
+            // Hence, we set these encodings to zero weights.
+            deflate(0.0F)
+            gzip(0.0F)
+
+            // Tells the server that no compression is also acceptable.
+            // This is useful when a request is the download of a file that is already compressed.
+            identity()
+        }
+    }
 
     suspend fun downloadFileToCacheLocation(
         url: String,
@@ -96,28 +119,14 @@ object Downloader {
                     tempFile.toFile().deleteOnExit()
                     target.parent.createDirectories()
                     try {
-                        // TODO each HttpClient.config call creates a new client, do we really need this?
-                        val effectiveClient = httpClient.config {
-                            install(ContentEncoding) {
-                                // Any `Content-Encoding` will drop `Content-Length` header in nginx responses,
-                                // yet we rely on that header for file-length checks after download.
-                                // Hence, we override `ContentEncoding` plugin config from `httpClient` with zero weights.
-                                deflate(0.0F)
-                                gzip(0.0F)
-                                identity() // tells the server that no compression is also acceptable
+                        val response = archivesDownloadClient.prepareGet(url) {
+                            // we manually handle errors below
+                            expectSuccess = false
+                        }.execute {
+                            coroutineScope {
+                                it.bodyAsChannel().copyAndClose(writeChannel(tempFile))
                             }
-                        }
-
-                        val response = effectiveClient.use { client ->
-                            client.prepareGet(url) {
-                                // we manually handle errors below
-                                expectSuccess = false
-                            }.execute {
-                                coroutineScope {
-                                    it.bodyAsChannel().copyAndClose(writeChannel(tempFile))
-                                }
-                                it
-                            }
+                            it
                         }
 
                         val statusCode = response.status.value

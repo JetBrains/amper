@@ -8,13 +8,16 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-
-// mostly based on intellij:community/platform/build-scripts/downloader/src/ktor.kt
 
 val httpClient: HttpClient by lazy {
     HttpClient {
         expectSuccess = true
+
+        install(UserAgent) {
+            agent = "JetBrains Amper"
+        }
 
         install(ContentEncoding) {
             deflate(1.0F)
@@ -34,11 +37,7 @@ val httpClient: HttpClient by lazy {
         // has to be after HttpRequestRetry because we use retryOnTimeout
         install(HttpTimeout) {
             connectTimeoutMillis = 5.seconds.inWholeMilliseconds
-            requestTimeoutMillis = 2.hours.inWholeMilliseconds
-        }
-
-        install(UserAgent) {
-            agent = "JetBrains Amper"
+            requestTimeoutMillis = 2.minutes.inWholeMilliseconds
         }
     }
 }
