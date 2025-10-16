@@ -203,6 +203,8 @@ class Resolver {
         }
     }
 
+    // todo (AB) : If node was not reolved due to network error and has ERROR diagnostc assigned,
+    // todo (AB) : such a node should be recalculated next time and thus providing expirationTime as NOW.
     private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
         return distinctBfsSequence()
             .filterIsInstance<MavenDependencyNodeWithContext>()
