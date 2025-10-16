@@ -253,7 +253,7 @@ private class EntryNameConverter(
             return target.resolve(normalizedName)
         }
         if (leadingComponentPrefix == null) {
-            val split = normalizedName.split('/'.toString().toRegex(), limit = 2).toTypedArray()
+            val split = normalizedName.split('/', limit = 2)
             leadingComponentPrefix = split[0] + '/'
             return if (split.size < 2) {
                 check(isDirectory) { "$archiveFile: first top-level entry must be a directory if strip root is enabled" }
