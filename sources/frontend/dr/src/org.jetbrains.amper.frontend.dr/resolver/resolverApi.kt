@@ -91,7 +91,7 @@ interface ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
-        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.SKIP,
+        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
     ): DependencyNode
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode

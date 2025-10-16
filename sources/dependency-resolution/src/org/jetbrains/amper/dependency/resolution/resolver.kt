@@ -101,7 +101,7 @@ class Resolver {
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
         transitive: Boolean = true,
-        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.SKIP,
+        incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
         postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
     ): DependencyNode {
