@@ -8,6 +8,7 @@ Fragments:
     Settings: {
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
     }
 
@@ -22,6 +23,7 @@ Fragments:
     Settings: {
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
     }
 

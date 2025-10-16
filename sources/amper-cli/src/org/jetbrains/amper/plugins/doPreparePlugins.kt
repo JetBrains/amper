@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind
@@ -51,7 +52,8 @@ internal suspend fun doPreparePlugins(
         ),
         inputFiles = plugins.keys.toList(),
     ) {
-        val jdk = jdkProvider.getJdk()
+        // TODO maybe force plugin modules to use a JDK aligned with Amper's runtime instead, and use it here
+        val jdk = jdkProvider.getDefaultJdk()
         val toolClasspath = distributionRoot.resolve("plugins-processor").listDirectoryEntries("*.jar")
         val apiClasspath = distributionRoot.resolve("extensibility-api").listDirectoryEntries("*.jar")
         val outputCaptor = ProcessOutputListener.InMemoryCapture()

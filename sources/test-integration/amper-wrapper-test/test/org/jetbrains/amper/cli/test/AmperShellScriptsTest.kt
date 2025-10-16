@@ -9,19 +9,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
+import org.jetbrains.amper.jdk.provisioning.orThrow
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
-import org.jetbrains.amper.test.AmperJavaHomeMode
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.JavaHomeMode
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.jetbrains.amper.test.TempDirExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.div
@@ -70,7 +70,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
             // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
-            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
         )
         assertTrue("Process output must contain 'Hello for Shell Scripts Test' the first time. Output:\n${result1.stdout}") {
             result1.stdout.contains("Hello for Shell Scripts Test")
@@ -90,7 +90,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
             // We want to test the check of JRE presence in the bootstrap dir, so we have to unset this
-            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
         )
         assertTrue("Process output must contain 'Hello for Shell Scripts Test' the second time. Output:\n${result2.stdout}") {
             result2.stdout.contains("Hello for Shell Scripts Test")
@@ -126,7 +126,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("run"),
             bootstrapCacheDir = bootstrapCacheDir,
             // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
-            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
             environment = mapOf("AMPER_NO_WELCOME_BANNER" to "1"),
         )
         assertFalse("Process output must NOT contain welcome banner even the first time when disabled. Output:\n${result1.stdout}") {
@@ -153,7 +153,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
                         args = listOf("--version"),
                         bootstrapCacheDir = bootstrapCacheDir,
                         // We want to test concurrent downloads of the JRE to the bootstrap dir, so we have to unset this
-                        amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+                        amperJavaHomeMode = JavaHomeMode.ForceUnset,
                     )
                 }
             }
@@ -177,7 +177,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             args = listOf("--version"),
             bootstrapCacheDir = bootstrapCacheDir,
             // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
-            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
         )
         val nDownloadingLines = result.stdout.lines().count { it.startsWith("Downloading ") }
         assertEquals(
@@ -200,8 +200,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     @Test
     fun `custom java home`() = runBlocking {
-        val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
-        val jdkHome = JdkProvider(fakeUserCacheRoot).download(URI(zuluJdk25Url()), version = "25.0.0").homeDir
+        val jdkHome = provisionZulu25()
 
         val expectedAmperVersion = cliScript
             .readLines()
@@ -211,7 +210,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         val result = runAmper(
             workingDir = tempDir,
             args = listOf("--version"),
-            amperJavaHomeMode = AmperJavaHomeMode.Custom(jreHomePath = jdkHome),
+            amperJavaHomeMode = JavaHomeMode.Custom(jreHomePath = jdkHome),
             bootstrapCacheDir = tempDir.resolve("boot strap"),
         )
         val expectedVersionString = Regex(
@@ -232,20 +231,17 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         // TODO Somehow assert that exactly this JRE is used by amper bootstrap
     }
 
-    private fun zuluJdk25Url(): String {
-        val systemInfo = DefaultSystemInfo.detect()
-        val zuluOs = when (systemInfo.family) {
-            OsFamily.FreeBSD,
-            OsFamily.Solaris,
-            OsFamily.Linux -> "linux"
-            OsFamily.MacOs -> "macosx"
-            OsFamily.Windows -> "win"
+    private suspend fun provisionZulu25(): Path {
+        val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
+        val jdkResult = JdkProvider(fakeUserCacheRoot).use {
+            it.provisionJdk(
+                JdkProvisioningCriteria(
+                    majorVersion = 25,
+                    distributions = listOf(JvmDistribution.AzulZulu),
+                )
+            )
         }
-        val zuluArch = when (systemInfo.arch) {
-            Arch.X64 -> "x64"
-            Arch.Arm64 -> "aarch64"
-        }
-        return "https://cache-redirector.jetbrains.com/cdn.azul.com/zulu/bin/zulu25.28.85-ca-jdk25.0.0-${zuluOs}_${zuluArch}.zip"
+        return jdkResult.orThrow().homeDir
     }
 
     @Test
@@ -280,7 +276,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             bootstrapCacheDir = bootstrapCacheDir,
             customAmperScriptPath = brokenScript,
             // We want to test the failure to download the JRE to the bootstrap dir, we have to unset this
-            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
         )
         val expectedErrorRegex =
             Regex("""ERROR: Checksum mismatch for .+ \(downloaded from .+\): expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got \w+""")

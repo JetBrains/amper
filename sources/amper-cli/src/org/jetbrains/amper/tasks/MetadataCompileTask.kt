@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.refinedFragments
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -88,7 +89,7 @@ internal class MetadataCompileTask(
         val refinesPaths = fragment.refinedFragments.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
         val friendPaths = fragment.friends.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
 
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(jdkSettings = fragment.settings.jvm.jdk)
 
         val inputValues = mapOf(
             "jdk.version" to jdk.version,

@@ -30,8 +30,10 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 
 class Settings : SchemaNode() {
 
+    // Some stuff in here (JDK) can be used for native as well, so it's not specific to JVM and Android.
+    // It's also not platform-agnostic as a whole because some things in it can be set differently (e.g. main class or
+    // tests) on JVM and Android.
     @SchemaDoc("Settings that apply to all JVM-related sources (both Java and Kotlin)")
-    @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     val jvm: JvmSettings by nested()
 
     @SchemaDoc("Settings to configure the compilation of Java sources")

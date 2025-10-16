@@ -133,6 +133,7 @@ nav:
           - 'References': user-guide/plugins/topics/references.md
           - 'Tasks': user-guide/plugins/topics/tasks.md
       - 'Advanced topics':
+          - 'JDK provisioning': user-guide/advanced/jdk-provisioning.md
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
           - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
           - 'Kotlin compiler plugins': user-guide/advanced/kotlin-compiler-plugins.md

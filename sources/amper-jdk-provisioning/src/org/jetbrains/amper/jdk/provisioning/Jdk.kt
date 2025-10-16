@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
+import org.jetbrains.amper.frontend.schema.JvmDistribution
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -16,6 +17,17 @@ class Jdk(
      * The full version number, including major/minor/path, but also potential extra numbers.
      */
     val version: String,
+    /**
+     * The Java distribution of this JDK (Temurin, Corretto, Zulu, etc.).
+     *
+     * May be 'null' if we reused a JAVA_HOME JDK and couldn't infer its distribution.
+     */
+    val distribution: JvmDistribution?,
+    /**
+     * Opaque information about where this JDK comes from (usually "JAVA_HOME" or a download URL).
+     * It is not meant to be used for control flow but rather for telemetry or statistics.
+     */
+    val source: String,
 ) {
     // not lazy so we immediately validate that the java executable is present
     val javaExecutable: Path = bin("java")

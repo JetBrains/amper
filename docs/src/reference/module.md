@@ -418,9 +418,48 @@ By default, JUnit 5 is used.
 | Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 21                                           |
+| `jdk: object`                  | Defines requirements for the JDK to use. These requirements are used to validate `JAVA_HOME` or to provision a matching JDK automatically. See details below and the [JDK provisioning](../user-guide/advanced/jdk-provisioning.md) page.                                                                                                                                                                                                                      | see below                                    |
 | `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-type)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
 | `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
 | `runtimeClasspathMode: enum`   | How the runtime classpath is constructed: `jars` (default) builds local module dependencies as jars; `classes` uses compiled classes for local modules on the runtime classpath.                                                                                                                                                                                                                                                                               | `jars`                                       |
+
+#### `settings.jvm.jdk`
+
+Configures how Amper selects or provisions a JDK for the module. If `JAVA_HOME` points to a suitable JDK, Amper can use it; otherwise it can download a matching JDK via the Foojay Discovery API and cache it. See the [JDK provisioning](../user-guide/advanced/jdk-provisioning.md) page for a deep dive.
+
+| Property               | Type               | Default                           | Description                                                                                                                                                      |
+|------------------------|--------------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `version`              | int                | Amper default JDK major version   | Major JDK version to use (e.g., 8, 11, 17, 21, 25). Amper prefers the latest update in that line.                                                                |
+| `distributions`        | list<enum> or null | `null` (accept all distributions) | Allow‑list of acceptable JDK distributions (vendors). If `null`, any known distribution is acceptable.                                                           |
+| `selectionMode`        | enum               | `auto`                            | Strategy for choosing between `JAVA_HOME` and provisioning: `auto`                                                                                               | `alwaysProvision` | `javaHome`. |
+| `acknowledgedLicenses` | list<enum>         | `[]`                              | Distributions that require a commercial license and which you explicitly acknowledge. If you restrict `distributions` to any paid vendor, you must list it here. |
+
+Supported values for `distributions` and `acknowledgedLicenses`:
+
+- `temurin` (Eclipse Temurin, a.k.a. Adoptium)
+- `zulu` (Azul Zulu)
+- `corretto` (Amazon Corretto)
+- `jetbrains` (JetBrains Runtime)
+- `oracleOpenJdk` (Oracle OpenJDK)
+- `microsoft` (Microsoft)
+- `bisheng` (BiSheng)
+- `dragonwell` (Alibaba Dragonwell)
+- `kona` (Tencent Kona)
+- `liberica` (BellSoft Liberica)
+- `openLogic` (Perforce OpenLogic)
+- `sapMachine` (SapMachine)
+- `semeru` (IBM Semeru Open Edition)
+- `oracle` (Oracle JDK; requires license)
+- `zuluPrime` (Azul Zulu Prime; requires license)
+- `semeruCertified` (IBM Semeru Certified; requires license)
+
+Values for `selectionMode`:
+
+- `auto` (default) — use `JAVA_HOME` if it matches the criteria; otherwise provision a JDK.
+- `alwaysProvision` — ignore `JAVA_HOME` and always provision a matching JDK (download or reuse cached one).
+- `javaHome` — require `JAVA_HOME` to match the criteria; fail if it does not. Provisioning is disabled.
+
+!!! example "See examples in the [JDK provisioning section](../user-guide/advanced/jdk-provisioning.md#examples)."
 
 #### `settings.jvm.test`
 

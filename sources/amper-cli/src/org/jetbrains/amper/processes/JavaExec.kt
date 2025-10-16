@@ -72,6 +72,8 @@ suspend fun Jdk.runJava(
     return spanBuilder("java-exec")
         .setAttribute("java-executable", javaExecutable.pathString)
         .setAttribute("java-version", version)
+        .setAttribute("jdk-distribution", distribution?.toString() ?: "unknown")
+        .setAttribute("jdk-source", source)
         .setListAttribute("program-args", programArgs)
         .setListAttribute("jvm-args", jvmArgs)
         .setMapAttribute("env-vars", environment)

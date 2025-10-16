@@ -7,6 +7,8 @@ package org.jetbrains.amper.tasks.jvm
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.CliProblemReporter
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_ROOT
 import org.jetbrains.amper.composehotreload.recompiler.ENV_AMPER_BUILD_TASK
@@ -15,9 +17,13 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.jdkSettings
+import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
+import org.jetbrains.amper.jdk.provisioning.orElse
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
@@ -124,7 +130,18 @@ class JvmHotRunTask(
         }
     }
 
-    override suspend fun getJdk(): Jdk = jdkProvider.getJbr()
+    override suspend fun getJdk(): Jdk = context(CliProblemReporter) {
+        jdkProvider.getJdk(
+            criteria = JdkProvisioningCriteria(
+                majorVersion = module.jdkSettings.version, // we want a JBR in the same version as the user's JDK
+                distributions = listOf(JvmDistribution.JetBrainsRuntime), // the JBR is necessary to run Compose Hot Reload
+            ),
+            selectionMode = module.jdkSettings.selectionMode,
+        ).orElse { errorMessage ->
+            userReadableError("Compose Hot Reload requires a JetBrains Runtime (JBR) to run, but Amper could not " +
+                    "provision one that matches the configured JDK version: $errorMessage")
+        }
+    }
 
     override fun getEnvironment(dependenciesResult: List<TaskResult>): Map<String, String> = mapOf(
         ENV_AMPER_SERVER_PORT to portAvailable.toString(),

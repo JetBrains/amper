@@ -16,8 +16,13 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
     mainClass: null  # default
-    release: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:

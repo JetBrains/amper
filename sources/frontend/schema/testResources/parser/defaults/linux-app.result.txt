@@ -66,6 +66,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -216,6 +223,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -364,6 +378,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -512,6 +533,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -663,6 +691,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -814,6 +849,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -962,6 +1004,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1113,6 +1162,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1261,6 +1317,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1412,6 +1475,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars

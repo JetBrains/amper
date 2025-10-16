@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
@@ -115,7 +116,7 @@ interface AmperModule {
     val layout: Layout
 
     val amperMavenPluginsDescriptions: List<AmperMavenPluginDescription>
-    
+
     val pluginSettings: PluginSettings
 }
 
@@ -135,3 +136,9 @@ fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boo
 // We don't have to go through all fragments, the InconsistentPublishingSettings factory already checked
 // that all fragments have the same publishing settings.
 fun AmperModule.hasPublishingConfigured() = fragments.first().settings.publishing.enabled
+
+/**
+ * Returns the JDK settings for this module.
+ */
+// We don't have to go through all fragments, the JdkSettings are platform-agnostic.
+val AmperModule.jdkSettings: JdkSettings get() = fragments.first { !it.isTest }.settings.jvm.jdk

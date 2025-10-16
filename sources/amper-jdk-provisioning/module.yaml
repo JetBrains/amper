@@ -2,11 +2,17 @@ product: jvm/lib
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-idea.module-template.yaml # the IDE needs to provision JDKs to set them in the workspace model
 
 dependencies:
+  - ../amper-problem-reporting: exported
   - ../core
+  - ../frontend-api: exported
+  - ../libraries/foojay-kotlin-client
+  - $libs.junit.jupiter.params
+  - $libs.ktor.client.core
+  - $libs.ktor.client.logging
 
 test-dependencies:
   - ../test-base
-  - $libs.kotlinx.coroutines.core
-  - $libs.kotlinx.coroutines.test
+  - $libs.kotlinx.coroutines.debug

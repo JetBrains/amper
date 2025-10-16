@@ -12,6 +12,7 @@ object UsedVersions {
 
     /*magic_replacement*/ val composeHotReloadVersion = "1.0.0-rc01"
     /*magic_replacement*/ val composeVersion = "1.8.2"
+    /*magic_replacement*/ val defaultJdkVersion = 21 // TODO bump to 25 when Kotlin supports it
     /*magic_replacement*/ val defaultKotlinVersion = "2.2.21"
     /*magic_replacement*/ val junitPlatform = "6.0.1"
     /*magic_replacement*/ val kotlinxSerializationVersion = "1.9.0"

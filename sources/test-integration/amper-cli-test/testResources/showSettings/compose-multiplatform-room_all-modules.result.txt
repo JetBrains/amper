@@ -36,7 +36,12 @@ settings@android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -109,8 +114,13 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
     mainClass: null  # default
-    release: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -196,7 +206,12 @@ settings@jvm+android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -272,7 +287,12 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -357,7 +377,12 @@ settings@android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:

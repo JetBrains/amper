@@ -25,6 +25,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -80,6 +81,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -130,6 +132,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -183,6 +186,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -232,6 +236,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -284,6 +289,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -334,6 +340,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -384,6 +391,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -437,6 +445,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -490,6 +499,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -542,6 +552,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -592,6 +603,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -645,6 +657,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -699,6 +712,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -749,6 +763,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false
@@ -802,6 +817,7 @@ Fragments:
       junit: none
       jvm: {
         mainClass: MainKt
+        release: <default> 21
       }
       kotlin: {
         allWarningsAsErrors: false

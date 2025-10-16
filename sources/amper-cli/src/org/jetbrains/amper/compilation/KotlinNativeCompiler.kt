@@ -15,6 +15,7 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -31,14 +32,16 @@ import kotlin.io.path.div
 @Deprecated(
     message = "Provide a JdkProvider instance instead, to properly scope errors",
     replaceWith = ReplaceWith(
-        expression = "downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))",
+        expression = "JdkProvider(userCacheRoot).use { downloadNativeCompiler(kotlinVersion, userCacheRoot, it) }",
         imports = ["org.jetbrains.amper.jdk.provisioning.JdkProvider"],
     ),
 )
 suspend fun downloadNativeCompiler(
     kotlinVersion: String,
-    userCacheRoot: AmperUserCacheRoot,
-): KotlinNativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))
+    userCacheRoot: AmperUserCacheRoot
+): KotlinNativeCompiler = JdkProvider(userCacheRoot).use {
+    downloadNativeCompiler(kotlinVersion, userCacheRoot, it)
+}
 
 suspend fun downloadNativeCompiler(
     kotlinVersion: String,
@@ -48,8 +51,8 @@ suspend fun downloadNativeCompiler(
     val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion, userCacheRoot)
         ?: error("kotlin native compiler is not available for the current platform")
 
-    // According to the Kotlin/Native team, no special requirements for this JDK, but they mostly tested with 11.
-    val jdk = jdkProvider.getJdk()
+    // According to the Kotlin/Native team, no special requirements for this JDK, but they mostly test with 11.
+    val jdk = jdkProvider.getDefaultJdk()
     return KotlinNativeCompiler(kotlinNativeHome, kotlinVersion, jdk)
 }
 
