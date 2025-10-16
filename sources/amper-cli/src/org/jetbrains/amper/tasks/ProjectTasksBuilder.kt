@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isParentOf
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.compose.setupComposeTasks
@@ -29,8 +30,8 @@ import org.jetbrains.amper.tasks.maven.setupMavenCompatibilityTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmWasiTasks
-import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.AmperCliIncrementalCache
+import org.jetbrains.amper.util.BuildType
 
 internal interface TaskType {
     val prefix: String
@@ -61,6 +62,7 @@ internal interface FragmentTaskType : TaskType {
 
 data class ModuleSequenceCtx(
     val module: AmperModule,
+    val incrementalCache: IncrementalCache,
     val platform: Platform = Platform.COMMON,
     val isTest: Boolean = false,
     val buildType: BuildType = BuildType.Debug,
@@ -104,7 +106,7 @@ class ProjectTasksBuilder(
 
     fun allFragments() = model.modules.asSequence().flatMap { it.fragments }
 
-    fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it) }
+    fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it, incrementalCache) }
 
     fun Sequence<ModuleSequenceCtx>.alsoPlatforms(parent: Platform? = null) = flatMap { ctx ->
         ctx.module.leafPlatforms.filter { parent?.isParentOf(it) ?: true }.map { ctx.copy(platform = it) }

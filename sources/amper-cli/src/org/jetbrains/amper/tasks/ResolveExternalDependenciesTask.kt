@@ -262,6 +262,8 @@ class ResolveExternalDependenciesTask(
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
+        val compileClasspathTree: DependencyNode? = null,
+        val runtimeClasspathTree: DependencyNode? = null,
         val coordinateOverridesForPublishing: PublicationCoordinatesOverrides = PublicationCoordinatesOverrides(),
     ) : TaskResult
 

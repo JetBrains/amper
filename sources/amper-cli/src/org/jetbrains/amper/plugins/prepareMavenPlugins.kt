@@ -14,10 +14,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
 import nl.adaptivity.xmlutil.serialization.XML
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.plugins.MavenPluginXml
@@ -25,6 +26,7 @@ import org.jetbrains.amper.frontend.project.mavenPluginXmlsDir
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.types.maven.DefaultMavenPluginXml
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -39,7 +41,7 @@ import kotlin.io.path.outputStream
  */
 internal suspend fun prepareMavenPlugins(
     context: CliContext,
-    mavenResolver: MavenResolver = MavenResolver(context.userCacheRoot),
+    mavenResolver: MavenResolver = MavenResolver(context.userCacheRoot, AmperCliIncrementalCache(context.buildOutputRoot)),
 ): List<MavenPluginXml> = coroutineScope prepare@{
     val externalPlugins = context.projectContext.externalMavenPluginDependencies
     val mavenPluginXmlsDir = context.projectContext.mavenPluginXmlsDir
@@ -95,16 +97,17 @@ private suspend fun downloadPluginAndDirectDependencies(
         resolutionDepth = ResolutionDepth.GRAPH_FULL,
     ) {
         val (group, module, version) = declaration.coordinates.split(":")
-        RootDependencyNodeHolder(listOf(MavenDependencyNode(group, module, version, false)))
+        RootDependencyNodeWithContext(
+            templateContext = this,
+            children = listOf(MavenDependencyNodeWithContext(this, group, module, version, false)))
+
     }
 
-    resolvedRoot.downloadDependencies()
-    
     // We can safely assume that there is only one dependency here, because we created root holder that way.
     val pluginDep = resolvedRoot.children.first() as MavenDependencyNode
     return pluginDep.dependency.files()
         .filter { it.extension == "jar" }
-        .mapNotNull { it.getPath() }
+        .mapNotNull { it.path }
         .singleOrNull()
 }
 

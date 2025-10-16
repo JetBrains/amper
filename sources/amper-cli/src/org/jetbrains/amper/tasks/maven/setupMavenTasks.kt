@@ -83,7 +83,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
 
 context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupMavenPluginTasks() {
-    val drBridge = AmperMavenDRBridge(MavenResolver(taskBuilder.context.userCacheRoot))
+    val drBridge = AmperMavenDRBridge(MavenResolver(taskBuilder.context.userCacheRoot, incrementalCache))
 
     module.mavenPluginXmls.forEach plugin@{ pluginXml ->
         val container = createPlexusContainer()

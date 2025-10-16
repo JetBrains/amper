@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -549,6 +550,7 @@ interface MavenDependency {
     val resolutionConfig: ResolutionConfig
     val messages: List<Message>
     val state: ResolutionState
+    val pomPath: Path?
 
     fun files(withSources: Boolean = false): List<DependencyFile>
 
@@ -561,6 +563,7 @@ interface MavenDependency {
                     packaging,
                     messages,
                     files(true).map { DependencyFilePlain(it) },
+                    pomPath?.absolutePathString(),
                     // todo (AB) : ResolutionConfigPlain could be deduplicated with reference
                     ResolutionConfigPlain(
                         resolutionConfig.scope, resolutionConfig.platforms,
@@ -588,9 +591,13 @@ class MavenDependencyPlain internal constructor (
     override val packaging: String?,
     override val messages: List<Message>,
     val files: List<DependencyFilePlain>,
+    private val pomPathAsString: String? = null,
     override val resolutionConfig: ResolutionConfigPlain,
     override val state: ResolutionState = ResolutionState.RESOLVED
 ) : MavenDependency {
+
+    @Transient
+    override val pomPath: Path? = pomPathAsString?.let { Path(it) }
 
     override fun files(withSources: Boolean): List<DependencyFile> {
         return if (withSources) files else files.filterNot { it.isDocumentation }
@@ -675,6 +682,8 @@ class MavenDependencyImpl internal constructor(
     private var moduleMetadata: Module? = null
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     private var pomText: String? = null
+    override val pomPath: Path?
+        get() = pom.path
 
     override fun files(withSources: Boolean) =
         if (withSources)

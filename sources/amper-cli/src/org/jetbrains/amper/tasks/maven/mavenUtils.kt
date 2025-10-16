@@ -10,6 +10,9 @@ import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.PlexusContainer
 import org.eclipse.aether.graph.DefaultDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.group
+import org.jetbrains.amper.dependency.resolution.module
+import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.tasks.rootFragment
 import java.nio.file.Path
@@ -94,14 +97,14 @@ suspend fun MavenDependencyNode.toAetherArtifact(extension: String?): AetherArti
         /* artifactId = */ module,
         /* classifier = */ "runtime",
         /* extension = */ extension,
-        /* version = */ version,
+        /* version = */ dependency.version,
         /* type = */ null,
     ).run {
         val file = when {
             isBom || extension == "pom" -> 
-                dependency.pom.getPath()!!.toFile()
+                dependency.pomPath!!.toFile()
             extension == null || extension == "" || extension == "jar" ->
-                dependency.files().first().getPath()!!.toFile()
+                dependency.files().first().path!!.toFile()
             // TODO Think about that?
             else -> error("Unsupported extension: $extension")
         }

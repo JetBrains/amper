@@ -7,10 +7,14 @@ package org.jetbrains.amper.tasks.maven
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.group
+import org.jetbrains.amper.dependency.resolution.module
+import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -24,9 +28,9 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
-import kotlin.reflect.KFunction3
+import kotlin.reflect.KFunction4
 
-typealias PhaseTaskCtor = KFunction3<TaskName, AmperModule, Boolean, BaseUmbrellaMavenPhaseTask>
+typealias PhaseTaskCtor = KFunction4<TaskName, AmperModule, Boolean, IncrementalCache, BaseUmbrellaMavenPhaseTask>
 
 @Suppress("EnumEntryName")
 enum class KnownMavenPhase(
@@ -128,7 +132,7 @@ enum class KnownMavenPhase(
     val taskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name))
 
     context(moduleCtx: ModuleSequenceCtx)
-    fun createTask() = taskCtor(taskName, moduleCtx.module, isTest)
+    fun createTask() = taskCtor(taskName, moduleCtx.module, isTest, moduleCtx.incrementalCache)
 }
 
 /**
@@ -178,6 +182,7 @@ open class BaseUmbrellaMavenPhaseTask(
     override val taskName: TaskName,
     protected val module: AmperModule,
     protected val isTest: Boolean,
+    protected val incrementalCache: IncrementalCache,
 ) : ArtifactTaskBase() {
 
     /**
@@ -199,8 +204,8 @@ open class BaseUmbrellaMavenPhaseTask(
  * It is adding additional sources to the embryo as well as external artifacts that should
  * be accessible to the maven model.
  */
-class GeneratedSourcesMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean) :
-    BaseUmbrellaMavenPhaseTask(taskName, module, isTest) {
+class GeneratedSourcesMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean, incrementalCache: IncrementalCache) :
+    BaseUmbrellaMavenPhaseTask(taskName, module, isTest, incrementalCache) {
 
     private val additionalSourceDirs by Selectors.fromMatchingFragments(
         KotlinJavaSourceDirArtifact::class,
@@ -211,13 +216,13 @@ class GeneratedSourcesMavenPhaseTask(taskName: TaskName, module: AmperModule, is
     )
 
     // Here we are converting the external dependencies graph to the flat list of maven artifacts.
-    suspend fun getExternalAetherArtifacts(dependenciesResult: List<TaskResult>) = dependenciesResult
+    fun getExternalAetherArtifacts(dependenciesResult: List<TaskResult>) = dependenciesResult
         .filterIsInstance<ResolveExternalDependenciesTask.Result>()
         .mapNotNull { it.runtimeClasspathTree ?: it.compileClasspathTree }
         .flatMap { it.distinctBfsSequence() }
         .filterIsInstance<MavenDependencyNode>()
         // Filter out all dependencies without files.
-        .mapNotNull { it.dependency.files().firstOrNull()?.getPath()?.to(it) }
+        .mapNotNull { it.dependency.files().firstOrNull()?.path?.to(it) }
         .map { (path, it) ->
             DefaultMavenArtifact(
                 groupId = it.dependency.group,
@@ -246,8 +251,8 @@ class GeneratedSourcesMavenPhaseTask(taskName: TaskName, module: AmperModule, is
 /**
  * Maven phase task that is aware of sources generation.
  */
-class AdditionalResourcesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean) :
-    BaseUmbrellaMavenPhaseTask(taskName, module, isTest) {
+class AdditionalResourcesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean, incrementalCache: IncrementalCache) :
+    BaseUmbrellaMavenPhaseTask(taskName, module, isTest, incrementalCache) {
 
     private val additionalResourceDirs by Selectors.fromMatchingFragments(
         type = JvmResourcesDirArtifact::class,
@@ -265,8 +270,8 @@ class AdditionalResourcesAwareMavenPhaseTask(taskName: TaskName, module: AmperMo
 /**
  * Maven phase task that is aware of compiled classes.
  */
-class ClassesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean) :
-    BaseUmbrellaMavenPhaseTask(taskName, module, isTest) {
+class ClassesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean, incrementalCache: IncrementalCache) :
+    BaseUmbrellaMavenPhaseTask(taskName, module, isTest, incrementalCache) {
 
     private val compiledJvmClassesDirs by Selectors.fromModuleOnly(
         type = CompiledJvmClassesArtifact::class,
@@ -283,8 +288,8 @@ class ClassesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest
 /**
  * Maven phase task that is aware of compiled classes.
  */
-class ModuleDependenciesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean) :
-    BaseUmbrellaMavenPhaseTask(taskName, module, isTest) {
+class ModuleDependenciesAwareMavenPhaseTask(taskName: TaskName, module: AmperModule, isTest: Boolean, incrementalCache: IncrementalCache) :
+    BaseUmbrellaMavenPhaseTask(taskName, module, isTest, incrementalCache) {
 
     private val moduleDependenciesClasses by Selectors.fromModuleWithDependencies(
         type = CompiledJvmClassesArtifact::class,
@@ -292,6 +297,7 @@ class ModuleDependenciesAwareMavenPhaseTask(taskName: TaskName, module: AmperMod
         userCacheRoot = AmperUserCacheRoot(Path(".").absolute()),
         quantifier = Quantifier.AnyOrNone,
         includeSelf = false,
+        incrementalCache = incrementalCache,
     )
 
     private fun CompiledJvmClassesArtifact.toArtifact(scope: String) =

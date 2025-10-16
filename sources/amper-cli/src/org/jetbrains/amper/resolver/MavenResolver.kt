@@ -46,10 +46,11 @@ class MavenResolver(
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
     ): List<Path> = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) {
-        RootDependencyNodeInput(
-            coordinates.map {
+        RootDependencyNodeWithContext(
+            templateContext = this,
+            children = coordinates.map {
                 val (group, module, version) = it.split(":")
-                MavenDependencyNodeImpl(group, module, version, false)
+                MavenDependencyNodeWithContext(this, group, module, version, false)
             },
         )
     }.dependencyPaths()
@@ -64,7 +65,8 @@ class MavenResolver(
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
-    ): DependencyNodeHolder = spanBuilder("mavenResolve")
+        root: Context.() -> RootDependencyNodeWithContext,
+    ): DependencyNode = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
@@ -84,14 +86,7 @@ class MavenResolver(
                 this.incrementalCache = this@MavenResolver.incrementalCache
             }
 
-            // cacheEntryKey is not defined preventing too granular caching
-            val root = RootDependencyNodeWithContext(
-                children = coordinates.map {
-                    val (group, module, version) = it.split(":")
-                    MavenDependencyNodeWithContext(context, group, module, version, false)
-                },
-                templateContext = context
-            )
+            val root = root(context)
 
             val resolvedGraph = resolve(root, resolveSourceMoniker, resolutionDepth)
             resolvedGraph

@@ -14,10 +14,11 @@ import org.eclipse.aether.impl.DependencyCollector
 import org.eclipse.aether.resolution.ArtifactRequest
 import org.eclipse.aether.resolution.ArtifactResult
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.resolver.MavenResolver
 
 /**
@@ -68,7 +69,8 @@ class AmperMavenDRBridge(private val mavenResolver: MavenResolver) : DependencyC
             resolveSourceMoniker = "", //TODO
         ) {
             val children = artifacts.map {
-                MavenDependencyNode(
+                MavenDependencyNodeWithContext(
+                    this,
                     group = it.groupId,
                     module = it.artifactId,
                     version = it.version,
@@ -76,7 +78,7 @@ class AmperMavenDRBridge(private val mavenResolver: MavenResolver) : DependencyC
                     isBom = it.artifactId.endsWith("-bom")
                 )
             }
-            RootDependencyNodeHolder(children)
+            RootDependencyNodeWithContext(templateContext = this, children = children)
         }
 
         // The first element is known to be a MavenDependencyNode as we had set it.
