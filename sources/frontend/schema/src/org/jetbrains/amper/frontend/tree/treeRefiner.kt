@@ -73,7 +73,7 @@ class RefineRequest(
                 contexts = node.contexts,
             )
             is ScalarOrReference -> node as TreeValue<Refined>
-            is NoValue -> node
+            is ErrorValue -> node
         }
     }
 
@@ -91,7 +91,7 @@ class RefineRequest(
                         is ScalarValue -> second.copy(trace = newTrace)
                         is ReferenceValue -> second.copy(trace = newTrace)
                         is StringInterpolationValue<*> -> second.copy(trace = newTrace)
-                        is NoValue -> if (first is NoValue) NoValue(trace = newTrace) else refine(first)
+                        is ErrorValue -> if (first is ErrorValue) ErrorValue(trace = newTrace) else refine(first)
                         is ListValue<*> -> {
                             val firstChildren = (first as? ListValue<*>)?.children.orEmpty()
                             ListValue(

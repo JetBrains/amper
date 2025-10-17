@@ -11,10 +11,10 @@ import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeChildren
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.ReferenceValue
@@ -94,7 +94,7 @@ internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue
     return when (this) {
         is ListValue<T> -> copy(trace = trace)
         is MapLikeValue<T> -> copy(trace = trace)
-        is NoValue -> NoValue(trace = trace)
+        is ErrorValue -> ErrorValue(trace = trace)
         is ReferenceValue<T> -> copy(trace = trace)
         is StringInterpolationValue<T> -> copy(trace = trace)
         is ScalarValue<T> -> copy(trace = trace)

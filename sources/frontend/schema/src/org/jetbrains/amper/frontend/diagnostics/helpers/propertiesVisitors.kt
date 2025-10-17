@@ -5,12 +5,12 @@
 package org.jetbrains.amper.frontend.diagnostics.helpers
 
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.MapProperty
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.MergedTree
-import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.RecurringTreeVisitor
 import org.jetbrains.amper.frontend.tree.RecurringTreeVisitorUnit
@@ -110,7 +110,7 @@ private typealias ScalarPropertiesWithOwner = List<ScalarPropertyWithOwner>
 private object AllScalarPropertiesCollector : RecurringTreeVisitor<ScalarPropertiesWithOwner, Merged>() {
     override fun visitNullValue(value: NullValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun visitScalarValue(value: ScalarValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitNoValue(value: NoValue) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitNoValue(value: ErrorValue) = emptyList<ScalarPropertyWithOwner>()
     override fun visitReferenceValue(value: ReferenceValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun visitStringInterpolationValue(value: StringInterpolationValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
     override fun aggregate(value: MergedTree, childResults: List<ScalarPropertiesWithOwner>) = childResults.flatten()

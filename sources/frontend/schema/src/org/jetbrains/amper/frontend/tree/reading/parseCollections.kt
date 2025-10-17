@@ -8,9 +8,9 @@ import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
+import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.Owned
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -116,13 +116,13 @@ internal fun parseValueFromKeyValue(
     return when (val value = keyValue.value) {
         null -> {
             reportParsing(keyValue, "validation.structure.missing.value")
-            NoValue(trace)
+            ErrorValue(trace)
         }
         else -> {
             @OptIn(InternalTraceSetter::class)
             parseValue(value, type, explicitContexts)
                 ?.copyWithTrace(trace) // Replace the trace to also capture the key
-                ?: NoValue(trace)  // Return NoValue even in the case of errors to preserve traceability
+                ?: ErrorValue(trace)  // Return NoValue even in the case of errors to preserve traceability
         }
     }
 }

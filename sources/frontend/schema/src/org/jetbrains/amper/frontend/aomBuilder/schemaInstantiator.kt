@@ -12,9 +12,9 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NoValue
 import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.Refined
@@ -87,7 +87,7 @@ private fun createNode(
     valuePath: List<String>,
 ): Any? {
     when (value) {
-        is NoValue,
+        is ErrorValue,
             // Do not report: reported during parsing
         is ReferenceValue, is StringInterpolationValue -> {
             // Do not report: must be already reported during reference resolution

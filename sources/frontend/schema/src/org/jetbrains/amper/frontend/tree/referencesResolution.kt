@@ -300,7 +300,7 @@ private fun renderTypeOf(value: TreeValue<*>): String = when(value) {
     is ListValue -> value.type.withNullability(false).render(includeSyntax = false)
     is MapLikeValue -> value.type.withNullability(false).render(includeSyntax = false)
     is ScalarValue -> value.type.withNullability(false).render(includeSyntax = false)
-    is NoValue -> "<no value>" // FIXME: Are no values legal here? Investigate
+    is ErrorValue -> "<no value>" // FIXME: Are no values legal here? Investigate
     is ReferenceValue, is StringInterpolationValue -> error("Not reached: must be resolved first")
 }
 
@@ -308,7 +308,7 @@ private fun TreeValue<Refined>.deepContainsAnyReferences(): Boolean = when(this)
     is ListValue -> children.any { it.deepContainsAnyReferences() }
     is MapLikeValue -> children.any { it.value.deepContainsAnyReferences() }
     is ReferenceValue, is StringInterpolationValue -> true
-    is ScalarValue, is NoValue, is NullValue -> false
+    is ScalarValue, is ErrorValue, is NullValue -> false
 }
 
 private fun ReferenceValue<*>.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(

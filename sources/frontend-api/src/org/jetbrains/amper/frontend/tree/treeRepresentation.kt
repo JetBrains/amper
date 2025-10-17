@@ -32,9 +32,9 @@ sealed interface TreeValue<out TS : TreeState> : WithContexts, Traceable {
 sealed interface ScalarOrReference<out TS : TreeState> : TreeValue<TS>
 
 /**
- * Represent no set value. E.g. `foo: ` in YAML.
+ * Represents an invalid value that was unable to be parsed.
  */
-class NoValue(
+class ErrorValue(
     /**
      * If there is no PSI element at all for the (absent) value, this trace points to the key-value element that
      * contains no value (E.g. `foo: ` in YAML).
@@ -56,7 +56,7 @@ data class NullValue<out TS : TreeState>(
 }
 
 /** Convenient shortcut to check results of [MapLikeValue.get]*/
-fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all { it is NoValue }
+fun <TS : TreeState> List<TreeValue<TS>>.isEmptyOrNoValue() = isEmpty() || all { it is ErrorValue }
 
 /**
  * This is a scalar value tree node. E.g., string, boolean, enum or path.

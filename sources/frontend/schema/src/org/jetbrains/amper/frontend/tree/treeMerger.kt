@@ -74,7 +74,7 @@ class TreeMerger {
         is ScalarValue,
         is ReferenceValue,
         is StringInterpolationValue,
-        is NoValue -> @Suppress("UNCHECKED_CAST") (this as MergedTree)
+        is ErrorValue -> @Suppress("UNCHECKED_CAST") (this as MergedTree)
         is ListValue -> ListValue(children.map { it.mergeSingle() }, type, trace, contexts) as MergedTree
         is MapLikeValue -> {
             val (mapLike, other) = children.partitionMapLike()
