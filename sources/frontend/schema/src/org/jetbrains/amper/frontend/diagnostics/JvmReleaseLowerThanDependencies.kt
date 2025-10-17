@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
@@ -24,7 +23,7 @@ import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSourc
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 // TODO Use the configured JDK version when it becomes configurable. For now we hardcoded 21 in the backend
-private val DefaultJdkVersion = JavaVersion.VERSION_21
+private val DefaultJdkVersion = 21
 
 object JvmReleaseLowerThanDependencies : AomModelDiagnosticFactory {
 
@@ -40,7 +39,7 @@ object JvmReleaseLowerThanDependencies : AomModelDiagnosticFactory {
                 .filterIsInstance<LocalModuleDependency>()
                 .forEach { dep ->
                     val depJvmRelease = dep.module.jvmRelease() ?: DefaultJdkVersion
-                    if (depJvmRelease.releaseNumber > thisJvmRelease.releaseNumber && reportedPlaces.add(dep.trace)) {
+                    if (depJvmRelease > thisJvmRelease && reportedPlaces.add(dep.trace)) {
                         problemReporter.reportMessage(
                             JvmReleaseTooLowForDependency(
                                 module = module,
@@ -59,9 +58,9 @@ private fun Platform.isAffectedByJvmRelease() = this == Platform.JVM || this == 
 
 class JvmReleaseTooLowForDependency(
     val module: AmperModule,
-    val jvmRelease: JavaVersion,
+    val jvmRelease: Int,
     val dependency: LocalModuleDependency,
-    val dependencyJvmRelease: JavaVersion,
+    val dependencyJvmRelease: Int,
 ) : BuildProblem {
     override val buildProblemId get() = diagnosticId
 
@@ -84,8 +83,8 @@ class JvmReleaseTooLowForDependency(
         dependencyJvmRelease.withDefaultMentionIf(dependencyJvmReleaseElement == null),
     )
 
-    private fun JavaVersion.withDefaultMentionIf(condition: Boolean): String {
-        val numberString = releaseNumber.toString()
+    private fun Int.withDefaultMentionIf(condition: Boolean): String {
+        val numberString = toString()
         return if (condition) "$numberString (default)" else numberString
     }
 
@@ -98,7 +97,7 @@ class JvmReleaseTooLowForDependency(
 }
 
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
-private fun AmperModule.jvmRelease(): JavaVersion? = fragments.firstOrNull()?.settings?.jvm?.release
+private fun AmperModule.jvmRelease(): Int? = fragments.firstOrNull()?.settings?.jvm?.release
 
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
 private fun AmperModule.jvmReleasePsiElement(): PsiElement? =

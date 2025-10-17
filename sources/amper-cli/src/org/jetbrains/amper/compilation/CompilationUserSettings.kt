@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 
 @Serializable // makes it convenient to include in the input properties of the incremental cache state
@@ -44,9 +43,32 @@ internal data class JavaUserSettings(
     val annotationProcessorOptions: Map<String, String>,
 )
 
+@Serializable
+@JvmInline
+internal value class JavaVersion(
+    /**
+     * The integer representation of this version for the `--release` option of the Java compiler, and the
+     * `-Xjdk-release` option of the Kotlin compiler.
+     *
+     * Notes:
+     *  * The Java compiler only supports versions from 6 and above for the `--release` option.
+     *  * Despite the documentation, the Kotlin compiler supports "8" as an alias for "1.8" in `-Xjdk-release`, but the
+     *    `-jvm-target` option requires "1.8".
+     */
+    val releaseNumber: Int
+) {
+    /**
+     * The legacy notation of this version, which uses the "1." prefix for every version before 9.
+     *
+     * Examples: 1.6, 1.7, 1.8, 9, 10, 11, 17, 21
+     */
+    val legacyNotation: String
+        get() = if (releaseNumber <= 8) "1.$releaseNumber" else releaseNumber.toString()
+}
+
 internal fun Fragment.serializableCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
     kotlin = serializableKotlinSettings(),
-    jvmRelease = settings.jvm.release,
+    jvmRelease = settings.jvm.release?.let { JavaVersion(it) },
     java = serializableJavaSettings(),
 )
 

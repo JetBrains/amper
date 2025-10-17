@@ -5,7 +5,7 @@
 package org.jetbrains.amper.ksp
 
 import org.jetbrains.amper.compilation.CompilationUserSettings
-import org.jetbrains.amper.frontend.schema.JavaVersion
+import org.jetbrains.amper.compilation.JavaVersion
 import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
 import java.io.File
 import java.nio.file.Path
@@ -215,7 +215,7 @@ internal interface KspJvmConfig : KspConfig {
 
         // The jvmRelease setting is null if the user intentionally disables it because they want the compiler default.
         // This is why we choose 1.8 as a default here: we need to match Kotlin's current default.
-        override var jvmTarget: String = (compilationSettings.jvmRelease ?: JavaVersion.VERSION_8).legacyNotation
+        override var jvmTarget: String = (compilationSettings.jvmRelease ?: JavaVersion(8)).legacyNotation
 
         override lateinit var jdkHome: Path
 

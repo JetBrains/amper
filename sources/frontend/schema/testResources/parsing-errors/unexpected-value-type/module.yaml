@@ -12,7 +12,7 @@ settings:
   jvm:
     storeParameterNames:
       <![Error] Expected `boolean ( "true" | "false" )`, but got `mapping {}`!>true: false<!>
-    release: <![Error] Expected `JavaVersion ( "25" | "24" | "23" | "22" | "21" | "17" | "11" | "8" ) | null`, but got `mapping {}`!>{1,2,3}<!>
+    release: <![Error] Expected `integer | null`, but got `mapping {}`!>{1,2,3}<!>
   java:
     freeCompilerArgs:
       <![Error] Expected `sequence [string]`, but got `mapping {}`!>args: value<!>
