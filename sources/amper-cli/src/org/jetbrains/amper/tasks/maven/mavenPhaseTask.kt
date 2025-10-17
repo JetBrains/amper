@@ -13,14 +13,17 @@ import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.tasks.AdditionalSourceRootsProvider
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
@@ -78,7 +81,7 @@ enum class KnownMavenPhase(
     ),
 
     `generate-test-sources`(
-        initialize,
+        `process-classes`,
         taskCtor = ::GeneratedSourcesMavenPhaseTask,
         isTest = true
     ),
@@ -146,6 +149,26 @@ enum class KnownMavenPhase(
     )
 }
 
+data class MavenPhaseResult(
+    val fragment: Fragment,
+    val embryo: MavenProjectEmbryo,
+    val modelChanges: List<ModelChange>,
+) : TaskResult, AdditionalSourceRootsProvider {
+    override val sourceRoots: List<SourceRoot>
+        get() = modelChanges
+            .flatMap { if (!fragment.isTest) it.additionalSources else it.additionalTestSources }
+            .distinct()
+            .map { SourceRoot(fragment.name, it) }
+}
+
+/**
+ * Project model additions brought up by maven mojo executions.
+ */
+data class ModelChange(
+    val additionalSources: List<Path>,
+    val additionalTestSources: List<Path>,
+) : TaskResult
+
 /**
  * Cumulative information about a maven project that is collected
  * during task execution, that is used to configure maven project
@@ -159,7 +182,7 @@ data class MavenProjectEmbryo(
     val generatedResourcesPaths: List<Path> = emptyList(),
     val generatedTestResourcesPaths: List<Path> = emptyList(),
     val artifacts: Set<MavenArtifact> = emptySet(),
-) : TaskResult {
+) {
     /**
      * Merges this embryo with another one with this's embryo properties taking precedence.
      */
@@ -204,6 +227,10 @@ class PhaseTaskParameters(
 open class BaseUmbrellaMavenPhaseTask(
     protected val parameters: PhaseTaskParameters,
 ) : ArtifactTaskBase() {
+    
+    val targetFragment = parameters.module.leafFragments.single { 
+        it.platform == Platform.JVM && it.isTest == parameters.isTest 
+    }
 
     override val taskName get() = parameters.taskName
 
@@ -217,8 +244,23 @@ open class BaseUmbrellaMavenPhaseTask(
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
-    ): MavenProjectEmbryo = dependenciesResult.filterIsInstance<MavenProjectEmbryo>()
-        .fold(parameters.embryo(dependenciesResult), MavenProjectEmbryo::merge)
+    ): MavenPhaseResult {
+        val previousPhasesResults = dependenciesResult.filterIsInstance<MavenPhaseResult>()
+        val currentPhaseModelChanges = dependenciesResult.filterIsInstance<ModelChange>()
+
+        // Collect all the model information to pass to the next phase task.
+        val currentEmbryo = parameters.embryo(dependenciesResult)
+        val embryoFromChanges = MavenProjectEmbryo(
+            generatedSourcesPaths = currentPhaseModelChanges.flatMap { it.additionalSources },
+            generatedTestSourcesPaths = currentPhaseModelChanges.flatMap { it.additionalTestSources },
+        )
+        val cumulativeEmbryo = (previousPhasesResults.map { it.embryo } + embryoFromChanges + currentEmbryo)
+            .reversed().reduce(MavenProjectEmbryo::merge)
+
+        // Aggregate model changes to pass to the dependent Amper tasks through task results.
+        val previousChanges = previousPhasesResults.flatMap { it.modelChanges }
+        return MavenPhaseResult(targetFragment, cumulativeEmbryo, previousChanges + currentPhaseModelChanges)
+    }
 }
 
 /**

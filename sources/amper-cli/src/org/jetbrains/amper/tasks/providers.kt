@@ -15,3 +15,13 @@ internal interface AdditionalClasspathProvider {
      */
     val compileClasspath: List<Path>
 }
+
+/**
+ * Provides additional JVM sources that should be considered as sources of the module for JVM platform.
+ */
+internal interface AdditionalSourceRootsProvider {
+    /**
+     * Paths to source directories.
+     */
+    val sourceRoots: List<SourceRoot>
+}

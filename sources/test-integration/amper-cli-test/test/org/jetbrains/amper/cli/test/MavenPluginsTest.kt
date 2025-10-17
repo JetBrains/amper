@@ -51,7 +51,7 @@ class MavenPluginsTest : AmperCliTestBase() {
         `run app-maven-surefire-plugin-test task`("surefire-plugin-junit-assertion", expectedExitCode = 1)
             .assertStderrContains("expected: <foo> but was: <bar>")
     }
-    
+
     @Test
     @Disabled("Need to support multiple output roots in the JvmCompileTask: https://youtrack.jetbrains.com/issue/AMPER-4859/Support-multiple-output-roots-of-JVM-compilation")
     fun `surefire plugin test goal executes with junit filter and skips one test`() = runSlowTest {
@@ -61,17 +61,48 @@ class MavenPluginsTest : AmperCliTestBase() {
         }
     }
 
+    @Test
+    fun `protobuf maven plugin executes`() = runSlowTest {
+        `run protobuf-maven-plugin-generate task`("protobuf-maven-plugin")
+    }
+
+    @Test
+    fun `compilation and running with protobuf generated sources`() = runSlowTest {
+        runCli(
+            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"), 
+            "run"
+        ).assertStdoutContains("Hello from the proto test! Request value is 42")
+    }
+
+    @Test
+    fun `compilation and testing with protobuf generated sources`() = runSlowTest {
+        runCli(
+            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"),
+            "test"
+        ).assertStdoutContains("Hello from the proto test! Request value is 47")
+    }
+
     /**
      * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.
      */
-    private suspend fun `run app-maven-surefire-plugin-test task`(
+    private suspend fun `run app-maven-surefire-plugin-test task`(projectPath: String, expectedExitCode: Int = 0) =
+        runTask(projectPath, "maven-surefire-plugin.test", expectedExitCode)
+
+    /**
+     * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.
+     */
+    private suspend fun `run protobuf-maven-plugin-generate task`(projectPath: String, expectedExitCode: Int = 0) =
+        runTask(projectPath, "protobuf-maven-plugin.generate", expectedExitCode)
+
+    private suspend fun runTask(
         projectWithMavenPath: String,
-        expectedExitCode: Int = 0,
+        taskName: String,
+        expectedExitCode: Int,
     ) = runCli(
         projectRoot = testProject("extensibility-maven/$projectWithMavenPath"),
-        "task", ":app:maven-surefire-plugin.test",
+        "task", ":app:$taskName",
         copyToTempDir = true,
         expectedExitCode = expectedExitCode,
-        assertEmptyStdErr = expectedExitCode == 0
+        assertEmptyStdErr = expectedExitCode == 0,
     )
 }

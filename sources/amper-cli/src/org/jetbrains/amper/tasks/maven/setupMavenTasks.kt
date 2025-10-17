@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.tasks.maven
 
-import org.eclipse.aether.impl.ArtifactResolver
-import org.eclipse.aether.impl.DependencyCollector
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -14,7 +12,6 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.asMapLikeAndGet
 import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
-import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -83,16 +80,11 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
 
 context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupMavenPluginTasks() {
-    val drBridge = AmperMavenDRBridge(MavenResolver(taskBuilder.context.userCacheRoot, incrementalCache))
-
     module.amperMavenPluginsDescriptions.forEach plugin@{ pluginXml ->
         // TODO What actual classloader to place here? Do we even need maven mojos to be aware of
         //  amper classes? Should classes be shared between different maven mojos/plugins?
         //  Even instances of plexus beans that are discovered on the classpath?
-        val container = createPlexusContainer()
-
-        container.addDefaultComponent<DependencyCollector>(drBridge)
-        container.addDefaultComponent<ArtifactResolver>(drBridge)
+        val container = createPlexusContainer(KnownMavenPhase::class.java.classLoader)
 
         val moduleMavenProject = MockedMavenProject()
 
