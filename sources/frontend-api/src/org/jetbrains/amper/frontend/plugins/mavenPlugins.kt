@@ -10,50 +10,15 @@ package org.jetbrains.amper.frontend.plugins
  * 2. Resolve maven plugin dependencies.
  * 3. Create corresponding tasks.
  */
-interface MavenPluginXml {
-    val name: String
-    val description: String
+interface AmperMavenPluginDescription {
     val groupId: String
     val artifactId: String
     val version: String
     val goalPrefix: String
-    val isolatedRealm: Boolean
-    val inheritedByDefault: Boolean
-    val requiredJavaVersion: String
-    val requiredMavenVersion: String
-    val mojos: List<Mojo>
-    val dependencies: List<Dependency>
+    val mojos: List<AmperMavenPluginMojo>
 }
 
-interface Mojo {
+interface AmperMavenPluginMojo {
     val goal: String
     val phase: String?
-    val description: String
-    val requiresDirectInvocation: Boolean
-    val requiresProject: Boolean
-    val requiresReports: Boolean
-    val aggregator: Boolean
-    val requiresOnline: Boolean
-    val inheritedByDefault: Boolean
-    val implementation: String
-    val language: String
-    val instantiationStrategy: String
-    val executionStrategy: String
-    val threadSafe: Boolean
-    val parameters: List<Parameter>
-}
-
-interface Parameter {
-    val name: String
-    val type: String
-    val required: Boolean
-    val editable: Boolean
-    val description: String
-}
-
-interface Dependency {
-    val groupId: String
-    val artifactId: String
-    val version: String
-    val type: String
 }

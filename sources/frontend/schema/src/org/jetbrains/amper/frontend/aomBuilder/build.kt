@@ -33,7 +33,6 @@ import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
-import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.configureLombokDefaults
@@ -54,6 +53,7 @@ import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.caching
@@ -118,7 +118,7 @@ internal fun AmperProjectContext.doReadProjectModel(
     buildPlugins(pluginData, projectContext = this@doReadProjectModel, modules)
     
     // Add read maven plugin xmls.
-    modules.forEach { it.module.mavenPluginXmls = mavenPluginXmls }
+    modules.forEach { it.module.amperMavenPluginsDescriptions = mavenPluginXmls }
 
     // Perform diagnostics.
     AomSingleModuleDiagnosticFactories.forEach { diagnostic ->

@@ -21,10 +21,9 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
-import org.jetbrains.amper.frontend.plugins.MavenPluginXml
 import org.jetbrains.amper.frontend.project.mavenPluginXmlsDir
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
-import org.jetbrains.amper.frontend.types.maven.DefaultMavenPluginXml
+import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.slf4j.LoggerFactory
@@ -121,7 +120,7 @@ private val xml = XML {
 @OptIn(ExperimentalXmlUtilApi::class)
 private fun parseMavenPluginXml(inputStream: InputStream, moniker: String): MavenPluginXml? = try {
     val reader = KtXmlReader(inputStream.reader(Charsets.UTF_8))
-    xml.decodeFromReader<DefaultMavenPluginXml>(reader)
+    xml.decodeFromReader<MavenPluginXml>(reader)
 } catch (e: Exception) {
     // TODO Need to pass a problem reporter here somehow to be able to report this on
     //  the plugin element that was provided in `project.yaml`.

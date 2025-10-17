@@ -20,7 +20,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
-import org.jetbrains.amper.frontend.plugins.MavenPluginXml
+import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
@@ -45,7 +45,7 @@ internal open class DefaultModule(
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
     override var tasksFromPlugins = emptyList<TaskFromPluginDescription>()
-    override var mavenPluginXmls = emptyList<MavenPluginXml>()
+    override var amperMavenPluginsDescriptions = emptyList<AmperMavenPluginDescription>()
 }
 
 class DefaultArtifact(

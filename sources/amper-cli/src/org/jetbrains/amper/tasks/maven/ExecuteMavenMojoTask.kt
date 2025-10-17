@@ -16,6 +16,7 @@ import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.PlexusContainer
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -27,11 +28,10 @@ import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.use
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 typealias MavenPlugin = Plugin
-typealias MojoDesc = org.jetbrains.amper.frontend.plugins.Mojo
+typealias MojoDesc = org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
 
 internal val PlexusContainer.mavenPluginManager: MavenPluginManager get() = lookup(MavenPluginManager::class.java)
 internal val PlexusContainer.lifecycleExecutionPlanCalculator get() = lookup(LifecycleExecutionPlanCalculator::class.java)
@@ -58,8 +58,8 @@ class ExecuteMavenMojoTask(
         executionContext: TaskGraphExecutionContext,
     ): TaskResult {
         val projectEmbryo = dependenciesResult.filterIsInstance<MavenProjectEmbryo>().single()
-        val repoSession = createRepositorySession(Path(""))
-        val request = mavenRepositorySystem.createMavenExecutionRequest(Path(""))
+        val repoSession = createRepositorySession(MavenLocalRepository.Default.repository)
+        val request = mavenRepositorySystem.createMavenExecutionRequest(MavenLocalRepository.Default.repository)
 
         val newMavenProject = MavenProject(mavenProject).apply {
             build.directory = buildOutputRoot.path.absolutePathString()

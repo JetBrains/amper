@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.frontend.plugins.MavenPluginXml
+import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
@@ -113,7 +113,7 @@ interface AmperModule {
 
     val layout: Layout
 
-    val mavenPluginXmls: List<MavenPluginXml>
+    val amperMavenPluginsDescriptions: List<AmperMavenPluginDescription>
 }
 
 /**

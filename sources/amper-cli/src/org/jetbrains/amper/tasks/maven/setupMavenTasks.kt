@@ -85,7 +85,10 @@ context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupMavenPluginTasks() {
     val drBridge = AmperMavenDRBridge(MavenResolver(taskBuilder.context.userCacheRoot, incrementalCache))
 
-    module.mavenPluginXmls.forEach plugin@{ pluginXml ->
+    module.amperMavenPluginsDescriptions.forEach plugin@{ pluginXml ->
+        // TODO What actual classloader to place here? Do we even need maven mojos to be aware of
+        //  amper classes? Should classes be shared between different maven mojos/plugins?
+        //  Even instances of plexus beans that are discovered on the classpath?
         val container = createPlexusContainer()
 
         container.addDefaultComponent<DependencyCollector>(drBridge)

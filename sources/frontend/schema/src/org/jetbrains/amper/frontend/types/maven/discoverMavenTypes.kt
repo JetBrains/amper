@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend.types.maven
 
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
+import org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
-import org.jetbrains.amper.frontend.plugins.MavenPluginXml
-import org.jetbrains.amper.frontend.plugins.Mojo
 import org.jetbrains.amper.frontend.types.DeclarationKey
 import org.jetbrains.amper.frontend.types.ExtensibleBuiltInTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
@@ -80,7 +80,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
 /**
  * ID string of a Maven mojo that is applied as an Amper plugin.
  */
-fun amperMavenPluginId(plugin: MavenPluginXml, mojo: Mojo): String = "${plugin.artifactId}.${mojo.goal}"
+fun amperMavenPluginId(plugin: AmperMavenPluginDescription, mojo: AmperMavenPluginMojo): String = "${plugin.artifactId}.${mojo.goal}"
 
 private class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,
