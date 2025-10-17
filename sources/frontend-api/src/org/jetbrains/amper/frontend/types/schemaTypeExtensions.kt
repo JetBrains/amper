@@ -41,6 +41,7 @@ fun SchemaType.render(
         is SchemaType.StringType -> when (semantics) {
             null -> append("string")
             SchemaType.StringType.Semantics.MavenCoordinates -> append("maven-coordinates")
+            SchemaType.StringType.Semantics.JvmMainClass -> append("jvm-main-class")
         }
         is SchemaType.ListType -> append("sequence [${elementType.render(false)}]")
         is SchemaType.MapType -> append("mapping {${keyType.render(false)} : ${valueType.render(false)}}")

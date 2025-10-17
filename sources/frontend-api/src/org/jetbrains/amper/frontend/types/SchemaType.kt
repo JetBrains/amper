@@ -45,7 +45,11 @@ sealed interface SchemaType {
              * String has maven coordinates format: <groupId>:<artifactId>(:<version>)?(:<qualifier>)?
              */
             MavenCoordinates,
-            // ClassReference, ?
+
+            /**
+             * FQN that references a class used as an entrypoint for JVM.
+             */
+            JvmMainClass,
         }
     }
 

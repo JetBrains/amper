@@ -8,14 +8,14 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
-import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableString
-import java.nio.file.Path
+import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 
 @EnumOrderSensitive(reverse = true)
 @EnumValueFilter("outdated", isNegated = true)
@@ -116,6 +116,7 @@ class JvmSettings : SchemaNode() {
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)
+    @StringSemantics(Semantics.JvmMainClass)
     var mainClass by nullableValue<String>()
 
     @PlatformAgnostic

@@ -170,6 +170,7 @@ private class TreeReferencesResolver(
                             coordinates = interpolated
                         )
                     }
+                    SchemaType.StringType.Semantics.JvmMainClass,
                     null -> {}
                 }
                 interpolated

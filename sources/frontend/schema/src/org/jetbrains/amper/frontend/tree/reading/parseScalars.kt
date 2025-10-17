@@ -37,6 +37,7 @@ internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): 
         val value = if (type.isTraceableWrapped) string.asTraceable(scalar.psi.asTrace()) else string
         scalarValue(scalar, type, value).takeIf {
             when (type.semantics) {
+                SchemaType.StringType.Semantics.JvmMainClass,
                 null -> true
                 SchemaType.StringType.Semantics.MavenCoordinates -> validateAndReportMavenCoordinates(
                     origin = scalar.psi,
