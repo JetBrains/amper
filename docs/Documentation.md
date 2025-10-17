@@ -1549,17 +1549,16 @@ feedback loop during UI development.
 
 ### Configuration
 
-To enable Compose Hot Reload set `compose.experimental.hotReload` to `enabled`:
+Compose hot reload is available when `settings.compose` is enabled.
 
-```yaml
-settings:
-  compose:
-    enabled: true
-    experimental:
-      hotReload: enabled
+To run the app in Compose Hot Reload mode, use:
+
+```bash
+
+./amper run --compose-hot-reload-mode
+
 ```
-
-When you run your application with Compose Hot Reload enabled:
+This is a special mode intended for development only, and the following happens when used:
 
 - Amper automatically downloads and runs [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime) to maximize
   hot-swap capabilities
@@ -1580,8 +1579,11 @@ When Compose Hot Reload is enabled, in the IDE you can see a special mode of run
 ![Compose Hot Reload special mode of running application](images/hot-reload-guttericon.png)
 
 ### DevelopmentEntryPoint
-It's also possible to run specific composables as in the Compose Hot Reload mode. To do that, you need to put 
-`@DevelopmentEntryPoint` annotation on the composable function without parameters.
+It's also possible to run specific composables as in the Compose Hot Reload mode. To do that, you need to:
+- add a dependency `org.jetbrains.compose.hot-reload:hot-reload-runtime-api`, there is a built-in library catalog entry 
+  for it (`$compose.hotReload.runtimeApi`) 
+- put `@DevelopmentEntryPoint` annotation on the composable function without parameters.
+
 A clickable gutter icon will appear on the left side of the composable.
 ![Compose Hot Reload development entry point usage](images/hot-reload-dev-entry-point.png)
 
@@ -1589,6 +1591,9 @@ A clickable gutter icon will appear on the left side of the composable.
 
 - You need to make sure that `jvm` is one of the platforms of the module.
 - Amper doesn't watch the file system, so automatic reloads are only available when using the IDE
+- For now, there is no way to have a separate source root or fragment for development-only purposes, where 
+  Composable-wrappers could be located with a separate set of dependencies. So `$compose.hotReload.runtimeApi` pollutes 
+- the runtime classpath.
 
 
 ## Templates

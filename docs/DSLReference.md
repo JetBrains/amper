@@ -589,9 +589,9 @@ framework. Read more about [Compose configuration](Documentation.md#configuring-
 
 `settings:compose:experimental:hotReload:` configures experimental hot reload.
 
-| Attribute          | Description       | Default |
-|--------------------|-------------------|---------|
-| `enabled: boolean` | Enable hot reload | `false` |
+| Attribute         | Description       | Default      |
+|-------------------|-------------------|--------------|
+| `version: string` | Enable hot reload | `1.0.0-rc01` |
 
 Examples:
 
