@@ -25,6 +25,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
@@ -51,7 +52,6 @@ import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.WholeFileBuildProblemSource
-import kotlin.collections.iterator
 
 internal class PluginTreeReader(
     private val projectContext: AmperProjectContext,
@@ -111,6 +111,7 @@ internal class PluginTreeReader(
 
         val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
             ?.refinedChildren
+            ?.filterValues { it.value !is ErrorValue }
             ?.mapValues { (name, _) ->
                 projectContext.getTaskOutputRoot(taskNameFor(module.module, name))
             }.orEmpty()

@@ -1,0 +1,4 @@
+product: jvm/app
+
+plugins:
+  invalid-plugin-yaml: enabled

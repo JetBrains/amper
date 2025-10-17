@@ -369,6 +369,8 @@ class PluginsTest : AmperCliTestBase() {
             projectRoot = testProject("extensibility/incomplete-plugins"),
             "show", "tasks",
             copyToTempDir = true,
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
         )
 
         with(result) {
@@ -378,6 +380,12 @@ class PluginsTest : AmperCliTestBase() {
                     "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
                 ),
                 actual = parseWarnings(),
+            )
+            assertEquals(
+                expected = sortedSetOf(
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
+                ),
+                actual = parseErrors(),
             )
         }
     }

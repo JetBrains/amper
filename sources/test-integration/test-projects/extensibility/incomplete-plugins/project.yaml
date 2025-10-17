@@ -1,7 +1,10 @@
 modules:
+  - app
   - empty-plugin
   - no-tasks-plugin
+  - invalid-plugin-yaml
 
 plugins:
   - ./empty-plugin
   - ./no-tasks-plugin
+  - ./invalid-plugin-yaml

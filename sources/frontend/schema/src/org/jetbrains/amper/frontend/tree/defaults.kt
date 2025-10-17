@@ -81,7 +81,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
             if (value?.type !is SchemaType.ObjectType) {
                 continue
             }
-            val default = declaration?.getProperty(child.key)?.default
+            val default = child.pType?.default
             if (default == null || (default is Default.Static && default.value == null)) {
                 rootsForDefaults += value  // (b)
             }
