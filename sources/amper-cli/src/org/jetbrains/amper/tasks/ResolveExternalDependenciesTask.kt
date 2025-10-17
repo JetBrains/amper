@@ -28,8 +28,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
-import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
+import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
@@ -47,6 +47,48 @@ import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
+internal data class ExternalDependenciesResolutionResult(
+    val compileDependenciesRootNode: DependencyNode,
+    val runtimeDependenciesRootNode: DependencyNode?,
+)
+
+/**
+ * Enforces resolution contract for compile/runtime dependencies (that they must be resolved together).
+ * 
+ * Also, hides cache entry key creation details from the caller, requesting [module], [platform] and [isTest] instead.
+ * 
+ * This function should be used only if some task requires an actual graph instead of
+ * a plain list of dependencies. It reuses the same cache that [ResolveExternalDependenciesTask],
+ * so that in general graph will be deserialized from the cache entry.
+ */
+internal suspend fun MavenResolver.doResolveExternalDependencies(
+    module: AmperModule,
+    platform: Platform,
+    isTest: Boolean,
+    compileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
+    runtimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
+): ExternalDependenciesResolutionResult {
+    val resolveSourceMoniker = "module ${module.userReadableName}"
+    val cacheKey = CacheEntryKey.CompositeCacheEntryKey(
+        listOf(
+            "Module dependencies graph",
+            module.uniqueModuleKey(),
+            platform,
+            isTest,
+        )
+    )
+    val root = RootDependencyNodeWithContext(
+        rootCacheEntryKey = cacheKey.asRootCacheEntryKey(),
+        children = listOfNotNull(compileModuleDependencies, runtimeModuleDependencies),
+        templateContext = emptyContext(GlobalOpenTelemetry.get())
+    )
+    val resolvedChildren = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker).children
+    return ExternalDependenciesResolutionResult(
+        resolvedChildren.first(),
+        resolvedChildren.drop(1).firstOrNull()
+    )
+}
+
 class ResolveExternalDependenciesTask(
     private val module: AmperModule,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -57,13 +99,26 @@ class ResolveExternalDependenciesTask(
     private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
     private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
     override val taskName: TaskName,
-): Task {
+) : Task {
 
     private val mavenResolver by lazy {
         MavenResolver(userCacheRoot, incrementalCache)
     }
 
-    override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
+    /**
+     * An empty result which is returned when some error in 
+     * the task parameters occurred (not supported platform, for instance).
+     */
+    private val onParametersErrorResult = Result(
+        compileClasspath = emptyList(),
+        runtimeClasspath = emptyList(),
+        coordinateOverridesForPublishing = PublicationCoordinatesOverrides(),
+    )
+
+    override suspend fun run(
+        dependenciesResult: List<TaskResult>,
+        executionContext: TaskGraphExecutionContext,
+    ): TaskResult {
         val repositories = module.mavenRepositories
             .filter { it.resolve }
             .map { it.url }
@@ -75,7 +130,7 @@ class ResolveExternalDependenciesTask(
         val resolvedPlatform = platform.toResolutionPlatform()
         if (resolvedPlatform == null) {
             logger.error("${module.userReadableName}: Non-leaf platform $platform is not supported for resolving external dependencies")
-            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
+            return onParametersErrorResult
         } else if (resolvedPlatform != ResolutionPlatform.JVM
             && resolvedPlatform != ResolutionPlatform.ANDROID
             && resolvedPlatform.nativeTarget == null
@@ -83,17 +138,13 @@ class ResolveExternalDependenciesTask(
             && resolvedPlatform.wasmTarget == null
         ) {
             logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
-            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
+            return onParametersErrorResult
         }
 
         // We capture these nodes bypassing the incremental result because we can
         // rely on the plain paths list of the dependencies to act as an indicator
         // for incrementality.
         // Also, `DependencyNode` generally is not serializable.
-
-        var compileDependenciesRootNode: DependencyNode? = null
-        var runtimeDependenciesRootNode: DependencyNode? = null
-
         val compileDependencyCoordinates = fragmentsCompileModuleDependencies.getExternalDependencies()
         val runtimeDependencyCoordinates = fragmentsRuntimeModuleDependencies?.getExternalDependencies()
         return spanBuilder("resolve-dependencies")
@@ -137,29 +188,21 @@ class ResolveExternalDependenciesTask(
                         ),
                         inputFiles = emptyList()
                     ) {
-                        val resolveSourceMoniker = "module ${module.userReadableName}"
-                        val root = RootDependencyNodeWithContext(
-                            rootCacheEntryKey = CacheEntryKey.fromString("${taskName.name}: dependencies graph").asRootCacheEntryKey(),
-                            children = listOfNotNull(
-                                fragmentsCompileModuleDependencies,
-                                fragmentsRuntimeModuleDependencies
-                            ),
-                            templateContext = emptyContext(userCacheRoot, GlobalOpenTelemetry.get(), incrementalCache)
+                        val (compileDependenciesRootNode, runtimeDependenciesRootNode) = mavenResolver.doResolveExternalDependencies(
+                            module = module,
+                            platform = platform,
+                            isTest = isTest,
+                            compileModuleDependencies = fragmentsCompileModuleDependencies,
+                            runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
                         )
-
-                        val resolvedGraph = mavenResolver.resolve(
-                            root = root,
-                            resolveSourceMoniker = resolveSourceMoniker,
-                        )
-
-                        compileDependenciesRootNode = resolvedGraph.children[0]
-                        runtimeDependenciesRootNode = if (resolvedGraph.children.size == 2) resolvedGraph.children[1] else null
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
                         val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()
 
-                        val publicationCoordsOverrides =
-                            getPublicationCoordinatesOverrides(compileDependenciesRootNode, runtimeDependenciesRootNode)
+                        val publicationCoordsOverrides = getPublicationCoordinatesOverrides(
+                            compileDependenciesRootNode = compileDependenciesRootNode,
+                            runtimeDependenciesRootNode = runtimeDependenciesRootNode,
+                        )
 
                         return@execute IncrementalCache.ExecutionResult(
                             outputFiles = (compileClasspath + runtimeClasspath).toSet().sorted(),
@@ -174,18 +217,21 @@ class ResolveExternalDependenciesTask(
                     throw t
                 } catch (t: Throwable) {
                     DoNotLogToTerminalCookie.use {
-                        logger.error("resolve dependencies of module '${module.userReadableName}' failed\n" +
-                                "fragments: ${fragments.userReadableList()}\n" +
-                                "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
-                                "direct dependencies:\n${
-                                    fragmentsCompileModuleDependencies.getExternalDependencies(true).joinToString("\n").prependIndent("  ")
-                                }\n" +
-                                "all dependencies:\n${
-                                    compileDependencyCoordinates.joinToString("\n").prependIndent("  ")
-                                }\n" +
-                                "platform: $resolvedPlatform" +
-                                (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: "") +
-                                (resolvedPlatform.wasmTarget?.let { "\nwasmTarget: $it" } ?: ""), t)
+                        logger.error(
+                            "resolve dependencies of module '${module.userReadableName}' failed\n" +
+                                    "fragments: ${fragments.userReadableList()}\n" +
+                                    "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
+                                    "direct dependencies:\n${
+                                        fragmentsCompileModuleDependencies.getExternalDependencies(true)
+                                            .joinToString("\n")
+                                            .prependIndent("  ")
+                                    }\n" +
+                                    "all dependencies:\n${
+                                        compileDependencyCoordinates.joinToString("\n").prependIndent("  ")
+                                    }\n" +
+                                    "platform: $resolvedPlatform" +
+                                    (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: "") +
+                                    (resolvedPlatform.wasmTarget?.let { "\nwasmTarget: $it" } ?: ""), t)
                     }
 
                     throw t
@@ -200,19 +246,20 @@ class ResolveExternalDependenciesTask(
                 val publicationCoordsOverrides =
                     Json.decodeFromString<PublicationCoordinatesOverrides>(result.outputValues["publicationCoordsOverrides"]!!)
 
-                logger.debug("resolve dependencies ${module.userReadableName} -- " +
-                        "${fragments.userReadableList()} -- " +
-                        "${compileDependencyCoordinates.joinToString(" ")} -- " +
-                        "resolvePlatform=$resolvedPlatform " +
-                        "nativeTarget=${resolvedPlatform.nativeTarget}\n" +
-                        "wasmTarget=${resolvedPlatform.wasmTarget}\n" +
-                        "${repositories.joinToString(" ")} resolved to:\n${
-                            compileClasspath.joinToString("\n") {
-                                "  " + it.relativeToOrSelf(
-                                    userCacheRoot.path
-                                ).pathString
-                            }
-                        }"
+                logger.debug(
+                    "resolve dependencies ${module.userReadableName} -- " +
+                            "${fragments.userReadableList()} -- " +
+                            "${compileDependencyCoordinates.joinToString(" ")} -- " +
+                            "resolvePlatform=$resolvedPlatform " +
+                            "nativeTarget=${resolvedPlatform.nativeTarget}\n" +
+                            "wasmTarget=${resolvedPlatform.wasmTarget}\n" +
+                            "${repositories.joinToString(" ")} resolved to:\n${
+                                compileClasspath.joinToString("\n") {
+                                    "  " + it.relativeToOrSelf(
+                                        userCacheRoot.path
+                                    ).pathString
+                                }
+                            }"
                 )
 
                 // todo (AB) : output should contain placeholder for every module (in a correct place in the list!!!
@@ -220,12 +267,9 @@ class ResolveExternalDependenciesTask(
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,
-                    compileClasspathTree = compileDependenciesRootNode,
-                    runtimeClasspathTree = runtimeDependenciesRootNode,
                     coordinateOverridesForPublishing = publicationCoordsOverrides,
                 )
             }
-
     }
 
     private fun getPublicationCoordinatesOverrides(
@@ -241,7 +285,7 @@ class ResolveExternalDependenciesTask(
     }
 
     private fun List<DependencyNode>.getOverridesForDirectDeps(
-        directDependencyCondition: DirectFragmentDependencyNode.() -> Boolean = { true }
+        directDependencyCondition: DirectFragmentDependencyNode.() -> Boolean = { true },
     ): List<PublicationCoordinatesOverride> = this
         .filterIsInstance<DirectFragmentDependencyNode>()
         .filter { it.dependencyNode is MavenDependencyNode }
@@ -263,9 +307,7 @@ class ResolveExternalDependenciesTask(
     class Result(
         val compileClasspath: List<Path>,
         val runtimeClasspath: List<Path>,
-        val compileClasspathTree: DependencyNode? = null,
-        val runtimeClasspathTree: DependencyNode? = null,
-        val coordinateOverridesForPublishing: PublicationCoordinatesOverrides = PublicationCoordinatesOverrides(),
+        val coordinateOverridesForPublishing: PublicationCoordinatesOverrides,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
