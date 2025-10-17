@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.jvm
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.tasks.artifacts.ModuleScopedArtifact
+import org.jetbrains.amper.tasks.artifacts.CompilationScopedArtifact
 import org.jetbrains.amper.util.BuildType
 
 /**
@@ -19,6 +19,6 @@ class CompiledJvmClassesArtifact(
     platform: Platform,
     isTest: Boolean,
     val buildType: BuildType?,
-) : ModuleScopedArtifact(buildOutputRoot, module, platform, isTest) {
+) : CompilationScopedArtifact(buildOutputRoot, module, platform, isTest) {
     override fun idComponents() = super.idComponents() + listOfNotNull(buildType?.value)
 }

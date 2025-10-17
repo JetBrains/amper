@@ -57,7 +57,7 @@ abstract class FragmentScopedArtifact(
 /**
  * An artifact is associated with a module, leaf platform and test modifier.
  */
-abstract class ModuleScopedArtifact(
+abstract class CompilationScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,
     val module: AmperModule,
     val platform: Platform,
