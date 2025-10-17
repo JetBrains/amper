@@ -32,14 +32,20 @@ sealed interface SchemaType {
 
     data class IntType(
         override val isMarkedNullable: Boolean = false,
+        val knownValues: Set<Int>? = null,
     ) : ScalarType
 
     data class StringType(
         override val isMarkedNullable: Boolean = false,
         val isTraceableWrapped: Boolean = false,
-        val knownStringValues: Set<String>? = null,
+        val knownValues: Set<String>? = null,
         val semantics: Semantics? = null,
     ) : ScalarType, StringInterpolatableType {
+
+        // TODO remove after the Amper libraries bump in the IDE (this is just to help bump smoothly)
+        @Deprecated("Renamed to 'knownValues'", ReplaceWith("knownValues"), level = DeprecationLevel.ERROR)
+        val knownStringValues: Set<String>? get() = knownValues
+
         enum class Semantics {
             /**
              * String has maven coordinates format: <groupId>:<artifactId>(:<version>)?(:<qualifier>)?

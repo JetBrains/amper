@@ -151,6 +151,13 @@ annotation class Shorthand
 annotation class KnownStringValues(vararg val values: String)
 
 /**
+ * If we don't want to limit a value by an enum, but we still want to provide code assistance for known values
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class KnownIntValues(vararg val values: Int)
+
+/**
  * Other names that users might try when looking for this property.
  * These are not valid names for this property, and using them in config files is an error.
  * However, they can be used to help with completion in the IDE, or for more meaningful error messages.

@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
+import org.jetbrains.amper.frontend.api.KnownIntValues
 import org.jetbrains.amper.frontend.api.KnownStringValues
 import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.Misnomers
@@ -25,7 +26,6 @@ import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.PluginSettings
-import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
@@ -207,7 +207,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                     SchemaObjectDeclaration.Property(
                         name = prop.name,
                         type = getType(prop.returnType)
-                            .addKnownStringValuesIfAny(prop)
+                            .addKnownValuesIfAny(prop)
                             .addStringSemanticsIfAny(prop),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
@@ -227,11 +227,16 @@ internal abstract class BuiltInTypingContext protected constructor(
                 }
         }
 
-        private fun SchemaType.addKnownStringValuesIfAny(property: KProperty<*>): SchemaType {
+        private fun SchemaType.addKnownValuesIfAny(property: KProperty<*>): SchemaType {
             val stringValues = property.findAnnotation<KnownStringValues>()
             if (stringValues != null) {
                 check(this is SchemaType.StringType) { "@KnownStringValues is only supported for String properties" }
-                return copy(knownStringValues = stringValues.values.toSet())
+                return copy(knownValues = stringValues.values.toSet())
+            }
+            val intValues = property.findAnnotation<KnownIntValues>()
+            if (intValues != null) {
+                check(this is SchemaType.IntType) { "@KnownIntValues is only supported for Int properties" }
+                return copy(knownValues = intValues.values.toSet())
             }
             return this
         }
