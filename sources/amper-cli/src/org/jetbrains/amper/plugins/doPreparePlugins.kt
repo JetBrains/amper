@@ -9,11 +9,10 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind
@@ -36,7 +35,7 @@ import kotlin.io.path.relativeTo
 
 internal suspend fun doPreparePlugins(
     projectRoot: AmperProjectRoot,
-    userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
     incrementalCache: IncrementalCache,
     plugins: Map<Path, PluginManifest>,
 ): List<PluginData> {
@@ -52,7 +51,7 @@ internal suspend fun doPreparePlugins(
         ),
         inputFiles = plugins.keys.toList(),
     ) {
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
         val toolClasspath = distributionRoot.resolve("plugins-processor").listDirectoryEntries("*.jar")
         val apiClasspath = distributionRoot.resolve("extensibility-api").listDirectoryEntries("*.jar")
         val outputCaptor = ProcessOutputListener.InMemoryCapture()

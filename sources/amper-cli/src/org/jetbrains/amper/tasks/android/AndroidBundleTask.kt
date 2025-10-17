@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -27,7 +28,7 @@ class AndroidBundleTask(
     projectRoot: AmperProjectRoot,
     taskOutputPath: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
-    userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
     override val taskName: TaskName,
 ) : LastPhaseAndroidDelegatedGradleTask(
     module,
@@ -38,7 +39,7 @@ class AndroidBundleTask(
     projectRoot,
     taskOutputPath,
     buildLogsRoot,
-    userCacheRoot,
+    jdkProvider,
     taskName,
 ), PackageTask {
     override val phase: AndroidBuildRequest.Phase

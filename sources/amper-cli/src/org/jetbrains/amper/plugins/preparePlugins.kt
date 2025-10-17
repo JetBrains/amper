@@ -47,7 +47,7 @@ suspend fun preparePlugins(
             .use {
                 doPreparePlugins(
                     projectRoot = context.projectRoot,
-                    userCacheRoot = context.userCacheRoot,
+                    jdkProvider = context.jdkProvider,
                     incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
                     plugins = pluginInfos,
                 )

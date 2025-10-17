@@ -26,7 +26,7 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType
@@ -69,6 +69,7 @@ internal class KspTask(
     private val tempRoot: AmperProjectTempRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val incrementalCache: IncrementalCache,
+    private val jdkProvider: JdkProvider,
 ): ArtifactTaskBase() {
     private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
@@ -111,7 +112,7 @@ internal class KspTask(
     )
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
 
         val kspVersion = fragments.singleLeafFragment().settings.kotlin.ksp.version
         val kspJars = downloadKspCli(kspVersion)

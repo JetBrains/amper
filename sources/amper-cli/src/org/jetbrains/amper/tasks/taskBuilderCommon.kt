@@ -78,6 +78,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 taskOutputRoot = context.getTaskOutputPath(taskName),
                 incrementalCache = incrementalCache,
                 tempRoot = context.projectTempRoot,
+                jdkProvider = context.jdkProvider,
             )
         )
         // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)

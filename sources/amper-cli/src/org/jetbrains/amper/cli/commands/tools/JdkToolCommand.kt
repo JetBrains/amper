@@ -12,7 +12,7 @@ import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
@@ -39,7 +39,7 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
     override fun helpEpilog(context: Context): String = "Use `--` to separate `$name`'s arguments from Amper options"
 
     override suspend fun run() {
-        val jdk = JdkDownloader.getJdk(commonOptions.sharedCachesRoot)
+        val jdk = JdkProvider(commonOptions.sharedCachesRoot).getJdk()
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {

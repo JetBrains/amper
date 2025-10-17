@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -50,6 +50,7 @@ class JvmTestTask(
     private val terminal: Terminal,
     private val runSettings: JvmTestRunSettings,
     private val incrementalCache: IncrementalCache,
+    private val jdkProvider: JdkProvider,
     override val module: AmperModule,
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
@@ -94,7 +95,7 @@ class JvmTestTask(
         // TODO use maven instead of packing this in the distribution?
         val amperJUnitListenersJars = extractJUnitListenersClasspath()
 
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
 
         cleanDirectory(taskOutputRoot.path)
 

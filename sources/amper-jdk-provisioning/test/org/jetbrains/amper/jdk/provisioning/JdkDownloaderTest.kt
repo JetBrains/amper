@@ -17,10 +17,11 @@ import kotlin.time.Duration.Companion.minutes
 class JdkDownloaderTest {
     @Test
     fun downloadForAllPlatforms() = runTest(timeout = 10.minutes) { // we've seen timeouts with 3 min on CI
+        val jdkProvider = JdkProvider(AmperUserCacheRoot(Dirs.userCacheRoot))
         for (os in OsFamily.entries) {
             for (arch in Arch.entries) {
                 launch(Dispatchers.IO) {
-                    JdkDownloader.getJdk(AmperUserCacheRoot(Dirs.userCacheRoot), os, arch)
+                    jdkProvider.getJdk(os, arch)
                 }
             }
         }

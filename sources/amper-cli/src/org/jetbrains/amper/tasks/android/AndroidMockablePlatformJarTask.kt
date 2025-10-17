@@ -7,11 +7,11 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -30,7 +30,7 @@ class AndroidMockablePlatformJarTask(
     projectRoot: AmperProjectRoot,
     taskOutputRoot: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
-    userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
 ) : AndroidDelegatedGradleTask(
     module,
     buildType,
@@ -40,7 +40,7 @@ class AndroidMockablePlatformJarTask(
     projectRoot,
     taskOutputRoot,
     buildLogsRoot,
-    userCacheRoot,
+    jdkProvider,
     taskName,
 ) {
     override val phase: AndroidBuildRequest.Phase

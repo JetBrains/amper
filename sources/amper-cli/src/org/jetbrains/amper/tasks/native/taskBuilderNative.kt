@@ -28,6 +28,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
             userCacheRoot = context.userCacheRoot,
             incrementalCache = incrementalCache,
             tempRoot = context.projectTempRoot,
+            jdkProvider = context.jdkProvider,
         )
     )
 

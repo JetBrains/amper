@@ -18,6 +18,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.web.WebCompileKlibTask
 import org.jetbrains.amper.tasks.web.WebLinkTask
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 
 internal fun ProjectTasksBuilder.setupWasmTasks(
     platform: Platform,
@@ -25,6 +26,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         module: AmperModule,
         platform: Platform,
         userCacheRoot: AmperUserCacheRoot,
+        jdkProvider: JdkProvider,
         taskOutputRoot: TaskOutputRoot,
         incrementalCache: IncrementalCache,
         taskName: TaskName,
@@ -35,6 +37,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         module: AmperModule,
         platform: Platform,
         userCacheRoot: AmperUserCacheRoot,
+        jdkProvider: JdkProvider,
         taskOutputRoot: TaskOutputRoot,
         incrementalCache: IncrementalCache,
         taskName: TaskName,
@@ -54,6 +57,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
                     module,
                     platform,
                     context.userCacheRoot,
+                    context.jdkProvider,
                     context.getTaskOutputPath(compileKLibTaskName),
                     incrementalCache,
                     compileKLibTaskName,
@@ -76,6 +80,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
                         module,
                         platform,
                         context.userCacheRoot,
+                        context.jdkProvider,
                         context.getTaskOutputPath(linkAppTaskName),
                         incrementalCache,
                         linkAppTaskName,

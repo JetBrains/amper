@@ -36,7 +36,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
@@ -80,6 +80,7 @@ internal class JvmCompileTask(
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val buildOutputRoot: AmperBuildOutputRoot,
+    private val jdkProvider: JdkProvider,
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
 ): ArtifactTaskBase(), BuildTask {
@@ -160,7 +161,7 @@ internal class JvmCompileTask(
         }
 
         // TODO settings
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
 
         val javaAnnotationProcessorsGeneratedDir =
             fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)

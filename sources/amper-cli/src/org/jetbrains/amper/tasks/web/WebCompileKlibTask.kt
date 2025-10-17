@@ -29,7 +29,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -57,6 +57,7 @@ internal abstract class WebCompileKlibTask(
     override val module: AmperModule,
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val jdkProvider: JdkProvider,
     private val taskOutputRoot: TaskOutputRoot,
     private val incrementalCache: IncrementalCache,
     override val taskName: TaskName,
@@ -118,7 +119,7 @@ internal abstract class WebCompileKlibTask(
 
         logger.debug("${expectedPlatform.name} compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
 
         val libraryPaths = compiledKlibModuleDependencies + externalDependencies
 

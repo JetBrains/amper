@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.util.BuildType
 
@@ -23,15 +24,17 @@ class JvmRunTask(
     terminal: Terminal,
     runSettings: JvmMainRunSettings,
     incrementalCache: IncrementalCache,
+    jdkProvider: JdkProvider,
 ) : AbstractJvmRunTask(
-    taskName,
-    module,
-    userCacheRoot,
-    projectRoot,
-    tempRoot,
-    terminal,
-    runSettings,
-    incrementalCache
+    taskName = taskName,
+    module = module,
+    userCacheRoot = userCacheRoot,
+    projectRoot = projectRoot,
+    tempRoot = tempRoot,
+    terminal = terminal,
+    runSettings = runSettings,
+    incrementalCache = incrementalCache,
+    jdkProvider = jdkProvider,
 ) {
     override val buildType: BuildType = BuildType.Debug
 }

@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
@@ -39,6 +39,7 @@ abstract class AbstractJvmRunTask(
     protected val terminal: Terminal,
     protected val runSettings: JvmMainRunSettings,
     protected val incrementalCache: IncrementalCache?,
+    protected val jdkProvider: JdkProvider,
 ) : RunTask {
     override val platform = Platform.JVM
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
@@ -72,7 +73,7 @@ abstract class AbstractJvmRunTask(
         return EmptyTaskResult
     }
 
-    protected open suspend fun getJdk(): Jdk = JdkDownloader.getJdk(userCacheRoot)
+    protected open suspend fun getJdk(): Jdk = jdkProvider.getJdk()
 
     protected open suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> = buildList {
         if (fragments.any { it.settings.ktor.enabled }) {

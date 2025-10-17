@@ -29,6 +29,7 @@ fun ProjectTasksBuilder.setupJsTasks() {
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
+                    jdkProvider = context.jdkProvider,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -51,6 +52,7 @@ fun ProjectTasksBuilder.setupJsTasks() {
                         taskName = linkAppTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
+                        jdkProvider = context.jdkProvider,
                         compileKLibTaskName = compileKLibTaskName,
                     ),
                     dependsOn = buildList {

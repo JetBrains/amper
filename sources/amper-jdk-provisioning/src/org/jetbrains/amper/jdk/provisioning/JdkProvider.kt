@@ -15,38 +15,34 @@ import kotlin.io.path.isDirectory
 
 // TODO so far, no version selection, need to design it a little
 
-object JdkDownloader {
+class JdkProvider(private val userCacheRoot: AmperUserCacheRoot) {
 
     // private because we don't want other classes to use these versions, they're an implementation detail right now
-    private const val correttoJdkVersion = "21.0.1.12.1"
-    private const val microsoftJdkVersion = "21.0.1"
-    private const val jbrJdkVersion = "21.0.5"
-    private const val jbrBuild = "b631.30"
+    private val correttoJdkVersion = "21.0.1.12.1"
+    private val microsoftJdkVersion = "21.0.1"
+    private val jbrJdkVersion = "21.0.5"
+    private val jbrBuild = "b631.30"
 
     suspend fun getJdk(
-        userCacheRoot: AmperUserCacheRoot,
         os: OsFamily = OsFamily.current,
         arch: Arch = Arch.current,
     ): Jdk {
         val version = hardcodedVersionFor(os, arch)
         return download(
             downloadUri = jdkDownloadUrlFor(os, arch, version),
-            userCacheRoot = userCacheRoot,
             version = version,
         )
     }
 
     suspend fun getJbr(
-        userCacheRoot: AmperUserCacheRoot,
         os: OsFamily = OsFamily.current,
         arch: Arch = Arch.current,
     ): Jdk = download(
         downloadUri = jbrJdkUrl(os, arch, jbrJdkVersion, jbrBuild),
-        userCacheRoot = userCacheRoot,
         version = jbrJdkVersion,
     )
 
-    suspend fun download(downloadUri: URI, userCacheRoot: AmperUserCacheRoot, version: String): Jdk {
+    suspend fun download(downloadUri: URI, version: String): Jdk {
         val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
         val extractedJdkRoot = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
         // Some archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home

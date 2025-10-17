@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.test.AmperCliWithWrapperTestBase
 import org.jetbrains.amper.test.AmperJavaHomeMode
 import org.jetbrains.amper.test.Dirs
@@ -172,7 +172,7 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     @Test
     fun `custom java home`() = runBlocking {
         val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
-        val jdkHome = JdkDownloader.download(URI(zuluJdk25Url()), fakeUserCacheRoot, version = "25.0.0").homeDir
+        val jdkHome = JdkProvider(fakeUserCacheRoot).download(URI(zuluJdk25Url()), version = "25.0.0").homeDir
 
         val expectedAmperVersion = cliScript
             .readLines()

@@ -6,11 +6,11 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
@@ -25,7 +25,7 @@ abstract class LastPhaseAndroidDelegatedGradleTask(
     projectRoot: AmperProjectRoot,
     taskOutputPath: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
-    userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
     override val taskName: TaskName,
 ) : AndroidDelegatedGradleTask(
     module,
@@ -36,7 +36,7 @@ abstract class LastPhaseAndroidDelegatedGradleTask(
     projectRoot,
     taskOutputPath,
     buildLogsRoot,
-    userCacheRoot,
+    jdkProvider,
     taskName,
 ) {
 

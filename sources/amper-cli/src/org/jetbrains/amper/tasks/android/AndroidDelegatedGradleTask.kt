@@ -10,7 +10,6 @@ import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -18,7 +17,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -45,7 +44,7 @@ abstract class AndroidDelegatedGradleTask(
     private val projectRoot: AmperProjectRoot,
     private val taskOutputPath: TaskOutputRoot,
     private val buildLogsRoot: AmperBuildLogsRoot,
-    private val userCacheRoot: AmperUserCacheRoot,
+    private val jdkProvider: JdkProvider,
     override val taskName: TaskName,
 ) : Task {
 
@@ -75,7 +74,7 @@ abstract class AndroidDelegatedGradleTask(
             if (servicesJsonPath.exists()) servicesJsonPath else null
         }
 
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
+        val jdk = jdkProvider.getJdk()
 
         val executionResult = incrementalCache.execute(
             key = taskName.name,

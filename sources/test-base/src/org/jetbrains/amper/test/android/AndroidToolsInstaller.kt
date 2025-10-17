@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import java.nio.file.Path
 import java.util.*
@@ -79,7 +79,7 @@ internal object AndroidToolsInstaller {
             extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
             // we need a JDK to run the Java-based Android command line tools
-            val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(androidSetupCacheDir))
+            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir)).getJdk()
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
             IncrementalCache.ExecutionResult(

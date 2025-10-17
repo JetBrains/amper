@@ -77,6 +77,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     taskName = kspTaskName,
                     incrementalCache = incrementalCache,
                     tempRoot = context.projectTempRoot,
+                    jdkProvider = context.jdkProvider,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.KspProcessorClasspath.getTaskName(module, platform, isTest))

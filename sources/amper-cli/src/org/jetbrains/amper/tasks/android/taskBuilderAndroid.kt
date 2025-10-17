@@ -92,7 +92,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputRoot = context.getTaskOutputPath(prepareTaskName),
                     buildLogsRoot = context.currentLogsRoot,
-                    userCacheRoot = context.userCacheRoot,
+                    jdkProvider = context.jdkProvider,
                 ),
                 dependsOn = listOf(
                     AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
@@ -122,7 +122,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputPath = context.getTaskOutputPath(taskName),
                     buildLogsRoot = context.currentLogsRoot,
-                    userCacheRoot = context.userCacheRoot,
+                    jdkProvider = context.jdkProvider,
                     taskName = taskName,
                 ),
                 dependsOn = listOf(
@@ -158,7 +158,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         projectRoot = context.projectRoot,
                         taskOutputRoot = context.getTaskOutputPath(mockablePlatformJarTaskName),
                         buildLogsRoot = context.currentLogsRoot,
-                        userCacheRoot = context.userCacheRoot,
+                        jdkProvider = context.jdkProvider,
                     ),
                     dependsOn = CommonTaskType.Dependencies.getTaskName(module, platform, false)
                 )
@@ -187,6 +187,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     tempRoot = context.projectTempRoot,
                     platform = Platform.ANDROID,
                     buildOutputRoot = context.buildOutputRoot,
+                    jdkProvider = context.jdkProvider,
                 ),
                 dependsOn = buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
@@ -356,6 +357,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     terminal = context.terminal,
                     runSettings = runSettings,
                     incrementalCache = incrementalCache,
+                    jdkProvider = context.jdkProvider,
                     platform = Platform.ANDROID,
                     buildType = buildType,
                 ),
@@ -391,7 +393,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     projectRoot = context.projectRoot,
                     taskOutputPath = context.getTaskOutputPath(taskName),
                     buildLogsRoot = context.currentLogsRoot,
-                    userCacheRoot = context.userCacheRoot,
+                    jdkProvider = context.jdkProvider,
                     taskName = taskName,
                 ),
                 dependsOn = listOf(

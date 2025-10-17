@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-
 /**
  * Commonizer task that is used solely for IDE import.
  */
@@ -39,6 +39,7 @@ class CommonizeNativeDistributionTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val incrementalCache: IncrementalCache,
+    private val jdkProvider: JdkProvider,
 ) : Task {
     companion object {
         val TASK_NAME = TaskName("commonizeNativeDistribution")
@@ -65,7 +66,7 @@ class CommonizeNativeDistributionTask(
         }.toSet()
 
         // TODO Maybe this should be separated into something more than a suspend function.
-        val compiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
+        val compiler = downloadNativeCompiler(kotlinVersion, userCacheRoot, jdkProvider)
         val cache = NativeDistributionCommonizerCache(compiler)
         val commonizerClasspath = kotlinDownloader.downloadKotlinCommonizerEmbeddable(kotlinVersion)
 

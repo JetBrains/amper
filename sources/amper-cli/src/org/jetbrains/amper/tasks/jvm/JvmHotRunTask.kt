@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
@@ -39,6 +39,7 @@ class JvmHotRunTask(
     terminal: Terminal,
     runSettings: JvmMainRunSettings,
     incrementalCache: IncrementalCache,
+    jdkProvider: JdkProvider,
     private val toolingArtifactsDownloader: ToolingArtifactsDownloader = ToolingArtifactsDownloader(
         userCacheRoot,
         incrementalCache
@@ -51,7 +52,8 @@ class JvmHotRunTask(
     tempRoot,
     terminal,
     runSettings,
-    incrementalCache
+    incrementalCache,
+    jdkProvider,
 ) {
     override val buildType: BuildType
         get() = BuildType.Debug
@@ -122,9 +124,7 @@ class JvmHotRunTask(
         }
     }
 
-    override suspend fun getJdk(): Jdk {
-        return JdkDownloader.getJbr(userCacheRoot)
-    }
+    override suspend fun getJdk(): Jdk = jdkProvider.getJbr()
 
     override fun getEnvironment(dependenciesResult: List<TaskResult>): Map<String, String> = mapOf(
         ENV_AMPER_SERVER_PORT to portAvailable.toString(),

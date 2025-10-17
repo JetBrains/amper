@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.web.WebCompileKlibTask
@@ -26,6 +27,7 @@ internal class WasmJsCompileKlibTask(
     module: AmperModule,
     platform: Platform,
     userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
     taskOutputRoot: TaskOutputRoot,
     incrementalCache: IncrementalCache,
     taskName: TaskName,
@@ -38,6 +40,7 @@ internal class WasmJsCompileKlibTask(
     module,
     platform,
     userCacheRoot,
+    jdkProvider,
     taskOutputRoot,
     incrementalCache,
     taskName,

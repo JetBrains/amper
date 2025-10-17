@@ -9,11 +9,12 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -26,16 +27,29 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
+@UsedInIdePlugin
+@Deprecated(
+    message = "Provide a JdkProvider instance instead, to properly scope errors",
+    replaceWith = ReplaceWith(
+        expression = "downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))",
+        imports = ["org.jetbrains.amper.jdk.provisioning.JdkProvider"],
+    ),
+)
 suspend fun downloadNativeCompiler(
     kotlinVersion: String,
-    userCacheRoot: AmperUserCacheRoot
+    userCacheRoot: AmperUserCacheRoot,
+): KotlinNativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))
+
+suspend fun downloadNativeCompiler(
+    kotlinVersion: String,
+    userCacheRoot: AmperUserCacheRoot,
+    jdkProvider: JdkProvider,
 ): KotlinNativeCompiler {
     val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion, userCacheRoot)
         ?: error("kotlin native compiler is not available for the current platform")
 
-    // TODO this the is JDK to run konanc, what are the requirements?
-    val jdk = JdkDownloader.getJdk(userCacheRoot)
-
+    // According to the Kotlin/Native team, no special requirements for this JDK, but they mostly tested with 11.
+    val jdk = jdkProvider.getJdk()
     return KotlinNativeCompiler(kotlinNativeHome, kotlinVersion, jdk)
 }
 
