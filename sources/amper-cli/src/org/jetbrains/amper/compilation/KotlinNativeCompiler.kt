@@ -42,7 +42,7 @@ suspend fun downloadNativeCompiler(
 class KotlinNativeCompiler(
     val kotlinNativeHome: Path,
     private val kotlinVersion: String,
-    private val jdk: Jdk,
+    val jdk: Jdk,
 ) {
     companion object {
         private const val KONAN_DATA_DIR = "KONAN_DATA_DIR"

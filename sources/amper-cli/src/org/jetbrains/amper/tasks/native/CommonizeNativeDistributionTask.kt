@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.jdk.provisioning.JdkDownloader
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -69,8 +68,6 @@ class CommonizeNativeDistributionTask(
         val compiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
         val cache = NativeDistributionCommonizerCache(compiler)
         val commonizerClasspath = kotlinDownloader.downloadKotlinCommonizerEmbeddable(kotlinVersion)
-        // TODO Settings.
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         cache.writeCacheForUncachedTargets(sharedPlatforms) { todoOutputTargets ->
             val commonizerArgs = buildList {
@@ -94,7 +91,7 @@ class CommonizeNativeDistributionTask(
                         )
                     ) {
                         logger.info("Commonizing Kotlin/Native distribution...")
-                        val result = jdk.runJava(
+                        val result = compiler.jdk.runJava(
                             workingDir = Path("."),
                             mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
                             classpath = commonizerClasspath,
