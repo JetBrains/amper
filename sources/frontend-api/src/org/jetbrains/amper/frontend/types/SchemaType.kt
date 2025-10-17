@@ -50,6 +50,11 @@ sealed interface SchemaType {
              * FQN that references a class used as an entrypoint for JVM.
              */
             JvmMainClass,
+
+            /**
+             * FQN that references a class marked with `@Schema` annotation used as plugin settings class.
+             */
+            PluginSettingsClass,
         }
     }
 

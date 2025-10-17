@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -18,6 +19,7 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 
@@ -34,6 +36,7 @@ class MinimalPluginModule : SchemaNode() {
 class MinimalPluginDeclarationSchema : SchemaNode() {
     val id by nullableValue<TraceableString>()
     val description by nullableValue<String>()
+    @StringSemantics(Semantics.PluginSettingsClass)
     val schemaExtensionClassName by nullableValue<TraceableString>()
 }
 

@@ -171,6 +171,7 @@ private class TreeReferencesResolver(
                         )
                     }
                     SchemaType.StringType.Semantics.JvmMainClass,
+                    SchemaType.StringType.Semantics.PluginSettingsClass,
                     null -> {}
                 }
                 interpolated

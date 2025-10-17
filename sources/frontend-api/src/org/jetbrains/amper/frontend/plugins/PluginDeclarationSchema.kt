@@ -6,7 +6,9 @@ package org.jetbrains.amper.frontend.plugins
 
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 
 /**
  * This schema is used in `module.yaml` files with project type `jvm/amper-plugin`.
@@ -23,5 +25,6 @@ class PluginDeclarationSchema : SchemaNode() {
 
     @SchemaDoc("Fully qualified name of the @Schema-annotated interface to be used as plugin configuration. " +
             "This interface can't come from a dependency, it must be declared in the source directory.")
+    @StringSemantics(Semantics.PluginSettingsClass)
     var schemaExtensionClassName by nullableValue<TraceableString>()
 }
