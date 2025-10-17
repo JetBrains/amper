@@ -5,6 +5,7 @@
 package org.jetbrains.amper.resolver
 
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.userReadableError
@@ -12,7 +13,6 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
@@ -22,6 +22,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
+import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -38,6 +39,10 @@ class MavenResolver(
     private val userCacheRoot: AmperUserCacheRoot,
     private val incrementalCache: IncrementalCache,
 ) {
+    /**
+     * Creates empty DR Context, reusing cache root and incremental cache from the [MavenResolver].
+     */
+    fun emptyContext(openTelemetry: OpenTelemetry?): Context = emptyContext(userCacheRoot, openTelemetry, incrementalCache)
 
     suspend fun resolve(
         coordinates: List<String>,
@@ -98,11 +103,18 @@ class MavenResolver(
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
     ): DependencyNode = spanBuilder("mavenResolve")
         .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
-        .also { builder -> root.children.firstOrNull()?.let{
-            builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
-            it.context.settings.platforms.singleOrNull()?.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
-            it.context.settings.platforms.singleOrNull()?.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
-        }}
+        .also { builder ->
+            root.children.firstOrNull()?.let {
+                builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
+                it.context.settings.platforms.singleOrNull()?.nativeTarget?.let {
+                    builder.setAttribute(
+                        "nativeTarget",
+                        it
+                    )
+                }
+                it.context.settings.platforms.singleOrNull()?.wasmTarget?.let { builder.setAttribute("wasmTarget", it) }
+            }
+        }
         .use { span ->
             val resolvedGraph = with(moduleDependenciesResolver) {
                 root.resolveDependencies(resolutionDepth, downloadSources = false)
@@ -131,7 +143,8 @@ class MavenResolver(
                     }
                 }
 
-                else -> { /* do nothing */ }
+                else -> { /* do nothing */
+                }
             }
         }
 

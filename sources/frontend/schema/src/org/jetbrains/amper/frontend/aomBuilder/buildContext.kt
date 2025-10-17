@@ -31,7 +31,7 @@ internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
     val problemReporter: ProblemReporter,
     val treeMerger: TreeMerger = TreeMerger(),
-    val types: SchemaTypingContext = SchemaTypingContext(emptyList()),
+    val types: SchemaTypingContext = SchemaTypingContext(),
     val systemInfo: SystemInfo = DefaultSystemInfo,
 ) {
     val moduleAType = types.getDeclaration<Module>()
