@@ -26,7 +26,7 @@ internal fun parseList(psi: YAMLSequence, type: SchemaType.ListType): ListValue<
         // (no value case) No point of issuing `NoValue` here because it can't be later overridden in the list context.
         // So it can't be possibly valid - report it and skip it.
         val value = item.value ?: run {
-            reportParsing(item, "validation.structure.missing.unmergeable.value")
+            reportParsing(item, "validation.structure.missing.value")
             return null
         }
         return parseValue(value, type.elementType)
@@ -114,7 +114,10 @@ internal fun parseValueFromKeyValue(
 ): TreeValue<*> { // We do not have a ParsedResult here because we always return some value and report errors within
     val trace = keyValue.asTrace()
     return when (val value = keyValue.value) {
-        null -> NoValue(trace)  // Valid NoValue usage - may be overridden later during merging
+        null -> {
+            reportParsing(keyValue, "validation.structure.missing.value")
+            NoValue(trace)
+        }
         else -> {
             @OptIn(InternalTraceSetter::class)
             parseValue(value, type, explicitContexts)

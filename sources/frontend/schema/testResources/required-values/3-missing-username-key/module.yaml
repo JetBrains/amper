@@ -5,4 +5,4 @@ repositories:
   - url: https://com.example
     <![Error] No value for required property 'passwordKey'.!>credentials:
       file: ./some-file
-      <![Error] No value for required property 'usernameKey'.!>usernameKey:<!><!>
+      <![Error] Expected a value!>usernameKey:<!><!>

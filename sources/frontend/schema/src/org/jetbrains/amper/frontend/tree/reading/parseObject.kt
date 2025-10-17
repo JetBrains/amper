@@ -64,7 +64,7 @@ private fun parseObjectWithFromKeyProperty(
                 ?: return null
             val nestedRemainingObject = argKeyValue.value
             if (nestedRemainingObject == null) {
-                reportParsing(argKeyValue, "validation.structure.missing.unmergeable.value")
+                reportParsing(argKeyValue, "validation.structure.missing.value")
                 return null
             }
             val remainingProperties = parseObjectWithoutFromKeyProperty(nestedRemainingObject, type)

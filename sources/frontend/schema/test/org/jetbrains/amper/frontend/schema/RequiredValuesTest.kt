@@ -52,7 +52,7 @@ class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "require
         val actual = model.unreadableModuleFiles.map { it.toNioPath().relativeTo(testProjectDir) }
         val expectedUnreadableModulePaths = listOf(Path("b/module.yaml"), Path("c/module.yaml"))
         assertEquals(expectedUnreadableModulePaths, actual)
-        assertEquals(3, problemReporter.problems.size)
+        assertEquals(2, problemReporter.problems.size)
         assertEquals(1, model.modules.size) // module 'a'
     }
 }

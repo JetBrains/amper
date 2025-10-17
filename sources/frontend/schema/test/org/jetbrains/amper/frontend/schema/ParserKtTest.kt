@@ -53,7 +53,10 @@ internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "pars
     // TODO Add warning to report.
     @Test
     fun `empty key`() {
-        aomTest("6-empty-list-key")
+        aomTest(
+            "6-empty-list-key",
+            expectedError = "Expected a value"
+        )
     }
 
     @Test

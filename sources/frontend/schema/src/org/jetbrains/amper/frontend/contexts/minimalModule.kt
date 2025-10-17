@@ -72,13 +72,8 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
                 valuePath: List<String>,
-                keyTrace: Trace?,
             ) {
                 when (valuePath) {
-                    listOf("product") if keyTrace != null -> collectingReporter.reportBundleError(
-                        source = keyTrace.asBuildProblemSource(),
-                        messageKey = "product.not.defined",
-                    )
                     listOf("product") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined.empty",
@@ -88,7 +83,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
                     )
-                    else -> super.onMissingRequiredPropertyValue(trace, valuePath, keyTrace)
+                    else -> super.onMissingRequiredPropertyValue(trace, valuePath)
                 }
             }
         }

@@ -85,20 +85,10 @@ private fun createNode(
     type: SchemaType,
     value: TreeValue<*>,
     valuePath: List<String>,
-    forProperty: SchemaObjectDeclaration.Property? = null,
-    propertyKeyTrace: Trace? = null,
 ): Any? {
     when (value) {
-        is NoValue -> {
-            if (forProperty?.isValueRequired() == true) {
-                missingPropertiesHandler.onMissingRequiredPropertyValue(
-                    trace = value.trace,
-                    valuePath = valuePath,
-                    keyTrace = propertyKeyTrace,
-                )
-            }
-            return ValueCreationErrorToken
-        }
+        is NoValue,
+            // Do not report: reported during parsing
         is ReferenceValue, is StringInterpolationValue -> {
             // Do not report: must be already reported during reference resolution
             return ValueCreationErrorToken
@@ -159,7 +149,6 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
                 missingPropertiesHandler.onMissingRequiredPropertyValue(
                     trace = value.trace,
                     valuePath = propertyValuePath,
-                    keyTrace = null,
                 )
                 hasMissingRequiredProps = true
             }
@@ -168,8 +157,6 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
         val node = createNode(
             type = property.type,
             value = mapLikePropertyValue.value,
-            forProperty = property,
-            propertyKeyTrace = mapLikePropertyValue.kTrace,
             valuePath = propertyValuePath,
         )
         if (node === ValueCreationErrorToken) {
@@ -196,15 +183,12 @@ interface MissingPropertiesHandler {
      * Called when a value is missing for a "required" property.
      *
      * @param trace a trace of the outermost yet present construct.
-     * @param keyTrace a trace of the property key specifically, if present, e.g. `required-key: # no-value`.
-     *   If the property is simply omitted entirely, this is `null`.
      * @param valuePath a path for which the value is missing.
      *   E.g., `["product", "type"]` or `["repositories", "[]", "url"]"`
      */
     fun onMissingRequiredPropertyValue(
         trace: Trace,
         valuePath: List<String>,
-        keyTrace: Trace?,
     )
 
     /**
@@ -214,7 +198,6 @@ interface MissingPropertiesHandler {
         override fun onMissingRequiredPropertyValue(
             trace: Trace,
             valuePath: List<String>,
-            keyTrace: Trace?,
         ) {
             problemReporter.reportBundleError(
                 source = trace.asBuildProblemSource(),

@@ -233,9 +233,8 @@ internal fun BuildCtx.createFragments(
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
                 valuePath: List<String>,
-                keyTrace: Trace?,
             ) = when (valuePath[0]) {
-                "settings", "dependencies" -> super.onMissingRequiredPropertyValue(trace, valuePath, keyTrace)
+                "settings", "dependencies" -> super.onMissingRequiredPropertyValue(trace, valuePath)
                 else -> Unit  // ignoring; was already reported in the `ctx.moduleCtxModule`.
             }
         }
