@@ -8,6 +8,7 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
@@ -67,11 +68,17 @@ import kotlin.io.path.absolutePathString
 private val logger = LoggerFactory.getLogger(IdeSync::class.java)
 
 internal class IdeSync(
-    dependenciesFlowType: DependenciesFlowType.IdeSyncType,
+    dependenciesFlowType: DependenciesFlowType.IdeSyncType
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
 
-    override fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey {
-        return CacheEntryKey.fromString("Project compile dependencies: ${flowType.aom.projectRoot.absolutePathString()}")
+    override fun resolutionCacheEntryKey(modules: List<AmperModule>, resolutionLevel: ResolutionLevel): CacheEntryKey {
+        return CacheEntryKey.CompositeCacheEntryKey(
+            listOf(
+                "Project compile dependencies",
+                flowType.aom.projectRoot.absolutePathString(),
+                resolutionLevel
+            )
+        )
     }
 
     override fun directDependenciesGraph(

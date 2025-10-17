@@ -138,6 +138,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
     override fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
+        resolutionLevel: ResolutionLevel,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
@@ -147,13 +148,13 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, openTelemetry, incrementalCache)
+        return resolutionFlow.directDependenciesGraph(this, resolutionLevel, fileCacheBuilder, openTelemetry, incrementalCache)
     }
 
     override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode {
         return with(resolutionInput) {
             resolutionInput.openTelemetry.spanBuilder("DR: Resolving dependencies for the list of modules").use {
-                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, resolutionInput.openTelemetry, resolutionInput.incrementalCache)
+                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, resolutionLevel, fileCacheBuilder, openTelemetry, incrementalCache)
                 val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, incrementalCacheUsage)
                 resolvedGraph
             }
