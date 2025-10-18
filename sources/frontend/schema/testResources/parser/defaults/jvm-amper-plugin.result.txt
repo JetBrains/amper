@@ -67,7 +67,7 @@ Fragments:
       junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> 17
+        release: <default> 21
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
@@ -216,7 +216,7 @@ Fragments:
       junit: <default> junit-5
       jvm: <default> {
         mainClass: <default> null
-        release: <default> 17
+        release: <default> 21
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {

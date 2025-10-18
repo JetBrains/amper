@@ -16,7 +16,7 @@ settings@jvm:
   junit: junit-5  # default
   jvm:
     mainClass: null  # default
-    release: 17  # default
+    release: 21  # default
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:

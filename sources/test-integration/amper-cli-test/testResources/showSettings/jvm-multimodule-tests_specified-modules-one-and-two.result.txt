@@ -17,7 +17,7 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 17  # default
+    release: 21  # default
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -93,7 +93,7 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 17  # default
+    release: 21  # default
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:

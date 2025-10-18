@@ -62,7 +62,7 @@ class JvmSettings : SchemaNode() {
             "checks but want to align targets, use the freeCompilerArgs on both compilers to set the JVM target.")
     // null is intentionally supported, see docs
     @KnownIntValues(25, 21, 17, 11, 8)
-    var release by nullableValue(17)
+    var release by nullableValue(21)
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)

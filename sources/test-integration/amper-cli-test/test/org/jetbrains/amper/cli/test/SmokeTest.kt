@@ -80,7 +80,7 @@ class SmokeTest : AmperCliTestBase() {
         runResult.readTelemetrySpans().assertKotlinJvmCompilationSpan {
             doesNotHaveCompilerArgument("-language-version")
             doesNotHaveCompilerArgument("-api-version")
-            hasCompilerArgument("-Xjdk-release=17")
+            hasCompilerArgument("-Xjdk-release=21")
         }
         runResult.assertStdoutContains("Hello, World")
     }

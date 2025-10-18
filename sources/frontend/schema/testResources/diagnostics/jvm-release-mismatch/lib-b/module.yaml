@@ -3,4 +3,4 @@ product:
   platforms: [ android, jvm, iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64 ]
 
 dependencies:
-  - <![Warning] Module lib-b uses JVM release 17 (default) but depends on module lib-c with a higher JVM release 24!>../lib-c<!>
+  - <![Warning] Module lib-b uses JVM release 21 (default) but depends on module lib-c with a higher JVM release 24!>../lib-c<!>
