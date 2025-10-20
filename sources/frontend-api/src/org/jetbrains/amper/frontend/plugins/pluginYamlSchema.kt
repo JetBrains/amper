@@ -13,6 +13,13 @@ import java.nio.file.Path
 
 class PluginYamlRoot : SchemaNode() {
     var tasks by value<Map<String, Task>>(default = emptyMap())
+
+    companion object {
+        /**
+         * Reference-only property name
+         */
+        const val MODULE = "module"
+    }
 }
 
 class TaskAction(
@@ -25,6 +32,13 @@ class Task : SchemaNode() {
     var dependsOnSideEffectsOf by value<List<String>>(default = emptyList())
     var action by value<TaskAction>()
     var markOutputsAs by value<List<MarkOutputAs>>(default = emptyList())
+
+    companion object {
+        /**
+         * Reference-only property name
+         */
+        const val TASK_OUTPUT_DIR = "taskDir"
+    }
 }
 
 class MarkOutputAs : SchemaNode() {

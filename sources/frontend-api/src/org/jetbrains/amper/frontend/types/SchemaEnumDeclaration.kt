@@ -11,6 +11,8 @@ interface SchemaEnumDeclaration : SchemaTypeDeclaration {
 
     fun getEntryBySchemaValue(schemaValue: String): EnumEntry?
 
+    override fun toType(): SchemaType.EnumType = SchemaType.EnumType(this)
+
     data class EnumEntry(
         val name: String,
         val schemaValue: String = name,

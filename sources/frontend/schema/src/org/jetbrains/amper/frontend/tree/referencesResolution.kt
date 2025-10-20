@@ -197,7 +197,9 @@ private class TreeReferencesResolver(
 
         val resolved = referencePath.foldIndexed(resolutionRoot as TreeValue<Refined>?) { i, value, refPart ->
             check(value is Refined)
-            val newValue = value.refinedChildren[refPart]?.value
+            val valueProperty = value.refinedChildren[refPart]
+            val propertyDeclaration = valueProperty?.pType
+            val newValue = valueProperty?.value
 
             if (newValue == null) {
                 reporter.reportBundleError(
@@ -210,6 +212,16 @@ private class TreeReferencesResolver(
                 reporter.reportBundleError(
                     origin.trace.asBuildProblemSource(),
                     "validation.reference.resolution.not.a.mapping", refPart
+                )
+                return null
+            }
+
+            if (i == referencePath.lastIndex
+                && propertyDeclaration != null && !propertyDeclaration.canBeReferenced
+            ) {
+                reporter.reportBundleError(
+                    origin.trace.asBuildProblemSource(),
+                    "validation.reference.resolution.not.referencable", refPart,
                 )
                 return null
             }

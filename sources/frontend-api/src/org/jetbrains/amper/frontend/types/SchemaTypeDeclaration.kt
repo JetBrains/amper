@@ -27,4 +27,9 @@ interface SchemaTypeDeclaration {
      * Where the declaration comes from.
      */
     val origin: SchemaOrigin
+
+    /**
+     * Creates a non-nullable type with this declaration.
+     */
+    fun toType(): SchemaType
 }

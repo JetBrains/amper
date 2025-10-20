@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
 import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.pluginSettingsTypeKey
+import org.jetbrains.amper.frontend.types.withNullability
 
 data class MavenDeclarationKey(val artifactId: String, val mojoImplementation: String) : DeclarationKey
 
@@ -56,20 +57,21 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
             hasShorthand = true,
             origin = SchemaOrigin.MavenPlugin,
         )
-        registeredDeclarations[mavenDeclarationKey] =
-            MavenSchemaObjectDeclaration(
-                mojo.implementation,
-                properties + enabledProperty,
-            )
+        val mavenDeclaration = MavenSchemaObjectDeclaration(
+            mojo.implementation,
+            properties + enabledProperty,
+        )
+        registeredDeclarations[mavenDeclarationKey] = mavenDeclaration
 
         addCustomProperty(
             pluginSettingsTypeKey,
             ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
                 // TODO Think about uniqueness of mojos goal identifiers.
                 propertyName = amperMavenPluginId(plugin, mojo),
-                propertyType = mavenDeclarationKey,
-                description = mojo.description,
+                propertyType = mavenDeclaration.toType().withNullability(isMarkedNullable = true),
+                documentation = mojo.description,
                 origin = SchemaOrigin.MavenPlugin,
+                default = Default.Static(null),
             )
         )
     }

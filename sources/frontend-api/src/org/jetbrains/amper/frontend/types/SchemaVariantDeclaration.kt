@@ -44,4 +44,6 @@ interface SchemaVariantDeclaration : SchemaTypeDeclaration {
      * Flattened list of all [leaf variants][Variant.LeafVariant] from [variantTree].
      */
     val variants: List<SchemaObjectDeclaration>
+
+    override fun toType(): SchemaType.VariantType = SchemaType.VariantType(this)
 }

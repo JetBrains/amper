@@ -116,7 +116,8 @@ private fun parseObjectFromMap(psi: YAMLMapping, type: SchemaType.ObjectType): O
         val key = YAMLScalarOrKey.parseKey(keyValue) ?: return null
         val (propertyName, propertyContexts) = parsePropertyKeyContexts(key)
             ?: return null
-        val property = type.declaration.getProperty(propertyName)?.takeUnless { it.isFromKeyAndTheRestNested }
+        val property = type.declaration.getProperty(propertyName)
+            ?.takeUnless { it.isFromKeyAndTheRestNested }
         if (property == null) {
             return if (!config.skipUnknownProperties) {
                 reporter.reportMessage(
@@ -125,11 +126,15 @@ private fun parseObjectFromMap(psi: YAMLMapping, type: SchemaType.ObjectType): O
                         possibleIntendedNames = type.declaration.properties
                             .filter { propertyName in it.misnomers }
                             .map { it.name },
-                        element = keyValue.key ?: keyValue,
+                        element = key.psi,
                     )
                 )
                 null
             } else null
+        }
+        if (!property.isUserSettable) {
+            reportParsing(key.psi, "validation.property.not.settable", property.name)
+            return null
         }
         return MapLikeValue.Property(
             value = parseValueFromKeyValue(keyValue, property.type, explicitContexts = propertyContexts),

@@ -115,13 +115,13 @@ private fun createNode(
     }
 }
 
-context(missingPropertiesHandler: MissingPropertiesHandler)
+context(_: MissingPropertiesHandler)
 private fun createListNode(value: ListValue<*>, type: SchemaType.ListType, valuePath: List<String>): List<Any?> =
     value.children
         .map { createNode(type.elementType, it, valuePath + "[]") }
         .filter { it !== ValueCreationErrorToken }
 
-context(missingPropertiesHandler: MissingPropertiesHandler)
+context(_: MissingPropertiesHandler)
 private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: List<String>): Map<Any, Any?> =
     value.children
         .associate {
@@ -136,6 +136,10 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
     val newInstance = declaration.createInstance()
     @OptIn(InternalTraceSetter::class)
     newInstance.trace = value.trace
+
+    for (mapLikePropertyValue in value.refinedChildren.values) {
+        propertyCheckTypeLevelIntegrity(declaration, mapLikePropertyValue)
+    }
 
     // we track this but don't return early, so we can report everything
     var hasMissingRequiredProps = false
@@ -218,5 +222,24 @@ private fun propertyCheckDefaultIntegrity(
                 "but the value is missing nevertheless. " +
                 "This is a sign that the default was not properly merged on the tree level. " +
                 "Please check that defaults are correctly appended for this tree."
+    }
+}
+
+private fun propertyCheckTypeLevelIntegrity(
+    declaration: SchemaObjectDeclaration,
+    pValue: MapLikeValue.Property<*>,
+) {
+    val typeProperty = checkNotNull(pValue.pType) {
+        "Property `${pValue.key}` is present on the tree value level, " +
+                "but no corresponding property is defined in $declaration. " +
+                "In case of extensible/synthetic declarations, " +
+                "please ensure that additional properties are correctly represented on the type level. " +
+                "Failing to do may break correct reference resolution/tooling, etc."
+    }
+
+    val expectedTypeProperty = declaration.getProperty(pValue.key)
+    check(expectedTypeProperty == typeProperty) {
+        "$declaration has property $expectedTypeProperty, but the value declares that it has $typeProperty. " +
+                "They do not match. Something went wrong!"
     }
 }

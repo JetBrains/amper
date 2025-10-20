@@ -80,6 +80,10 @@ internal abstract class SchemaObjectDeclarationBase : SchemaObjectDeclaration {
             check(booleanShorthands.size <= 1) { "$this: Can't have more than one boolean shorthand property" }
             check(secondaryShorthands.size <= 1) { "$this: Can't have more than one non-boolean shorthand property" }
 
+            for (shorthand in (booleanShorthands + secondaryShorthands)) {
+                check(shorthand.isUserSettable) { "shorthand property must be settable" }
+            }
+
             boolean = booleanShorthands.firstOrNull()
             secondary = secondaryShorthands.firstOrNull()
 
@@ -89,6 +93,7 @@ internal abstract class SchemaObjectDeclarationBase : SchemaObjectDeclaration {
                 check(it.type is SchemaType.StringType || it.type is SchemaType.PathType) {
                     "$this: @FromKeyAndTheRestIsNested can only be String or Path"
                 }
+                check(it.isUserSettable) { "'FromKeyAndTheRestIsNested' property must be settable" }
             }
         }
     }

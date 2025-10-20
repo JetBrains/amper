@@ -85,15 +85,20 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
         val moduleExtensionSchemaDeclaration = moduleExtensionSchemaName?.let { name ->
             pluginData.declarations.classes.find { it.name == name }
         }
-        // Load custom properties for a [Settings] schema type.
+        // Load custom properties for a [PluginSettings] schema type.
+        val pluginSettingsDeclarationKey = pluginData.id / pluginSettingsExtensionSchemaName
+        val pluginSettingsType = checkNotNull(registeredDeclarations[pluginSettingsDeclarationKey]) {
+            "No declaration is present for $pluginSettingsDeclarationKey"
+        }.toType()
         addCustomProperty(
             pluginSettingsTypeKey,
             ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
                 propertyName = pluginData.id.value,
-                propertyType = pluginData.id / pluginSettingsExtensionSchemaName,
-                description = pluginData.description,
+                propertyType = pluginSettingsType.withNullability(isMarkedNullable = true),
+                documentation = pluginData.description,
                 origin = moduleExtensionSchemaDeclaration?.origin?.toLocalPluginOrigin()
-                    ?: stubPluginConfigurationOrigin
+                    ?: stubPluginConfigurationOrigin,
+                default = Default.Static(null),
             )
         )
     }
@@ -125,6 +130,10 @@ private class ExternalObjectDeclaration(
             for (property in properties) {
                 if (property.internalAttributes?.isProvided == true) {
                     // Skip @Provided properties
+
+                    // WARNING: This code is currently unreachable because we use "shadow" schema nodes to model
+                    // builtin API schema.
+                    // There @Provided properties are represented as @IgnoreForSchema ones, so they are ignored earlier.
                     continue
                 }
                 this += SchemaObjectDeclaration.Property(
@@ -136,6 +145,8 @@ private class ExternalObjectDeclaration(
                     isFromKeyAndTheRestNested = property.internalAttributes?.isDependencyNotation == true,
                     inputOutputMark = property.inputOutputMark,
                     origin = property.origin.toLocalPluginOrigin(),
+                    // All user properties can be referenced
+                    canBeReferenced = true,
                 )
             }
             if (isRootSchema) {

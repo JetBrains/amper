@@ -175,7 +175,6 @@ annotation class IgnoreForSchema
 
 /**
  * Properties annotated with this are hidden from completion in IDE. Recursively.
- * TODO: Properly implement in AMPER-4557 based on the new completion
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
@@ -196,3 +195,11 @@ annotation class PathMark(val type: InputOutputMark)
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class StringSemantics(val value: SchemaType.StringType.Semantics)
+
+/**
+ * For properties that can be directly referenced in referencing-enabled files
+ * using the `${...}` syntax. Also needed for builtin references aka dependent values.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CanBeReferenced

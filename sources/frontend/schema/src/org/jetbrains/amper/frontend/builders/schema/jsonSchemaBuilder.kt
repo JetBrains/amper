@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.collectReferencedObjects
 import org.jetbrains.amper.frontend.types.isValueRequired
-import org.jetbrains.amper.frontend.types.toType
 
 fun jsonSchemaString(root: SchemaObjectDeclaration) = JsonSchema(root).jsonString
 

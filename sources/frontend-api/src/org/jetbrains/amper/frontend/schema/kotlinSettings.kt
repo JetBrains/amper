@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
@@ -115,6 +116,7 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("The version of the Kotlin compiler and standard library to use")
     var version by value(UsedVersions.defaultKotlinVersion)
 
+    @CanBeReferenced  // by apiVersion
     @PlatformAgnostic
     @Misnomers("language-version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")

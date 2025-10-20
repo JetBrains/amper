@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependency
@@ -26,7 +25,6 @@ import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaVariantDeclaration
-import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -42,7 +40,6 @@ internal fun parseVariant(
         val singleKeyValue = (psi as? YAMLMapping)?.keyValues?.singleOrNull()
         if (singleKeyValue != null && singleKeyValue.keyText == "bom") {
             singleKeyValue.value?.let { bomDependency ->
-                @OptIn(InternalTraceSetter::class) // Custom trace for the whole bom dependency
                 parseVariant(bomDependency, type.subVariantType(BomDependency::class))
                     ?.copyWithTrace(trace = singleKeyValue.asTrace())
             } ?: run {

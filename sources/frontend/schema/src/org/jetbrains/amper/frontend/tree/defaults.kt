@@ -151,7 +151,7 @@ private fun Default<*>.toTreeValue(type: SchemaType): TreeValue<TreeState>? = wh
 private fun Default.Static<*>.toTreeValue(type: SchemaType): TreeValue<TreeState> {
     val value = value
     return if (value == null) {
-        check(type.isMarkedNullable)
+        check(type.isMarkedNullable) { "Null default is specified for non-nullable $type" }
         NullValue(DefaultTrace, TypeLevelDefaultContexts)
     } else when (type) {
         is SchemaType.ScalarType -> ScalarValue(value, type, DefaultTrace, TypeLevelDefaultContexts)

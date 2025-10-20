@@ -12,12 +12,10 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
-import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
@@ -39,13 +37,10 @@ import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.ModuleDataForPluginDeclaration
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
-import org.jetbrains.amper.frontend.types.SchemaOrigin
-import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.getDeclaration
-import org.jetbrains.amper.frontend.types.toType
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
@@ -116,38 +111,22 @@ internal class PluginTreeReader(
                 projectContext.getTaskOutputRoot(taskNameFor(module.module, name))
             }.orEmpty()
 
-        val configurationType = pluginConfiguration.type as SchemaType.ObjectType
-        val classpathType = types.getDeclaration<ShadowClasspath>().toType()
-        val moduleConfigurationDeclaration = object : SchemaObjectDeclarationBase() {
-            override val properties = listOf(
-                SchemaObjectDeclaration.Property(
-                    "configuration", configurationType, origin = configurationType.declaration.origin, default = null,
-                ),
-                SchemaObjectDeclaration.Property(
-                    "rootDir", SchemaType.PathType, origin = SchemaOrigin.Builtin, default = null,
-                ),
-                SchemaObjectDeclaration.Property(
-                    "classpath", classpathType, origin = SchemaOrigin.Builtin, default = null,
-                ),
-            )
-            override fun createInstance(): SchemaNode = ExtensionSchemaNode().also {
-                it.schemaType = this
-            }
-            override val qualifiedName get() = "ModuleConfigurationForPlugin"
-            override val origin get() = SchemaOrigin.Builtin
-        }
+        val moduleConfigurationDeclaration =
+            types.getDeclaration(ModuleDataForPluginDeclaration) as SchemaObjectDeclaration
 
         // Build a tree with computed "reference-only" values.
         val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
             `object`<PluginYamlRoot> {
-                "module" setTo `object`(moduleConfigurationDeclaration.toType()) {
-                    "name" setTo scalar(module.module.userReadableName)
-                    "configuration" setTo pluginConfiguration
-                    "rootDir" setTo scalar(moduleRootDir)
-                    "dependency" setTo `object`<ShadowDependencyLocal> {
+                PluginYamlRoot.MODULE setTo `object`(moduleConfigurationDeclaration.toType()) {
+                    ModuleDataForPluginDeclaration.NAME setTo scalar(module.module.userReadableName)
+                    if (pluginData.moduleExtensionSchemaName != null) {
+                        ModuleDataForPluginDeclaration.PLUGIN_SETTINGS setTo pluginConfiguration
+                    }
+                    ModuleDataForPluginDeclaration.ROOT_DIR setTo scalar(moduleRootDir)
+                    ModuleDataForPluginDeclaration.SELF setTo `object`<ShadowDependencyLocal> {
                         ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
                     }
-                    "classpath" setTo `object`<ShadowClasspath> {
+                    ModuleDataForPluginDeclaration.RUNTIME_CLASSPATH setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList {
                             add(`object`<ShadowDependencyLocal> {
                                 ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
@@ -158,7 +137,7 @@ internal class PluginTreeReader(
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {
                         taskName setTo `object`<Task> {
-                            "taskDir" setTo scalar(taskBuildRoot)
+                            Task.TASK_OUTPUT_DIR setTo scalar(taskBuildRoot)
                         }
                     }
                 }

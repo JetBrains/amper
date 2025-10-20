@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
@@ -13,7 +14,6 @@ import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.KnownIntValues
 import org.jetbrains.amper.frontend.api.KnownStringValues
-import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.PathMark
@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.PluginSettings
@@ -222,6 +223,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         hasShorthand = prop.hasAnnotation<Shorthand>(),
                         inputOutputMark = prop.findAnnotation<PathMark>()?.type,
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>(),
+                        canBeReferenced = prop.hasAnnotation<CanBeReferenced>(),
                         origin = SchemaOrigin.Builtin,
                     )
                 }

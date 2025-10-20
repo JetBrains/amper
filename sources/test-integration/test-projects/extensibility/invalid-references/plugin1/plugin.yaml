@@ -14,3 +14,7 @@ tasks:
         - hel:lo/foo
         - one-part
         - foo:bar:12:compile
+        - ${markOutputsAs}
+    taskDir: ./hack/ed
+
+module: {}

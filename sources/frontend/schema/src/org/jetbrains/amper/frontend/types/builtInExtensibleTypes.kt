@@ -21,9 +21,12 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
 
     data class CustomPropertyDescriptor(
         val propertyName: String,
-        val propertyType: DeclarationKey,
-        val description: String?,
+        val propertyType: SchemaType,
+        val documentation: String?,
         val origin: SchemaOrigin,
+        val default: Default<*>? = null,
+        val canBeReferenced: Boolean = false,
+        val isUserSettable: Boolean = true,
     )
 
     private val registeredCustomProperties = ConcurrentHashMap<DeclarationKey, MutableList<CustomPropertyDescriptor>>()
@@ -62,16 +65,14 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         override val properties by lazy { parseBuiltInProperties() + customProperties(backingReflectionClass) }
 
         private fun customProperties(type: KClass<out SchemaNode>): List<SchemaObjectDeclaration.Property> =
-            registeredCustomProperties[BuiltInKey(type)]?.map { (propName, propTypeKey, description, origin) ->
+            registeredCustomProperties[BuiltInKey(type)]?.map { custom ->
                 SchemaObjectDeclaration.Property(
-                    name = propName,
-                    type = SchemaType.ObjectType(
-                        declaration = registeredDeclarations[propTypeKey] as? SchemaObjectDeclaration
-                            ?: error("No object declaration for $propTypeKey"),
-                        isMarkedNullable = true,
-                    ),
-                    default = Default.Static(null),
-                    documentation = description,
+                    name = custom.propertyName,
+                    type = custom.propertyType,
+                    default = custom.default,
+                    documentation = custom.documentation,
+                    canBeReferenced = custom.canBeReferenced,
+                    isUserSettable = custom.isUserSettable,
                     isPlatformAgnostic = true,
                     origin = origin,
                 )

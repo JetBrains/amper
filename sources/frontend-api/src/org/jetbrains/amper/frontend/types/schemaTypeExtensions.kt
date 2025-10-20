@@ -12,10 +12,6 @@ inline fun <reified T : SchemaNode> SchemaTypeDeclaration.isSameAs(): Boolean = 
 
 fun SchemaTypeDeclaration.isSameAs(`class`: KClass<out SchemaNode>): Boolean = qualifiedName == `class`.qualifiedName
 
-fun SchemaObjectDeclaration.toType() = SchemaType.ObjectType(this)
-
-fun SchemaVariantDeclaration.toType() = SchemaType.VariantType(this)
-
 /**
  * Whether the value for this property must be present in the tree.
  * This is true for any property that has a traceable default value.

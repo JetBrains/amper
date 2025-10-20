@@ -403,9 +403,12 @@ class PluginsTest : AmperCliTestBase() {
             val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
             assertEquals(
                 expected = sortedSetOf(
+                    "${pluginYaml}:18:5: Cannot assign to property `taskDir` - it is a built-in property available for reference only",
+                    "${pluginYaml}:20:1: Cannot assign to property `module` - it is a built-in property available for reference only",
+                    "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
                     "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
                     "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
-                    "${pluginYaml}:11:7: The value of type `ModuleConfigurationForPlugin` cannot be assigned to the type `Nested`",
+                    "${pluginYaml}:11:7: Referencing `module` is not allowed",
                     "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
                     "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
                     "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",

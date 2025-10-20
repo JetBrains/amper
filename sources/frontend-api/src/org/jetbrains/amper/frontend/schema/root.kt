@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ModifierAware
@@ -20,7 +21,6 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import java.nio.file.Path
-
 
 abstract class Base : SchemaNode() {
 
@@ -67,6 +67,7 @@ class Module : Base() {
 }
 
 class Repository : SchemaNode() {
+    @CanBeReferenced  // by id
     @Shorthand
     @SchemaDoc("The url of the repository")
     var url by value<String>()

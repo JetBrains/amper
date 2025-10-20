@@ -37,6 +37,8 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
 
     fun createInstance(): SchemaNode
 
+    override fun toType(): SchemaType.ObjectType = SchemaType.ObjectType(this)
+
     data class Property(
         val name: String,
         val type: SchemaType,
@@ -67,6 +69,8 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val hasShorthand: Boolean = false,
         val isHiddenFromCompletion: Boolean = false,
         val inputOutputMark: InputOutputMark? = null,
+        val canBeReferenced: Boolean = false,
+        val isUserSettable: Boolean = true,
         val origin: SchemaOrigin,
     )
 }

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
@@ -116,11 +117,13 @@ class AndroidSettings : SchemaNode() {
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var targetSdk by dependentValue(::compileSdk)
 
+    @CanBeReferenced // by targetSdk
     @Misnomers("compileApiLevel")
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
             "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
     var compileSdk by value(AndroidVersion.VERSION_36)
 
+    @CanBeReferenced // by applicationId
     @Misnomers("packageName")
     @SchemaDoc("A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")

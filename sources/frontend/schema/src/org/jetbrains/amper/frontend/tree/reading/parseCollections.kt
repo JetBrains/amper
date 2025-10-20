@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
@@ -111,7 +110,7 @@ internal fun parseValueFromKeyValue(
     keyValue: YAMLKeyValue,
     type: SchemaType,
     explicitContexts: Contexts,
-): TreeValue<*> { // We do not have a ParsedResult here because we always return some value and report errors within
+): TreeValue<*> {
     val trace = keyValue.asTrace()
     return when (val value = keyValue.value) {
         null -> {
@@ -119,7 +118,6 @@ internal fun parseValueFromKeyValue(
             ErrorValue(trace)
         }
         else -> {
-            @OptIn(InternalTraceSetter::class)
             parseValue(value, type, explicitContexts)
                 ?.copyWithTrace(trace) // Replace the trace to also capture the key
                 ?: ErrorValue(trace)  // Return NoValue even in the case of errors to preserve traceability
