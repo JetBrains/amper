@@ -17,6 +17,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
@@ -47,14 +48,13 @@ interface DependenciesFlow<T: DependenciesFlowType> {
 
     fun directDependenciesGraph(
         modules: List<AmperModule>,
-        resolutionLevel: ResolutionLevel,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
     ): RootDependencyNodeWithContext {
         return openTelemetry.spanBuilder("DR: Resolving direct graph").useWithoutCoroutines {
             val node = RootDependencyNodeWithContext(
-                cacheEntryKey = resolutionCacheEntryKey(modules, resolutionLevel),
+                rootCacheEntryKey = resolutionCacheEntryKey(modules).asRootCacheEntryKey(),
                 children = modules.map { directDependenciesGraph(it, fileCacheBuilder, openTelemetry, incrementalCache) },
                 templateContext = emptyContext(fileCacheBuilder, openTelemetry, incrementalCache)
             )
@@ -62,7 +62,7 @@ interface DependenciesFlow<T: DependenciesFlowType> {
         }
     }
 
-    fun resolutionCacheEntryKey(modules: List<AmperModule>, resolutionLevel: ResolutionLevel): CacheEntryKey
+    fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey
 }
 
 abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(

@@ -175,6 +175,17 @@ class MavenDependencyNodeWithContext internal constructor(
         parentNodes,
     )
 
+    constructor(
+        templateContext: Context,
+        coordinates: MavenCoordinates,
+        isBom: Boolean,
+        parentNodes: Set<DependencyNodeWithContext> = emptySet(),
+    ) : this(
+        templateContext,
+        templateContext.createOrReuseDependency(coordinates, isBom),
+        parentNodes,
+    )
+
     @Volatile
     override var dependency: MavenDependencyImpl = dependency
         set(value) {
@@ -482,8 +493,16 @@ fun Context.createOrReuseDependency(
     version: String?,
     isBom: Boolean = false
 ): MavenDependencyImpl =
-    this.resolutionCache.computeIfAbsent(Key<MavenDependencyImpl>("$group:$module:${version.orUnspecified()}:$isBom")) {
-        MavenDependencyImpl(this.settings, group, module, version, isBom)
+    createOrReuseDependency(MavenCoordinates(group, module, version), isBom)
+
+fun Context.createOrReuseDependency(
+    coordinates: MavenCoordinates,
+    isBom: Boolean = false
+): MavenDependencyImpl =
+    this.resolutionCache.computeIfAbsent(Key<MavenDependencyImpl>(
+        "${coordinates.groupId}:${coordinates.artifactId}:${coordinates.version.orUnspecified()}:$isBom"
+    )) {
+        MavenDependencyImpl(this.settings, coordinates, isBom)
     }
 
 internal fun Context.createOrReuseDependencyConstraint(

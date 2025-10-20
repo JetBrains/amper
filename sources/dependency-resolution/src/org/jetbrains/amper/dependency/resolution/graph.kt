@@ -192,13 +192,15 @@ fun DependencyNode.unwrap(): DependencyNode =
 @Serializable
 class DependencyGraph(
     val graphContext: DependencyGraphContext,
-    val root: DependencyNodeReference,
+    private val rootReference: DependencyNodeReference,
 ) {
+    val root: SerializableDependencyNode by lazy { rootReference.toNodePlain(graphContext)}
+
     companion object {
         fun DependencyNode.toGraph(): DependencyGraph {
             val graphContext = DependencyGraphContext()
-            val serializableNode = toSerializableReference(graphContext, null)
-            return DependencyGraph(graphContext, serializableNode)
+            val nodeReference = toSerializableReference(graphContext, null)
+            return DependencyGraph(graphContext, nodeReference)
         }
 
         internal val providers by lazy {

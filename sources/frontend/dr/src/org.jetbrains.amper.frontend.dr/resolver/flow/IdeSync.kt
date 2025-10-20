@@ -8,7 +8,6 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
@@ -71,12 +70,11 @@ internal class IdeSync(
     dependenciesFlowType: DependenciesFlowType.IdeSyncType
 ): AbstractDependenciesFlow<DependenciesFlowType.IdeSyncType>(dependenciesFlowType) {
 
-    override fun resolutionCacheEntryKey(modules: List<AmperModule>, resolutionLevel: ResolutionLevel): CacheEntryKey {
+    override fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey {
         return CacheEntryKey.CompositeCacheEntryKey(
             listOf(
                 "Project compile dependencies",
-                flowType.aom.projectRoot.absolutePathString(),
-                resolutionLevel
+                flowType.aom.projectRoot.absolutePathString()
             )
         )
     }

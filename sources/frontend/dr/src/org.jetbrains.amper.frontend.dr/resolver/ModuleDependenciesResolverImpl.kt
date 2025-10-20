@@ -23,7 +23,6 @@ import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeConverter
 import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
 import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
-import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.spanBuilder
@@ -138,7 +137,6 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
 
     override fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
-        resolutionLevel: ResolutionLevel,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?
@@ -148,13 +146,13 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             is DependenciesFlowType.IdeSyncType -> IdeSync(dependenciesFlowType)
         }
 
-        return resolutionFlow.directDependenciesGraph(this, resolutionLevel, fileCacheBuilder, openTelemetry, incrementalCache)
+        return resolutionFlow.directDependenciesGraph(this, fileCacheBuilder, openTelemetry, incrementalCache)
     }
 
     override suspend fun List<AmperModule>.resolveDependencies(resolutionInput: ResolutionInput): DependencyNode {
         return with(resolutionInput) {
             resolutionInput.openTelemetry.spanBuilder("DR: Resolving dependencies for the list of modules").use {
-                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, resolutionLevel, fileCacheBuilder, openTelemetry, incrementalCache)
+                val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, openTelemetry, incrementalCache)
                 val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, incrementalCacheUsage)
                 resolvedGraph
             }

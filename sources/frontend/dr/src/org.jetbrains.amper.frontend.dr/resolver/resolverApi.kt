@@ -79,7 +79,6 @@ interface ModuleDependenciesResolver {
 
     fun List<AmperModule>.resolveDependenciesGraph(
         dependenciesFlowType: DependenciesFlowType,
-        resolutionLevel: ResolutionLevel,
         fileCacheBuilder: FileCacheBuilder.() -> Unit,
         openTelemetry: OpenTelemetry?,
         incrementalCache: IncrementalCache?

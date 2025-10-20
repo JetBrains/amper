@@ -27,12 +27,13 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
 import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
+import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
@@ -147,11 +148,11 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             //  - module
             //  - set of platforms
             //  - includeTests flag
-            cacheEntryKey = CacheEntryKey.CompositeCacheEntryKey(listOfNotNull(
-                module.uniqueModuleKey(),
-                platformGroups.takeIf { it.isNotEmpty() }?.distinct(),
-                includeTests
-            )),
+            rootCacheEntryKey = CacheEntryKey.CompositeCacheEntryKey(listOfNotNull(
+                    module.uniqueModuleKey(),
+                    platformGroups.takeIf { it.isNotEmpty() }?.distinct(),
+                    includeTests
+            )).asRootCacheEntryKey(),
             children = variantsToResolve,
             templateContext = emptyContext(commonOptions.sharedCachesRoot, GlobalOpenTelemetry.get(), incrementalCache)
         )

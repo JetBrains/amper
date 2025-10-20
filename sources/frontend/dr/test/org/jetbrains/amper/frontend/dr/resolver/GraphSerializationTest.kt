@@ -146,7 +146,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             "decoded string being encoded again differs from initially encoded"
         )
 
-        val nodeDeserialized = decoded.root.toNodePlain(decoded.graphContext)
+        val nodeDeserialized = decoded.root
         assertEqualsWithDiff(
             root.prettyPrint().lines(),
             nodeDeserialized.prettyPrint().lines(),
@@ -163,7 +163,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     }
 
     private fun DependencyGraph.assertGraphStructure(testInfo: TestInfo) {
-        root.toNodePlain(this.graphContext).assertGraphStructure(testInfo, GraphType.DESERIALIZED)
+        root.assertGraphStructure(testInfo, GraphType.DESERIALIZED)
     }
 
     private fun DependencyNode.assertGraphStructure(testInfo: TestInfo, graphType: GraphType) {

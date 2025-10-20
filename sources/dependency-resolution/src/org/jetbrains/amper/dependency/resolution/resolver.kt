@@ -39,7 +39,7 @@ private val logger = LoggerFactory.getLogger("resolver.kt")
  * This is how one can download 'kotlin-test' and all its JVM dependencies from Maven Central.
  *
  * ```Kotlin
- * val node = MavenDependencyNode(
+ * val node = MavenDependencyNodeWithContext(
  *   Context {
  *     scope = ResolutionScope.COMPILE
  *     platforms = setOf(ResolutionPlatform.JVM)
@@ -47,10 +47,35 @@ private val logger = LoggerFactory.getLogger("resolver.kt")
  *   "org.jetbrains.kotlin", "kotlin-test", "1.9.20",
  *   isBom = false
  * )
- * Resolver().buildGraph(node)
- * node.downloadDependencies()
- * val paths = node.dependencyPaths()
+ * val resolvedGraph = Resolver().resolveDependencies(node)
+ * val paths = resolvedGraph.dependencyPaths()
  * ```
+ *
+ * Sample below allows resolving several maven dependencies in the same resolution context
+ *
+ * ```
+ * suspend fun List<MavenCoordinates>.foo(repositories: List<Repository>): List<Path> {
+ *   val resolutionContext = Context {
+ *     this.scope = ResolutionScope.COMPILE
+ *     this.platforms = setOf(ResolutionPlatform.JVM)
+ *     this.repositories = repositories
+ *   }
+ *
+ *   val root = RootDependencyNodeWithContext(
+ *     templateContext = resolutionContext,
+ *     children = this.map {
+ *       MavenDependencyNodeWithContext(
+ *         resolutionContext,
+ *         coordinates = it,
+ *         isBom = false
+ *       )
+ *     },
+ *   )
+ *
+ *   val resolvedGraph = Resolver().resolveDependencies(root)
+ *   return resolvedGraph.dependencyPaths()
+ * }
+ *```
  *
  * @see DependencyNodeHolderWithContext
  * @see MavenDependencyNode
@@ -98,15 +123,15 @@ class Resolver {
      */
     suspend fun resolveDependencies(
         root: DependencyNodeWithContext,
-        resolutionLevel: ResolutionLevel,
-        downloadSources: Boolean,
+        resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
+        downloadSources: Boolean = false,
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
         postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
     ): DependencyNode {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
-            val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources)
+            val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources, resolutionLevel)
 
             val incrementalCache = root.context.settings.incrementalCache
 
@@ -170,7 +195,7 @@ class Resolver {
                                 val deserializedGraph: DependencyGraph = root.context.spanBuilder("DR.graph:deserialization").use {
                                     GraphJson.json.decodeFromString<DependencyGraph>(serialized)
                                 }
-                                val resolvedGraph = deserializedGraph.root.toNodePlain(deserializedGraph.graphContext)
+                                val resolvedGraph = deserializedGraph.root
 
                                 // Post-process deserialized graph enriching it with the state from the input graph.
                                 // Any exception thrown during this phase results in fallback to non-cached resolution of the input graph
@@ -205,8 +230,8 @@ class Resolver {
         }
     }
 
-    // todo (AB) : If node was not resolved due to network error and has ERROR diagnostic assigned,
-    // todo (AB) : such a node should be recalculated next time and thus providing expirationTime as NOW.
+    // todo (AB): If node was not resolved due to network error and has ERROR diagnostic assigned,
+    // todo (AB): such a node should be recalculated next time and thus providing expirationTime as NOW.
     private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
         return distinctBfsSequence()
             .filterIsInstance<MavenDependencyNodeWithContext>()
@@ -231,7 +256,7 @@ class Resolver {
                 return cacheEntryKeys
             }
 
-            val cacheEntryKey = getCacheEntryKeyForCacheConfiguration(it)
+            val cacheEntryKey = it.getParentAwareCacheEntryKey()
             cacheEntryKeys.add(cacheEntryKey)
 
             if (cacheEntryKey == CacheEntryKey.NotCached) {
@@ -245,46 +270,21 @@ class Resolver {
         root: DependencyNodeWithContext,
         transitive: Boolean,
         downloadSources: Boolean,
+        resolutionLevel: ResolutionLevel
     ): String? {
         val cacheEntryKey = when (val rootCacheEntryKey = root.cacheEntryKey) {
             is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
             is CacheEntryKey.CompositeCacheEntryKey -> {
-                if (root is RootDependencyNode)
-                    rootCacheEntryKey
-                else
-                    rootCacheEntryKey.copy(components = rootCacheEntryKey.components + listOf(
+                rootCacheEntryKey.copy(
+                    components = rootCacheEntryKey.components + listOfNotNull(
                         ResolutionConfigPlain(root.context.settings),
                         downloadSources,
                         transitive,
-                    ))
+                        resolutionLevel
+                    )
+                )
             }
         }.computeKey()
-
-        return cacheEntryKey
-    }
-
-    private fun getCacheEntryKeyForCacheConfiguration(node: DependencyNodeWithContext): CacheEntryKey {
-        val cacheEntryKey = when (val cacheEntryKey = node.cacheEntryKey) {
-            is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
-            is CacheEntryKey.CompositeCacheEntryKey -> {
-                if (node is RootDependencyNode)
-                    cacheEntryKey
-                else {
-                    val skipContext = node.parents.isNotEmpty() && node.parents.all {
-                        (it is DependencyNodeWithContext)
-                                && ResolutionConfigPlain(node.context.settings) == ResolutionConfigPlain(it.context.settings)
-                    }
-                    if (skipContext)
-                        cacheEntryKey
-                    else
-                        cacheEntryKey.copy(
-                            components = cacheEntryKey.components + listOf(
-                                ResolutionConfigPlain(node.context.settings)
-                            )
-                        )
-                }
-            }
-        }
 
         return cacheEntryKey
     }
@@ -788,6 +788,38 @@ enum class IncrementalCacheUsage {
     SKIP,
     USE,
     REFRESH_AND_USE,
+}
+
+/**
+ * @return [DependencyNodeWithContext.cacheEntryKey] if this node and all its parents
+ * are associated with the same [ResolutionConfig],
+ * otherwise composite key containing components of the original key plus node's [ResolutionConfig] is returned.
+ */
+internal fun DependencyNodeWithContext.getParentAwareCacheEntryKey(): CacheEntryKey {
+    val node= this
+    val cacheEntryKey = when (val cacheEntryKey = node.cacheEntryKey) {
+        is CacheEntryKey.NotCached -> CacheEntryKey.NotCached
+        is CacheEntryKey.CompositeCacheEntryKey -> {
+            if (node is RootDependencyNode)
+                cacheEntryKey
+            else {
+                val skipContext = node.parents.isNotEmpty() && node.parents.all {
+                    (it is DependencyNodeWithContext)
+                            && ResolutionConfigPlain(node.context.settings) == ResolutionConfigPlain(it.context.settings)
+                }
+                if (skipContext)
+                    cacheEntryKey
+                else
+                    cacheEntryKey.copy(
+                        components = cacheEntryKey.components + listOf(
+                            ResolutionConfigPlain(node.context.settings)
+                        )
+                    )
+            }
+        }
+    }
+
+    return cacheEntryKey
 }
 
 // todo (AB) : Check all places where this exception is thrown,

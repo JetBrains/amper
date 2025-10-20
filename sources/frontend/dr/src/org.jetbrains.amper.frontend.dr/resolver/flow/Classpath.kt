@@ -8,7 +8,6 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
@@ -87,7 +86,7 @@ internal class Classpath(
             fileCacheBuilder = fileCacheBuilder, openTelemetry = openTelemetry, incrementalCache = incrementalCache)
     }
 
-    override fun resolutionCacheEntryKey(modules: List<AmperModule>, resolutionLevel: ResolutionLevel): CacheEntryKey {
+    override fun resolutionCacheEntryKey(modules: List<AmperModule>): CacheEntryKey {
         return CacheEntryKey.CompositeCacheEntryKey(
             components = buildList {
                 modules.sortedBy { it.userReadableName }.map { it.userReadableName + it.uniqueModuleKey() }.let {
@@ -97,7 +96,6 @@ internal class Classpath(
                 add(flowType.scope)
                 add(flowType.isTest)
                 add(flowType.includeNonExportedNative)
-                add(resolutionLevel)
             }
         )
     }

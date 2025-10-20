@@ -18,6 +18,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -138,7 +139,7 @@ class ResolveExternalDependenciesTask(
                     ) {
                         val resolveSourceMoniker = "module ${module.userReadableName}"
                         val root = RootDependencyNodeWithContext(
-                            cacheEntryKey = CacheEntryKey.fromString("${taskName.name}: dependencies graph"),
+                            rootCacheEntryKey = CacheEntryKey.fromString("${taskName.name}: dependencies graph").asRootCacheEntryKey(),
                             children = listOfNotNull(
                                 fragmentsCompileModuleDependencies,
                                 fragmentsRuntimeModuleDependencies
