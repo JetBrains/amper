@@ -3,8 +3,16 @@ product: jvm/lib
 apply:
   - ../../common.module-template.yaml
 
+plugins:
+  binary-compatibility-validator:
+    enabled: true
+
 settings:
   publishing:
     # Currently, we add the amper-extensibility-api as a regular dependency downloaded from maven,
     # so we have to publish it.
     enabled: true
+
+tasks:
+  testJvm:
+    dependsOn: [ :amper-extensibility-api:apiCheck@binary-compatibility-validator ]

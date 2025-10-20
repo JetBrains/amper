@@ -1,0 +1,11 @@
+product: jvm/amper-plugin
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+pluginInfo:
+  schemaExtensionClassName: org.jetbrains.amper.plugins.bcv.Settings
+
+dependencies:
+  - ../../sources/libraries/binary-compatibility-validation
+  - io.github.java-diff-utils:java-diff-utils:4.12

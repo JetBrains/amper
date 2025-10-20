@@ -1,5 +1,6 @@
 modules:
   - build-sources/amper-distribution
+  - build-sources/binary-compatibility-validator
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
   - repository-restrictions
@@ -32,6 +33,7 @@ modules:
   - sources/frontend/plain/yaml-psi
   - sources/frontend/schema
   - sources/libraries/async-processes
+  - sources/libraries/binary-compatibility-validation
   - sources/libraries/compose-resources
   - sources/libraries/concurrency
   - sources/libraries/incremental-cache
@@ -47,5 +49,6 @@ modules:
 
 plugins:
   - ./build-sources/amper-distribution
+  - ./build-sources/binary-compatibility-validator
   - ./build-sources/generate-build-properties
   - ./build-sources/generate-template-resources

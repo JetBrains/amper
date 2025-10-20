@@ -1,0 +1,19 @@
+
+tasks:
+  apiBuild:
+    action: !org.jetbrains.amper.plugins.bcv.kotlinApiBuildTask
+      settings: ${module.configuration}
+      inputJar:
+        from: ${module.dependency}
+      outputApiFile: ${taskDir}/api.dump
+
+  apiCheck:
+    action: !org.jetbrains.amper.plugins.bcv.kotlinApiCompareTask
+      moduleName: ${module.name}
+      builtApiFile: ${tasks.apiBuild.action.outputApiFile}
+      projectApiFile: ${module.rootDir}/${module.configuration.apiDumpDirectoryName}/${module.name}.api
+
+  apiDump:
+    action: !org.jetbrains.amper.plugins.bcv.kotlinApiDumpTask
+      builtApiFile: ${tasks.apiBuild.action.outputApiFile}
+      projectApiFile: ${tasks.apiCheck.action.projectApiFile}

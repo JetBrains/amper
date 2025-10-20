@@ -1,0 +1,80 @@
+public abstract interface class org/jetbrains/amper/Classpath {
+	public abstract fun getDependencies ()Ljava/util/List;
+	public abstract fun getResolvedFiles ()Ljava/util/List;
+	public fun getScope ()Lorg/jetbrains/amper/ResolutionScope;
+}
+
+public final class org/jetbrains/amper/Classpath$DefaultImpls {
+	public static fun getScope (Lorg/jetbrains/amper/Classpath;)Lorg/jetbrains/amper/ResolutionScope;
+}
+
+public abstract interface class org/jetbrains/amper/CompilationArtifact {
+	public abstract fun getArtifact ()Ljava/nio/file/Path;
+	public abstract fun getFrom ()Lorg/jetbrains/amper/Dependency$Local;
+}
+
+public abstract interface class org/jetbrains/amper/Dependency {
+}
+
+public abstract interface class org/jetbrains/amper/Dependency$Local : org/jetbrains/amper/Dependency {
+	public abstract fun getModulePath ()Ljava/nio/file/Path;
+}
+
+public abstract interface class org/jetbrains/amper/Dependency$Maven : org/jetbrains/amper/Dependency {
+	public abstract fun getCoordinates ()Ljava/lang/String;
+}
+
+public abstract interface annotation class org/jetbrains/amper/EnumValue : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/amper/ExecutionAvoidance : java/lang/Enum {
+	public static final field Automatic Lorg/jetbrains/amper/ExecutionAvoidance;
+	public static final field Disabled Lorg/jetbrains/amper/ExecutionAvoidance;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/amper/ExecutionAvoidance;
+	public static fun values ()[Lorg/jetbrains/amper/ExecutionAvoidance;
+}
+
+public abstract interface annotation class org/jetbrains/amper/Input : java/lang/annotation/Annotation {
+	public abstract fun inferTaskDependency ()Z
+}
+
+public abstract interface class org/jetbrains/amper/ModuleSources {
+	public abstract fun getFrom ()Lorg/jetbrains/amper/Dependency$Local;
+	public fun getIncludeGenerated ()Z
+	public fun getKind ()Lorg/jetbrains/amper/SourcesKind;
+	public abstract fun getSourceDirectories ()Ljava/util/List;
+}
+
+public final class org/jetbrains/amper/ModuleSources$DefaultImpls {
+	public static fun getIncludeGenerated (Lorg/jetbrains/amper/ModuleSources;)Z
+	public static fun getKind (Lorg/jetbrains/amper/ModuleSources;)Lorg/jetbrains/amper/SourcesKind;
+}
+
+public abstract interface annotation class org/jetbrains/amper/Output : java/lang/annotation/Annotation {
+}
+
+public final class org/jetbrains/amper/ResolutionScope : java/lang/Enum {
+	public static final field Compile Lorg/jetbrains/amper/ResolutionScope;
+	public static final field Runtime Lorg/jetbrains/amper/ResolutionScope;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/amper/ResolutionScope;
+	public static fun values ()[Lorg/jetbrains/amper/ResolutionScope;
+}
+
+public abstract interface annotation class org/jetbrains/amper/Schema : java/lang/annotation/Annotation {
+}
+
+public final class org/jetbrains/amper/SourcesKind : java/lang/Enum {
+	public static final field KotlinJavaSources Lorg/jetbrains/amper/SourcesKind;
+	public static final field Resources Lorg/jetbrains/amper/SourcesKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/amper/SourcesKind;
+	public static fun values ()[Lorg/jetbrains/amper/SourcesKind;
+}
+
+public abstract interface annotation class org/jetbrains/amper/TaskAction : java/lang/annotation/Annotation {
+	public abstract fun executionAvoidance ()Lorg/jetbrains/amper/ExecutionAvoidance;
+}
+
