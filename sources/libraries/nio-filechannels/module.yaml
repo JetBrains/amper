@@ -3,3 +3,4 @@ product: jvm/lib
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml
+  - ../../used-in-kotlin-jupiter.module-template.yaml

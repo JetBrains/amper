@@ -170,8 +170,7 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
         buildList {
             Files.list(this@naiveSearchDepth2)
                 .use {
-                    it.toList()
-                        .filter { it.exists() }
+                    it.filter { it.exists() }
                         .forEach {
                             if (it.isDirectory() && shouldDescend) addAll(it.naiveSearchDepth2(false, filterBlock))
                             if (filterBlock(it)) add(it)

@@ -1,0 +1,5 @@
+settings:
+  jvm:
+    release: 11 # Modules used in kotlin-jupiter should have the release version aligned with the one required by the kotlin-jupiter
+  publishing:
+    enabled: true

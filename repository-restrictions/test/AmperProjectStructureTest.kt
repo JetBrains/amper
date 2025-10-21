@@ -95,26 +95,54 @@ class AmperProjectStructureTest {
             }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
 
-        fun AmperModule.ancestorsWithIdeaTemplate() = ancestorsByModule
-            .getOrElse(this) { emptyList() }
-            .filter { it.hasIdeaTemplate() }
+        assertTransitiveTemplateUsage("used-in-idea.module-template.yaml", ancestorsByModule, modules)
+    }
 
-        val modulesMissingIdeaTemplate = modules.filter { module ->
-            !module.hasIdeaTemplate() && module.ancestorsWithIdeaTemplate().isNotEmpty()
+    @Test
+    fun `modules used in kotlin jupiter should apply the kotlin-jupiter template`() = runTest {
+        val modules = readAmperProjectModel().modules
+
+        // module -> list of ancestors (dependent modules)
+        val ancestorsByModule = modules
+            .flatMap { m ->
+                m.localModulesTransitiveClosure(includeTestDeps = false).map { it to m }
+            }
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+
+        assertTransitiveTemplateUsage("used-in-kotlin-jupiter.module-template.yaml", ancestorsByModule, modules)
+    }
+
+    private fun assertTransitiveTemplateUsage(
+        templateFileName: String,
+        ancestorsByModule: Map<AmperModule, List<AmperModule>>,
+        allModules: List<AmperModule>,
+
+    ) {
+        fun AmperModule.ancestorsWithTemplate(templateFileName: String) = ancestorsByModule
+            .getOrElse(this) { emptyList() }
+            .filter { it.hasTemplate(templateFileName) }
+
+        val modulesMissingIdeaTemplate = allModules.filter { module ->
+            !module.hasTemplate(templateFileName)
+                    && module.ancestorsWithTemplate(templateFileName).isNotEmpty()
         }
 
         if (modulesMissingIdeaTemplate.isNotEmpty()) {
             val list = modulesMissingIdeaTemplate.joinToString("\n") { module ->
-                "  - ${module.userReadableName} (used in IDEA because of: ${module.ancestorsWithIdeaTemplate().joinToString(", ") { it.userReadableName }})"
+                "  - ${module.userReadableName} (used in IDEA because of: " +
+                        "${
+                            module.ancestorsWithTemplate(templateFileName)
+                                .joinToString(", ") { it.userReadableName }
+                        })"
             }
-            fail("The following modules are used in IDEA but didn't apply used-in-idea.module-template.yaml:\n\n$list")
+            fail("The following modules are used in IDEA but didn't apply $templateFileName:\n\n$list")
         }
     }
 
-    private fun AmperModule.hasIdeaTemplate(): Boolean {
+    private fun AmperModule.hasTemplate(templateFileName: String): Boolean {
         // For some reason using any method of VirtualFile leads to a dependency error.
         // Using toString() is fine, though.
-        return usedTemplates.any { "$it".endsWith("used-in-idea.module-template.yaml") }
+        return usedTemplates.any { "$it".endsWith(templateFileName) }
     }
 
     @Test
