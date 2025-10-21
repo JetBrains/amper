@@ -163,12 +163,26 @@ interface DependencyNode {
         } ?: forMavenNode?.let { group == it.groupId && module == it.artifactId }
         ?: false
 
-    fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
+    /**
+     * @param fileCondition is a predicate that is applied to each [DependencyFile] belonging to the dependency node.
+     * If the predicate returns true, then the file path is included in the returned list.
+     * If the predicate returns false, then the file path is excluded from the returned list.
+     * By default, all files are included.
+     *
+     * @param nodeBlock is a callback applied to each dependency node in the graph after it visited on graph traversal.
+     *
+     * @return paths of all artifacts belonging to dependency graph nodes.
+     */
+    fun dependencyPaths(
+        fileCondition: DependencyFile.() -> Boolean= { true },
+        nodeBlock: (DependencyNode) -> Unit = {}
+    ): List<Path> {
         val files = mutableSetOf<Path>()
         for (node in distinctBfsSequence()) {
             if (node is MavenDependencyNode) {
                 node.dependency
                     .files()
+                    .filter { it.fileCondition() }
                     .mapNotNull { it.path }
                     .forEach { file ->
                         check(file.exists()) {
