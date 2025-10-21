@@ -243,21 +243,15 @@ class DependencyFileTest {
         }.use { context ->
             val root = RootDependencyNodeWithContext(
                 children = listOf(
-                    context.getOrCreateNode(
-                        context.createOrReuseDependency(
-                            "org.jetbrains.compose.foundation", "foundation", "1.6.10"
-                        ), null
-                    ),
-                    context.getOrCreateNode(
-                        context.createOrReuseDependency(
-                            "org.jetbrains.compose.material3", "material3", "1.6.10"
-                        ), null
-                    ),
-                    context.getOrCreateNode(
-                        context.createOrReuseDependency(
-                            "org.jetbrains.kotlin", "kotlin-stdlib", "2.0.0"
-                        ), null
-                    ),
+                    context.toMavenDependencyNode(MavenCoordinates(
+                        "org.jetbrains.compose.foundation", "foundation", "1.6.10"
+                    )),
+                    context.toMavenDependencyNode(MavenCoordinates(
+                        "org.jetbrains.compose.material3", "material3", "1.6.10"
+                    )),
+                    context.toMavenDependencyNode(MavenCoordinates(
+                        "org.jetbrains.kotlin", "kotlin-stdlib", "2.0.0"
+                    ))
                 ),
                 templateContext = context
             )
@@ -356,9 +350,9 @@ class DependencyFileTest {
                 readOnlyExternalRepositories = emptyList()
             }
         }.use { context ->
-            val dependencyNode = context.getOrCreateNode(
-                context.createOrReuseDependency("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.8.0"), null
-            )
+            val dependencyNode = context.toMavenDependencyNode(MavenCoordinates(
+                "org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.8.0"
+            ))
 
             Resolver().buildGraph(dependencyNode)
 

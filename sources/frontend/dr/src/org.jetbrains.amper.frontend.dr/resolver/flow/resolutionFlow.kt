@@ -7,18 +7,14 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
-import org.jetbrains.amper.dependency.resolution.MavenCoordinates
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.Repository
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
-import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.Fragment
@@ -83,14 +79,6 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         )
 
         return node
-    }
-
-    /**
-     * the caller should specify the parent node after this method is called
-     */
-    private fun Context.toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean): MavenDependencyNodeWithContext {
-        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
-        return getOrCreateNode(mavenDependency,null)
     }
 
     fun AmperModule.getValidRepositories(): List<Repository> {

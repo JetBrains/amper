@@ -67,15 +67,32 @@ class Context internal constructor(
         } else this@withRepositories
 
     /**
+     * Creates a new [MavenDependencyNode] corresponding to the given Maven [coordinates] (in its desired version), or
+     * reuses an existing node requesting the exact same dependency.
+     *
+     * In case of reuse, the returned node is guaranteed to have the same requested version as
+     * [MavenDependencyNodeWithContext.dependency]. This means
+     * that, if conflict resolution has already occurred for the returned node, its internal [MavenDependency.version]
+     * might be different from that of the given [coordinates], but its "desired" [MavenDependencyNode.originalVersion] is
+     * guaranteed to match.
+     *
+     * Note: the caller should specify the parent node after this method is called
+     */
+    fun toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean = false): MavenDependencyNodeWithContext {
+        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
+        return getOrCreateNode(mavenDependency,null)
+    }
+
+    /**
      * Creates a new [MavenDependencyNode] corresponding to the given Maven [dependency] (in its desired version), or
-     * reuses an existing node that was requesting the exact same dependency.
+     * reuses an existing node requesting the exact same dependency.
      *
      * In case of reuse, the returned node is guaranteed to have the same requested version as [dependency]. This means
      * that, if conflict resolution has already occurred for the returned node, its internal [MavenDependency.version]
-     * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.version] is
+     * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.originalVersion] is
      * guaranteed to match.
      */
-    fun getOrCreateNode(dependency: MavenDependencyImpl, parentNode: DependencyNodeWithContext?): MavenDependencyNodeWithContext =
+    internal fun getOrCreateNode(dependency: MavenDependencyImpl, parentNode: DependencyNodeWithContext?): MavenDependencyNodeWithContext =
         nodesByMavenDependency
             .computeIfAbsent(dependency) { MavenDependencyNodeWithContext(templateContext = this, dependency) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }

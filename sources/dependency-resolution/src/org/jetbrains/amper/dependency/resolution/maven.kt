@@ -487,7 +487,7 @@ private class PropertyWithDependencyGeneric<T, V : Any>(
     }
 }
 
-fun Context.createOrReuseDependency(
+internal fun Context.createOrReuseDependency(
     group: String,
     module: String,
     version: String?,

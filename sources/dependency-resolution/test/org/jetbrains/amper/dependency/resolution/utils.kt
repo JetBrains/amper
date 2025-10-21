@@ -17,6 +17,5 @@ fun computeHash(algorithm: String, bytes: ByteArray): String =
 
 internal fun String.toMavenNode(context: Context): MavenDependencyNodeWithContext {
     val (group, module, version) = split(":")
-    val mavenDependency = context.createOrReuseDependency(group, module, version, isBom = false)
-    return context.getOrCreateNode(mavenDependency, null)
+    return context.toMavenDependencyNode(MavenCoordinates(group, module, version), isBom = false)
 }
