@@ -14,6 +14,7 @@ import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import java.nio.file.FileSystemException
 import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
