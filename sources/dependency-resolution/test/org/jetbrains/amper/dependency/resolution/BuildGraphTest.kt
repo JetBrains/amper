@@ -104,6 +104,18 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that multiple properties used in the same string are substituted correctly.
+     * In particular, the library 'org.nd4j:nd4j-cuda-10_2-platform:1_0_0-beta6' declares dependency on
+     * 'org.bytedeco:cuda' of the version
+     * '${cuda.version}-${cudnn.version}-${javacpp-presets.cuda.version}'
+     */
+    @Test
+    fun `org_nd4j nd4j-cuda-10_2-platform 1_0_0-beta6`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo, verifyMessages = false, )
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that the property 'project.artifactId' in pom.xml is correctly substituted
      */
     @Test

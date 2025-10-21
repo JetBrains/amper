@@ -381,5 +381,8 @@ private fun String.expandTemplate(project: Project): String {
         return this
     }
 
-    return substring(0, keyStarts) + value.expandTemplate(project) + substring(keyEnds + 1, this.length)
+    val expandedValue = substring(0, keyStarts) + value.expandTemplate(project) + substring(keyEnds + 1, this.length)
+
+    // recursively replace all later properties in the given string
+    return expandedValue.expandTemplate(project)
 }
