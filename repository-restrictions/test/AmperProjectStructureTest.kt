@@ -109,7 +109,7 @@ class AmperProjectStructureTest {
             }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
 
-        assertTransitiveTemplateUsage("used-in-kotlin-jupiter.module-template.yaml", ancestorsByModule, modules)
+        assertTransitiveTemplateUsage("used-in-kotlin-notebook.module-template.yaml", ancestorsByModule, modules)
     }
 
     private fun assertTransitiveTemplateUsage(
