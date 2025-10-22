@@ -191,21 +191,32 @@ class TaskFromPlugin(
         try {
             actionMethod.callBy(argumentsMap)
         } catch (e: InvocationTargetException) {
-            // We do not include the "system" part of the stack trace, only the user-code part.
             val targetException = e.targetException
-            val stackTrace = targetException.stackTrace.toList()
-
-            // Remove the "system" part of the stacktrace - it is of no interest to the user.
-            targetException.stackTrace = stackTrace.subList(
-                fromIndex = 0,
-                toIndex = stackTrace.indexOfLast { it.classLoaderName == classLoader.name } + 1,
-            ).map { it.withoutClassloaderName() }.toTypedArray()
+            context(classLoader) {
+                elideSystemStackTracePart(targetException)
+            }
 
             userReadableError(targetException.stackTraceToString())
         }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
+}
+
+/**
+ * We do not include the "system" part of the stack trace, only the user-code part.
+ */
+context(userCodeClassLoader: ClassLoader)
+private fun elideSystemStackTracePart(throwable: Throwable) {
+    val stackTrace = throwable.stackTrace.toList()
+
+    // Remove the "system" part of the stacktrace - it is of no interest to the user.
+    throwable.stackTrace = stackTrace.subList(
+        fromIndex = 0,
+        toIndex = stackTrace.indexOfLast { it.classLoaderName == userCodeClassLoader.name } + 1,
+    ).map { it.withoutClassloaderName() }.toTypedArray()
+
+    throwable.cause?.let { elideSystemStackTracePart(it) }
 }
 
 private fun StackTraceElement.withoutClassloaderName() = StackTraceElement(

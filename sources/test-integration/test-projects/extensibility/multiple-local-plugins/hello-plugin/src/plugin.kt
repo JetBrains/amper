@@ -16,7 +16,15 @@ fun sayHello(
     }
 }
 
+fun someFunction() {
+    throw RuntimeException("Nested")
+}
+
 @TaskAction
 fun crash() {
-    throw RuntimeException("Crashing on purpose")
+    try {
+        someFunction()
+    } catch (e: RuntimeException) {
+        throw RuntimeException("Crashing on purpose", e)
+    }
 }

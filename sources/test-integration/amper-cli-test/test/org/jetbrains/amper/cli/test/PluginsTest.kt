@@ -232,7 +232,10 @@ class PluginsTest : AmperCliTestBase() {
             assertStdoutDoesNotContain("Internal error")
             assertStderrContains(
                 """ERROR: Task ':app:crash@hello' failed: java.lang.RuntimeException: Crashing on purpose
-                    |        at org.jetbrains.amper.plugins.hello.PluginKt.crash(plugin.kt:21)
+                    |        at org.jetbrains.amper.plugins.hello.PluginKt.crash(plugin.kt:28)
+                    |Caused by: java.lang.RuntimeException: Nested
+                    |        at org.jetbrains.amper.plugins.hello.PluginKt.someFunction(plugin.kt:20)
+                    |        at org.jetbrains.amper.plugins.hello.PluginKt.crash(plugin.kt:26)
                     |
                 """.trimMargin()
             )
