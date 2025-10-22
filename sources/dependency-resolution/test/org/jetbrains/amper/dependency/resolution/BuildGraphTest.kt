@@ -858,6 +858,16 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that dependency on com.google.guava:guava:33.4.8-android (KMP library)
+     * is correctly resolved in JVM context.
+     */
+    @Test
+    fun `com_google_guava guava 33_4_8-android`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo, platform = setOf(ResolutionPlatform.JVM))
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that guava dependency is added to the graph in spite of it defines several
      * capabilities, while Amper doesn't allow such libraries in the graph
      * (apart from several exceptional cases, including a guava library).

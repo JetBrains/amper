@@ -1,0 +1,7 @@
+root
+╰─── com.google.guava:guava:33.4.8-android
+     ├─── com.google.guava:failureaccess:1.0.3
+     ├─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+     ├─── org.jspecify:jspecify:1.0.0
+     ├─── com.google.errorprone:error_prone_annotations:2.36.0
+     ╰─── com.google.j2objc:j2objc-annotations:3.0.0

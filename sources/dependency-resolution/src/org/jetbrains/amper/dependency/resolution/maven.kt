@@ -1775,6 +1775,7 @@ class MavenDependencyImpl internal constructor(
 
     private fun Variant.isGuavaException() =
         isGuava()
+                && capabilities.contains(toCapability())
                 && capabilities.contains(
             Capability(
                 "com.google.collections",
@@ -1782,12 +1783,6 @@ class MavenDependencyImpl internal constructor(
                 version.orUnspecified()
             )
         )
-                && capabilities.contains(toCapability())
-                && getAttributeValue(JvmEnvironment) == when (version?.substringAfterLast('-')) {
-            "android" -> JvmEnvironment.Android
-            "jre" -> JvmEnvironment.StandardJvm
-            else -> null
-        }
 
     private fun isGuava() = group == "com.google.guava" && module == "guava"
 

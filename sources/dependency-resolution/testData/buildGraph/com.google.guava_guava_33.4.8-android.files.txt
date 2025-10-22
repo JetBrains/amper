@@ -1,0 +1,6 @@
+error_prone_annotations-2.36.0.jar
+failureaccess-1.0.3.jar
+guava-33.4.8-jre.jar
+j2objc-annotations-3.0.0.jar
+jspecify-1.0.0.jar
+listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
