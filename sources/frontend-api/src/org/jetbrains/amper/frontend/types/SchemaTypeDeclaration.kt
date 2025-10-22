@@ -6,14 +6,14 @@ package org.jetbrains.amper.frontend.types
 
 interface SchemaTypeDeclaration {
     /**
-     * Type's fully qualified name, using dots as separators.
+     * Fully qualified name, using dots as separators.
      */
     val qualifiedName: String
 
     /**
-     * Type's simple name.
+     * User-readable public name that can be included in messages.
      */
-    val simpleName: String
+    val displayName: String
         get() = qualifiedName.substringAfterLast('.')
 
     /**

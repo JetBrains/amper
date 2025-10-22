@@ -18,8 +18,12 @@ internal interface ReflectionBasedTypeDeclaration : SchemaTypeDeclaration {
     override val origin: SchemaOrigin
         get() = SchemaOrigin.Builtin
 
-    override val simpleName: String
-        get() = backingReflectionClass.simpleName!!
+    override val displayName: String
+        get() = ShadowMaps.ShadowNodeClassToPublicReflectionName[backingReflectionClass]
+            ?.substringAfterLast('.')?.replace('$', '.') ?: run {
+                // It's okay to use just the single simple name here as our builtin classes are not nested.
+                backingReflectionClass.simpleName!!
+            }
 
     override val qualifiedName: String
         get() = backingReflectionClass.qualifiedName!!
@@ -31,8 +35,8 @@ internal interface PluginBasedTypeDeclaration : SchemaTypeDeclaration {
     override val publicInterfaceReflectionName: String
         get() = schemaName.reflectionName()
 
-    override val simpleName: String
-        get() = schemaName.simpleNames.last()
+    override val displayName: String
+        get() = schemaName.simpleNames.joinToString(".")
 
     override val qualifiedName: String
         get() = schemaName.qualifiedName
