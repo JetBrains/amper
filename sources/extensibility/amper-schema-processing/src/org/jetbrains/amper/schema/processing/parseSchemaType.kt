@@ -70,7 +70,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
                     }.toSchemaName()
                     symbolsCollector.onClassReferenced(symbol, schemaName)
                     when (symbol.modality) {
-                        KaSymbolModality.SEALED if options.isParsingAmperApi ->
+                        KaSymbolModality.SEALED if schemaName.packageName == EXTENSIBILITY_API_PACKAGE.asString() ->
                             PluginData.Type.VariantType(schemaName, isNullable)
                         else -> PluginData.Type.ObjectType(schemaName, isNullable)
                     }

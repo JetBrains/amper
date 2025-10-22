@@ -23,6 +23,27 @@
       "name": "com.example/Config",
       "properties": [
         {
+          "name": "builtinTypeReference1",
+          "type": {
+            "type": "variant",
+            "schemaName": "org.jetbrains.amper/Dependency"
+          }
+        },
+        {
+          "name": "builtinTypeReference2",
+          "type": {
+            "type": "object",
+            "schemaName": "org.jetbrains.amper/Dependency/Local"
+          }
+        },
+        {
+          "name": "builtinTypeReference3",
+          "type": {
+            "type": "object",
+            "schemaName": "org.jetbrains.amper/Classpath"
+          }
+        },
+        {
           "name": "map",
           "type": {
             "type": "map",

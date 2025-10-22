@@ -198,6 +198,9 @@ Supported types are:
 @Schema
 /*{{*/internal/*}} [Amper Plugin Schema] @Schema interface must be public */
 interface Config {
+  val builtinTypeReference1: Dependency
+  val builtinTypeReference2: Dependency.Local
+  val builtinTypeReference3: Classpath
   val map: Map<String, List<Path>>
 }
 

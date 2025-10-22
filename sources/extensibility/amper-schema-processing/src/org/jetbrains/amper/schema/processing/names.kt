@@ -15,7 +15,7 @@ internal fun ClassId.toSchemaName() = PluginData.SchemaName(
     simpleNames = relativeClassName.pathSegments().map { it.asString() },
 )
 
-private val EXTENSIBILITY_API_PACKAGE = FqName("org.jetbrains.amper")
+internal val EXTENSIBILITY_API_PACKAGE = FqName("org.jetbrains.amper")
 private val KOTLIN_COLLECTIONS_PACKAGE = FqName("kotlin.collections")
 
 internal val SCHEMA_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Schema"))
