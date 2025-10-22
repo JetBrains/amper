@@ -1565,7 +1565,8 @@ private class StringWriter(private val charset: Charset): Writer {
     }
 }
 
-fun charsetFrom(headers: java.net.http.HttpHeaders): Charset {
+// todo (AB) : Replace with less verbose implementation
+private fun charsetFrom(headers: java.net.http.HttpHeaders): Charset {
     var type = headers.firstValue("Content-type").orElse("text/html; charset=utf-8") as String
     val i = type.indexOf(";")
     if (i >= 0) {
@@ -1582,7 +1583,7 @@ fun charsetFrom(headers: java.net.http.HttpHeaders): Charset {
     }
 }
 
-class HeaderParser {
+private class HeaderParser {
     var raw: String? = null
     var tab: Array<Array<String?>?> = Array(10) { arrayOfNulls<String>(2) }
     var nkeys: Int = 0
