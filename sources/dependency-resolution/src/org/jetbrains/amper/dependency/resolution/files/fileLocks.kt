@@ -164,7 +164,7 @@ internal suspend fun <T> produceResultWithTempFile(
     block: suspend (Path, FileChannel) -> T,
 ): T {
     val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length)) }
-    val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
+    val tempFile = tempDir.resolveNormalized(targetFileName, prefix = "~", suffix = tempFileNameSuffix)
 
     return try {
         FileChannel.open(
@@ -191,4 +191,33 @@ internal fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, originalTh
     }
 }
 
-private fun tempLockFile(tmpDir: Path, targetFileName: String) = tmpDir.resolve("~${targetFileName}.amper.lock")
+private fun tempLockFile(tmpDir: Path, targetFileName: String) =
+      tmpDir.resolveNormalized(targetFileName, prefix = "~", suffix = ".amper.lock")
+
+/**
+ * Resolves relative [Path] passed as [targetFileName] against this [Path] and
+ * add prefix and suffix to the resulting file name.
+ *
+ * Example I
+ * this Path = "/some/path"
+ * targetFileName = "XXX"
+ * prefix = "~"
+ * suffix = ".bak"
+ * returns the file path "/some/path/~XXX.bak"
+ *
+ * Example II
+ * this Path = "/some/path/YYY"
+ * targetFileName = "../XXX"
+ * prefix = "~"
+ * suffix = ".bak"
+ * returns the file path "/some/path/~XXX.bak"
+ * `
+ */
+private fun Path.resolveNormalized(targetFileName: String, prefix: String = "", suffix: String = "") =
+    resolve(targetFileName)
+        // normalization effectively converts p/yyy/../xxx to p/xxx
+        // (it is critical for a Windows file path not to have /../ inside)
+        .normalize()
+        .let {
+            it.parent.resolve("$prefix${it.name}$suffix")
+        }

@@ -158,10 +158,10 @@ class GradleLocalRepository(internal val filesPath: Path) : LocalRepository {
 
     override fun guessPath(dependency: MavenDependencyImpl, name: String): Path? {
         val location = getLocation(dependency)
-        val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
-        if (pathFromVariant != null) return pathFromVariant
+        val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}").normalize() }
+        if (pathFromVariant != null) return pathFromVariant.normalize()
         if (!location.exists()) return null
-        return location.naiveSearchDepth2 { it.name == name }.firstOrNull()
+        return location.naiveSearchDepth2 { it.name == name }.firstOrNull()?.normalize()
     }
 
     /**
@@ -211,7 +211,7 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
     override fun toString(): String = "[Maven] $repository"
 
     override fun guessPath(dependency: MavenDependencyImpl, name: String): Path =
-        repository.resolve(getLocation(dependency)).resolve(name)
+        repository.resolve(getLocation(dependency)).resolve(name).normalize()
 
     override fun getTempDir(dependency: MavenDependencyImpl): Path = repository.resolve(getLocation(dependency))
 

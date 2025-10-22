@@ -111,7 +111,7 @@ class BuildGraphTest : BaseDRTest() {
      */
     @Test
     fun `org_nd4j nd4j-cuda-10_2-platform 1_0_0-beta6`(testInfo: TestInfo) = runTest {
-        val root = doTestByFile(testInfo, verifyMessages = false, )
+        val root = doTestByFile(testInfo, verifyMessages = false)
         assertFiles(testInfo, root)
     }
 
@@ -858,13 +858,20 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
-     * This test checks that dependency on com.google.guava:guava:33.4.8-android (KMP library)
-     * is correctly resolved in JVM context.
+     * This test checks two things:
+     *  - dependency on "com.google.guava:guava:33.4.8-android"
+     *    is correctly resolved in JVM context.
+     *  - resolution works in case Gradle metadata defines the path to the variant file like
+     *    "../XXX/yyy.jar"
+     *    In this particular case,
+     *      "com.google.guava:guava:33.4.8-android"
+     *      declares jre-specific variant with file URL equal to
+     *      "url": "../33.4.8-jre/guava-33.4.8-jre.jar"
      */
     @Test
     fun `com_google_guava guava 33_4_8-android`(testInfo: TestInfo) = runTest {
         val root = doTestByFile(testInfo, platform = setOf(ResolutionPlatform.JVM))
-        assertFiles(testInfo, root)
+        downloadAndAssertFiles(testInfo, root)
     }
 
     /**
