@@ -47,7 +47,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
             dependsOn = phase.dependsOn.map { it.taskName },
         )
     }
-    
+
     // Our source generation is aware of external module dependencies, so we
     // shall provide a corresponding task dependency for maven phases as well.
     CommonTaskType.Dependencies.getTaskName(module, Platform.JVM, isTest = false)
@@ -96,11 +96,6 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
 
         val moduleMavenProject = MockedMavenProject()
 
-        // TODO Reporting.
-        val jvmFragment = module.leafFragments
-            .singleOrNull { it.platform == Platform.JVM && !it.isTest } ?: return@plugin
-        val jvmFragmentSettings = jvmFragment.pluginsSettings
-
         val mavenPlugin = MavenPlugin().apply {
             artifactId = pluginXml.artifactId
             groupId = pluginXml.groupId
@@ -112,19 +107,19 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
             val mavenCompatPluginId = amperMavenPluginId(pluginXml, mojo)
 
             // There must be a node, at least to read "enabled" property.
-            val correspondingNode =
-                jvmFragmentSettings.valueHolders[mavenCompatPluginId]?.value ?: return@mapNotNull null
+            val correspondingNode = module.pluginSettings.valueHolders[mavenCompatPluginId]?.value
+                ?: return@mapNotNull null
             if (correspondingNode !is SchemaNode) return@mapNotNull null
 
             val isEnabled = correspondingNode.valueHolders["enabled"]?.value as? Boolean ?: false
             if (!isEnabled) return@mapNotNull null
-            
+
             // TODO Handle enabled property more delicately, since it can be defined both in Amper
             //  and in the plugin configuration.
             val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key, _ ->
                 key != "enabled"
             }.prependIndent("  ")
-            
+
             val configString = "<properties>\n$dumpedProperties\n</properties>"
 
             val taskName = TaskName.moduleTask(module, mavenCompatPluginId)

@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
+import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -42,6 +43,7 @@ internal open class DefaultModule(
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
     override val layout: Layout = Layout.AMPER,
 ) : AmperModule {
+    override var pluginSettings = PluginSettings()
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
     override var tasksFromPlugins = emptyList<TaskFromPluginDescription>()

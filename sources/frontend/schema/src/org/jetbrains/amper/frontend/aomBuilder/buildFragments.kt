@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
@@ -35,9 +34,8 @@ class DefaultLeafFragment(
     isTest: Boolean,
     externalDependencies: List<Notation>,
     relevantSettings: Settings,
-    pluginsSettings: PluginSettings,
     moduleFile: VirtualFile,
-) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, pluginsSettings, moduleFile),
+) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, moduleFile),
     LeafFragment {
     
     init {
@@ -53,7 +51,6 @@ open class DefaultFragment(
     final override val isTest: Boolean,
     override var externalDependencies: List<Notation>,
     override val settings: Settings,
-    override val pluginsSettings: PluginSettings,
     moduleFile: VirtualFile,
 ) : Fragment {
     final override val modifier = seed.modifier
@@ -247,7 +244,6 @@ internal fun BuildCtx.createFragments(
             isTest,
             refinedModule.dependencies.orEmpty().mapNotNull { resolveDependency(it) },
             refinedModule.settings,
-            refinedModule.plugins,
             ctx.moduleFile,
         )
     }

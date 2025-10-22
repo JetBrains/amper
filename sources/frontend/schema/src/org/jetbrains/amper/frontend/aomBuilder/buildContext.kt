@@ -67,7 +67,7 @@ internal data class ModuleBuildCtx(
                 usedCatalog = catalog,
                 usedTemplates = moduleCtxModule.apply?.mapNotNull(::readTemplateFromPath).orEmpty(),
                 parts = moduleCtxModule.convertModuleParts(),
-                layout = Layout.valueOf(moduleCtxModule.layout.name)
+                layout = Layout.valueOf(moduleCtxModule.layout.name),
             )
         }
     }

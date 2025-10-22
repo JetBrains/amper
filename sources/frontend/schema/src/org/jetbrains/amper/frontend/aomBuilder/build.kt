@@ -227,6 +227,7 @@ private fun BuildCtx.buildAmperModules(
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.module.apply {
+            pluginSettings = module.moduleCtxModule.plugins
             fragments = moduleFragments
             artifacts = createArtifacts(false, module.module.type, leaves) +
                     createArtifacts(true, module.module.type, testLeaves)

@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
@@ -50,11 +49,6 @@ interface Fragment {
      * For instance, the settings of the iosArm64 fragment contain merged settings from iosArm64, ios, native, and common.
      */
     val settings: Settings
-
-    /**
-     * The plugins' settings of this fragment, including inherited settings from parent fragments.
-     */
-    val pluginsSettings: PluginSettings
 
     /**
      * Leaf platforms that this fragment is compiled to.
