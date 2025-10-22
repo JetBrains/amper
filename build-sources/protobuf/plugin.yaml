@@ -1,0 +1,18 @@
+tasks:
+  provision:
+    action: !org.jetbrains.amper.plugins.protobuf.provisionBinaries
+      settings: ${module.configuration}
+      bin: ${taskDir}/bin
+
+  generate:
+    action: !org.jetbrains.amper.plugins.protobuf.generateProto
+      bin: ${provision.action.bin}
+      sourceDir: ${module.rootDir}/proto # TODO: support maven layout?
+      grpcEnabled: ${module.configuration.grpc.enabled}
+      javaOutputDir: ${taskDir}/java
+      grpcOutputDir: ${taskDir}/grpc
+    markOutputsAs:
+      - path: ${action.javaOutputDir}
+        kind: java-sources
+      - path: ${action.grpcOutputDir}
+        kind: java-sources

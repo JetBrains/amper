@@ -3,6 +3,8 @@ modules:
   - build-sources/binary-compatibility-validator
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
+  - build-sources/protobuf
+  - plugin-samples/grpc-hello-world
   - repository-restrictions
   - sources/amper-build-info
   - sources/amper-cli
@@ -52,3 +54,4 @@ plugins:
   - ./build-sources/binary-compatibility-validator
   - ./build-sources/generate-build-properties
   - ./build-sources/generate-template-resources
+  - ./build-sources/protobuf

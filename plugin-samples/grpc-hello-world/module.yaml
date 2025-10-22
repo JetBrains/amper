@@ -1,0 +1,23 @@
+product: jvm/app
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+plugins:
+  protobuf:
+    enabled: true
+    grpc:
+      enabled: true
+
+dependencies:
+  - io.grpc:grpc-protobuf:1.76.0
+  - io.grpc:grpc-stub:1.76.0
+  - io.grpc:grpc-netty-shaded:1.76.0: runtime-only
+
+  # FIXME: remove once DR is fixed for io.grpc:grpc-stub
+  - com.google.guava:guava:33.4.8-jre
+
+test-dependencies:
+  - io.grpc:grpc-testing:1.76.0
+  - io.grpc:grpc-inprocess:1.76.0
+  - org.mockito:mockito-core:4.4.0

@@ -1,0 +1,10 @@
+product: jvm/amper-plugin
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+pluginInfo:
+  schemaExtensionClassName: org.jetbrains.amper.plugins.protobuf.Settings
+
+dependencies:
+  - $libs.jna
