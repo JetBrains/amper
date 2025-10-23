@@ -37,7 +37,7 @@ internal fun loadBuiltinDeclarations(): PluginData.Declarations =
 fun KaSession.parsePluginDeclarations(
     files: Collection<KtFile>,
     diagnostics: MutableList<in PluginDataResponse.Diagnostic>,
-    moduleExtensionSchemaName: String? = null,
+    pluginSettingsClassName: String? = null,
     isParsingAmperApi: Boolean = false,
 ): PluginData.Declarations {
     val options = ParsingOptions(
@@ -100,7 +100,7 @@ fun KaSession.parsePluginDeclarations(
                     classes[name] = parseSchemaDeclaration(
                         schemaDeclaration = declaration,
                         name = name,
-                        primarySchemaFqnString = moduleExtensionSchemaName,
+                        primaryConfigurableFqnString = pluginSettingsClassName,
                     ) ?: PluginData.ClassData(name) // Empty stub for invalid
                 }
             }

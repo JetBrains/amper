@@ -62,7 +62,7 @@ internal suspend fun doPreparePlugins(
                 PluginDeclarationsRequest.Request(
                     moduleName = pluginRootPath.relativeTo(projectRoot.path).joinToString(":"),
                     sourceDir = pluginRootPath / "src",
-                    moduleExtensionSchemaName = pluginInfo.schemaExtensionClassName,
+                    pluginSettingsClassName = pluginInfo.settingsClass,
                 )
             }
         )
@@ -102,8 +102,8 @@ internal suspend fun doPreparePlugins(
             }
             PluginData(
                 id = PluginData.Id(plugin.id),
-                moduleExtensionSchemaName = result.declarations.classes.map { it.name }.find {
-                    it.qualifiedName == plugin.schemaExtensionClassName
+                pluginSettingsSchemaName = result.declarations.classes.map { it.name }.find {
+                    it.qualifiedName == plugin.settingsClass
                 },
                 description = plugin.description,
                 declarations = result.declarations,

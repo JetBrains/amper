@@ -5,7 +5,7 @@ pluginInfo:
   id: build-konfig
   description: |
     Generates the Kotlin object with all the supplied properties (String)
-  schemaExtensionClassName: org.jetbrains.amper.plugins.buildkonfig.Schema1
+  settingsClass: org.jetbrains.amper.plugins.buildkonfig.Schema1
 
 plugins:
   hello:

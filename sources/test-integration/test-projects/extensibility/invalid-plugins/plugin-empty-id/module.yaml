@@ -2,4 +2,4 @@ product: jvm/amper-plugin
 
 pluginInfo:
   # no-id
-  schemaExtensionClassName: com.example.Settings
+  settingsClass: com.example.Settings

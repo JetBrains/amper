@@ -29,7 +29,7 @@ abstract class SchemaProcessorTestBase {
 
         fun expectPluginData(@Language("json") result: String)
 
-        fun givenSchemaExtensionClassName(name: String)
+        fun givenPluginSettingsClassName(name: String)
     }
 
     protected fun runTest(
@@ -51,7 +51,7 @@ abstract class SchemaProcessorTestBase {
         }
 
         val sources = mutableListOf<Source>()
-        var schemaExtensionClassName: String? = null
+        var pluginSettingsClassName: String? = null
         var expectedJsonPluginData: String? = null
         val builder = object : TestBuilder {
             override fun givenSourceFile(contents: String, packageName: String, name: String) {
@@ -62,8 +62,8 @@ abstract class SchemaProcessorTestBase {
                 expectedJsonPluginData = result
             }
 
-            override fun givenSchemaExtensionClassName(name: String) {
-                schemaExtensionClassName = name
+            override fun givenPluginSettingsClassName(name: String) {
+                pluginSettingsClassName = name
             }
         }
         builder.block()
@@ -75,7 +75,7 @@ abstract class SchemaProcessorTestBase {
 
         val request = PluginDeclarationsRequest.Request(
             moduleName = "test-plugin",
-            moduleExtensionSchemaName = schemaExtensionClassName,
+            pluginSettingsClassName = pluginSettingsClassName,
             sourceDir = tempDirExtension.path,
         )
 

@@ -119,7 +119,7 @@ internal class PluginTreeReader(
             `object`<PluginYamlRoot> {
                 PluginYamlRoot.MODULE setTo `object`(moduleConfigurationDeclaration.toType()) {
                     ModuleDataForPluginDeclaration.NAME setTo scalar(module.module.userReadableName)
-                    if (pluginData.moduleExtensionSchemaName != null) {
+                    if (pluginData.pluginSettingsSchemaName != null) {
                         ModuleDataForPluginDeclaration.PLUGIN_SETTINGS setTo pluginConfiguration
                     }
                     ModuleDataForPluginDeclaration.ROOT_DIR setTo scalar(moduleRootDir)

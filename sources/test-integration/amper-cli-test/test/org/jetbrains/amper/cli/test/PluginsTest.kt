@@ -329,7 +329,7 @@ class PluginsTest : AmperCliTestBase() {
                 expected = sortedSetOf(
                     "Plugin id must be unique across the project", // Sources are asserted below
                     "${projectRoot / "not-a-plugin" / "module.yaml"}:1:1: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
-                    "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:29: Plugin schema class `com.example.Settings` is not found",
+                    "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
                 ),
                 actual = parseErrors(),
             )

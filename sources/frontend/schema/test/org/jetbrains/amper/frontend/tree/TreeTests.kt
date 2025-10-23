@@ -80,7 +80,7 @@ class TreeTests : FrontendTestCaseBase(Path(".") / "testResources" / "valueTree"
         return listOf(
             PluginData(
                 id = PluginData.Id("myPlugin"),
-                moduleExtensionSchemaName = PluginData.SchemaName("com.example", listOf("CustomPluginSchema")),
+                pluginSettingsSchemaName = PluginData.SchemaName("com.example", listOf("CustomPluginSchema")),
                 declarations = PluginData.Declarations(
                     classes = listOf(
                         PluginData.ClassData(

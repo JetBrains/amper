@@ -53,11 +53,11 @@ internal fun createPluginReaders(
         val pluginData = pluginData.find { it.id.value == pluginId.value }
             ?: return@mapPlugins null
 
-        pluginModule.moduleCtxModule.pluginInfo?.schemaExtensionClassName?.let { moduleExtensionSchemaName ->
-            if (pluginData.declarations.classes.none { it.name.qualifiedName == moduleExtensionSchemaName.value }) {
+        pluginModule.moduleCtxModule.pluginInfo?.settingsClass?.let { settingsClass ->
+            if (pluginData.declarations.classes.none { it.name.qualifiedName == settingsClass.value }) {
                 buildContext.problemReporter.reportBundleError(
-                    source = moduleExtensionSchemaName.asBuildProblemSource(),
-                    "plugin.missing.schema.class", moduleExtensionSchemaName,
+                    source = settingsClass.asBuildProblemSource(),
+                    "plugin.missing.schema.class", settingsClass,
                     problemType = BuildProblemType.UnresolvedReference,
                 )
             }

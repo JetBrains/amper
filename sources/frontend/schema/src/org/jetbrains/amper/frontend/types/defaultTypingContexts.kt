@@ -65,7 +65,7 @@ fun PluginYamlTypingContext(
             )
         )
 
-        val pluginSettingsDeclarationKey = pluginData.moduleExtensionSchemaName?.let { pluginSettingsName ->
+        val pluginSettingsDeclarationKey = pluginData.pluginSettingsSchemaName?.let { pluginSettingsName ->
             pluginData.id / pluginSettingsName
         }
         val moduleReferenceDeclaration = ModuleDataForPluginDeclaration(

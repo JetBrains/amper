@@ -36,7 +36,7 @@ context(session: KaSession, _: DiagnosticsReporter, _: SymbolsCollector, options
 internal fun parseSchemaDeclaration(
     schemaDeclaration: KtClassOrObject,
     name: PluginData.SchemaName,
-    primarySchemaFqnString: String?,
+    primaryConfigurableFqnString: String?,
 ): PluginData.ClassData? {
     if (!schemaDeclaration.isInterface()) {
         reportError(schemaDeclaration.getDeclarationKeyword() ?: schemaDeclaration, "schema.not.interface")
@@ -51,7 +51,7 @@ internal fun parseSchemaDeclaration(
         }
         else -> reportError(schemaDeclaration.visibilityModifier() ?: nameIdentifier, "schema.must.be.public")
     }
-    val isPrimarySchema = name.qualifiedName == primarySchemaFqnString
+    val isPrimarySchema = name.qualifiedName == primaryConfigurableFqnString
     val properties = buildList {
         val visitor = object : KtTreeVisitor<Nothing?>() {
             override fun visitClassOrObject(classOrObject: KtClassOrObject, data: Nothing?): Void? {

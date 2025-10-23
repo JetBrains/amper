@@ -37,14 +37,13 @@ class MinimalPluginDeclarationSchema : SchemaNode() {
     val id by nullableValue<TraceableString>()
     val description by nullableValue<String>()
     @StringSemantics(Semantics.PluginSettingsClass)
-    val schemaExtensionClassName by nullableValue<TraceableString>()
+    val settingsClass by nullableValue<TraceableString>()
 }
-
 
 interface PluginManifest {
     val id: String
     val description: String?
-    val schemaExtensionClassName: String?
+    val settingsClass: String?
 }
 
 /**
@@ -75,7 +74,7 @@ fun parsePluginManifestFromModuleFile(
         return object : PluginManifest {
             override val id: String = moduleHeader.pluginInfo.id?.value ?: moduleFile.parent.name
             override val description: String? = moduleHeader.pluginInfo.description
-            override val schemaExtensionClassName: String? = moduleHeader.pluginInfo.schemaExtensionClassName?.value
+            override val settingsClass: String? = moduleHeader.pluginInfo.settingsClass?.value
 
             override fun toString(): String {
                 return "{schema='${moduleHeader.pluginInfo.toStableJsonLikeString()}', moduleFile='${moduleFile.path}'}"

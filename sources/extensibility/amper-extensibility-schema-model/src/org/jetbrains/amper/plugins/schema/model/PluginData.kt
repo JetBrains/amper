@@ -12,13 +12,13 @@ import kotlinx.serialization.Serializable
  *
  * - This includes the general plugin information: [id], [description]
  * - Information about the `module.yaml` schema extension for the plugin:
- *   [moduleExtensionSchemaName] (may be absent if plugin has no user configuration).
+ *   [pluginSettingsSchemaName] (may be absent if plugin has no user configuration).
  * - Schema types/tasks descriptions: [declarations]
  */
 @Serializable
 data class PluginData(
     val id: Id,
-    val moduleExtensionSchemaName: SchemaName? = null,
+    val pluginSettingsSchemaName: SchemaName? = null,
     val description: String? = null,
     val declarations: Declarations,
 ) {

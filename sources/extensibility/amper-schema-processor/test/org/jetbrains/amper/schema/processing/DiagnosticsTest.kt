@@ -10,7 +10,7 @@ class DiagnosticsTest : SchemaProcessorTestBase() {
 
     @Test
     fun `schema smoke`() = runTest {
-        givenSchemaExtensionClassName("com.example.MySettings")
+        givenPluginSettingsClassName("com.example.MySettings")
         givenSourceFile(
             $$"""
 typealias MyBoolean = Boolean?

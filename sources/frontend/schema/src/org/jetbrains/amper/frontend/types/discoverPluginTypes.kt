@@ -27,22 +27,22 @@ internal operator fun PluginData.Id.div(kClass: KClass<*>) = PluginKey(this, kCl
  */
 internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: List<PluginData>) {
     pluginsData.forEach { pluginData ->
-        val moduleExtensionSchemaName = pluginData.moduleExtensionSchemaName
+        val userDefinedPluginSettingsSchemaName = pluginData.pluginSettingsSchemaName
         // Load external classes.
         for (declaration in pluginData.declarations.classes) registeredDeclarations[pluginData.id / declaration.name] =
             ExternalObjectDeclaration(
                 pluginId = pluginData.id,
                 data = declaration,
                 instantiationStrategy = { ExtensionSchemaNode() },
-                isRootSchema = declaration.name == moduleExtensionSchemaName,
+                isRootSchema = declaration.name == userDefinedPluginSettingsSchemaName,
                 typingContext = this,
             )
 
         // TODO: Provide a proper user-friendly origin here,
         //  that would somehow point to the plugin module
-        val stubPluginConfigurationOrigin = SchemaOrigin.Builtin
+        val stubPluginSettingsOrigin = SchemaOrigin.Builtin
 
-        val pluginSettingsExtensionSchemaName = if (moduleExtensionSchemaName == null) {
+        val pluginSettingsSchemaName = if (userDefinedPluginSettingsSchemaName == null) {
             // Add a stub class just for the `enabled` sake.
             val stubSchemaName = PluginData.SchemaName(
                 packageName = pluginData.id.value,
@@ -52,13 +52,13 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 pluginId = pluginData.id,
                 schemaName = stubSchemaName,
                 properties = emptyList(),
-                origin = stubPluginConfigurationOrigin,
+                origin = stubPluginSettingsOrigin,
                 instantiationStrategy = { ExtensionSchemaNode() },
                 isRootSchema = true,
                 typingContext = this,
             )
             stubSchemaName
-        } else moduleExtensionSchemaName
+        } else userDefinedPluginSettingsSchemaName
 
         // Load external enums.
         for (declaration in pluginData.declarations.enums) {
@@ -82,11 +82,11 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 }
             )
 
-        val moduleExtensionSchemaDeclaration = moduleExtensionSchemaName?.let { name ->
+        val userDefinedPluginSettingsDeclaration = userDefinedPluginSettingsSchemaName?.let { name ->
             pluginData.declarations.classes.find { it.name == name }
         }
         // Load custom properties for a [PluginSettings] schema type.
-        val pluginSettingsDeclarationKey = pluginData.id / pluginSettingsExtensionSchemaName
+        val pluginSettingsDeclarationKey = pluginData.id / pluginSettingsSchemaName
         val pluginSettingsType = checkNotNull(registeredDeclarations[pluginSettingsDeclarationKey]) {
             "No declaration is present for $pluginSettingsDeclarationKey"
         }.toType()
@@ -96,8 +96,8 @@ internal fun ExtensibleBuiltInTypingContext.discoverPluginTypes(pluginsData: Lis
                 propertyName = pluginData.id.value,
                 propertyType = pluginSettingsType.withNullability(isMarkedNullable = true),
                 documentation = pluginData.description,
-                origin = moduleExtensionSchemaDeclaration?.origin?.toLocalPluginOrigin()
-                    ?: stubPluginConfigurationOrigin,
+                origin = userDefinedPluginSettingsDeclaration?.origin?.toLocalPluginOrigin()
+                    ?: stubPluginSettingsOrigin,
                 default = Default.Static(null),
             )
         )

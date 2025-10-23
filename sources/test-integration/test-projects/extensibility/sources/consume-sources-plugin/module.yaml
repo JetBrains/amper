@@ -1,4 +1,4 @@
 product: jvm/amper-plugin
 
 pluginInfo:
-  schemaExtensionClassName: com.example.amper.plugin.consume_sources.Settings
+  settingsClass: com.example.amper.plugin.consume_sources.Settings

@@ -35,7 +35,7 @@ data class PluginDeclarationsRequest(
          * The optional schema name for the plugin schema extension class for module.
          * Always `null` for libraries.
          */
-        val moduleExtensionSchemaName: String? = null,
+        val pluginSettingsClassName: String? = null,
 
         /**
          * Whether to allow internal/unreleased features (builtin API mode)

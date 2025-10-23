@@ -97,7 +97,7 @@ internal fun runSchemaProcessor(
                 files = session.modulesWithFiles[module]?.filterIsInstance<KtFile>().orEmpty(),
                 diagnostics = diagnostics,
                 isParsingAmperApi = request.isParsingAmperApi,
-                moduleExtensionSchemaName = request.moduleExtensionSchemaName,
+                pluginSettingsClassName = request.pluginSettingsClassName,
             )
             PluginDataResponse.PluginDataWithDiagnostics(
                 sourcePath = request.sourceDir,
