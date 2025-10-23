@@ -39,7 +39,7 @@ internal fun report(
     val specificMessage = MessageFormat(SchemaProcessorBundle.getString(messageKey)).format(values)
     reporter.report(PluginDataResponse.Diagnostic(
         location = where,
-        message = SchemaMessageFormat.format(arrayOf(specificMessage)),
+        message = "$SchemaMessagePrefix $specificMessage",
         diagnosticId = messageKey,
         kind = kind,
     ))
@@ -53,4 +53,9 @@ internal fun PsiElement.getSourceLocation(): SourceLocation {
 }
 
 private val SchemaProcessorBundle: ResourceBundle = ResourceBundle.getBundle("messages.SchemaProcessorBundle")
-private val SchemaMessageFormat = MessageFormat(SchemaProcessorBundle.getString("0.schema.message.format"))
+
+/**
+ * Message prefix that shows that the diagnostic on the Kotlin source is from Amper Schema Parser,
+ * not from Kotlin compiler.
+ */
+val SchemaMessagePrefix: String = SchemaProcessorBundle.getString("0.schema.message.prefix")
