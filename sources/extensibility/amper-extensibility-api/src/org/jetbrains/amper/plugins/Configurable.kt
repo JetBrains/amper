@@ -13,12 +13,12 @@ package org.jetbrains.amper.plugins
  *   - [String]
  *   - [Boolean]
  *   - [java.nio.file.Path]
- *   - [Schema]-annotated interfaces
+ *   - [Configurable]-annotated interfaces
  *   - [List]/[Set] collection of the allowed types
  *   - [Map] of `String` to any allowed type
- * - to extend other [Schema]-annotated interfaces
+ * - to extend other [Configurable]-annotated interfaces
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-annotation class Schema
+annotation class Configurable

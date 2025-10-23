@@ -5,7 +5,7 @@ import org.jetbrains.amper.plugins.*
 import kotlin.io.path.*
 import java.nio.file.Path
 
-@Schema
+@Configurable
 interface DistributionSettings {
     val extraNamedClasspaths: Map<String, Classpath>
 }

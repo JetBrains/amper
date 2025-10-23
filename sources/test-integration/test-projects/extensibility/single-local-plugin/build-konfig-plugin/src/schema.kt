@@ -2,7 +2,7 @@ package org.jetbrains.amper.plugins.buildkonfig
 
 import org.jetbrains.amper.plugins.*
 
-@Schema
+@Configurable
 interface Schema1 {
     /**
      * A map of properties to their values.

@@ -4,7 +4,7 @@ import org.jetbrains.amper.plugins.*
 
 import kotlin.io.path.*
 
-@Schema
+@Configurable
 interface Settings {
     val sources: ModuleSources
 }

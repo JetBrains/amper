@@ -7,7 +7,7 @@ package org.jetbrains.amper.plugins
 /**
  * Annotates a *top-level* Kotlin function, marking it as a possible task action.
  * Such a function must return [Unit] and may have any number of parameters. The allowed parameter types are the same as
- * for properties in [Schema]-annotated interfaces.
+ * for properties in [Configurable]-annotated interfaces.
  *
  * In addition, [java.nio.file.Path] parameters must be annotated with either [Input] or [Output].
  */

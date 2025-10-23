@@ -11,7 +11,7 @@ import java.nio.file.Path
  *
  * Warning: only JVM platform is currently supported.
  */
-@Schema
+@Configurable
 interface CompilationArtifact {
     /**
      * The local module to get the compilation result from.

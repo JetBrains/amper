@@ -26,12 +26,12 @@ enum class MyKind {
 
 interface NoSchema { val foo: Boolean }
 
-@Schema /*{{*/class/*}} [Amper Plugin Schema] @Schema declaration must be an interface */ NoSchema2 { val foo: Boolean }
-@Schema enum /*{{*/class/*}} [Amper Plugin Schema] @Schema declaration must be an interface */ NoSchemaEnum { FOO }
+@Configurable /*{{*/class/*}} [Amper Plugin Schema] @Configurable declaration must be an interface */ NoSchema2 { val foo: Boolean }
+@Configurable enum /*{{*/class/*}} [Amper Plugin Schema] @Configurable declaration must be an interface */ NoSchemaEnum { FOO }
 
-@Schema interface Empty
+@Configurable interface Empty
 
-@Schema interface Lists {                 
+@Configurable interface Lists {                 
   val enabled: Boolean
   val data: List<String>
   val data2: List<Lists>
@@ -39,22 +39,22 @@ interface NoSchema { val foo: Boolean }
   val malformedType1: /*{{*/List/*}} [Amper Plugin Schema] Unexpected schema type `List`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
   val malformedType2: /*{{*/List<Int, String>/*}} [Amper Plugin Schema] Unexpected schema type `List`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
 }
 
-@Schema interface Maps {
+@Configurable interface Maps {
    val mapProperty1: Map<String, String>
-   val mapProperty2: Map</*{{*/Int/*}} [Amper Plugin Schema] Only String is allowed as a Map key type in @Schema interfaces */, String>
+   val mapProperty2: Map</*{{*/Int/*}} [Amper Plugin Schema] Only String is allowed as a Map key type in @Configurable interfaces */, String>
    val mapProperty3: Map<String, /*{{*/NoSchema/*}} [Amper Plugin Schema] Unexpected schema type `com.example.NoSchema`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */>
    val mapProperty4: Map<String, Lists>
    val mapProperty5: Map<String, Maps>
@@ -63,16 +63,16 @@ Supported types are:
    val malformedType3: /*{{*/Map/*}} [Amper Plugin Schema] Unexpected schema type `Map`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
    val malformedType4: /*{{*/Map/*}} [Amper Plugin Schema] Unexpected schema type `Map`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
 }
 
-@Schema interface Nullable {
+@Configurable interface Nullable {
   val enum: MyKind?
   val boolean: Boolean?
   val string: String?
@@ -82,7 +82,7 @@ Supported types are:
   val listsOptional: ListsSchema?
 }
 
-@Schema interface WithValidDefaults {
+@Configurable interface WithValidDefaults {
   val boolean1: Boolean get() = DEFAULT_TRUE
   val boolean3 get() = true
   val string1 get() = "hello"
@@ -107,16 +107,16 @@ Supported types are:
   }
 }
 
-@Schema interface WithInvalidDefaults {
+@Configurable interface WithInvalidDefaults {
   /*{{*/val something get() = null/*}} [Amper Plugin Schema] Unexpected schema type `kotlin.Nothing?`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
   /*{{*/val listOfSomething get() = listOf(null)/*}} [Amper Plugin Schema] Unexpected schema type `kotlin.Nothing?`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
 
 // TODO: Investigate, why is this not a constant expression
@@ -133,8 +133,8 @@ Supported types are:
   val list2: List<List<String>> get() = listOf(/*{{*/arrayOf("a").toList()/*}} [Amper Plugin Schema] Invalid list default expression. Only `emptyList()` or `listOf(...)` calls are allowed */)
   // TODO: Support this case
   val map: Map<String, Int> get() = /*{{*/mapOf("a" to 1, "b" to 2, "c" to 3)/*}} [Amper Plugin Schema] Invalid map default expression. Only `emptyMap()` or `mapOf(...)` calls are allowed */
-  val obj: WithValidDefaults get() = /*{{*/object : WithValidDefaults {}/*}} [Amper Plugin Schema] Explicit defaults for @Schema interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
-  val obj1 get() = /*{{*/object : WithValidDefaults {}/*}} [Amper Plugin Schema] Explicit defaults for @Schema interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
+  val obj: WithValidDefaults get() = /*{{*/object : WithValidDefaults {}/*}} [Amper Plugin Schema] Explicit defaults for @Configurable interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
+  val obj1 get() = /*{{*/object : WithValidDefaults {}/*}} [Amper Plugin Schema] Explicit defaults for @Configurable interfaces are not supported. Every schema interface is instantiated by default using all user-provided and default values */
 
   val enum: MyKind get() = MyKind.Kind1
 
@@ -142,27 +142,27 @@ Supported types are:
     /*{{*/get() { return 0 }/*}} [Amper Plugin Schema] Default property getter must have an expression body */
 }
 
-@Schema interface Invalid /*{{*/<T>/*}} [Amper Plugin Schema] Generics are not allowed in @Schema interfaces */ : /*{{*/Empty/*}} [Amper Plugin Schema] Superinterfaces for @Schema interfaces are not yet supported */ {
+@Configurable interface Invalid /*{{*/<T>/*}} [Amper Plugin Schema] Generics are not allowed in @Configurable interfaces */ : /*{{*/Empty/*}} [Amper Plugin Schema] Superinterfaces for @Configurable interfaces are not yet supported */ {
    val foo: Boolean
    
-   val /*{{*/<T>/*}} [Amper Plugin Schema] Generics are not allowed in @Schema interfaces */ /*{{*/T/*}} [Amper Plugin Schema] Extension properties are not allowed in @Schema interfaces */.withReceiver: Int
-   val /*{{*/Int/*}} [Amper Plugin Schema] Extension properties are not allowed in @Schema interfaces */.withReceiver2: String get() = ""
+   val /*{{*/<T>/*}} [Amper Plugin Schema] Generics are not allowed in @Configurable interfaces */ /*{{*/T/*}} [Amper Plugin Schema] Extension properties are not allowed in @Configurable interfaces */.withReceiver: Int
+   val /*{{*/Int/*}} [Amper Plugin Schema] Extension properties are not allowed in @Configurable interfaces */.withReceiver2: String get() = ""
 
-   /*{{*/context(_: String)/*}} [Amper Plugin Schema] Context parameters are not allowed in @Schema interfaces */
+   /*{{*/context(_: String)/*}} [Amper Plugin Schema] Context parameters are not allowed in @Configurable interfaces */
    val withContext: Int
    
-   /*{{*/var/*}} [Amper Plugin Schema] Mutable properties are not allowed in @Schema interfaces */ mutable: String
+   /*{{*/var/*}} [Amper Plugin Schema] Mutable properties are not allowed in @Configurable interfaces */ mutable: String
    
    /*{{*/fun forbidden() {
       exitProcess(0)
-   }/*}} [Amper Plugin Schema] Functions are not allowed in @Schema interfaces */
+   }/*}} [Amper Plugin Schema] Functions are not allowed in @Configurable interfaces */
    class Unrelated {
        fun allowed() {}
    }
 }
 
 // Main schema
-@Schema interface MySettings {
+@Configurable interface MySettings {
    val /*{{*/enabled/*}} [Amper Plugin Schema] `enabled` property name is reserved in the plugins schema extension */: String
    
    val booleanProperty: Boolean
@@ -172,31 +172,31 @@ Supported types are:
    val floatProperty: /*{{*/Float/*}} [Amper Plugin Schema] Unexpected schema type `kotlin.Float`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
    val unresolved: /*{{*/SomeOtherType/*}} [Amper Plugin Schema] Unexpected schema type `SomeOtherType`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
    val functionType: /*{{*/() -> Unit/*}} [Amper Plugin Schema] Unexpected schema type `() -> kotlin.Unit`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
    
    val nonSchema: /*{{*/NoSchema/*}} [Amper Plugin Schema] Unexpected schema type `com.example.NoSchema`.
 Supported types are:
  - Boolean, String, Int, Path, enums
- - @Schema interface (must be declared in the same source directory)
+ - @Configurable interface (must be declared in the same source directory)
  - List<T>, Map<String, T>, where `T` is a supported type. */
    val empty: Empty
    val lists: ListsSchema
    val maps: Maps
 }
 
-@Schema
-/*{{*/internal/*}} [Amper Plugin Schema] @Schema interface must be public */
+@Configurable
+/*{{*/internal/*}} [Amper Plugin Schema] @Configurable interface must be public */
 interface Config {
   val builtinTypeReference1: Dependency
   val builtinTypeReference2: Dependency.Local
@@ -243,7 +243,7 @@ fun /*{{*/overloaded/*}} [Amper Plugin Schema] Illegal overload for `com.example
     @Test
     fun `enum constant names`() = runTest {
         givenSourceFile("""
-@Schema interface Settings { val prop: MyEnum }
+@Configurable interface Settings { val prop: MyEnum }
 enum class MyEnum {
     MY_CONSTANT,
     MyConstant,

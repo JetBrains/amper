@@ -14,7 +14,7 @@ import java.nio.file.Path
  *
  * Currently, only JVM non-test sources are supported.
  */
-@Schema
+@Configurable
 interface ModuleSources {
     /**
      * Module to get source directories for.

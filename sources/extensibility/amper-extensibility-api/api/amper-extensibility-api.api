@@ -13,6 +13,9 @@ public abstract interface class org/jetbrains/amper/plugins/CompilationArtifact 
 	public abstract fun getFrom ()Lorg/jetbrains/amper/plugins/Dependency$Local;
 }
 
+public abstract interface annotation class org/jetbrains/amper/plugins/Configurable : java/lang/annotation/Annotation {
+}
+
 public abstract interface class org/jetbrains/amper/plugins/Dependency {
 }
 
@@ -61,9 +64,6 @@ public final class org/jetbrains/amper/plugins/ResolutionScope : java/lang/Enum 
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/amper/plugins/ResolutionScope;
 	public static fun values ()[Lorg/jetbrains/amper/plugins/ResolutionScope;
-}
-
-public abstract interface annotation class org/jetbrains/amper/plugins/Schema : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/amper/plugins/SourcesKind : java/lang/Enum {

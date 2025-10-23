@@ -11,7 +11,7 @@ import java.nio.file.Path
  *
  * The resulting classpath can be obtained via [resolvedFiles] property.
  */
-@Schema
+@Configurable
 interface Classpath {
     /**
      * Dependencies to resolve.

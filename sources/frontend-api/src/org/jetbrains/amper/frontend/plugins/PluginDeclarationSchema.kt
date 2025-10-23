@@ -23,7 +23,7 @@ class PluginDeclarationSchema : SchemaNode() {
             "Can be used by tooling to provide documentation on plugin references in configuration files.")
     var description by nullableValue<String>()
 
-    @SchemaDoc("Fully qualified name of the @Schema-annotated interface to be used as plugin configuration. " +
+    @SchemaDoc("Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. " +
             "This interface can't come from a dependency, it must be declared in the source directory.")
     @StringSemantics(Semantics.PluginSettingsClass)
     var schemaExtensionClassName by nullableValue<TraceableString>()

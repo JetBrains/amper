@@ -9,12 +9,12 @@ import java.nio.file.Path
 /**
  * Amper dependency sealed interface.
  */
-@Schema
+@Configurable
 sealed interface Dependency {
     /**
      * A dependency on a local module in the project.
      */
-    @Schema
+    @Configurable
     interface Local : Dependency {
         /**
          * Path to the module root directory.
@@ -30,7 +30,7 @@ sealed interface Dependency {
     /**
      * External maven dependency.
      */
-    @Schema
+    @Configurable
     interface Maven : Dependency {
         /**
          * Maven coordinates, in the `"<group>:<name>:<version>"` format.

@@ -58,7 +58,7 @@ sealed interface SchemaType {
             JvmMainClass,
 
             /**
-             * FQN that references a class marked with `@Schema` annotation used as plugin settings class.
+             * FQN that references a class marked with `@Configurable` annotation used as plugin settings class.
              */
             PluginSettingsClass,
         }

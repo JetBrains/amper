@@ -7,7 +7,7 @@ package com.example
 import org.jetbrains.amper.plugins.*
 import java.nio.file.Path
 
-@Schema interface Settings {
+@Configurable interface Settings {
     val boolean: Boolean get() = false
     val requiredBoolean: Boolean
     val requiredString: String
@@ -17,13 +17,13 @@ import java.nio.file.Path
     val nested: Nested
 }
 
-@Schema interface Nested {
+@Configurable interface Nested {
     val string: String get() = "string"
     val list: List<Element> get() = emptyList()
     val map: Map<String, Element> get() = emptyMap()
 }
 
-@Schema interface Element {
+@Configurable interface Element {
     val enum: SomeEnum
     val string: String
 }
