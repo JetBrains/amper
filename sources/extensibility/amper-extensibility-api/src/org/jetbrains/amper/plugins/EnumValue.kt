@@ -5,10 +5,7 @@
 package org.jetbrains.amper.plugins
 
 /**
- * Specifies a string value for the enum constant to be used in YAML build files instead of the default one.
- *
- * NOTE: The default enum value in YAML is constant's name converted into a "kebab-case",
- * e.g., `MyConstant` and `MY_CONSTANT` become `my-constant` in YAML.
+ * Specifies a string value for the enum constant to be used in YAML build files instead of the [Enum.name].
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)

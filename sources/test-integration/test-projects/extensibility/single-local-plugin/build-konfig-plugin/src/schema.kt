@@ -18,6 +18,6 @@ interface Schema1 {
 }
 
 enum class Visibility {
-    Internal,
-    Public,
+    @EnumValue("internal") Internal,
+    @EnumValue("public") Public,
 }

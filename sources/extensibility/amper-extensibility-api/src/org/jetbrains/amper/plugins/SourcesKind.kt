@@ -11,10 +11,12 @@ enum class SourcesKind {
     /**
      * Kotlin + Java source directories, e.g., `src`, `src@jvm`, ...
      */
+    @EnumValue("kotlin-java-sources")
     KotlinJavaSources,
 
     /**
      * Java resources directories, e.g., `resources`, `resources@jvm`, ...
      */
+    @EnumValue("resources")
     Resources,
 }

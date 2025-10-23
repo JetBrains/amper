@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotationValue
-import org.jetbrains.kotlin.analysis.api.base.KaConstantValue
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaEnumEntrySymbol
 import org.jetbrains.kotlin.analysis.api.symbols.psi
@@ -23,28 +22,10 @@ internal fun parseEnum(symbol: KaClassSymbol) = PluginData.EnumData(
             ?.let { v -> v as KaAnnotationValue.ConstantValue }?.value?.value as? String
         PluginData.EnumData.Entry(
             name = it.name.asString(),
-            schemaName = explicitEnumName ?: it.name.asString().toKebabCase(),
+            schemaName = explicitEnumName ?: it.name.asString(),
             doc = it.psiSafe<KtDeclaration>()?.getDefaultDocString(),
             origin = it.psi<PsiElement>().getSourceLocation(),
         )
     }.toList(),
     origin = symbol.psi<PsiElement>().getSourceLocation(),
 )
-
-/**
- * This function implements the default conversion from the enum constant's name to the name in the schema.
- * It converts `"CamelCase"` or `"SCREAMING_SNAKE_CASE"` into `"kebab-case"`.
- */
-internal fun String.toKebabCase(): String {
-    // Split by underscores first, then split camel case within each segment
-    if (isEmpty()) return this
-
-    val camelBoundary = Regex("(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
-
-    return this
-        .splitToSequence('_')
-        .flatMap { segment -> segment.splitToSequence(camelBoundary) }
-        .filter { it.isNotEmpty() }
-        .map { it.lowercase() }
-        .joinToString("-")
-}

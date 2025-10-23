@@ -261,11 +261,11 @@ enum class MyEnum {
       "entries": [
         {
           "name": "MY_CONSTANT",
-          "schemaName": "my-constant"
+          "schemaName": "MY_CONSTANT"
         },
         {
           "name": "MyConstant",
-          "schemaName": "my-constant"
+          "schemaName": "MyConstant"
         },
         {
           "name": "hello-3world",
