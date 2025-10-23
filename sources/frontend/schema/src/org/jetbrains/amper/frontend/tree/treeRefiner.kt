@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
@@ -85,7 +86,11 @@ class RefineRequest(
             // Do actual overriding for key-value pairs.
             val refinedProperties = refineOrReduceByKeys {
                 it.sortedWith(::compareAndReport).reduceProperties { first, second ->
-                    val newTrace = second.trace.withPrecedingValue(first)
+                    val newTrace = second.trace.let { trace ->
+                        if (trace.isDefault) {
+                            trace // Defaults with higher priority just replace each other without a trace
+                        } else trace.withPrecedingValue(first)
+                    }
                     val newValue = when (second) {
                         is NullValue -> second.copy(trace = newTrace)
                         is ScalarValue -> second.copy(trace = newTrace)
