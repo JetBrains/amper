@@ -3,7 +3,7 @@ tasks:
   say:
     action: !org.jetbrains.amper.plugins.hello.sayHello
       messages:
-        - "Hello! My working directory is: ${taskDir},"
+        - "Hello! My working directory is: ${taskOutputDir},"
         - "my module's root directory is: ${module.rootDir}."
         - "That's all I had to say. Task out."
   crash:

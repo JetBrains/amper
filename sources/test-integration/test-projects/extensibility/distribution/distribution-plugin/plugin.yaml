@@ -4,6 +4,6 @@ tasks:
     action: !com.example.distribution.buildDistribution
       baseClasspath: ${module.runtimeClasspath}
       settings: ${pluginSettings}
-      distributionDir: ${taskDir}
+      distributionDir: ${taskOutputDir}
       baseJar:
         from: ${module.self}

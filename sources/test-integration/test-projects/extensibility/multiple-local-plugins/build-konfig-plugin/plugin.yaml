@@ -6,13 +6,13 @@
 # --- real tree
 tasks:
   generate-konfig:
-    # taskDir: <set automatically>
+    # taskOutputDir: <set automatically>
     action: !org.jetbrains.amper.plugins.buildkonfig.generateKonfig
       config: ${pluginSettings.config}
       packageName: ${pluginSettings.packageName}
       objectName: ${pluginSettings.objectName}
       visibility: ${pluginSettings.visibility}
-      outputDir: ${taskDir}/sources
+      outputDir: ${taskOutputDir}/sources
       baselinePropertiesFile: ${module.rootDir}/${pluginSettings.propertiesFileName}.properties
     markOutputsAs:
       - path: ${action.outputDir} # physical reference

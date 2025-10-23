@@ -42,7 +42,7 @@ class Task : SchemaNode() {
         /**
          * Reference-only property name
          */
-        const val TASK_OUTPUT_DIR = "taskDir"
+        const val TASK_OUTPUT_DIR = "taskOutputDir"
     }
 }
 

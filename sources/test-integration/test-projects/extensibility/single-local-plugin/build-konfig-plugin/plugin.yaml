@@ -6,10 +6,10 @@
 # --- real tree
 tasks:
   generate-konfig:
-    # taskDir: <set automatically>
+    # taskOutputDir: <set automatically>
     action: !org.jetbrains.amper.plugins.buildkonfig.generateKonfig
       config: ${pluginSettings}
-      outputDir: ${taskDir}  # can be made default to `${taskDir}`?
+      outputDir: ${taskOutputDir}  # can be made default to `${taskOutputDir}`?
     markOutputsAs:
       - path: ${action.outputDir} # physical reference
         kind: kotlin-sources

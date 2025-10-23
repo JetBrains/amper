@@ -406,7 +406,7 @@ class PluginsTest : AmperCliTestBase() {
             val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
             assertEquals(
                 expected = sortedSetOf(
-                    "${pluginYaml}:19:5: Cannot assign to property `taskDir` - it is a built-in property available for reference only",
+                    "${pluginYaml}:19:5: Cannot assign to property `taskOutputDir` - it is a built-in property available for reference only",
                     "${pluginYaml}:18:11: Expected `Dependency.Maven ( maven-coordinates | maven-coordinates: {..} )`, but got `sequence []`",
                     "${pluginYaml}:21:1: Cannot assign to property `module` - it is a built-in property available for reference only",
                     "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
