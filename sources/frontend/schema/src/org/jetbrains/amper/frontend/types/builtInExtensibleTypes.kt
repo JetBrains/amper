@@ -73,8 +73,8 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
                     documentation = custom.documentation,
                     canBeReferenced = custom.canBeReferenced,
                     isUserSettable = custom.isUserSettable,
+                    origin = custom.origin,
                     isPlatformAgnostic = true,
-                    origin = origin,
                 )
             }.orEmpty()
     }
