@@ -42,7 +42,7 @@ abstract class SchemaProcessorTestBase {
         ) {
             val contents = """
                 package $packageName
-                import org.jetbrains.amper.*
+                import org.jetbrains.amper.plugins.*
                 import java.nio.file.Path
                                 
             """.trimIndent() + contents

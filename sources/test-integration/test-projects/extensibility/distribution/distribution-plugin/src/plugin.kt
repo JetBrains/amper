@@ -1,7 +1,7 @@
 package com.example.distribution
 
 
-import org.jetbrains.amper.*
+import org.jetbrains.amper.plugins.*
 import kotlin.io.path.*
 import java.nio.file.Path
 

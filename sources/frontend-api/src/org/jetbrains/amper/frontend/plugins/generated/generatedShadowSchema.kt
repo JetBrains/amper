@@ -31,13 +31,13 @@ import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.Dependency`
+ * Shadow for `org.jetbrains.amper.plugins.Dependency`
  */
 public sealed class ShadowDependency : SchemaNode()
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.Classpath`
+ * Shadow for `org.jetbrains.amper.plugins.Classpath`
  */
 @SchemaDoc(doc = "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property.")
 public class ShadowClasspath : SchemaNode() {
@@ -55,7 +55,7 @@ public class ShadowClasspath : SchemaNode() {
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.CompilationArtifact`
+ * Shadow for `org.jetbrains.amper.plugins.CompilationArtifact`
  */
 @SchemaDoc(doc = "Provides the compilation result of the [given][from] module.\n\nWarning: only JVM platform is currently supported.")
 public class ShadowCompilationArtifact : SchemaNode() {
@@ -69,7 +69,7 @@ public class ShadowCompilationArtifact : SchemaNode() {
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.Dependency.Local`
+ * Shadow for `org.jetbrains.amper.plugins.Dependency.Local`
  */
 @SchemaDoc(doc = "A dependency on a local module in the project.")
 public class ShadowDependencyLocal : ShadowDependency() {
@@ -81,7 +81,7 @@ public class ShadowDependencyLocal : ShadowDependency() {
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.Dependency.Maven`
+ * Shadow for `org.jetbrains.amper.plugins.Dependency.Maven`
  */
 @SchemaDoc(doc = "External maven dependency.")
 public class ShadowDependencyMaven : ShadowDependency() {
@@ -93,7 +93,7 @@ public class ShadowDependencyMaven : ShadowDependency() {
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.ModuleSources`
+ * Shadow for `org.jetbrains.amper.plugins.ModuleSources`
  */
 @SchemaDoc(doc = "Use to get module [source directories][sourceDirectories] from the module.\nTakes the source layout option into account.\n\nUse [kind] to get different kinds of module sources.\n\nCurrently, only JVM non-test sources are supported.")
 public class ShadowModuleSources : SchemaNode() {
@@ -113,7 +113,7 @@ public class ShadowModuleSources : SchemaNode() {
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.ResolutionScope`
+ * Shadow for `org.jetbrains.amper.plugins.ResolutionScope`
  */
 public enum class ShadowResolutionScope(
     override val schemaValue: String,
@@ -127,7 +127,7 @@ public enum class ShadowResolutionScope(
 
 /**
  * Generated!
- * Shadow for `org.jetbrains.amper.SourcesKind`
+ * Shadow for `org.jetbrains.amper.plugins.SourcesKind`
  */
 public enum class ShadowSourcesKind(
     override val schemaValue: String,
@@ -141,24 +141,24 @@ public enum class ShadowSourcesKind(
 
 public object ShadowMaps {
     public val PublicInterfaceToShadowNodeClass: Map<String, KClass<*>> = mapOf(
-            "org.jetbrains.amper.Classpath" to ShadowClasspath::class,
-            "org.jetbrains.amper.CompilationArtifact" to ShadowCompilationArtifact::class,
-            "org.jetbrains.amper.Dependency.Local" to ShadowDependencyLocal::class,
-            "org.jetbrains.amper.Dependency.Maven" to ShadowDependencyMaven::class,
-            "org.jetbrains.amper.ModuleSources" to ShadowModuleSources::class,
-            "org.jetbrains.amper.Dependency" to ShadowDependency::class,
-            "org.jetbrains.amper.ResolutionScope" to ShadowResolutionScope::class,
-            "org.jetbrains.amper.SourcesKind" to ShadowSourcesKind::class,
+            "org.jetbrains.amper.plugins.Classpath" to ShadowClasspath::class,
+            "org.jetbrains.amper.plugins.CompilationArtifact" to ShadowCompilationArtifact::class,
+            "org.jetbrains.amper.plugins.Dependency.Local" to ShadowDependencyLocal::class,
+            "org.jetbrains.amper.plugins.Dependency.Maven" to ShadowDependencyMaven::class,
+            "org.jetbrains.amper.plugins.ModuleSources" to ShadowModuleSources::class,
+            "org.jetbrains.amper.plugins.Dependency" to ShadowDependency::class,
+            "org.jetbrains.amper.plugins.ResolutionScope" to ShadowResolutionScope::class,
+            "org.jetbrains.amper.plugins.SourcesKind" to ShadowSourcesKind::class,
             )
 
     public val ShadowNodeClassToPublicReflectionName: Map<KClass<*>, String> = mapOf(
-            ShadowClasspath::class to "org.jetbrains.amper.Classpath",
-            ShadowCompilationArtifact::class to "org.jetbrains.amper.CompilationArtifact",
-            ShadowDependencyLocal::class to "org.jetbrains.amper.Dependency${'$'}Local",
-            ShadowDependencyMaven::class to "org.jetbrains.amper.Dependency${'$'}Maven",
-            ShadowModuleSources::class to "org.jetbrains.amper.ModuleSources",
-            ShadowDependency::class to "org.jetbrains.amper.Dependency",
-            ShadowResolutionScope::class to "org.jetbrains.amper.ResolutionScope",
-            ShadowSourcesKind::class to "org.jetbrains.amper.SourcesKind",
+            ShadowClasspath::class to "org.jetbrains.amper.plugins.Classpath",
+            ShadowCompilationArtifact::class to "org.jetbrains.amper.plugins.CompilationArtifact",
+            ShadowDependencyLocal::class to "org.jetbrains.amper.plugins.Dependency${'$'}Local",
+            ShadowDependencyMaven::class to "org.jetbrains.amper.plugins.Dependency${'$'}Maven",
+            ShadowModuleSources::class to "org.jetbrains.amper.plugins.ModuleSources",
+            ShadowDependency::class to "org.jetbrains.amper.plugins.Dependency",
+            ShadowResolutionScope::class to "org.jetbrains.amper.plugins.ResolutionScope",
+            ShadowSourcesKind::class to "org.jetbrains.amper.plugins.SourcesKind",
             )
 }

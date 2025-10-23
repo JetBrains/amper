@@ -1,6 +1,6 @@
 package org.jetbrains.amper.plugins.hello
 
-import org.jetbrains.amper.*
+import org.jetbrains.amper.plugins.*
 
 import java.nio.file.Path
 import kotlin.io.path.pathString

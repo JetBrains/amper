@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
-import org.jetbrains.amper.*
+import org.jetbrains.amper.plugins.*
 
 import java.nio.file.Path
 import kotlin.io.path.pathString

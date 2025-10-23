@@ -1,7 +1,7 @@
 {
     "enums": [
         {
-            "schemaName": "org.jetbrains.amper/ResolutionScope",
+            "schemaName": "org.jetbrains.amper.plugins/ResolutionScope",
             "entries": [
                 {
                     "name": "Runtime",
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "schemaName": "org.jetbrains.amper/SourcesKind",
+            "schemaName": "org.jetbrains.amper.plugins/SourcesKind",
             "entries": [
                 {
                     "name": "KotlinJavaSources",
@@ -33,7 +33,7 @@
     ],
     "classes": [
         {
-            "name": "org.jetbrains.amper/Classpath",
+            "name": "org.jetbrains.amper.plugins/Classpath",
             "properties": [
                 {
                     "name": "dependencies",
@@ -41,7 +41,7 @@
                         "type": "list",
                         "elementType": {
                             "type": "variant",
-                            "schemaName": "org.jetbrains.amper/Dependency"
+                            "schemaName": "org.jetbrains.amper.plugins/Dependency"
                         }
                     },
                     "doc": "Dependencies to resolve.\nVersion conflict resolution may apply if necessary for the given list of dependencies.\n\n",
@@ -53,7 +53,7 @@
                     "name": "scope",
                     "type": {
                         "type": "enum",
-                        "schemaName": "org.jetbrains.amper/ResolutionScope"
+                        "schemaName": "org.jetbrains.amper.plugins/ResolutionScope"
                     },
                     "default": {
                         "type": "enum",
@@ -79,13 +79,13 @@
             "doc": "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property."
         },
         {
-            "name": "org.jetbrains.amper/CompilationArtifact",
+            "name": "org.jetbrains.amper.plugins/CompilationArtifact",
             "properties": [
                 {
                     "name": "from",
                     "type": {
                         "type": "object",
-                        "schemaName": "org.jetbrains.amper/Dependency/Local"
+                        "schemaName": "org.jetbrains.amper.plugins/Dependency/Local"
                     },
                     "doc": "The local module to get the compilation result from.",
                     "internalAttributes": {}
@@ -104,7 +104,7 @@
             "doc": "Provides the compilation result of the [given][from] module.\n\nWarning: only JVM platform is currently supported."
         },
         {
-            "name": "org.jetbrains.amper/Dependency/Local",
+            "name": "org.jetbrains.amper.plugins/Dependency/Local",
             "properties": [
                 {
                     "name": "modulePath",
@@ -121,7 +121,7 @@
             "doc": "A dependency on a local module in the project."
         },
         {
-            "name": "org.jetbrains.amper/Dependency/Maven",
+            "name": "org.jetbrains.amper.plugins/Dependency/Maven",
             "properties": [
                 {
                     "name": "coordinates",
@@ -137,13 +137,13 @@
             "doc": "External maven dependency."
         },
         {
-            "name": "org.jetbrains.amper/ModuleSources",
+            "name": "org.jetbrains.amper.plugins/ModuleSources",
             "properties": [
                 {
                     "name": "from",
                     "type": {
                         "type": "object",
-                        "schemaName": "org.jetbrains.amper/Dependency/Local"
+                        "schemaName": "org.jetbrains.amper.plugins/Dependency/Local"
                     },
                     "doc": "Module to get source directories for.",
                     "internalAttributes": {}
@@ -152,7 +152,7 @@
                     "name": "kind",
                     "type": {
                         "type": "enum",
-                        "schemaName": "org.jetbrains.amper/SourcesKind"
+                        "schemaName": "org.jetbrains.amper.plugins/SourcesKind"
                     },
                     "default": {
                         "type": "enum",
@@ -192,13 +192,13 @@
     ],
     "variants": [
         {
-            "name": "org.jetbrains.amper/Dependency",
+            "name": "org.jetbrains.amper.plugins/Dependency",
             "variants": [
                 {
-                    "schemaName": "org.jetbrains.amper/Dependency/Local"
+                    "schemaName": "org.jetbrains.amper.plugins/Dependency/Local"
                 },
                 {
-                    "schemaName": "org.jetbrains.amper/Dependency/Maven"
+                    "schemaName": "org.jetbrains.amper.plugins/Dependency/Maven"
                 }
             ]
         }

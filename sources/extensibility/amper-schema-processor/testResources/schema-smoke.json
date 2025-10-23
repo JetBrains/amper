@@ -26,21 +26,21 @@
           "name": "builtinTypeReference1",
           "type": {
             "type": "variant",
-            "schemaName": "org.jetbrains.amper/Dependency"
+            "schemaName": "org.jetbrains.amper.plugins/Dependency"
           }
         },
         {
           "name": "builtinTypeReference2",
           "type": {
             "type": "object",
-            "schemaName": "org.jetbrains.amper/Dependency/Local"
+            "schemaName": "org.jetbrains.amper.plugins/Dependency/Local"
           }
         },
         {
           "name": "builtinTypeReference3",
           "type": {
             "type": "object",
-            "schemaName": "org.jetbrains.amper/Classpath"
+            "schemaName": "org.jetbrains.amper.plugins/Classpath"
           }
         },
         {

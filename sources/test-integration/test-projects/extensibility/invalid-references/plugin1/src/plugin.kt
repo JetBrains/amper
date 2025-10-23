@@ -4,7 +4,7 @@
 
 package com.example
 
-import org.jetbrains.amper.*
+import org.jetbrains.amper.plugins.*
 import java.nio.file.Path
 
 @Schema interface Settings {

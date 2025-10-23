@@ -4,8 +4,7 @@
 
 package com.example.amper.plugin.produce_sources
 
-import org.jetbrains.amper.Output
-import org.jetbrains.amper.TaskAction
+import org.jetbrains.amper.plugins.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div

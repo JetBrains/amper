@@ -2,7 +2,7 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper
+package org.jetbrains.amper.plugins
 
 /**
  * Marks a [java.nio.file.Path] parameter of a [TaskAction]-annotated method.

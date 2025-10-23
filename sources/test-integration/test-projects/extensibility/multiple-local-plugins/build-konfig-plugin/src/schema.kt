@@ -1,6 +1,6 @@
 package org.jetbrains.amper.plugins.buildkonfig
 
-import org.jetbrains.amper.*
+import org.jetbrains.amper.plugins.*
 
 @Schema
 interface Schema1 {

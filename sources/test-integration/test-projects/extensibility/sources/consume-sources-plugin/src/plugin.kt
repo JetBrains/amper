@@ -1,9 +1,6 @@
 package com.example.amper.plugin.consume_sources
 
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.ModuleSources
-import org.jetbrains.amper.Schema
-import org.jetbrains.amper.TaskAction
+import org.jetbrains.amper.plugins.*
 
 import kotlin.io.path.*
 
