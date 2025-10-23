@@ -11,8 +11,10 @@ import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.TaskAction
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
+import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
@@ -69,9 +71,10 @@ fun PluginYamlTypingContext(
             pluginData.id / pluginSettingsName
         }
         val moduleReferenceDeclaration = ModuleDataForPluginDeclaration(
-            pluginSettingsType = pluginSettingsDeclarationKey?.let { getDeclaration(it).toType() },
             classpathType = { getDeclaration<ShadowClasspath>().toType() },
             localDependencyType = { getDeclaration<ShadowDependencyLocal>().toType() },
+            compilationArtifactType = { getDeclaration<ShadowCompilationArtifact>().toType() },
+            moduleSourcesType = { getDeclaration<ShadowModuleSources>().toType() },
         ).also { registeredDeclarations[ModuleDataForPluginDeclaration] = it }
 
         addCustomProperty(
@@ -84,6 +87,20 @@ fun PluginYamlTypingContext(
                 isUserSettable = false,
             ),
         )
+
+        if (pluginSettingsDeclarationKey != null) {
+            addCustomProperty(
+                PluginYamlRoot::class.builtInKey,
+                CustomPropertyDescriptor(
+                    propertyName = PluginYamlRoot.PLUGIN_SETTINGS,
+                    propertyType = getDeclaration(pluginSettingsDeclarationKey).toType(),
+                    documentation = "Plugin settings as configured in the module",
+                    origin = SchemaOrigin.Builtin,
+                    isUserSettable = false,
+                    canBeReferenced = true,
+                ),
+            )
+        }
 
         // Task action is replaced with a specific type from the parent, build explicitly for a plugin.yaml file.
         registeredDeclarations[taskActionBuiltInKey] = getDeclaration(pluginData.taskActionPluginKey)

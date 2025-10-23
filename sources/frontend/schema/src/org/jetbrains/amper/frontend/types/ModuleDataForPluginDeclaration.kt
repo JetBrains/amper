@@ -10,9 +10,10 @@ import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
  * A special synthetic declaration to expose module's data for plugins.
  */
 internal class ModuleDataForPluginDeclaration(
-    pluginSettingsType: SchemaType?,
     classpathType: () -> SchemaType,
     localDependencyType: () -> SchemaType,
+    compilationArtifactType: () -> SchemaType,
+    moduleSourcesType: () -> SchemaType,
 ) : SchemaObjectDeclarationBase() {
     override val properties by lazy {
         buildList properties@ {
@@ -30,12 +31,13 @@ internal class ModuleDataForPluginDeclaration(
             }
 
             // TODO: Write more detailed documentation for these properties.
-            if (pluginSettingsType != null) {
-                addProperty(PLUGIN_SETTINGS, pluginSettingsType, "Plugin settings as configured in the module")
-            }
             addProperty(NAME, SchemaType.StringType, "Name of the module")
             addProperty(ROOT_DIR, SchemaType.PathType, "Module's root directory (where `module.yaml` resides)")
-            addProperty(RUNTIME_CLASSPATH, classpathType(), "Runtime classpath of the module")
+            addProperty(RUNTIME_CLASSPATH, classpathType(), "Runtime classpath of the module (jvm, main)")
+            addProperty(COMPILE_CLASSPATH, classpathType(), "Compilation classpath of the module + the compilation result (jvm, main)")
+            addProperty(KOTLIN_JAVA_SOURCES, moduleSourcesType(), "Kotlin and Java source directories of the module (jvm, main)")
+            addProperty(RESOURCES, moduleSourcesType(), "Resource directories of the module (jvm, main)")
+            addProperty(JAR, compilationArtifactType(), "Compiled JAR for the module (jvm, main)")
             addProperty(SELF, localDependencyType(), "Dependency on the module itself")
         }
     }
@@ -45,10 +47,13 @@ internal class ModuleDataForPluginDeclaration(
     override val origin get() = SchemaOrigin.Builtin
 
     companion object : DeclarationKey {
-        const val PLUGIN_SETTINGS = "configuration"
         const val NAME = "name"
         const val ROOT_DIR = "rootDir"
-        const val RUNTIME_CLASSPATH = "classpath"
-        const val SELF = "dependency"
+        const val RUNTIME_CLASSPATH = "runtimeClasspath"
+        const val COMPILE_CLASSPATH = "compileClasspath"
+        const val KOTLIN_JAVA_SOURCES = "kotlinJavaSources"
+        const val RESOURCES = "resources"
+        const val JAR = "jar"
+        const val SELF = "self"
     }
 }

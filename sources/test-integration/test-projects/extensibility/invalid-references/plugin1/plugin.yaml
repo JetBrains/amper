@@ -2,14 +2,14 @@
 tasks:
   some-task:
     action: !com.example.someAction
-      boolean1: ${module.configuration.boolean}
-      boolean2: ${module.configuration.requiredString} # ${module.configuration.boolean}+true
-      requiredString: "prefix-${module.configuration.requiredString}-${boolean1}"
-      nullablePath: ${module.configuration.path}/${requiredString}
-      path: ${module.configuration}
-      nullableInt: ${module.configuration.nullablePath}
+      boolean1: ${pluginSettings.boolean}
+      boolean2: ${pluginSettings.requiredString} # ${pluginSettings.boolean}+true
+      requiredString: "prefix-${pluginSettings.requiredString}-${boolean1}"
+      nullablePath: ${pluginSettings.path}/${requiredString}
+      path: ${pluginSettings}
+      nullableInt: ${pluginSettings.nullablePath}
       nested1: ${module}
-      nested2: ${module.configuration.nested.map}
+      nested2: ${pluginSettings.nested.map}
       dependencies:
         - hel:lo/foo
         - one-part

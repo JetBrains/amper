@@ -1,4 +1,4 @@
 tasks:
   consume:
     action: !com.example.amper.plugin.consume_sources.consume
-      settings: ${module.configuration}
+      settings: ${pluginSettings}

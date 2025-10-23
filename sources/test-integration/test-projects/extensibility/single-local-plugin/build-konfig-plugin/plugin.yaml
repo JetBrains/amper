@@ -8,7 +8,7 @@ tasks:
   generate-konfig:
     # taskDir: <set automatically>
     action: !org.jetbrains.amper.plugins.buildkonfig.generateKonfig
-      config: ${module.configuration}
+      config: ${pluginSettings}
       outputDir: ${taskDir}  # can be made default to `${taskDir}`?
     markOutputsAs:
       - path: ${action.outputDir} # physical reference

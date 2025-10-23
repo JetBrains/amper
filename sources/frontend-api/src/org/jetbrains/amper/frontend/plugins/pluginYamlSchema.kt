@@ -19,6 +19,11 @@ class PluginYamlRoot : SchemaNode() {
          * Reference-only property name
          */
         const val MODULE = "module"
+
+        /**
+         * Reference-only plugin settings property name
+         */
+        const val PLUGIN_SETTINGS = "pluginSettings"
     }
 }
 

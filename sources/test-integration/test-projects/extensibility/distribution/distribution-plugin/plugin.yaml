@@ -2,8 +2,8 @@
 tasks:
   build:
     action: !com.example.distribution.buildDistribution
-      baseClasspath: ${module.classpath}
-      settings: ${module.configuration}
+      baseClasspath: ${module.runtimeClasspath}
+      settings: ${pluginSettings}
       distributionDir: ${taskDir}
       baseJar:
-        from: ${module.dependency}
+        from: ${module.self}
