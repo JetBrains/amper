@@ -10,8 +10,9 @@ import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import kotlin.io.path.div
@@ -26,13 +27,22 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@ParameterizedTest(name = "{displayName}; jps={0}")
+@ValueSource(booleans = [true, false])
+@Target(AnnotationTarget.FUNCTION)
+private annotation class RunWithAndWithoutJic
+
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
 class AmperBuildTest : AmperCliTestBase() {
 
-    @Test
-    fun `build command succeeds in jvm-default-compiler-settings`() = runSlowTest {
-        runCli(projectRoot = testProject("jvm-default-compiler-settings"), "build")
+    @RunWithAndWithoutJic
+    fun `build command succeeds in jvm-default-compiler-settings`(compileJavaIncrementally: Boolean) = runSlowTest {
+        runCliWithOrWithoutJps(
+            projectRoot = testProject("jvm-default-compiler-settings"),
+            "build",
+            compileJavaIncrementally = compileJavaIncrementally,
+        )
     }
 
     @Test
@@ -48,9 +58,13 @@ class AmperBuildTest : AmperCliTestBase() {
         }
     }
 
-    @Test
-    fun `build jar with main class`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("java-kotlin-mixed"), "build")
+    @RunWithAndWithoutJic
+    fun `build jar with main class`(useJavaIncrementalCompilation: Boolean) = runSlowTest {
+        val result = runCliWithOrWithoutJps(
+            projectRoot = testProject("java-kotlin-mixed"),
+            "build",
+            compileJavaIncrementally = useJavaIncrementalCompilation,
+            )
 
         val jarPath = result.getTaskOutputPath(":java-kotlin-mixed:jarJvm").resolve("java-kotlin-mixed-jvm.jar")
         assertTrue(jarPath.isRegularFile(), "${jarPath.pathString} should exist and be a file")
@@ -187,4 +201,14 @@ class AmperBuildTest : AmperCliTestBase() {
             hasCompilerArgument("-linker-option=-lz")
         }
     }
+
+    private suspend fun runCliWithOrWithoutJps(
+        projectRoot: Path,
+        vararg args: String,
+        compileJavaIncrementally: Boolean,
+    ) = runCli(
+        projectRoot = projectRoot,
+        *args,
+        amperJvmArgs = listOf("-Dorg.jetbrains.amper.jps=${compileJavaIncrementally}"),
+    )
 }
