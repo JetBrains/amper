@@ -986,7 +986,7 @@ open class DependencyFileImpl(
                             .uri(URI.create(url))
                             // Without a user agent header, we don't get snapshot versions in maven-metadata.xml.
                             // I hope this blows your mind.
-                            .header(HttpHeaders.UserAgent, "JetBrains Amper")
+//                            .header(HttpHeaders.UserAgent, "JetBrains Amper")
                             .withBasicAuth(repository)
                             .timeout(Duration.ofMinutes(2))
                             .GET()
