@@ -189,7 +189,7 @@ internal class JvmCompileTask(
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(javaAnnotationProcessorsGeneratedDir)
-            if (!shouldCompileJavaIncrementally(userSettings.java)) {
+            if (!shouldCompileJavaIncrementally(userSettings.java, javaAnnotationProcessorClasspath)) {
                 cleanDirectory(taskOutputRoot)
             }
             javaCompilerOutputRoot.createDirectories()
@@ -239,7 +239,7 @@ internal class JvmCompileTask(
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
 
                 // if we compile incrementally, then we don't clean the output dir => overwrite instead of failing that a file exists
-                val overwrite = shouldCompileJavaIncrementally(userSettings.java)
+                val overwrite = shouldCompileJavaIncrementally(userSettings.java, javaAnnotationProcessorClasspath)
                 BuildPrimitives.copy(from = resource, to = dest, overwrite = overwrite)
             }
 
@@ -414,7 +414,7 @@ internal class JvmCompileTask(
 
         val freeCompilerArgs = userSettings.java.freeCompilerArgs
 
-        val success = if (shouldCompileJavaIncrementally(userSettings.java)) {
+        val success = if (shouldCompileJavaIncrementally(userSettings.java, processorClasspath)) {
             jicDataDir.createDirectories()
             val jicJavacArgs = commonArgs + freeCompilerArgs
             spanBuilder("JIC").use {
@@ -477,7 +477,11 @@ internal class JvmCompileTask(
         return exitCode == 0
     }
 
-    fun shouldCompileJavaIncrementally(javaUserSettings: JavaUserSettings): Boolean {
+    fun shouldCompileJavaIncrementally(javaUserSettings: JavaUserSettings, javaAnnotationProcessorsClassPath: List<Path>): Boolean {
+        if (javaAnnotationProcessorsClassPath.isNotEmpty()) {
+            // annotation processors are not supported by JPS yet
+            return false
+        }
         return javaUserSettings.compileIncrementally || System.getProperty("org.jetbrains.amper.jic").toBoolean()
     }
 
