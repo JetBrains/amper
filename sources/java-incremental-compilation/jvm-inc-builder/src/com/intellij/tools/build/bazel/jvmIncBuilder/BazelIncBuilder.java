@@ -45,7 +45,7 @@ public class BazelIncBuilder {
       try {
         GraphUpdater graphUpdater = new GraphUpdater(context.getTargetName());
 
-        LOG.info(() -> "Building " + context.getTargetName() + " (rebuild requested: " + context.isRebuild() + ")");
+        LOG.fine(() -> "Building " + context.getTargetName() + " (rebuild requested: " + context.isRebuild() + ")");
 
         if (context.isRebuild() || !storageManager.getOutputBuilder().isInputZipExist()) {
           // either rebuild is explicitly requested, or there is no previous data, need to compile the whole target
@@ -60,7 +60,7 @@ public class BazelIncBuilder {
 
           if (shouldRecompileAll(srcSnapshotDelta) || pastState.getFlagsDigest() != presentState.getFlagsDigest() || pastState.getClasspathStructureDigest() != presentState.getClasspathStructureDigest()) {
             int changedPercent = srcSnapshotDelta.getChangedPercent();
-            LOG.info(() -> "Marking whole target for recompilation [" + context.getTargetName() + "]. Changed sources: " + changedPercent + "% (threshold " + RECOMPILE_CHANGED_RATIO_PERCENT + "%) ");
+            LOG.fine(() -> "Marking whole target for recompilation [" + context.getTargetName() + "]. Changed sources: " + changedPercent + "% (threshold " + RECOMPILE_CHANGED_RATIO_PERCENT + "%) ");
             srcSnapshotDelta.markRecompileAll();
           }
           else {
