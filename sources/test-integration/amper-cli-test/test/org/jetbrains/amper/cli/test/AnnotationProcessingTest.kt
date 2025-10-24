@@ -25,6 +25,12 @@ class AnnotationProcessingTest: AmperCliTestBase() {
     @Test
     fun `lombok project compiles and runs`() = runSlowTest {
         val projectRoot = testProject("lombok")
+
+        val buildResult = runCli(projectRoot, "build")
+
+        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmClassesArtifact" / "lombokjvm" / "Person.class"
+        assertTrue(classFilePath.exists(), "Generated Person class file not found")
+
         val result = runCli(projectRoot, "run")
 
         result.assertStdoutContains("John")
