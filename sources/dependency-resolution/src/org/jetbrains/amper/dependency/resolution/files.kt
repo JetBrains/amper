@@ -1082,7 +1082,7 @@ open class DependencyFileImpl(
     }
 
     private fun Builder.withBasicAuth(repository: MavenRepository): Builder = also {
-        if (repository.userName != null && repository.password != null) {
+        if (!repository.userName.isNullOrBlank() && !repository.password.isNullOrBlank()) {
             header("Authorization", getBasicAuthenticationHeader(repository.userName, repository.password))
         }
     }
