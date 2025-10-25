@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.plugins.protobuf
 
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.TaskAction
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import java.nio.file.Path
-import org.jetbrains.amper.Output
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div

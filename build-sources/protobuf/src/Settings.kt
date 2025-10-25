@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.plugins.protobuf
 
-import org.jetbrains.amper.Schema
+import org.jetbrains.amper.plugins.Configurable
 
-@Schema
+@Configurable
 interface Settings {
     /**
      * `protoc` tool version to use.
@@ -20,7 +20,7 @@ interface Settings {
     val grpc: Grpc
 }
 
-@Schema
+@Configurable
 interface Grpc {
     /**
      * Whether gRPC plugin should be provisioned and enabled.

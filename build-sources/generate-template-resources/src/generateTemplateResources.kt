@@ -4,11 +4,11 @@
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.Output
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import org.jetbrains.amper.templates.json.TemplateDescriptor
 import org.jetbrains.amper.templates.json.TemplateResource
-import org.jetbrains.amper.TaskAction
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -23,14 +23,14 @@ import kotlin.io.path.writeText
 @TaskAction
 @OptIn(ExperimentalSerializationApi::class)
 fun generateTemplateResources(
-    @Output taskOutputDir: Path,
+    @Output outputDir: Path,
     @Input templatesDir: Path,
 ) {
-    taskOutputDir.createDirectories()
+    outputDir.createDirectories()
     val templateDirs = templatesDir.listDirectoryEntries()
     val descriptors = templateDirs.map { createTemplateDescriptor(it) }
 
-    taskOutputDir.resolve("templates/templates.json")
+    outputDir.resolve("templates/templates.json")
         .createParentDirectories()
         .writeTextIfChanged(Json.encodeToString(descriptors)) // important for caching of dependent modules
 }

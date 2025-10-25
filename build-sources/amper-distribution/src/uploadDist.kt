@@ -7,14 +7,14 @@ import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.TaskAction
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.maven.publish.deployToRemoteRepo
 import org.jetbrains.amper.maven.publish.installToMavenLocal
 import org.jetbrains.amper.maven.publish.writePom
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.TaskAction
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteRecursively

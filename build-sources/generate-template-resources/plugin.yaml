@@ -2,8 +2,8 @@
 tasks:
   generateTemplateResources:
     action: !generateTemplateResources
-      taskOutputDir: ${taskDir}
+      outputDir: ${taskOutputDir}
       templatesDir: ${module.rootDir}/resources/templates
     markOutputsAs:
-      - path: ${taskDir}
+      - path: ${taskOutputDir}
         kind: jvm-resources

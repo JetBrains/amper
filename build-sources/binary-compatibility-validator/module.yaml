@@ -4,7 +4,7 @@ apply:
   - ../../sources/common.module-template.yaml
 
 pluginInfo:
-  schemaExtensionClassName: org.jetbrains.amper.plugins.bcv.Settings
+  settingsClass: org.jetbrains.amper.plugins.bcv.Settings
 
 dependencies:
   - ../../sources/libraries/binary-compatibility-validation

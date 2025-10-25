@@ -2,11 +2,11 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.amper.Classpath
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.Output
-import org.jetbrains.amper.TaskAction
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.plugins.Classpath
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import java.nio.file.Path
 import kotlin.io.path.copyTo

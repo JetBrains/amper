@@ -3,16 +3,16 @@ tasks:
   build:
     action: !buildDist
       distribution:
-        cliTgz: ${taskDir}/cli.tgz
-        wrappersDir: ${taskDir}/wrappers
-      cliRuntimeClasspath: ${module.classpath}
-      extraClasspaths: ${module.configuration.extraClasspaths}
+        cliTgz: ${taskOutputDir}/cli.tgz
+        wrappersDir: ${taskOutputDir}/wrappers
+      cliRuntimeClasspath: ${module.runtimeClasspath}
+      extraClasspaths: ${pluginSettings.extraClasspaths}
 
   buildUnpacked:
     action: !buildUnpackedClasspath
-      outputDir: ${taskDir}/dist
-      baseClasspath: ${module.classpath}
-      extraClasspaths: ${module.configuration.extraClasspaths}
+      outputDir: ${taskOutputDir}/dist
+      baseClasspath: ${module.runtimeClasspath}
+      extraClasspaths: ${pluginSettings.extraClasspaths}
 
   uploadLocal:
     action: !uploadDist
@@ -26,10 +26,10 @@ tasks:
 
   embedClasspathAsResources:
     action: !buildUnpackedClasspath
-      outputDir: ${taskDir}
-      baseClasspath: ${module.configuration.embedClasspathAsResources.classpath}
-      subdirectoryName: ${module.configuration.embedClasspathAsResources.resourceDirName}
+      outputDir: ${taskOutputDir}
+      baseClasspath: ${pluginSettings.embedClasspathAsResources.classpath}
+      subdirectoryName: ${pluginSettings.embedClasspathAsResources.resourceDirName}
       jarListFileName: classpath.txt
     markOutputsAs:
-      - path: ${taskDir}
+      - path: ${taskOutputDir}
         kind: jvm-resources

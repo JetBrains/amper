@@ -6,16 +6,15 @@
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
-import org.jetbrains.amper.Classpath
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.Output
-import org.jetbrains.amper.TaskAction
 import org.jetbrains.amper.buildinfo.AmperBuild
+import org.jetbrains.amper.plugins.Classpath
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import org.jetbrains.amper.stdlib.hashing.sha256String
 import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
-import kotlin.collections.forEach
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.extension

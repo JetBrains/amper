@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.plugins.bcv
 
-import org.jetbrains.amper.Schema
+import org.jetbrains.amper.plugins.Configurable
 
-@Schema
+@Configurable
 interface Settings {
     /**
      * Fully qualified package names that are not considered public API.

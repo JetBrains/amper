@@ -4,7 +4,7 @@ apply:
   - ../../sources/common.module-template.yaml
 
 pluginInfo:
-  schemaExtensionClassName: org.jetbrains.amper.plugins.protobuf.Settings
+  settingsClass: org.jetbrains.amper.plugins.protobuf.Settings
 
 dependencies:
   - $libs.jna

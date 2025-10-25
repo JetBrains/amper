@@ -5,9 +5,9 @@
 @file:Suppress("ReplacePrintlnWithLogging")
 
 import org.eclipse.jgit.api.Git
-import org.jetbrains.amper.ExecutionAvoidance
-import org.jetbrains.amper.Output
-import org.jetbrains.amper.TaskAction
+import org.jetbrains.amper.plugins.ExecutionAvoidance
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import org.yaml.snakeyaml.Yaml
 import java.io.StringWriter
 import java.nio.file.Path

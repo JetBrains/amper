@@ -13,10 +13,10 @@ import kotlinx.validation.api.filterOutNonPublic
 import kotlinx.validation.api.loadApiFromJvmClasses
 import kotlinx.validation.api.replaceDots
 import kotlinx.validation.api.retainExplicitlyIncludedIfDeclared
-import org.jetbrains.amper.CompilationArtifact
-import org.jetbrains.amper.Input
-import org.jetbrains.amper.Output
-import org.jetbrains.amper.TaskAction
+import org.jetbrains.amper.plugins.CompilationArtifact
+import org.jetbrains.amper.plugins.Input
+import org.jetbrains.amper.plugins.Output
+import org.jetbrains.amper.plugins.TaskAction
 import java.nio.file.Path
 import java.util.jar.JarFile
 import kotlin.io.path.bufferedWriter

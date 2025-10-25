@@ -4,7 +4,7 @@ apply:
   - ../../sources/common.module-template.yaml
 
 pluginInfo:
-  schemaExtensionClassName: DistributionSettings
+  settingsClass: DistributionSettings
 
 dependencies:
   - ../../sources/amper-build-info
