@@ -9,13 +9,13 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
-import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import kotlin.io.path.div
 import kotlin.io.path.isRegularFile
@@ -31,15 +31,14 @@ internal fun createPluginReaders(
         val pluginModule = modules.find { it.moduleFile == pluginModuleFile }
             ?: return@mapPlugins null
 
-        run { // Report invalid product type
-            val product = pluginModule.moduleCtxModule.product
-            if (product.type != ProductType.JVM_AMPER_PLUGIN) {
-                buildContext.problemReporter.reportBundleError(
-                    product.asBuildProblemSource(),
-                    "plugin.unexpected.product.type", ProductType.JVM_AMPER_PLUGIN.value, product.type
-                )
-                return@mapPlugins null
-            }
+        // Report invalid product types
+        val product = pluginModule.moduleCtxModule.product
+        if (product.type != ProductType.JVM_AMPER_PLUGIN) {
+            buildContext.problemReporter.reportBundleError(
+                product.asBuildProblemSource(),
+                "plugin.unexpected.product.type", ProductType.JVM_AMPER_PLUGIN.value, product.type
+            )
+            return@mapPlugins null
         }
 
         val pluginId = pluginModule.moduleCtxModule.pluginInfo!!.id // safe - default is always set
@@ -67,10 +66,11 @@ internal fun createPluginReaders(
             val pluginModuleRoot = pluginModule.moduleFile.parent
             val pluginFile = pluginModuleRoot.toNioPath() / "plugin.yaml"
             if (!pluginFile.isRegularFile()) {
-                buildContext.problemReporter.reportBundleError(
-                    source = buildContext.pathResolver.toPsiDirectory(pluginModuleRoot)!!.asBuildProblemSource(),
-                    messageKey = "plugin.missing.plugin.yaml",
-                    level = Level.Warning,
+                buildContext.problemReporter.reportMessage(
+                    PluginYamlMissing(
+                        element = product::type.extractPsiElement(),
+                        expectedPluginYamlPath = pluginFile,
+                    )
                 )
                 return@mapPlugins null
             }

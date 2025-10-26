@@ -379,7 +379,7 @@ class PluginsTest : AmperCliTestBase() {
         with(result) {
             assertEquals(
                 expected = sortedSetOf(
-                    "${projectRoot / "empty-plugin" }: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
+                    "${projectRoot / "empty-plugin" / "module.yaml" }:2:3: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
                     "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
                 ),
                 actual = parseWarnings(),

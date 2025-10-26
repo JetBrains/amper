@@ -49,8 +49,6 @@ import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
-import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
-import org.jetbrains.amper.problems.reporting.WholeFileBuildProblemSource
 
 internal class PluginTreeReader(
     private val projectContext: AmperProjectContext,
@@ -84,7 +82,8 @@ internal class PluginTreeReader(
         if (tasks == null || tasks.children.isEmpty()) {
             buildCtx.problemReporter.reportBundleError(
                 source = tasks?.asBuildProblemSource() as? PsiBuildProblemSource
-                    ?: @OptIn(NonIdealDiagnostic::class) WholeFileBuildProblemSource(pluginFile.toNioPath()),
+                    // If tasks are `{}` by *default*, then we need to use the whole tree trace.
+                    ?: pluginTree.asBuildProblemSource(),
                 messageKey = "plugin.missing.tasks",
                 level = Level.Warning,
             )
