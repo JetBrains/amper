@@ -79,7 +79,7 @@ fun KaSession.parsePluginDeclarations(
         }
 
         override fun onClassReferenced(symbol: KaClassSymbol, name: PluginData.SchemaName) {
-            require(symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS))
+            require(symbol.isAnnotatedWith(CONFIGURABLE_ANNOTATION_CLASS))
             if (!seenNames.add(name)) return
             check(symbol.origin == KaSymbolOrigin.SOURCE) { "Non-source declarations must've been preprocessed: $name" }
 
@@ -120,7 +120,7 @@ fun KaSession.parsePluginDeclarations(
     }
 
     for (file in files) {
-        for (declaration in discoverAnnotatedClassesFrom(file, SCHEMA_ANNOTATION_CLASS)) {
+        for (declaration in discoverAnnotatedClassesFrom(file, CONFIGURABLE_ANNOTATION_CLASS)) {
             val symbol = declaration.classSymbol
             val name = symbol?.classId?.toSchemaName() ?: continue  // invalid Kotlin
             resolver.onClassReferenced(symbol, name)

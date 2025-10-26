@@ -64,7 +64,7 @@ internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? 
         PATH_CLASS -> PluginData.Type.PathType(isNullable)
         else -> when (symbol.classKind) {
             KaClassKind.INTERFACE -> {
-                if (symbol.isAnnotatedWith(SCHEMA_ANNOTATION_CLASS)) {
+                if (symbol.isAnnotatedWith(CONFIGURABLE_ANNOTATION_CLASS)) {
                     val schemaName = checkNotNull(symbol.classId) {
                         "not reachable: interface can't be anonymous"
                     }.toSchemaName()

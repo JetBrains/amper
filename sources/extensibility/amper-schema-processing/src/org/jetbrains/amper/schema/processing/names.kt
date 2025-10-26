@@ -15,29 +15,33 @@ internal fun ClassId.toSchemaName() = PluginData.SchemaName(
     simpleNames = relativeClassName.pathSegments().map { it.asString() },
 )
 
+// Amper Extensibility API:
+
 /**
  * Public Extensibility API root package name.
  */
 val EXTENSIBILITY_API_PACKAGE = FqName("org.jetbrains.amper.plugins")
 
+val CONFIGURABLE_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Configurable"))
+val INPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Input"))
+val INFER_TASK_DEPENDENCY_PARAM = Name.identifier("inferTaskDependency")
+val OUTPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Output"))
+
+val PROVIDED_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Provided"))
+val SHORTHAND_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Shorthand"))
+val DEP_NOTATION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("DependencyNotation"))
+val PATH_VALUE_ONLY_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("PathValueOnly"))
+
+val ENUM_VALUE_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("EnumValue"))
+
+val TASK_ACTION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("TaskAction"))
+val TASK_ACTION_EXEC_AVOIDANCE_PARAM = Name.identifier("executionAvoidance")
+val EXEC_AVOIDANCE_ENUM = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("ExecutionAvoidance"))
+val EXEC_AVOIDANCE_DISABLED = CallableId(EXEC_AVOIDANCE_ENUM, Name.identifier("Disabled"))
+
+// System API used by Amper:
+
 private val KOTLIN_COLLECTIONS_PACKAGE = FqName("kotlin.collections")
-
-internal val SCHEMA_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Configurable"))
-internal val INPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Input"))
-internal val INFER_TASK_DEPENDENCY_PARAM = Name.identifier("inferTaskDependency")
-internal val OUTPUT_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Output"))
-
-internal val PROVIDED_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Provided"))
-internal val SHORTHAND_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("Shorthand"))
-internal val DEP_NOTATION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("DependencyNotation"))
-internal val PATH_VALUE_ONLY_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("PathValueOnly"))
-
-internal val ENUM_VALUE_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("EnumValue"))
-
-internal val TASK_ACTION_ANNOTATION_CLASS = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("TaskAction"))
-internal val TASK_ACTION_EXEC_AVOIDANCE_PARAM = Name.identifier("executionAvoidance")
-internal val EXEC_AVOIDANCE_ENUM = ClassId(EXTENSIBILITY_API_PACKAGE, Name.identifier("ExecutionAvoidance"))
-internal val EXEC_AVOIDANCE_DISABLED = CallableId(EXEC_AVOIDANCE_ENUM, Name.identifier("Disabled"))
 
 internal val PATH_CLASS = ClassId(FqName("java.nio.file"), Name.identifier("Path"))
 
