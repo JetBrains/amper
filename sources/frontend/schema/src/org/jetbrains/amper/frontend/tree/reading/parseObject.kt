@@ -81,7 +81,8 @@ private fun parseObjectWithFromKeyProperty(
             origin = value, type = type,
         )
         else -> {
-            reportUnexpectedValue(value, type)
+            // `renderOnlyNestedTypeSyntax` is needed to include the `(prop | prop: (...))` syntax.
+            reportUnexpectedValue(value, type, renderOnlyNestedTypeSyntax = false)
             null
         }
     }

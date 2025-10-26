@@ -7,6 +7,7 @@ dependencies:
   - <![Error] While parsing `ExternalMavenDependency ( maven-coordinates | maven-coordinates: ( "exported" | "compile-only" | "runtime-only" | "all" | {..} ) )`: a mapping must consist of a single key-value pair!>{}<!>
   - <![Error] Expected a value!>foo:bar:baz:<!>
   - foo:bar:baz2: <![Error] Unknown value 'invalid-value'. Expected one of: [exported, compile-only, runtime-only, all]!>invalid-value<!>
+  - foo:bar:baz: <![Error] Expected `ExternalMavenDependency ( "exported" | "compile-only" | "runtime-only" | "all" | {..} )`, but got `sequence []`!>[]<!>
 
   # This multiline dependency, in fact, is parsed as a single line scalar value due to incorrect indentation
   - <![Error] Maven coordinates should not contain spaces!>com.fasterxml.jackson.core:jackson-core:2.17.2

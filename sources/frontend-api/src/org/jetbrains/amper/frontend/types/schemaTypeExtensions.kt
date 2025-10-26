@@ -22,8 +22,19 @@ fun SchemaTypeDeclaration.isSameAs(`class`: KClass<out SchemaNode>): Boolean = q
  */
 fun SchemaObjectDeclaration.Property.isValueRequired() = default !is Default.TransformedDependent<*, *>
 
+/**
+ * Builds a user-readable string representation of the type.
+ *
+ * @param includeSyntax if true, some grammar-like syntax will be included in the representation to describe
+ * what values the type accepts.
+ * @param onlyNested only affects the object types with the
+ * [fromKeyAndTheRestNestedProperty][SchemaObjectDeclaration.getFromKeyAndTheRestNestedProperty],
+ * when the [includeSyntax] is enabled. If set to `true` then only the "nested" part of the syntax is rendered.
+ * `false` by default.
+ */
 fun SchemaType.render(
     includeSyntax: Boolean = true,
+    onlyNested: Boolean = false,
 ): String = buildString {
     when (this@render) {
         is SchemaType.BooleanType -> {
@@ -88,7 +99,7 @@ fun SchemaType.render(
                     }
                 }
                 val fromKeyProperty = declaration.getFromKeyAndTheRestNestedProperty()
-                if (fromKeyProperty != null) {
+                if (fromKeyProperty != null && !onlyNested) {
                     append("( ")
                     val fromKeyPropertyType = fromKeyProperty.type.render(false)
                     append(fromKeyPropertyType).append(" | ").append(fromKeyPropertyType).append(": ")

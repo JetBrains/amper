@@ -45,7 +45,11 @@ internal fun mapLikeValue(
 )
 
 context(reporter: ProblemReporter)
-internal fun reportUnexpectedValue(unexpected: YamlValue, expectedType: SchemaType) {
+internal fun reportUnexpectedValue(
+    unexpected: YamlValue,
+    expectedType: SchemaType,
+    renderOnlyNestedTypeSyntax: Boolean = true,
+) {
     val valueForMessage = when (unexpected) {
         is YamlValue.Mapping -> "mapping {}"
         is YamlValue.Scalar -> "scalar"
@@ -60,9 +64,12 @@ internal fun reportUnexpectedValue(unexpected: YamlValue, expectedType: SchemaTy
             return
         }
     }
+    val typeString = expectedType.render(
+        onlyNested = renderOnlyNestedTypeSyntax,
+    )
     reportParsing(
         unexpected, "validation.types.unexpected.value",
-        expectedType.render(), valueForMessage,
+        typeString, valueForMessage,
         type = BuildProblemType.TypeMismatch,
     )
 }
