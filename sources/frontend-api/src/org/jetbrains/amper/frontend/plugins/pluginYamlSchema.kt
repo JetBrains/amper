@@ -34,7 +34,6 @@ class TaskAction(
 }
 
 class Task : SchemaNode() {
-    var dependsOnSideEffectsOf by value<List<String>>(default = emptyList())
     var action by value<TaskAction>()
     var markOutputsAs by value<List<MarkOutputAs>>(default = emptyList())
 

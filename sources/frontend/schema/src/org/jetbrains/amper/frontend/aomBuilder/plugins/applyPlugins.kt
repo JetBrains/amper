@@ -70,7 +70,6 @@ internal fun applyPlugins(
                 actionFunctionJvmName = taskInfo.jvmFunctionName,
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
-                explicitDependsOn = task.dependsOnSideEffectsOf,
                 inputs = pathsCollector.allInputPaths.map { (path, inferTaskDependency) ->
                     TaskFromPluginDescription.InputPath(path, inferTaskDependency)
                 },

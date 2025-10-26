@@ -47,8 +47,6 @@ class TaskFromPluginDescription(
      */
     val actionArguments: Map<String, Any?>,
 
-    val explicitDependsOn: List<String>,
-
     /**
      * Paths (from the [actionArguments]) that are to be considered as inputs to the task action.
      */
