@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
@@ -159,6 +160,7 @@ internal class PluginTreeReader(
         }
 
         val mergedTree = treeMerger.mergeTrees(listOfNotNull(pluginTree, referenceValuesTree))
+            .substituteCatalogDependencies(pluginModule.usedCatalog)
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
         val resolvedTree = refinedTree.resolveReferences()
         createSchemaNode<PluginYamlRoot>(resolvedTree)

@@ -37,7 +37,7 @@ internal open class DefaultModule(
     override val type: ProductType,
     override val source: AmperModuleFileSource,
     override val aliases: Map<String, Set<Platform>>,
-    override val usedCatalog: VersionCatalog?,
+    override val usedCatalog: VersionCatalog,
     override val usedTemplates: List<VirtualFile>,
     override var parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
     override val layout: Layout = Layout.AMPER,

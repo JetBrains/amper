@@ -100,7 +100,7 @@ interface AmperModule {
     val parts: ClassBasedSet<ModulePart<*>>
 
     @UsedInIdePlugin
-    val usedCatalog: VersionCatalog?
+    val usedCatalog: VersionCatalog
 
     @UsedInIdePlugin
     val usedTemplates: List<VirtualFile>

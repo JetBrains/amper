@@ -71,6 +71,10 @@ class PluginsTest : AmperCliTestBase() {
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
             classpath kotlin-poet.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/com/squareup/kotlinpoet-jvm/2.2.0/kotlinpoet-jvm-2.2.0.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-reflect/2.1.21/kotlin-reflect-2.1.21.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath from-catalog.dependencies = [{coordinates: org.jetbrains.kotlin:kotlin-reflect:2.2.10}]
+            classpath from-catalog.dependencies[0] = {coordinates: org.jetbrains.kotlin:kotlin-reflect:2.2.10}
+            classpath from-catalog.dependencies[0].coordinates = org.jetbrains.kotlin:kotlin-reflect:2.2.10
+            classpath from-catalog.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-reflect/2.2.10/kotlin-reflect-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath compile.dependencies = [{modulePath: $projectRoot/app}]
             classpath compile.dependencies[0] = {modulePath: $projectRoot/app}
             classpath compile.dependencies[0].modulePath = $projectRoot/app

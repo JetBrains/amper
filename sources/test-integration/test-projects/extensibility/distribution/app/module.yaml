@@ -7,6 +7,8 @@ plugins:
       "core": [ ../core ]
       "lib": [ ../lib ]
       "kotlin-poet": [ "com.squareup:kotlinpoet:2.2.0" ]
+      "from-catalog":
+        - $kotlin.reflect
       "compile":
         dependencies: [ . ]
         scope: compile
