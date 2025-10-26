@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependency
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyCatalog
@@ -26,59 +25,54 @@ import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaVariantDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLValue
 import kotlin.reflect.KClass
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseVariant(
-    psi: YAMLValue,
+    value: YamlValue,
     type: SchemaType.VariantType,
 ): TreeValue<*>? = when (type.declaration.qualifiedName) {
     Dependency::class.qualifiedName!! -> {
-        val singleKeyValue = (psi as? YAMLMapping)?.keyValues?.singleOrNull()
-        if (singleKeyValue != null && singleKeyValue.keyText == "bom") {
-            singleKeyValue.value?.let { bomDependency ->
-                parseVariant(bomDependency, type.subVariantType(BomDependency::class))
-                    ?.copyWithTrace(trace = singleKeyValue.asTrace())
-            } ?: run {
-                reportParsing(singleKeyValue, "unexpected.bom.dependency.structure")
+        val singleKeyValue = (value as? YamlValue.Mapping)?.keyValues?.singleOrNull()
+        if (singleKeyValue != null && singleKeyValue.key.psi.text == "bom") {
+            parseValue(singleKeyValue.value, type.subVariantType(BomDependency::class))
+                ?.copyWithTrace(trace = singleKeyValue.asTrace()) ?: run {
+                reportParsing(singleKeyValue.value, "unexpected.bom.dependency.structure")
                 null
             }
         } else {
-            parseVariant(psi, type.subVariantType(ScopedDependency::class))
+            parseVariant(value, type.subVariantType(ScopedDependency::class))
         }
     }
-    BomDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
+    BomDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> {
-            reportParsing(psi, "unexpected.bom.local",)
+            reportParsing(value, "unexpected.bom.local",)
             null
         }
-        '$' -> parseObject(psi, type.leafType(CatalogBomDependency::class))
-        else -> parseObject(psi, type.leafType(ExternalMavenBomDependency::class))
+        '$' -> parseObject(value, type.leafType(CatalogBomDependency::class))
+        else -> parseObject(value, type.leafType(ExternalMavenBomDependency::class))
     }
-    ScopedDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
-        '.' -> parseObject(psi, type.leafType(InternalDependency::class))
-        '$' -> parseObject(psi, type.leafType(CatalogDependency::class))
-        else -> parseObject(psi, type.leafType(ExternalMavenDependency::class))
+    ScopedDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
+        '.' -> parseObject(value, type.leafType(InternalDependency::class))
+        '$' -> parseObject(value, type.leafType(CatalogDependency::class))
+        else -> parseObject(value, type.leafType(ExternalMavenDependency::class))
     }
-    UnscopedDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
-        '.' -> parseObject(psi, type.leafType(UnscopedModuleDependency::class))
-        '$' -> parseObject(psi, type.leafType(UnscopedCatalogDependency::class))
-        else -> parseObject(psi, type.leafType(UnscopedExternalMavenDependency::class))
+    UnscopedDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
+        '.' -> parseObject(value, type.leafType(UnscopedModuleDependency::class))
+        '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
+        else -> parseObject(value, type.leafType(UnscopedExternalMavenDependency::class))
     }
-    ShadowDependency::class.qualifiedName -> when (peekValueAsKey(psi)?.firstOrNull()) {
-        '.' -> parseObject(psi, type.leafType(ShadowDependencyLocal::class))
-        '$' -> parseObject(psi, type.leafType(ShadowDependencyCatalog::class))
-        else -> parseObject(psi, type.leafType(ShadowDependencyMaven::class))
+    ShadowDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
+        '.' -> parseObject(value, type.leafType(ShadowDependencyLocal::class))
+        '$' -> parseObject(value, type.leafType(ShadowDependencyCatalog::class))
+        else -> parseObject(value, type.leafType(ShadowDependencyMaven::class))
     }
     else -> {
         // Generic approach: deduce the type based on the explicit type tag.
         val possibleTagsString by lazy { type.declaration.variants.joinToString { '!' + it.qualifiedName } }
-        when(val tag = psi.tag) {
+        when(val tag = value.tag) {
             null -> {
-                reportParsing(psi, "validation.types.missing.tag", possibleTagsString)
+                reportParsing(value, "validation.types.missing.tag", possibleTagsString)
                 null
             }
             else -> {
@@ -88,16 +82,16 @@ internal fun parseVariant(
                         reportParsing(tag, "validation.types.unknown.tag", possibleTagsString)
                         null
                     }
-                    else -> parseObject(psi, variant.toType(), allowTypeTag = true)
+                    else -> parseObject(value, variant.toType(), allowTypeTag = true)
                 }
             }
         }
     }
 }
 
-private fun peekValueAsKey(psi: YAMLValue): String? = when (psi) {
-    is YAMLMapping -> psi.keyValues.singleOrNull()?.keyText
-    is YAMLScalar -> psi.textValue
+private fun peekValueAsKey(psi: YamlValue): String? = when (psi) {
+    is YamlValue.Mapping -> psi.keyValues.singleOrNull()?.key?.psi?.text
+    is YamlValue.Scalar -> psi.textValue
     else -> null
 }
 

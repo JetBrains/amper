@@ -4,51 +4,38 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.ListValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLSequence
-import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseList(psi: YAMLSequence, type: SchemaType.ListType): ListValue<*> {
-    fun parseListValue(item: YAMLSequenceItem): TreeValue<*>? {
-        // (no value case) No point of issuing `NoValue` here because it can't be later overridden in the list context.
-        // So it can't be possibly valid - report it and skip it.
-        val value = item.value ?: run {
-            reportParsing(item, "validation.structure.missing.value")
-            return null
-        }
-        return parseValue(value, type.elementType)
-    }
-
+internal fun parseList(value: YamlValue.Sequence, type: SchemaType.ListType): ListValue<*> {
     return ListValue(
-        children = psi.items.mapNotNull { item ->
-            parseListValue(item)
+        children = value.items.mapNotNull { value ->
+            parseValue(value, type.elementType)
         },
         type = type,
-        trace = psi.asTrace(),
+        trace = value.asTrace(),
         contexts = contexts,
     )
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseMap(psi: YAMLMapping, type: SchemaType.MapType): Owned {
-    val children = psi.keyValues.mapNotNull { keyValue: YAMLKeyValue ->
+internal fun parseMap(value: YamlValue.Mapping, type: SchemaType.MapType): Owned {
+    val children = value.keyValues.mapNotNull { keyValue: YamlKeyValue ->
         parseKeyValueForMap(keyValue, type)
     }
     return mapLikeValue(
         children = children,
-        origin = psi,
+        origin = value,
         type = type,
     )
 }
@@ -63,11 +50,10 @@ internal fun parseMap(psi: YAMLMapping, type: SchemaType.MapType): Owned {
  * yields: `{ key1: value1, key2: value2 }`
  */
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseMapFromSequence(psi: YAMLSequence, type: SchemaType.MapType): Owned {
-    fun parseSingleKeyValue(item: YAMLSequenceItem): MapLikeValue.Property<*>? {
-        val value = item.value
-        if (value !is YAMLMapping) {
-            reportParsing(item, "validation.types.expected.key.value")
+internal fun parseMapFromSequence(value: YamlValue.Sequence, type: SchemaType.MapType): Owned {
+    fun parseSingleKeyValue(value: YamlValue): MapLikeValue.Property<*>? {
+        if (value !is YamlValue.Mapping) {
+            reportParsing(value, "validation.types.expected.key.value")
             return null
         }
         val singlePair = value.keyValues.singleOrNull() ?: run {
@@ -77,12 +63,12 @@ internal fun parseMapFromSequence(psi: YAMLSequence, type: SchemaType.MapType): 
         return parseKeyValueForMap(singlePair, type)
     }
 
-    val children = psi.items.mapNotNull { item ->
-        parseSingleKeyValue(item)
+    val children = value.items.mapNotNull {
+        parseSingleKeyValue(it)
     }
 
     return mapLikeValue(
-        origin = psi,
+        origin = value,
         children = children,
         type = type,
     )
@@ -90,37 +76,57 @@ internal fun parseMapFromSequence(psi: YAMLSequence, type: SchemaType.MapType): 
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseKeyValueForMap(
-    psi: YAMLKeyValue,
+    keyValue: YamlKeyValue,
     mapType: SchemaType.MapType,
 ): MapLikeValue.Property<*>? {
-    val key = YAMLScalarOrKey.parseKey(psi)
-        ?: return null
-    val keyScalar = parseScalar(key, SchemaType.StringType)
+    val keyScalar = parseScalarKey(keyValue.key, SchemaType.StringType)
         ?: return null
     return MapLikeValue.Property(
         key = keyScalar.value as String,
-        kTrace = key.psi.asTrace(),
-        value = parseValueFromKeyValue(psi, mapType.valueType, explicitContexts = EmptyContexts),
+        kTrace = keyValue.key.asTrace(),
+        value = parseValueFromKeyValue(keyValue, mapType.valueType, explicitContexts = EmptyContexts),
         pType = null,
     )
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
+internal fun parseScalarKey(
+    key: YamlValue,
+    type: SchemaType.ScalarType,
+): ScalarValue<*>? {
+    key.tag?.let { tag ->
+        if (tag.text.startsWith("!!")) {
+            reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+        } else {
+            reportParsing(tag, "validation.structure.unsupported.tag")
+        }
+    }
+    when (key) {
+        is YamlValue.Missing -> {
+            reportParsing(key, "validation.structure.missing.key")
+            return null
+        }
+        is YamlValue.Scalar -> {
+            if (containsReferenceSyntax(key)) {
+                reportParsing(key, "validation.types.unsupported.reference.key", level = Level.Warning)
+            }
+            return parseScalar(key, type)
+        }
+        else -> {
+            reportParsing(key, "validation.types.unexpected.compound.key")
+            return null
+        }
+    }
+}
+
+context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseValueFromKeyValue(
-    keyValue: YAMLKeyValue,
+    keyValue: YamlKeyValue,
     type: SchemaType,
     explicitContexts: Contexts,
 ): TreeValue<*> {
     val trace = keyValue.asTrace()
-    return when (val value = keyValue.value) {
-        null -> {
-            reportParsing(keyValue, "validation.structure.missing.value")
-            ErrorValue(trace)
-        }
-        else -> {
-            parseValue(value, type, explicitContexts)
-                ?.copyWithTrace(trace) // Replace the trace to also capture the key
-                ?: ErrorValue(trace)  // Return NoValue even in the case of errors to preserve traceability
-        }
-    }
+    return parseValue(keyValue.value, type, explicitContexts)
+        ?.copyWithTrace(trace) // Replace the trace to also capture the key
+        ?: ErrorValue(trace)
 }

@@ -18,20 +18,15 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLSequence
-import org.jetbrains.yaml.psi.YAMLValue
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseObject(
-    psi: YAMLValue,
+    value: YamlValue,
     type: SchemaType.ObjectType,
     allowTypeTag: Boolean = false,
 ): Owned? {
     if (!allowTypeTag) {
-        psi.tag?.let { tag ->
+        value.tag?.let { tag ->
             if (!tag.text.startsWith("!!")) {  // Standard "!!" tags are reported in `parseValue`
                 reportParsing(tag, "validation.structure.unsupported.tag")
             }
@@ -40,80 +35,75 @@ internal fun parseObject(
 
     val fromKeyProperty = type.declaration.getFromKeyAndTheRestNestedProperty()
     return if (fromKeyProperty != null) {
-        parseObjectWithFromKeyProperty(fromKeyProperty, psi, type)
+        parseObjectWithFromKeyProperty(fromKeyProperty, value, type)
     } else {
-        parseObjectWithoutFromKeyProperty(psi, type)
+        parseObjectWithoutFromKeyProperty(value, type)
     }
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseObjectWithFromKeyProperty(
     valueAsKeyProperty: SchemaObjectDeclaration.Property,
-    psi: YAMLValue,
+    value: YamlValue,
     type: SchemaType.ObjectType,
 ): Owned? {
     val argumentType = valueAsKeyProperty.type as SchemaType.ScalarType // should be scalar by design
-    return when (psi) {
-        is YAMLMapping -> {
-            val argKeyValue = psi.keyValues.singleOrNull() ?: run {
-                reportParsing(psi, "validation.types.invalid.ctor.arg.key", type.render())
+    return when (value) {
+        is YamlValue.Mapping -> {
+            val argKeyValue = value.keyValues.singleOrNull() ?: run {
+                reportParsing(value, "validation.types.invalid.ctor.arg.key", type.render())
                 return null
             }
-            val key = YAMLScalarOrKey.parseKey(argKeyValue) ?: return null
-            val argumentValue = parseScalar(key, argumentType)
+            val argumentValue = parseScalarKey(argKeyValue.key, argumentType)
                 ?: return null
             val nestedRemainingObject = argKeyValue.value
-            if (nestedRemainingObject == null) {
-                reportParsing(argKeyValue, "validation.structure.missing.value")
-                return null
-            }
             val remainingProperties = parseObjectWithoutFromKeyProperty(nestedRemainingObject, type)
                 ?: return null
             remainingProperties.copy(
                 children = listOf(
                     MapLikeValue.Property(
                         value = argumentValue,
-                        kTrace = key.psi.asTrace(),
+                        kTrace = argKeyValue.key.asTrace(),
                         pType = valueAsKeyProperty,
                     )
                 ) + remainingProperties.children,
                 trace = argKeyValue.asTrace(),
             ) as Owned
         }
-        is YAMLScalar -> mapLikeValue(
+        is YamlValue.Scalar -> mapLikeValue(
             children = listOf(
                 MapLikeValue.Property(
-                    value = parseValue(psi, argumentType) ?: return null,
-                    kTrace = psi.asTrace(),
+                    value = parseValue(value, argumentType) ?: return null,
+                    kTrace = value.asTrace(),
                     pType = valueAsKeyProperty,
                 )
             ),
-            origin = psi, type = type,
+            origin = value, type = type,
         )
         else -> {
-            reportUnexpectedValue(psi, type)
+            reportUnexpectedValue(value, type)
             null
         }
     }
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-private fun parseObjectWithoutFromKeyProperty(psi: YAMLValue, type: SchemaType.ObjectType): Owned? {
-    return when (psi) {
-        is YAMLMapping -> parseObjectFromMap(psi, type)
-        is YAMLScalar -> parseObjectFromScalarShorthand(YAMLScalarOrKey(psi), type)
-        is YAMLSequence -> parseObjectFromListShorthand(psi, type)
+private fun parseObjectWithoutFromKeyProperty(value: YamlValue, type: SchemaType.ObjectType): Owned? {
+    return when (value) {
+        is YamlValue.Mapping -> parseObjectFromMap(value, type)
+        is YamlValue.Scalar -> parseObjectFromScalarShorthand(value, type)
+        is YamlValue.Sequence -> parseObjectFromListShorthand(value, type)
         else -> {
-            reportUnexpectedValue(psi, type)
+            reportUnexpectedValue(value, type)
             null
         }
     }
 }
 
 context(contexts: Contexts, config: ParsingConfig, reporter: ProblemReporter)
-private fun parseObjectFromMap(psi: YAMLMapping, type: SchemaType.ObjectType): Owned {
-    fun parseObjectProperty(keyValue: YAMLKeyValue): MapLikeValue.Property<*>? {
-        val key = YAMLScalarOrKey.parseKey(keyValue) ?: return null
+private fun parseObjectFromMap(value: YamlValue.Mapping, type: SchemaType.ObjectType): Owned {
+    fun parseObjectProperty(keyValue: YamlKeyValue): MapLikeValue.Property<*>? {
+        val key = keyValue.key
         val (propertyName, propertyContexts) = parsePropertyKeyContexts(key)
             ?: return null
         val property = type.declaration.getProperty(propertyName)
@@ -133,28 +123,28 @@ private fun parseObjectFromMap(psi: YAMLMapping, type: SchemaType.ObjectType): O
             } else null
         }
         if (!property.isUserSettable) {
-            reportParsing(key.psi, "validation.property.not.settable", property.name)
+            reportParsing(key, "validation.property.not.settable", property.name)
             return null
         }
         return MapLikeValue.Property(
             value = parseValueFromKeyValue(keyValue, property.type, explicitContexts = propertyContexts),
-            kTrace = key.psi.asTrace(),
+            kTrace = key.asTrace(),
             pType = property,
         )
     }
 
     return mapLikeValue(
-        children = psi.keyValues.mapNotNull { keyValue ->
+        children = value.keyValues.mapNotNull { keyValue ->
             parseObjectProperty(keyValue)
         },
-        origin = psi,
+        origin = value,
         type = type,
     )
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseObjectFromScalarShorthand(
-    scalar: YAMLScalarOrKey,
+    scalar: YamlValue.Scalar,
     type: SchemaType.ObjectType,
 ): Owned? {
     fun parseScalarShorthandValue(): Pair<SchemaObjectDeclaration.Property, ScalarValue<*>?>? {
@@ -176,7 +166,7 @@ private fun parseObjectFromScalarShorthand(
     }
 
     val (property, result) = parseScalarShorthandValue() ?: run {
-        reportUnexpectedValue(scalar.psi, type)
+        reportUnexpectedValue(scalar, type)
         return null
     }
 
@@ -186,18 +176,18 @@ private fun parseObjectFromScalarShorthand(
         children = listOf(
             MapLikeValue.Property(
                 value = value,
-                kTrace = scalar.psi.asTrace(),
+                kTrace = scalar.asTrace(),
                 pType = property,
             )
         ),
         type = type,
-        origin = scalar.psi,
+        origin = scalar,
     )
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseObjectFromListShorthand(
-    psi: YAMLSequence,
+    psi: YamlValue.Sequence,
     type: SchemaType.ObjectType,
 ): Owned? {
     val listShorthandProperty = type.declaration.getSecondaryShorthand()?.takeIf { it.type is SchemaType.ListType }
@@ -223,16 +213,16 @@ private fun parseObjectFromListShorthand(
 
 context(_: Contexts, config: ParsingConfig, _: ProblemReporter)
 private fun parsePropertyKeyContexts(
-    key: YAMLScalarOrKey,
+    key: YamlValue,
 ): Pair<String, Contexts>? {
     val keyText = context(EmptyContexts) {
-        parseScalar(key, SchemaType.StringType) ?: return null
+        parseScalarKey(key, SchemaType.StringType) ?: return null
     }.value as String
     if (config.supportContexts) {
         val keyWithoutContext = keyText.substringBefore('@')
         val context = if (keyWithoutContext === keyText) null else keyText.substringAfter('@')
         if (context != null && '+' in context) {
-            reportParsing(key.psi, "multiple.qualifiers.are.unsupported")
+            reportParsing(key, "multiple.qualifiers.are.unsupported")
             return null
         }
         val (mappedName, requiresTestContext) = when (keyWithoutContext) {

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.StringInterpolationValue
@@ -17,7 +16,7 @@ import org.jetbrains.amper.stdlib.regex.getValue
 
 context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseReferenceOrInterpolation(
-    scalar: YAMLScalarOrKey,
+    scalar: YamlValue.Scalar,
     type: SchemaType,
 ): TreeValue<*>? {
     val parts = mutableListOf<StringInterpolationValue.Part>()
@@ -28,21 +27,21 @@ internal fun parseReferenceOrInterpolation(
             val reference by match
             val closingBrace by match
             if (closingBrace == null) {
-                reportParsing(scalar.psi, "validation.reference.missing.closing.brace")
+                reportParsing(scalar, "validation.reference.missing.closing.brace")
                 return null
             }
             val referenceText = reference
             if (referenceText.isNullOrBlank()) {
-                reportParsing(scalar.psi, "validation.reference.empty")
+                reportParsing(scalar, "validation.reference.empty")
                 return null
             }
             if ('$' in referenceText || '{' in referenceText) {
-                reportParsing(scalar.psi, "validation.reference.nested")
+                reportParsing(scalar, "validation.reference.nested")
                 return null
             }
             val referencePath = referenceText.split('.')
             if (referencePath.any { it.isEmpty() }) {
-                reportParsing(scalar.psi, "validation.reference.empty.element")
+                reportParsing(scalar, "validation.reference.empty.element")
             }
             parts.add(StringInterpolationValue.Part.Reference(referencePath))
         },
@@ -55,12 +54,12 @@ internal fun parseReferenceOrInterpolation(
     return if (parts.size > 1) {
         if (type !is SchemaType.StringInterpolatableType) {
             // TODO: more granular range reporting
-            reportParsing(scalar.psi, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
+            reportParsing(scalar, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
             return null
         }
         StringInterpolationValue<TreeState>(
             parts = parts,
-            trace = scalar.psi.asTrace(),
+            trace = scalar.asTrace(),
             contexts = contexts,
             type = type,
         )
@@ -70,7 +69,7 @@ internal fun parseReferenceOrInterpolation(
         }
         ReferenceValue<TreeState>(
             referencedPath = reference.referencePath,
-            trace = scalar.psi.asTrace(),
+            trace = scalar.asTrace(),
             contexts = contexts,
             type = type,
         )
@@ -98,9 +97,8 @@ private inline fun splitIntoParts(
     }
 }
 
-internal fun containsReferenceSyntax(scalar: YAMLScalarOrKey): Boolean {
-    val textValue = scalar.textValue
-    return ReferenceSyntax.containsMatchIn(textValue)
+internal fun containsReferenceSyntax(scalar: YamlValue.Scalar): Boolean {
+    return ReferenceSyntax.containsMatchIn(scalar.textValue)
 }
 
 // The closing brace is optional here, so when this matches, it doesn't mean that the reference is valid.

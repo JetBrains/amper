@@ -78,7 +78,7 @@ private fun parseFile(
     }
     val value = documents.first() // Safe - at least one document is always present
         .topLevelValue ?: return null
-    return parseValue(value, type) as? Owned?
+    return parseValue(YamlValue(value), type) as? Owned?
 }
 
 internal enum class ReferencesParsingMode {

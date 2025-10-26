@@ -17,24 +17,24 @@ import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): ScalarValue<*>? = when (type) {
+internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarValue<*>? = when (type) {
     is SchemaType.BooleanType -> when(val boolean = scalar.textValue.toBooleanStrictOrNull()) {
         null -> {
-            reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> scalarValue(scalar, type, boolean)
     }
     is SchemaType.IntType -> when(val int = scalar.textValue.toIntOrNull()) {
         null -> {
-            reportParsing(scalar.psi, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> scalarValue(scalar, type, int)
     }
     is SchemaType.StringType -> {
         val string = scalar.textValue
-        val value = if (type.isTraceableWrapped) string.asTraceable(scalar.psi.asTrace()) else string
+        val value = if (type.isTraceableWrapped) string.asTraceable(scalar.asTrace()) else string
         scalarValue(scalar, type, value).takeIf {
             when (type.semantics) {
                 SchemaType.StringType.Semantics.JvmMainClass,
@@ -53,22 +53,22 @@ internal fun parseScalar(scalar: YAMLScalarOrKey, type: SchemaType.ScalarType): 
 
 
 context(_: Contexts, config: ParsingConfig, _: ProblemReporter)
-private fun parsePath(scalar: YAMLScalarOrKey, type: SchemaType.PathType): ScalarValue<*>? {
+private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): ScalarValue<*>? {
     var path = try {
         Path(scalar.textValue)
     } catch (e: InvalidPathException) {
-        reportParsing(scalar.psi, "validation.types.invalid.path", e.message)
+        reportParsing(scalar, "validation.types.invalid.path", e.message)
         return null
     }
     path = if (path.isAbsolute) path else config.basePath.resolve(path)
     path = path.normalize()
-    val value = if (type.isTraceableWrapped) path.asTraceable(scalar.psi.asTrace()) else path
+    val value = if (type.isTraceableWrapped) path.asTraceable(scalar.asTrace()) else path
     return scalarValue(scalar, type, value)
 }
 
 context(_: Contexts, _: ProblemReporter)
 internal fun parseEnum(
-    scalar: YAMLScalarOrKey,
+    scalar: YamlValue.Scalar,
     type: SchemaType.EnumType,
     additionalSuggestedValues: List<String> = emptyList(),
 ): ScalarValue<*>? {
@@ -79,7 +79,7 @@ internal fun parseEnum(
             .filter { it.isIncludedIntoJsonSchema && !it.isOutdated }
             .map { it.schemaValue }
         reportParsing(
-            scalar.psi, "validation.types.unknown.enum.value",
+            scalar, "validation.types.unknown.enum.value",
             textValue, suggestedValues.joinToString(),
             type = BuildProblemType.TypeMismatch,
         )
@@ -91,7 +91,7 @@ internal fun parseEnum(
 
     val value = if (type.isTraceableWrapped) {
         check(enumConstant is Enum<*>) { "Not reached: only builtin enums can be wrapped into a TraceableValue" }
-        enumConstant.asTraceable(scalar.psi.asTrace())
+        enumConstant.asTraceable(scalar.asTrace())
     } else enumConstant
 
     return scalarValue(scalar, type, value)

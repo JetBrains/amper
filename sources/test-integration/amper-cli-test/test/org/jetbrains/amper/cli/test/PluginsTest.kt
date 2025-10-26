@@ -387,6 +387,12 @@ class PluginsTest : AmperCliTestBase() {
             assertEquals(
                 expected = sortedSetOf(
                     "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:16: Unexpected custom YAML type tag",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:3: Expected a value",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:22: Unexpected custom YAML type tag",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:3: Expected a value",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:13: Unexpected type specified. Expected one of: []",
+                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: Unexpected type specified. Expected one of: []",
                 ),
                 actual = parseErrors(),
             )
