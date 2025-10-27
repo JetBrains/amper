@@ -45,15 +45,19 @@ class PluginsTest : AmperCliTestBase() {
 
     @Test
     fun `distribution plugin`() = runSlowTest {
+        val taskName = ":app:build@distribution-plugin"
         val r1 = runCli(
             projectRoot = testProject("extensibility/distribution"),
-            "task", ":app:build@distribution-plugin",
+            "task", taskName,
             copyToTempDir = true,
         )
 
         val buildDir = tempRoot / "build"
         val projectRoot = r1.projectRoot
-        r1.assertStdoutContains("""
+
+        r1.assertCustomTaskStdout(
+            taskName = taskName,
+            output = """
             Hello from distribution
             classpath base.dependencies = [{modulePath: $projectRoot/app}]
             classpath base.dependencies[0] = {modulePath: $projectRoot/app}
@@ -94,7 +98,9 @@ class PluginsTest : AmperCliTestBase() {
 
         val projectRoot = r1.projectRoot
         val buildDir = tempRoot / "build"
-        r1.assertStdoutContains("""
+        r1.assertCustomTaskStdout(
+            taskName = ":app1:consume@consume-sources-plugin",
+            output = """
             Consuming sources: 1
             Got source path: ${projectRoot / "app1" / "src"} - [main.kt]
         """.trimIndent())
@@ -102,18 +108,22 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":app2:consume@consume-sources-plugin",
-        ).assertStdoutContains("""
+        ).assertCustomTaskStdout(
+            taskName = ":app2:consume@consume-sources-plugin",
+            output = """
             Consuming sources: 4
             Got source path: ${projectRoot / "app2" / "src"} - [main.kt]
-            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "kotlin" } - [kspGenerated.kt]
-            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "java" } - []
+            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "kotlin"} - [kspGenerated.kt]
+            Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "java"} - []
             Got source path: ${buildDir / "tasks" / "_app2_produceSources@produce-sources-plugin" / "kotlin"} - [generated.kt]
         """.trimIndent())
 
         runCli(
             projectRoot = projectRoot,
             "task", ":app3:consume@consume-sources-plugin",
-        ).assertStdoutContains("""
+        ).assertCustomTaskStdout(
+            taskName = ":app3:consume@consume-sources-plugin",
+            output = """
             Consuming sources: 3
             Got source path: ${projectRoot / "app3" / "resources"} - [hello]
             Got source path: ${buildDir / "generated" / "app3" / "main" / "resources" / "ksp" } - [com.example.amper.app.Greeter]
@@ -123,7 +133,9 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":kmp-lib:consume@consume-sources-plugin",
-        ).assertStdoutContains("""
+        ).assertCustomTaskStdout(
+            taskName = ":kmp-lib:consume@consume-sources-plugin",
+            output = """
             Consuming sources: 2
             Got source path: ${projectRoot / "kmp-lib" / "src"} - null
             Got source path: ${projectRoot / "kmp-lib" / "src@jvm"} - null
@@ -132,7 +144,9 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":kmp-lib2:consume@consume-sources-plugin",
-        ).assertStdoutContains("""
+        ).assertCustomTaskStdout(
+            taskName = ":kmp-lib2:consume@consume-sources-plugin",
+            output = """
             Consuming sources: 2
             Got source path: ${projectRoot / "kmp-lib2" / "resources"} - null
             Got source path: ${projectRoot / "kmp-lib2" / "resources@jvm"} - null
@@ -447,6 +461,17 @@ class PluginsTest : AmperCliTestBase() {
     private fun AmperCliResult.parseWarnings(): Set<String> = CliWarningLikeRegex.findAll(stdout).map {
         it.groups["warning"]!!.value
     }.toSortedSet()
+
+    private fun AmperCliResult.assertCustomTaskStdout(
+        taskName: String,
+        output: String,
+    ) {
+        val taskOutputLineRegex = """^.{9}\s+INFO\s+${Regex.escape(taskName)}\s+(.*)$""".toRegex(RegexOption.MULTILINE)
+        assertContains(
+            charSequence = stdoutClean.replace(taskOutputLineRegex) { it.groupValues[1] },
+            other = output,
+        )
+    }
 }
 
 private val CliErrorLikeRegex = "ERROR\\s+(?<error>.*)".toRegex()

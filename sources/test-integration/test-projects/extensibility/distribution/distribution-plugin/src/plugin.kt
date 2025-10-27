@@ -2,6 +2,7 @@ package com.example.distribution
 
 
 import org.jetbrains.amper.plugins.*
+import kotlin.concurrent.thread
 import kotlin.io.path.*
 import java.nio.file.Path
 
@@ -23,8 +24,14 @@ fun buildDistribution(
     settings.extraNamedClasspaths.forEach { (name, classpath) ->
         printClasspathInfo(name, classpath)
     }
-    println("compilation result: ${baseJar}")
-    println("compilation result path: ${baseJar.artifact}")
+    val t = thread {
+        println("compilation result: ${baseJar}")
+        val t2 = thread {
+            println("compilation result path: ${baseJar.artifact}")
+        }
+        t2.join()
+    }
+    t.join()
 }
 
 private fun printClasspathInfo(name: String, classpath: Classpath) {

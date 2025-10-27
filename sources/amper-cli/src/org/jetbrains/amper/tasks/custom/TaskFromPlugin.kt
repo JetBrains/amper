@@ -27,6 +27,7 @@ import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
+import org.jetbrains.amper.util.StandardStreamsCapture
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
@@ -189,7 +190,12 @@ class TaskFromPlugin(
         }
 
         try {
-            actionMethod.callBy(argumentsMap)
+            StandardStreamsCapture.capturing(
+                onStderrLine = { logger.error(it) },
+                onStdoutLine = { logger.info(it) },
+            ) {
+                actionMethod.callBy(argumentsMap)
+            }
         } catch (e: InvocationTargetException) {
             val targetException = e.targetException
             context(classLoader) {
