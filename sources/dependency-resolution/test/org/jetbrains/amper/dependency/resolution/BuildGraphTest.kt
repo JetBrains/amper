@@ -104,6 +104,20 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that spaces in the beginning and at the end of coordinates
+     * of transitive dependencies are correctly processed (ignored).
+     *
+     * Particularly, pom.xml of 'myfaces:myfaces-parent:1.1.0' declares dependency
+     * on 'commons-fileupload:commons-fileupload:1.0' with leading space in artifactId:
+     *   <artifactId> commons-fileupload</artifactId>
+     */
+    @Test
+    fun `myfaces myfaces-parent 1_1_0`(testInfo: TestInfo) = runTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that multiple properties used in the same string are substituted correctly.
      * In particular, the library 'org.nd4j:nd4j-cuda-10_2-platform:1_0_0-beta6' declares dependency on
      * 'org.bytedeco:cuda' of the version

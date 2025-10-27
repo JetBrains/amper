@@ -493,7 +493,7 @@ internal fun Context.createOrReuseDependency(
     version: String?,
     isBom: Boolean = false
 ): MavenDependencyImpl =
-    createOrReuseDependency(MavenCoordinates(group, module, version), isBom)
+    createOrReuseDependency(MavenCoordinates(group.trim(), module.trim(), version?.trim()), isBom)
 
 fun Context.createOrReuseDependency(
     coordinates: MavenCoordinates,
@@ -2182,7 +2182,8 @@ data class MavenCoordinates(
     }
 }
 
-internal fun AvailableAt.toCoordinates() = MavenCoordinates(group, module, version)
+internal fun AvailableAt.toCoordinates() =
+    MavenCoordinates(group.trim(), module.trim(), version.trim())
 
 private fun Dependency.isBom(): Boolean = getAttributeValue(Category) == Category.Platform
 private fun Variant.isBom(): Boolean = getAttributeValue(Category) == Category.Platform

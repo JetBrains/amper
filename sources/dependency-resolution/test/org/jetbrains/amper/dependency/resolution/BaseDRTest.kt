@@ -19,6 +19,7 @@ import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -126,7 +127,7 @@ abstract class BaseDRTest {
     ): DependencyNodeHolderWithContext {
         val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
         return withActualDump(goldenFile) {
-            if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
+            if (!goldenFile.exists()) { goldenFile.createFile() }
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
             doTest(
                 testInfo = testInfo,
@@ -287,7 +288,7 @@ abstract class BaseDRTest {
         checkAutoAddedDocumentation: Boolean = true,
     ) {
         val fileList = testDataPath / "${testInfo.nameToGoldenFile()}.files.txt"
-        if (!fileList.exists()) fail("Golden file with the downloaded files '$fileList' doesn't exist")
+        if (!fileList.exists()) { fileList.createFile() }
         val expected = fileList.readText().trim().lines()
         withActualDump(fileList) {
             assertFiles(expected, root, withSources, checkExistence, checkAutoAddedDocumentation)

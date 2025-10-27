@@ -195,7 +195,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     private fun String.resolveFilter(): MavenCoordinates {
         val parts = this.split(":")
         if (parts.size != 2) userReadableError("Option 'filter' supports maven coordinates in the format 'group:module' only.")
-        return MavenCoordinates(groupId = parts[0], artifactId = parts[1], version = null)
+        return MavenCoordinates(groupId = parts[0].trim(), artifactId = parts[1].trim(), version = null)
     }
 
     /**
