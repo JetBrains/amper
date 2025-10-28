@@ -60,13 +60,26 @@ class KotlinNativeCompiler(
         args: List<String>,
         tempRoot: AmperProjectTempRoot,
         module: AmperModule,
+    ) = runTool("konanc", args, tempRoot, module)
+
+    suspend fun cinterop(
+        args: List<String>,
+        tempRoot: AmperProjectTempRoot,
+        module: AmperModule,
+    ) = runTool("cinterop", args, tempRoot, module)
+
+    private suspend fun runTool(
+        toolName: String,
+        args: List<String>,
+        tempRoot: AmperProjectTempRoot,
+        module: AmperModule,
     ) {
-        spanBuilder("konanc")
+        spanBuilder(toolName)
             .setAmperModule(module)
             .setListAttribute("args", args)
             .setAttribute("version", kotlinVersion)
             .use { span ->
-                logger.debug("konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
+                logger.debug("$toolName ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     val konanLib = kotlinNativeHome / "konan" / "lib"
@@ -81,7 +94,7 @@ class KotlinNativeCompiler(
                             konanLib / "kotlin-native-compiler-embeddable.jar",
                             konanLib / "trove4j.jar",
                         ),
-                        programArgs = listOf("konanc", "@${argFile}"),
+                        programArgs = listOf(toolName, "@${argFile}"),
                         // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
                         argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                         jvmArgs = listOf(
@@ -103,7 +116,7 @@ class KotlinNativeCompiler(
                             .filter { it.startsWith("error: ") || it.startsWith("exception: ") }
                             .joinToString("\n")
                         val errorsPart = if (errors.isNotEmpty()) ":\n\n$errors" else ""
-                        userReadableError("Kotlin native compilation failed$errorsPart")
+                        userReadableError("Kotlin native '$toolName' failed$errorsPart")
                     }
                 }
             }

@@ -887,6 +887,21 @@
         }
       ]
     },
+    "CinteropSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "defs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "x-intellij-html-description": "A list of .def files for cinterop generation.",
+          "title": "A list of .def files for cinterop generation"
+        }
+      }
+    },
     "IosFrameworkSettings": {
       "type": "object",
       "additionalProperties": false,
@@ -1715,6 +1730,11 @@
           "type": "string",
           "x-intellij-html-description": "The fully-qualified name of the application's entry point function",
           "title": "The fully-qualified name of the application's entry point function"
+        },
+        "cinterop": {
+          "$ref": "#/$defs/CinteropSettings",
+          "x-intellij-html-description": "C/Objective-C interop settings for native targets",
+          "title": "C/Objective-C interop settings for native targets"
         }
       }
     },
