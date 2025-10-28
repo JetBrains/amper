@@ -400,15 +400,20 @@ open class DependencyFileImpl(
         settings: Settings,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean =
-        if (mavenLocalPath != null) { // todo (AB) : Move to upper level?
-            // skipping verification of artifacts resolved from mavenLocal (it was verified already)
+        if (!dependency.settings.verifyChecksumsLocally) {
+            // checksum verification is disabled
             true
         } else {
-            getPath()?.let {
-                hasMatchingChecksumLocally(
-                    diagnosticsReporter, settings, it, level
-                )
-            } ?: false
+            if (mavenLocalPath != null) { // todo (AB) : Move to upper level?
+                // skipping verification of artifacts resolved from mavenLocal (it was verified already)
+                true
+            } else {
+                getPath()?.let {
+                    hasMatchingChecksumLocally(
+                        diagnosticsReporter, settings, it, level
+                    )
+                } ?: false
+            }
         }
 
     // todo (AB) : Move it to companion object
@@ -598,6 +603,11 @@ open class DependencyFileImpl(
 
     protected open suspend fun isDownloaded(): Boolean = getPath()?.exists() == true
 
+    /**
+     * This method checks that the file is downloaded and presented in the local storage.
+     * If the settings [Settings.verifyChecksumsLocally] is enabled, the file checksum is verified.
+     * If checksum doesn't match, the method returns false.
+     */
     internal open suspend fun isDownloadedWithVerification(
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         settings: Settings = dependency.settings,
@@ -607,9 +617,18 @@ open class DependencyFileImpl(
         else -> hasMatchingChecksumLocally(diagnosticsReporter, settings, level)
     }
 
+    /**
+     * This method is a part of low-level API that verifies the artifact's checksum matches provided [expectedHash].
+     * It ignores the settings [Settings.verifyChecksumsLocally]
+     */
     private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash) =
         isDownloadedWithVerification { expectedHash }
 
+    /**
+     * This method verifies checksum if the [expectedHashFn] returns non-null expected hash.
+     * It is intended to be called for the verification during actual file download when it is missing in
+     * local storage. It ignores the settings [Settings.verifyChecksumsLocally]
+     */
     private suspend fun DependencyFile.isDownloadedWithVerification(expectedHashFn: suspend () -> Hash?) =
         isDownloaded() && expectedHashFn()?.let { hasMatchingChecksum(it) } == true
 
@@ -1264,7 +1283,7 @@ class SnapshotDependencyFileImpl(
         // This way expiration time is set as 'now' indicating that SNAPSHOT dependency should be re-resolved the next time again
         if (mavenLocalPath != null) return Clock.System.now()
 
-        return if (nameWithoutExtension == "maven-metadata")
+        return if (isMavenMetadata)
             // maven-metadata file is the primary source of information about SNAPSHOT dependency versions,
             // its expiration time is calculated very straightforwardly as an expiration time of the file itself.
             path.expirationTime()
@@ -1275,16 +1294,28 @@ class SnapshotDependencyFileImpl(
                 // of all other downloadable resources of this library
                 mavenMetadata.getPath()?.expirationTime()
             else {
-                // maven-metadata is missing, we rely on checksums expiration time
-                // (checksum is redownloaded after expiration time passed,
-                // but not the artifact, that is just reused if it matches redownloaded checksum, keeping its own expiration time outdated)
-                if (isChecksum())
+                // maven-metadata is missing, we rely on expiration time of files
+                if (isChecksum()) {
+                    // for checksum, we simply rely on checksums expiration time
                     path.expirationTime()
-                else
-                    // find the last downloaded checksum and use its expiration time
-                    hashAlgorithms
-                        .mapNotNull { getChecksumFile(it)?.expirationTime() }
-                        .maxByOrNull { it }
+                } else {
+                    // for the artifact,
+                    if (!dependency.settings.verifyChecksumsLocally) {
+                        // we rely on the artifact expiration time if checksum verification is disabled
+                        path.expirationTime()
+                    } else {
+                        // we rely on checksums expiration time if checksum verification is enabled
+                        // (checksum is redownloaded after expiration time passed,
+                        //  but not the artifact, that is just reused if it matches redownloaded checksum,
+                        //  keeping its own expiration time outdated)
+                        hashAlgorithms
+                            // find the last downloaded checksum and use its expiration time
+                            .mapNotNull { getChecksumFile(it)?.expirationTime() }
+                            .maxByOrNull { it }
+                            // fallback to the artifact expiration time if checksum is not found
+                            ?: path.expirationTime()
+                    }
+                }
             }
         }
     }
@@ -1297,13 +1328,23 @@ class SnapshotDependencyFileImpl(
 
         if (mavenLocalPath != null) return true // Resolved from mavenLocal => no further checks are required
 
-        if (nameWithoutExtension != "maven-metadata") {
+        if (!isMavenMetadata) {
             if (!mavenMetadata.isDownloaded()
-                && (!isChecksum() || path.isUpToDate())
+                && (
+                        // maven-metadata.xml is absent, => there is no way to verify if the snapshot is actual or not.
+                        // If checksum verification is enabled,
+                        //   we consider the artifact as downloaded and will redownload checksum if it is too old,
+                        //   this way if the artifact (even outdated) still matches the up-to-date checksum,
+                        //   we will reuse it without redownloading.
+                        // if checksum verification is disabled, then we check if the artifact itself is up to date or not
+                        //   and will redownload it if it is outdated
+                        !isChecksum() && dependency.settings.verifyChecksumsLocally
+                                // We will have to redownload checksum if it is too old
+                                // (and possibly artifact if checksum verification is disabled)
+                                || path.isUpToDate()
+                        )
             ) {
-                // maven-metadata.xml is absent, no way to verify if the snapshot is actual or not.
-                // We will have to redownload checksum if it is too old
-                // and will reuse the artifact itself if it matches the checksum.
+
                 return true
             }
 
@@ -1328,6 +1369,8 @@ class SnapshotDependencyFileImpl(
 
     private fun Path.expirationTime(): Instant = getLastModifiedTime().toInstant().toKotlinInstant().plus(snapshotValidityPeriod)
 
+    private val isMavenMetadata get() = nameWithoutExtension.isMavenMetadata()
+
     override suspend fun getNamePart(
         repository: MavenRepository,
         name: String,
@@ -1337,7 +1380,7 @@ class SnapshotDependencyFileImpl(
         spanBuilderSource: SpanBuilderSource,
         diagnosticsReporter: DiagnosticReporter,
     ): String {
-        if (name != "maven-metadata" &&
+        if (!name.isMavenMetadata() &&
             isMavenMetadataDownloadedOrDownload(repository, progress, cache, spanBuilderSource, diagnosticsReporter = diagnosticsReporter)
         ) {
             getSnapshotVersion()
@@ -1358,13 +1401,13 @@ class SnapshotDependencyFileImpl(
     }
 
     override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hash): Boolean =
-        nameWithoutExtension == "maven-metadata"
+        isMavenMetadata
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
                 || super.shouldOverwrite(cache, expectedHash, actualHash)
 
     override suspend fun onFileDownloaded(target: Path, repository: MavenRepository?) {
         super.onFileDownloaded(target, repository)
-        if (nameWithoutExtension != "maven-metadata") {
+        if (!isMavenMetadata) {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }
         }
     }
@@ -1429,6 +1472,8 @@ class SnapshotDependencyFileImpl(
         private val mavenMetadataFilesLock = FileMutexGroup.striped(stripeCount = 512)
 
         val snapshotValidityPeriod = 1.days
+
+        private fun String.isMavenMetadata() = this == "maven-metadata"
     }
 }
 

@@ -129,6 +129,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var incrementalCache: IncrementalCache? = null
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
     var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
+    var verifyChecksumsLocally: Boolean = true
 
     init {
         apply(init)
@@ -145,6 +146,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             incrementalCache,
             conflictResolutionStrategies,
             dependenciesBlocklist,
+            verifyChecksumsLocally,
         )
 }
 
@@ -220,7 +222,8 @@ data class Settings(
     val openTelemetry: OpenTelemetry,
     val incrementalCache: IncrementalCache?,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
-    val dependenciesBlocklist: Set<MavenGroupAndArtifact>
+    val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
+    val verifyChecksumsLocally: Boolean,
 ): ResolutionConfig {
     val spanBuilder: SpanBuilderSource
         get() = { openTelemetry
