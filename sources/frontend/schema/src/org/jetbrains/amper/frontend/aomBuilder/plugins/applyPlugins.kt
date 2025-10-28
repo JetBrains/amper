@@ -37,8 +37,7 @@ internal fun applyPlugins(
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val taskInfo = task.action.taskInfo
-            val pathsCollector = InputOutputCollector()
-            pathsCollector.gatherPaths(task.action)
+            val pathsCollector = InputOutputCollector(task.action)
             val outputMarks = task.markOutputsAs.distinctBy(
                 selector = { it.path },
                 onDuplicates = { path, duplicateMarks ->
@@ -49,14 +48,15 @@ internal fun applyPlugins(
                     problemReporter.reportBundleError(source, "plugin.invalid.mark.output.as.duplicates", path)
                 }
             ).associateBy { it.path }
+            val allOutputPaths = pathsCollector.allOutputPaths.map { it.value }
             outputMarks.forEach { (path, mark) ->
-                if (path !in pathsCollector.allOutputPaths) {
+                if (path !in allOutputPaths) {
                     problemReporter.reportBundleError(
                         mark.asBuildProblemSource(), "plugin.invalid.mark.output.as.no.such.path", path
                     )
                 }
             }
-            val outputsToMarks = pathsCollector.allOutputPaths.associateWith { path ->
+            val outputsToMarks = allOutputPaths.associateWith { path ->
                 val mark = outputMarks[path] ?: return@associateWith null
                 TaskFromPluginDescription.OutputMark(
                     kind = mark.kind,
@@ -71,7 +71,7 @@ internal fun applyPlugins(
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 inputs = pathsCollector.allInputPaths.map { (path, inferTaskDependency) ->
-                    TaskFromPluginDescription.InputPath(path, inferTaskDependency)
+                    TaskFromPluginDescription.InputPath(path.value, inferTaskDependency)
                 },
                 requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { (node, location) ->
                     val module = node.from.resolve(allModules) ?: return@mapNotNull null

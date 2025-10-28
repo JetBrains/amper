@@ -107,14 +107,15 @@ private class TreeReferencesResolver(
         }
 
         val resolved = resolve(value, value.referencedPath) ?: return NotChanged
-        val converted = resolved.cast(targetType = value.type) ?: run {
+        val trace = value.resolvedTrace(resolved)
+        val converted = resolved.cast(targetType = value.type, trace = trace) ?: run {
             reporter.reportBundleError(
                 value.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
                 renderTypeOf(resolved), value.type.render(includeSyntax = false)
             )
             return NotChanged
         }
-        return Changed(converted.copyWithTrace(value.resolvedTrace(converted)))
+        return Changed(converted.copyWithTrace(trace))
     }
 
     override fun visitStringInterpolationValue(value: StringInterpolationValue<Refined>): TransformResult<TreeValue<Refined>> {
@@ -155,9 +156,9 @@ private class TreeReferencesResolver(
         )
         val typedInterpolated = when (val type = value.type) {
             is SchemaType.PathType -> try {
-                Path(interpolated)
+                Path(interpolated).normalize().wrapTraceable(type, trace)
             } catch (e: InvalidPathException) {
-                reporter.reportBundleError(value.trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
+                reporter.reportBundleError(trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
                 return NotChanged
             }
             is SchemaType.StringType -> {
@@ -174,7 +175,7 @@ private class TreeReferencesResolver(
                     SchemaType.StringType.Semantics.PluginSettingsClass,
                     null -> {}
                 }
-                interpolated
+                interpolated.wrapTraceable(type, trace)
             }
         }
         return Changed(ScalarValue(typedInterpolated, value.type, trace, value.contexts))
@@ -250,7 +251,10 @@ private class TreeReferencesResolver(
  * - String <- Path, Enum, Int
  * - Path <- String
  */
-private fun <TS : TreeState> TreeValue<TS>.cast(targetType: SchemaType): TreeValue<TS>? {
+private fun <TS : TreeState> TreeValue<TS>.cast(
+    targetType: SchemaType,
+    trace: Trace = this.trace,
+): TreeValue<TS>? {
     if (targetType.isMarkedNullable && this is NullValue)
         return this
 

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
@@ -12,11 +13,14 @@ import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 import java.nio.file.Path
 
 /**
- * See [gatherPaths]
+ * Collects @Input/@Output marked Path values from the [value].
+ * The result is accessible via the [allInputPaths] and [allOutputPaths] properties.
  */
-internal class InputOutputCollector {
-    private val _allInputPaths = mutableSetOf<InputPath>()
-    private val _allOutputPaths = mutableSetOf<Path>()
+internal class InputOutputCollector(
+    value: Any?,
+) {
+    private val _allInputPaths = mutableListOf<InputPath>()
+    private val _allOutputPaths = mutableListOf<TraceablePath>()
     private val _classpathNodes = mutableSetOf<NodeWithPropertyLocation<ShadowClasspath>>()
     private val _moduleSourcesNodes = mutableSetOf<NodeWithPropertyLocation<ShadowModuleSources>>()
     private val _compilationArtifactNodes = mutableSetOf<ShadowCompilationArtifact>()
@@ -30,7 +34,7 @@ internal class InputOutputCollector {
     )
 
     data class InputPath(
-        val path: Path,
+        val path: TraceablePath,
         val inferTaskDependency: Boolean = true,
     )
 
@@ -43,17 +47,13 @@ internal class InputOutputCollector {
     val compilationArtifactNodes: Set<ShadowCompilationArtifact>
         get() = _compilationArtifactNodes
 
-    val allInputPaths: Set<InputPath>
+    val allInputPaths: List<InputPath>
         get() = _allInputPaths
 
-    val allOutputPaths: Set<Path>
+    val allOutputPaths: List<TraceablePath>
         get() = _allOutputPaths
 
-    /**
-     * Collects @Input/@Output marked Path values from the [value].
-     * The result is accessible via the [allInputPaths] and [allOutputPaths] properties.
-     */
-    fun gatherPaths(value: Any?) {
+    init {
         gatherPaths(value, mark = null, location = listOf())
     }
 
@@ -82,7 +82,10 @@ internal class InputOutputCollector {
             is Collection<*> -> value.forEachIndexed { i, value ->
                 gatherPaths(value = value, mark = mark, location = location + i.toString())
             }
-            is Path -> when (mark) {
+            is Path -> if (mark != InputOutputMark.ValueOnly && mark != null) {
+                error("Not reached: untraceable marked path")
+            }
+            is TraceablePath -> when (mark) {
                 InputOutputMark.Input -> _allInputPaths.add(InputPath(value))
                 InputOutputMark.InputNoDependencyInference -> _allInputPaths.add(InputPath(value, false))
                 InputOutputMark.Output -> _allOutputPaths.add(value)

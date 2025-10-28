@@ -237,7 +237,7 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
     is PluginData.Type.BooleanType -> SchemaType.BooleanType(isMarkedNullable = type.isNullable)
     is PluginData.Type.IntType -> SchemaType.IntType(isMarkedNullable = type.isNullable)
     is PluginData.Type.StringType -> SchemaType.StringType(isMarkedNullable = type.isNullable)
-    is PluginData.Type.PathType -> SchemaType.PathType(isMarkedNullable = type.isNullable)
+    is PluginData.Type.PathType -> SchemaType.PathType(isMarkedNullable = type.isNullable, isTraceableWrapped = true)
     is PluginData.Type.ListType -> SchemaType.ListType(
         elementType = toSchemaType(pluginId, type.elementType),
         isMarkedNullable = type.isNullable,

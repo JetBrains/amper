@@ -5,8 +5,8 @@
 package org.jetbrains.amper.tasks.custom
 
 import com.android.utils.associateByNotNull
-import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableValue
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -14,7 +14,6 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
 import java.lang.reflect.Type
 import java.util.*
-import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaMethod
 
@@ -49,6 +48,7 @@ class ValueMarshaller(
             is Map<*, *> -> withValueCache(value) {
                 value.mapValues { marshallValue(it.value, (type as ParameterizedType).actualTypeArguments.last()) }
             }
+            is TraceableValue<*> -> value.value
             else -> value
         }
     }
