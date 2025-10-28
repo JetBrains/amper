@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.native
 
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.tasks.native.CinteropTask
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
@@ -94,6 +95,10 @@ internal class NativeCompileKlibTask(
 
         // todo native resources are what exactly?
 
+        val cinteropKlibs = dependenciesResult
+            .filterIsInstance<CinteropTask.Result>()
+            .mapNotNull { it.compiledKlib }
+
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
@@ -103,7 +108,7 @@ internal class NativeCompileKlibTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val libraryPaths = compiledModuleDependencies + externalDependencies
+        val libraryPaths = compiledModuleDependencies + externalDependencies + cinteropKlibs
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
             SourceRoot(

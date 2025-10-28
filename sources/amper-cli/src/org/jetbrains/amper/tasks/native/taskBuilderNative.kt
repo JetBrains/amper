@@ -5,9 +5,12 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
+import org.jetbrains.amper.compilation.singleLeafFragment
+import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -36,6 +39,29 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         .alsoBuildTypes()
         .alsoTests()
         .withEach {
+            val fragment = module.fragments
+                .filter { it.platforms.contains(platform) && it.isTest == isTest }
+                .singleLeafFragment()
+
+            val cinteropTasks = fragment.settings.native?.cinterop?.defs.orEmpty().map { defFile ->
+                // Create a unique task name for each def file.
+                val taskNameSuffix = defFile.substring(defFile.lastIndexOf('/') + 1)
+                val cinteropTaskName = NativeTaskType.Cinterop.getTaskName(module, platform, isTest, buildType)
+                    .let { TaskName(it.name + "-" + taskNameSuffix) }
+                CinteropTask(
+                    module = module,
+                    platform = platform,
+                    userCacheRoot = context.userCacheRoot,
+                    taskOutputRoot = context.getTaskOutputPath(cinteropTaskName),
+                    incrementalCache = executeOnChangedInputs,
+                    taskName = cinteropTaskName,
+                    tempRoot = context.projectTempRoot,
+                    isTest = isTest,
+                    buildType = buildType,
+                    defFile = module.source.moduleDir.resolve(defFile),
+                ).also { tasks.registerTask(it) }
+            }
+
             val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest, buildType)
             tasks.registerTask(
                 task = NativeCompileKlibTask(
@@ -51,6 +77,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
+                    cinteropTasks.forEach { add(it.taskName) }
                     if (isTest) {
                         // todo (AB) : Check if this is required for test KLib compilation
                         add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
@@ -88,6 +115,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
+                        cinteropTasks.forEach { add(it.taskName) }
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                         if (isTest) {
                             add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
@@ -190,4 +218,5 @@ private fun getNativeLinkTaskDetails(
 enum class NativeTaskType(override val prefix: String) : PlatformTaskType {
     CompileKLib("compile"),
     Link("link"),
+    Cinterop("cinterop"),
 }

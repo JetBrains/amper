@@ -526,6 +526,27 @@ settings:
     entryPoint: com.example.MainKt.main
 ```
 
+##### Cinterop
+
+`settings:native:cinterop` configures C/Objective-C interop for native targets.
+
+| Attribute      | Description                               | Default |
+|----------------|-------------------------------------------|---------|
+| `defs: list`   | A list of `.def` files for cinterop generation. | (empty) |
+
+By convention, Amper automatically discovers all `.def` files located in the `resources/cinterop` directory of a native fragment. The `defs` property can be used to include `.def` files from other locations.
+
+Example:
+
+```yaml
+# Configure cinterop for a native module
+settings:
+  native:
+    cinterop:
+      defs:
+        - src/native/cinterop/libfoo.def
+```
+
 #### Ktor
 
 `settings:ktor:` configures the Ktor.
