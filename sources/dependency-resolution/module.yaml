@@ -13,8 +13,8 @@ apply:
 dependencies:
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
-  - ../libraries/telemetry
-  - ../libraries/incremental-cache
+  - ../libraries/telemetry: exported
+  - ../libraries/incremental-cache: exported
   - $libs.xmlutil.serialization
   - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core
