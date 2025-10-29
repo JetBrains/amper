@@ -18,12 +18,11 @@ dependencies:
   - $libs.xmlutil.serialization
   - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core
-  - $libs.ktor.client
+  - $libs.slf4j.api
 
 test-dependencies:
   - ../test-base
   - $libs.opentelemetry.exporterLoggingOtlp
-  - $libs.slf4j.api
   - $libs.tinylog.api
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j

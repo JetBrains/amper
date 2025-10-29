@@ -1601,7 +1601,7 @@ class MavenDependencyImpl internal constructor(
         context.spanBuilder("produceFileWithDoubleLockAndHash").use {
             produceFileWithDoubleLockAndHash(
                 target = targetPath,
-                tempDir = { with(sourceSetFile) { getTempDir() } },
+                tempDir = { sourceSetFile.getTempDir() },
             ) { _, fileChannel ->
                 try {
                     copyJarEntryDirToJar(fileChannel, sourceSetName, kmpLibraryWithSourceSet)

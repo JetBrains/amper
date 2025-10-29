@@ -4,9 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import io.ktor.http.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
@@ -599,7 +596,7 @@ open class DependencyFileImpl(
                     }
             }
 
-    internal fun DependencyFile.getTempDir() = getCacheDirectory().getTempDir(dependency)
+    internal fun getTempDir(): Path = getCacheDirectory().getTempDir(dependency)
 
     protected open suspend fun isDownloaded(): Boolean = getPath()?.exists() == true
 
@@ -981,7 +978,7 @@ open class DependencyFileImpl(
                 "/$name"
 
         fun getContentLengthHeaderValue(response: HttpResponse<InputStream>): Long? = response.headers()
-            .firstValueAsLong(HttpHeaders.ContentLength)
+            .firstValueAsLong(HttpHeaders.CONTENT_LENGTH)
             .takeIf { it.isPresent && it.asLong != -1L }?.asLong
 
         try {
@@ -1020,8 +1017,8 @@ open class DependencyFileImpl(
                                         val expectedSize = fileFromVariant(dependency, name)?.size
                                             ?: getContentLengthHeaderValue(response)
                                         // todo (AB) : It might be useful to use here a dedicated limited dispatcher based on Dispatchers.IO
-                                        val size = responseBody.toByteReadChannel().readTo(writers)
-//                                val size = responseBody.readTo(writers)
+                                        val size = responseBody.readTo(writers)
+//                                        val size = responseBody.toByteReadChannel().readTo(writers)
 
                                         val isSuccessfullyDownloaded =
                                             if (expectedSize != null && size != expectedSize) {
@@ -1068,7 +1065,7 @@ open class DependencyFileImpl(
 
                                     else -> throw IOException(
                                         "Unexpected response code for $url. " +
-                                                "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                                                "Expected: 200, actual: $status"
                                     )
                                 }
                             }
@@ -1176,6 +1173,10 @@ open class DependencyFileImpl(
     companion object {
 
         private val checkSumRegex = "^[A-Fa-f0-9]+$".toRegex()
+
+        object HttpHeaders {
+            const val CONTENT_LENGTH: String = "Content-Length"
+        }
 
         /**
          * Sometimes files with checksums have additional information, e.g., a path to a file.
@@ -1488,42 +1489,46 @@ private val hashAlgorithms = listOf("sha512", "sha256", "sha1", "md5")
 
 private fun createHashers() = hashAlgorithms.map { Hasher(it) }
 
-private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
-    var size = 0L
-    val data = ByteBuffer.allocate(1024)
-    while (readAvailable(data) != -1) {
-        writers.forEach {
-            data.flip()
-            it.write(data)
-        }
-        size += data.position()
-        data.clear()
-    }
-    return size
-}
+//// Ktor-based implementation of asynchronous reading from the ByteReadChannel and writing
+//// the received data to provided [writers]
+//private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
+//    var size = 0L
+//    val data = ByteBuffer.allocate(1024)
+//    while (readAvailable(data) != -1) {
+//        writers.forEach {
+//            data.flip()
+//            it.write(data)
+//        }
+//        size += data.position()
+//        data.clear()
+//    }
+//    return size
+//}
 
 /**
  * This could be used as a replacement of the channel-based function above
  * if we decide to remove ktor dependencies from DR.
  */
 @Suppress("unused")
-private fun InputStream.readTo(writers: Collection<Writer>): Long {
-    var size = 0L
-    val chunk = ByteArray(1024)
-    do {
-        val readLength = read(chunk)
-        if (readLength == -1) break
+private suspend fun InputStream.readTo(writers: Collection<Writer>): Long {
+    return withContext(Dispatchers.IO) {
+        var size = 0L
+        val chunk = ByteArray(1024)
+        do {
+            val readLength = read(chunk)
+            if (readLength == -1) break
 
-        size += readLength
+            size += readLength
 
-        val buffer = ByteBuffer.wrap(chunk, 0, readLength)
-        writers.forEach {
-            it.write(buffer)
-            buffer.flip()
-        }
-    } while (true)
+            val buffer = ByteBuffer.wrap(chunk, 0, readLength)
+            writers.forEach {
+                it.write(buffer)
+                buffer.flip()
+            }
+        } while (true)
 
-    return size
+        size
+    }
 }
 
 internal inline fun <T> resolveSafeOrNull(block: () -> T?): T? {
