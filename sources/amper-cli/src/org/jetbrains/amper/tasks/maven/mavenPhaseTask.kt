@@ -228,9 +228,9 @@ open class BaseUmbrellaMavenPhaseTask(
     protected val parameters: PhaseTaskParameters,
 ) : ArtifactTaskBase() {
     
-    val targetFragment = parameters.module.leafFragments.single { 
+    val targetFragment = parameters.module.leafFragments.singleOrNull { 
         it.platform == Platform.JVM && it.isTest == parameters.isTest 
-    }
+    } ?: error("No relevant JVM fragment was found. This task should be created only for modules with JVM platform.")
 
     override val taskName get() = parameters.taskName
 
@@ -380,7 +380,7 @@ class ModuleDependenciesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : B
 
     private val moduleDependenciesClasses by Selectors.fromModuleWithDependencies(
         type = CompiledJvmClassesArtifact::class,
-        leafFragment = parameters.module.leafFragments.single { it.platform == Platform.JVM && it.isTest == parameters.isTest },
+        leafFragment = targetFragment,
         userCacheRoot = AmperUserCacheRoot(Path(".").absolute()),
         quantifier = Quantifier.AnyOrNone,
         includeSelf = false,

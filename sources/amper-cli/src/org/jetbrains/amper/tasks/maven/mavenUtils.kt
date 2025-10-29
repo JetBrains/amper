@@ -84,7 +84,6 @@ fun AmperModule.asMavenArtifact(scope: String) = DefaultMavenArtifact(
 )
 
 // Kotlin-styled shortcuts.
-@Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 inline fun MavenExecutionRequest.addRemoteRepository(repository: () -> MavenArtifactRepository): MavenExecutionRequest =
     addRemoteRepository(repository())
 
