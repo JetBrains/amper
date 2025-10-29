@@ -103,6 +103,10 @@ internal class NativeLinkTask(
         val compileKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
         val exportedKLibs = exportedKLibDependencies.mapNotNull { it.compiledKlib }
 
+        val cinteropKLibs = dependenciesResult
+            .filterIsInstance<CinteropTask.Result>()
+            .mapNotNull { it.compiledKlib }
+
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
         logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
@@ -164,7 +168,7 @@ internal class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = compileKLibs + externalKLibs,
+                libraryPaths = compileKLibs + externalKLibs + cinteropKLibs,
                 exportedLibraryPaths = exportedKLibs,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),

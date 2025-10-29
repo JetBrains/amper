@@ -115,6 +115,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
+                        cinteropTasks.forEach { add(it.taskName) }
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                         if (isTest) {
                             add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
