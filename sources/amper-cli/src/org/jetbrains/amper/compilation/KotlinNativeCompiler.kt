@@ -60,54 +60,16 @@ class KotlinNativeCompiler(
         args: List<String>,
         tempRoot: AmperProjectTempRoot,
         module: AmperModule,
-    ) = runTool("konanc", args, tempRoot, module)
-
-    suspend fun cinterop(
-        args: List<String>,
-        tempRoot: AmperProjectTempRoot,
-        module: AmperModule,
-    ) = runTool("cinterop", args, tempRoot, module)
-
-    private suspend fun runTool(
-        toolName: String,
-        args: List<String>,
-        tempRoot: AmperProjectTempRoot,
-        module: AmperModule,
     ) {
-        spanBuilder(toolName)
+        spanBuilder("konanc")
             .setAmperModule(module)
             .setListAttribute("args", args)
             .setAttribute("version", kotlinVersion)
             .use { span ->
-                logger.debug("$toolName ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
+                logger.debug("konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                    val konanLib = kotlinNativeHome / "konan" / "lib"
-
-                    // We call konanc via java because the konanc command line doesn't support spaces in paths:
-                    // https://youtrack.jetbrains.com/issue/KT-66952
-                    // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
-                    val result = jdk.runJava(
-                        workingDir = kotlinNativeHome,
-                        mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
-                        classpath = listOf(
-                            konanLib / "kotlin-native-compiler-embeddable.jar",
-                            konanLib / "trove4j.jar",
-                        ),
-                        programArgs = listOf(toolName, "@${argFile}"),
-                        // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
-                        argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
-                        jvmArgs = listOf(
-                            "-ea",
-                            "-XX:TieredStopAtLevel=1",
-                            "-Dfile.encoding=UTF-8",
-                            "-Dkonan.home=$kotlinNativeHome",
-                        ),
-                        outputListener = LoggingProcessOutputListener(logger),
-                    )
-
-                    // TODO this is redundant with the java span of the external process run. Ideally, we
-                    //  should extract higher-level information from the raw output and use that in this span.
+                    val result = runInProcess("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
                     span.setProcessResultAttributes(result)
 
                     if (result.exitCode != 0) {
@@ -116,9 +78,64 @@ class KotlinNativeCompiler(
                             .filter { it.startsWith("error: ") || it.startsWith("exception: ") }
                             .joinToString("\n")
                         val errorsPart = if (errors.isNotEmpty()) ":\n\n$errors" else ""
-                        userReadableError("Kotlin native '$toolName' failed$errorsPart")
+                        userReadableError("Kotlin native compilation failed$errorsPart")
                     }
                 }
             }
+    }
+
+    suspend fun cinterop(
+        args: List<String>,
+        module: AmperModule,
+    ) {
+        spanBuilder("cinterop")
+            .setAmperModule(module)
+            .setListAttribute("args", args)
+            .setAttribute("version", kotlinVersion)
+            .use { span ->
+                logger.debug("cinterop ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
+
+                val result = runInProcess("cinterop", args, ArgsMode.CommandLine)
+                span.setProcessResultAttributes(result)
+
+                if (result.exitCode != 0) {
+                    val errors = result.stderr
+                        .lines()
+                        .filter { it.startsWith("error: ") || it.startsWith("exception: ") }
+                        .joinToString("\n")
+                    val errorsPart = if (errors.isNotEmpty()) ":\n\n$errors" else ""
+                    userReadableError("Kotlin native 'cinterop' failed$errorsPart")
+                }
+            }
+    }
+
+    private suspend fun runInProcess(
+        toolName: String,
+        programArgs: List<String>,
+        argsMode: ArgsMode,
+    ): org.jetbrains.amper.processes.ProcessResult {
+        val konanLib = kotlinNativeHome / "konan" / "lib"
+
+        // We call konanc via java because the konanc command line doesn't support spaces in paths:
+        // https://youtrack.jetbrains.com/issue/KT-66952
+        // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
+        return jdk.runJava(
+            workingDir = kotlinNativeHome,
+            mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
+            classpath = listOf(
+                konanLib / "kotlin-native-compiler-embeddable.jar",
+                konanLib / "trove4j.jar",
+            ),
+            programArgs = listOf(toolName) + programArgs,
+            // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
+            argsMode = argsMode,
+            jvmArgs = listOf(
+                "-ea",
+                "-XX:TieredStopAtLevel=1",
+                "-Dfile.encoding=UTF-8",
+                "-Dkonan.home=$kotlinNativeHome",
+            ),
+            outputListener = LoggingProcessOutputListener(logger),
+        )
     }
 }

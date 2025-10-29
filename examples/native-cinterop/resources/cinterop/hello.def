@@ -1,0 +1,2 @@
+headers = /home/leodouglas/Projects/amper/examples/native-cinterop/src/c/hello.c
+compilerOpts = -I.

@@ -67,11 +67,11 @@ internal class CinteropTask(
             val args = listOf(
                 "-def", defFile.toString(),
                 "-o", outputKlib.toString(),
-                "-target", platform.pretty,
+                "-target", platform.nameForCompiler,
             )
 
             logger.info("Running cinterop for '${defFile.fileName}'...")
-            nativeCompiler.cinterop(args, tempRoot, module)
+            nativeCompiler.cinterop(args, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(outputKlib))
         }.outputs.singleOrNull()
