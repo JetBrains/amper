@@ -24,7 +24,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.pathString
 import kotlin.time.Instant
 
-private val logger = LoggerFactory.getLogger("resolver.kt")
+private val logger = LoggerFactory.getLogger("dr/resolver.kt")
 
 /**
  * This is the entry point to the library.

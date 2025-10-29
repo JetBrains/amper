@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import java.io.Closeable
 
 class Cache : TypedKeyMap(), Closeable {
-    private val logger = LoggerFactory.getLogger("cache.kt")
+    private val logger = LoggerFactory.getLogger("dr/cache.kt")
 
     override fun close() {
         val closeableEntries = map

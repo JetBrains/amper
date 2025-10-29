@@ -89,7 +89,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
 
-private val logger = LoggerFactory.getLogger("files.kt")
+private val logger = LoggerFactory.getLogger("dr/files.kt")
 
 private val downloadSemaphore = Semaphore(10)
 

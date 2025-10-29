@@ -24,7 +24,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.math.min
 
-private val logger = LoggerFactory.getLogger("fileLock.kt")
+private val logger = LoggerFactory.getLogger("dr/fileLock.kt")
 
 /**
  * Create a target file once and reuse it as a result of further invocations until its hash is valid.

@@ -18,7 +18,7 @@ import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 import kotlin.io.path.readText
 
-private val logger = LoggerFactory.getLogger("fileUtils.kt")
+private val logger = LoggerFactory.getLogger("dr/fileUtils.kt")
 
 internal fun interface Writer {
     fun write(data: ByteBuffer)

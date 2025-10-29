@@ -86,7 +86,7 @@ import kotlin.io.path.readText
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-private val logger = LoggerFactory.getLogger("maven.kt")
+private val logger = LoggerFactory.getLogger("dr/maven.kt")
 
 interface MavenDependencyNode : DependencyNode {
     val originalVersion: String?
