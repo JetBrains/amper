@@ -181,20 +181,20 @@ class StandaloneAmperProjectContext(
             }
 
             val localPluginDependencies = amperProject?.plugins.orEmpty().mapNotNull { dependency ->
-                val pluginModuleFile = frontendPathResolver.loadVirtualFileOrNull(dependency.value)
+                val pluginModuleFile = frontendPathResolver.loadVirtualFileOrNull(dependency.path)
                     ?.findChildMatchingAnyOf(amperModuleFileNames)
                 when (pluginModuleFile) {
                     null -> {
                         problemReporter.reportBundleError(
                             dependency.trace.asBuildProblemSource(), "plugin.dependency.not.found",
-                            dependency.value.relativeTo(rootDir.toNioPath())
+                            dependency.path.relativeTo(rootDir.toNioPath())
                         ); null
                     }
                     !in amperModuleFiles -> {
                         // TODO: Quickfix?
                         problemReporter.reportBundleError(
                             dependency.trace.asBuildProblemSource(), "plugin.dependency.not.included",
-                            dependency.value.relativeTo(rootDir.toNioPath())
+                            dependency.path.relativeTo(rootDir.toNioPath())
                         ); null
                     }
                     else -> pluginModuleFile
