@@ -43,7 +43,6 @@ import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
-import org.jetbrains.amper.tasks.AdditionalSourceRootsProvider
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
@@ -55,6 +54,7 @@ import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
+import org.jetbrains.amper.tasks.maven.MavenPhaseResult
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
@@ -165,12 +165,12 @@ internal class JvmCompileTask(
                 path = artifact.path,
             )
         }
-        val additionalSourceRootsFromProviders = dependenciesResult
-            .filterIsInstance<AdditionalSourceRootsProvider>()
+        val additionalSourceRootsFromMaven = dependenciesResult
+            .filterIsInstance<MavenPhaseResult>()
             .flatMap { it.sourceRoots }
             .distinctBy { it.path } // Need to remove duplicates, because a same path can be provided by multiple providers.
         
-        val additionalSources = additionalArtifactSources + additionalSourceRootsFromProviders
+        val additionalSources = additionalArtifactSources + additionalSourceRootsFromMaven
 
         val additionalResources = additionalResourcesDirs.map { artifact ->
             SourceRoot(

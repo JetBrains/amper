@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.tasks.AdditionalSourceRootsProvider
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -153,8 +152,8 @@ data class MavenPhaseResult(
     val fragment: Fragment,
     val embryo: MavenProjectEmbryo,
     val modelChanges: List<ModelChange>,
-) : TaskResult, AdditionalSourceRootsProvider {
-    override val sourceRoots: List<SourceRoot>
+) : TaskResult {
+    val sourceRoots: List<SourceRoot>
         get() = modelChanges
             .flatMap { if (!fragment.isTest) it.additionalSources else it.additionalTestSources }
             .distinct()
