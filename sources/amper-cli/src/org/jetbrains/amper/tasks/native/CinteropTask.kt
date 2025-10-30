@@ -6,9 +6,7 @@ package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
-import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.downloadNativeCompiler
-import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -61,19 +59,20 @@ internal class CinteropTask(
         val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val outputKlib = taskOutputRoot.path.resolve(defFile.toFile().nameWithoutExtension + ".klib")
+            val outputKLib = taskOutputRoot.path.resolve(defFile.toFile().nameWithoutExtension + ".klib")
 
             val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot)
             val args = listOf(
                 "-def", defFile.toString(),
-                "-o", outputKlib.toString(),
+                "-o", outputKLib.toString(),
+                "-compiler-option", "-I.",
                 "-target", platform.nameForCompiler,
             )
 
             logger.info("Running cinterop for '${defFile.fileName}'...")
             nativeCompiler.cinterop(args, module)
 
-            return@execute IncrementalCache.ExecutionResult(listOf(outputKlib))
+            return@execute IncrementalCache.ExecutionResult(listOf(outputKLib))
         }.outputs.singleOrNull()
 
         return Result(

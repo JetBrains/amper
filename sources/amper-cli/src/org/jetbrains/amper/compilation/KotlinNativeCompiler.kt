@@ -95,7 +95,7 @@ class KotlinNativeCompiler(
             .use { span ->
                 logger.debug("cinterop ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
-                val result = runInProcess("cinterop", args, ArgsMode.CommandLine)
+                val result = runInProcess("cinterop", args, ArgsMode.CommandLine, module.source.moduleDir)
                 span.setProcessResultAttributes(result)
 
                 if (result.exitCode != 0) {
@@ -113,6 +113,7 @@ class KotlinNativeCompiler(
         toolName: String,
         programArgs: List<String>,
         argsMode: ArgsMode,
+        workingDir: Path = kotlinNativeHome,
     ): org.jetbrains.amper.processes.ProcessResult {
         val konanLib = kotlinNativeHome / "konan" / "lib"
 
@@ -120,7 +121,7 @@ class KotlinNativeCompiler(
         // https://youtrack.jetbrains.com/issue/KT-66952
         // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
         return jdk.runJava(
-            workingDir = kotlinNativeHome,
+            workingDir = workingDir,
             mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
             classpath = listOf(
                 konanLib / "kotlin-native-compiler-embeddable.jar",
