@@ -1,0 +1,8 @@
+product:
+  type: jvm/app
+
+settings:
+  jvm:
+    mainClass: apkg.Main
+  java:
+    compileIncrementally: true

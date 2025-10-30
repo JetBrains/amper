@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
@@ -25,6 +26,7 @@ import kotlin.io.path.writeText
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -55,6 +57,19 @@ class AmperJavaBuildTest : AmperCliTestBase() {
             result.addAll(folder.walk().toList().map { it.relativeTo(folder).invariantSeparatorsPathString })
         }
         return result.sorted()
+    }
+
+    @Test
+    fun `compiler errors are reported`() = runSlowTest {
+        val result = buildWithJic(
+            copyTestProject("java-error"),
+            expectedExitCode = null,
+            assertEmptyStdErr = false
+        )
+
+        assertNotEquals(result.exitCode, 0, "Exit code should not be 0 because there are compiler errors")
+        result.assertStderrContains("';' expected")
+        result.assertStderrContains("java-error/src/apkg/Main.java")
     }
 
     @Test
@@ -186,6 +201,18 @@ class AmperJavaBuildTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "run", "-m", moduleName,
+        )
+
+    private suspend fun buildWithJic(
+        projectRoot: Path,
+        expectedExitCode: Int? = 0,
+        assertEmptyStdErr: Boolean = true,
+        ): AmperCliResult =
+        runCli(
+            projectRoot = projectRoot,
+            "build",
+            expectedExitCode = expectedExitCode,
+            assertEmptyStdErr = assertEmptyStdErr
         )
 
     private fun AmperCliResult.realStdout(): String {
