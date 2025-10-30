@@ -17,10 +17,10 @@ internal class MockedMavenProject(other: MavenProject) : MavenProject(other) {
     constructor() : this(MavenProject())
 
     private val _newSourceRoots = mutableListOf<String>()
-    val newSourceRoots: List<String> by ::_newSourceRoots
+    val newSourceRoots: List<String> get() = _newSourceRoots
 
     private val _newTestSourceRoots = mutableListOf<String>()
-    val newTestSourceRoots: List<String> by ::_newTestSourceRoots
+    val newTestSourceRoots: List<String> get() = _newTestSourceRoots
 
     override fun addCompileSourceRoot(path: String?) {
         super.addCompileSourceRoot(path)
