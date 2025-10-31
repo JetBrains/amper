@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -25,5 +26,6 @@ class Project : SchemaNode() {
     // TODO: doc
     var plugins by value<List<UnscopedModuleDependency>>(default = emptyList())
 
+    @HiddenFromCompletion
     var mavenPlugins by value<List<UnscopedExternalMavenDependency>>(default = emptyList())
 }
