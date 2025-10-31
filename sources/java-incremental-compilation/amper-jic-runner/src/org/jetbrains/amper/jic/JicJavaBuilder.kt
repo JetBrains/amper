@@ -7,6 +7,7 @@ package org.jetbrains.amper.jic
 import com.intellij.tools.build.bazel.jvmIncBuilder.BazelIncBuilder
 import com.intellij.tools.build.bazel.jvmIncBuilder.CLFlags
 import com.intellij.tools.build.bazel.jvmIncBuilder.ExitCode
+import org.jetbrains.amper.jps.JicOutputAutoFlushWorkaround.serializeJpsCompilerOutput
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -44,10 +45,10 @@ internal class JicJavaBuilder(
             classpath = classpath,
             javacArgs = javacArgs,
             printToStdout = {
-                System.out.println(it)
+                System.out.println(serializeJpsCompilerOutput(it))
             },
             printToStderr = {
-                System.err.println(it)
+                System.err.println(serializeJpsCompilerOutput(it))
             }
         )
 

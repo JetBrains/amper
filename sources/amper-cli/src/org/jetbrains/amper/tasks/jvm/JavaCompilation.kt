@@ -8,9 +8,10 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jic.JicCompilationRequest
+import org.jetbrains.amper.jps.JicOutputAutoFlushWorkaround.deserializeJpsCompilerOutput
 import org.jetbrains.amper.processes.ArgsMode
-import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.slf4j.Logger
 import java.lang.management.ManagementFactory
@@ -62,7 +63,14 @@ internal suspend fun compileJavaWithJic(
         argsMode = ArgsMode.CommandLine,
         jvmArgs = jvmArgs,
         classpath = toolClasspath,
-        outputListener = LoggingProcessOutputListener(logger),
+        outputListener = object: ProcessOutputListener {
+            override fun onStdoutLine(line: String, pid: Long) {
+                logger.info(deserializeJpsCompilerOutput(line))
+            }
+
+            override fun onStderrLine(line: String, pid: Long) {
+                logger.error(deserializeJpsCompilerOutput(line))
+            }},
         // Input request is passed via STDIN
         input = ProcessInput.Text(Json.encodeToString(request))
     )
