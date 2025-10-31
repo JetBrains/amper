@@ -1311,7 +1311,7 @@ class SnapshotDependencyFileImpl(
                         //  keeping its own expiration time outdated)
                         hashAlgorithms
                             // find the last downloaded checksum and use its expiration time
-                            .mapNotNull { getChecksumFile(it)?.expirationTime() }
+                            .mapNotNull { getChecksumFile(it)?.takeIf { it.exists() }?.expirationTime() }
                             .maxByOrNull { it }
                             // fallback to the artifact expiration time if checksum is not found
                             ?: path.expirationTime()

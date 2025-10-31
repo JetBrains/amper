@@ -1,0 +1,8 @@
+root
+╰─── com.jetbrains.intellij.platform:jps-build-dependency-graph:253.25908.13-EAP-SNAPSHOT
+     ├─── com.github.ben-manes.caffeine:caffeine:3.2.2
+     │    ├─── org.jspecify:jspecify:1.0.0
+     │    ╰─── com.google.errorprone:error_prone_annotations:2.40.0
+     ├─── org.jetbrains.intellij.deps:asm-all:9.6.1
+     ├─── com.dynatrace.hash4j:hash4j:0.26.0
+     ╰─── org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.16-jb1

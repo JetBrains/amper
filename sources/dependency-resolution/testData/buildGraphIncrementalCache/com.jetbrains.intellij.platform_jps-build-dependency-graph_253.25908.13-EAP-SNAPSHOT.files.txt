@@ -1,0 +1,7 @@
+asm-all-9.6.1.jar
+caffeine-3.2.2.jar
+error_prone_annotations-2.40.0.jar
+hash4j-0.26.0.jar
+intellij-deps-fastutil-8.5.16-jb1.jar
+jps-build-dependency-graph-253.25908.13-EAP-SNAPSHOT.jar
+jspecify-1.0.0.jar
