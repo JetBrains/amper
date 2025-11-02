@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -48,30 +49,38 @@ internal fun applyPlugins(
                     problemReporter.reportBundleError(source, "plugin.invalid.mark.output.as.duplicates", path)
                 }
             ).associateBy { it.path }
-            val allOutputPaths = pathsCollector.allOutputPaths.map { it.value }
+            val outputPathsSet = pathsCollector.allOutputPaths.mapTo(hashSetOf()) { it.value }
             outputMarks.forEach { (path, mark) ->
-                if (path !in allOutputPaths) {
+                if (path !in outputPathsSet) {
                     problemReporter.reportBundleError(
                         mark.asBuildProblemSource(), "plugin.invalid.mark.output.as.no.such.path", path
                     )
                 }
             }
-            val outputsToMarks = allOutputPaths.associateWith { path ->
-                val mark = outputMarks[path] ?: return@associateWith null
-                TaskFromPluginDescription.OutputMark(
-                    kind = mark.kind,
-                    associateWith = moduleBuildCtx.module.fragments.first {
-                        it.isTest == mark.fragment.isTest && it.modifier == mark.fragment.modifier
+            val outputsToMarks = pathsCollector.allOutputPaths.map { path: TraceablePath ->
+                TaskFromPluginDescription.OutputPath(
+                    path = path,
+                    outputMark = outputMarks[path.value]?.let { mark ->
+                        TaskFromPluginDescription.OutputMark(
+                            kind = mark.kind,
+                            associateWith = moduleBuildCtx.module.fragments.first {
+                                it.isTest == mark.fragment.isTest && it.modifier == mark.fragment.modifier
+                            },
+                            trace = mark.trace,
+                        )
                     }
                 )
             }
-            moduleBuildCtx.module.tasksFromPlugins += TaskFromPluginDescription(
-                name = plugin.taskNameFor(moduleBuildCtx.module, name),
+            val taskDescription = TaskFromPluginDescription(
+                name = name,
+                pluginId = plugin.pluginData.id,
+                appliedTo = moduleBuildCtx.module,
+                backendTaskName = plugin.taskNameFor(moduleBuildCtx.module, name),
                 actionFunctionJvmName = taskInfo.jvmFunctionName,
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
                 actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
                 inputs = pathsCollector.allInputPaths.map { (path, inferTaskDependency) ->
-                    TaskFromPluginDescription.InputPath(path.value, inferTaskDependency)
+                    TaskFromPluginDescription.InputPath(path, inferTaskDependency)
                 },
                 requestedModuleSources = pathsCollector.moduleSourcesNodes.mapNotNull { (node, location) ->
                     val module = node.from.resolve(allModules) ?: return@mapNotNull null
@@ -103,6 +112,8 @@ internal fun applyPlugins(
                 codeSource = plugin.pluginModule,
                 explicitOptOutOfExecutionAvoidance = taskInfo.optOutOfExecutionAvoidance,
             )
+
+            moduleBuildCtx.module.tasksFromPlugins += taskDescription
         }
     }
 }

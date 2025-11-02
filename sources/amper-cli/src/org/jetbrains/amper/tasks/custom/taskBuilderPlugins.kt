@@ -21,7 +21,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
             for (sourcesRequest in taskDescription.requestedModuleSources) {
                 val fragments = sourcesRequest.from.fragmentsTargeting(Platform.JVM, includeTestFragments = false)
                 if (sourcesRequest.node.includeGenerated) {
-                    val taskName = TaskName(taskDescription.name.name + "*resolve-${sourcesRequest.propertyLocation}")
+                    val taskName = TaskName(taskDescription.backendTaskName.name + "*resolve-${sourcesRequest.propertyLocation}")
                     tasks.registerTask(
                         ModuleSourcesResolveTask(
                             taskName = taskName,
@@ -48,7 +48,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                     ShadowResolutionScope.Runtime -> ResolutionScope.RUNTIME
                     ShadowResolutionScope.Compile -> ResolutionScope.COMPILE
                 }
-                val taskName = TaskName(taskDescription.name.name + "*resolve-${classpathRequest.propertyLocation}")
+                val taskName = TaskName(taskDescription.backendTaskName.name + "*resolve-${classpathRequest.propertyLocation}")
                 val task = ResolveClasspathRequestTask(
                     taskName = taskName,
                     classpathRequest = classpathRequest,
@@ -85,7 +85,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 taskName
             }
             val task = TaskFromPlugin(
-                taskName = taskDescription.name,
+                taskName = taskDescription.backendTaskName,
                 module = module,
                 description = taskDescription,
                 buildOutputRoot = context.buildOutputRoot,
@@ -95,8 +95,8 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
             tasks.registerTask(
                 task, dependsOn = buildList {
                     addAll(taskDependencies)
-                    // TODO: Take explicit dependencies into account
                     add(CommonTaskType.RuntimeClasspath.getTaskName(taskDescription.codeSource, Platform.JVM, isTest = false))
+                    addAll(taskDescription.dependsOn.map { it.backendTaskName })
                 }
             )
         }

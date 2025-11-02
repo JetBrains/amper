@@ -1,0 +1,5 @@
+product: jvm/amper-plugin
+
+plugins:
+  # apply to self
+  tasks-with-loops: enabled

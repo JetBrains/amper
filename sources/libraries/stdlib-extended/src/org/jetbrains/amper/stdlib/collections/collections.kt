@@ -66,3 +66,26 @@ fun <T, K> Iterable<T>.distinctBy(
         }.values
         .map { it.first() }
 }
+
+/**
+ * Returns a list of pairs of each two adjacent elements in this collection.
+ * The last pair in the resulting list will have `null` for its second element.
+ *
+ * The returned list is empty if this iterable has no elements.
+ */
+fun <T> Iterable<T>.zipWithNextOrNull(): List<Pair<T, T?>> {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return emptyList()
+    return buildList {
+        var current = iterator.next()
+        while (true) {
+            if (!iterator.hasNext()) {
+                add(current to null)
+                break
+            }
+            val next = iterator.next()
+            add(current to next)
+            current = next
+        }
+    }
+}

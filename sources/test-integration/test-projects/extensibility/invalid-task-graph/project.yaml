@@ -1,0 +1,8 @@
+modules:
+  - app
+  - tasks-with-invalid-inputs
+  - tasks-with-loops
+
+plugins:
+  - ./tasks-with-invalid-inputs
+  - ./tasks-with-loops

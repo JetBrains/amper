@@ -1,0 +1,42 @@
+
+tasks:
+  withDuplicateInputs:
+    action: !action1
+      input1: ${module.rootDir}
+      input2: ${module.rootDir}/foo/..
+      input3: ${module.rootDir}/.
+
+  withConflictingInputs:
+    action: !action1
+      input1: ${module.rootDir}/foo/../.
+      input2: ${module.rootDir}/foo/./bar
+      input3: ${module.rootDir}/foo/quu.txt
+
+  withConflictingOutputs:
+    action: !action2
+      output1: ${taskOutputDir}/foo/..
+      output2: ${taskOutputDir}
+
+  withSameOutputA:
+    action: !action2
+      output1: ${module.rootDir}/foo/bar # (A)
+      output2: ${module.rootDir}/foo/baz
+  withSameOutputB:
+    action: !action2
+      output1: ${module.rootDir}/foo/bar # (A)
+      output2: ${module.rootDir}/foo/quu
+
+  generatesResources:
+    action: !action3
+      output: ${taskOutputDir}
+      input: ${consumesResources.action.output}
+    markOutputsAs:
+      - path: ${action.output}
+        kind: jvm-resources
+  consumesResources:
+    action: !action4
+      resources:
+        from: ${module.self}
+        kind: resources
+        includeGenerated: true
+      output: ${taskOutputDir}

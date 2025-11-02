@@ -1,0 +1,21 @@
+
+tasks:
+  task1:
+    action: !action
+      input: ${module.rootDir}/source.txt
+      output: ${taskOutputDir}/output.bin
+  task2:
+    action: !action
+      input: ${task1.action.output}
+      output: ${taskOutputDir}/converted.dat
+  task3:
+    action: !action
+      input: ${task2.action.output}
+      output: ${module.rootDir}/source.txt
+
+  taskThatGeneratesSources:
+    action: !action
+      output: ${taskOutputDir}
+    markOutputsAs:
+      - path: ${action.output}
+        kind: kotlin-sources

@@ -44,64 +44,36 @@ class TaskFromPlugin(
     val terminal: Terminal,
 ) : ArtifactTask {
 
-    interface ExternalTaskArtifact : Artifact
-
-    class ExternalTaskRawArtifact(
-        override val path: Path,
-    ) : ExternalTaskArtifact
 
     class ExternalTaskGeneratedKotlinJavaSourcesArtifact(
         buildOutputRoot: AmperBuildOutputRoot,
         fragment: Fragment,
         path: Path,
-    ) : KotlinJavaSourceDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
+    ) : KotlinJavaSourceDirArtifact(buildOutputRoot, fragment, path)
 
     class ExternalTaskGeneratedJvmResourcesArtifact(
         buildOutputRoot: AmperBuildOutputRoot,
         fragment: Fragment,
         path: Path,
-    ) : JvmResourcesDirArtifact(buildOutputRoot, fragment, path), ExternalTaskArtifact
+    ) : JvmResourcesDirArtifact(buildOutputRoot, fragment, path)
 
-    override val consumes: List<ArtifactSelector<*, *>> = description.inputs
-        .filter { it.inferTaskDependency }
-        .map { (inputPath, _) ->
-            ArtifactSelector(
-                type = ArtifactType(ExternalTaskArtifact::class),
-                predicate = {
-                    // Child paths of the produced path are also allowed
-                    inputPath.startsWith(it.path)
-                },
-                description = "with path '${inputPath}'",
-                quantifier = if (inputPath.startsWith(buildOutputRoot.path)) {
-                    // If the inputPath points somewhere in the build directory - then this path has to be built by
-                    //  something.
-                    //  If it's not built, then it's probably an error in path wiring.
-                    Quantifier.Single
-                } else {
-                    // If the inputPath points somewhere not in the build directory (e.g., in the source tree),
-                    //  then we do not require it to be built by anything.
-                    // This is needed to allow having some custom sources as inputs without introducing any public
-                    //  mechanism to declare them as "provided".
-                    Quantifier.AnyOrNone
-                },
-            )
-        }
+    override val consumes: List<ArtifactSelector<*, *>> = emptyList()
 
     override val produces: List<Artifact> = description.outputs
-        .map { (output, mark) ->
+        .mapNotNull { (output, mark) ->
             when (mark?.kind) {
-                null -> ExternalTaskRawArtifact(output)
+                null -> null
                 GeneratedPathKind.KotlinSources,
                 GeneratedPathKind.JavaSources,
                     -> ExternalTaskGeneratedKotlinJavaSourcesArtifact(
                     buildOutputRoot = buildOutputRoot,
                     fragment = mark.associateWith,
-                    path = output,
+                    path = output.value,
                 )
                 GeneratedPathKind.JvmResources -> ExternalTaskGeneratedJvmResourcesArtifact(
                     buildOutputRoot = buildOutputRoot,
                     fragment = mark.associateWith,
-                    path = output,
+                    path = output.value,
                 )
             }
         }
@@ -153,7 +125,7 @@ class TaskFromPlugin(
             ),
             inputFiles = buildList {
                 addAll(taskCode.jvmRuntimeClasspath)
-                for (input in description.inputs) add(input.path)
+                for (input in description.inputs) add(input.path.value)
                 for (resolvedRequest in description.requestedClasspaths) addAll(resolvedRequest.node.resolvedFiles)
                 for (sourcesRequest in description.requestedModuleSources) addAll(sourcesRequest.node.sourceDirectories)
                 for (artifactRequest in description.requestedCompilationArtifacts) add(artifactRequest.node.artifact)
@@ -163,7 +135,7 @@ class TaskFromPlugin(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
             IncrementalCache.ExecutionResult(
-                outputFiles = description.outputs.keys.toList(),
+                outputFiles = description.outputs.map { it.path.value },
             )
         }
 

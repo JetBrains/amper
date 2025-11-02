@@ -7,10 +7,13 @@ package org.jetbrains.amper.frontend.plugins
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
-import java.nio.file.Path
+import org.jetbrains.amper.plugins.schema.model.PluginData
 
 /**
  * A custom task information that comes from a plugin.
@@ -18,9 +21,25 @@ import java.nio.file.Path
  */
 class TaskFromPluginDescription(
     /**
-     * Unique task name.
+     * Short task name as declared in `plugin.yaml`. Only unique within the [plugin][pluginId].
      */
-    val name: TaskName,
+    val name: String,
+
+    /**
+     * Plugin ID that this task belongs to.
+     * @see codeSource
+     */
+    val pluginId: PluginData.Id,
+
+    /**
+     * Amper module that the [plugin][pluginId] is applied to, resulting into this task registration.
+     */
+    val appliedTo: AmperModule,
+
+    /**
+     * Unique internal task name.
+     */
+    val backendTaskName: TaskName,
 
     /**
      * JVM reflection name of the class (Kotlin file facade)
@@ -77,7 +96,7 @@ class TaskFromPluginDescription(
      * Paths (from the [actionArguments]) that are to be considered as outputs to the task action as keys.
      * These paths are optionally marked with the additional semantics.
      */
-    val outputs: Map<Path, OutputMark?>,
+    val outputs: List<OutputPath>,
 
     /**
      * Local plugin module which runtime classpath contains the [actionClassJvmName].
@@ -90,17 +109,29 @@ class TaskFromPluginDescription(
      */
     val explicitOptOutOfExecutionAvoidance: Boolean,
 ) {
+    /**
+     * Dependencies on other [plugin tasks][TaskFromPluginDescription] that were computed on the frontend.
+     */
+    lateinit var dependsOn: List<TaskFromPluginDescription>
 
     /**
      * A marked path to be used as a task input.
      */
     data class InputPath(
-        val path: Path,
+        val path: TraceablePath,
         /**
          * If true, and if the [path] is the output of another task, a dependency is automatically inferred
          * between the task declaring this input and the task declaring the same path as output.
          */
         val inferTaskDependency: Boolean,
+    )
+
+    /**
+     * A potentially marked path to be used as a task output.
+     */
+    data class OutputPath(
+        val path: TraceablePath,
+        val outputMark: OutputMark?,
     )
 
     /**
@@ -119,7 +150,8 @@ class TaskFromPluginDescription(
          * Which fragment this output belongs to.
          */
         val associateWith: Fragment,
-    )
+        override val trace: Trace,
+    ) : Traceable
 
     /**
      * A wrapper around [ShadowModuleSources] that was validated
