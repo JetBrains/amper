@@ -192,8 +192,12 @@ class SchemaValueDelegate<T>(
             // It only happens for required properties (without default) that also don't have a value.
             ?: DefaultTrace
 
-    override fun toString(): String = "SchemaValue(property = $property, value = $value)"
+    override fun toString(): String = "SchemaValue(property = ${property.fullyQualifiedName}, value = $value)"
 }
+
+// the first "parameter" of a property is the receiver, so the containing type
+private val KProperty<*>.fullyQualifiedName: String
+    get() = "${parameters.firstOrNull()?.type ?: ""}.$name"
 
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 
