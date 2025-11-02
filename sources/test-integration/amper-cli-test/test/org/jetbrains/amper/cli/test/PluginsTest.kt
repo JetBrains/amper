@@ -343,21 +343,17 @@ class PluginsTest : AmperCliTestBase() {
         )
 
         with(result) {
-            assertEquals(
-                expected = sortedSetOf(
-                    "Plugin id must be unique across the project", // Sources are asserted below
-                    "${projectRoot / "not-a-plugin" / "module.yaml"}:1:1: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
-                    "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
-                ),
-                actual = parseErrors(),
-            )
-            assertStderrContains("""
+            assertErrors(
+                """
                 Plugin id must be unique across the project
                 ╰─ There are multiple plugins with the id `hello`:
                    ╰─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "hello"}
-            """.trimIndent())
+                """.trimIndent(),
+                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:1: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
+                "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
+            )
             assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello]...")
         }
     }
@@ -373,12 +369,9 @@ class PluginsTest : AmperCliTestBase() {
         )
 
         with(result) {
-            assertEquals(
-                expected = sortedSetOf(
-                    "${projectRoot / "project.yaml"}:6:5: Plugin module `existing-but-not-included` is not included in the project `modules` list",
-                    "${projectRoot / "project.yaml"}:7:5: Plugin module `non-existing` is not found",
-                ),
-                actual = parseErrors(),
+            assertErrors(
+                "${projectRoot / "project.yaml"}:6:5: Plugin module `existing-but-not-included` is not included in the project `modules` list",
+                "${projectRoot / "project.yaml"}:7:5: Plugin module `non-existing` is not found",
             )
             assertStdoutDoesNotContain("Processing local plugin schema for")
         }
@@ -395,24 +388,18 @@ class PluginsTest : AmperCliTestBase() {
         )
 
         with(result) {
-            assertEquals(
-                expected = sortedSetOf(
-                    "${projectRoot / "empty-plugin" / "module.yaml" }:2:3: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
-                    "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
-                ),
-                actual = parseWarnings(),
+            assertWarnings(
+                "${projectRoot / "empty-plugin" / "module.yaml" }:2:3: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
+                "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
             )
-            assertEquals(
-                expected = sortedSetOf(
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:16: Unexpected custom YAML type tag",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:3: Expected a value",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:22: Unexpected custom YAML type tag",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:3: Expected a value",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:13: Unexpected type specified. Expected one of: []",
-                    "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: Unexpected type specified. Expected one of: []",
-                ),
-                actual = parseErrors(),
+            assertErrors(
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:16: Unexpected custom YAML type tag",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:3: Expected a value",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:22: Unexpected custom YAML type tag",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:3: Expected a value",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:13: Unexpected type specified. Expected one of: []",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: Unexpected type specified. Expected one of: []",
             )
         }
     }
@@ -428,39 +415,51 @@ class PluginsTest : AmperCliTestBase() {
         )
         with(result) {
             val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
-            assertEquals(
-                expected = sortedSetOf(
-                    "${pluginYaml}:19:5: Cannot assign to property `taskOutputDir` - it is a built-in property available for reference only",
-                    "${pluginYaml}:18:11: Expected `Dependency.Maven ( maven-coordinates | maven-coordinates: {..} )`, but got `sequence []`",
-                    "${pluginYaml}:21:1: Cannot assign to property `module` - it is a built-in property available for reference only",
-                    "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
-                    "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
-                    "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
-                    "${pluginYaml}:11:7: Referencing `module` is not allowed",
-                    "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
-                    "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
-                    "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
-                    "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
-                    "${pluginYaml}:4:5: No value for required property 'int'.",
-                ),
-                actual = parseErrors(),
+            assertErrors(
+                "${pluginYaml}:19:5: Cannot assign to property `taskOutputDir` - it is a built-in property available for reference only",
+                "${pluginYaml}:18:11: Expected `Dependency.Maven ( maven-coordinates | maven-coordinates: {..} )`, but got `sequence []`",
+                "${pluginYaml}:21:1: Cannot assign to property `module` - it is a built-in property available for reference only",
+                "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
+                "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
+                "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
+                "${pluginYaml}:11:7: Referencing `module` is not allowed",
+                "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
+                "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
+                "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
+                "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
+                "${pluginYaml}:4:5: No value for required property 'int'.",
             )
-            assertEquals(
-                expected = sortedSetOf(
-                    "${pluginYaml}:16:11: Maven classifiers are currently not supported",
-                ),
-                actual = parseWarnings()
+            assertWarnings(
+                "${pluginYaml}:16:11: Maven classifiers are currently not supported",
             )
         }
     }
 
-    private fun AmperCliResult.parseErrors(): Set<String> = CliErrorLikeRegex.findAll(stderr).map {
-        it.groups["error"]!!.value
-    }.toSortedSet()
+    private fun AmperCliResult.assertErrors(
+        vararg expectedErrors: String,
+    ) {
+        val actual = CliErrorLikeRegex.findAll(stderr).map {
+            it.groups["error"]!!.value.trim() + '\n'
+        }.toSortedSet()
 
-    private fun AmperCliResult.parseWarnings(): Set<String> = CliWarningLikeRegex.findAll(stdout).map {
-        it.groups["warning"]!!.value
-    }.toSortedSet()
+        assertEquals(
+            expected = expectedErrors.mapTo(sortedSetOf()) { it + '\n' },
+            actual = actual,
+        )
+    }
+
+    private fun AmperCliResult.assertWarnings(
+        vararg expectedWarnings: String,
+    ) {
+        val actual = CliWarningLikeRegex.findAll(stdout).map {
+            it.groups["warning"]!!.value.trim() + '\n'
+        }.toSortedSet()
+
+        assertEquals(
+            expected = expectedWarnings.mapTo(sortedSetOf()) { it + '\n' },
+            actual = actual,
+        )
+    }
 
     private fun AmperCliResult.assertCustomTaskStdout(
         taskName: String,
@@ -474,5 +473,7 @@ class PluginsTest : AmperCliTestBase() {
     }
 }
 
-private val CliErrorLikeRegex = "ERROR\\s+(?<error>.*)".toRegex()
-private val CliWarningLikeRegex = "WARN\\s+(?<warning>.*)".toRegex()
+private val CliErrorLikeRegex = """^\d{2}:\d{2}\.\d{3} ERROR\s+(?<error>.*?)(?=^\d{2}:\d{2}\.\d{3}|ERROR:|\z)"""
+    .toRegex(setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
+private val CliWarningLikeRegex = """^\d{2}:\d{2}\.\d{3} WARN\s+(?<warning>.*?)(?=^\d{2}:\d{2}\.\d{3}|ERROR:|\z)"""
+    .toRegex(setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
