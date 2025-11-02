@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.normalizeLineSeparators
@@ -55,22 +56,28 @@ class PluginsTest : AmperCliTestBase() {
         val buildDir = tempRoot / "build"
         val projectRoot = r1.projectRoot
 
-        r1.assertCustomTaskStdout(
+        // We expect Kotlin 2.2.10 specifically in the 'from-catalog' and 'compile' classpaths because the 'app' module
+        // overrides settings.kotlin.version.
+        // In the 'core' and 'lib' modules, the Kotlin version is not overridden, so we expect the default in the
+        // corresponding classpaths.
+        // In 'base', the runtime classpath gets the default Kotlin version transitively from core/lib because it's
+        // higher, so we expect the default Kotlin version even though it sets Kotlin to 2.2.10 explicitly.
+        r1.assertCustomTaskStdoutContains(
             taskName = taskName,
             output = """
             Hello from distribution
             classpath base.dependencies = [{modulePath: $projectRoot/app}]
             classpath base.dependencies[0] = {modulePath: $projectRoot/app}
             classpath base.dependencies[0].modulePath = $projectRoot/app
-            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath core.dependencies = [{modulePath: $projectRoot/core}]
             classpath core.dependencies[0] = {modulePath: $projectRoot/core}
             classpath core.dependencies[0].modulePath = $projectRoot/core
-            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
             classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
             classpath lib.dependencies[0].modulePath = $projectRoot/lib
-            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
@@ -98,7 +105,7 @@ class PluginsTest : AmperCliTestBase() {
 
         val projectRoot = r1.projectRoot
         val buildDir = tempRoot / "build"
-        r1.assertCustomTaskStdout(
+        r1.assertCustomTaskStdoutContains(
             taskName = ":app1:consume@consume-sources-plugin",
             output = """
             Consuming sources: 1
@@ -108,7 +115,7 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":app2:consume@consume-sources-plugin",
-        ).assertCustomTaskStdout(
+        ).assertCustomTaskStdoutContains(
             taskName = ":app2:consume@consume-sources-plugin",
             output = """
             Consuming sources: 4
@@ -121,7 +128,7 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":app3:consume@consume-sources-plugin",
-        ).assertCustomTaskStdout(
+        ).assertCustomTaskStdoutContains(
             taskName = ":app3:consume@consume-sources-plugin",
             output = """
             Consuming sources: 3
@@ -133,7 +140,7 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":kmp-lib:consume@consume-sources-plugin",
-        ).assertCustomTaskStdout(
+        ).assertCustomTaskStdoutContains(
             taskName = ":kmp-lib:consume@consume-sources-plugin",
             output = """
             Consuming sources: 2
@@ -144,7 +151,7 @@ class PluginsTest : AmperCliTestBase() {
         runCli(
             projectRoot = projectRoot,
             "task", ":kmp-lib2:consume@consume-sources-plugin",
-        ).assertCustomTaskStdout(
+        ).assertCustomTaskStdoutContains(
             taskName = ":kmp-lib2:consume@consume-sources-plugin",
             output = """
             Consuming sources: 2
@@ -546,7 +553,7 @@ class PluginsTest : AmperCliTestBase() {
         )
     }
 
-    private fun AmperCliResult.assertCustomTaskStdout(
+    private fun AmperCliResult.assertCustomTaskStdoutContains(
         taskName: String,
         output: String,
     ) {

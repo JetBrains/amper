@@ -297,12 +297,6 @@
       "name": "com.example/WithInvalidDefaults",
       "properties": [
         {
-          "name": "boolean0",
-          "type": {
-            "type": "boolean"
-          }
-        },
-        {
           "name": "boolean1",
           "type": {
             "type": "boolean"
@@ -403,6 +397,16 @@
     {
       "name": "com.example/WithValidDefaults",
       "properties": [
+        {
+          "name": "boolean0",
+          "type": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean",
+            "value": false
+          }
+        },
         {
           "name": "boolean1",
           "type": {

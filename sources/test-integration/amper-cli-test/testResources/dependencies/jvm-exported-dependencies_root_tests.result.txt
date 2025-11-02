@@ -9,11 +9,11 @@ Module root
 │         ╰─── org.apache.commons:commons-lang3:3.13.0
 ├─── root:jvm:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
-├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21
 │         ╰─── org.jetbrains:annotations:13.0
-╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
+╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
 
 Module root
 │ - main
@@ -24,11 +24,11 @@ Module root
 │         ╰─── org.apache.commons:commons-lang3:3.13.0
 ├─── root:jvm:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
-├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21
 │         ╰─── org.jetbrains:annotations:13.0
-╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
+╰─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+     ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
 
 Module root
 │ - test
@@ -43,15 +43,15 @@ Module root
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
 ├─── root:jvmTest:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
-├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21
 │         ╰─── org.jetbrains:annotations:13.0
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
-│    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10
-│         ├─── org.jetbrains.kotlin:kotlin-test:2.2.10
-│         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, implicit (because the test engine is junit-5)
+│    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.21
+│         ├─── org.jetbrains.kotlin:kotlin-test:2.2.21
+│         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
 │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
 │              ├─── org.junit:junit-bom:5.10.1
 │              ├─── org.opentest4j:opentest4j:1.3.0
@@ -59,12 +59,12 @@ Module root
 │              │    ├─── org.junit:junit-bom:5.10.1
 │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
 │              ╰─── org.apiguardian:apiguardian-api:1.1.2
-├─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
-     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10 (*)
+├─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, implicit (because the test engine is junit-5)
+     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.21 (*)
 
 Module root
 │ - test
@@ -79,15 +79,15 @@ Module root
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
 ├─── root:jvmTest:org.apache.commons:commons-text:1.11.0
 │    ╰─── org.apache.commons:commons-text:1.11.0 (*)
-├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10
+├─── root:common:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21
 │         ╰─── org.jetbrains:annotations:13.0
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
-│    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10
-│         ├─── org.jetbrains.kotlin:kotlin-test:2.2.10
-│         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+├─── root:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, implicit (because the test engine is junit-5)
+│    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.21
+│         ├─── org.jetbrains.kotlin:kotlin-test:2.2.21
+│         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
 │         ├─── org.junit.jupiter:junit-jupiter-engine:5.10.1
 │         │    ├─── org.junit:junit-bom:5.10.1
 │         │    ├─── org.junit.platform:junit-platform-engine:1.10.1
@@ -102,9 +102,9 @@ Module root
 │         ╰─── org.junit.platform:junit-platform-launcher:1.10.1
 │              ├─── org.junit:junit-bom:5.10.1
 │              ╰─── org.junit.platform:junit-platform-engine:1.10.1 (*)
-├─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.10, implicit
-│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.10 (*)
-╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, implicit (because the test engine is junit-5)
-     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.10 (*)
+├─── root:jvm:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+├─── root:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:2.2.21, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.2.21 (*)
+╰─── root:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, implicit (because the test engine is junit-5)
+     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.2.21 (*)

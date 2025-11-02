@@ -26,7 +26,6 @@ foundation-layout-uikitMain-1.8.2.klib
 foundation-nativeMain-1.8.2.klib
 foundation-skikoMain-1.8.2.klib
 foundation-uikitMain-1.8.2.klib
-kotlin-stdlib-commonMain-#kotlinVersion.klib
 kotlinx-coroutines-core-commonMain-1.8.0.klib
 kotlinx-coroutines-core-concurrentMain-1.8.0.klib
 kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib

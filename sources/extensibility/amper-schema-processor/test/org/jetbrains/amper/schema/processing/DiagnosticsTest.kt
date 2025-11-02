@@ -83,6 +83,7 @@ Supported types are:
 }
 
 @Configurable interface WithValidDefaults {
+  val boolean0: Boolean get() = false && true
   val boolean1: Boolean get() = DEFAULT_TRUE
   val boolean3 get() = true
   val string1 get() = "hello"
@@ -118,9 +119,6 @@ Supported types are:
  - `Boolean`, `String`, `Int`, `Path`, enums
  - `@Configurable` interface (must be declared in the same source directory)
  - `List<T>`, `Map<String, T>`, where `T` is a supported type. */
-
-// TODO: Investigate, why is this not a constant expression
-  val boolean0: Boolean get() = /*{{*/false && true/*}} [Amper] Invalid primitive default expression: only simple constant expressions are allowed */
 
   val boolean1: Boolean get() = /*{{*/System.getProperty("hello") != null/*}} [Amper] Invalid primitive default expression: only simple constant expressions are allowed */                  
   // TODO: Support this case in some capacity?

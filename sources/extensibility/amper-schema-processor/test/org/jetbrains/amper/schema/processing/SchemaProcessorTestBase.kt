@@ -11,6 +11,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.plugins.schema.model.withoutOrigin
 import org.jetbrains.amper.test.TempDirExtension
+import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import kotlin.io.path.writeText
@@ -98,9 +99,9 @@ abstract class SchemaProcessorTestBase {
                 }
                 toString()
             }
-            assertEquals(
-                expected = source.contents,
-                actual = markedContents,
+            assertEqualsWithDiff(
+                expected = source.contents.lines(),
+                actual = markedContents.lines(),
             )
         }
         val format = Json {
@@ -108,9 +109,9 @@ abstract class SchemaProcessorTestBase {
             @OptIn(ExperimentalSerializationApi::class)
             prettyPrintIndent = "  "
         }
-        assertEquals(
-            expected = expectedJsonPluginData,
-            actual = format.encodeToString(result.declarations.withoutOrigin())
+        assertEqualsWithDiff(
+            expected = expectedJsonPluginData?.lines() ?: error("The test should call expectPluginData()"),
+            actual = format.encodeToString(result.declarations.withoutOrigin()).lines(),
         )
     }
 }

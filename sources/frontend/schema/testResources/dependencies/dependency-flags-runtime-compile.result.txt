@@ -4,7 +4,7 @@ Fragments:
       MavenDependency(coordinates=a:a:a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=false, runtime=true, exported=false)
       MavenDependency(coordinates=b:b:b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=false)
       MavenDependency(coordinates=c:c:c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=true)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src
     Fragment dependencies:
@@ -16,8 +16,8 @@ Fragments:
       MavenDependency(coordinates=a:a:a, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=false, runtime=true, exported=false)
       MavenDependency(coordinates=b:b:b, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=false)
       MavenDependency(coordinates=c:c:c, trace=PsiTrace(psiElement=YAML key value, precedingValue=null), compile=true, runtime=false, exported=true)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.Settings.junit, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.Settings.junit, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test
     Fragment dependencies:
