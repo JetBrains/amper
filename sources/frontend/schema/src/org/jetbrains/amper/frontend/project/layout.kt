@@ -9,9 +9,6 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 
-val AmperProjectContext.mavenPluginXmlsDir: Path
-    get() = projectBuildDir / "maven-plugins"
-
 fun AmperProjectContext.getTaskOutputRoot(taskName: TaskName): Path {
     return projectBuildDir / "tasks" / taskName.name.replace(":", "_")
 }

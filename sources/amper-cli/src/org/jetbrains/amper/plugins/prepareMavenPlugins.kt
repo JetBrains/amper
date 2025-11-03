@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.plugins
 
-import com.intellij.util.io.copyToAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -21,73 +20,42 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
-import org.jetbrains.amper.frontend.project.mavenPluginXmlsDir
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createFile
-import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
-import kotlin.io.path.outputStream
 
 /**
  * Download specified maven plugins jars, extract their `plugin.xml` metadata and parse it.
  */
 internal suspend fun prepareMavenPlugins(
     context: CliContext,
-    mavenResolver: MavenResolver = MavenResolver(context.userCacheRoot, AmperCliIncrementalCache(context.buildOutputRoot)),
+    mavenResolver: MavenResolver = MavenResolver(
+        userCacheRoot = context.userCacheRoot,
+        incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
+    ),
 ): List<MavenPluginXml> = coroutineScope prepare@{
-    val externalPlugins = context.projectContext.externalMavenPluginDependencies
-    val mavenPluginXmlsDir = context.projectContext.mavenPluginXmlsDir
-
-    val pluginDeclarationsToCopyPaths = externalPlugins.map {
-        val pluginXmlCopyName = it.coordinates.split(":")
-        val pluginXmlCopyPath = (mavenPluginXmlsDir / "${pluginXmlCopyName.joinToString(separator = "/")}.xml").apply {
-            parent.createDirectories()
-            if (!exists()) createFile()
-        }
-        it to pluginXmlCopyPath
-    }
-
-    // TODO Here later we should add download evading in case of directory contents are still valid.
-    pluginDeclarationsToCopyPaths.map { (declaration, copyPath) ->
+    context.projectContext.externalMavenPluginDependencies.map { declaration ->
         async {
-            val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, declaration) ?: return@async
-            copyPluginXmlAsync(pluginJarFile, copyPath)
+            val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, declaration) ?: return@async null
+            withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") {
+                parseMavenPluginXml(it, declaration.coordinates)
+            }
         }
-    }.awaitAll()
-
-    pluginDeclarationsToCopyPaths.mapNotNull { (declaration, copyPath) ->
-        copyPath
-            // In case we failed to download the plugin jar.
-            .takeIf { it.exists() }
-            ?.inputStream()
-            ?.use { parseMavenPluginXml(it, declaration.coordinates) }
-    }
+    }.awaitAll().filterNotNull()
 }
-
-/**
- * Copy `plugin.xml`s from plugin jar to a convention location.
- */
-private suspend fun copyPluginXmlAsync(pluginJarFile: Path, copyPath: Path) =
-    withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") { input ->
-        @Suppress("UnstableApiUsage")
-        copyPath.outputStream().use { input.copyToAsync(it) }
-    }
 
 /**
  * Resolve and download the plugin and its direct dependencies.
  */
-// TODO Actually, here we need only the plugin jar. But right now we only have an API to resolve/download.
 private suspend fun downloadPluginAndDirectDependencies(
     mavenResolver: MavenResolver,
     declaration: UnscopedExternalMavenDependency,
 ): Path? {
+    // TODO Actually, here we need only the plugin jar. 
+    //  Need to use [ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES] when it will work properly.
     val resolvedRoot = mavenResolver.resolveWithContext(
         repositories = listOf(MavenCentral),
         scope = ResolutionScope.RUNTIME,
@@ -96,10 +64,11 @@ private suspend fun downloadPluginAndDirectDependencies(
         resolutionDepth = ResolutionDepth.GRAPH_FULL,
     ) {
         val (group, module, version) = declaration.coordinates.split(":")
+        val pluginNode = MavenDependencyNodeWithContext(this, group, module, version, false)
         RootDependencyNodeWithContext(
             templateContext = this,
-            children = listOf(MavenDependencyNodeWithContext(this, group, module, version, false)))
-
+            children = listOf(pluginNode)
+        )
     }
 
     // We can safely assume that there is only one dependency here, because we created root holder that way.
