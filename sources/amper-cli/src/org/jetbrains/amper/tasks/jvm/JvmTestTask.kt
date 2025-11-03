@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -41,6 +42,12 @@ import kotlin.io.path.div
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
+
+/**
+ * The JUnit Vintage engine (used to run JUnit 4 tests) is deprecated since JUnit Platform 6.0.0.
+ * See https://docs.junit.org/current/release-notes/index.html#release-notes-6.0.0-junit-vintage-deprecations-and-breaking-changes
+ */
+private val FirstJUnitPlatformVersionWithDeprecatedVintageEngine = ComparableVersion("6.0.0")
 
 class JvmTestTask(
     private val userCacheRoot: AmperUserCacheRoot,
@@ -134,6 +141,14 @@ class JvmTestTask(
             }
             if (runSettings.testResultsFormat == TestResultsFormat.TeamCity) {
                 add("-Dorg.jetbrains.amper.junit.listener.teamcity.enabled=true")
+            }
+
+            // The JUnit Vintage engine (used to run JUnit 4 tests) is deprecated since JUnit Platform 6.0.0.
+            // The built-in warning about this inside the JUnit Platform is not user-friendly (it talks about the JUnit
+            // Vintage engine, which users shouldn't have to know about). Instead, if we want to warn users about this,
+            // we should do so directly in our frontend when they choose 'junit-4'. See AMPER-4826
+            if (ComparableVersion(jvmTestSettings.junitPlatformVersion) >= FirstJUnitPlatformVersionWithDeprecatedVintageEngine) {
+                add("-Djunit.vintage.discovery.issue.reporting.enabled=false")
             }
 
             addAll(jvmTestSettings.systemProperties.map { (k, v) -> "-D${k.value}=${v.value}" })

@@ -44,23 +44,20 @@ class AmperTestFormatTest : AmperCliTestBase() {
             Started stringComparisonFailure()
             Failed stringComparisonFailure()
                        => Exception: org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>
-                            at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-                            at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-                            at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
-                            at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
-                            at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)
+                            at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+                            at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+                            at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+                            at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+                            at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
                             at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
                             at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
                             at kotlin.test.AssertionsKt.assertEquals(Unknown Source)
                             at FailedTest.stringComparisonFailure(tests.kt:18)
-                            at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
             Started booleanFailure()
             Failed booleanFailure()
                        => Exception: org.opentest4j.AssertionFailedError: The boolean value is incorrect
-                            at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)
-                            at org.junit.jupiter.api.Assertions.fail(Assertions.java:138)
+                            at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)
+                            at org.junit.jupiter.api.Assertions.fail(Assertions.java:143)
                             at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
                             at kotlin.test.Asserter.assertTrue(Assertions.kt:694)
                             at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
@@ -69,16 +66,13 @@ class AmperTestFormatTest : AmperCliTestBase() {
                             at kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)
                             at kotlin.test.AssertionsKt.assertTrue(Unknown Source)
                             at FailedTest.booleanFailure(tests.kt:13)
-                            at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-                            at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
                             """.trimIndent()
 
         val outputPartToCheck = r.stdout
             .substringAfter("Started FailedTest")
             .substringBefore("Completed FailedTest")
             .trim()
-        assertEquals(expectedFailureOutput, outputPartToCheck, "Output is incorrect")
+        assertEqualsWithDiff(expectedFailureOutput.lines(), outputPartToCheck.lines(), "Output is incorrect")
     }
 
     @Test
@@ -104,13 +98,13 @@ class AmperTestFormatTest : AmperCliTestBase() {
                                 message = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
                                 expectedValue = "EXPECTED_VALUE",
                                 actualValue = "ACTUAL_VALUE",
-                                serializedStackTrace = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)$ENL\tat org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)$ENL\tat org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)$ENL\tat org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)$ENL\tat kotlin.test.AssertionsKt.assertEquals(Unknown Source)$ENL\tat FailedTest.stringComparisonFailure(tests.kt:18)$ENL\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL"
+                                serializedStackTrace = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)$ENL\tat org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)$ENL\tat org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)$ENL\tat org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)$ENL\tat kotlin.test.AssertionsKt.assertEquals(Unknown Source)$ENL\tat FailedTest.stringComparisonFailure(tests.kt:18)$ENL"
                             )
                         }
                         testWithFlow("FailedTest.booleanFailure()") {
                             testFailed(
                                 message = "org.opentest4j.AssertionFailedError: The boolean value is incorrect",
-                                serializedStackTrace = "org.opentest4j.AssertionFailedError: The boolean value is incorrect$ENL\tat org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)$ENL\tat org.junit.jupiter.api.Assertions.fail(Assertions.java:138)$ENL\tat kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:694)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:704)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)$ENL\tat kotlin.test.AssertionsKt.assertTrue(Unknown Source)$ENL\tat FailedTest.booleanFailure(tests.kt:13)$ENL\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)$ENL"
+                                serializedStackTrace = "org.opentest4j.AssertionFailedError: The boolean value is incorrect$ENL\tat org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)$ENL\tat org.junit.jupiter.api.Assertions.fail(Assertions.java:143)$ENL\tat kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:694)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:704)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)$ENL\tat kotlin.test.AssertionsKt.assertTrue(Unknown Source)$ENL\tat FailedTest.booleanFailure(tests.kt:13)$ENL"
                             )
                         }
                     }

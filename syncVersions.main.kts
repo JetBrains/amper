@@ -42,7 +42,7 @@ val kotlinVersion = "2.2.21" // /!\ Remember to update the KotlinVersion enum wi
 
 val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.8.2"
-val junitPlatformVersion = "1.13.4"
+val junitPlatformVersion = "6.0.1"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.3.0"
 val ktorVersion = "3.2.3"

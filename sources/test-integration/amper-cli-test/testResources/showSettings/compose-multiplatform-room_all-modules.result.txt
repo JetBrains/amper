@@ -40,7 +40,7 @@ settings@android:
     storeParameterNames: false  # default
     test:
       freeJvmArgs: []  # default
-      junitPlatformVersion: 1.13.4  # default
+      junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
   kotlin:
     allOpen:
@@ -113,7 +113,7 @@ settings@jvm:
     storeParameterNames: false  # default
     test:
       freeJvmArgs: []  # default
-      junitPlatformVersion: 1.13.4  # default
+      junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
   kotlin:
     allOpen:
@@ -198,7 +198,7 @@ settings@jvm+android:
     storeParameterNames: false  # default
     test:
       freeJvmArgs: []  # default
-      junitPlatformVersion: 1.13.4  # default
+      junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
   kotlin:
     allOpen:
@@ -273,7 +273,7 @@ settings@jvm:
     storeParameterNames: false  # default
     test:
       freeJvmArgs: []  # default
-      junitPlatformVersion: 1.13.4  # default
+      junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
   kotlin:
     allOpen:
@@ -357,7 +357,7 @@ settings@android:
     storeParameterNames: false  # default
     test:
       freeJvmArgs: []  # default
-      junitPlatformVersion: 1.13.4  # default
+      junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
   kotlin:
     allOpen:

@@ -72,7 +72,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
@@ -221,7 +221,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
@@ -368,7 +368,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
@@ -518,7 +518,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
@@ -665,7 +665,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
@@ -815,7 +815,7 @@ Fragments:
         test: <default> {
           freeJvmArgs: <default> [
           ]
-          junitPlatformVersion: <default> 1.13.4
+          junitPlatformVersion: <default> 6.0.1
           systemProperties: <default> {
           }
         }
