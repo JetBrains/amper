@@ -534,7 +534,7 @@ settings:
 |----------------|-------------------------------------------|---------|
 | `defs: list`   | A list of `.def` files for cinterop generation. | (empty) |
 
-Amper will also automatically discover `.def` files in the `resources/cinterop` directory of a native fragment and add them to this list.
+By convention, Amper automatically discovers all `.def` files located in the `resources/cinterop` directory of a native fragment. The `defs` property can be used to include `.def` files from other locations.
 
 Example:
 

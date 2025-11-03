@@ -51,6 +51,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.discoverCinteropDefs
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
@@ -153,6 +154,7 @@ internal fun BuildCtx.readModuleMergedTree(
     val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
         .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
         .appendDefaultValues()
+        .discoverCinteropDefs()
 
     // Choose catalogs.
     // TODO This should be done without refining somehow?
