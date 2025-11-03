@@ -44,7 +44,7 @@ val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.8.2"
 val junitPlatformVersion = "1.13.4"
 val kotlinxSerializationVersion = "1.9.0"
-val kspVersion = "2.2.10-2.0.2" // KSP2 still has some Kotlin version in it, but it doesn't have to be in sync
+val kspVersion = "2.3.0"
 val ktorVersion = "3.2.3"
 val springBootVersion = "3.5.5"
 

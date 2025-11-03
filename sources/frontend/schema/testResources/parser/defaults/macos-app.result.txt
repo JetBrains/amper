@@ -93,7 +93,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -243,7 +243,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -389,7 +389,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -538,7 +538,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -685,7 +685,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -832,7 +832,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -982,7 +982,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -1132,7 +1132,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -1279,7 +1279,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -1429,7 +1429,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -1576,7 +1576,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -1726,7 +1726,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.2.10-2.0.2
+          version: <default> 2.3.0
         }
         languageFeatures: <default> null
         languageVersion: <default> null
