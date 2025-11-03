@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.Settings
@@ -87,19 +88,22 @@ interface Fragment {
     val hasAnyComposeResources: Boolean
 
     /**
-     * Paths to the generated source roots, relative to the build directory.
+     * Paths to the generated source roots that will be used to build the fragment.
      */
-    val generatedSrcRelativeDirs: List<Path>
+    @UsedInIdePlugin
+    fun generatedSourceDirs(buildOutputRoot: Path): List<Path>
 
     /**
-     * Paths to the generated resource roots, relative to the build directory.
+     * Paths to the generated resource roots that will be used to build the fragment.
      */
-    val generatedResourcesRelativeDirs: List<Path>
+    @UsedInIdePlugin
+    fun generatedResourceDirs(buildOutputRoot: Path): List<Path>
 
     /**
-     * Paths to the generated classes roots, relative to the build directory.
+     * Paths to the generated classes roots that will be used to build the fragment.
      */
-    val generatedClassesRelativeDirs: List<Path>
+    @UsedInIdePlugin
+    fun generatedClassDirs(buildOutputRoot: Path): List<Path>
 }
 
 /**

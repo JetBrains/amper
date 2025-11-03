@@ -22,7 +22,6 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isHidden
@@ -37,7 +36,7 @@ class DefaultLeafFragment(
     moduleFile: VirtualFile,
 ) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, moduleFile),
     LeafFragment {
-    
+
     init {
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
@@ -108,106 +107,87 @@ open class DefaultFragment(
         composeResourcesPath.isDirectory() && composeResourcesPath.walk().any { !it.isHidden() }
     }
 
-    private val generatedFilesRelativeRoot: Path = Path("generated/${module.userReadableName}/$name")
+    override fun generatedSourceDirs(buildOutputRoot: Path): List<Path> = buildList {
+        add(kspGeneratedJavaSourcesPath(buildOutputRoot))
+        add(kspGeneratedKotlinSourcesPath(buildOutputRoot))
 
-    override val generatedSrcRelativeDirs: List<Path> by lazy {
-        val generateSrcRoot = generatedFilesRelativeRoot / "src"
-        buildList {
-            add(generateSrcRoot / KspPathConventions.JavaSources)
-            add(generateSrcRoot / KspPathConventions.KotlinSources)
+        add(javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot))
 
-            add(generateSrcRoot / JavaAnnotationProcessingPathConventions.JavaSources)
+        add(composeResourcesGeneratedAccessorsPath(buildOutputRoot))
+        add(composeResourcesGeneratedCollectorsPath(buildOutputRoot))
+        add(composeResourcesGeneratedCommonResClassPath(buildOutputRoot))
 
-            add(generateSrcRoot / ComposeResourcesPathConventions.Accessors)
-            add(generateSrcRoot / ComposeResourcesPathConventions.Collectors)
-            add(generateSrcRoot / ComposeResourcesPathConventions.CommonResClass)
-
-            // TODO add custom-task-generated sources here
-        }
+        // TODO add custom-task-generated sources here
     }
 
-    override val generatedResourcesRelativeDirs: List<Path> by lazy {
-        val resourcesRoot = generatedFilesRelativeRoot / "resources"
-        buildList {
-            add(resourcesRoot / KspPathConventions.Resources)
-            // TODO add custom-task-generated resources here
-        }
+    override fun generatedResourceDirs(buildOutputRoot: Path): List<Path> = buildList {
+        add(kspGeneratedResourcesPath(buildOutputRoot))
+
+        // TODO add custom-task-generated resources here
     }
 
-    override val generatedClassesRelativeDirs: List<Path> by lazy {
-        val classesRoot = generatedFilesRelativeRoot / "classes"
-        buildList {
-            add(classesRoot / KspPathConventions.Classes)
-            // TODO add custom-task-generated classes here
-        }
+    override fun generatedClassDirs(buildOutputRoot: Path): List<Path> = buildList {
+        add(kspGeneratedClassesPath(buildOutputRoot))
+
+        // TODO add custom-task-generated classes here
     }
 }
 
 /**
- * Contains the conventional paths to different KSP output file types relative to the corresponding generated root.
+ * The path to the root of _all_ the generated files for this [Fragment].
  */
-private object KspPathConventions {
-    const val JavaSources = "ksp/java"
-    const val KotlinSources = "ksp/kotlin"
-    const val Resources = "ksp"
-    const val Classes = "ksp"
-}
+fun Fragment.generatedFilesRoot(buildOutputRoot: Path): Path = buildOutputRoot / "generated" / module.userReadableName / name
 
 /**
- * Contains the conventional paths to different Java annotation processing output file types relative to the corresponding generated root.
+ * The path to the root of the generated sources for this [Fragment].
  */
-private object JavaAnnotationProcessingPathConventions {
-    const val JavaSources = "apt/java"
-}
+fun Fragment.generatedSourcesRoot(buildOutputRoot: Path): Path = generatedFilesRoot(buildOutputRoot) / "src"
 
-private object ComposeResourcesPathConventions {
-    const val Accessors = "compose/resources/accessors"
-    const val Collectors = "compose/resources/collectors"
-    const val CommonResClass = "compose/resources/commonResClass"
-}
+/**
+ * The path to the root of the generated resources for this [Fragment].
+ */
+fun Fragment.generatedResourcesRoot(buildOutputRoot: Path): Path = generatedFilesRoot(buildOutputRoot) / "resources"
+
+/**
+ * The path to the root of the generated classes for this [Fragment].
+ */
+fun Fragment.generatedClassesRoot(buildOutputRoot: Path): Path = generatedFilesRoot(buildOutputRoot) / "classes"
 
 /**
  * The path to the root of the KSP-generated Kotlin sources for this [Fragment].
  */
 fun Fragment.kspGeneratedKotlinSourcesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.KotlinSources)
+    generatedSourcesRoot(buildOutputRoot) / "ksp/kotlin"
 
 /**
  * The path to the root of the KSP-generated Java sources for this [Fragment].
  */
 fun Fragment.kspGeneratedJavaSourcesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.JavaSources)
+    generatedSourcesRoot(buildOutputRoot) / "ksp/java"
 
 /**
  * The path to the root of the KSP-generated resources for this [Fragment].
  */
 fun Fragment.kspGeneratedResourcesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedResourcesRelativeDirs, KspPathConventions.Resources)
+    generatedResourcesRoot(buildOutputRoot) / "ksp"
 
 /**
  * The path to the root of the KSP-generated classes for this [Fragment].
  */
 fun Fragment.kspGeneratedClassesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedClassesRelativeDirs, KspPathConventions.Classes)
+    generatedClassesRoot(buildOutputRoot) / "ksp"
 
 fun Fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.Accessors)
+    generatedSourcesRoot(buildOutputRoot) / "compose/resources/accessors"
 
 fun Fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.Collectors)
+    generatedSourcesRoot(buildOutputRoot) / "compose/resources/collectors"
 
 fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.CommonResClass)
+    generatedSourcesRoot(buildOutputRoot) / "compose/resources/commonResClass"
 
 fun Fragment.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, JavaAnnotationProcessingPathConventions.JavaSources)
-
-private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pathSuffix: String) =
-    genDirs.map { buildOutputRoot / it }.find { it.endsWith(pathSuffix) }
-        ?: error(
-            "generated dir paths don't contain conventional generated path suffix '$pathSuffix'. Found:\n" +
-                    genDirs.joinToString("\n")
-        )
+    generatedSourcesRoot(buildOutputRoot) / "apt/java"
 
 internal fun BuildCtx.createFragments(
     seeds: Collection<FragmentSeed>,
