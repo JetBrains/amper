@@ -2,6 +2,7 @@ product: jvm/lib
 
 apply:
   - ../../common.module-template.yaml
+  - ../jps.module-template.yaml
 
 dependencies:
   - io.netty:netty-buffer:4.1.116.Final

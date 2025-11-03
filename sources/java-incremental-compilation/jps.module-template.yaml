@@ -1,0 +1,3 @@
+settings:
+  jvm:
+    release: 16

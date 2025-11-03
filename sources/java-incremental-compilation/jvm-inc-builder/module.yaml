@@ -2,6 +2,7 @@ product: jvm/lib
 
 apply:
   - ../../common.module-template.yaml
+  - ../jps.module-template.yaml
 
 repositories:
   - id: ijSnapshots
