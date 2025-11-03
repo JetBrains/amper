@@ -4,10 +4,6 @@
 
 @file:OptIn(ExperimentalPathApi::class)
 
-// Disabled because it breaks Amper update builds in Amper
-// (the springBootDependenciesSync.main.kts script doesn't compile with TeamCity's Kotlin version)
-//@file:Import("springBootDependenciesSync.main.kts")
-
 import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
@@ -64,7 +60,6 @@ fun syncVersions() {
     println("Making sure user-visible versions are aligned in Amper, docs, and examples...")
     updateVersionsCatalog()
     updateUsedVersionsKt()
-    updateDocs()
     updateAmperWrappers()
     updateWrapperTemplates()
     println("Done.")
@@ -103,14 +98,6 @@ fun String.replaceBundledVersionVariable(variableName: String, newValue: String)
     regex = Regex("""\/\*magic_replacement\*\/\s*val\s+${Regex.escape(variableName)}\s*=\s*\"([^"]+)\""""),
     replacement = newValue,
 )
-
-fun updateDocs() {
-    docsDir.walk().filter { it.name.endsWith(".md") }.replaceEachFileText { fileText ->
-        fileText
-            // For wrapper dist download URLs in Usage.md
-            .replace(Regex("""/amper-cli/([^/]+)/amper-cli-\1-wrapper"""),"/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
-    }
-}
 
 fun updateAmperWrappers() {
     val shellWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/amper-cli/$bootstrapAmperVersion/amper-cli-$bootstrapAmperVersion-wrapper")
@@ -225,8 +212,3 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
 
 // actually runs the script
 syncVersions()
-
-// Disabled because it breaks Amper update builds in Amper
-// (the springBootDependenciesSync.main.kts script doesn't compile with TeamCity's Kotlin version)
-// run spring boot dependencies
-//syncSpringBootDependencies()
