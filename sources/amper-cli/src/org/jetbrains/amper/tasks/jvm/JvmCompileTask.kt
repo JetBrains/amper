@@ -181,6 +181,7 @@ internal class JvmCompileTask(
 
         val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(taskOutputRoot)
+            cleanDirectory(javaAnnotationProcessorsGeneratedDir)
 
             val nonEmptySourceDirs = sources
                 .filter {
