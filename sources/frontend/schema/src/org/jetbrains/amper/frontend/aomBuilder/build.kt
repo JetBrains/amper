@@ -50,6 +50,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
+import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
@@ -175,6 +176,12 @@ internal fun BuildCtx.readModuleMergedTree(
         .configureSpringBootDefaults(commonModule)
         .configureLombokDefaults(commonModule)
 
+    // plugins configuration is platform-agnostic, it's safe to refine it here
+    val pluginsTree = refiner.refineTree(
+        tree = processedTree[Module::plugins].first().value as MapLikeValue<*>,
+        selectedContexts = setOf(moduleCtx),
+    )
+
     // Perform diagnostics for the merged tree.
     MergedTreeDiagnostics(refiner).forEach { diagnostic ->
         diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
@@ -186,7 +193,7 @@ internal fun BuildCtx.readModuleMergedTree(
         refiner = refiner,
         catalog = effectiveCatalog,
         moduleCtxModule = commonModule,
-        commonTree = commonTree,
+        pluginsTree = pluginsTree,
         buildCtx = this,
     )
 }

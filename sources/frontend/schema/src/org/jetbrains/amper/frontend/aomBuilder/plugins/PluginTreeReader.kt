@@ -95,12 +95,10 @@ internal class PluginTreeReader(
         module: ModuleBuildCtx,
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir
-        val pluginConfiguration = module.commonTree
-            .asMapLikeAndGet("plugins")
-            ?.asMapLikeAndGet(pluginData.id.value)
-            ?.asMapLike
+        val pluginConfiguration = module.pluginsTree
+            .single(pluginData.id.value)?.value as? Refined
 
-        val enabled = pluginConfiguration?.get("enabled")?.singleOrNull()?.value?.scalarValue<Boolean>()
+        val enabled = pluginConfiguration?.single("enabled")?.value?.scalarValue<Boolean>()
         if (enabled != true) {
             if (pluginConfiguration != null) {
                 reportExplicitValuesWhenDisabled(pluginConfiguration)

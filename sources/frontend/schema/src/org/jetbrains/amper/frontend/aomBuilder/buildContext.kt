@@ -21,7 +21,6 @@ import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeMerger
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -48,7 +47,7 @@ internal data class ModuleBuildCtx(
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
     val buildCtx: BuildCtx,
-    val commonTree: TreeValue<Refined>,
+    val pluginsTree: Refined,
 
     /**
      * Module which has settings that do not contain any platform, test, etc. contexts.
