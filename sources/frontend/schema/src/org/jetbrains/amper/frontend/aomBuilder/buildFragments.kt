@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -108,26 +109,35 @@ open class DefaultFragment(
     }
 
     override fun generatedSourceDirs(buildOutputRoot: Path): List<Path> = buildList {
-        add(kspGeneratedJavaSourcesPath(buildOutputRoot))
-        add(kspGeneratedKotlinSourcesPath(buildOutputRoot))
-
+        // Java compilation task always ensures the contents of this directory to be correct
         add(javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot))
 
-        add(composeResourcesGeneratedAccessorsPath(buildOutputRoot))
-        add(composeResourcesGeneratedCollectorsPath(buildOutputRoot))
-        add(composeResourcesGeneratedCommonResClassPath(buildOutputRoot))
+        if (settings.kotlin.ksp.enabled) {
+            add(kspGeneratedJavaSourcesPath(buildOutputRoot))
+            add(kspGeneratedKotlinSourcesPath(buildOutputRoot))
+        }
+
+        if (settings.compose.enabled) {
+            add(composeResourcesGeneratedAccessorsPath(buildOutputRoot))
+            add(composeResourcesGeneratedCollectorsPath(buildOutputRoot))
+            add(composeResourcesGeneratedCommonResClassPath(buildOutputRoot))
+        }
 
         // TODO add custom-task-generated sources here
     }
 
     override fun generatedResourceDirs(buildOutputRoot: Path): List<Path> = buildList {
-        add(kspGeneratedResourcesPath(buildOutputRoot))
+        if (settings.kotlin.ksp.enabled) {
+            add(kspGeneratedResourcesPath(buildOutputRoot))
+        }
 
         // TODO add custom-task-generated resources here
     }
 
     override fun generatedClassDirs(buildOutputRoot: Path): List<Path> = buildList {
-        add(kspGeneratedClassesPath(buildOutputRoot))
+        if (settings.kotlin.ksp.enabled) {
+            add(kspGeneratedClassesPath(buildOutputRoot))
+        }
 
         // TODO add custom-task-generated classes here
     }
