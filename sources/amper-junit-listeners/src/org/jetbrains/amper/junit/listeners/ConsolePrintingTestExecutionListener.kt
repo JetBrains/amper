@@ -42,14 +42,12 @@ class ConsolePrintingTestExecutionListener(
         ignoredRootContainers.addAll(testPlan.roots.map { it.uniqueIdObject })
     }
 
-    override fun executionSkipped(testIdentifier: TestIdentifier, reason: String?) {
+    override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
         if (shouldIgnore(testIdentifier)) {
             return
         }
         printEvent(event = TestEvent.Skipped, testIdentifier)
-        if (reason != null) {
-            printlnMessage(TestEvent.Skipped.style, "Reason", reason)
-        }
+        printlnMessage(TestEvent.Skipped.style, "Reason", reason)
     }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {

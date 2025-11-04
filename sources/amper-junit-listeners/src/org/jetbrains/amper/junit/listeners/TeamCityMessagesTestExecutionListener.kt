@@ -88,7 +88,7 @@ class TeamCityMessagesTestExecutionListener(
         }
     }
 
-    override fun testPlanExecutionStarted(testPlan: TestPlan?) {
+    override fun testPlanExecutionStarted(testPlan: TestPlan) {
         testPlanId = UUID.randomUUID().toString()
     }
 
