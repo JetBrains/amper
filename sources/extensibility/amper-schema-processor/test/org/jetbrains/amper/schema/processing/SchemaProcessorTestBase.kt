@@ -15,7 +15,6 @@ import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import kotlin.io.path.writeText
-import kotlin.test.assertEquals
 
 abstract class SchemaProcessorTestBase {
     @RegisterExtension
@@ -100,8 +99,8 @@ abstract class SchemaProcessorTestBase {
                 toString()
             }
             assertEqualsWithDiff(
-                expected = source.contents.lines(),
-                actual = markedContents.lines(),
+                expected = source.contents,
+                actual = markedContents,
             )
         }
         val format = Json {
@@ -110,8 +109,8 @@ abstract class SchemaProcessorTestBase {
             prettyPrintIndent = "  "
         }
         assertEqualsWithDiff(
-            expected = expectedJsonPluginData?.lines() ?: error("The test should call expectPluginData()"),
-            actual = format.encodeToString(result.declarations.withoutOrigin()).lines(),
+            expected = expectedJsonPluginData ?: error("The test should call expectPluginData()"),
+            actual = format.encodeToString(result.declarations.withoutOrigin()),
         )
     }
 }

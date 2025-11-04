@@ -11,6 +11,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.test.assertEquals
 
 /**
  * Asserts that the given [actual] list matches the [expected] list, and generates a diff in the unified diff format in
@@ -24,6 +25,15 @@ fun assertEqualsWithDiff(expected: List<String>, actual: List<String>, message: 
             .actual(actual.joinToString("\n"))
             .buildAndThrow()
     }
+}
+
+/**
+ * Asserts that the given [actual] text matches the [expected] text, and generates a diff in the unified diff format in
+ * case of failure, for better readability.
+ */
+fun assertEqualsWithDiff(expected: String, actual: String, message: String = "Comparison failed") {
+    assertEqualsWithDiff(expected.lines(), actual.lines(), message)
+    assertEquals(expected, actual, "$message. (Only line endings differ)")
 }
 
 /**

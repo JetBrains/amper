@@ -148,9 +148,9 @@ class GraphSerializationTest: BaseModuleDrTest() {
 
         val nodeDeserialized = decoded.root
         assertEqualsWithDiff(
-            root.prettyPrint().lines(),
-            nodeDeserialized.prettyPrint().lines(),
-            "decoded graph pretty print representation differs from the original graph"
+            expected = root.prettyPrint(),
+            actual = nodeDeserialized.prettyPrint(),
+            message = "decoded graph pretty print representation differs from the original graph",
         )
         return nodeDeserialized
     }
@@ -186,7 +186,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
-                "Unexpected parents entries in ${graphType.pretty} graph"
+                message = "Unexpected parents entries in ${graphType.pretty} graph",
             )
         }
     }
@@ -217,7 +217,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
-                "Unexpected overriddenBy entries in ${graphType.pretty} graph"
+                message = "Unexpected overriddenBy entries in ${graphType.pretty} graph",
             )
         }
     }
@@ -243,7 +243,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
-                "graph indexes differs from expected ones"
+                message = "graph indexes differs from expected ones",
             )
         }
     }
@@ -258,7 +258,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = encoded.lines(),
-                "decoded graph pretty print representation differs from the original graph"
+                message = "decoded graph pretty print representation differs from the original graph",
             )
         }
     }
