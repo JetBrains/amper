@@ -101,6 +101,10 @@ private fun generateShadowSchemaNode(
                         .mutable(true)
                         .addAnnotation(IGNORE_FOR_SCHEMA)
                 }
+
+                if (!internal.isProvided && !internal.isDependencyNotation) {
+                    addAnnotation(CAN_BE_REFERENCED)
+                }
             }
 
             val default = property.default
@@ -213,6 +217,7 @@ private val PATH = ClassName("java.nio.file", "Path")
 private val KCLASS = KClass::class.asClassName().parameterizedBy(STAR)
 
 private val IGNORE_FOR_SCHEMA = ClassName("org.jetbrains.amper.frontend.api", "IgnoreForSchema")
+private val CAN_BE_REFERENCED = ClassName("org.jetbrains.amper.frontend.api", "CanBeReferenced")
 private val SCHEMA_DOC = ClassName("org.jetbrains.amper.frontend.api", "SchemaDoc")
 private val SHORTHAND = ClassName("org.jetbrains.amper.frontend.api", "Shorthand")
 private val FROM_KEY_AND_THE_REST_NESTED = ClassName("org.jetbrains.amper.frontend.api", "FromKeyAndTheRestIsNested")
