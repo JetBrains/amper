@@ -2,18 +2,18 @@ product:
   type: jvm/app
 
 dependencies: 
-  - com.google.protobuf:protobuf-kotlin:4.32.1
+  - com.google.protobuf:protobuf-kotlin:4.33.0
 
 plugins:
   protobuf-maven-plugin.generate:
     enabled: true
-    protocVersion: PATH
+    protocVersion: 4.33.0
     sourceDirectories: [ ./src ]
     kotlinEnabled: true
 
   protobuf-maven-plugin.generate-test:
     enabled: true
-    protocVersion: PATH
+    protocVersion: 4.33.0
     sourceDirectories: [ ./test ]
     kotlinEnabled: true
     importPaths: [ ./src ]
