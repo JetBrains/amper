@@ -56,7 +56,6 @@ class ExecuteMavenMojoTask(
     val configString: String,
 ) : Task {
     val pluginCoordinates = "${mavenPlugin.groupId}:${mavenPlugin.artifactId}:${mavenPlugin.version}"
-    val goalCoordinates = "$pluginCoordinates:${mojo.goal}"
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -120,7 +119,7 @@ class ExecuteMavenMojoTask(
 
         val mojoExecution = MojoExecution(
             /* mojoDescriptor = */ mojoDesc,
-            /* executionId = */ "goal $goalCoordinates, execution: ${executionContext.executionId}",
+            /* executionId = */ executionContext.executionId,
             /* source = */ MojoExecution.Source.CLI
         ).apply { configuration = configDom }
 
@@ -128,7 +127,7 @@ class ExecuteMavenMojoTask(
         plexus.lifecycleExecutionPlanCalculator.setupMojoExecution(session, mavenProject, mojoExecution)
 
         // Execute mojo.
-        spanBuilder("Executing maven plugin mojo: $goalCoordinates").use {
+        spanBuilder("Executing maven plugin mojo: $pluginCoordinates:${mojo.goal}").use {
             // We need to enter the session, since maven creates a Guice session for
             // session scoped named beans each time a maven execution request is processed.
             plexus.sessionScope.use {
