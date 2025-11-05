@@ -74,7 +74,7 @@ class CatalogDependency : ScopedDependency() {
  * Hierarchical notation for dependencies without scope, that is identical to [ScopedDependency].
  */
 // TODO See TODO on [Dependency].
-sealed class UnscopedDependency : SchemaNode()
+sealed class UnscopedDependency : Dependency()
 
 class UnscopedExternalMavenDependency : UnscopedDependency() {
     @FromKeyAndTheRestIsNested
@@ -92,6 +92,19 @@ class UnscopedCatalogDependency : UnscopedDependency() {
     // Actual usage of this property is indirect and located within [CatalogVersionsSubstitutor] within the tree.
     // The value of this property is to provide the schema.
     @Suppress("unused")
+    @FromKeyAndTheRestIsNested
+    val catalogKey by value<String>()
+}
+
+sealed class UnscopedBomDependency : UnscopedDependency()
+
+class UnscopedExternalMavenBomDependency : UnscopedBomDependency() {
+    @FromKeyAndTheRestIsNested
+    @StringSemantics(Semantics.MavenCoordinates)
+    val coordinates by value<String>()
+}
+
+class UnscopedCatalogBomDependency : UnscopedBomDependency() {
     @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()
 }

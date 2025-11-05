@@ -17,8 +17,11 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.ScopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedBomDependency
+import org.jetbrains.amper.frontend.schema.UnscopedCatalogBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.tree.TreeValue
@@ -57,10 +60,31 @@ internal fun parseVariant(
         '$' -> parseObject(value, type.leafType(CatalogDependency::class))
         else -> parseObject(value, type.leafType(ExternalMavenDependency::class))
     }
-    UnscopedDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
-        '.' -> parseObject(value, type.leafType(UnscopedModuleDependency::class))
-        '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
-        else -> parseObject(value, type.leafType(UnscopedExternalMavenDependency::class))
+    UnscopedDependency::class.qualifiedName -> {
+        val singleKeyValue = (value as? YamlValue.Mapping)?.keyValues?.singleOrNull()
+        if (singleKeyValue != null && singleKeyValue.key.psi.text == "bom") {
+            singleKeyValue.value.let { bomDependency ->
+                parseVariant(bomDependency, type.subVariantType(UnscopedBomDependency::class))
+                    ?.copyWithTrace(trace = singleKeyValue.asTrace())
+            } ?: run {
+                reportParsing(singleKeyValue.value, "unexpected.bom.dependency.structure")
+                null
+            }
+        } else {
+            when (peekValueAsKey(value)?.firstOrNull()) {
+                '.' -> parseObject(value, type.leafType(UnscopedModuleDependency::class))
+                '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
+                else -> parseObject(value, type.leafType(UnscopedExternalMavenDependency::class))
+            }
+        }
+    }
+    UnscopedBomDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
+        '.' -> {
+            reportParsing(value, "unexpected.bom.local",)
+            null
+        }
+        '$' -> parseObject(value, type.leafType(UnscopedCatalogBomDependency::class))
+        else -> parseObject(value, type.leafType(UnscopedExternalMavenBomDependency::class))
     }
     ShadowDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> parseObject(value, type.leafType(ShadowDependencyLocal::class))

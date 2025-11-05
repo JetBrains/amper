@@ -12,12 +12,15 @@ import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
 import org.jetbrains.amper.frontend.schema.AllOpenSettings
 import org.jetbrains.amper.frontend.schema.DependencyMode
+import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
+import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
@@ -25,16 +28,40 @@ import org.jetbrains.amper.frontend.tree.syntheticBuilder
 context(buildCtx: BuildCtx)
 internal fun Merged.configureSpringBootDefaults(moduleCtxModule: Module) =
     if (moduleCtxModule.settings.springBoot.enabled) {
-        val springDefault = TransformedValueTrace(
+        val springBootEnabledDefault = TransformedValueTrace(
             description = "because Spring Boot is enabled",
             sourceValue = moduleCtxModule.settings.springBoot::enabled.schemaDelegate,
         )
-        buildCtx.treeMerger.mergeTrees(listOfNotNull(asMapLike, buildCtx.springBootDefaultsTree(springDefault)))
-   } else {
+
+        val springBootApplyBomDefault = TransformedValueTrace(
+            description = "because applyBom=true",
+            sourceValue = moduleCtxModule.settings.springBoot::applyBom.schemaDelegate,
+        )
+        val applyBom = moduleCtxModule.settings.springBoot.applyBom
+        val springBootVersion = moduleCtxModule.settings.springBoot.version
+        buildCtx
+            .treeMerger
+            .mergeTrees(
+                listOfNotNull(
+                    asMapLike,
+                    buildCtx.springBootDefaultsTree(
+                        applyBom,
+                        springBootVersion,
+                        springBootEnabledDefault,
+                        springBootApplyBomDefault,
+                    ),
+                )
+            )
+    } else {
         this
     }
 
-private fun BuildCtx.springBootDefaultsTree(trace: Trace) = syntheticBuilder(types, trace) {
+private fun BuildCtx.springBootDefaultsTree(
+    applyBom: Boolean,
+    springBootVersion: String,
+    springBootEnabledTrace: Trace,
+    springBootApplyBomTrace: Trace,
+) = syntheticBuilder(types, springBootEnabledTrace) {
     `object`<Module> {
         Module::settings {
             Settings::kotlin {
@@ -46,7 +73,21 @@ private fun BuildCtx.springBootDefaultsTree(trace: Trace) = syntheticBuilder(typ
                     NoArgSettings::enabled setTo scalar(true)
                     NoArgSettings::presets { add(scalar(NoArgPreset.Jpa)) }
                 }
-                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict", trace))) }
+                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict", springBootEnabledTrace))) }
+            }
+            if (applyBom) {
+                Settings::java {
+                    JavaSettings::annotationProcessing {
+                        JavaAnnotationProcessingSettings::processors {
+                            add(`object`<UnscopedExternalMavenBomDependency> {
+                                UnscopedExternalMavenBomDependency::coordinates setTo scalar(
+                                    "org.springframework.boot:spring-boot-dependencies:$springBootVersion",
+                                    springBootApplyBomTrace,
+                                )
+                            })
+                        }
+                    }
+                }
             }
             Settings::jvm {
                 JvmSettings::storeParameterNames setTo scalar(true)

@@ -8,7 +8,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.UnscopedDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.AbstractResolveJvmExternalDependenciesTask
 
@@ -19,10 +19,7 @@ internal class ResolveKspProcessorDependenciesTask(
     userCacheRoot: AmperUserCacheRoot,
     incrementalCache: IncrementalCache,
 ) : AbstractResolveJvmExternalDependenciesTask(module, userCacheRoot, incrementalCache, "KSP processors for ") {
-    
-    override fun getMavenCoordinatesToResolve() = fragments
-        .flatMap { it.settings.kotlin.ksp.processors }
-        // catalog references have been handled in the frontend, so we don't need to resolve them here
-        .filterIsInstance<UnscopedExternalMavenDependency>()
-        .map { it.coordinates }
+
+    override fun getMavenCoordinatesToResolve(): List<UnscopedDependency> =
+        fragments.flatMap { it.settings.kotlin.ksp.processors }
 }

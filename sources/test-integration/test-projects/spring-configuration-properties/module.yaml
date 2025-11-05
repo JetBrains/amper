@@ -1,0 +1,17 @@
+product: jvm/app
+
+settings:
+  springBoot: enabled
+  java:
+    annotationProcessing:
+      processors:
+        - org.springframework.boot:spring-boot-configuration-processor
+  jvm:
+    mainClass: org.jetbrains.amper.spring.Main
+  lombok: enabled
+
+dependencies:
+  - $spring.boot.starter
+
+test-dependencies:
+  - $spring.boot.starter.test

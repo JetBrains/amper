@@ -20,7 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 @Execution(ExecutionMode.CONCURRENT)
-class AnnotationProcessingTest: AmperCliTestBase() {
+class AnnotationProcessingTest : AmperCliTestBase() {
 
     @Test
     fun `lombok project compiles and runs`() = runSlowTest {
@@ -143,4 +143,18 @@ class AnnotationProcessingTest: AmperCliTestBase() {
         result.assertStdoutContains("32")
     }
 
+    @Test
+    fun `spring-configuration-processor is applied`() = runSlowTest {
+        val projectRoot = testProject("spring-configuration-properties")
+
+        val result = runCli(projectRoot, "test", assertEmptyStdErr = false)
+
+        val springConfigurationMetadataPath = Path("artifacts") /
+                "CompiledJvmClassesArtifact" /
+                "spring-configuration-propertiesjvm" /
+                "META-INF" /
+                "spring-configuration-metadata.json"
+
+        assertTrue((result.buildOutputRoot / springConfigurationMetadataPath).exists())
+    }
 }

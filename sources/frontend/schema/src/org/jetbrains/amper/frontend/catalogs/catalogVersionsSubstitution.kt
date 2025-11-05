@@ -19,7 +19,9 @@ import org.jetbrains.amper.frontend.schema.CatalogBomDependency
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.UnscopedCatalogBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
@@ -46,6 +48,7 @@ internal class CatalogVersionsSubstitutor(
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
         getType<UnscopedCatalogDependency>() to getType<UnscopedExternalMavenDependency>(),
+        getType<UnscopedCatalogBomDependency>() to getType<UnscopedExternalMavenBomDependency>(),
         getType<CatalogBomDependency>() to getType<ExternalMavenBomDependency>(),
         getType<ShadowDependencyCatalog>() to getType<ShadowDependencyMaven>(),
     )

@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: spring-boot-amper-demo
+custom:
+  value: hello

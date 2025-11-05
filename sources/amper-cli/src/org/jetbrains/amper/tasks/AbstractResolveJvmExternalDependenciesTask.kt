@@ -7,14 +7,21 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.frontend.schema.UnscopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
@@ -33,20 +40,25 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
 ): Task {
     private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
-    protected abstract fun getMavenCoordinatesToResolve(): List<String>
+    protected abstract fun getMavenCoordinatesToResolve(): List<UnscopedDependency>
 
     protected open val incrementalCacheKey: String get() = taskName.name
-    
+
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
         
-        val externalUnscopedCoords = getMavenCoordinatesToResolve()
+        val externalUnscopedDependencies = getMavenCoordinatesToResolve()
+            .filter { it !is UnscopedModuleDependency }
             .ifEmpty { return Result(emptyList()) }
 
         val configuration = mapOf(
             "userCacheRoot" to userCacheRoot.path.pathString,
             "repositories" to repositories.joinToString("|"),
-            "dependencies-coordinates" to externalUnscopedCoords.joinToString("|"),
+            "dependencies-coordinates" to externalUnscopedDependencies.map { when(it) {
+                is UnscopedExternalMavenDependency -> it.coordinates
+                is UnscopedExternalMavenBomDependency -> "bom: ${it.coordinates}"
+                else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
+            } }.joinToString("|"),
         )
         val resolvedExternalJars = incrementalCache.executeForFiles(
             incrementalCacheKey,
@@ -55,19 +67,47 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
         ) {
             spanBuilder(taskName.name)
                 .setAmperModule(module)
-                .setListAttribute("dependencies-coordinates", externalUnscopedCoords)
+                .setListAttribute("dependencies-coordinates", externalUnscopedDependencies.map {
+                    when(it) {
+                        is UnscopedExternalMavenDependency -> it.coordinates
+                        is UnscopedExternalMavenBomDependency -> "bom: ${it.coordinates}"
+                        else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
+                    }
+                })
                 .use {
-                    mavenResolver.resolve(
-                        coordinates = externalUnscopedCoords,
-                        repositories = repositories,
-                        platform = ResolutionPlatform.JVM,
-                        scope = ResolutionScope.RUNTIME,
-                        resolveSourceMoniker = "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}",
-                    )
+                    mavenResolver.resolveWithContext(
+                        repositories,
+                        ResolutionScope.RUNTIME,
+                        ResolutionPlatform.JVM,
+                        "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}"
+                    ) {
+                        RootDependencyNodeWithContext(
+                            templateContext = this,
+                            children = externalUnscopedDependencies.map {
+                                when(it) {
+                                    is UnscopedExternalMavenDependency -> {
+                                        this.parseCoordinates(it.coordinates, false)
+                                    }
+                                    is UnscopedExternalMavenBomDependency -> {
+                                        this.parseCoordinates(it.coordinates, true)
+                                    }
+                                    else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
+                                }
+                            },
+                        )
+                    }.dependencyPaths()
                 }
         }
 
         return Result(resolvedExternalJars)
+    }
+
+    private fun Context.parseCoordinates(coordinates: String, isBom: Boolean): MavenDependencyNodeWithContext {
+        val parts = coordinates.split(":")
+        val group = parts.getOrNull(0) ?: error("Missing group in coordinates: $coordinates")
+        val module = parts.getOrNull(1) ?: error("Missing module in coordinates: $coordinates")
+        val version = parts.getOrNull(2) ?: ""
+        return MavenDependencyNodeWithContext(this, group, module, version, isBom)
     }
 
     class Result(val externalJars: List<Path>) : TaskResult
