@@ -260,7 +260,13 @@ private fun ExtensibleBuiltInTypingContext.toSchemaType(
             isMarkedNullable = type.isNullable,
         )
     }
-    is PluginData.Type.VariantType -> TODO("Not yet allowed for the user types, so not reached here")
+    is PluginData.Type.VariantType -> {
+        val key = type.schemaName.toKeyShadowAware(pluginId)
+        SchemaType.VariantType(
+            declaration = checkNotNull(registeredDeclarations[key] as? SchemaVariantDeclaration),
+            isMarkedNullable = type.isNullable,
+        )
+    }
 }
 
 private fun PluginData.SchemaName.toKeyShadowAware(pluginId: PluginData.Id) =

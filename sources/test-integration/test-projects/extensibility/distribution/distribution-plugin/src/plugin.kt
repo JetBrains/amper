@@ -9,6 +9,7 @@ import java.nio.file.Path
 @Configurable
 interface DistributionSettings {
     val extraNamedClasspaths: Map<String, Classpath>
+    val extraDependency: Dependency?
 }
 
 @TaskAction
