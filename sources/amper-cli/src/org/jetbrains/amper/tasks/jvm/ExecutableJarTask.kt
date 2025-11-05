@@ -40,7 +40,7 @@ class ExecutableJarTask(
     override suspend fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> {
         val compiledClasses = dependenciesResult
             .filterIsInstance<JvmCompileTask.Result>()
-            .map { it.classesOutputRoot }
+            .flatMap { it.classesOutputRoots }
 
         val runtimeDependencies = dependenciesResult
             .filterIsInstance<JvmRuntimeClasspathTask.Result>()

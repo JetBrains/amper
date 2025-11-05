@@ -28,7 +28,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "build")
 
-        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmClassesArtifact" / "lombokjvm" / "Person.class"
+        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmClassesArtifact" / "lombokjvm" / "java-output" / "Person.class"
         assertTrue(classFilePath.exists(), "Generated Person class file not found")
 
         val result = runCli(projectRoot, "run")
@@ -152,6 +152,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
         val springConfigurationMetadataPath = Path("artifacts") /
                 "CompiledJvmClassesArtifact" /
                 "spring-configuration-propertiesjvm" /
+                "java-output" /
                 "META-INF" /
                 "spring-configuration-metadata.json"
 

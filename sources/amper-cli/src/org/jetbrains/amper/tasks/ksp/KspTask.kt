@@ -126,7 +126,7 @@ internal class KspTask(
             .flatMap { it.compileClasspath }
             .filter { it.extension != "aar" } // we get the extracted classes instead from an AdditionalClasspathProvider
 
-        val compileJvmModuleDependencies = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().map { it.classesOutputRoot }
+        val compileJvmModuleDependencies = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().flatMap { it.classesOutputRoots }
         val compileNativeModuleDependencies = dependenciesResult.filterIsInstance<NativeCompileKlibTask.Result>()
             .flatMap { it.dependencyKlibs + listOfNotNull(it.compiledKlib) }
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>()

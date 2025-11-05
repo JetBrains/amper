@@ -16,6 +16,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.moveTo
 import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
@@ -47,9 +48,12 @@ class AmperJavaBuildTest : AmperCliTestBase() {
     }
 
     private fun AmperCliResult.getClassFilesFromTheTaskOutput(moduleName: String): List<String> {
-        val buildOutput = buildOutputRoot /  "artifacts" / "CompiledJvmClassesArtifact" / "${moduleName}jvm" / "output"
+        val buildOutput = buildOutputRoot /  "artifacts" / "CompiledJvmClassesArtifact" / "${moduleName}jvm"
         val result = mutableListOf<String>()
-        result.addAll(buildOutput.walk().toList().map { it.relativeTo(buildOutput).toString() })
+        for (outputFolder in listOf("java-output", "kotlin-output", "resources-output")) {
+            val folder = buildOutput / outputFolder
+            result.addAll(folder.walk().toList().map { it.relativeTo(folder).invariantSeparatorsPathString })
+        }
         return result.sorted()
     }
 

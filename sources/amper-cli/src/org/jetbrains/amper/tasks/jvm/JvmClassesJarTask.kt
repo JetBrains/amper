@@ -46,7 +46,14 @@ class JvmClassesJarTask(
         require(compileTaskResults.isNotEmpty()) {
             "Call Jar task without any compilation dependency"
         }
-        return compileTaskResults.map { ZipInput(path = it.classesOutputRoot, destPathInArchive = Path(".")) }
+        return compileTaskResults.flatMap { taskResult ->
+            taskResult.classesOutputRoots.map { outputRoot ->
+                // we merge classes from all output roots together,
+                // it is not possible to have Java and Kotlin class files with equal names:
+                // the Kotlin compiler would fail to generate these.
+                ZipInput(path = outputRoot, destPathInArchive = Path("."))
+            }
+        }
     }
 
     // TODO add version here?

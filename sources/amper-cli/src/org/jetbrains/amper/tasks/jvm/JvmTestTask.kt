@@ -86,7 +86,7 @@ class JvmTestTask(
         // test task depends on compile test task
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
-        if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
+        if (compileTask.classesOutputRoots.all { it.listDirectoryEntries().isEmpty() }) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
             return EmptyTaskResult
         }
@@ -121,7 +121,9 @@ class JvmTestTask(
             addAll(filterArguments)
             if (filterArguments.isEmpty() ||
                 filterArguments.any { it.startsWith("--include") || it.startsWith("--exclude") }) {
-                add("--scan-class-path=${compileTask.classesOutputRoot}")
+                for (classesOutputRoot in compileTask.classesOutputRoots) {
+                    add("--scan-class-path=${classesOutputRoot}")
+                }
             }
             add("--details=summary") // disable default console tree output, just print the summary
         }

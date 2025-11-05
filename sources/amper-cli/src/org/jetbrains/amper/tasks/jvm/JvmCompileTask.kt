@@ -119,7 +119,9 @@ internal class JvmCompileTask(
 
     val taskOutputRoot get() = compiledJvmClassesPath.path
 
-    private val compilerOutputRoot = taskOutputRoot / "output"
+    private val javaCompilerOutputRoot = taskOutputRoot / "java-output"
+    private val kotlinCompilerOutputRoot = taskOutputRoot / "kotlin-output"
+    private val resourcesRoot = taskOutputRoot / "resources-output"
     private val jicDataDir = taskOutputRoot / "jic-data"
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
@@ -149,7 +151,8 @@ internal class JvmCompileTask(
         val userSettings = fragments.singleLeafFragment().serializableCompilationSettings()
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.compileClasspath }
-        val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
+        val classpath =
+            compileModuleDependencies.flatMap { it.classesOutputRoots } + mavenDependencies.compileClasspath + additionalClasspath
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
             SourceRoot(
@@ -188,12 +191,10 @@ internal class JvmCompileTask(
             cleanDirectory(javaAnnotationProcessorsGeneratedDir)
             if (!shouldCompileJavaIncrementally()) {
                 cleanDirectory(taskOutputRoot)
-                compilerOutputRoot.createDirectories()
             }
-            else {
-                compilerOutputRoot.createDirectories()
-                jicDataDir.createDirectories()
-            }
+            javaCompilerOutputRoot.createDirectories()
+            kotlinCompilerOutputRoot.createDirectories()
+            resourcesRoot.createDirectories()
 
             val nonEmptySourceDirs = sources
                 .filter {
@@ -206,7 +207,8 @@ internal class JvmCompileTask(
                 }
 
             val outputPaths = mutableListOf<Path>()
-            outputPaths.add(compilerOutputRoot.toAbsolutePath())
+            outputPaths.add(javaCompilerOutputRoot.toAbsolutePath())
+            outputPaths.add(kotlinCompilerOutputRoot.toAbsolutePath())
 
             if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
@@ -215,7 +217,7 @@ internal class JvmCompileTask(
                     additionalSources = additionalSources,
                     userSettings = userSettings,
                     classpath = classpath,
-                    friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
+                    friendPaths = productionJvmCompileResult?.classesOutputRoots.orEmpty(),
                     javaAnnotationProcessorClasspath = javaAnnotationProcessorClasspath,
                     javaAnnotationProcessorsGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                     tempRoot = tempRoot,
@@ -230,9 +232,9 @@ internal class JvmCompileTask(
             val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
                 val dest = if (resource.isDirectory()) {
-                    compilerOutputRoot
+                    resourcesRoot
                 } else {
-                    compilerOutputRoot / resource.fileName
+                    resourcesRoot / resource.fileName
                 }
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
 
@@ -245,7 +247,11 @@ internal class JvmCompileTask(
         }
 
         return Result(
-            classesOutputRoot = compilerOutputRoot.toAbsolutePath(),
+            classesOutputRoots = listOf(
+                javaCompilerOutputRoot,
+                kotlinCompilerOutputRoot,
+                resourcesRoot
+            ).map { it.toAbsolutePath() },
             module = module,
             isTest = isTest,
             changes = result.changes,
@@ -290,11 +296,10 @@ internal class JvmCompileTask(
         }
 
         if (javaFilesToCompile.isNotEmpty()) {
-            val kotlinClassesPath = listOf(compilerOutputRoot)
             compileJavaSources(
                 jdk = jdk,
                 userSettings = userSettings,
-                classpath = classpath + kotlinClassesPath,
+                classpath = classpath + listOf(kotlinCompilerOutputRoot),
                 processorClasspath = javaAnnotationProcessorClasspath,
                 processorGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                 javaSourceFiles = javaFilesToCompile,
@@ -336,7 +341,7 @@ internal class JvmCompileTask(
             userSettings = userSettings,
             classpath = classpath,
             jdkHome = jdk.homeDir,
-            outputPath = compilerOutputRoot,
+            outputPath = kotlinCompilerOutputRoot,
             compilerPlugins = compilerPlugins,
             fragments = fragments,
             additionalSourceRoots = additionalSourceRoots,
@@ -410,10 +415,11 @@ internal class JvmCompileTask(
         val freeCompilerArgs = userSettings.java.freeCompilerArgs
 
         val success = if (shouldCompileJavaIncrementally()) {
+            jicDataDir.createDirectories()
             val jicJavacArgs = commonArgs + freeCompilerArgs
             spanBuilder("JIC").use {
                 compileJavaWithJic(
-                    jdk, module, isTest, javaSourceFiles, jicJavacArgs, compilerOutputRoot, jicDataDir, classpath, logger
+                    jdk, module, isTest, javaSourceFiles, jicJavacArgs, javaCompilerOutputRoot, jicDataDir, classpath, logger
                 )
             }
         } else {
@@ -445,7 +451,7 @@ internal class JvmCompileTask(
             add("-implicit:none")
 
             add("-d")
-            add(compilerOutputRoot.pathString)
+            add(javaCompilerOutputRoot.pathString)
 
             addAll(freeCompilerArgs)
 
@@ -476,13 +482,13 @@ internal class JvmCompileTask(
     }
 
     class Result(
-        val classesOutputRoot: Path,
+        val classesOutputRoots: List<Path>,
         val module: AmperModule,
         val isTest: Boolean,
         val changes: List<IncrementalCache.Change>,
     ) : TaskResult, RuntimeClasspathElementProvider {
         override val paths: List<Path>
-            get() = listOf(classesOutputRoot)
+            get() = classesOutputRoots
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
