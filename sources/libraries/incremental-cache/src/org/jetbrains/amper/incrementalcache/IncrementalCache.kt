@@ -379,8 +379,13 @@ suspend fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
-    block: suspend () -> List<Path>,
-): List<Path> = execute(key, inputValues, inputFiles) { IncrementalCache.ExecutionResult(block()) }.outputFiles
+    block: suspend () -> CachedPaths,
+): List<Path> = execute(key, inputValues, inputFiles) {
+    val cachedPaths = block()
+    IncrementalCache.ExecutionResult(cachedPaths.paths, expirationTime = cachedPaths.expirationTime)
+}.outputFiles
 
 private fun String.ensureEndsWith(suffix: String) =
     if (!endsWith(suffix)) this + suffix else this
+
+class CachedPaths(val paths: List<Path>, val expirationTime: Instant? = null)

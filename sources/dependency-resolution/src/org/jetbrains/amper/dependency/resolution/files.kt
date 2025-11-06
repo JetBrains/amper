@@ -1241,9 +1241,14 @@ class SnapshotDependencyFileImpl(
         }.build())
     }
 
-    private suspend fun getVersionFile() = mavenMetadata.getPath()?.parent?.resolve("$extension.version")
+    private suspend fun getVersionFilePath() = mavenMetadata.getPath()?.parent?.resolve("$extension.version")
 
-    private suspend fun getChecksumFile(algorithm: String) = mavenMetadata.getPath()?.parent?.resolve("$extension.$algorithm") // pom -> pom.sha256
+    private suspend fun getChecksumFilePath(algorithm: String): Path? {
+        val fileName =
+            if (isChecksum()) this.fileName.substringBeforeLast(".") // pom.<checksum> -> pom
+            else this.fileName
+        return getPath()?.parent?.resolve("$fileName.$algorithm") // pom -> pom.<algorithm>
+    }
 
     @Volatile
     private var snapshotVersion: String? = null
@@ -1311,7 +1316,7 @@ class SnapshotDependencyFileImpl(
                         //  keeping its own expiration time outdated)
                         hashAlgorithms
                             // find the last downloaded checksum and use its expiration time
-                            .mapNotNull { getChecksumFile(it)?.takeIf { it.exists() }?.expirationTime() }
+                            .mapNotNull { getChecksumFilePath(it)?.takeIf { it.exists() }?.expirationTime() }
                             .maxByOrNull { it }
                             // fallback to the artifact expiration time if checksum is not found
                             ?: path.expirationTime()
@@ -1349,7 +1354,7 @@ class SnapshotDependencyFileImpl(
                 return true
             }
 
-            val versionFile = getVersionFile()
+            val versionFile = getVersionFilePath()
             if (versionFile?.exists() != true) {
                 return false
             }
@@ -1403,13 +1408,13 @@ class SnapshotDependencyFileImpl(
 
     override suspend fun shouldOverwrite(cache: Cache, expectedHash: Hash, actualHash: Hash): Boolean =
         isMavenMetadata
-                || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
+                || getVersionFilePath()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
                 || super.shouldOverwrite(cache, expectedHash, actualHash)
 
     override suspend fun onFileDownloaded(target: Path, repository: MavenRepository?) {
         super.onFileDownloaded(target, repository)
         if (!isMavenMetadata) {
-            getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }
+            getSnapshotVersion()?.let { getVersionFilePath()?.writeText(it) }
         }
     }
 

@@ -46,7 +46,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -74,7 +74,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -94,7 +94,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MINGW_X64,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted().joinToString("\n")
         assertEquals(
@@ -119,7 +119,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -184,7 +184,7 @@ class MavenResolverTest {
             scope = ResolutionScope.COMPILE,
             platform = ResolutionPlatform.MACOS_X64,
             resolveSourceMoniker = "test",
-        )
+        ).paths
         assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
             message = "kotlinx-datetime-macosx64-0.2.1.klib must be found in resolve result: ${macosX64.toList()}")
 
@@ -196,7 +196,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MACOS_ARM64,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         assertEquals(
             """
@@ -224,7 +224,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            )
+            ).paths
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(

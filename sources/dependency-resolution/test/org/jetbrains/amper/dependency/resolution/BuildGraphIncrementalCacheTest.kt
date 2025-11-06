@@ -32,7 +32,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
     @Test
     fun `com_jetbrains_intellij_platform jps-build-dependency-graph 253_25908_13-EAP-SNAPSHOT`(testInfo: TestInfo) = runTest {
 
-        // Incremental cache root is caclulated once and reused between all resolution runs.
+        // Incremental cache root is calculated once and reused between all resolution runs.
         val incrementalCachePath = uniqueNestedTempDir()
 
         /**
@@ -62,7 +62,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
                 )
             )
 
-            val resolvedGraph = resolver.resolveDependencies(root)
+            val resolvedGraph = resolver.resolveDependencies(root).root
             resolvedGraph.verifyMessages()
             assertFiles(testInfo, resolvedGraph)
             return resolvedGraph

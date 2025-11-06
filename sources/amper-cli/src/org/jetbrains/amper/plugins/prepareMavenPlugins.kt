@@ -72,7 +72,7 @@ private suspend fun downloadPluginAndDirectDependencies(
     }
 
     // We can safely assume that there is only one dependency here, because we created root holder that way.
-    val pluginDep = resolvedRoot.children.first() as MavenDependencyNode
+    val pluginDep = resolvedRoot.root.children.first() as MavenDependencyNode
     return pluginDep.dependency.files()
         .filter { it.extension == "jar" }
         .mapNotNull { it.path }

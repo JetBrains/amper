@@ -95,7 +95,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                                 }
                             },
                         )
-                    }.dependencyPaths()
+                    }.toCachedPaths()
                 }
         }
 

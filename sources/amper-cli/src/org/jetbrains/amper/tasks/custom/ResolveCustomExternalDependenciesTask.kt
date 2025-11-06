@@ -26,6 +26,7 @@ import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.buildDependenciesGraph
+import org.jetbrains.amper.tasks.toCachedPaths
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
@@ -82,8 +83,8 @@ internal class ResolveCustomExternalDependenciesTask(
                 .setAmperModule(module)
                 .setListAttribute("dependencies-coordinates", externalDependencies.map { it.toString() })
                 .use {
-                    val resolvedRoot = mavenResolver.resolve(root, "custom external dependencies")
-                    resolvedRoot.dependencyPaths()
+                    val resolvedGraph = mavenResolver.resolve(root, "custom external dependencies")
+                    resolvedGraph.toCachedPaths()
                 }
         }
 

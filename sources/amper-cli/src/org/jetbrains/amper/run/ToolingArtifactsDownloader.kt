@@ -74,6 +74,6 @@ class ToolingArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
-            return@execute IncrementalCache.ExecutionResult(resolved.toList())
+            return@execute IncrementalCache.ExecutionResult(resolved.paths, expirationTime = resolved.expirationTime)
         }.outputFiles
 }

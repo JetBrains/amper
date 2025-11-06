@@ -75,6 +75,6 @@ internal class KotlinArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = coordinates,
             )
-            return@execute IncrementalCache.ExecutionResult(resolved.toList())
+            return@execute IncrementalCache.ExecutionResult(resolved.paths, expirationTime = resolved.expirationTime)
         }.outputFiles
 }

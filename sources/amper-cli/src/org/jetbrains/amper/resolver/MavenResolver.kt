@@ -19,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
@@ -26,10 +27,12 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
+import org.jetbrains.amper.incrementalcache.CachedPaths
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.renderMessage
+import org.jetbrains.amper.tasks.toCachedPaths
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -50,7 +53,7 @@ class MavenResolver(
         scope: ResolutionScope,
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
-    ): List<Path> = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) {
+    ): CachedPaths = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) {
         RootDependencyNodeWithContext(
             templateContext = this,
             children = coordinates.map {
@@ -58,7 +61,7 @@ class MavenResolver(
                 MavenDependencyNodeWithContext(this, group, module, version, false)
             },
         )
-    }.dependencyPaths()
+    }.toCachedPaths()
 
     /**
      * Create a [Context] and resolve dependencies on a passed [root].
@@ -71,7 +74,7 @@ class MavenResolver(
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
         root: Context.() -> RootDependencyNodeWithContext,
-    ): DependencyNode = spanBuilder("mavenResolve")
+    ): ResolvedGraph = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
@@ -101,7 +104,7 @@ class MavenResolver(
         root: RootDependencyNodeWithContext,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
-    ): DependencyNode = spanBuilder("mavenResolve")
+    ): ResolvedGraph = spanBuilder("mavenResolve")
         .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
         .also { builder ->
             root.children.firstOrNull()?.let {
@@ -120,7 +123,7 @@ class MavenResolver(
                 root.resolveDependencies(resolutionDepth, downloadSources = false)
             }
 
-            reportDiagnostics(resolvedGraph, span, resolveSourceMoniker)
+            reportDiagnostics(resolvedGraph.root, span, resolveSourceMoniker)
             resolvedGraph
         }
 

@@ -129,7 +129,7 @@ class Resolver {
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
         postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
-    ): DependencyNode {
+    ): ResolvedGraph {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
             val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources, resolutionLevel)
 
@@ -140,16 +140,15 @@ class Resolver {
                 || incrementalCache == null
             ) {
                 root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                root
+                root.toResolvedGraph()
             } else {
                 val graphEntryKeys = getDependenciesGraphInput(root)
                 if (graphEntryKeys.contains(CacheEntryKey.NotCached)) {
                     root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                    root
+                    root.toResolvedGraph()
                 } else {
-                    var graphResolvedInsideCache: DependencyNode? = null
+                    var graphResolvedInsideCache: ResolvedGraph? = null
 
-                    // todo (AB): ResolveExternalDependencies task already wraps DR into incremental cache, that should be removed as well
                     val cacheInputValues = mapOf(
                         "userCacheRoot" to root.context.settings.fileCache.amperCache.pathString,
                         "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
@@ -177,14 +176,14 @@ class Resolver {
                                 ) // todo (AB) : Remove it (was added for debugging purposes))
                                 .use {
                                     root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                                    graphResolvedInsideCache = root
+                                    graphResolvedInsideCache = root.toResolvedGraph()
 
-                                    val serializableGraph = graphResolvedInsideCache.toGraph()
+                                    val serializableGraph = graphResolvedInsideCache.root.toGraph()
                                     val serialized = GraphJson.json.encodeToString(serializableGraph)
                                     IncrementalCache.ExecutionResult(
-                                        graphResolvedInsideCache.dependencyPaths(),
+                                        graphResolvedInsideCache.root.dependencyPaths(),
                                         mapOf("graph" to serialized),
-                                        expirationTime = root.calculateGraphExpirationTime()
+                                        expirationTime = graphResolvedInsideCache.expirationTime
                                     )
                                 }
                         }.let {
@@ -201,7 +200,7 @@ class Resolver {
                                 // Any exception thrown during this phase results in fallback to non-cached resolution of the input graph
                                 postProcessDeserializedGraph(resolvedGraph)
 
-                                resolvedGraph
+                                ResolvedGraph(resolvedGraph, it.expirationTime)
                             }
                         }
                     } catch (e: CancellationException) {
@@ -220,7 +219,7 @@ class Resolver {
 
                             // Fallback to non-cached resolution
                             root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                            root
+                            root.toResolvedGraph()
                         }
                     }
 
@@ -230,17 +229,40 @@ class Resolver {
         }
     }
 
+    private suspend fun DependencyNodeWithContext.toResolvedGraph() =
+        ResolvedGraph(this, calculateGraphExpirationTime())
+
     // todo (AB): If node was not resolved due to network error and has ERROR diagnostic assigned,
     // todo (AB): such a node should be recalculated next time and thus providing expirationTime as NOW.
+    /**
+     * Expiration time of the graph represented with this node.
+     *
+     * Note:
+     * Among others, it is calculated based on the expiration time of the snapshot files,
+     * those times are absent in the serialized graph,
+     * therefore, calculation of the expiration time of arbitrary DependencyNode is not possible
+     * (nodes restored from cache don't know about expiration time).
+     * Having per-node expiration time might be needed for the mixed graph resolution
+     * (where some nodes were already resolved and might have been taken from cache),
+     * in that case dependency node expiration time should be started serializing and taken into account when
+     * deciding whether to use the nodes restored from cache or not.
+     */
     private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
-        return distinctBfsSequence()
-            .filterIsInstance<MavenDependencyNodeWithContext>()
-            .flatMap {
-                it.dependency.files(false).filterIsInstance<SnapshotDependencyFileImpl>()
-            }
-            .toSet()
-            .mapNotNull { it.getExpirationTime() }
-            .minByOrNull { it }
+        return try {
+            distinctBfsSequence()
+                .filterIsInstance<MavenDependencyNodeWithContext>()
+                .flatMap {
+                    it.dependency.files(false).filterIsInstance<SnapshotDependencyFileImpl>()
+                }
+                .toSet()
+                .mapNotNull { it.getExpirationTime() }
+                .minByOrNull { it }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("Unable to calculate expiration time of the dependency graph", e)
+            return null
+        }
     }
 
     // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)
@@ -728,6 +750,11 @@ private val DependencyNodeWithContext.resolutionMutex: Mutex
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
 private val DependencyNodeWithContext.resolutionJobs: MutableList<Job>
     get() = context.nodeCache.computeIfAbsent(Key<MutableList<Job>>("resolutionJobs")) { CopyOnWriteArrayList() }
+
+class ResolvedGraph(
+    val root: DependencyNode,
+    val expirationTime: Instant?
+)
 
 /**
  * Describes the state of the dependency resolution process.

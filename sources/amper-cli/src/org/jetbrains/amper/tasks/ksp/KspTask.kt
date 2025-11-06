@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.incrementalcache.CachedPaths
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -241,7 +242,7 @@ internal class KspTask(
                     tempRoot = tempRoot,
                 )
             }
-            kspOutputPaths.outputDirs
+            CachedPaths(kspOutputPaths.outputDirs, null)
         }
     }
 

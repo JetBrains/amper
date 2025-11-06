@@ -17,6 +17,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
+import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
@@ -57,12 +58,12 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
         incrementalCacheUsage: IncrementalCacheUsage
-    ): DependencyNode {
+    ): ResolvedGraph {
         return context.spanBuilder("DR.graph:resolveDependencies").use {
             when (resolutionDepth) {
                 ResolutionDepth.GRAPH_ONLY -> {
                     /* Do nothing, graph is already given */
-                    this@resolveDependencies
+                    ResolvedGraph(this@resolveDependencies, null)
                 }
 
                 ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
@@ -131,7 +132,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         with(resolutionInput) {
             val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, openTelemetry, incrementalCache)
             val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources)
-            return resolvedGraph as ModuleDependencyNode
+            return resolvedGraph.root as ModuleDependencyNode
         }
     }
 
@@ -154,7 +155,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
             resolutionInput.openTelemetry.spanBuilder("DR: Resolving dependencies for the list of modules").use {
                 val moduleDependenciesGraph = resolveDependenciesGraph(dependenciesFlowType, fileCacheBuilder, openTelemetry, incrementalCache)
                 val resolvedGraph = moduleDependenciesGraph.resolveDependencies(resolutionDepth, resolutionLevel, downloadSources, incrementalCacheUsage)
-                resolvedGraph
+                resolvedGraph.root
             }
         }
     }

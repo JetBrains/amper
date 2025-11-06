@@ -21,6 +21,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeHolderBase
 import org.jetbrains.amper.dependency.resolution.currentGraphContext
@@ -92,7 +93,7 @@ interface ModuleDependenciesResolver {
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
-    ): DependencyNode
+    ): ResolvedGraph
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode
 

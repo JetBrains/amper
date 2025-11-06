@@ -162,7 +162,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             resolveSourceMoniker = "module ${module.userReadableName}",
         )
 
-        printDependencies(mavenCoordinates, module, resolvedGraph, filter)
+        printDependencies(mavenCoordinates, module, resolvedGraph.root, filter)
     }
 
     private fun printDependencies(

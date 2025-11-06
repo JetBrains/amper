@@ -46,10 +46,12 @@ import java.util.concurrent.CancellationException
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
+import kotlin.time.Instant
 
 internal data class ExternalDependenciesResolutionResult(
     val compileDependenciesRootNode: DependencyNode,
     val runtimeDependenciesRootNode: DependencyNode?,
+    val expirationTime: Instant? = null,
 )
 
 /**
@@ -82,10 +84,12 @@ internal suspend fun MavenResolver.doResolveExternalDependencies(
         children = listOfNotNull(compileModuleDependencies, runtimeModuleDependencies),
         templateContext = emptyContext(GlobalOpenTelemetry.get())
     )
-    val resolvedChildren = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker).children
+    val resolvedGraph = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker)
+    val resolvedChildren = resolvedGraph.root.children
     return ExternalDependenciesResolutionResult(
         resolvedChildren.first(),
-        resolvedChildren.drop(1).firstOrNull()
+        resolvedChildren.drop(1).firstOrNull(),
+        resolvedGraph.expirationTime
     )
 }
 
@@ -188,7 +192,7 @@ class ResolveExternalDependenciesTask(
                         ),
                         inputFiles = emptyList()
                     ) {
-                        val (compileDependenciesRootNode, runtimeDependenciesRootNode) = mavenResolver.doResolveExternalDependencies(
+                        val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) = mavenResolver.doResolveExternalDependencies(
                             module = module,
                             platform = platform,
                             isTest = isTest,
@@ -211,6 +215,7 @@ class ResolveExternalDependenciesTask(
                                 "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
                                 "publicationCoordsOverrides" to Json.encodeToString(publicationCoordsOverrides),
                             ),
+                            expirationTime = expirationTime,
                         )
                     }
                 } catch (t: CancellationException) {

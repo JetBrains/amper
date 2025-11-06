@@ -82,7 +82,7 @@ class AmperMavenDRBridge(private val mavenResolver: MavenResolver) : DependencyC
         }
 
         // The first element is known to be a MavenDependencyNode as we had set it.
-        return resolved.children.filterIsInstance<MavenDependencyNode>()
+        return resolved.root.children.filterIsInstance<MavenDependencyNode>()
             .mapNotNull { it.toAetherDependencyRecursive(extension) }
     }
 
