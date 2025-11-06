@@ -23,7 +23,10 @@ class Project : SchemaNode() {
     )
     var modules by value<List<TraceableString>>(default = emptyList())
 
-    // TODO: doc
+    @SchemaDoc("The list of plugin dependencies to make *available* in the project modules. " +
+            "Each plugin from this list can then be enabled and configured on the per-module basis using the " +
+            "`plugins: { <plugin-id>: { enabled: true } }` configuration in the corresponding `module.yaml`s." +
+            "Currently, only dependencies on local plugin modules are supported here.")
     var plugins by value<List<UnscopedModuleDependency>>(default = emptyList())
 
     @HiddenFromCompletion
