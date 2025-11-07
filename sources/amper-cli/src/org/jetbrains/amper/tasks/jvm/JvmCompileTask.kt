@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
@@ -417,9 +418,17 @@ internal class JvmCompileTask(
         val success = if (shouldCompileJavaIncrementally(userSettings.java, processorClasspath)) {
             jicDataDir.createDirectories()
             val jicJavacArgs = commonArgs + freeCompilerArgs
-            spanBuilder("JIC").use {
+            javacSpanBuilder(jicJavacArgs, jdk, incremental = true).use {
                 compileJavaWithJic(
-                    jdk, module, isTest, javaSourceFiles, jicJavacArgs, javaCompilerOutputRoot, jicDataDir, classpath, logger
+                    jdk,
+                    module,
+                    isTest,
+                    javaSourceFiles,
+                    jicJavacArgs,
+                    javaCompilerOutputRoot,
+                    jicDataDir,
+                    classpath,
+                    logger
                 )
             }
         } else {
@@ -459,22 +468,26 @@ internal class JvmCompileTask(
         }
 
         val exitCode = withJavaArgFile(tempRoot, plainJavacArgs) { argsFile ->
-            val result = spanBuilder("javac")
-                .setAmperModule(module)
-                .setListAttribute("args", plainJavacArgs)
-                .setAttribute("jdk-home", jdk.homeDir.pathString)
-                .setAttribute("version", jdk.version)
-                .use { span ->
-                    BuildPrimitives.runProcessAndGetOutput(
-                        workingDir = jdk.homeDir,
-                        command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),
-                        span = span,
-                        outputListener = LoggingProcessOutputListener(logger),
-                    )
-                }
+            val result = javacSpanBuilder(plainJavacArgs, jdk, incremental = false).use { span ->
+                BuildPrimitives.runProcessAndGetOutput(
+                    workingDir = jdk.homeDir,
+                    command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),
+                    span = span,
+                    outputListener = LoggingProcessOutputListener(logger),
+                )
+            }
             result.exitCode
         }
         return exitCode == 0
+    }
+
+    private fun javacSpanBuilder(args: List<String>, jdk: Jdk, incremental: Boolean): SpanBuilder {
+        return spanBuilder("javac")
+            .setAttribute("incremental", incremental)
+            .setAmperModule(module)
+            .setListAttribute("args", args)
+            .setAttribute("jdk-home", jdk.homeDir.pathString)
+            .setAttribute("version", jdk.version)
     }
 
     fun shouldCompileJavaIncrementally(javaUserSettings: JavaUserSettings, javaAnnotationProcessorsClassPath: List<Path>): Boolean {

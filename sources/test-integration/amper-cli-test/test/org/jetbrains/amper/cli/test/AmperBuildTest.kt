@@ -4,12 +4,16 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertJavaIncrementalCompilationState
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.spans.assertEachKotlinNativeCompilationSpan
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
@@ -206,9 +210,13 @@ class AmperBuildTest : AmperCliTestBase() {
         projectRoot: Path,
         vararg args: String,
         compileJavaIncrementally: Boolean,
-    ) = runCli(
-        projectRoot = projectRoot,
-        *args,
-        amperJvmArgs = listOf("-Dorg.jetbrains.amper.jps=${compileJavaIncrementally}"),
-    )
+    ): AmperCliResult {
+        val result = runCli(
+            projectRoot = projectRoot,
+            *args,
+            amperJvmArgs = listOf("-Dorg.jetbrains.amper.jic=${compileJavaIncrementally}"),
+        )
+        result.assertJavaIncrementalCompilationState(compileJavaIncrementally)
+        return result
+    }
 }

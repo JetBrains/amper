@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.assertJavaIncrementalCompilationState
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.AmperCliResult
@@ -197,11 +198,11 @@ class AmperJavaBuildTest : AmperCliTestBase() {
         return tempProjectDir
     }
 
-    private suspend fun runWithJic(projectRoot: Path, moduleName: String): AmperCliResult =
-        runCli(
-            projectRoot = projectRoot,
-            "run", "-m", moduleName,
-        )
+    private suspend fun runWithJic(projectRoot: Path, moduleName: String): AmperCliResult {
+        val result = runCli(projectRoot = projectRoot, "run", "-m", moduleName)
+        result.assertJavaIncrementalCompilationState(compileJavaIncrementally = true, moduleName)
+        return result
+    }
 
     private suspend fun buildWithJic(
         projectRoot: Path,
