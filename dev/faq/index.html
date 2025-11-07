@@ -1,0 +1,1159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling.">
+      
+      
+        <meta name="author" content="JetBrains Amper team">
+      
+      
+        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/faq/">
+      
+      
+        <link rel="prev" href="../dsl-reference/">
+      
+      
+      
+      <link rel="icon" href="../images/amper-logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>FAQ - Amper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#general" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../images/amper-logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Amper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              FAQ
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    amper
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../images/amper-logo.svg" alt="logo">
+
+    </a>
+    Amper
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    amper
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documentation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tutorial
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dsl-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DSL Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#is-amper-a-brand-new-build-tool-from-jetbrains" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is Amper a brand-new build tool from JetBrains?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do-you-plan-to-support-only-kotlin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Do you plan to support only Kotlin?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-target-platforms-are-supported" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which target platforms are supported?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-amper-support-compose-multiplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does Amper support Compose Multiplatform?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-amper-support-kotlinjs-or-kotlinwasm-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does Amper support Kotlin/JS or Kotlin/Wasm projects?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-functionality-do-you-plan-to-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      What functionality do you plan to support?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#will-amper-be-open-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      Will Amper be open source?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-will-amper-be-released-as-stable" class="md-nav__link">
+    <span class="md-ellipsis">
+      When will Amper be released as stable?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should-i-start-my-next-project-with-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Should I start my next project with Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should-i-migrate-my-existing-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Should I migrate my existing projects?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-report-a-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I report a bug?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-dont-you-use-kotlin-for-ampers-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why don’t you use Kotlin for Amper's configuration files?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-did-you-have-a-gradle-based-option-to-use-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why did you have a Gradle-based option to use Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-not-simply-improve-gradle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why not simply improve Gradle?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-about-gradle-extensibility-and-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      What about Gradle extensibility and plugins?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-amper-and-declarative-gradle-relate-to-each-other" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do Amper and Declarative Gradle relate to each other?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-are-the-requirements-to-use-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are the requirements to use Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-create-a-new-amper-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I create a new Amper project?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-create-a-multi-module-project-in-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I create a multi-module project in Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is-there-an-automated-migration-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is there an automated migration tool?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-x-is-not-yet-supported-what-can-i-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature X is not yet supported, what can I do?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#can-i-write-a-custom-task-or-use-a-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Can I write a custom task or use a plugin?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-use-c-interop-in-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      How can I use C-interop in Amper?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases 🡕
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#is-amper-a-brand-new-build-tool-from-jetbrains" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is Amper a brand-new build tool from JetBrains?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do-you-plan-to-support-only-kotlin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Do you plan to support only Kotlin?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-target-platforms-are-supported" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which target platforms are supported?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-amper-support-compose-multiplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does Amper support Compose Multiplatform?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-amper-support-kotlinjs-or-kotlinwasm-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does Amper support Kotlin/JS or Kotlin/Wasm projects?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-functionality-do-you-plan-to-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      What functionality do you plan to support?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#will-amper-be-open-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      Will Amper be open source?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-will-amper-be-released-as-stable" class="md-nav__link">
+    <span class="md-ellipsis">
+      When will Amper be released as stable?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should-i-start-my-next-project-with-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Should I start my next project with Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should-i-migrate-my-existing-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Should I migrate my existing projects?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-report-a-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I report a bug?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-dont-you-use-kotlin-for-ampers-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why don’t you use Kotlin for Amper's configuration files?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-did-you-have-a-gradle-based-option-to-use-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why did you have a Gradle-based option to use Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-not-simply-improve-gradle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why not simply improve Gradle?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-about-gradle-extensibility-and-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      What about Gradle extensibility and plugins?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-amper-and-declarative-gradle-relate-to-each-other" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do Amper and Declarative Gradle relate to each other?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-are-the-requirements-to-use-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are the requirements to use Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-create-a-new-amper-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I create a new Amper project?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-create-a-multi-module-project-in-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      How do I create a multi-module project in Amper?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is-there-an-automated-migration-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is there an automated migration tool?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-x-is-not-yet-supported-what-can-i-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature X is not yet supported, what can I do?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#can-i-write-a-custom-task-or-use-a-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Can I write a custom task or use a plugin?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-use-c-interop-in-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      How can I use C-interop in Amper?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>FAQ</h1>
+
+<h2 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h2>
+<h3 id="is-amper-a-brand-new-build-tool-from-jetbrains">Is Amper a brand-new build tool from JetBrains?<a class="headerlink" href="#is-amper-a-brand-new-build-tool-from-jetbrains" title="Permanent link">&para;</a></h3>
+<p>Yes, Amper is a new build tool with a focus on user experience and IDE support.</p>
+<h3 id="do-you-plan-to-support-only-kotlin">Do you plan to support only Kotlin?<a class="headerlink" href="#do-you-plan-to-support-only-kotlin" title="Permanent link">&para;</a></h3>
+<p>Amper already supports both Kotlin and Java as first-class citizens.
+Also, because one of Amper's main targets is Kotlin Multiplatform projects, it supports Swift and Objective-C for iOS.</p>
+<p>We’ll investigate other tech stacks in the future based on the demand for them.</p>
+<h3 id="which-target-platforms-are-supported">Which target platforms are supported?<a class="headerlink" href="#which-target-platforms-are-supported" title="Permanent link">&para;</a></h3>
+<p>Currently, you can create applications for the JVM, Android, iOS, macOS, Linux, Windows, but also JS and WASM (although
+those cannot be run directly with Amper).</p>
+<p>Libraries can be created for all Kotlin Multiplatform targets.</p>
+<h3 id="does-amper-support-compose-multiplatform">Does Amper support Compose Multiplatform?<a class="headerlink" href="#does-amper-support-compose-multiplatform" title="Permanent link">&para;</a></h3>
+<p>Yes, you can configure Compose for Android, iOS, and desktop.</p>
+<h3 id="does-amper-support-kotlinjs-or-kotlinwasm-projects">Does Amper support Kotlin/JS or Kotlin/Wasm projects?<a class="headerlink" href="#does-amper-support-kotlinjs-or-kotlinwasm-projects" title="Permanent link">&para;</a></h3>
+<p>Yes, but it doesn't provide tooling to work on full stack web projects yet. For instance, Amper doesn't install any 
+browser or Node.js runtime, doesn't generate or process any HTML entrypoint, and cannot run <code>js/app</code> modules on its own.</p>
+<h3 id="what-functionality-do-you-plan-to-support">What functionality do you plan to support?<a class="headerlink" href="#what-functionality-do-you-plan-to-support" title="Permanent link">&para;</a></h3>
+<p>We’re working on the project library catalogs, publication, and extensibility.</p>
+<h3 id="will-amper-be-open-source">Will Amper be open source?<a class="headerlink" href="#will-amper-be-open-source" title="Permanent link">&para;</a></h3>
+<p>Yes, Amper is already open source. The default branch is the latest stable release branch, but you can also take a look
+at the <a href="https://github.com/JetBrains/amper/tree/main">main branch</a> to see what's cooking!</p>
+<h3 id="when-will-amper-be-released-as-stable">When will Amper be released as stable?<a class="headerlink" href="#when-will-amper-be-released-as-stable" title="Permanent link">&para;</a></h3>
+<p>Right now, we’re focusing on getting feedback and understanding your needs. Based on that, we’ll be able to provide a
+more accurate estimate of a release date sometime in the future.</p>
+<h3 id="should-i-start-my-next-project-with-amper">Should I start my next project with Amper?<a class="headerlink" href="#should-i-start-my-next-project-with-amper" title="Permanent link">&para;</a></h3>
+<p>You’re welcome to use it in any type of project. However, please understand that Amper is still in the experimental
+phase, and we expect things to change.</p>
+<h3 id="should-i-migrate-my-existing-projects">Should I migrate my existing projects?<a class="headerlink" href="#should-i-migrate-my-existing-projects" title="Permanent link">&para;</a></h3>
+<p>Understanding real-world scenarios is crucial for us to provide a better experience, so from our side we’d love
+to hear about the challenges you may face porting existing projects. However, please understand that the project is
+still in the experimental phase, and we cannot guarantee that all scenarios can be supported.</p>
+<h3 id="how-do-i-report-a-bug">How do I report a bug?<a class="headerlink" href="#how-do-i-report-a-bug" title="Permanent link">&para;</a></h3>
+<p>Please report problems to <a href="https://youtrack.jetbrains.com/issues/AMPER">our issue tracker</a>. Since this project is in the
+experimental phase, we would also greatly appreciate feedback and suggestions regarding the configuration experience –
+join our <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a> for discussion.</p>
+<h3 id="why-dont-you-use-kotlin-for-ampers-configuration-files">Why don’t you use Kotlin for Amper's configuration files?<a class="headerlink" href="#why-dont-you-use-kotlin-for-ampers-configuration-files" title="Permanent link">&para;</a></h3>
+<p>Currently, we use YAML as a simple and readable markup language. It allows us to experiment with the UX and the IDE
+support much faster. We’ll review the language choice as we proceed with the design and based on demand. The Kotlin DSL,
+or a limited form thereof, is one of the possible options.</p>
+<p>Having said that, we believe that the declarative approach to project configuration has significant advantages over the
+imperative approach. Declarative configuration is easily toolable, recovery from errors is much easier, and
+interpretation is much faster. These properties are critical for a good UX.</p>
+<p>Our final language choice will be made based on the overall UX it provides.</p>
+<h3 id="why-did-you-have-a-gradle-based-option-to-use-amper">Why did you have a Gradle-based option to use Amper?<a class="headerlink" href="#why-did-you-have-a-gradle-based-option-to-use-amper" title="Permanent link">&para;</a></h3>
+<p>In the initial Amper prototype, our main focus was improving the user experience and toolability of build configuration.
+Gradle, as a well-tested build engine, allowed us to start experimenting with the UX of the configuration very quickly.
+What’s more, smooth interoperability with Gradle allowed using Amper in existing projects, which is important if we want
+to get feedback from real-world use cases.</p>
+<p>Now, Amper is a standalone build tool, which allows us to improve the IDE support and workflows even further.</p>
+<h3 id="why-not-simply-improve-gradle">Why not simply improve Gradle?<a class="headerlink" href="#why-not-simply-improve-gradle" title="Permanent link">&para;</a></h3>
+<p>We believe there is room to improve the project configuration experience and IDE support.
+With Amper, we want to show you our design and get your feedback, as it will help us to decide which direction to take
+the design.</p>
+<p>At the same time, we are also <a href="https://blog.gradle.org/declarative-gradle">working with the Gradle team</a> to improve
+Gradle support in our IDEs and Gradle itself.</p>
+<h3 id="what-about-gradle-extensibility-and-plugins">What about Gradle extensibility and plugins?<a class="headerlink" href="#what-about-gradle-extensibility-and-plugins" title="Permanent link">&para;</a></h3>
+<p>We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box 
+and offer a reasonable level of extensibility.</p>
+<h3 id="how-do-amper-and-declarative-gradle-relate-to-each-other">How do Amper and Declarative Gradle relate to each other?<a class="headerlink" href="#how-do-amper-and-declarative-gradle-relate-to-each-other" title="Permanent link">&para;</a></h3>
+<p>Both projects aim to improve the developer experience and the IDE support, but from opposite directions and with
+different constraints. Amper's approach is to design, from the ground up, a tool that is easy to use for the developers
+regardless of their background, with great IDE support in mind, and focused on specific use-cases.
+The <a href="https://blog.gradle.org/declarative-gradle">Declarative Gradle project</a> approaches the same goal from the other end, 
+improving the developer experience and the IDE support in an already exising powerful tool. </p>
+<p>While both projects are still experimental, it's important that you provide your feedback to shape the future development.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<h3 id="what-are-the-requirements-to-use-amper">What are the requirements to use Amper?<a class="headerlink" href="#what-are-the-requirements-to-use-amper" title="Permanent link">&para;</a></h3>
+<p>See the <a href="../setup/">setup instructions</a>.</p>
+<p>The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
+build iOS applications. See the <a href="../usage/#using-amper-from-the-command-line">usage instructions</a>.</p>
+<p>The latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> is advised to work with Amper projects.</p>
+<h3 id="how-do-i-create-a-new-amper-project">How do I create a new Amper project?<a class="headerlink" href="#how-do-i-create-a-new-amper-project" title="Permanent link">&para;</a></h3>
+<p>You have several options:</p>
+<ul>
+<li>
+<p>Kick-start your project using one of the <a href="https://github.com/JetBrains/amper/tree/main/examples">examples</a></p>
+</li>
+<li>
+<p>Download the Amper script by following the <a href="../usage/">usage instructions</a>, and generate a project from a template 
+  using the <code>amper init</code> command.</p>
+</li>
+</ul>
+<h3 id="how-do-i-create-a-multi-module-project-in-amper">How do I create a multi-module project in Amper?<a class="headerlink" href="#how-do-i-create-a-multi-module-project-in-amper" title="Permanent link">&para;</a></h3>
+<p>See the documentation on the <a href="../documentation/#project-layout">project layout</a>.</p>
+<h3 id="is-there-an-automated-migration-tool">Is there an automated migration tool?<a class="headerlink" href="#is-there-an-automated-migration-tool" title="Permanent link">&para;</a></h3>
+<p>Not currently, but it's certainly something we’re looking into.</p>
+<h3 id="feature-x-is-not-yet-supported-what-can-i-do">Feature X is not yet supported, what can I do?<a class="headerlink" href="#feature-x-is-not-yet-supported-what-can-i-do" title="Permanent link">&para;</a></h3>
+<p>We plan to expand the list of supported use cases based on demand. Please submit your requests and suggestions in
+the <a href="https://youtrack.jetbrains.com/issues/AMPER">tracker</a> or join
+the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a> for discussions.</p>
+<h3 id="can-i-write-a-custom-task-or-use-a-plugin">Can I write a custom task or use a plugin?<a class="headerlink" href="#can-i-write-a-custom-task-or-use-a-plugin" title="Permanent link">&para;</a></h3>
+<p>Extensibility is not currently implemented in Amper, but we are working on it.</p>
+<h3 id="how-can-i-use-c-interop-in-amper">How can I use C-interop in Amper?<a class="headerlink" href="#how-can-i-use-c-interop-in-amper" title="Permanent link">&para;</a></h3>
+<p>For now, Amper doesn't directly support C-interop.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.expand", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

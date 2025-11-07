@@ -1,0 +1,3284 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling.">
+      
+      
+        <meta name="author" content="JetBrains Amper team">
+      
+      
+        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/documentation/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../setup/">
+      
+      
+      <link rel="icon" href="../images/amper-logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>Documentation - Amper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#amper-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../images/amper-logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Amper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    amper
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../images/amper-logo.svg" alt="logo">
+
+    </a>
+    Amper
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    amper
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Documentation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documentation
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you start
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basics
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project layout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      Source code
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module file anatomy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module file anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Product types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      External Maven dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-and-visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scopes and visibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-bom-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      External Maven BOM dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#library-catalogs-aka-version-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Library Catalogs (a.k.a Version Catalogs)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-maven-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Maven repositories
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-kotlin-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Kotlin Serialization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Kotlin Serialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#more-control-over-serialization-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      More control over serialization formats
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-compose-multiplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Compose Multiplatform
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Compose Multiplatform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-multiplatform-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using multiplatform resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring entry points
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring entry points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      JVM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native" class="md-nav__link">
+    <span class="md-ellipsis">
+      Native
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Android
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios" class="md-nav__link">
+    <span class="md-ellipsis">
+      iOS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Android
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Android">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entry point
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Packaging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-shrinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code shrinking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code shrinking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parcelize
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#google-services-and-firebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      Google Services and Firebase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-kotlin-symbol-processing-ksp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Kotlin Symbol Processing (KSP)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Kotlin Symbol Processing (KSP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-your-own-local-ksp-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using your own local KSP processor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-all-open-compiler-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring all-open compiler plugin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-no-arg-compiler-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring no-arg compiler plugin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java-annotation-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Java annotation processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Lombok
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interoperability-between-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interoperability between languages
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiplatform-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform projects
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multiplatform projects">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-qualifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform qualifier
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platforms-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platforms hierarchy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Platforms hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aliases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencysettings-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependency/Settings propagation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serverside" class="md-nav__link">
+    <span class="md-ellipsis">
+      Serverside
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Serverside">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spring-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spring boot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ktor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ios-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      iOS support
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="iOS support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xcode-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Xcode Project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swift-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Swift support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compose-hot-reload-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compose Hot Reload (experimental)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Compose Hot Reload (experimental)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      IDE Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developmententrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      DevelopmentEntryPoint
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maven-like-module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maven-like module layout
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Templates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brief-yaml-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Brief YAML reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tutorial
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dsl-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DSL Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases 🡕
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you start
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basics
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project layout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      Source code
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module file anatomy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module file anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Product types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      External Maven dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-and-visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scopes and visibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-bom-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      External Maven BOM dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#library-catalogs-aka-version-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Library Catalogs (a.k.a Version Catalogs)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-maven-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Maven repositories
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-kotlin-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Kotlin Serialization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Kotlin Serialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#more-control-over-serialization-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      More control over serialization formats
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-compose-multiplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Compose Multiplatform
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Compose Multiplatform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-multiplatform-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using multiplatform resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring entry points
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring entry points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      JVM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native" class="md-nav__link">
+    <span class="md-ellipsis">
+      Native
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Android
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios" class="md-nav__link">
+    <span class="md-ellipsis">
+      iOS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Android
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Android">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entry point
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Packaging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-shrinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code shrinking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code shrinking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parcelize
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#google-services-and-firebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      Google Services and Firebase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-kotlin-symbol-processing-ksp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Kotlin Symbol Processing (KSP)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Kotlin Symbol Processing (KSP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-your-own-local-ksp-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using your own local KSP processor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-all-open-compiler-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring all-open compiler plugin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-no-arg-compiler-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring no-arg compiler plugin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java-annotation-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Java annotation processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring Lombok
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interoperability-between-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interoperability between languages
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiplatform-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform projects
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multiplatform projects">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-qualifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform qualifier
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platforms-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platforms hierarchy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Platforms hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aliases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplatform-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiplatform settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencysettings-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependency/Settings propagation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serverside" class="md-nav__link">
+    <span class="md-ellipsis">
+      Serverside
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Serverside">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spring-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spring boot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ktor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ios-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      iOS support
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="iOS support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xcode-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Xcode Project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swift-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Swift support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compose-hot-reload-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compose Hot Reload (experimental)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Compose Hot Reload (experimental)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      IDE Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developmententrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      DevelopmentEntryPoint
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maven-like-module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maven-like module layout
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Templates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Packaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brief-yaml-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Brief YAML reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="amper-documentation">Amper Documentation<a class="headerlink" href="#amper-documentation" title="Permanent link">&para;</a></h1>
+<p>Amper is a build tool for the Kotlin and Java languages.
+It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
+or Ktor, multiplatform projects that share business logic and/or UI, and more.</p>
+<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
+<p>Check the <a href="../setup/">setup instructions</a>.</p>
+<p>See the <a href="../usage/#using-amper-from-the-command-line">usage instructions</a> to get started with the Amper CLI.</p>
+<h2 id="basics">Basics<a class="headerlink" href="#basics" title="Permanent link">&para;</a></h2>
+<p>An Amper <strong>project</strong> is defined by a <code>project.yaml</code> file. This file contains the list of modules and the project-wide
+configuration. The folder with the <code>project.yaml</code> file is the project root. Modules can only be located anywhere under
+the project root. If there is only one module in the project, a <code>project.yaml</code> file is not required.</p>
+<p>An Amper <strong>module</strong> is a directory with a <code>module.yaml</code> configuration file, sources, and resources.
+A <em>module configuration file</em> describes <em>what</em> to produce: e.g. a reusable library or a platform-specific application.
+Each module describes a single product. Several modules can't share same sources or resources, but they can depend on
+each other.</p>
+<blockquote>
+<p>To get familiar with YAML, see <a href="#brief-yaml-reference">the brief intro</a>.</p>
+</blockquote>
+<p><em>How</em> to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.</p>
+<p>Amper supports Kotlin Multiplatform as a core concept and offers special syntax to deal with multiplatform
+configuration. There is a dedicated <a href="#platform-qualifier"><strong>@platform-qualifier</strong></a> used to mark platform-specific
+dependencies, settings, etc. You'll see it in the examples below.</p>
+<h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
+<p>A basic single-module Amper project looks like this:</p>
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-main.kt      
+|-test/       
+|  |-MainTest.kt 
+|-module.yaml
+</code></pre></div>
+<p>If there are multiple modules, the <code>project.yaml</code> file specifies the list of modules:</p>
+<div class="highlight"><pre><span></span><code>|-app/
+|  |-src/             
+|  |  |-main.kt
+|  |-...      
+|  |-module.yaml
+|-lib/
+|  |-src/             
+|  |  |-util.kt      
+|  |-module.yaml
+|-project.yaml
+</code></pre></div>
+<p>In the above case, the <code>project.yaml</code> looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./app</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./lib</span>
+</code></pre></div>
+<p>Check the <a href="../dsl-reference/#modules">reference</a> for more options to define the list of modules in the <code>project.yaml</code> file.</p>
+<h3 id="source-code">Source code<a class="headerlink" href="#source-code" title="Permanent link">&para;</a></h3>
+<p>Source files are located in the <code>src</code> folder:</p>
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-main.kt      
+|-module.yaml
+</code></pre></div>
+<p>By convention, a <code>main.kt</code> file, if present, is the default entry point for the application.
+Read more on <a href="#configuring-entry-points">configuring the application entry points</a>.</p>
+<p>In a JVM module, you can mix Kotlin and Java source files:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-main.kt      
+|  |-Util.java      
+|-module.yaml
+</code></pre></div></p>
+<p>In a <a href="#multiplatform-projects">multiplatform module</a>, platform-specific code is located in folders
+with <a href="#platform-qualifier"><code>@platform</code>-qualifiers</a>:
+<div class="highlight"><pre><span></span><code>|-src/             # common code
+|  |-main.kt      
+|  |-util.kt       #  API with ‘expect’ part
+|-src@ios/         # code to be compiled only for iOS targets
+|  |-util.kt       #  API implementation with ‘actual’ part for iOS
+|-src@jvm/         # code to be compiled only for JVM targets
+|  |-util.kt       #  API implementation with ‘actual’ part for JVM
+|-module.yaml
+</code></pre></div></p>
+<p>Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
+refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.</p>
+<p>See also info on <a href="#resources">resource management</a>.</p>
+<h2 id="module-file-anatomy">Module file anatomy<a class="headerlink" href="#module-file-anatomy" title="Permanent link">&para;</a></h2>
+<p>A <code>module.yaml</code> file has several main sections: <code>product:</code>, <code>dependencies:</code> and <code>settings:</code>. A module can produce a
+single product, such as a reusable library or an application.
+Read more on the <a href="#product-types">supported product types</a>.</p>
+<p>Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
+</code></pre></div></p>
+<p>Example of a KMP library:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
+</code></pre></div></p>
+<h3 id="product-types">Product types<a class="headerlink" href="#product-types" title="Permanent link">&para;</a></h3>
+<p>Product type describes the target platform and the type of the project at the same time. Below is the list of supported
+product types:</p>
+<ul>
+<li><code>lib</code> - a reusable Amper library which can be used as a dependency by other modules in the Amper project.</li>
+<li><code>jvm/app</code> - a JVM console or desktop application</li>
+<li><code>windows/app</code> - a mingw64 application</li>
+<li><code>linux/app</code> - a native linux application</li>
+<li><code>macos/app</code> - a native macOS application</li>
+<li><code>android/app</code> - an Android VM application  </li>
+<li><code>ios/app</code> - an iOS/iPadOS application</li>
+</ul>
+<h3 id="multiplatform-configuration">Multiplatform configuration<a class="headerlink" href="#multiplatform-configuration" title="Permanent link">&para;</a></h3>
+<p><code>dependencies:</code> and <code>setting:</code> sections can be specialized for each platform using the <code>@platform</code>-qualifier.
+An example of a multiplatform library with some common and platform-specific code:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># These dependencies are available in common code.</span>
+<span class="c1"># They are also propagated to iOS and Android code, along with their platform-specific counterparts </span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span>
+
+<span class="c1"># These dependencies are available in Android code only</span>
+<span class="nt">dependencies@android</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-android:2.3.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.google.android.material:material:1.5.0</span>
+
+<span class="c1"># These dependencies are available in iOS code only</span>
+<span class="nt">dependencies@ios</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-darwin:2.3.0</span>
+
+<span class="c1"># These settings are for common code.</span>
+<span class="c1"># They are also propagated to iOS and Android code </span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
+
+<span class="c1"># We can add or override settings for specific platforms. </span>
+<span class="c1"># Let&#39;s override the Kotlin language version for iOS code: </span>
+<span class="nt">settings@ios</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w"> </span>
+</code></pre></div>
+See <a href="#multiplatform-configuration">details on multiplatform configuration</a> for more information.</p>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<h4 id="external-maven-dependencies">External Maven dependencies<a class="headerlink" href="#external-maven-dependencies" title="Permanent link">&para;</a></h4>
+<p>Maven dependencies can be added via their coordinates using the usual <code>:</code>-separated notation:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlin:kotlin-serialization:1.8.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+</code></pre></div></p>
+<h4 id="module-dependencies">Module dependencies<a class="headerlink" href="#module-dependencies" title="Permanent link">&para;</a></h4>
+<p>To depend on another Module, use a relative path to the folder which contains the corresponding <code>module.yaml</code>.
+The path should start either with <code>./</code> or <code>../</code>.</p>
+<blockquote>
+<p>Dependencies between modules are only allowed within the project scope.
+That is, they must be listed in the <code>project.yaml</code> file.</p>
+</blockquote>
+<p>Example: given the project layout</p>
+<div class="highlight"><pre><span></span><code>root/
+  |-app/
+  |  |-src/
+  |  |-module.yaml
+  |-ui/
+  |  |-utils/
+  |  |  |-src/
+  |  |  |-module.yaml
+</code></pre></div>
+<p>The <code>app/module.yaml</code> can declare a dependency on <code>ui/utils</code> as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../ui/utils</span>
+</code></pre></div>
+<p>Other examples of the internal dependencies:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./nested-folder-with-module-yaml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../sibling-folder-with-module-yaml</span>
+</code></pre></div>
+<h4 id="scopes-and-visibility">Scopes and visibility<a class="headerlink" href="#scopes-and-visibility" title="Permanent link">&para;</a></h4>
+<p>There are three dependency scopes:</p>
+<ul>
+<li><code>all</code> - (default) the dependency is available during compilation and runtime.  </li>
+<li><code>compile-only</code> - the dependency is only available during compilation. This is a 'provided' dependency in Maven terminology.</li>
+<li><code>runtime-only</code> - the dependency is not available during compilation, but available during testing and running</li>
+</ul>
+<p>In a full form you can declare scope as follows:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span><span class="w"> </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span><span class="w"> </span>
+</code></pre></div>
+There is also an inline form: 
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span><span class="w">  </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+</code></pre></div></p>
+<p>All dependencies by default are not accessible from the dependent code.<br />
+In order to make a dependency visible to a dependent module, you need to explicitly mark it as <code>exported</code> (this is 
+equivalent to declaring a dependency using the <code>api()</code> configuration in Gradle). </p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
+</code></pre></div>
+There is also an inline form: 
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+</code></pre></div></p>
+<p>Here is an example of a <code>compile-only</code> and <code>exported</code> dependency:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<h4 id="external-maven-bom-dependencies">External Maven BOM dependencies<a class="headerlink" href="#external-maven-bom-dependencies" title="Permanent link">&para;</a></h4>
+<p>To import a BOM (Bill of materials), specify its coordinates prefixed by <code>bom:</code>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-bom:2.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core</span><span class="w"> </span>
+</code></pre></div>
+After a BOM is imported, the versions of the dependencies declared in the module can be omitted,
+unspecified versions are resolved from the BOM.
+Dependency versions declared in the BOM participate in version conflict resolution.</p>
+<h3 id="library-catalogs-aka-version-catalogs">Library Catalogs (a.k.a Version Catalogs)<a class="headerlink" href="#library-catalogs-aka-version-catalogs" title="Permanent link">&para;</a></h3>
+<p>A library catalog associates keys to library coordinates (including the version), and allows adding the same libraries
+as dependencies to multiple modules without having to repeat the coordinates or the versions of the libraries.</p>
+<p>Amper currently supports 2 types of dependency catalogs:</p>
+<ul>
+<li>toolchain catalogs (such as Kotlin, Compose Multiplatform etc.)</li>
+<li>Gradle version catalogs that are placed in the default <a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration">gradle/libs.versions.toml file</a></li>
+</ul>
+<p>The toolchain catalogs are implicitly defined, and contain predefined libraries that relate to the corresponding toolchain.
+The name of such a catalog corresponds to the <a href="#settings">name of the corresponding toolchain in the settings section</a>.
+For example, dependencies for the Compose Multiplatform frameworks are accessible using the <code>$compose</code> catalog.
+All dependencies in such catalogs usually have the same version, which is the toolchain version.</p>
+<p>The Gradle version catalogs are user-defined catalogs using the Gradle format.
+Dependencies from this catalog can be accessed via the <code>$libs</code> catalog, and the library keys are defined according
+to the <a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:mapping-aliases-to-accessors">Gradle name mapping rules</a>.</p>
+<p>To use dependencies from catalogs, use the syntax <code>$&lt;catalog-name&gt;.&lt;key&gt;</code> instead of the coordinates, for example:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.reflect</span><span class="w">      </span><span class="c1"># dependency from the Kotlin catalog</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.material3</span><span class="w">   </span><span class="c1"># dependency from the Compose Multiplatform catalog</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.commons.lang3</span><span class="w">  </span><span class="c1"># dependency from the Gradle default libs.versions.toml catalog</span>
+</code></pre></div></p>
+<p>Catalog dependencies can still have a <a href="#scopes-and-visibility">scope and visibility</a> even when coming from a catalog:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$compose.foundation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$my-catalog.db-engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span><span class="w"> </span>
+</code></pre></div>
+<h3 id="managing-maven-repositories">Managing Maven repositories<a class="headerlink" href="#managing-maven-repositories" title="Permanent link">&para;</a></h3>
+<p>By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://dl.google.com/dl/android/maven2/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
+</code></pre></div>
+<p>To configure repository credentials, use the following snippet:
+<div class="highlight"><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://my.private.repository/</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../local.properties</span><span class="w"> </span><span class="c1"># relative path to the file with credentials</span>
+<span class="w">      </span><span class="nt">usernameKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.username</span>
+<span class="w">      </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.password</span>
+</code></pre></div></p>
+<p>Here is the file <code>../local.properties</code>:
+<div class="highlight"><pre><span></span><code><span class="na">my.private.repository.username</span><span class="o">=</span><span class="s">...</span>
+<span class="na">my.private.repository.password</span><span class="o">=</span><span class="s">...</span>
+</code></pre></div></p>
+<blockquote>
+<p>Currently only <code>*.properties</code> files with credentials are supported.</p>
+</blockquote>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<p>The <code>settings:</code> section contains toolchains settings.
+A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).</p>
+<blockquote>
+<p>Toolchains are supposed to be extensible in the future.</p>
+</blockquote>
+<p>All toolchain settings are specified in the dedicated groups in the <code>settings:</code> section:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31</span>
+</code></pre></div></p>
+<p>Here is the list of <a href="../dsl-reference/#settings-and-test-settings">currently supported toolchains and their settings</a>.   </p>
+<p>See <a href="#multiplatform-settings">multiplatform settings configuration</a> for more details.</p>
+<h4 id="configuring-kotlin-serialization">Configuring Kotlin Serialization<a class="headerlink" href="#configuring-kotlin-serialization" title="Permanent link">&para;</a></h4>
+<p><a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin Serialization</a> is the official multiplatform and multi-format
+serialization library for Kotlin.</p>
+<p>If you need to (de)serialize Kotlin classes to/from JSON, you can enable Kotlin Serialization it in its simplest form:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w">  </span><span class="c1"># JSON or other format</span>
+</code></pre></div>
+This snippet configures the compiler to process <code>@Serializable</code> classes, and adds dependencies on the serialization
+runtime and JSON format libraries.</p>
+<p>You can also customize the version of the Kotlin Serialization libraries using the full form of the configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
+</code></pre></div>
+<h5 id="more-control-over-serialization-formats">More control over serialization formats<a class="headerlink" href="#more-control-over-serialization-formats" title="Permanent link">&para;</a></h5>
+<p>If you don't need serialization format dependencies or if you need more control over them, you can use the following:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w"> </span><span class="c1"># configures the compiler and serialization runtime library</span>
+</code></pre></div>
+This snippet on its own only configures the compiler and the serialization runtime library, but doesn't add any format
+dependency. However, it adds a built-in catalog with official serialization formats libraries, which you can use in 
+your <code>dependencies</code> section. This is useful in multiple cases:</p>
+<ul>
+<li>
+<p>if you need a format dependency only in tests:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>if you need to customize the scope of the format dependencies:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>if you need to expose format dependencies transitively:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>if you need multiple formats:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
+</code></pre></div></p>
+</li>
+</ul>
+<h4 id="configuring-compose-multiplatform">Configuring Compose Multiplatform<a class="headerlink" href="#configuring-compose-multiplatform" title="Permanent link">&para;</a></h4>
+<p>In order to enable <a href="https://www.jetbrains.com/lp/compose-multiplatform/">Compose</a> (with a compiler plugin and required dependencies), add the following configuration:</p>
+<p>JVM Desktop:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># add Compose dependencies using a dependency catalog:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.desktop.currentOs</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="c1"># enable Compose toolchain</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div></p>
+<p>Android:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># add Compose dependencies using a dependency catalog:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.foundation</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.material3</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="c1"># enable Compose toolchain</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div></p>
+<p>There is also a full form for enabling or disabling the Compose toolchain:
+<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<p>Also, you can specify the exact version of the Compose framework to use:</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.5.10</span>
+</code></pre></div>
+<h5 id="using-multiplatform-resources">Using multiplatform resources<a class="headerlink" href="#using-multiplatform-resources" title="Permanent link">&para;</a></h5>
+<p>Amper supports <a href="https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html">Compose Multiplatform resources</a>.</p>
+<p>The file layout in Amper is:
+<div class="highlight"><pre><span></span><code>|-my-kmp-module/
+|  |-module.yaml
+|  |-src/ # your code is here
+|  |  |-...
+|  |-composeResources/ # place your multiplatform resources in this folder
+|  |  |-values/
+|  |  |  |-strings.xml
+|  |  |-drawable/
+|  |  |  |-image.jpg
+|  |-...
+</code></pre></div></p>
+<p>Amper automatically generates the accessors for resources during the build and when working with code in the IDE.
+Accessors are generated in a package that corresponds to the module name. All non-letter symbols are replaced with <code>_</code>.
+In the given example where the module name is <code>my-kmp-module</code>, the package name for the generated resources 
+will be <code>my_kmp_module</code>.</p>
+<p>Here is how to use the resources in the code:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">my_kmp_module.generated.resources.Res</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">my_kmp_module.generated.resources.hello</span>
+<span class="c1">// other imports</span>
+
+<span class="nd">@Composable</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">displayHelloText</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BasicText</span><span class="p">(</span><span class="n">stringResource</span><span class="p">(</span><span class="n">Res</span><span class="p">.</span><span class="na">string</span><span class="p">.</span><span class="na">hello</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Read more about setting up and using compose resources in <a href="https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html">the documentation</a>.</p>
+<h4 id="configuring-entry-points">Configuring entry points<a class="headerlink" href="#configuring-entry-points" title="Permanent link">&para;</a></h4>
+<h5 id="jvm">JVM<a class="headerlink" href="#jvm" title="Permanent link">&para;</a></h5>
+<p>By default, the entrypoint of JVM applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file 
+(case-insensitive) in the <code>src</code> folder.</p>
+<p>This can be overridden by specifying a main class explicitly in the module settings:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jvm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mainClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.example.myapp.MyMainKt</span>
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In Kotlin, unlike Java, the <code>main</code> function doesn't have to be declared in a class, and is usually at the top level
+of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
+top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
+the name and turning the <code>.kt</code> extension into a <code>Kt</code> suffix.</p>
+<p>For example, the top-level declarations of <code>myMain.kt</code> will be in a class named <code>MyMainKt</code>.</p>
+</div>
+<h5 id="native">Native<a class="headerlink" href="#native" title="Permanent link">&para;</a></h5>
+<p>By default, the entrypoint of Kotlin native applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file 
+(case-insensitive) in the <code>src</code> folder.</p>
+<p>This can be overridden by specifying the fully qualified name of the <code>main</code> function explicitly in the module settings:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">native</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">entryPoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.example.myapp.main</span>
+</code></pre></div></p>
+<h5 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h5>
+<p>Android apps have their own way to configure the entry point, see the <a href="#entry-point">dedicated Android section</a>.</p>
+<h5 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h5>
+<p>For iOS applications, the entrypoint is expected to be a <code>@main</code> struct in any Swift file in the <code>src</code> folder.
+<div class="highlight"><pre><span></span><code>|-src/ 
+|  |-main.swift
+|  |-... 
+|-module.yaml
+|-module.xcodeproj
+</code></pre></div></p>
+<p>src/main.swift:
+<div class="highlight"><pre><span></span><code><span class="p">...</span>
+<span class="p">@</span><span class="n">main</span>
+<span class="kd">struct</span><span class="w"> </span><span class="nc">iosApp</span><span class="p">:</span><span class="w"> </span><span class="n">App</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>This is not customizable at the moment.</p>
+<h4 id="configuring-android">Configuring Android<a class="headerlink" href="#configuring-android" title="Permanent link">&para;</a></h4>
+<p>Use the <code>android/app</code> product type in a module to build an Android application.</p>
+<h5 id="entry-point">Entry point<a class="headerlink" href="#entry-point" title="Permanent link">&para;</a></h5>
+<p>The application's entry point is specified in the AndroidManifest.xml file according to the 
+<a href="https://developer.android.com/guide/topics/manifest/manifest-intro">official Android documentation</a>.
+<div class="highlight"><pre><span></span><code>|-src/ 
+|  |-MyActivity.kt
+|  |-AndroidManifest.xml
+|  |-... 
+|-module.yaml
+</code></pre></div></p>
+<p><code>src/AndroidManifest.xml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;manifest</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;application</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;activity</span><span class="w"> </span><span class="na">android:name=</span><span class="s">&quot;com.example.myapp.MainActivity&quot;</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/activity&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/application&gt;</span>
+<span class="nt">&lt;/manifest&gt;</span>
+</code></pre></div></p>
+<p>You can run your application using the <code>run</code> command.</p>
+<h5 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h5>
+<p>You can use the <code>build</code> command to create an APK, or the <code>package</code> command to create an Android Application Bundle (AAB).</p>
+<p>The <code>package</code> command will not only build the APK, but also minify/obfuscate it with ProGuard, and sign it.
+See the dedicated <a href="#signing">signing</a> and <a href="#code-shrinking">code shrinking</a> sections to learn how to configure this. </p>
+<h4 id="code-shrinking">Code shrinking<a class="headerlink" href="#code-shrinking" title="Permanent link">&para;</a></h4>
+<p>When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
+This is equivalent to the following Gradle configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// in Gradle</span>
+<span class="n">isMinifyEnabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">isShrinkResources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">proguardFiles</span><span class="p">(</span><span class="n">getDefaultProguardFile</span><span class="p">(</span><span class="s">&quot;proguard-android-optimize.txt&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>You can create a <code>proguard-rules.pro</code> file in the module folder to add custom rules for R8.</p>
+<div class="highlight"><pre><span></span><code>|-src/
+|  ...      
+|-test/
+|  ...
+|-proguard-rules.pro
+|-module.yaml
+</code></pre></div>
+<p>It is automatically used by Amper if present.</p>
+<p>An example of how to add custom R8 rules can be found <a href="https://github.com/JetBrains/amper/tree/main/examples/compose-multiplatform/android-app/proguard-rules.pro">in the android-app module</a> of the <code>compose-multiplatform</code> example project.</p>
+<h5 id="signing">Signing<a class="headerlink" href="#signing" title="Permanent link">&para;</a></h5>
+<p>In a module containing an Android application (using the <code>android/app</code> product type) you can enable signing under
+settings:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">signing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>This will use a <code>keystore.properties</code> file located in the module folder for the signing details by default. This
+properties file must contain the following signing details. <strong>Remember that these details should usually not be added
+to version control.</strong></p>
+<div class="highlight"><pre><span></span><code><span class="na">storeFile</span><span class="o">=</span><span class="s">/Users/example/.keystores/release.keystore</span>
+<span class="na">storePassword</span><span class="o">=</span><span class="s">store_password</span>
+<span class="na">keyAlias</span><span class="o">=</span><span class="s">alias</span>
+<span class="na">keyPassword</span><span class="o">=</span><span class="s">key_password</span>
+</code></pre></div>
+<p>To customize the path to this file, you can use the <code>propertiesFile</code> option:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">signing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">propertiesFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./keystore.properties</span><span class="w"> </span><span class="c1"># default value</span>
+</code></pre></div>
+<p>You can use <code>./amper tool generate-keystore</code> to generate a new keystore if you don't have one yet.
+This will create a new self-signed certificate, using the details in the <code>keystore.properties</code> file.</p>
+<blockquote>
+<p>You can also pass in these details to <code>generate-keystore</code> as command line arguments. Invoke the tool with <code>--help</code>
+to learn more.</p>
+</blockquote>
+<h5 id="parcelize">Parcelize<a class="headerlink" href="#parcelize" title="Permanent link">&para;</a></h5>
+<p>If you want to automatically generate your <code>Parcelable</code> implementations, you can enable 
+<a href="https://developer.android.com/kotlin/parcelize">Parcelize</a> as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>With this simple toggle, the following class gets its <code>Parcelable</code> implementation automatically without spelling it out
+in the code, just thanks to the <code>@Parcelize</code> annotation:
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">kotlinx.parcelize.Parcelize</span>
+
+<span class="nd">@Parcelize</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">User</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">firstName</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">lastName</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">age</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">Parcelable</span>
+</code></pre></div></p>
+<p>While this is only relevant on Android, sometimes you need to share your data model between multiple platforms.
+However, the <code>Parcelable</code> interface and <code>@Parcelize</code> annotation are only present on Android.
+But fear not, there is a solution described in the
+<a href="https://developer.android.com/kotlin/parcelize#setup_parcelize_for_kotlin_multiplatform">official documentation</a>.
+In short:</p>
+<ul>
+<li>For <code>android.os.Parcelable</code>, you can use the <code>expect</code>/<code>actual</code> mechanism to define your own interface as typealias of 
+<code>android.os.Parcelable</code> (for Android), and as an empty interface for other platforms.</li>
+<li>For <code>@Parcelize</code>, you can simply define your own annotation instead, and then tell Parcelize about it (see below).</li>
+</ul>
+<p>For example, in common code:
+<div class="highlight"><pre><span></span><code><span class="nd">@Target</span><span class="p">(</span><span class="n">AnnotationTarget</span><span class="p">.</span><span class="na">CLASS</span><span class="p">)</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">AnnotationRetention</span><span class="p">.</span><span class="na">BINARY</span><span class="p">)</span>
+<span class="kd">annotation</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">MyParcelize</span>
+
+<span class="kd">expect</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nc">MyParcelable</span>
+</code></pre></div>
+Then in Android code:
+<div class="highlight"><pre><span></span><code><span class="n">actual</span><span class="w"> </span><span class="k">typealias</span><span class="w"> </span><span class="n">MyParcelable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">android</span><span class="p">.</span><span class="na">os</span><span class="p">.</span><span class="na">Parcelable</span>
+</code></pre></div>
+And in other platforms:
+<div class="highlight"><pre><span></span><code><span class="c1">// empty because nothing is generated on non-Android platforms</span>
+<span class="kd">actual</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nc">MyParcelable</span>
+</code></pre></div></p>
+<p>You can then make Parcelize recognize this custom annotation using the <code>additionalAnnotations</code> option:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># for the expect/actual MyParcelable interface</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">-Xexpect-actual-classes</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">additionalAnnotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.MyParcelize</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h4 id="google-services-and-firebase">Google Services and Firebase<a class="headerlink" href="#google-services-and-firebase" title="Permanent link">&para;</a></h4>
+<p>To enable the <a href="https://developers.google.com/android/guides/google-services-plugin"><code>google-services</code> plugin</a>, place 
+your <code>google-services.json</code> file in the module containing an <code>android/app</code> product, next to <code>module.yaml</code>.</p>
+<div class="highlight"><pre><span></span><code>|-androidApp/
+|  |-src/
+|  |-google-services.json
+|  |-module.yaml
+</code></pre></div>
+<p>This file will be found and consumed automatically.</p>
+<h4 id="configuring-kotlin-symbol-processing-ksp">Configuring Kotlin Symbol Processing (KSP)<a class="headerlink" href="#configuring-kotlin-symbol-processing-ksp" title="Permanent link">&para;</a></h4>
+<p><a href="https://kotlinlang.org/docs/ksp-overview.html">Kotlin Symbol Processing</a> is a tool that allows feeding Kotlin source
+code to <em>processors</em>, which can in turn use this information to generate code, classes, or resources, for instance.
+Amper provides built-in support for KSP.</p>
+<p>Some popular libraries also include a KSP processor to enhance their capabilities, such as
+<a href="https://developer.android.com/jetpack/androidx/releases/room">Room</a> or
+<a href="https://github.com/square/moshi#codegen">Moshi</a>.</p>
+<blockquote>
+<p>Note: Amper works with KSP2, so any processors used must be compatible with KSP2.
+We’re expecting most processors to make this upgrade soon, as KSP1 is deprecated and will not support Kotlin 2.1.
+However, at the moment, you might still see some gaps in support, such as issues with native targets.</p>
+</blockquote>
+<p>To add KSP processors to your module, add their maven coordinates to the <code>settings.kotlin.ksp.processors</code> list:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
+</code></pre></div>
+<p>In multiplatform modules, all settings from the <code>settings</code> section apply to all platforms by default, including KSP processors.
+If you only want to add KSP processors for a specific platform, use a <code>settings</code> block with a
+<a href="#platform-qualifier">platform qualifier</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># the Room processor will only process code that compiles to the Android platform</span>
+<span class="nt">settings@android</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
+</code></pre></div>
+<p>Some processors can be customized by passing options. You can pass these options using the <code>processorOptions</code> section:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
+<span class="w">      </span><span class="nt">processorOptions</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">room.schemaLocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./schema</span>
+</code></pre></div>
+<blockquote>
+<p>Note: all options are passed to all processors by KSP. It's the processor's responsibility to use unique option names
+to avoid clashes with other processor options.</p>
+</blockquote>
+<h5 id="using-your-own-local-ksp-processor">Using your own local KSP processor<a class="headerlink" href="#using-your-own-local-ksp-processor" title="Permanent link">&para;</a></h5>
+<p>You can implement your own processor in an Amper module as a regular JVM library, and then use it to process code from
+other modules in your project.</p>
+<p>Usually, 3 modules are involved:</p>
+<ul>
+<li>The <em>processor</em> module, with the actual processor implementation</li>
+<li>The <em>annotations</em> module (optional), which contains annotations that the processor looks for in the consumer code</li>
+<li>The <em>consumer</em> module, which uses KSP with the custom processor</li>
+</ul>
+<p>The annotations module is a very simple JVM library module without any required dependencies (it's just here to provide
+some annotations to work with, if necessary):
+<div class="highlight"><pre><span></span><code><span class="c1"># my-processor-annotations/module.yaml</span>
+<span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div></p>
+<p>The processor module is a JVM library with a <code>compile-only</code> dependency on KSP facilities, and on the custom annotations module:
+<div class="highlight"><pre><span></span><code><span class="c1"># my-processor/module.yaml</span>
+<span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor-annotations</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">com.google.devtools.ksp:symbol-processing-api:2.0.21-1.0.25</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
+</code></pre></div></p>
+<p>The consumer module adds a regular dependency on the annotations module, and a reference to the processor module: 
+<div class="highlight"><pre><span></span><code><span class="c1"># my-consumer/module.yaml</span>
+<span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor-annotations</span><span class="w"> </span><span class="c1"># to be able to annotate the consumer code</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor</span><span class="w"> </span><span class="c1"># path to the module implementing the KSP processor</span>
+</code></pre></div></p>
+<p>For more information about how to write your own processor, check out
+<a href="https://kotlinlang.org/docs/ksp-quickstart.html#create-a-processor-of-your-own">the KSP documentation</a>.</p>
+<h4 id="configuring-all-open-compiler-plugin">Configuring all-open compiler plugin<a class="headerlink" href="#configuring-all-open-compiler-plugin" title="Permanent link">&para;</a></h4>
+<p>To enable <a href="https://kotlinlang.org/docs/all-open-plugin.html">all-open</a>, add the following configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.context.annotation.Configuration</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Service</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Component</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Controller</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>Or you can use one of the preconfigured presets that contain all-open annotations related to specific frameworks:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">presets</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spring</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">micronaut</span>
+</code></pre></div>
+<h4 id="configuring-no-arg-compiler-plugin">Configuring no-arg compiler plugin<a class="headerlink" href="#configuring-no-arg-compiler-plugin" title="Permanent link">&para;</a></h4>
+<p>To enable <a href="https://kotlinlang.org/docs/no-arg-plugin.html">no-arg</a>, add the following configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jakarta.persistence.Entity</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>Or you can use one of the preconfigured presets that contain no-arg annotations related to specific frameworks:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jpa</span>
+</code></pre></div>
+<h4 id="java-annotation-processing">Java annotation processing<a class="headerlink" href="#java-annotation-processing" title="Permanent link">&para;</a></h4>
+<p>To add java annotation processors to your module, add their maven coordinates to the 
+<code>settings.java.annotationProcessing.processors</code> list:  </p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">java</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.mapstruct:mapstruct-processor:1.6.3</span>
+</code></pre></div>
+<p>This option is only available for java or android modules (it's a platform-specific).</p>
+<p>As with KSP, it's possible to reference a local Amper module as a processor. See the 
+<a href="#using-your-own-local-ksp-processor">KSP section</a> for more information. Using library catalog entry is also supported.</p>
+<p>Some annotation processors can be customized by passing options.
+You can pass these options using the <code>processorOptions</code> map:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">java</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.auto.service</span><span class="w"> </span><span class="c1"># using catalog reference </span>
+<span class="w">      </span><span class="nt">processorOptions</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h4 id="configuring-lombok">Configuring Lombok<a class="headerlink" href="#configuring-lombok" title="Permanent link">&para;</a></h4>
+<p>Despite there is a way to configure annotation processing in general for Java, for the Kotlin interop you need a 
+compiler plugin configured. So if you want to add Lombok to your project it is better to use <code>settings:lombok</code> instead 
+of configuring <code>settings:java:annotationProcessing</code> directly even if your module is java-only. Enabling Lombok is by</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">lombok</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>adds <code>lombok</code> dependency, annotation processor, and kotlin compiler plugin.</p>
+<h3 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h3>
+<p>Test code is located in the <code>test/</code> folder:
+<div class="highlight"><pre><span></span><code>|-src/            # production code
+|  ...      
+|-test/           # test code 
+|  |-MainTest.kt
+|  |-... 
+|-module.yaml
+</code></pre></div></p>
+<p>By default, the <a href="https://kotlinlang.org/api/latest/kotlin.test/">Kotlin test</a> framework is preconfigured for each
+platform. Additional test-only dependencies should be added to the <code>test-dependencies:</code> section of your module
+configuration file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="c1"># these dependencies are available in main and test code</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+
+<span class="c1"># additional dependencies for test code</span>
+<span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-server-test-host:2.2.0</span>
+</code></pre></div>
+<p>To add or override <a href="#settings">toolchain settings</a> in tests, use <code>test-settings:</code> section:
+<div class="highlight"><pre><span></span><code><span class="c1"># these dependencies are available in main and test code</span>
+<span class="nt">setting</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="c1"># additional test-specific setting </span>
+<span class="nt">test-settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div></p>
+<p>Test settings and dependencies by default are inherited from the main configuration according to the <a href="#dependencysettings-propagation">configuration propagation rules</a>. 
+Example:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  ...      
+|-src@ios/             
+|  ...      
+|-test/           # Sees declarations from src/. Executed on all platforms. 
+|  |-MainTest.kt
+|  |-... 
+|-test@ios/       # Sees declarations from src/, src@ios/, and `test/`. Executed on iOS platforms only.  
+|  |-IOSTest.kt 
+|  |-... 
+|-module.yaml
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># these dependencies are available in main and test code</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+
+<span class="c1"># dependencies for test code</span>
+<span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlin:kotlin-test:1.8.10</span>
+
+<span class="c1"># these settings affect the main and test code</span>
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+
+<span class="c1"># these settings affect tests only</span>
+<span class="nt">test-settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w"> </span><span class="c1"># overrides `settings:kotlin:languageVersion: 1.8`</span>
+</code></pre></div>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<p>Files placed into the <code>resources</code> folder are copied to the resulting products:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-...
+|-resources/     # These files are copied into the final products
+|  |-...
+</code></pre></div></p>
+<p>In <a href="#multiplatform-configuration">multiplatform modules</a> resources are merged from the common folders and corresponding platform-specific folders:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-...
+|-resources/          # these resources are copied into the Android and JVM artifact
+|  |-...
+|-resources@android/  # these resources are copied into the Android artifact
+|  |-...
+|-resources@jvm/      # these resources are copied into the JVM artifact
+|  |-...
+</code></pre></div></p>
+<p>In case of duplicating names, the common resources are overwritten by the more specific ones. 
+That is <code>resources/foo.txt</code> will be overwritten by <code>resources@android/foo.txt</code>.  </p>
+<p>Android modules also have <a href="https://developer.android.com/guide/topics/resources/providing-resources">res and assets</a> folders:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-...
+|-res/
+|  |-drawable/
+|  |  |-...
+|  |-layout/
+|  |  |-...
+|  |-...
+|-assets/
+|  |-...
+|-module.yaml
+</code></pre></div></p>
+<h2 id="interoperability-between-languages">Interoperability between languages<a class="headerlink" href="#interoperability-between-languages" title="Permanent link">&para;</a></h2>
+<p>Kotlin Multiplatform implies smooth interoperability with platform languages, APIs, and frameworks.
+There are three distinct scenarios where such interoperability is needed:</p>
+<ul>
+<li>Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM (later CocoaPods on iOS too).  </li>
+<li>Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's 
+  tooling; such as jars on JVM, frameworks on iOS (maybe later .so on linux).    </li>
+<li>Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like
+  JVM, Objective-C, and Swift.</li>
+</ul>
+<p>Joint compilation is already supported for Java and Kotlin, with 2-way interoperability: Java code can reference Kotlin
+declarations, and vice versa. 
+So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:</p>
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-main.kt      
+|-src@jvm/             
+|  |-KotlinCode.kt      
+|  |-JavaCode.java      
+|-src@android/             
+|  |-KotlinCode.kt 
+|  |-JavaCode.java
+|-src@ios/
+|  |- ...
+|-module.yaml
+</code></pre></div>
+<p>In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,
+but this is not the case yet. 
+At the moment, Kotlin code is first compiled into a single framework per <code>ios/app</code> module, 
+and then Swift is compiled using the Xcode toolchain with a dependency on that framework. 
+This means that Swift code can reference Kotlin declarations, but Kotlin cannot reference Swift declarations. 
+See more at the dedicated <a href="#swift-support">Swift support</a> section.</p>
+<h2 id="multiplatform-projects">Multiplatform projects<a class="headerlink" href="#multiplatform-projects" title="Permanent link">&para;</a></h2>
+<h3 id="platform-qualifier">Platform qualifier<a class="headerlink" href="#platform-qualifier" title="Permanent link">&para;</a></h3>
+<p>Use the <code>@platform</code>-qualifier to mark platform-specific source folders and sections in the <code>module.yaml</code> files. 
+You can use Kotlin Multiplatform <a href="https://kotlinlang.org/docs/native-target-support.html">platform names</a> and families as <code>@platform</code>-qualifier.
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span><span class="w">               </span><span class="c1"># common dependencies for all platforms</span>
+<span class="nt">dependencies@ios</span><span class="p">:</span><span class="w">           </span><span class="c1"># ios is a platform family name  </span>
+<span class="nt">dependencies@iosArm64</span><span class="p">:</span><span class="w">      </span><span class="c1"># iosArm64 is a KMP platform name</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span><span class="w">                   </span><span class="c1"># common settings for all platforms</span>
+<span class="nt">settings@ios</span><span class="p">:</span><span class="w">               </span><span class="c1"># ios is a platform family name  </span>
+<span class="nt">settings@iosArm64</span><span class="p">:</span><span class="w">          </span><span class="c1"># iosArm64 is a KMP platform name</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>|-src/                      # common code for all platforms
+|-src@ios/                  # sees declarations from src/ 
+|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
+</code></pre></div></p>
+<p>See also how the <a href="#resources">resources</a> are handled in the multiplatform projects.  </p>
+<p>Only the platform names (but not the platform family names) can be currently used in the <code>platforms:</code> list:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h3 id="platforms-hierarchy">Platforms hierarchy<a class="headerlink" href="#platforms-hierarchy" title="Permanent link">&para;</a></h3>
+<p>Some target platforms belong to the same family and share some common APIs.
+They form a hierarchy as follows:
+<div class="highlight"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">common</span><span class="w">  </span><span class="c1"># corresponds to src directories or configuration sections without @platform suffix</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">jvm</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">android</span><span class="w">  </span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">native</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">linuxX64</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">linuxArm64</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">mingw</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">mingwX64</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">apple</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">macos</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">macosX64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">macosArm64</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">iosArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">iosSimulatorArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">iosX64</span><span class="w">            </span><span class="c1"># iOS Simulator for Intel Mac</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">watchos</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">watchosArm32</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">watchosArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">watchosDeviceArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">watchosSimulatorArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">watchosX64</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">tvos</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">tvosArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">tvosSimulatorArm64</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">tvosX64</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div></p>
+<blockquote>
+<p>Note: not all platforms listed here are equally supported or tested.
+Additional platforms may also exist in addition to the ones listed here, but are also untested/highly experimental. </p>
+</blockquote>
+<p>Based on this hierarchy, common code is visible from more <code>@platform</code>-specific code, but not vice versa:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-...      
+|-src@ios/                  # sees declarations from src/ 
+|  |-...      
+|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
+|  |-...      
+|-src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/ 
+|  |-...      
+|-src@jvm/                  # sees declarations from src/
+|  |-...      
+|-module.yaml
+</code></pre></div></p>
+<p>You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
+code placed in <code>src@ios</code> is shared between <code>iosArm64</code> and <code>iosSimulatorArm64</code>, for instance.</p>
+<p>For <a href="https://kotlinlang.org/docs/multiplatform-connect-to-apis.html">Kotlin Multiplatform expect/actual declarations</a>, put your <code>expected</code> declarations into the <code>src/</code> folder, and <code>actual</code> declarations into the corresponding <code>src@&lt;platform&gt;/</code> folders. </p>
+<p>This hierarchy applies to <code>@platform</code>-qualified sections in the configuration files as well.
+We'll see how this works more precisely in the <a href="#multiplatform-dependencies">Multiplatform Dependencies</a> and
+<a href="#multiplatform-settings">Multiplatform Settings</a> sections.</p>
+<h4 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h4>
+<p>If the default hierarchy is not enough, you can define new groups of platforms by giving them an alias.
+You can then use the alias in places where <code>@platform</code> suffixes usually appear to share code, settings, or dependencies:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
+
+<span class="nt">aliases</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jvmAndAndroid</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># defines a custom alias for this group of platforms</span>
+
+<span class="c1"># these dependencies will be visible in jvm and android code</span>
+<span class="nt">dependencies@jvmAndAndroid</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+
+<span class="c1"># these dependencies will be visible in jvm code only</span>
+<span class="nt">dependencies@jvm</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+
+<span class="c1"># these settings will affect both jvm and android code, and the shared code placed in src@jvmAndAndroid</span>
+<span class="nt">settings@jvmAndAndroid</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">-jvm-default=no-compatibility</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>|-src/             
+|-src@jvmAndAndroid/ # sees declarations from src/ 
+|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
+|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
+</code></pre></div>
+<h3 id="multiplatform-dependencies">Multiplatform dependencies<a class="headerlink" href="#multiplatform-dependencies" title="Permanent link">&para;</a></h3>
+<p>When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.</p>
+<p>Example:
+To add a <a href="https://github.com/LighthouseGames/KmLogging">KmLogging library</a> to a multiplatform module, simply write</p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+</code></pre></div>
+The effective dependency lists are:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@android</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging-android:1.3.0</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging-iosarm64:1.3.0</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@jvm</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging-jvm:1.3.0</span>
+</code></pre></div></p>
+<p>For the explicitly specified dependencies in the <code>@platform</code>-sections the general <a href="#dependencysettings-propagation">propagation rules</a> apply. That is, for the given configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
+<span class="nt">dependencies@ios</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
+<span class="nt">dependencies@iosArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../baz</span>
+</code></pre></div>
+The effective dependency lists are:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@android</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosSimulatorArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../baz</span>
+</code></pre></div></p>
+<h3 id="multiplatform-settings">Multiplatform settings<a class="headerlink" href="#multiplatform-settings" title="Permanent link">&para;</a></h3>
+<p>All toolchain settings, even platform-specific can be placed in the <code>settings:</code> section:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Kotlin toolchain settings that are used for both platforms</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+
+<span class="w">  </span><span class="c1"># Android-specific settings are used only when building for android</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
+</code></pre></div></p>
+<p>There are situations when you need to override certain settings for a specific platform only.
+You can use <code>@platform</code>-qualifier. </p>
+<p>Note that certain platform names match the toolchain names, e.g. Android:</p>
+<ul>
+<li><code>settings@android</code> qualifier specifies settings for all Android target platforms</li>
+<li><code>settings:android:</code> is an Android toolchain settings   </li>
+</ul>
+<p>This could lead to confusion in cases like:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
+
+<span class="nt">settings@android</span><span class="p">:</span><span class="w">    </span><span class="c1"># settings to be used for Android target platform</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">           </span><span class="c1"># Android toolchain settings</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">        </span><span class="c1"># Kotlin toolchain settings</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+</code></pre></div>
+Luckily, there should rarely be a need for such a configuration.
+We also plan to address this by linting with conversion to a more readable form: <br />
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">           </span><span class="c1"># Android toolchain settings</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">        </span><span class="c1"># Kotlin toolchain settings</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+</code></pre></div></p>
+<p>For settings with the <code>@platform</code>-qualifiers, the <a href="#dependencysettings-propagation">propagation rules</a> apply.
+E.g., for the given configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w">           </span><span class="c1"># common toolchain settings</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">           </span><span class="c1"># Kotlin toolchain</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">              </span><span class="c1"># Android toolchain</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
+
+<span class="nt">settings@android</span><span class="p">:</span><span class="w">   </span><span class="c1"># specialization for Android platform</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w">  </span><span class="c1"># Compose toolchain</span>
+
+<span class="nt">settings@ios</span><span class="p">:</span><span class="w">       </span><span class="c1"># specialization for all iOS platforms</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">           </span><span class="c1"># Kotlin toolchain</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">y</span><span class="p p-Indicator">]</span>
+
+<span class="nt">settings@iosArm64</span><span class="p">:</span><span class="w">  </span><span class="c1"># specialization for iOS arm64 platform </span>
+<span class="w">  </span><span class="nt">ios</span><span class="p">:</span><span class="w">              </span><span class="c1"># iOS toolchain</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">z</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+The effective settings are:
+<div class="highlight"><pre><span></span><code><span class="nt">settings@android</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span><span class="w">   </span><span class="c1"># from settings:</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># from settings:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w">         </span><span class="c1"># from settings@android:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">                </span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span><span class="w">         </span><span class="c1"># from settings@android:</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">settings@iosArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w">      </span><span class="c1"># from settings@ios:</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">y</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># merged from settings: and settings@ios:</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">settings@iosSimulatorArm64</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w">      </span><span class="c1"># from settings@ios:</span>
+<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">y</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">z</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># merged from settings: and settings@ios: and settings@iosArm64:</span>
+</code></pre></div></p>
+<h3 id="dependencysettings-propagation">Dependency/Settings propagation<a class="headerlink" href="#dependencysettings-propagation" title="Permanent link">&para;</a></h3>
+<p>Common <code>dependencies:</code> and <code>settings:</code> are automatically propagated to the platform families and platforms in 
+<code>@platform</code>-sections, using the following rules:</p>
+<ul>
+<li>Scalar values (strings, numbers etc.) are overridden by more specialized <code>@platform</code>-sections.</li>
+<li>Mappings and lists are appended.</li>
+</ul>
+<p>Think of the rules like adding merging Java/Kotlin Maps.</p>
+<h2 id="serverside">Serverside<a class="headerlink" href="#serverside" title="Permanent link">&para;</a></h2>
+<p>For serverside development Amper natively supports Spring Boot and Ktor server.</p>
+<h3 id="spring-boot">Spring boot<a class="headerlink" href="#spring-boot" title="Permanent link">&para;</a></h3>
+<p>To enable Spring boot support, add the following to the <code>module.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">springBoot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>Setting <code>springBoot: enabled</code> performs the following actions:</p>
+<ul>
+<li>Applies Spring Dependencies BOM</li>
+<li>Adds <code>spring-boot-starter</code> dependency</li>
+<li>Adds <code>spring-boot-starter-test</code> test dependency</li>
+<li>Configures <code>all-open</code> and <code>no-arg</code> Kotlin compiler plugins</li>
+<li>Adds the necessary compiler arguments for <code>kotlinc</code> and <code>javac</code></li>
+<li>Contributes Spring Boot-related entries to the built-in library catalog</li>
+</ul>
+<p>Mixed projects (containing java and kotlin sources simultaneously) are supported.</p>
+<p>Examples of Spring Boot projects:</p>
+<ul>
+<li><a href="https://github.com/JetBrains/amper/tree/main/examples/spring-petclinic">spring-petclinic</a></li>
+<li><a href="https://github.com/JetBrains/amper/tree/main/examples/spring-petclinic-kotlin">spring-petclinic-kotlin</a></li>
+</ul>
+<h3 id="ktor">Ktor<a class="headerlink" href="#ktor" title="Permanent link">&para;</a></h3>
+<p>To enable Ktor support, add the following to the <code>module.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ktor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>Setting <code>ktor: enabled</code> performs the following actions:</p>
+<ul>
+<li>Applies Ktor BOM</li>
+<li>Contributes Ktor-related entries to a built-in library catalog</li>
+<li>Adds default jvmArgs when running the app</li>
+</ul>
+<p>Examples of Ktor projects:</p>
+<ul>
+<li><a href="https://github.com/JetBrains/amper/tree/main/examples/ktor-simplest-sample">ktor-simplest-sample</a></li>
+</ul>
+<h2 id="ios-support">iOS support<a class="headerlink" href="#ios-support" title="Permanent link">&para;</a></h2>
+<h3 id="xcode-project">Xcode Project<a class="headerlink" href="#xcode-project" title="Permanent link">&para;</a></h3>
+<p>Currently, an Xcode project is required to build an iOS application in Amper.
+It has to be named <code>module.xcodeproj</code> and located in the module root directory of the <code>ios/app</code> module.</p>
+<p>Normally, when the Amper project is created via <code>amper init</code> or via the IDE's Wizard, the appropriate Xcode project is
+already there. This is currently the recommended way of creating projects that have an iOS app module.</p>
+<p>However, if the Amper project is created from scratch, the default buildable Xcode project will be created automatically
+after the first project build.
+This project can later be customized and checked into a VCS.</p>
+<p>If you want to migrate an existing Xcode project so it has Amper support, you must manually ensure that:
+1. it is named <code>module.xcodeproj</code> and is located in the root of the <code>ios/app</code> module
+2. it has a single iOS application target
+3. the target has <code>Debug</code> &amp; <code>Release</code> build configurations, each containing <code>AMPER_WRAPPER_PATH = &lt;relative path to amper wrapper script&gt;</code>. 
+The path is relative to the Amper module root.
+4. the target has a script build phase called <code>Build Kotlin with Amper</code> with the code:
+   <div class="highlight"><pre><span></span><code><span class="w"> </span><span class="c1"># !AMPER KMP INTEGRATION STEP!</span>
+<span class="w"> </span><span class="c1"># This script is managed by Amper, do not edit manually!</span>
+<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AMPER_WRAPPER_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>tool<span class="w"> </span>xcode-integration
+</code></pre></div>
+5. The <em>Framework Search Paths</em> (<code>FRAMEWORK_SEARCH_PATHS</code>) option contains the <code>$(TARGET_BUILD_DIR)/AmperFrameworks</code> value</p>
+<p>Changes to the Xcode project that do not break these requirements are allowed.</p>
+<p>So the iOS app module layout looks like this:
+<div class="highlight"><pre><span></span><code>|-src/             
+|  |-KotlinCode.kt      # optional, if all the code is in the libraries
+|  |-EntryPoint.swift
+|  |-Info.plist
+|-module.yaml           # ios/app
+|-module.xcodeproj      # xcode project
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Xcode project can be built normally from the Xcode IDE, if needed.</p>
+</div>
+<h3 id="swift-support">Swift support<a class="headerlink" href="#swift-support" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Swift sources are only fully supported in the <code>src</code> directory of the <code>ios/app</code> module.</p>
+</div>
+<p>While swift sources are, strictly speaking, managed by the Xcode project and, as such,
+can reside in arbitrary locations, it's not recommended to have them anywhere outside the <code>src</code> directory - the tooling
+might not work correctly.</p>
+<p>To use Kotlin code from Swift, one must import the <code>KotlinModules</code> framework.
+This framework is built from:
+1. the code inside the <code>ios/app</code> module itself 
+2. the modules that <code>ios/app</code> module depends on (e.g. <code>- ../shared</code>)
+3. all the external dependencies, transitively</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All declarations from the source Kotlin code are accessible to Swift, while external dependencies are not.</p>
+</div>
+<h2 id="compose-hot-reload-experimental">Compose Hot Reload (experimental)<a class="headerlink" href="#compose-hot-reload-experimental" title="Permanent link">&para;</a></h2>
+<p>Amper supports <a href="https://github.com/JetBrains/compose-hot-reload">Compose Hot Reload</a>, allowing you to see UI changes in
+real-time without restarting the application. This significantly improves the developer experience by shortening the
+feedback loop during UI development.</p>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>To enable Compose Hot Reload set <code>compose.experimental.hotReload</code> to <code>enabled</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">experimental</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hotReload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>When you run your application with Compose Hot Reload enabled:</p>
+<ul>
+<li>Amper automatically downloads and runs <a href="https://github.com/JetBrains/JetBrainsRuntime">JetBrains Runtime</a> to maximize
+  hot-swap capabilities</li>
+<li>A Java agent for Compose Hot Reload is attached during execution</li>
+<li>A small Compose Hot Reload devtools icon appears next to the application window, indicating that the feature is active</li>
+</ul>
+<p><img alt="Compose Hot Reload dev tools" src="../images/hot-reload-devtools.png" /></p>
+<h3 id="ide-integration">IDE Integration<a class="headerlink" href="#ide-integration" title="Permanent link">&para;</a></h3>
+<p>When running your app from the IDE, you can get automatic recompilation and reloading based on file system changes,
+using the <a href="https://plugins.jetbrains.com/plugin/23076-amper">Amper IntelliJ plugin</a>.</p>
+<p>To configure it, you don't have to do anything, the plugin will automatically detect the presence of the Compose Hot
+Reload and enable the feature.</p>
+<p>When Compose Hot Reload is enabled, in the IDE you can see a special mode of running Amper application:
+<img alt="Compose Hot Reload special mode of running application" src="../images/hot-reload-guttericon.png" /></p>
+<h3 id="developmententrypoint">DevelopmentEntryPoint<a class="headerlink" href="#developmententrypoint" title="Permanent link">&para;</a></h3>
+<p>It's also possible to run specific composables as in the Compose Hot Reload mode. To do that, you need to put 
+<code>@DevelopmentEntryPoint</code> annotation on the composable function without parameters.
+A clickable gutter icon will appear on the left side of the composable.
+<img alt="Compose Hot Reload development entry point usage" src="../images/hot-reload-dev-entry-point.png" /></p>
+<h3 id="current-limitations">Current Limitations<a class="headerlink" href="#current-limitations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>You need to make sure that <code>jvm</code> is one of the platforms of the module.</li>
+<li>Amper doesn't watch the file system, so automatic reloads are only available when using the IDE</li>
+</ul>
+<h2 id="maven-like-module-layout">Maven-like module layout<a class="headerlink" href="#maven-like-module-layout" title="Permanent link">&para;</a></h2>
+<p>Amper is very opinionated about where to put your sources, resources, and tests. Read more about the standard project 
+layout in the <a href="#project-layout">corresponding section</a> of the documentation. This makes transitioning from other 
+tools harder because not only build scripts/files converting is required but also files must be moved manually according
+to Amper's conventions. To simplify transitioning, Amper provides an alternative layout that is compatible with Maven 
+and Gradle. The layout conforms to the
+<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>module/
+├── module.yaml
+└── src/
+    ├── main/
+    │   ├── java/
+    │   │   └── Main.java
+    │   ├── kotlin/
+    │   │   └── func.kt
+    │   └── resources/
+    │       └── input.txt
+    └── test/
+        ├── java/
+        │   └── JavaTest.java
+        ├── kotlin/
+        │   └── KotlinTest.kt
+        └── resources/
+            └── test-input.txt
+</code></pre></div>
+<p>Note: there is no difference between <code>java/</code> and <code>kotlin/</code> folders, Amper will look for java and kotlin sources in both 
+folders. It is only necessary for the sake of transitioning simplicity.</p>
+<p>Choosing the file layout is possible per module. </p>
+<p>To enable maven-like module layout, add the following to the <code>module.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">maven-like</span>
+</code></pre></div>
+<h2 id="templates">Templates<a class="headerlink" href="#templates" title="Permanent link">&para;</a></h2>
+<p>In modularized projects, there is often a need to have a certain common configuration for all or some modules.
+Typical examples could be a testing framework used in all modules or a Kotlin language version.</p>
+<p>Amper offers a way to extract whole sections or their parts into reusable template files. These files are named <code>&lt;name&gt;.module-template.yaml</code> and have the same structure as <code>module.yaml</code> files. Templates could be applied to any <code>module.yaml</code> in the <code>apply:</code> section.</p>
+<p>E.g. <code>module.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">apply</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../common.module-template.yaml</span>
+</code></pre></div></p>
+<p>../common.module-template.yaml:
+<div class="highlight"><pre><span></span><code><span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlin:kotlin-test:1.8.10</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+</code></pre></div></p>
+<p>Sections in the template can also have <code>@platform</code>-qualifiers. See the <a href="#multiplatform-configuration">Multiplatform configuration</a> section for details.</p>
+<blockquote>
+<p>Template files can't have <code>product:</code> and <code>apply:</code> sections. That is, templates can't be recursive and can't define product lists.</p>
+</blockquote>
+<p>Templates are applied one by one, using the same rules as <a href="#dependencysettings-propagation">platform-specific dependencies and settings</a>:</p>
+<ul>
+<li>Scalar values (strings, numbers etc.) are overridden.</li>
+<li>Mappings and lists are appended.</li>
+</ul>
+<p>Settings and dependencies from the <code>module.yaml</code> file are applied last. The position of the <code>apply:</code> section doesn't matter, the <code>module.yaml</code> file content always has precedence E.g.</p>
+<p><code>common.module-template.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../shared</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div></p>
+<p><code>module.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">apply</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./common.module-template.yaml</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../jvm-util</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
+<span class="w">  </span><span class="nt">jvm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">release</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+</code></pre></div></p>
+<p>After applying the template the resulting effective module is:
+<code>module.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span><span class="w">  </span><span class="c1"># lists appended</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../shared</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../jvm-util</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w">  </span><span class="c1"># objects merged</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w">  </span><span class="c1"># module.yaml overwrites value</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w">        </span><span class="c1"># from the template</span>
+<span class="w">  </span><span class="nt">jvm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">release</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span><span class="w">   </span><span class="c1"># from the module.yaml</span>
+</code></pre></div></p>
+<h2 id="packaging_1">Packaging<a class="headerlink" href="#packaging_1" title="Permanent link">&para;</a></h2>
+<p>Amper provides a <code>package</code> command to build a project for distribution.
+For <code>jvm/app</code> modules it produces executable jars which follow <a href="https://docs.spring.io/spring-boot/specification/executable-jar/index.html">The Executable Jar Format</a>.
+The executable JAR format, while commonly associated with Spring applications, is a universal packaging solution
+suitable for any JVM application. This format provides a convenient, runnable self-contained deployment unit that
+includes all necessary dependencies, but unlike the shadow jar approach, it is deprived of the duplicate processing
+problems.</p>
+<p>For <code>android/app</code> modules, see <a href="#packaging">Android packaging</a> section.</p>
+<h2 id="brief-yaml-reference">Brief YAML reference<a class="headerlink" href="#brief-yaml-reference" title="Permanent link">&para;</a></h2>
+<p>YAML describes a tree of mappings and values. Mappings have key-value pairs and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
+YAML is indent-sensitive.</p>
+<p>Here is a <a href="https://quickref.me/yaml.html">cheat-sheet</a> and <a href="https://yaml.org/spec/1.2.2/">YAML 1.2 specification</a>. </p>
+<p>Strings can be quoted or unquoted. These are equivalent: 
+<div class="highlight"><pre><span></span><code><span class="nt">string1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo bar</span>
+<span class="nt">string2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;foo</span><span class="nv"> </span><span class="s">bar&quot;</span>
+<span class="nt">string3</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;foo</span><span class="nv"> </span><span class="s">bar&#39;</span>
+</code></pre></div></p>
+<p>Mapping:
+<div class="highlight"><pre><span></span><code><span class="nt">mapping-name</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo bar</span>
+<span class="w">  </span><span class="nt">field2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2</span><span class="w">  </span>
+</code></pre></div></p>
+<p>List of values (strings):
+<div class="highlight"><pre><span></span><code><span class="nt">list-name</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo bar</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;bar</span><span class="nv"> </span><span class="s">baz&quot;</span><span class="w">  </span>
+</code></pre></div></p>
+<p>List of mapping:
+<div class="highlight"><pre><span></span><code><span class="nt">list-name</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">named-mapping</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">field1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span>
+<span class="w">      </span><span class="nt">field2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">y</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">field1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span>
+<span class="w">    </span><span class="nt">field2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">y</span>
+</code></pre></div></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.expand", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
