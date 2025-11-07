@@ -1,0 +1,76 @@
+name: publish-docs
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+    paths:
+      - 'docs/**'
+
+permissions:
+  contents: write # allow pushing commits to gh-pages
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # mike needs access to the gh-pages branch, and we also need
+          # tags to choose appropriate titles for the version selector
+          fetch-depth: 0  # needed for git tag lookup
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      # MkDocs to generate the docs, mike to handle versioning
+      - name: Install MkDocs and Mike
+        run: pip install mkdocs-material mkdocs-macros-plugin mike
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Compute mike version and title
+        id: meta
+        run: |
+          branch="${GITHUB_REF_NAME}"
+
+          if [[ "$branch" == "main" ]]; then
+            echo "version_id=dev" >> $GITHUB_OUTPUT
+            echo "version_title=dev" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # release/X.Y
+          major_minor="${branch#release/}"
+          echo "version_id=$major_minor" >> $GITHUB_OUTPUT
+
+          # latest patch tag vX.Y.Z for this major.minor release
+          tag=$(git tag --list "v${major_minor}.*" --sort=-v:refname | head -n1)
+
+          if [[ -n "$tag" ]]; then
+            # strip v to get "X.Y.Z"
+            echo "version_title=${tag#v}" >> $GITHUB_OUTPUT
+          else
+            # no published release yet for this release branch
+            echo "version_title=${major_minor} (coming soon)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy docs
+        working-directory: docs
+        env:
+          BUILD_BRANCH: ${{ github.ref_name }}
+        run: |
+          version_id="${{ steps.meta.outputs.version_id }}"
+          version_title="${{ steps.meta.outputs.version_title }}"
+
+          echo "Deploying version with ID: $version_id"
+          echo "Title (for the UI selector): $version_title"
+          echo "BUILD_BRANCH: $BUILD_BRANCH"
+
+          mike deploy "$version_id" --title "$version_title" --update --push

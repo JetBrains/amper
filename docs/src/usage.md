@@ -19,13 +19,15 @@ Windows PowerShell:
 Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat; ./amper update -c
 ```
 
-> [!NOTE]
-> The `./amper update -c` command will automatically get the wrapper script for the other OS. 
-> You can check both into your VCS so your team can build and run your project without any installation, on any OS.
+!!! note
 
-> [!NOTE]
-> The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
-> Subsequent runs will be faster, as the downloaded files will be cached locally.
+    The `./amper update -c` command will automatically get the wrapper script for the other OS. 
+    You can check both into your VCS so your team can build and run your project without any installation, on any OS.
+
+!!! note
+
+    The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
+    Subsequent runs will be faster, as the downloaded files will be cached locally.
 
 ### Exploring Amper commands
 
@@ -37,13 +39,14 @@ The root `./amper` command and all subcommands support the `-h` (or `--help`) op
 ```
 
 Useful commands:
+
 - `amper init` to create a new Amper project
 - `amper build` to compile and link all code in the project
 - `amper test` to run tests in the project
 - `amper run` to run your application 
 - `amper clean` to remove the project's build output and caches
 
-For example, to build and run the [JVM "Hello, World"](../examples/jvm):
+For example, to build and run the [JVM "Hello, World"]({{ examples_base_url }}/jvm):
 ```shell
 cd jvm
 ./amper run 
@@ -85,7 +88,7 @@ See `./amper update -h` for more information about the available options.
 > The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) can be used to work with 
 > JVM and Android projects.
 
-See [the setup instructions](Setup.md) to configure your IDE and the environment.
+See [the setup instructions](setup.md) to configure your IDE and the environment.
 
 Open an Amper project as usual by [pointing at the root folder](https://www.jetbrains.com/guide/java/tutorials/import-project/open-project/).
 

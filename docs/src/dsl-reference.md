@@ -41,7 +41,7 @@ modules:
 ### Product
 
 The `product:` section defines what should be produced out of the module.
-Read more about the [product types](Documentation.md#product-types).
+Read more about the [product types](documentation.md#product-types).
 
 | Attribute             | Description                                 |
 |-----------------------|---------------------------------------------|
@@ -93,7 +93,7 @@ product:
 An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
 have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as `@platform` qualifiers in the settings.
 
-Read more about [aliases](Documentation.md#aliases).
+Read more about [aliases](documentation.md#aliases).
 
 Examples:
 
@@ -113,7 +113,7 @@ dependencies@jvmAndAndroid:
 
 ### Templates
 
-`apply:` section lists the templates applied to the module. Read more about the [module templates](Documentation.md#templates)
+`apply:` section lists the templates applied to the module. Read more about the [module templates](documentation.md#templates)
 
 Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
 
@@ -131,27 +131,27 @@ apply:
 
 `dependencies:` section defines the list of modules and libraries necessary to build the module.
 Certain dependencies can also be exported as part of the module API.
-Read more about the [dependencies](Documentation.md#dependencies).
+Read more about the [dependencies](documentation.md#dependencies).
 
 `test-dependencies:` section defines the dependencies necessary to build and run tests of the module. Read more about
-the [module tests](Documentation.md#tests).
+the [module tests](documentation.md#tests).
 
 Supported dependency types:
 
 | Notation                                         | Description                                                                                                   |
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](Documentation.md#module-dependencies) in the codebase.                         |
-| `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
-| `- $<catalog.key>`                               | Dependency from [a dependency catalog](Documentation.md#library-catalogs-aka-version-catalogs).               |
-| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](Documentation.md#external-maven-bom-dependencies).                                      |
-| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](Documentation.md#library-catalogs-aka-version-catalogs).      |
+| `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](documentation.md#module-dependencies) in the codebase.                         |
+| `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](documentation.md#external-maven-dependencies) in a Maven repository. |
+| `- $<catalog.key>`                               | Dependency from [a dependency catalog](documentation.md#library-catalogs-aka-version-catalogs).               |
+| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](documentation.md#external-maven-bom-dependencies).                                      |
+| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](documentation.md#library-catalogs-aka-version-catalogs).      |
 
 Each dependency (except BOM) has the following attributes:
 
 | Attribute           | Description                                                                                                          | Default |
 |---------------------|----------------------------------------------------------------------------------------------------------------------|---------|
-| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](Documentation.md#scopes-and-visibility).       | `false` |
-| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](Documentation.md#scopes-and-visibility). | `all`   |
+| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](documentation.md#scopes-and-visibility).       | `false` |
+| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](documentation.md#scopes-and-visibility). | `all`   |
 
 Available scopes:
 
@@ -186,7 +186,7 @@ dependencies:
       scope: runtime-only
 ```
 
-The `dependencies:` section can also be [qualified with a platform](Documentation.md#platform-qualifier).
+The `dependencies:` section can also be [qualified with a platform](documentation.md#platform-qualifier).
 
 Examples:
 
@@ -204,7 +204,7 @@ dependencies@jvm:
 ### Repositories
 
 `repositories:` section defines the list of repositories used to look up and download the module dependencies.
-Read more about the [dependency repositories](Documentation.md#managing-maven-repositories).
+Read more about the [dependency repositories](documentation.md#managing-maven-repositories).
 
 | Attribute             | Description                                         | Default        | 
 |-----------------------|-----------------------------------------------------|----------------| 
@@ -212,7 +212,7 @@ Read more about the [dependency repositories](Documentation.md#managing-maven-re
 | `id: string`          | The ID of the repository, used for to reference it. | repository url |
 | `credentials: object` | Credentials for the authenticated repositories.     | empty          |
 
-Read more on the [repository configuration](Documentation.md#managing-maven-repositories)
+Read more on the [repository configuration](documentation.md#managing-maven-repositories)
 Credentials support username/password authentication and have the following attributes:
 
 | Attribute             | Description                                                                                       |
@@ -268,10 +268,10 @@ settings:
 ### Settings and test settings
 
 `settings:` section configures the toolchains used in the build process. Read more
-about [settings configuration](Documentation.md#settings).
+about [settings configuration](documentation.md#settings).
 
 `test-settings:` section controls building and running the module tests. Read more about
-the [module tests](Documentation.md#tests).
+the [module tests](documentation.md#tests).
 
 #### Kotlin
 
@@ -460,13 +460,13 @@ settings:
 | Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                               |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
 | `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
-| `mainClass: string`            | (Only for `jvm/app` [product type](Documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](Documentation.md#jvm) |
+| `mainClass: string`            | (Only for `jvm/app` [product type](documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](documentation.md#jvm) |
 | `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                 |
 
 ##### JVM Tests
 
 `settings:jvm:test:` configures the test settings on the JVM and Android platforms.
-Read more about [testing support](Documentation.md#tests).
+Read more about [testing support](documentation.md#tests).
 
 | Value                      | Description                                                                                                   |
 |----------------------------|---------------------------------------------------------------------------------------------------------------|
@@ -582,7 +582,7 @@ settings:
 #### Compose
 
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-framework. Read more about [Compose configuration](Documentation.md#configuring-compose-multiplatform).
+framework. Read more about [Compose configuration](documentation.md#configuring-compose-multiplatform).
 
 | Attribute              | Description                                                    | Default |
 |------------------------|----------------------------------------------------------------|---------|
@@ -649,7 +649,7 @@ settings:
 #### JUnit
 
 `settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
-about [testing support](Documentation.md#tests).
+about [testing support](documentation.md#tests).
 
 By default, JUnit 5 is used.
 

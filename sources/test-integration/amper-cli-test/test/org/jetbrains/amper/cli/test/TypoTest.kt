@@ -31,7 +31,7 @@ class TypoTest : AmperCliTestBase() {
             "run", "-p", "mingw",
             expectedError = "invalid value for -p: invalid choice: mingw. Did you mean mingwX64?\n\n" +
                     "Check the full list of supported platforms in the documentation:\n" +
-                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+                    "https://jetbrains.github.io/amper/documentation#multiplatform-projects"
         )
     }
 
@@ -41,7 +41,7 @@ class TypoTest : AmperCliTestBase() {
             "run", "-p", "windows",
             expectedError = "invalid value for -p: invalid choice: windows. Did you mean mingwX64?\n\n" +
                     "Check the full list of supported platforms in the documentation:\n" +
-                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+                    "https://jetbrains.github.io/amper/documentation#multiplatform-projects"
         )
     }
 
@@ -52,7 +52,7 @@ class TypoTest : AmperCliTestBase() {
             expectedError = "invalid value for -p: invalid choice: ios. Did you mean one of iosArm64, " +
                     "iosSimulatorArm64, iosX64?\n\n" +
                     "Check the full list of supported platforms in the documentation:\n" +
-                    "https://github.com/JetBrains/amper/blob/HEAD/docs/Documentation.md#multiplatform-projects"
+                    "https://jetbrains.github.io/amper/documentation#multiplatform-projects"
         )
     }
 

@@ -1,0 +1,56 @@
+name: update-docs-version-selection
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write # allow pushing commits to gh-pages
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # mike needs access to the gh-pages branch, and we also need
+          # tags to determine the latest version to set the default
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      # MkDocs to generate the docs, mike to handle versioning
+      - name: Install MkDocs and Mike
+        run: pip install mkdocs-material mkdocs-macros-plugin mike
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Deploy docs
+        working-directory: docs
+        run: |
+          # Remove leading v
+          tag_full_version=$(echo "${{github.ref_name}}" | sed 's/^v//')
+          # Remove trailing patch version
+          tag_major_minor="${tag_full_version%.*}"
+          
+          all_version_tags=$(git tag --list 'v*.*.*')
+          latest_full_version=$(echo "$all_version_tags" | sed 's/^v//' | sort -V | tail -n 1)
+          latest_major_minor="${latest_full_version%.*}"
+
+          echo "Update the selector title for the $tag_major_minor documentation to $tag_full_version"
+          mike retitle "$tag_major_minor" "$tag_full_version"
+
+          # The new tag may have become the new latest version (if it hasn't, this is harmless anyway)
+          echo "Update the default documentation version to $latest_major_minor"
+          mike set-default "$latest_major_minor"
+          echo "Update the 'latest' alias to point to $latest_major_minor"
+          mike alias "$latest_major_minor" latest --update-aliases
+
+          git push origin gh-pages

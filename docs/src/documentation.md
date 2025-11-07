@@ -6,9 +6,9 @@ or Ktor, multiplatform projects that share business logic and/or UI, and more.
 
 ## Before you start
 
-Check the [setup instructions](Setup.md).
+Check the [setup instructions](setup.md).
 
-See the [usage instructions](Usage.md#using-amper-from-the-command-line) to get started with the Amper CLI.
+See the [usage instructions](usage.md#using-amper-from-the-command-line) to get started with the Amper CLI.
 
 ## Basics
 
@@ -64,7 +64,7 @@ modules:
   - ./lib
 ```
 
-Check the [reference](DSLReference.md#modules) for more options to define the list of modules in the `project.yaml` file.
+Check the [reference](dsl-reference.md#modules) for more options to define the list of modules in the `project.yaml` file.
 
 
 ### Source code
@@ -238,6 +238,7 @@ dependencies:
 #### Scopes and visibility
 
 There are three dependency scopes:
+
 - `all` - (default) the dependency is available during compilation and runtime.  
 - `compile-only` - the dependency is only available during compilation. This is a 'provided' dependency in Maven terminology.
 - `runtime-only` - the dependency is not available during compilation, but available during testing and running
@@ -301,6 +302,7 @@ A library catalog associates keys to library coordinates (including the version)
 as dependencies to multiple modules without having to repeat the coordinates or the versions of the libraries.
 
 Amper currently supports 2 types of dependency catalogs:
+
 - toolchain catalogs (such as Kotlin, Compose Multiplatform etc.)
 - Gradle version catalogs that are placed in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration)
 
@@ -375,7 +377,7 @@ settings:
     compileSdk: 31
 ```
 
-Here is the list of [currently supported toolchains and their settings](DSLReference.md#settings-and-test-settings).   
+Here is the list of [currently supported toolchains and their settings](dsl-reference.md#settings-and-test-settings).   
 
 See [multiplatform settings configuration](#multiplatform-settings) for more details.
 
@@ -557,13 +559,14 @@ settings:
     mainClass: org.example.myapp.MyMainKt
 ```
 
-> [!NOTE]
-> In Kotlin, unlike Java, the `main` function doesn't have to be declared in a class, and is usually at the top level
-> of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
-> top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
-> the name and turning the `.kt` extension into a `Kt` suffix.
-> 
-> For example, the top-level declarations of `myMain.kt` will be in a class named `MyMainKt`.
+!!! note
+
+    In Kotlin, unlike Java, the `main` function doesn't have to be declared in a class, and is usually at the top level
+    of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
+    top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
+    the name and turning the `.kt` extension into a `Kt` suffix.
+    
+    For example, the top-level declarations of `myMain.kt` will be in a class named `MyMainKt`.
 
 ##### Native
 
@@ -665,7 +668,7 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 
 It is automatically used by Amper if present.
 
-An example of how to add custom R8 rules can be found [in the android-app module](../examples/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
+An example of how to add custom R8 rules can be found [in the android-app module]({{ examples_base_url }}/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 
 ##### Signing
 
@@ -839,6 +842,7 @@ You can implement your own processor in an Amper module as a regular JVM library
 other modules in your project.
 
 Usually, 3 modules are involved:
+
 * The _processor_ module, with the actual processor implementation
 * The _annotations_ module (optional), which contains annotations that the processor looks for in the consumer code
 * The _consumer_ module, which uses KSP with the custom processor
@@ -1353,6 +1357,7 @@ There are situations when you need to override certain settings for a specific p
 You can use `@platform`-qualifier. 
 
 Note that certain platform names match the toolchain names, e.g. Android:
+
 - `settings@android` qualifier specifies settings for all Android target platforms
 - `settings:android:` is an Android toolchain settings   
 
@@ -1429,7 +1434,9 @@ settings@iosSimulatorArm64:
 
 ### Dependency/Settings propagation
 
-Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms in `@platform`-sections, using the following rules:
+Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms in 
+`@platform`-sections, using the following rules:
+
 - Scalar values (strings, numbers etc.) are overridden by more specialized `@platform`-sections.
 - Mappings and lists are appended.
 
@@ -1450,6 +1457,7 @@ settings:
 ```
 
 Setting `springBoot: enabled` performs the following actions:
+
 *   Applies Spring Dependencies BOM
 *   Adds `spring-boot-starter` dependency
 *   Adds `spring-boot-starter-test` test dependency
@@ -1460,8 +1468,9 @@ Setting `springBoot: enabled` performs the following actions:
 Mixed projects (containing java and kotlin sources simultaneously) are supported.
 
 Examples of Spring Boot projects:
-* [spring-petclinic](../examples/spring-petclinic)
-* [spring-petclinic-kotlin](../examples/spring-petclinic-kotlin)
+
+* [spring-petclinic]({{ examples_base_url }}/spring-petclinic)
+* [spring-petclinic-kotlin]({{ examples_base_url }}/spring-petclinic-kotlin)
 
 ### Ktor
 
@@ -1474,12 +1483,14 @@ settings:
 ```
 
 Setting `ktor: enabled` performs the following actions:
+
 *   Applies Ktor BOM
 *   Contributes Ktor-related entries to a built-in library catalog
 *   Adds default jvmArgs when running the app
 
 Examples of Ktor projects:
-* [ktor-simplest-sample](../examples/ktor-simplest-sample)
+
+* [ktor-simplest-sample]({{ examples_base_url }}/ktor-simplest-sample)
 
 ## iOS support
 
@@ -1520,13 +1531,15 @@ So the iOS app module layout looks like this:
 |-module.xcodeproj      # xcode project
 ```
 
-> [!NOTE]
-> The Xcode project can be built normally from the Xcode IDE, if needed.
+!!! note
+
+    The Xcode project can be built normally from the Xcode IDE, if needed.
 
 ### Swift support
 
-> [!IMPORTANT]
-> Swift sources are only fully supported in the `src` directory of the `ios/app` module.
+!!! info
+
+    Swift sources are only fully supported in the `src` directory of the `ios/app` module.
 
 While swift sources are, strictly speaking, managed by the Xcode project and, as such,
 can reside in arbitrary locations, it's not recommended to have them anywhere outside the `src` directory - the tooling
@@ -1538,8 +1551,9 @@ This framework is built from:
 2. the modules that `ios/app` module depends on (e.g. `- ../shared`)
 3. all the external dependencies, transitively
 
-> [!NOTE]
-> All declarations from the source Kotlin code are accessible to Swift, while external dependencies are not.
+!!! note
+
+    All declarations from the source Kotlin code are accessible to Swift, while external dependencies are not.
 
 ## Compose Hot Reload (experimental)
 
@@ -1663,6 +1677,7 @@ Sections in the template can also have `@platform`-qualifiers. See the [Multipla
 > Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive and can't define product lists.
 
 Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
+
 - Scalar values (strings, numbers etc.) are overridden.
 - Mappings and lists are appended.
 

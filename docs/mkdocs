@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+#
+# Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+#
+
+docker run --rm -it -p 8000:8000 -v "${PWD}:/docs" hildan/mkdocs-material-with-macros serve --dev-addr=0.0.0.0:8000 --strict "$@"
