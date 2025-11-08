@@ -129,6 +129,13 @@ nav:
           - 'Ktor': user-guide/builtin-tech/ktor.md
           - 'Lombok': user-guide/builtin-tech/lombok.md
           - 'Spring Boot': user-guide/builtin-tech/spring.md
+      - 'Plugins':
+          - 'Overview': extensibility/overview.md
+          - 'Quick Start': extensibility/quick_start.md
+          - 'Plugin Structure': extensibility/topics/structure.md
+          - 'Configuration': extensibility/topics/configuration.md
+          - 'References': extensibility/topics/references.md
+          - 'Tasks': extensibility/topics/tasks.md
       - 'Advanced topics':
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
           - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
@@ -141,11 +148,14 @@ nav:
   - 'FAQ': faq.md
   - 'Releases ↗': https://github.com/JetBrains/amper/releases
 
+extra_css:
+  - stylesheets/extra.css
+
 extra:
   # The git_branch variable is used to generate the repo_filetree_url variable to link to repo files from the docs.
   # The MKDOCS_GIT_BRANCH variable is provided by the CI when building the docs.
-  # The HEAD fallback is to avoid breaking links locally.
-  git_branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
+  # The "main" fallback is to avoid breaking links locally.
+  git_branch: !ENV [MKDOCS_GIT_BRANCH, "main"]
   version:
     provider: mike # enables the version selector
 

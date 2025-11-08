@@ -627,3 +627,14 @@ settings:
     enabled: true
     version: 3.1.0 # version customization
 ```
+
+### `pluginInfo`
+
+`pluginInfo:` is only available if the `product.type` is `jvm/amper-plugin`.
+It configures plugin-specific build settings.
+
+| Attribute               | Description                                                                                                                                                                                 | Default     |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|  
+| `id: string`            | Plugin id that is going to be used to refer to the plugin in the configuration files.                                                                                                       | Module name |  
+| `description: string`   | Plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.                                                                            | `null`      |  
+| `settingsClass: string` | Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory. | `null`      |

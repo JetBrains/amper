@@ -50,12 +50,13 @@ We’re currently looking at various aspects, including extensibility, publicati
   [multiplatform resources](user-guide/builtin-tech/compose-multiplatform.md#using-multiplatform-resources) and
   [Compose Hot Reload](user-guide/builtin-tech/compose-multiplatform.md#compose-hot-reload-experimental)
 * [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs)
+* [x] Extensibility (Preview)
 
 Future directions:
 
-* [ ] Extensibility
 * [ ] Packaging, publication, distribution
 * [ ] Maven migration
+* [ ] More features for extensibility
 * [ ] Platform-specific test types, including android instrumented tests.
 * [ ] Native dependencies support, such as CocoaPods, Swift Package Manager
 * [ ] Build variants support

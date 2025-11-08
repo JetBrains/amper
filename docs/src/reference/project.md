@@ -35,3 +35,25 @@ Example:
 modules:
   - ./plugins/*
 ```
+
+## `plugins`
+
+`plugins:` section lists all the plugins that are available in the project.
+The list of plugin _dependencies_ to make *available* in the project modules.
+
+Example:
+```yaml
+plugins:
+  - ./my-plugin
+  - ./plugins/my-another-plugin
+```
+
+!!! info
+    Currently, only dependencies on **local** plugin modules are supported here,
+    as there are no published Amper plugins, and it's not possible to publish them yet.
+    So, the elements of this list use the same format as [module dependencies](../user-guide/dependencies.md#module-dependencies).
+
+Listing the plugins here does not *enable* them yet.
+Each plugin from this list can then be **enabled and configured** on a per-module basis.
+
+Learn more about the [plugin structure](../extensibility/topics/structure.md).

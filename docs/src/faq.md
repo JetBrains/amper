@@ -150,7 +150,7 @@ Please submit your requests and sugg estions in the
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility is not currently implemented in Amper, but we are working on it.
+Yes! Amper now includes a preview of a plugin system. See the dedicated [docs](extensibility/overview.md).
 
 ### How can I use C-interop in Amper?
 
