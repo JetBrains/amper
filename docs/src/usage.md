@@ -79,9 +79,10 @@ Use the `--dev` option if you want to try the bleeding edge dev build of Amper (
 
 See `./amper update -h` for more information about the available options.
 
-> [!NOTE]  
-> If you had generated a completion script before, you need to re-generate it with the new Amper version (see previous
-> section).
+!!! tip  
+
+    If you had generated a completion script before, you need to re-generate it with the new Amper version (see previous
+    section).
 
 ## Using Amper in IntelliJ IDEA
 
