@@ -1,13 +1,15 @@
 site_name: Amper
+site_description: "An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling."
 site_url: https://jetbrains.github.io/amper
-
-docs_dir: src
+site_author: JetBrains Amper team
 
 repo_name: amper
 repo_url: https://github.com/JetBrains/amper
 
-site_description: "An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling."
-site_author: JetBrains Amper team
+copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+
+# The default place for Markdown "source" files for the docs is "docs/", but that would result in docs/docs/ for us
+docs_dir: src
 
 theme:
   name: material
@@ -111,5 +113,3 @@ extra:
   git_branch: !ENV [BUILD_BRANCH, "HEAD"]
   version:
     provider: mike # enables the version selector
-
-copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
