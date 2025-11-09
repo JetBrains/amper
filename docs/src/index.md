@@ -58,8 +58,7 @@ Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tra
 
 Before reporting an issue, please check the [FAQ](faq.md).
 
-You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions,
-or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).
+You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
 
 ## Examples
 
