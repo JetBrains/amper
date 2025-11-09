@@ -19,6 +19,7 @@ theme:
     - content.code.annotate # to allow annotations (tooltips) inside code blocks
     - content.code.copy # to add a copy button to code blocks
     - navigation.expand # to make the navigation sections collapsible
+    - navigation.footer # for next/prev links at the bottom of each page
     - navigation.indexes # to be able to associate a Markdown file with the "root" of a section without a nested page
     - navigation.instant # to use XHR instead of reloading the page when following links
     - navigation.tabs # to turn the top-level navigation sections into tabs in the header bar
