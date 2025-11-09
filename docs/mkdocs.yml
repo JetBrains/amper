@@ -5,6 +5,7 @@ site_author: JetBrains Amper team
 
 repo_name: amper
 repo_url: https://github.com/JetBrains/amper
+edit_uri: edit/main/docs/
 
 copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
 
@@ -16,6 +17,7 @@ theme:
   logo: images/amper-logo.svg
   favicon: images/amper-logo.svg
   features:
+    - content.action.edit # adds an "Edit this page" button to each page
     - content.code.annotate # allows annotations (tooltips) inside code blocks
     - content.code.copy # adds a copy button to code blocks
     - navigation.expand # makes the navigation sections collapsible
