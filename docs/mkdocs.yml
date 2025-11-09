@@ -56,7 +56,8 @@ markdown_extensions:
   - pymdownx.highlight # for syntax highlighting in code blocks
   - pymdownx.inlinehilite # for inline code highlighting
   - pymdownx.superfences # required for code highlighting, tabs, and nested content in general
-  - pymdownx.tabbed # for tabs support
+  - pymdownx.tabbed: # for tabs support
+      alternate_style: true
   - tables
   - toc:
       permalink: true

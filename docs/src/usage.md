@@ -9,15 +9,21 @@ installation, no matter their OS.
 
 Use one of the following commands to download the script:
 
-Linux/macOS:
-```shell
-curl -fsSL -o amper https://jb.gg/amper-latest-wrapper.sh && chmod +x amper && ./amper update -c
-```
+=== "Linux / macOS"
+    
+    ```shell
+    curl -fsSL -o amper https://jb.gg/amper-latest-wrapper.sh && chmod +x amper && ./amper update -c
+    ```
 
-Windows PowerShell:
-```powershell
-Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat; ./amper update -c
-```
+=== "Windows"
+    
+    ```powershell title="PowerShell"
+    Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat; ./amper update -c
+    ```
+    
+    ```shell title="cmd.exe"
+    curl -fsSL -o amper.bat https://jb.gg/amper-latest-wrapper.bat && call amper update -c
+    ```
 
 !!! note
 
