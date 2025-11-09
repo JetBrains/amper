@@ -107,10 +107,10 @@ While both projects are still experimental, it's important that you provide your
 
 ### What are the requirements to use Amper?
 
-See the [setup instructions](setup.md).
+To learn about the required plugins in IntelliJ IDEA, see the [IDE setup instructions](getting-started/ide-setup.md).
 
 The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
-build iOS applications. See the [usage instructions](usage.md#using-amper-from-the-command-line).
+build iOS applications. See the [CLI instructions](getting-started/cli.md).
 
 The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) is advised to work with Amper projects.
 
@@ -120,8 +120,8 @@ You have several options:
 
 * Kick-start your project using one of the [examples]({{ examples_base_url }})
 
-* Download the Amper script by following the [usage instructions](usage.md), and generate a project from a template 
-  using the `amper init` command.
+* Download the Amper script by following the [usage instructions](getting-started/cli.md), and generate a project 
+  from a template using the `amper init` command.
 
 ### How do I create a multi-module project in Amper?
 

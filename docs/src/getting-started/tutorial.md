@@ -2,11 +2,12 @@
 
 This tutorial gives a short introduction to Amper and how to create a new project.
 
-If you are looking for more detailed information, check [the user guide](user-guide/index.md).
+If you are looking for more detailed information, check [the user guide](../user-guide/index.md).
 
 ## Before you start
 
-Check the [setup instructions](setup.md).
+If you want to use IntelliJ IDEA to write the code, check the [IDE setup instructions](ide-setup.md) to get the relevant
+plugins.
 
 ## Step 1. Hello, World
 
@@ -15,7 +16,7 @@ Here is what we do:
 
 Create a `module.yaml` file at the root of your project:
 
-```YAML
+```YAML title="module.yaml"
 product: jvm/app
 ```
 
@@ -27,8 +28,7 @@ And add some code in the `src/` folder:
 |-module.yaml
 ```
 
-`main.kt` file:
-```kotlin
+```kotlin title="main.kt"
 fun main() {
     println("Hello, World!")
 }
@@ -37,7 +37,7 @@ fun main() {
 You also need to add the Amper shell scripts to your root project folder.
 
 * If you're in IntelliJ IDEA, you can simply use the quick fix in `module.yaml` to "Configure standalone Amper".
-* If not, follow the [CLI installation instructions](./usage.md#installation) to download them.
+* If not, follow the [CLI installation instructions](./cli.md#installation) to download them.
 
 Your project should now look like this:
 ```
@@ -60,15 +60,29 @@ no need to create separate Maven-like `java/` and `kotlin/` folders:
 |-module.yaml
 ```
 
-Examples: [JVM "Hello, World!"]({{ examples_base_url }}/jvm)
-
 You can now build your application using `./amper build`, or run it using `./amper run`.
 
-> To go further, you can check these sections of the documentation:
-> 
-> - [Project layout](user-guide/basics.md#project-layout)
-> - [Module file anatomy](user-guide/basics.md#module-file-anatomy)
-> - [Using Amper from the command line](usage.md#using-amper-from-the-command-line)
+??? info "Run it directly from IntelliJ IDEA"
+
+    If you're using IntelliJ IDEA, you use the :fontawesome-solid-play: Run icon in any of those places:
+
+      * next to the `product: ` section in `module.yaml`:
+      
+      ![img.png](../images/ij-run-product.png)
+      
+      * next to the `main()` function in `main.kt`:
+      
+      ![](../images/ij-run-main.png)
+      
+      * use [Run/Debug configurations](https://www.jetbrains.com/help/idea/run-debug-configuration.html):
+      
+      ![](../images/ij-run-config-jvm.png)
+
+!!! abstract "Related documentation"
+
+    - [Project layout](../user-guide/basics.md#project-layout)
+    - [Module file anatomy](../user-guide/basics.md#module-file-anatomy)
+    - [Using Amper from the command line](cli.md#using-amper-from-the-command-line)
 
 ## Step 2. Add dependencies
 
@@ -92,7 +106,7 @@ fun main() {
 }
 ```
 
-> See the full documentation about [Dependencies](user-guide/dependencies.md).
+!!! abstract "Related documentation: [Dependencies](../user-guide/dependencies.md)"
 
 ## Step 3. Add tests
 
@@ -132,9 +146,9 @@ test-dependencies:
   - io.mockk:mockk:1.13.10
 ```
 
-Examples: [JVM "Hello, World!"]({{ examples_base_url }}/jvm)
+!!! example "Example: [JVM "Hello, World!"]({{ examples_base_url }}/jvm)"
 
-> See the full documentation about [Tests](user-guide/testing.md).
+!!! abstract "Related documentation: [Testing](../user-guide/testing.md)"
 
 ## Step 4. Configure Java and Kotlin
 
@@ -156,7 +170,7 @@ settings:
     release: 17  # Set the minimum JVM version that the Kotlin and Java code should be compatible with.
 ```
 
-> See the full documentation about [Settings](user-guide/basics.md#settings).
+!!! abstract "Related documentation: [Settings](../user-guide/basics.md#settings)"
 
 ## Step 5. Add a UI with Compose
 
@@ -188,7 +202,7 @@ settings:
 
     The `$compose.*` dependencies are declared with a special reference syntax here.
     These are references to the Compose toolchain library catalog, and are available because we enabled the toolchain.
-    Read more about library catalogs in the [documentation](user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
+    Read more about library catalogs in the [documentation](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
 
 We can then replace the contents of `main.kt` with the following code:
 
@@ -206,14 +220,14 @@ fun main() = application {
 
 Now we have a GUI application!
 
-Examples:
+!!! example "Examples"
 
-- [Compose Desktop]({{ examples_base_url }}/compose-desktop)
-- [Compose Android]({{ examples_base_url }}/compose-android)
-- [Compose iOS]({{ examples_base_url }}/compose-ios)
-- [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
+    - [Compose Desktop]({{ examples_base_url }}/compose-desktop)
+    - [Compose Android]({{ examples_base_url }}/compose-android)
+    - [Compose iOS]({{ examples_base_url }}/compose-ios)
+    - [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
 
-> See the full documentation about [Compose](user-guide/builtin-tech/compose.md).
+!!! abstract "Related documentation: [Compose](../user-guide/builtin-tech/compose.md)"
 
 ## Step 6. Modularize
 
@@ -317,14 +331,15 @@ fun main() = application {
 
 We now have a multi-module project with some neatly extracted shared code.
 
-Examples: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
+!!! example "Example: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)"
 
-> See the full documentation about:
-> - [Project layout](user-guide/basics.md#project-layout)
-> - [Module dependencies](user-guide/dependencies.md#module-dependencies)
-> - [Dependency visibility and scope](user-guide/dependencies.md#scopes-and-visibility)
+!!! abstract "Related documentation"
 
-## Step 7. Make project multiplatform
+    - [Project layout](../user-guide/basics.md#project-layout)
+    - [Module dependencies](../user-guide/dependencies.md#module-dependencies)
+    - [Dependency visibility and scope](../user-guide/dependencies.md#scopes-and-visibility)
+
+## Step 7. Make the project multiplatform
 
 So far we've been working with a JVM platform to create a desktop application.
 Let's add an Android and an iOS application.
@@ -413,7 +428,7 @@ settings:
 Note how we used the `dependencies@jvm:` and `dependencies@android:` sections to specify JVM- and Android-specific dependencies.
 These dependencies will be added to the JVM and Android versions of the `shared` library correspondingly.
 They will also be available for the `jvm-app` and `android-app` modules, since they depend on the `shared` module.
-Read more about multiplatform configuration in the [documentation](user-guide/multiplatform.md).
+Read more about multiplatform configuration in the [documentation](../user-guide/multiplatform.md).
 
 Now, as we have the module structure, we need to add platform-specific application code to the Android and iOS modules.
 Create a `MainActivity.kt` file in `android-app/src` with the following content:
@@ -468,18 +483,20 @@ Make sure that your project structure looks like this:
 |-...
 ```
 
-Now you can build and run both apps using [the IntelliJ IDEA run configurations](usage.md#using-amper-in-intellij-idea).
+Now you can build and run both apps using [the IntelliJ IDEA run configurations](cli.md#using-amper-in-intellij-idea).
 
 !!! note
 
-    After the first build the Xcode project will appear beside the `module.yaml` in the `ios-app` module. 
+    After the first build, the Xcode project will appear beside the `module.yaml` in the `ios-app` module. 
     It can be checked into the VCS and customized (e.g. _Team_ (`DEVELOPMENT_TEAM`) setting).
-    See [iOS Support](user-guide/builtin-tech/ios.md) to learn more about the Xcode ↔ Amper interoperability.
+    See [iOS Support](../user-guide/builtin-tech/ios.md) to learn more about the Xcode ↔ Amper interoperability.
 
-Examples: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
+!!! example "Example: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)"
 
-> See the full documentation about [multiplatform configuration](user-guide/multiplatform.md) and
-> [configuring Compose Multiplatform](user-guide/builtin-tech/compose.md) more specifically.
+!!! abstract "Related documentation"
+
+    - [multiplatform configuration](../user-guide/multiplatform.md)
+    - [Compose](../user-guide/builtin-tech/compose.md)
 
 ## Step 8. Deduplicate common configuration
 
@@ -567,8 +584,8 @@ apply:
 You can put all common dependencies and settings into the template. It's also possible to have multiple templates 
 for various typical configurations in the project.
 
-> See the full documentation about [Templates](user-guide/templates.md).
+!!! abstract "Related documentation: [Templates](../user-guide/templates.md)"
 
 ## Further steps
 
-Check the [user guide](user-guide/index.md) and explore [example projects]({{ examples_base_url }}).
+Check the [user guide](../user-guide/index.md) and explore [example projects]({{ examples_base_url }}).

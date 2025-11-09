@@ -26,6 +26,13 @@ The application's entry point is specified in the AndroidManifest.xml file accor
 
 You can run your application using the `run` command.
 
+??? tip "Run in IntelliJ IDEA"
+
+    IntelliJ IDEA with the Amper plugin automatically detects the `android/app` product type and provides a run
+    configuration for it:
+
+    ![](../../images/ij-run-config-android.png)
+
 ## Packaging
 
 You can use the `build` command to create an APK, or the `package` command to create an Android Application Bundle (AAB).

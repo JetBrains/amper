@@ -84,9 +84,10 @@ watch:
 nav:
   - 'Home': index.md
   - 'Getting started':
-      - 'Setup': setup.md
-      - 'Tutorial': tutorial.md
-      - 'Usage': usage.md
+      - getting-started/index.md
+      - 'IDE setup': getting-started/ide-setup.md
+      - 'Tutorial': getting-started/tutorial.md
+      - 'Amper CLI': getting-started/cli.md
   - 'User guide':
       - user-guide/index.md
       - 'Basic concepts': user-guide/basics.md

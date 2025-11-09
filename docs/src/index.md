@@ -47,12 +47,9 @@ Future directions:
 * Build variants support.
 * Extensibility.
 
-For a quick start:
+## Getting started
 
-* [Setup](setup.md) and [usage](usage.md) instructions
-* [Tutorial](tutorial.md)
-* [User guide](user-guide/index.md)
-* [Example projects]({{ examples_base_url }})
+To get started and try out Amper, head over to our [Getting Started](getting-started/index.md) section.
 
 ## Issues and feedback
 
@@ -63,13 +60,6 @@ Before reporting an issue, please check the [FAQ](faq.md).
 
 You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions,
 or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).
-
-## How to Try
-
-There are multiple ways to try Amper:
-
-* In the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) ([instructions](usage.md#using-amper-in-intellij-idea)).
-* Using [Amper from the command line](usage.md#using-amper-from-the-command-line).
 
 ## Examples
 
@@ -157,7 +147,7 @@ the file layout. The qualifier organizes the code, dependencies, and settings fo
 
 Naturally, these examples show only a limited set of Amper features.
 To get more insight into design and functionality, look at the [user guide](user-guide/index.md),
-the [tutorial](tutorial.md), and [example projects](#more-examples).
+the [tutorial](getting-started/tutorial.md), and [example projects](#more-examples).
 
 ### More examples
 
