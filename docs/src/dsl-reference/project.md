@@ -1,6 +1,6 @@
 # Project file
 
-## Modules list
+## `modules`
 
 The `modules:` section lists all the modules in the project, except the root module.
 If a `module.yaml` is present at the root of the project, the root module is implicitly included and doesn't need to be

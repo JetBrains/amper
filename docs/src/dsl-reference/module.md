@@ -1,56 +1,6 @@
 # Module file
 
-## Product
-
-The `product:` section defines what should be produced out of the module.
-Read more about the [product types](../user-guide/basics.md#product-types).
-
-| Attribute             | Description                                 |
-|-----------------------|---------------------------------------------|
-| `type: enum`          | What type of product to generate.           |
-| `platform: enum list` | What platforms to generate the product for. |
-
-Supported product types and platforms:
-
-| Product Type   | Description                                                        | Platforms                                                     |
-|----------------|--------------------------------------------------------------------|---------------------------------------------------------------|
-| `lib`          | A reusable multiplatform library that other modules can depend on. | any (the list must be specified explicitly)                   |
-| `jvm/lib`      | A JVM library that other modules can depend on.                    | `jvm`                                                         |
-| `jvm/app`      | A JVM console or desktop application.                              | `jvm`                                                         |
-| `linux/app`    | A native Linux application.                                        | `linuxX86`, `linuxArm64`                                      |
-| `windows/app`  | A native Windows application.                                      | `mingwX64`                                                    |
-| `macos/app`    | A native macOS application.                                        | `macosX64`, `macosArm64`                                      |
-| `android/app`  | An Android VM application.                                         | `android`                                                     |
-| `ios/app`      | An iOS application.                                                | device: `iosArm64`, simulators: `iosX64`, `iosSimulatorArm64` |
-| `js/app`       | A JavaScript application.                                          | `js`                                                          |
-| `wasmJs/app`   | A Wasm (JS) application.                                           | `wasmJs`                                                      |
-| `wasmWasi/app` | A Wasm (WASI) application.                                         | `wasmWasi`                                                    |
-
-Check the list of all [Kotlin Multiplatform targets](https://kotlinlang.org/docs/native-target-support.html) and the 
-level of their support.
-
-Examples:
-
-```yaml
-# Short form, defaults to all supported platforms for the corresponding target:
-product: macos/app
-```
-
-```yaml
-# Full form, with an explicitly specified platform
-product:
-  type: macos/app
-  platforms: [ macosArm64, macosArm64 ]
-```
-
-```yaml
-# Multiplatform Library for JVM and Android platforms 
-product:
-  type: lib
-  platforms: [ jvm, android ]
-```
-
-## Aliases
+## `aliases`
 
 An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
 have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as `@platform` qualifiers in the settings.
@@ -73,7 +23,7 @@ dependencies@jvmAndAndroid:
   ...
 ```
 
-## Templates application
+## `apply`
 
 `apply:` section lists the templates applied to the module. Read more about the [module templates](../user-guide/templates.md)
 
@@ -89,7 +39,7 @@ apply:
   - ../common.module-template.yaml
 ```
 
-## Dependencies and test dependencies
+## `dependencies` and `test-dependencies`
 
 `dependencies:` section defines the list of modules and libraries necessary to build the module.
 Certain dependencies can also be exported as part of the module API.
@@ -163,7 +113,74 @@ dependencies@jvm:
   - org.postgresql:postgresql:42.3.3: runtime-only
 ```
 
-## Repositories
+## `layout`
+
+`layout` is a top-level field defines the module file structure. Field can accept values: `amper` and `maven-like`. The
+default value is `amper` which is the default module file layout.
+
+Examples:
+
+```yaml
+product: jvm/app
+
+layout: maven-like
+
+settings:
+  # ...
+
+```
+
+## `product`
+
+The `product:` section defines what should be produced out of the module.
+Read more about the [product types](../user-guide/basics.md#product-types).
+
+| Attribute             | Description                                 |
+|-----------------------|---------------------------------------------|
+| `type: enum`          | What type of product to generate.           |
+| `platform: enum list` | What platforms to generate the product for. |
+
+Supported product types and platforms:
+
+| Product Type   | Description                                                        | Platforms                                                     |
+|----------------|--------------------------------------------------------------------|---------------------------------------------------------------|
+| `lib`          | A reusable multiplatform library that other modules can depend on. | any (the list must be specified explicitly)                   |
+| `jvm/lib`      | A JVM library that other modules can depend on.                    | `jvm`                                                         |
+| `jvm/app`      | A JVM console or desktop application.                              | `jvm`                                                         |
+| `linux/app`    | A native Linux application.                                        | `linuxX86`, `linuxArm64`                                      |
+| `windows/app`  | A native Windows application.                                      | `mingwX64`                                                    |
+| `macos/app`    | A native macOS application.                                        | `macosX64`, `macosArm64`                                      |
+| `android/app`  | An Android VM application.                                         | `android`                                                     |
+| `ios/app`      | An iOS application.                                                | device: `iosArm64`, simulators: `iosX64`, `iosSimulatorArm64` |
+| `js/app`       | A JavaScript application.                                          | `js`                                                          |
+| `wasmJs/app`   | A Wasm (JS) application.                                           | `wasmJs`                                                      |
+| `wasmWasi/app` | A Wasm (WASI) application.                                         | `wasmWasi`                                                    |
+
+Check the list of all [Kotlin Multiplatform targets](https://kotlinlang.org/docs/native-target-support.html) and the
+level of their support.
+
+Examples:
+
+```yaml
+# Short form, defaults to all supported platforms for the corresponding target:
+product: macos/app
+```
+
+```yaml
+# Full form, with an explicitly specified platform
+product:
+  type: macos/app
+  platforms: [ macosArm64, macosArm64 ]
+```
+
+```yaml
+# Multiplatform Library for JVM and Android platforms 
+product:
+  type: lib
+  platforms: [ jvm, android ]
+```
+
+## `repositories`
 
 `repositories:` section defines the list of repositories used to look up and download the module dependencies.
 Read more about the [dependency repositories](../user-guide/dependencies.md#managing-maven-repositories).
@@ -210,24 +227,7 @@ repositories:
       passwordKey: my.private.repository.password  
 ```
 
-## Layout
-
-`layout` is a top-level field defines the module file structure. Field can accept values: `amper` and `maven-like`. The 
-default value is `amper` which is the default module file layout. 
-
-Examples:
-
-```yaml
-product: jvm/app
-
-layout: maven-like
-
-settings:
-  # ...
-
-```
-
-## Settings and test settings
+## `settings` and `test-settings`
 
 `settings:` section configures the toolchains used in the build process. Read more
 about [settings configuration](../user-guide/basics.md#settings).
@@ -235,7 +235,199 @@ about [settings configuration](../user-guide/basics.md#settings).
 `test-settings:` section controls building and running the module tests. Read more about
 the [module tests](../user-guide/testing.md).
 
-### Kotlin
+### `settings.android`
+
+`settings:android:` configures the Android toolchain and platform.
+
+| Attribute                     | Description                                                                                                                                                                                                                   | Default               |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| `applicationId: string`       | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
+| `namespace: string`           | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
+| `compileSdk: int`             | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
+| `targetSdk: int`              | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
+| `minSdk: int`                 | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
+| `maxSdk: int`                 | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
+| `signing: object`             | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
+| `versionCode: int`            | Version code. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | 1                     |
+| `versionName: string`         | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
+| `parcelize: object \| string` | Configure [Parcelize](https://developer.android.com/kotlin/parcelize).                                                                                                                                                        |                       |
+
+#### `settings.android.parcelize`
+
+`settings:android:parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
+platform in the module. The value can be the simple `enabled` string, or an object with the following attributes:
+
+| Attribute                            | Description                                                                                                                                                                                                                                                                                                                                                                | Default |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `enabled: boolean`                   | Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.                                                                                                                                                           |         |
+| `additionalAnnotations: string list` | The full-qualified names of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it. | (empty) |
+
+```yaml
+# Enables Parcelize to process @Parcelize-annotated classes (short form)
+settings:
+  android:
+    parcelize: enabled
+```
+
+```yaml
+# Enables Parcelize, and configures it to process a custom @com.example.MyCommonParcelize annotation
+settings:
+  android:
+    parcelize:
+      enabled: true
+      additionalAnnotations: [ com.example.MyCommonParcelize ]
+```
+
+#### `settings.android.signing`
+
+`settings:android:signing:` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
+
+
+| Attribute              | Description                                                                                            | Default               |
+|------------------------|--------------------------------------------------------------------------------------------------------|-----------------------|
+| `enabled: boolean`     | Whether signing enabled or not. [Read more](https://developer.android.com/studio/publish/app-signing). | false                 |
+| `propertiesFile: path` | Location of properties file. [Read more](https://developer.android.com/studio/publish/app-signing).    | ./keystore.properties |
+
+### `settings.compose`
+
+`settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
+framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose.md).
+
+| Attribute              | Description                                                    | Default |
+|------------------------|----------------------------------------------------------------|---------|
+| `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
+| `version: string`      | The Compose plugin version to use.                             | `1.7.3` |
+| `resources: object`    | Compose Resources settings.                                    |         |
+| `experimental: object` | Experimental Compose settings.                                 |         |
+
+`settings:compose:resources:` configures Compose Resources settings.
+
+| Attribute                   | Description                                                                                                                                                 | Default |
+|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `packageName: string`       | A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact. | `""`    |
+| `exposedAccessors: boolean` | Whether the generated resources accessors should be exposed to other modules (public) or internal.                                                          | `false` |
+
+`settings:compose:experimental:` configures experimental Compose features.
+
+| Attribute           | Description                               | Default |
+|---------------------|-------------------------------------------|---------|
+| `hotReload: object` | Experimental Compose hot-reload settings. |         |
+
+`settings:compose:experimental:hotReload:` configures experimental hot reload.
+
+| Attribute          | Description       | Default |
+|--------------------|-------------------|---------|
+| `enabled: boolean` | Enable hot reload | `false` |
+
+Examples:
+
+```yaml
+# Short form
+settings:
+  compose: enabled
+```
+
+```yaml
+# Full form
+settings:
+  compose:
+    enabled: true
+    version: 1.6.10
+```
+
+```yaml
+# Full form with resources configuration
+settings:
+  compose:
+    enabled: true
+    version: 1.6.10
+    resources:
+      packageName: "com.example.myapp.resources"
+      exposedAccessors: true
+```
+
+```yaml
+# With experimental hot reload enabled
+settings:
+  compose:
+    enabled: true
+    experimental:
+      hotReload: enabled
+```
+
+### `settings.java`
+
+`settings:java:` configures the Java language and the compiler.
+
+| Attribute                      | Description                         | Default |
+|--------------------------------|-------------------------------------|---------|
+| `annotationProcessing: object` | Java annotation processing settings | (empty) |
+
+#### `settings.java.annotationProcessing`
+
+`settings:java:annotationProcessing:` configures Java annotation processing.
+
+| Attribute               | Description                                                                                                                    | Default |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------|
+| `processors: list`      | The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates | (empty) |
+| `processorOptions: map` | Options to pass to annotation processors                                                                                       | (empty) |
+
+Examples:
+
+```yaml
+# Add an annotation processor
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - org.mapstruct:mapstruct-processor:1.6.3
+```
+
+```yaml
+# Add an annotation processor with options
+settings:
+  java:
+    annotationProcessing:
+      processors:
+        - $libs.auto.service # using catalog reference
+      processorOptions:
+        debug: true
+```
+
+### `settings.junit`
+
+`settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
+about [testing support](../user-guide/testing.md).
+
+By default, JUnit 5 is used.
+
+| Value     | Description                                                        |
+|-----------|--------------------------------------------------------------------|
+| `junit-5` | JUnit 5 dependencies and the test runner are configured (default). |
+| `junit-4` | JUnit 4 dependencies and the test runner are configured.           |
+| `none`    | JUnit is not automatically configured.                             |
+
+### `settings.jvm`
+
+`settings:jvm:` configures the JVM platform-specific settings.
+
+| Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                           |
+| `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
+| `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
+
+#### `settings.jvm.test`
+
+`settings:jvm:test:` configures the test settings on the JVM and Android platforms.
+Read more about [testing support](../user-guide/testing.md).
+
+| Value                      | Description                                                                                                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------|
+| `systemProperties: map`    | JVM system properties for the test process.                                                                   |
+| `jvmFreeArgs: string list` | Free JVM arguments for the test process.                                                                      |
+
+### `settings.kotlin`
 
 `settings:kotlin:` configures the Kotlin language and the compiler.
 
@@ -314,7 +506,7 @@ dependencies:
   - $kotlin.serialization.protobuf
 ```
 
-#### All-Open
+#### `settings.kotlin.allOpen`
 
 `settings:kotlin:allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html),
 which makes classes annotated with specific annotations open automatically without the explicit `open` keyword.
@@ -345,7 +537,7 @@ settings:
       presets: [ spring ]
 ```
 
-#### No-Arg
+#### `settings.kotlin.noArg`
 
 `settings:kotlin:noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html),
 which generates no-arg constructors for classes with specific annotations.
@@ -378,136 +570,7 @@ settings:
       invokeInitializers: true
 ```
 
-### Java
-
-`settings:java:` configures the Java language and the compiler.
-
-| Attribute                      | Description                         | Default |
-|--------------------------------|-------------------------------------|---------|
-| `annotationProcessing: object` | Java annotation processing settings | (empty) |
-
-#### Annotation Processing
-
-`settings:java:annotationProcessing:` configures Java annotation processing.
-
-| Attribute               | Description                                                                                                                    | Default |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------|
-| `processors: list`      | The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates | (empty) |
-| `processorOptions: map` | Options to pass to annotation processors                                                                                       | (empty) |
-
-Examples:
-
-```yaml
-# Add an annotation processor
-settings:
-  java:
-    annotationProcessing:
-      processors:
-        - org.mapstruct:mapstruct-processor:1.6.3
-```
-
-```yaml
-# Add an annotation processor with options
-settings:
-  java:
-    annotationProcessing:
-      processors:
-        - $libs.auto.service # using catalog reference
-      processorOptions:
-        debug: true
-```
-
-### JVM
-
-`settings:jvm:` configures the JVM platform-specific settings.
-
-| Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                           |
-| `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
-| `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
-
-#### JVM Tests
-
-`settings:jvm:test:` configures the test settings on the JVM and Android platforms.
-Read more about [testing support](../user-guide/testing.md).
-
-| Value                      | Description                                                                                                   |
-|----------------------------|---------------------------------------------------------------------------------------------------------------|
-| `systemProperties: map`    | JVM system properties for the test process.                                                                   |
-| `jvmFreeArgs: string list` | Free JVM arguments for the test process.                                                                      |
-
-#### Android
-
-`settings:android:` configures the Android toolchain and platform.
-
-| Attribute                     | Description                                                                                                                                                                                                                   | Default               |
-|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
-| `applicationId: string`       | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
-| `namespace: string`           | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
-| `compileSdk: int`             | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
-| `targetSdk: int`              | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
-| `minSdk: int`                 | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
-| `maxSdk: int`                 | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
-| `signing: object`             | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
-| `versionCode: int`            | Version code. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | 1                     |
-| `versionName: string`         | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
-| `parcelize: object \| string` | Configure [Parcelize](https://developer.android.com/kotlin/parcelize).                                                                                                                                                        |                       |
-
-#### Android signing
-
-`settings:android:signing:` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
-
-
-| Attribute              | Description                                                                                            | Default               |
-|------------------------|--------------------------------------------------------------------------------------------------------|-----------------------|
-| `enabled: boolean`     | Whether signing enabled or not. [Read more](https://developer.android.com/studio/publish/app-signing). | false                 |
-| `propertiesFile: path` | Location of properties file. [Read more](https://developer.android.com/studio/publish/app-signing).    | ./keystore.properties |
-
-#### Parcelize
-
-`settings:android:parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
-platform in the module. The value can be the simple `enabled` string, or an object with the following attributes:
-
-| Attribute                            | Description                                                                                                                                                                                                                                                                                                                                                                | Default |
-|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `enabled: boolean`                   | Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.                                                                                                                                                           |         |
-| `additionalAnnotations: string list` | The full-qualified names of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it. | (empty) |
-
-```yaml
-# Enables Parcelize to process @Parcelize-annotated classes (short form)
-settings:
-  android:
-    parcelize: enabled
-```
-
-```yaml
-# Enables Parcelize, and configures it to process a custom @com.example.MyCommonParcelize annotation
-settings:
-  android:
-    parcelize:
-      enabled: true
-      additionalAnnotations: [ com.example.MyCommonParcelize ]
-```
-
-### Native
-
-`settings:native:` configures settings specific to native applications.
-
-| Attribute            | Description                                                        | Default |
-|----------------------|--------------------------------------------------------------------|---------|
-| `entryPoint: string` | The fully-qualified name of the application's entry point function | `null`  |
-
-Example:
-
-```yaml
-# Configure native settings for the module
-settings:
-  native:
-    entryPoint: com.example.MainKt.main
-```
-
-### Ktor
+### `settings.ktor`
 
 `settings:ktor:` configures the Ktor.
 
@@ -525,105 +588,7 @@ settings:
     version: 2.3.2 # version customization
 ```
 
-### Spring Boot
-
-`settings:springBoot:` configures the Spring Boot framework (JVM platform only).
-
-| Attribute          | Description               | Default |
-|--------------------|---------------------------|---------|  
-| `enabled: boolean` | Enable Spring Boot        | `false` |  
-| `version: string`  | Spring Boot version       | `3.4.3` |  
-
-Example:
-
-```yaml
-settings:
-  springBoot:
-    enabled: true
-    version: 3.1.0 # version customization
-```
-
-### Compose
-
-`settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose.md).
-
-| Attribute              | Description                                                    | Default |
-|------------------------|----------------------------------------------------------------|---------|
-| `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
-| `version: string`      | The Compose plugin version to use.                             | `1.7.3` |
-| `resources: object`    | Compose Resources settings.                                    |         |
-| `experimental: object` | Experimental Compose settings.                                 |         |
-
-`settings:compose:resources:` configures Compose Resources settings.
-
-| Attribute                   | Description                                                                                                                                                 | Default |
-|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `packageName: string`       | A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact. | `""`    |
-| `exposedAccessors: boolean` | Whether the generated resources accessors should be exposed to other modules (public) or internal.                                                          | `false` |
-
-`settings:compose:experimental:` configures experimental Compose features.
-
-| Attribute           | Description                               | Default |
-|---------------------|-------------------------------------------|---------|
-| `hotReload: object` | Experimental Compose hot-reload settings. |         |
-
-`settings:compose:experimental:hotReload:` configures experimental hot reload.
-
-| Attribute          | Description       | Default |
-|--------------------|-------------------|---------|
-| `enabled: boolean` | Enable hot reload | `false` |
-
-Examples:
-
-```yaml
-# Short form
-settings:
-  compose: enabled
-```
-
-```yaml
-# Full form
-settings:
-  compose:
-    enabled: true
-    version: 1.6.10
-```
-
-```yaml
-# Full form with resources configuration
-settings:
-  compose:
-    enabled: true
-    version: 1.6.10
-    resources:
-      packageName: "com.example.myapp.resources"
-      exposedAccessors: true
-```
-
-```yaml
-# With experimental hot reload enabled
-settings:
-  compose:
-    enabled: true
-    experimental:
-      hotReload: enabled
-```
-
-### JUnit
-
-`settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
-about [testing support](../user-guide/testing.md).
-
-By default, JUnit 5 is used.
-
-| Value     | Description                                                        |
-|-----------|--------------------------------------------------------------------|
-| `junit-5` | JUnit 5 dependencies and the test runner are configured (default). |
-| `junit-4` | JUnit 4 dependencies and the test runner are configured.           |
-| `none`    | JUnit is not automatically configured.                             |
-
-### Lombok
+### `settings.lombok`
 
 `settings:lombok:` configures Lombok.
 
@@ -639,41 +604,37 @@ settings:
     enabled: true
 ```
 
-### Kover
+### `settings.native`
 
-`settings:kover:` configures Kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+`settings:native:` configures settings specific to native applications.
 
-| Attribute          | Description                    | Default |
-|--------------------|--------------------------------|---------|
-| `enabled: boolean` | Enable code overage with Kover | `false` |
+| Attribute            | Description                                                        | Default |
+|----------------------|--------------------------------------------------------------------|---------|
+| `entryPoint: string` | The fully-qualified name of the application's entry point function | `null`  |
 
-`settings:kover:html` configures HTML reports
+Example:
 
-| Attribute       | Description                                                           | Default     |
-|-----------------|-----------------------------------------------------------------------|-------------|
-| `title: string` | The title for the coverage report                                     | `null`      |
-| `reportDir`     | The directory (relative to project root) to store coverage reports in | `null`      |
-| `onCheck`       | Run html report on check task                                         | `null`      |
-| `charset`       | Charset to pass to kover                                              | `null`      |
+```yaml
+# Configure native settings for the module
+settings:
+  native:
+    entryPoint: com.example.MainKt.main
+```
 
-`settings:kover:xml` configures XML reports
+### `settings.springBoot`
 
-| Attribute       | Description                                                      | Default     |
-|-----------------|------------------------------------------------------------------|-------------|
-| `reportFile`    | The file (relative to project root) to store coverage reports in | `null`      |
-| `onCheck`       | Run html report on check task                                    | `null`      |
+`settings:springBoot:` configures the Spring Boot framework (JVM platform only).
 
-Examples:
+| Attribute          | Description               | Default |
+|--------------------|---------------------------|---------|  
+| `enabled: boolean` | Enable Spring Boot        | `false` |  
+| `version: string`  | Spring Boot version       | `3.4.3` |  
+
+Example:
 
 ```yaml
 settings:
-  kover:
+  springBoot:
     enabled: true
-    html:
-      title: "A title"
-      reportDir: build/report
-      onCheck: true
-    xml:
-      onCheck: true
-      reportFile: build/report.xml
+    version: 3.1.0 # version customization
 ```

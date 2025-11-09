@@ -51,7 +51,7 @@ modules:
   - ./lib
 ```
 
-Check the [reference](../dsl-reference/project.md#modules-list) for more options to define the list of modules in the 
+Check the [reference](../dsl-reference/project.md#modules) for more options to define the list of modules in the 
 `project.yaml` file.
 
 
