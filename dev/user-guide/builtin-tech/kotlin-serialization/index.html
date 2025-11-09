@@ -12,28 +12,28 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/usage/">
+        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/kotlin-serialization/">
       
       
-        <link rel="prev" href="../tutorial/">
+        <link rel="prev" href="../ios/">
       
       
-        <link rel="next" href="../user-guide/">
+        <link rel="next" href="../ktor/">
       
       
-      <link rel="icon" href="../images/amper-logo.svg">
+      <link rel="icon" href="../../../images/amper-logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
     
     
       
-        <title>Usage - Amper</title>
+        <title>Kotlin serialization - Amper</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.84d31ad4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.84d31ad4.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,7 +52,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#using-amper-from-the-command-line" class="md-skip">
+        <a href="#kotlin-serialization" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +96,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../images/amper-logo.svg" alt="logo">
+  <img src="../../../images/amper-logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Usage
+              Kotlin serialization
             
           </span>
         </div>
@@ -243,7 +243,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -262,7 +262,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../setup/" class="md-tabs__link">
+      <a href="../../../setup/" class="md-tabs__link">
         
   
   
@@ -281,7 +281,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../tutorial/" class="md-tabs__link">
+      <a href="../../../tutorial/" class="md-tabs__link">
         
   
   
@@ -298,11 +298,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../usage/" class="md-tabs__link">
         
   
   
@@ -319,11 +317,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../user-guide/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
           
   
   
@@ -343,7 +343,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../dsl-reference/project/" class="md-tabs__link">
+        <a href="../../../dsl-reference/project/" class="md-tabs__link">
           
   
   
@@ -361,7 +361,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../faq/" class="md-tabs__link">
+      <a href="../../../faq/" class="md-tabs__link">
         
   
   
@@ -415,9 +415,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../images/amper-logo.svg" alt="logo">
+  <img src="../../../images/amper-logo.svg" alt="logo">
 
     </a>
     Amper
@@ -444,7 +444,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -466,7 +466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup/" class="md-nav__link">
+      <a href="../../../setup/" class="md-nav__link">
         
   
   
@@ -488,7 +488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorial/" class="md-nav__link">
+      <a href="../../../tutorial/" class="md-nav__link">
         
   
   
@@ -507,30 +507,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Usage
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../usage/" class="md-nav__link">
         
   
   
@@ -541,84 +521,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#using-amper-from-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using Amper from the command line
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using Amper from the command line">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#exploring-amper-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      Exploring Amper commands
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#amper-cli-tab-completion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Amper CLI tab-completion
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#updating-amper-to-a-newer-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      Updating Amper to a newer version
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-amper-in-intellij-idea" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using Amper in IntelliJ IDEA
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -627,26 +529,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -659,7 +564,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             User guide
@@ -673,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         
   
   
@@ -696,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/basics/" class="md-nav__link">
+      <a href="../../basics/" class="md-nav__link">
         
   
   
@@ -719,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/dependencies/" class="md-nav__link">
+      <a href="../../dependencies/" class="md-nav__link">
         
   
   
@@ -742,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/multiplatform/" class="md-nav__link">
+      <a href="../../multiplatform/" class="md-nav__link">
         
   
   
@@ -765,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/testing/" class="md-nav__link">
+      <a href="../../testing/" class="md-nav__link">
         
   
   
@@ -788,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/templates/" class="md-nav__link">
+      <a href="../../templates/" class="md-nav__link">
         
   
   
@@ -808,8 +713,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -818,13 +725,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" checked>
         
           
           <label class="md-nav__link" for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
@@ -840,7 +745,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_7">
             <span class="md-nav__icon md-icon"></span>
             Built-in technologies
@@ -854,7 +759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/android/" class="md-nav__link">
+      <a href="../android/" class="md-nav__link">
         
   
   
@@ -877,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/compose/" class="md-nav__link">
+      <a href="../compose/" class="md-nav__link">
         
   
   
@@ -900,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/ios/" class="md-nav__link">
+      <a href="../ios/" class="md-nav__link">
         
   
   
@@ -920,10 +825,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Kotlin serialization
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -934,6 +861,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#more-control-over-serialization-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      More control over serialization formats
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -946,7 +902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/ktor/" class="md-nav__link">
+      <a href="../ktor/" class="md-nav__link">
         
   
   
@@ -969,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/lombok/" class="md-nav__link">
+      <a href="../lombok/" class="md-nav__link">
         
   
   
@@ -992,7 +948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/builtin-tech/spring/" class="md-nav__link">
+      <a href="../spring/" class="md-nav__link">
         
   
   
@@ -1066,7 +1022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/advanced/ksp/" class="md-nav__link">
+      <a href="../../advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1089,7 +1045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/advanced/java-annotation-processing/" class="md-nav__link">
+      <a href="../../advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1112,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/advanced/compiler-plugins/" class="md-nav__link">
+      <a href="../../advanced/compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1135,7 +1091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/advanced/maven-like-layout/" class="md-nav__link">
+      <a href="../../advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1166,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/yaml-primer/" class="md-nav__link">
+      <a href="../../yaml-primer/" class="md-nav__link">
         
   
   
@@ -1239,7 +1195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dsl-reference/project/" class="md-nav__link">
+      <a href="../../../dsl-reference/project/" class="md-nav__link">
         
   
   
@@ -1262,7 +1218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dsl-reference/module/" class="md-nav__link">
+      <a href="../../../dsl-reference/module/" class="md-nav__link">
         
   
   
@@ -1292,7 +1248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   
@@ -1346,6 +1302,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1354,60 +1312,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-amper-from-the-command-line" class="md-nav__link">
+  <a href="#more-control-over-serialization-formats" class="md-nav__link">
     <span class="md-ellipsis">
-      Using Amper from the command line
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Using Amper from the command line">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#exploring-amper-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      Exploring Amper commands
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#amper-cli-tab-completion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Amper CLI tab-completion
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#updating-amper-to-a-newer-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      Updating Amper to a newer version
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-amper-in-intellij-idea" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using Amper in IntelliJ IDEA
+      More control over serialization formats
     </span>
   </a>
   
@@ -1432,102 +1339,75 @@
   
 
 
-  <h1>Usage</h1>
+<h1 id="kotlin-serialization">Kotlin Serialization<a class="headerlink" href="#kotlin-serialization" title="Permanent link">&para;</a></h1>
+<p><a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin Serialization</a> is the official multiplatform and multi-format
+serialization library for Kotlin.</p>
+<p>If you need to (de)serialize Kotlin classes to/from JSON, you can enable Kotlin Serialization it in its simplest form:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w">  </span><span class="c1"># JSON or other format</span>
+</code></pre></div>
+This snippet configures the compiler to process <code>@Serializable</code> classes, and adds dependencies on the serialization
+runtime and JSON format libraries.</p>
+<p>You can also customize the version of the Kotlin Serialization libraries using the full form of the configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
+</code></pre></div>
+<h2 id="more-control-over-serialization-formats">More control over serialization formats<a class="headerlink" href="#more-control-over-serialization-formats" title="Permanent link">&para;</a></h2>
+<p>If you don't need serialization format dependencies or if you need more control over them, you can use the following:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w"> </span><span class="c1"># configures the compiler and serialization runtime library</span>
+</code></pre></div>
+This snippet on its own only configures the compiler and the serialization runtime library, but doesn't add any format
+dependency. However, it adds a built-in catalog with official serialization formats libraries, which you can use in
+your <code>dependencies</code> section. This is useful in multiple cases:</p>
+<ul>
+<li>
+<p>if you need a format dependency only in tests:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
 
-<h2 id="using-amper-from-the-command-line">Using Amper from the command line<a class="headerlink" href="#using-amper-from-the-command-line" title="Permanent link">&para;</a></h2>
-<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
-<p>To use the Amper CLI, you need to download the Amper executable script to your project's root folder.
-The script is a small file that downloads and runs the actual Amper CLI distribution, and serves as an entry point for
-all Amper commands. It is meant to be checked into your VCS, so your team can build and run your project without any
-installation, no matter their OS.</p>
-<p>Use one of the following commands to download the script:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Linux / macOS</label><label for="__tabbed_1_2">Windows</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>amper<span class="w"> </span>https://jb.gg/amper-latest-wrapper.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>amper<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./amper<span class="w"> </span>update<span class="w"> </span>-c
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><span class="filename">PowerShell</span><pre><span></span><code><span class="nb">Invoke-WebRequest</span> <span class="n">-OutFile</span> <span class="n">amper</span><span class="p">.</span><span class="n">bat</span> <span class="n">-Uri</span> <span class="n">https</span><span class="p">://</span><span class="n">jb</span><span class="p">.</span><span class="n">gg</span><span class="p">/</span><span class="n">amper-latest-wrapper</span><span class="p">.</span><span class="n">bat</span><span class="p">;</span> <span class="p">./</span><span class="n">amper</span> <span class="n">update</span> <span class="n">-c</span>
-</code></pre></div>
-<div class="highlight"><span class="filename">cmd.exe</span><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>amper.bat<span class="w"> </span>https://jb.gg/amper-latest-wrapper.bat<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>call<span class="w"> </span>amper<span class="w"> </span>update<span class="w"> </span>-c
-</code></pre></div>
-</div>
-</div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code>./amper update -c</code> command will automatically get the wrapper script for the other OS. 
-You can check both into your VCS so your team can build and run your project without any installation, on any OS.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The first time you run the Amper script, it will take some time to download the Amper CLI distribution.
-Subsequent runs will be faster, as the downloaded files will be cached locally.</p>
-</div>
-<h3 id="exploring-amper-commands">Exploring Amper commands<a class="headerlink" href="#exploring-amper-commands" title="Permanent link">&para;</a></h3>
-<p>The root <code>./amper</code> command and all subcommands support the <code>-h</code> (or <code>--help</code>) option to explore what is possible:</p>
-<div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>--help<span class="w">       </span><span class="c1"># shows the available commands and general options</span>
-./amper<span class="w"> </span>build<span class="w"> </span>--help<span class="w"> </span><span class="c1"># shows the options for the &#39;build&#39; command specifically</span>
-</code></pre></div>
-<p>Useful commands:</p>
-<ul>
-<li><code>amper init</code> to create a new Amper project</li>
-<li><code>amper build</code> to compile and link all code in the project</li>
-<li><code>amper test</code> to run tests in the project</li>
-<li><code>amper run</code> to run your application </li>
-<li><code>amper clean</code> to remove the project's build output and caches</li>
-</ul>
-<p>For example, to build and run the <a href="https://github.com/JetBrains/amper/tree/main/examples/jvm">JVM "Hello, World"</a>:
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>jvm
-./amper<span class="w"> </span>run<span class="w"> </span>
+<span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
 </code></pre></div></p>
-<h3 id="amper-cli-tab-completion">Amper CLI tab-completion<a class="headerlink" href="#amper-cli-tab-completion" title="Permanent link">&para;</a></h3>
-<p>If you’re using <code>bash</code>, <code>zsh</code>, or <code>fish</code>, you can generate a completion script to source as part of your shell’s
-configuration, to get tab completion for Amper commands.</p>
-<p>First, generate the completion script using the <code>generate-completion</code> command, specifying the shell you use:</p>
-<div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>generate-completion<span class="w"> </span>zsh<span class="w"> </span>&gt;<span class="w"> </span>~/amper-completion.sh
-</code></pre></div>
-<p>Then load the script in your shell (this can be added to <code>.bashrc</code>, <code>.zshrc</code>, or similar configuration files to load it
-automatically):</p>
-<div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>~/amper-completion.sh
-</code></pre></div>
-<p>You should now have tab completion available for Amper subcommands, options, and option values.</p>
-<h3 id="updating-amper-to-a-newer-version">Updating Amper to a newer version<a class="headerlink" href="#updating-amper-to-a-newer-version" title="Permanent link">&para;</a></h3>
-<p>Run <code>./amper update</code> to update the Amper scripts and distribution to the latest released version.
-Use the <code>--dev</code> option if you want to try the bleeding edge dev build of Amper (no guarantees are made on these builds).</p>
-<p>See <code>./amper update -h</code> for more information about the available options.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>If you had generated a completion script before, you need to re-generate it with the new Amper version (see previous
-section).</p>
-</div>
-<h2 id="using-amper-in-intellij-idea">Using Amper in IntelliJ IDEA<a class="headerlink" href="#using-amper-in-intellij-idea" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>The latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> can be used to work with 
-JVM and Android projects.</p>
-</blockquote>
-<p>See <a href="../setup/">the setup instructions</a> to configure your IDE and the environment.</p>
-<p>Open an Amper project as usual by <a href="https://www.jetbrains.com/guide/java/tutorials/import-project/open-project/">pointing at the root folder</a>.</p>
-<p>To run an application:</p>
-<ul>
-<li>
-<p>use the 'run' (<img alt="" src="../images/ij-run-gutter-icon.png" />) gutter icon next to the <code>product:</code> section in a <code>module.yaml</code> file:\
- <img alt="img.png" src="../images/ij-run-product.png" /></p>
 </li>
 <li>
-<p>use the 'run' (<img alt="" src="../images/ij-run-gutter-icon.png" />) gutter icon next to the <code>main()</code> function:\
-  <img alt="" src="../images/ij-run-main.png" /></p>
+<p>if you need to customize the scope of the format dependencies:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
+</code></pre></div></p>
 </li>
 <li>
-<p>use <a href="https://www.jetbrains.com/help/idea/run-debug-configuration.html">Run/Debug configurations</a>:\
-  <img alt="" src="../images/ij-run-config-jvm.png" />\
-  <img alt="" src="../images/ij-run-config-android.png" /></p>
+<p>if you need to expose format dependencies transitively:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>if you need multiple formats:
+  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
+</code></pre></div></p>
 </li>
 </ul>
-<p>To run tests, use the 'run' (<img alt="" src="../images/ij-run-gutter-icon.png" />) gutter icon next to the test functions or classes.
-Read more on <a href="https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test">testing in IntelliJ IDEA</a>.
-<img alt="" src="../images/ij-run-tests.png" /></p>
 
 
 
@@ -1580,10 +1460,10 @@ Read more on <a href="https://www.jetbrains.com/help/idea/work-with-tests-in-gra
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.instant", "navigation.tabs", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.instant", "navigation.tabs", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>
