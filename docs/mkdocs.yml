@@ -14,11 +14,15 @@ theme:
   logo: images/amper-logo.svg
   favicon: images/amper-logo.svg
   features:
-    - content.code.copy
-    - navigation.expand
-    - search.highlight
-    - search.share
-    - search.suggest
+    - content.code.annotate # to allow annotations (tooltips) inside code blocks
+    - content.code.copy # to add a copy button to code blocks
+    - navigation.expand # to make the navigation sections collapsible
+    - navigation.instant # to use XHR instead of reloading the page when following links
+    - navigation.tabs # to turn the top-level navigation sections into tabs in the header bar
+    - navigation.tracking # to update the URL bar with anchors as the user scrolls
+    - search.highlight # to highlight the search term in the target page when clicking a search result
+    - search.share # to allow deep linking to search results
+    - search.suggest # to enable completion in the search bar
   icon:
     repo: fontawesome/brands/github
   palette:
