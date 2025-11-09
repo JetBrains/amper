@@ -96,7 +96,7 @@ nav:
           - 'Android': user-guide/builtin-tech/android.md
           - 'Compose': user-guide/builtin-tech/compose.md
           - 'iOS': user-guide/builtin-tech/ios.md
-          - 'Kotlin serialization': user-guide/builtin-tech/kotlin-serialization.md
+          - 'Kotlin Serialization': user-guide/builtin-tech/kotlin-serialization.md
           - 'Ktor': user-guide/builtin-tech/ktor.md
           - 'Lombok': user-guide/builtin-tech/lombok.md
           - 'Spring Boot': user-guide/builtin-tech/spring.md
@@ -106,7 +106,7 @@ nav:
           - 'Compiler plugins': user-guide/advanced/compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
-  - 'DSL Reference':
+  - 'DSL reference':
     - 'project.yaml': dsl-reference/project.md
     - 'module.yaml': dsl-reference/module.md
   - 'FAQ': faq.md

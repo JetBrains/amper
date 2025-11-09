@@ -1,4 +1,4 @@
-# Module file
+# Module file reference
 
 ## `aliases`
 

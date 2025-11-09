@@ -1,4 +1,4 @@
-# Project file
+# Project file reference
 
 ## `modules`
 

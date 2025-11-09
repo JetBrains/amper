@@ -1,4 +1,4 @@
-# Configuring Kotlin Symbol Processing (KSP)
+# Kotlin Symbol Processing (KSP)
 
 [Kotlin Symbol Processing](https://kotlinlang.org/docs/ksp-overview.html) is a tool that allows feeding Kotlin source
 code to _processors_, which can in turn use this information to generate code, classes, or resources, for instance.
