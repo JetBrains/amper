@@ -1,4 +1,9 @@
-# Introduction
+---
+hide:
+  - navigation
+---
+
+# Amper
 
 Amper is an experimental build tool for the Kotlin and Java languages.
 

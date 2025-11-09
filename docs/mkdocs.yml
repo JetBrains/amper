@@ -19,6 +19,7 @@ theme:
     - content.code.annotate # to allow annotations (tooltips) inside code blocks
     - content.code.copy # to add a copy button to code blocks
     - navigation.expand # to make the navigation sections collapsible
+    - navigation.indexes # to be able to associate a Markdown file with the "root" of a section without a nested page
     - navigation.instant # to use XHR instead of reloading the page when following links
     - navigation.tabs # to turn the top-level navigation sections into tabs in the header bar
     - navigation.top # to add a back-to-top button when scrolling up after scrolling down on a page
@@ -76,12 +77,13 @@ watch:
   - includes
 
 nav:
-  - 'Intro': index.md
-  - 'Setup': setup.md
-  - 'Tutorial': tutorial.md
-  - 'Usage': usage.md
+  - 'Home': index.md
+  - 'Getting started':
+      - 'Setup': setup.md
+      - 'Tutorial': tutorial.md
+      - 'Usage': usage.md
   - 'User guide':
-      - 'Overview': user-guide/index.md
+      - user-guide/index.md
       - 'Basic concepts': user-guide/basics.md
       - 'Dependencies': user-guide/dependencies.md
       - 'Multiplatform modules': user-guide/multiplatform.md
