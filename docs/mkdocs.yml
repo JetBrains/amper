@@ -73,12 +73,34 @@ watch:
   - includes
 
 nav:
-  - 'Overview': index.md
-  - 'Documentation': documentation.md
+  - 'Intro': index.md
   - 'Setup': setup.md
   - 'Tutorial': tutorial.md
   - 'Usage': usage.md
-  - 'DSL Reference': dsl-reference.md
+  - 'User guide':
+      - 'Overview': user-guide/index.md
+      - 'Basic concepts': user-guide/basics.md
+      - 'Dependencies': user-guide/dependencies.md
+      - 'Multiplatform modules': user-guide/multiplatform.md
+      - 'Testing': user-guide/testing.md
+      - 'Templates': user-guide/templates.md
+      - 'Built-in technologies':
+          - 'Android': user-guide/builtin-tech/android.md
+          - 'Compose': user-guide/builtin-tech/compose.md
+          - 'iOS': user-guide/builtin-tech/ios.md
+          - 'Kotlin serialization': user-guide/builtin-tech/kotlin-serialization.md
+          - 'Ktor': user-guide/builtin-tech/ktor.md
+          - 'Lombok': user-guide/builtin-tech/lombok.md
+          - 'Spring Boot': user-guide/builtin-tech/spring.md
+      - 'Advanced topics':
+          - 'KSP': user-guide/advanced/ksp.md
+          - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
+          - 'Compiler plugins': user-guide/advanced/compiler-plugins.md
+          - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
+      - 'Appendix: YAML primer': user-guide/yaml-primer.md
+  - 'DSL Reference':
+    - 'project.yaml': dsl-reference/project.md
+    - 'module.yaml': dsl-reference/module.md
   - 'FAQ': faq.md
   - 'Releases 🡕': https://github.com/JetBrains/amper/releases
 

@@ -1,11 +1,7 @@
-# Amper
-
-[![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Latest release](https://img.shields.io/github/v/tag/JetBrains/amper?color=brightgreen&label=latest%20release)](https://github.com/JetBrains/amper/tags)
-![Latest dev version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fpackages.jetbrains.team%2Fmaven%2Fp%2Famper%2Famper%2Forg%2Fjetbrains%2Famper%2Fschema%2Fmaven-metadata.xml&label=latest%20dev%20version)
+# Introduction
 
 Amper is an experimental build tool for the Kotlin and Java languages.
+
 Its goal is to provide a great and smooth user experience and IDE support.
 We believe that this can be achieved by:
 
@@ -30,16 +26,16 @@ Supported features:
 * Creating Kotlin Multiplatform libraries.
 * Running tests.
 * Mixing Kotlin, Java and Swift code.
-* Code assistance for [module files](documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
-* [Multi-module](documentation.md#module-dependencies) projects.
-* Using [Compose Multiplatform](documentation.md#configuring-compose-multiplatform).
-* Using Compose [multiplatform resources](documentation.md#using-multiplatform-resources).
-* Integration with [Gradle version catalogs](documentation.md#library-catalogs-aka-version-catalogs).
+* Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
+* [Multi-module](user-guide/dependencies.md#module-dependencies) projects.
+* Using [Compose Multiplatform](user-guide/builtin-tech/compose.md).
+* Using Compose [multiplatform resources](user-guide/builtin-tech/compose.md#using-multiplatform-resources).
+* Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
 
 Future directions:
 
 * Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
-* More [product types](documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
+* More [product types](user-guide/basics.md#product-types) and platforms, such as watchOS, Windows, etc.
 * Platform-specific test types, including android instrumented tests.
 * Native dependencies support, such as CocoaPods, Swift Package Manager.
 * Packaging and publication.
@@ -50,7 +46,7 @@ For a quick start:
 
 * [Setup](setup.md) and [usage](usage.md) instructions
 * [Tutorial](tutorial.md)
-* [Documentation](documentation.md)
+* [User guide](user-guide/index.md)
 * [Example projects]({{ examples_base_url }})
 
 ## Issues and feedback
@@ -101,7 +97,8 @@ Now, let's look at a Compose Multiplatform project with Android, iOS, and deskto
 <img src="images/fleet-kmp-structure.png" width="50%" alt="">
 
 Notice how the `src/` folder contains Kotlin and Swift code together. It could, of course, also be Kotlin and Java.
-Another aspect to highlight is the shared module with the common code in the `src` folder and the platform-specific code folders `src@ios` and `src@android` (learn more about [project layout](documentation.md#project-layout)).
+Another aspect to highlight is the shared module with the common code in the `src` folder and the platform-specific code
+folders `src@ios` and `src@android` (learn more about [project layout](user-guide/basics.md#project-layout)).
 
 Here is how `ios-app/module.yaml` file looks:
 ```yaml
@@ -148,13 +145,13 @@ settings:
 
 A couple of things are worth mentioning.
 Note the platform-specific `dependencies@android` section with the `@<platform>` qualifier.
-[The platform qualifier](documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout.
-The qualifier organizes the code, dependencies, and settings for a certain platform.
+[The platform qualifier](user-guide/multiplatform.md#platform-qualifier) can be used both in the manifest and also in 
+the file layout. The qualifier organizes the code, dependencies, and settings for a certain platform.
 
 ![](images/fleet-kmp-result.png)
 
 Naturally, these examples show only a limited set of Amper features.
-To get more insight into design and functionality, look at the [documentation](documentation.md),
+To get more insight into design and functionality, look at the [user guide](user-guide/index.md),
 the [tutorial](tutorial.md), and [example projects](#more-examples).
 
 ### More examples

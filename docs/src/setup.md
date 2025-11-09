@@ -67,7 +67,7 @@ environment is configured correctly:
 
 Take your pick:
 
-* Discover the ins and outs of Amper in our comprehensive [documentation](documentation.md).
+* Discover the ins and outs of Amper in our comprehensive [user guide](user-guide/index.md).
 * Create a project from scratch by following the [tutorial](tutorial.md).
 * Read how to use Amper in [IntelliJ IDEA](usage.md#using-amper-in-intellij-idea).
   Try downloading and opening [one of the example projects]({{ examples_base_url }}/README.md) to see Amper in action.

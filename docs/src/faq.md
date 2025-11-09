@@ -125,7 +125,7 @@ You have several options:
 
 ### How do I create a multi-module project in Amper?
 
-See the documentation on the [project layout](documentation.md#project-layout).
+See the documentation on the [project layout](user-guide/basics.md#project-layout).
 
 ### Is there an automated migration tool?
 

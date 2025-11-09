@@ -1,47 +1,9 @@
-## Project file
+# Module file
 
-### Modules
-
-The `modules:` section lists all the modules in the project, except the root module.
-If a `module.yaml` is present at the root of the project, the root module is implicitly included and doesn't need to be
-listed.
-
-Each element in the list must be the path to a module directory, relative to the project root.
-A module directory must contain a `module.yaml` file.
-
-Example:
-
-```yaml
-# include the `app` and `lib1` modules explicitly:
-modules:
-  - ./app
-  - ./libs/lib1
-```
-
-You can also use [Glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) to include multiple module 
-directories at the same time.
-Only directories that contain a `module.yaml` file will be considered when matching a glob pattern.
-
-- `*` matches zero or more characters of a path name component without crossing directory boundaries
-- `?` matches exactly one character of a path name component
-- `[abc]` matches exactly one character of the given set (here `a`, `b`, or `c`). A dash (`-`) can be used to match a range, such as `[a-z]`.
-
-Using `**` to recursively match directories at multiple depth levels is not supported.
-
-Example:
-
-```yaml
-# include all direct subfolders in the `plugins` dir that contain `module.yaml` files:
-modules:
-  - ./plugins/*
-```
-
-## Module file
-
-### Product
+## Product
 
 The `product:` section defines what should be produced out of the module.
-Read more about the [product types](documentation.md#product-types).
+Read more about the [product types](../user-guide/basics.md#product-types).
 
 | Attribute             | Description                                 |
 |-----------------------|---------------------------------------------|
@@ -88,12 +50,12 @@ product:
   platforms: [ jvm, android ]
 ```
 
-### Aliases
+## Aliases
 
 An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
 have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as `@platform` qualifiers in the settings.
 
-Read more about [aliases](documentation.md#aliases).
+Read more about [aliases](../user-guide/multiplatform.md#aliases).
 
 Examples:
 
@@ -111,9 +73,9 @@ dependencies@jvmAndAndroid:
   ...
 ```
 
-### Templates
+## Templates application
 
-`apply:` section lists the templates applied to the module. Read more about the [module templates](documentation.md#templates)
+`apply:` section lists the templates applied to the module. Read more about the [module templates](../user-guide/templates.md)
 
 Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
 
@@ -127,31 +89,31 @@ apply:
   - ../common.module-template.yaml
 ```
 
-### Dependencies and test dependencies
+## Dependencies and test dependencies
 
 `dependencies:` section defines the list of modules and libraries necessary to build the module.
 Certain dependencies can also be exported as part of the module API.
-Read more about the [dependencies](documentation.md#dependencies).
+Read more about the [dependencies](../user-guide/dependencies.md).
 
 `test-dependencies:` section defines the dependencies necessary to build and run tests of the module. Read more about
-the [module tests](documentation.md#tests).
+the [module tests](../user-guide/testing.md).
 
 Supported dependency types:
 
-| Notation                                         | Description                                                                                                   |
-|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](documentation.md#module-dependencies) in the codebase.                         |
-| `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](documentation.md#external-maven-dependencies) in a Maven repository. |
-| `- $<catalog.key>`                               | Dependency from [a dependency catalog](documentation.md#library-catalogs-aka-version-catalogs).               |
-| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](documentation.md#external-maven-bom-dependencies).                                      |
-| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](documentation.md#library-catalogs-aka-version-catalogs).      |
+| Notation                                         | Description                                                                                                                |
+|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](../user-guide/dependencies.md#module-dependencies) in the codebase.                         |
+| `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](../user-guide/dependencies.md#external-maven-dependencies) in a Maven repository. |
+| `- $<catalog.key>`                               | Dependency from [a dependency catalog](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).               |
+| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](../user-guide/dependencies.md#bom-dependencies).                                                     |
+| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).      |
 
 Each dependency (except BOM) has the following attributes:
 
-| Attribute           | Description                                                                                                          | Default |
-|---------------------|----------------------------------------------------------------------------------------------------------------------|---------|
-| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](documentation.md#scopes-and-visibility).       | `false` |
-| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](documentation.md#scopes-and-visibility). | `all`   |
+| Attribute           | Description                                                                                                                       | Default |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------|---------|
+| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](../user-guide/dependencies.md#scopes-and-visibility).       | `false` |
+| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](../user-guide/dependencies.md#scopes-and-visibility). | `all`   |
 
 Available scopes:
 
@@ -186,7 +148,7 @@ dependencies:
       scope: runtime-only
 ```
 
-The `dependencies:` section can also be [qualified with a platform](documentation.md#platform-qualifier).
+The `dependencies:` section can also be [qualified with a platform](../user-guide/multiplatform.md#platform-qualifier).
 
 Examples:
 
@@ -201,10 +163,10 @@ dependencies@jvm:
   - org.postgresql:postgresql:42.3.3: runtime-only
 ```
 
-### Repositories
+## Repositories
 
 `repositories:` section defines the list of repositories used to look up and download the module dependencies.
-Read more about the [dependency repositories](documentation.md#managing-maven-repositories).
+Read more about the [dependency repositories](../user-guide/dependencies.md#managing-maven-repositories).
 
 | Attribute             | Description                                         | Default        | 
 |-----------------------|-----------------------------------------------------|----------------| 
@@ -212,7 +174,7 @@ Read more about the [dependency repositories](documentation.md#managing-maven-re
 | `id: string`          | The ID of the repository, used for to reference it. | repository url |
 | `credentials: object` | Credentials for the authenticated repositories.     | empty          |
 
-Read more on the [repository configuration](documentation.md#managing-maven-repositories)
+Read more on the [repository configuration](../user-guide/dependencies.md#managing-maven-repositories)
 Credentials support username/password authentication and have the following attributes:
 
 | Attribute             | Description                                                                                       |
@@ -248,7 +210,7 @@ repositories:
       passwordKey: my.private.repository.password  
 ```
 
-### Layout
+## Layout
 
 `layout` is a top-level field defines the module file structure. Field can accept values: `amper` and `maven-like`. The 
 default value is `amper` which is the default module file layout. 
@@ -265,15 +227,15 @@ settings:
 
 ```
 
-### Settings and test settings
+## Settings and test settings
 
 `settings:` section configures the toolchains used in the build process. Read more
-about [settings configuration](documentation.md#settings).
+about [settings configuration](../user-guide/basics.md#settings).
 
 `test-settings:` section controls building and running the module tests. Read more about
-the [module tests](documentation.md#tests).
+the [module tests](../user-guide/testing.md).
 
-#### Kotlin
+### Kotlin
 
 `settings:kotlin:` configures the Kotlin language and the compiler.
 
@@ -352,14 +314,15 @@ dependencies:
   - $kotlin.serialization.protobuf
 ```
 
-##### All-Open
+#### All-Open
 
-`settings:kotlin:allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html), which makes classes annotated with specific annotations open automatically without the explicit `open` keyword.
+`settings:kotlin:allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html),
+which makes classes annotated with specific annotations open automatically without the explicit `open` keyword.
 
-| Attribute                  | Description                                                                                                       | Default |
-|----------------------------|-------------------------------------------------------------------------------------------------------------------|---------|  
-| `enabled: boolean`         | Enable the Kotlin all-open compiler plugin                                                                        | `false` |  
-| `annotations: string list` | List of annotations that trigger open class/method generation                                                     | (empty) |  
+| Attribute                  | Description                                                                                                    | Default |
+|----------------------------|----------------------------------------------------------------------------------------------------------------|---------|  
+| `enabled: boolean`         | Enable the Kotlin all-open compiler plugin                                                                     | `false` |  
+| `annotations: string list` | List of annotations that trigger open class/method generation                                                  | (empty) |  
 | `presets: enum list`       | Predefined sets of annotations for common frameworks (available presets: `spring`, `micronaut`, and `quarkus`) | (empty) |  
 
 Examples:
@@ -382,9 +345,10 @@ settings:
       presets: [ spring ]
 ```
 
-##### No-Arg
+#### No-Arg
 
-`settings:kotlin:noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html), which generates no-arg constructors for classes with specific annotations.
+`settings:kotlin:noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html),
+which generates no-arg constructors for classes with specific annotations.
 
 | Attribute                     | Description                                                                             | Default |
 |-------------------------------|-----------------------------------------------------------------------------------------|---------|  
@@ -414,7 +378,7 @@ settings:
       invokeInitializers: true
 ```
 
-#### Java
+### Java
 
 `settings:java:` configures the Java language and the compiler.
 
@@ -422,7 +386,7 @@ settings:
 |--------------------------------|-------------------------------------|---------|
 | `annotationProcessing: object` | Java annotation processing settings | (empty) |
 
-##### Annotation Processing
+#### Annotation Processing
 
 `settings:java:annotationProcessing:` configures Java annotation processing.
 
@@ -453,20 +417,20 @@ settings:
         debug: true
 ```
 
-#### JVM
+### JVM
 
 `settings:jvm:` configures the JVM platform-specific settings.
 
-| Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                               |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
-| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
-| `mainClass: string`            | (Only for `jvm/app` [product type](documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](documentation.md#jvm) |
-| `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                 |
+| Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                           |
+| `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
+| `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
 
-##### JVM Tests
+#### JVM Tests
 
 `settings:jvm:test:` configures the test settings on the JVM and Android platforms.
-Read more about [testing support](documentation.md#tests).
+Read more about [testing support](../user-guide/testing.md).
 
 | Value                      | Description                                                                                                   |
 |----------------------------|---------------------------------------------------------------------------------------------------------------|
@@ -490,7 +454,7 @@ Read more about [testing support](documentation.md#tests).
 | `versionName: string`         | Version name. [Read more](https://developer.android.com/studio/publish/versioning).                                                                                                                                           | unspecified           |
 | `parcelize: object \| string` | Configure [Parcelize](https://developer.android.com/kotlin/parcelize).                                                                                                                                                        |                       |
 
-##### Android signing
+#### Android signing
 
 `settings:android:signing:` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
 
@@ -500,7 +464,7 @@ Read more about [testing support](documentation.md#tests).
 | `enabled: boolean`     | Whether signing enabled or not. [Read more](https://developer.android.com/studio/publish/app-signing). | false                 |
 | `propertiesFile: path` | Location of properties file. [Read more](https://developer.android.com/studio/publish/app-signing).    | ./keystore.properties |
 
-##### Parcelize
+#### Parcelize
 
 `settings:android:parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
 platform in the module. The value can be the simple `enabled` string, or an object with the following attributes:
@@ -526,7 +490,7 @@ settings:
       additionalAnnotations: [ com.example.MyCommonParcelize ]
 ```
 
-#### Native
+### Native
 
 `settings:native:` configures settings specific to native applications.
 
@@ -543,7 +507,7 @@ settings:
     entryPoint: com.example.MainKt.main
 ```
 
-#### Ktor
+### Ktor
 
 `settings:ktor:` configures the Ktor.
 
@@ -561,7 +525,7 @@ settings:
     version: 2.3.2 # version customization
 ```
 
-#### Spring Boot
+### Spring Boot
 
 `settings:springBoot:` configures the Spring Boot framework (JVM platform only).
 
@@ -579,10 +543,10 @@ settings:
     version: 3.1.0 # version customization
 ```
 
-#### Compose
+### Compose
 
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-framework. Read more about [Compose configuration](documentation.md#configuring-compose-multiplatform).
+framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose.md).
 
 | Attribute              | Description                                                    | Default |
 |------------------------|----------------------------------------------------------------|---------|
@@ -646,10 +610,10 @@ settings:
       hotReload: enabled
 ```
 
-#### JUnit
+### JUnit
 
 `settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
-about [testing support](documentation.md#tests).
+about [testing support](../user-guide/testing.md).
 
 By default, JUnit 5 is used.
 
@@ -659,7 +623,7 @@ By default, JUnit 5 is used.
 | `junit-4` | JUnit 4 dependencies and the test runner are configured.           |
 | `none`    | JUnit is not automatically configured.                             |
 
-#### Lombok
+### Lombok
 
 `settings:lombok:` configures Lombok.
 
@@ -675,7 +639,7 @@ settings:
     enabled: true
 ```
 
-#### Kover
+### Kover
 
 `settings:kover:` configures Kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 

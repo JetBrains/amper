@@ -2,7 +2,7 @@
 
 This tutorial gives a short introduction to Amper and how to create a new project.
 
-If you are looking for more detailed information, check [the documentation](documentation.md).
+If you are looking for more detailed information, check [the user guide](user-guide/index.md).
 
 ## Before you start
 
@@ -66,8 +66,8 @@ You can now build your application using `./amper build`, or run it using `./amp
 
 > To go further, you can check these sections of the documentation:
 > 
-> - [Project layout](documentation.md#project-layout)
-> - [Module file anatomy](documentation.md#module-file-anatomy)
+> - [Project layout](user-guide/basics.md#project-layout)
+> - [Module file anatomy](user-guide/basics.md#module-file-anatomy)
 > - [Using Amper from the command line](usage.md#using-amper-from-the-command-line)
 
 ## Step 2. Add dependencies
@@ -92,7 +92,7 @@ fun main() {
 }
 ```
 
-> See the full documentation about [Dependencies](documentation.md#dependencies).
+> See the full documentation about [Dependencies](user-guide/dependencies.md).
 
 ## Step 3. Add tests
 
@@ -134,7 +134,7 @@ test-dependencies:
 
 Examples: [JVM "Hello, World!"]({{ examples_base_url }}/jvm)
 
-> See the full documentation about [Tests](documentation.md#tests).
+> See the full documentation about [Tests](user-guide/testing.md).
 
 ## Step 4. Configure Java and Kotlin
 
@@ -156,7 +156,7 @@ settings:
     release: 17  # Set the minimum JVM version that the Kotlin and Java code should be compatible with.
 ```
 
-> See the full documentation about [Settings](documentation.md#settings).
+> See the full documentation about [Settings](user-guide/basics.md#settings).
 
 ## Step 5. Add a UI with Compose
 
@@ -188,7 +188,7 @@ settings:
 
     The `$compose.*` dependencies are declared with a special reference syntax here.
     These are references to the Compose toolchain library catalog, and are available because we enabled the toolchain.
-    Read more about library catalogs in the [documentation](documentation.md#library-catalogs-aka-version-catalogs).
+    Read more about library catalogs in the [documentation](user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
 
 We can then replace the contents of `main.kt` with the following code:
 
@@ -213,7 +213,7 @@ Examples:
 - [Compose iOS]({{ examples_base_url }}/compose-ios)
 - [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
 
-> See the full documentation about [Compose](documentation.md#configuring-compose-multiplatform).
+> See the full documentation about [Compose](user-guide/builtin-tech/compose.md).
 
 ## Step 6. Modularize
 
@@ -320,9 +320,9 @@ We now have a multi-module project with some neatly extracted shared code.
 Examples: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
 
 > See the full documentation about:
-> - [Project layout](documentation.md#project-layout)
-> - [Module dependencies](documentation.md#module-dependencies)
-> - [Dependency visibility and scope](documentation.md#scopes-and-visibility)
+> - [Project layout](user-guide/basics.md#project-layout)
+> - [Module dependencies](user-guide/dependencies.md#module-dependencies)
+> - [Dependency visibility and scope](user-guide/dependencies.md#scopes-and-visibility)
 
 ## Step 7. Make project multiplatform
 
@@ -413,7 +413,7 @@ settings:
 Note how we used the `dependencies@jvm:` and `dependencies@android:` sections to specify JVM- and Android-specific dependencies.
 These dependencies will be added to the JVM and Android versions of the `shared` library correspondingly.
 They will also be available for the `jvm-app` and `android-app` modules, since they depend on the `shared` module.
-Read more about multiplatform configuration in the [documentation](documentation.md#multiplatform-configuration).
+Read more about multiplatform configuration in the [documentation](user-guide/multiplatform.md).
 
 Now, as we have the module structure, we need to add platform-specific application code to the Android and iOS modules.
 Create a `MainActivity.kt` file in `android-app/src` with the following content:
@@ -474,12 +474,12 @@ Now you can build and run both apps using [the IntelliJ IDEA run configurations]
 
     After the first build the Xcode project will appear beside the `module.yaml` in the `ios-app` module. 
     It can be checked into the VCS and customized (e.g. _Team_ (`DEVELOPMENT_TEAM`) setting).
-    See [iOS Support](documentation.md#ios-support) to learn more about the Xcode ↔ Amper interoperability.
+    See [iOS Support](user-guide/builtin-tech/ios.md) to learn more about the Xcode ↔ Amper interoperability.
 
 Examples: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
 
-> See the full documentation about [multiplatform configuration](documentation.md#multiplatform-configuration) and
-> [configuring Compose Multiplatform](documentation.md#configuring-compose-multiplatform) more specifically.
+> See the full documentation about [multiplatform configuration](user-guide/multiplatform.md) and
+> [configuring Compose Multiplatform](user-guide/builtin-tech/compose.md) more specifically.
 
 ## Step 8. Deduplicate common configuration
 
@@ -567,8 +567,8 @@ apply:
 You can put all common dependencies and settings into the template. It's also possible to have multiple templates 
 for various typical configurations in the project.
 
-> See the full documentation about [Templates](documentation.md#templates).
+> See the full documentation about [Templates](user-guide/templates.md).
 
 ## Further steps
 
-Check the [documentation](documentation.md) and explore [example projects]({{ examples_base_url }}).
+Check the [user guide](user-guide/index.md) and explore [example projects]({{ examples_base_url }}).
