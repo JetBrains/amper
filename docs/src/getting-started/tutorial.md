@@ -82,7 +82,7 @@ You can now build your application using `./amper build`, or run it using `./amp
 
     - [Project layout](../user-guide/basics.md#project-layout)
     - [Module file anatomy](../user-guide/basics.md#module-file-anatomy)
-    - [Using Amper from the command line](cli.md#using-amper-from-the-command-line)
+    - [Using Amper from the command line](cli.md)
 
 ## Step 2. Add dependencies
 
@@ -483,7 +483,13 @@ Make sure that your project structure looks like this:
 |-...
 ```
 
-Now you can build and run both apps using [the IntelliJ IDEA run configurations](cli.md#using-amper-in-intellij-idea).
+Now you can build and run both apps using the corresponding IntelliJ IDEA run configurations, or use the CLI commands:
+```shell
+./amper run -m android-app
+```
+```shell
+./amper run -m ios-app
+```
 
 !!! note
 
