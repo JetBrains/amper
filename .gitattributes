@@ -6,6 +6,8 @@
 amper text eol=lf
 amper-from-sources text eol=lf
 
+mkdocs text eol=lf
+
 gradlew text eol=lf
 
 *.png binary
