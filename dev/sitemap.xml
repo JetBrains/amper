@@ -2,102 +2,106 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://jetbrains.github.io/amper/dev/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/faq/</loc>
-         <lastmod>2025-11-09</lastmod>
-    </url>
-    <url>
-         <loc>https://jetbrains.github.io/amper/dev/setup/</loc>
-         <lastmod>2025-11-09</lastmod>
-    </url>
-    <url>
-         <loc>https://jetbrains.github.io/amper/dev/tutorial/</loc>
-         <lastmod>2025-11-09</lastmod>
-    </url>
-    <url>
-         <loc>https://jetbrains.github.io/amper/dev/usage/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/dsl-reference/module/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/dsl-reference/project/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
+    </url>
+    <url>
+         <loc>https://jetbrains.github.io/amper/dev/getting-started/</loc>
+         <lastmod>2025-11-10</lastmod>
+    </url>
+    <url>
+         <loc>https://jetbrains.github.io/amper/dev/getting-started/cli/</loc>
+         <lastmod>2025-11-10</lastmod>
+    </url>
+    <url>
+         <loc>https://jetbrains.github.io/amper/dev/getting-started/ide-setup/</loc>
+         <lastmod>2025-11-10</lastmod>
+    </url>
+    <url>
+         <loc>https://jetbrains.github.io/amper/dev/getting-started/tutorial/</loc>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/basics/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/dependencies/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/multiplatform/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/templates/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/testing/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/yaml-primer/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/advanced/compiler-plugins/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/advanced/java-annotation-processing/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/advanced/ksp/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/advanced/maven-like-layout/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/android/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/compose/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/ios/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/kotlin-serialization/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/ktor/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/lombok/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
     <url>
          <loc>https://jetbrains.github.io/amper/dev/user-guide/builtin-tech/spring/</loc>
-         <lastmod>2025-11-09</lastmod>
+         <lastmod>2025-11-10</lastmod>
     </url>
 </urlset>

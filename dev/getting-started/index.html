@@ -12,13 +12,13 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/setup/">
+        <link rel="canonical" href="https://jetbrains.github.io/amper/dev/getting-started/">
       
       
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../tutorial/">
+        <link rel="next" href="ide-setup/">
       
       
       <link rel="icon" href="../images/amper-logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Setup - Amper</title>
+        <title>Getting started - Amper</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#setup-your-ide" class="md-skip">
+        <a href="#getting-started" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Setup
+              Getting started
             
           </span>
         </div>
@@ -316,7 +316,7 @@
   
     
   
-  DSL Reference
+  DSL reference
 
         </a>
       </li>
@@ -440,6 +440,10 @@
     
       
         
+          
+        
+      
+        
       
         
       
@@ -462,8 +466,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="./" class="md-nav__link md-nav__link--active">
+              
   
   
   <span class="md-ellipsis">
@@ -472,8 +477,14 @@
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link md-nav__link--active" for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
@@ -483,88 +494,25 @@
           <ul class="md-nav__list" data-md-scrollfix>
             
               
+            
+              
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Setup
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="ide-setup/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Setup
+    IDE setup
     
   </span>
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#setup-your-ide" class="md-nav__link">
-    <span class="md-ellipsis">
-      Setup your IDE
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#check-your-environment-with-kdoctor-macos-only" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check your environment with KDoctor (macOS only)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's next
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -577,7 +525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorial/" class="md-nav__link">
+      <a href="tutorial/" class="md-nav__link">
         
   
   
@@ -600,12 +548,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../usage/" class="md-nav__link">
+      <a href="cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Usage
+    Amper CLI
     
   </span>
   
@@ -952,7 +900,7 @@
   
   
   <span class="md-ellipsis">
-    Kotlin serialization
+    Kotlin Serialization
     
   </span>
   
@@ -1257,7 +1205,7 @@
   
   
   <span class="md-ellipsis">
-    DSL Reference
+    DSL reference
     
   </span>
   
@@ -1268,7 +1216,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            DSL Reference
+            DSL reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1386,6 +1334,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1394,27 +1344,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup-your-ide" class="md-nav__link">
+  <a href="#where-to-start" class="md-nav__link">
     <span class="md-ellipsis">
-      Setup your IDE
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#check-your-environment-with-kdoctor-macos-only" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check your environment with KDoctor (macOS only)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's next
+      Where to start?
     </span>
   </a>
   
@@ -1436,82 +1368,41 @@
 
 
   
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/getting-started/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
   
 
 
-  <h1>Setup</h1>
-
-<h2 id="setup-your-ide">Setup your IDE<a class="headerlink" href="#setup-your-ide" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>Preferably use the latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a>. 
-   The best way to get the most recent IDE versions is by using the <a href="https://www.jetbrains.com/lp/toolbox/">Toolbox App</a>.</p>
-</li>
-<li>
-<p>Make sure to install the <a href="https://plugins.jetbrains.com/plugin/23076-amper">Amper plugin</a>:</p>
-</li>
-</ol>
-<p><img alt="" src="../images/ij-plugin.png" /></p>
-<ol>
-<li>
-<p>[Optional] If you want to write code for Apple platforms or share code between several platforms, install the
-   <a href="https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform">Kotlin Multiplatform plugin</a></p>
-</li>
-<li>
-<p>[Optional] If you want to write some Android-specific code, also install the
-   <a href="https://plugins.jetbrains.com/plugin/22989-android">Android plugin</a></p>
-</li>
-</ol>
-<h2 id="check-your-environment-with-kdoctor-macos-only">Check your environment with KDoctor (macOS only)<a class="headerlink" href="#check-your-environment-with-kdoctor-macos-only" title="Permanent link">&para;</a></h2>
-<p>If you're on macOS, you can use the <a href="https://github.com/Kotlin/kdoctor">KDoctor</a> tool to ensure that your development
-environment is configured correctly:</p>
-<ol>
-<li>Install KDoctor with <a href="https://brew.sh/">Homebrew</a>:</li>
-</ol>
-<div class="highlight"><pre><span></span><code>brew install kdoctor
-</code></pre></div>
-<ol>
-<li>Run KDoctor in your terminal:</li>
-</ol>
-<div class="highlight"><pre><span></span><code>kdoctor
-</code></pre></div>
-<p>If everything is set up correctly, you'll see valid output:</p>
-<div class="highlight"><pre><span></span><code>Environment diagnose (to see all details, use -v option):
-[✓] Operation System
-[✓] Java
-[✓] Android Studio
-[✓] Xcode
-[✓] Cocoapods
-
-Conclusion:
-  ✓ Your system is ready for Kotlin Multiplatform Mobile development!
-</code></pre></div>
-<p>Otherwise, KDoctor will highlight which parts of your setup still need to be configured and will suggest a way to fix
-   them.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Xcode has to be 16 or newer.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>KDoctor has a <a href="https://youtrack.jetbrains.com/issue/KMT-1077">known issue</a> that triggers an incorrect warning:
-<code>Kotlin Multiplatform Mobile Plugin: not installed</code>. This should be disregarded.
-The proper plugin to install for multiplatform development is the
-<a href="https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform">Kotlin Multiplatform plugin</a>.</p>
-</div>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Despite what the KDoctor checks imply, you do not need to install Android Studio to work with Amper.
-There is no Amper plugin for Android Studio at the moment. As mentioned above, we recommend using IntelliJ IDEA.</p>
-</div>
-<h2 id="whats-next">What's next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
-<p>Take your pick:</p>
+<h1 id="getting-started">Getting started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
+<p>Ready to try Amper? Great!</p>
+<h2 id="where-to-start">Where to start?<a class="headerlink" href="#where-to-start" title="Permanent link">&para;</a></h2>
+<p>There are different ways to get to know Amper, depending on your needs and preferences:</p>
 <ul>
-<li>Discover the ins and outs of Amper in our comprehensive <a href="../user-guide/">user guide</a>.</li>
-<li>Create a project from scratch by following the <a href="../tutorial/">tutorial</a>.</li>
-<li>Read how to use Amper in <a href="../usage/#using-amper-in-intellij-idea">IntelliJ IDEA</a>.
-  Try downloading and opening <a href="https://github.com/JetBrains/amper/tree/main/examples/README.md">one of the example projects</a> to see Amper in action.</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 3H5c-1.11 0-2 .89-2 2v5.82a6.505 6.505 0 0 1 9.1.08 6.525 6.525 0 0 1 0 9.2c-.36.35-.75.64-1.16.9H19c1.11 0 2-.89 2-2V9zm-1 7V4.5l5.5 5.5zm-6.5 1C5 11 3 13 3 15.5c0 .88.25 1.71.69 2.4L.61 21 2 22.39l3.12-3.07c.69.43 1.51.68 2.38.68 2.5 0 4.5-2 4.5-4.5S10 11 7.5 11m0 7a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5"/></svg></span> <a href="https://github.com/JetBrains/amper/tree/main/examples">Examples on GitHub</a> – to look at complete code examples.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 13v-2h14v2zm0 6v-2h14v2zM7 7V5h14v2zM3 8V5H2V4h2v4zm-1 9v-1h3v4H2v-1h2v-.5H3v-1h1V17zm2.25-7a.75.75 0 0 1 .75.75c0 .2-.08.39-.21.52L3.12 13H5v1H2v-.92L4 11H2v-1z"/></svg></span> <a href="tutorial/">Tutorial</a> – to create a project from the ground up, step-by-step.</p>
+</li>
+<li>
+<p><img alt="📘" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f4d8.svg" title=":blue_book:" /> <a href="../user-guide/">User guide</a> – to learn about Amper concepts, or if you're after a specific topic.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2c-1.11 0-2 .89-2 2v16a2 2 0 0 0 2 2h6.68a7 7 0 0 1-.68-3 7 7 0 0 1 7-7 7 7 0 0 1 1 .08V8l-6-6zm7 1.5L18.5 9H13zM18 14a.26.26 0 0 0-.26.21l-.19 1.32c-.3.13-.59.29-.85.47l-1.24-.5c-.11 0-.24 0-.31.13l-1 1.73c-.06.11-.04.24.06.32l1.06.82a4.2 4.2 0 0 0 0 1l-1.06.82a.26.26 0 0 0-.06.32l1 1.73c.06.13.19.13.31.13l1.24-.5c.26.18.54.35.85.47l.19 1.32c.02.12.12.21.26.21h2c.11 0 .22-.09.24-.21l.19-1.32c.3-.13.57-.29.84-.47l1.23.5c.13 0 .26 0 .33-.13l1-1.73a.26.26 0 0 0-.06-.32l-1.07-.82c.02-.17.04-.33.04-.5s-.01-.33-.04-.5l1.06-.82a.26.26 0 0 0 .06-.32l-1-1.73c-.06-.13-.19-.13-.32-.13l-1.23.5c-.27-.18-.54-.35-.85-.47l-.19-1.32A.236.236 0 0 0 20 14zm1 3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5c-.84 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5"/></svg></span> <strong>Start from a template project</strong> – 2 options here:</p>
+<ul>
+<li>create a new Amper project in IntelliJ IDEA with the Kotlin wizard (first, see <a href="ide-setup/">IDE setup</a>), or</li>
+<li>use <code>./amper init</code> (see <a href="cli/#installation">CLI setup</a> to get the script).</li>
 </ul>
+</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Good tooling rocks!</p>
+<p>If you choose to write code on your machine, we recommend using IntelliJ IDEA to make the most out of Amper.
+Check our <a href="ide-setup/">IDE setup</a> page for more information. </p>
+</div>
 
 
 
@@ -1564,13 +1455,13 @@ There is no Amper plugin for Android Studio at the moment. As mentioned above, w
         
         
           
-          <a href="../tutorial/" class="md-footer__link md-footer__link--next" aria-label="Next: Tutorial">
+          <a href="ide-setup/" class="md-footer__link md-footer__link--next" aria-label="Next: IDE setup">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tutorial
+                IDE setup
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1610,7 +1501,7 @@ There is no Amper plugin for Android Studio at the moment. As mentioned above, w
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>

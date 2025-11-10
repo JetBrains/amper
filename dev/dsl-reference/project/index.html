@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#project-file" class="md-skip">
+        <a href="#project-file-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -264,7 +264,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../setup/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -316,7 +316,7 @@
   
     
   
-  DSL Reference
+  DSL reference
 
         </a>
       </li>
@@ -438,6 +438,10 @@
     
       
         
+          
+        
+      
+        
       
         
       
@@ -459,8 +463,9 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -469,8 +474,14 @@
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
@@ -480,18 +491,20 @@
           <ul class="md-nav__list" data-md-scrollfix>
             
               
+            
+              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../setup/" class="md-nav__link">
+      <a href="../../getting-started/ide-setup/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Setup
+    IDE setup
     
   </span>
   
@@ -509,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorial/" class="md-nav__link">
+      <a href="../../getting-started/tutorial/" class="md-nav__link">
         
   
   
@@ -532,12 +545,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/" class="md-nav__link">
+      <a href="../../getting-started/cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Usage
+    Amper CLI
     
   </span>
   
@@ -884,7 +897,7 @@
   
   
   <span class="md-ellipsis">
-    Kotlin serialization
+    Kotlin Serialization
     
   </span>
   
@@ -1192,7 +1205,7 @@
   
   
   <span class="md-ellipsis">
-    DSL Reference
+    DSL reference
     
   </span>
   
@@ -1203,7 +1216,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            DSL Reference
+            DSL reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1406,10 +1419,15 @@
 
 
   
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/dsl-reference/project.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
   
 
 
-<h1 id="project-file">Project file<a class="headerlink" href="#project-file" title="Permanent link">&para;</a></h1>
+<h1 id="project-file-reference">Project file reference<a class="headerlink" href="#project-file-reference" title="Permanent link">&para;</a></h1>
 <h2 id="modules"><code>modules</code><a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
 <p>The <code>modules:</code> section lists all the modules in the project, except the root module.
 If a <code>module.yaml</code> is present at the root of the project, the root module is implicitly included and doesn't need to be
@@ -1534,7 +1552,7 @@ Only directories that contain a <code>module.yaml</code> file will be considered
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>

@@ -16,7 +16,7 @@
       
       
       
-        <link rel="next" href="setup/">
+        <link rel="next" href="getting-started/">
       
       
       <link rel="icon" href="images/amper-logo.svg">
@@ -264,7 +264,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="setup/" class="md-tabs__link">
+        <a href="getting-started/" class="md-tabs__link">
           
   
   
@@ -314,7 +314,7 @@
   
     
   
-  DSL Reference
+  DSL reference
 
         </a>
       </li>
@@ -463,18 +463,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#issues-and-feedback" class="md-nav__link">
+  <a href="#philosophy" class="md-nav__link">
     <span class="md-ellipsis">
-      Issues and feedback
+      Philosophy
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-try" class="md-nav__link">
+  <a href="#project-status" class="md-nav__link">
     <span class="md-ellipsis">
-      How to Try
+      Project status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issues-and-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issues and feedback
     </span>
   </a>
   
@@ -540,6 +558,10 @@
     
       
         
+          
+        
+      
+        
       
         
       
@@ -561,8 +583,9 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="getting-started/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -571,8 +594,14 @@
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
@@ -582,18 +611,20 @@
           <ul class="md-nav__list" data-md-scrollfix>
             
               
+            
+              
                 
   
   
   
   
     <li class="md-nav__item">
-      <a href="setup/" class="md-nav__link">
+      <a href="getting-started/ide-setup/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Setup
+    IDE setup
     
   </span>
   
@@ -611,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorial/" class="md-nav__link">
+      <a href="getting-started/tutorial/" class="md-nav__link">
         
   
   
@@ -634,12 +665,12 @@
   
   
     <li class="md-nav__item">
-      <a href="usage/" class="md-nav__link">
+      <a href="getting-started/cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Usage
+    Amper CLI
     
   </span>
   
@@ -986,7 +1017,7 @@
   
   
   <span class="md-ellipsis">
-    Kotlin serialization
+    Kotlin Serialization
     
   </span>
   
@@ -1291,7 +1322,7 @@
   
   
   <span class="md-ellipsis">
-    DSL Reference
+    DSL reference
     
   </span>
   
@@ -1302,7 +1333,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            DSL Reference
+            DSL reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1432,18 +1463,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#issues-and-feedback" class="md-nav__link">
+  <a href="#philosophy" class="md-nav__link">
     <span class="md-ellipsis">
-      Issues and feedback
+      Philosophy
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-try" class="md-nav__link">
+  <a href="#project-status" class="md-nav__link">
     <span class="md-ellipsis">
-      How to Try
+      Project status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issues-and-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issues and feedback
     </span>
   </a>
   
@@ -1509,68 +1558,64 @@
 
 
   
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
   
 
 
 <h1 id="amper">Amper<a class="headerlink" href="#amper" title="Permanent link">&para;</a></h1>
-<p>Amper is an experimental build tool for the Kotlin and Java languages.</p>
-<p>Its goal is to provide a great and smooth user experience and IDE support.
-We believe that this can be achieved by:</p>
+<p>Amper is an experimental build tool for the Kotlin and Java languages, with a focus on user experience and tooling.</p>
+<p>It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
+or Ktor, multiplatform projects that share business logic and/or UI, and more.</p>
+<p><a class="md-button md-button--primary" href="getting-started/">Get started</a>
+<a class="md-button" href="user-guide/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg></span> Learn</a></p>
+<h2 id="philosophy">Philosophy<a class="headerlink" href="#philosophy" title="Permanent link">&para;</a></h2>
+<p>Amper should be invisible – nobody likes dealing with the build tool. Ideally, you shouldn't have to leave your source
+files.
+When you do edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.</p>
+<p>We believe that this can be achieved by:</p>
 <ul>
-<li>providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but
+<li>providing a developer- and IDE-friendly declarative configuration DSL – to simplify not only the initial setup but
   also improve maintainability and let IDEs assist with automatic configuration reliably;</li>
-<li>bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the
+<li>bundling a curated set of compatible toolchains and extensions – to support the majority of the scenarios without the
   need to find compatible plugins;</li>
-<li>carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent
+<li>carefully choosing the extensibility points – to keep the overall mental model and UX of the configuration consistent
   and to avoid unexpected third-party code execution.</li>
 </ul>
 <p>In essence, we aim to achieve a similar well-thought-out and well-tested experience as with <a href="https://www.jetbrains.com/ides/">JetBrains IDEs</a>.</p>
-<p>We are still in the experimental phase.
-We’re currently looking at various aspects, including the configuration of projects for building, packaging, publishing,
-and more. At the current stage, however, the focus is primarily on configuring projects for building. While the current
-use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
-However, the same approach to configuration could work for other languages and technology stacks in the future.</p>
-<p>Supported features:</p>
-<ul>
-<li>Creating and running JVM, Android, iOS, Linux, and macOS applications.</li>
-<li>Creating Kotlin Multiplatform libraries.</li>
-<li>Running tests.</li>
-<li>Mixing Kotlin, Java and Swift code.</li>
-<li>Code assistance for <a href="user-guide/basics/#module-file-anatomy">module files</a> in IntelliJ IDEA and Fleet.</li>
-<li><a href="user-guide/dependencies/#module-dependencies">Multi-module</a> projects.</li>
-<li>Using <a href="user-guide/builtin-tech/compose/">Compose Multiplatform</a>.</li>
-<li>Using Compose <a href="user-guide/builtin-tech/compose/#using-multiplatform-resources">multiplatform resources</a>.</li>
-<li>Integration with <a href="user-guide/dependencies/#library-catalogs-aka-version-catalogs">Gradle version catalogs</a>.</li>
+<h2 id="project-status">Project status <a href="https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub"><img alt="JetBrains incubator project" src="https://jb.gg/badges/incubator.svg" /></a><a class="headerlink" href="#project-status" title="Permanent link">&para;</a></h2>
+<p>Amper is still in the experimental phase, but we encourage you to try it out and 
+<a href="#issues-and-feedback">give us feedback</a>.</p>
+<p>We’re currently looking at various aspects, including extensibility, publication, and Maven integration.</p>
+<h2 id="supported-features">Supported features<a class="headerlink" href="#supported-features" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Creating and running JVM, Android, iOS, Linux, Windows, and macOS applications</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Creating Kotlin Multiplatform libraries</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Running tests</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Mixing Kotlin, Java and Swift code</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Code assistance for <a href="user-guide/basics/#module-file-anatomy">module files</a> in IntelliJ IDEA</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <a href="user-guide/basics/#project-layout">Multi-module</a> projects</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <a href="user-guide/builtin-tech/compose/">Compose Multiplatform</a>, with
+  <a href="user-guide/builtin-tech/compose/#using-multiplatform-resources">multiplatform resources</a> and
+  <a href="user-guide/builtin-tech/compose/#compose-hot-reload-experimental">Compose Hot Reload</a></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Integration with <a href="user-guide/dependencies/#library-catalogs-aka-version-catalogs">Gradle version catalogs</a></li>
 </ul>
 <p>Future directions:</p>
-<ul>
-<li>Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.</li>
-<li>More <a href="user-guide/basics/#product-types">product types</a> and platforms, such as watchOS, Windows, etc.</li>
-<li>Platform-specific test types, including android instrumented tests.</li>
-<li>Native dependencies support, such as CocoaPods, Swift Package Manager.</li>
-<li>Packaging and publication.</li>
-<li>Build variants support.</li>
-<li>Extensibility.</li>
-</ul>
-<p>For a quick start:</p>
-<ul>
-<li><a href="setup/">Setup</a> and <a href="usage/">usage</a> instructions</li>
-<li><a href="tutorial/">Tutorial</a></li>
-<li><a href="user-guide/">User guide</a></li>
-<li><a href="https://github.com/JetBrains/amper/tree/main/examples">Example projects</a></li>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Extensibility</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Packaging, publication, distribution</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Maven migration</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Platform-specific test types, including android instrumented tests.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Native dependencies support, such as CocoaPods, Swift Package Manager</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Build variants support</li>
 </ul>
 <h2 id="issues-and-feedback">Issues and feedback<a class="headerlink" href="#issues-and-feedback" title="Permanent link">&para;</a></h2>
 <p>Amper uses <a href="https://youtrack.jetbrains.com/issues/AMPER">YouTrack</a> for issue tracking,
 <a href="https://youtrack.jetbrains.com/newIssue?project=AMPER">create a new issue</a> there to report problems or submit ideas.</p>
-<p>Before reporting an issue, please check the <a href="faq/">FAQ</a>.</p>
-<p>You can also join the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a> for discussions,
-or share your feedback using the <a href="https://surveys.jetbrains.com/s3/Amper-feedback-form">feedback form</a>.</p>
-<h2 id="how-to-try">How to Try<a class="headerlink" href="#how-to-try" title="Permanent link">&para;</a></h2>
-<p>There are multiple ways to try Amper:</p>
-<ul>
-<li>In the latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> (<a href="usage/#using-amper-in-intellij-idea">instructions</a>).</li>
-<li>Using <a href="usage/#using-amper-from-the-command-line">Amper from the command line</a>.</li>
-</ul>
+<p>You can also join the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2zm2-8a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2zm8 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 2 2 0 0 1 2 2zm-2 8a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2z"/></svg></span> Slack channel</a> for discussions.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="basics">Basics<a class="headerlink" href="#basics" title="Permanent link">&para;</a></h3>
 <p>Here is a very basic JVM "Hello, World!" project:</p>
@@ -1636,7 +1681,7 @@ the file layout. The qualifier organizes the code, dependencies, and settings fo
 <p><img alt="" src="images/fleet-kmp-result.png" /></p>
 <p>Naturally, these examples show only a limited set of Amper features.
 To get more insight into design and functionality, look at the <a href="user-guide/">user guide</a>,
-the <a href="tutorial/">tutorial</a>, and <a href="#more-examples">example projects</a>.</p>
+the <a href="getting-started/tutorial/">tutorial</a>, and <a href="#more-examples">example projects</a>.</p>
 <h3 id="more-examples">More examples<a class="headerlink" href="#more-examples" title="Permanent link">&para;</a></h3>
 <p>Check our these example projects:</p>
 <ul>
@@ -1691,13 +1736,13 @@ the <a href="tutorial/">tutorial</a>, and <a href="#more-examples">example proje
         
         
           
-          <a href="setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Setup">
+          <a href="getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting started">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Setup
+                Getting started
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1737,7 +1782,7 @@ the <a href="tutorial/">tutorial</a>, and <a href="#more-examples">example proje
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
