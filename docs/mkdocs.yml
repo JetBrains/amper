@@ -5,7 +5,7 @@ site_author: JetBrains Amper team
 
 repo_name: JetBrains/amper
 repo_url: https://github.com/JetBrains/amper
-edit_uri: edit/main/docs/
+edit_uri: edit/main/docs/src/
 
 copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
 
