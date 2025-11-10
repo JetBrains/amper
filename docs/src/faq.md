@@ -1,3 +1,7 @@
+---
+hide:
+  - navigation
+---
 ## General
 
 ### Is Amper a brand-new build tool from JetBrains?
