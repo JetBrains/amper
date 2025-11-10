@@ -31,7 +31,7 @@ We believe that this can be achieved by:
 
 In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
 
-## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://github.com/JetBrains#jetbrains-on-github)
 
 Amper is still in the experimental phase, but we encourage you to try it out and 
 [give us feedback](#issues-and-feedback).
