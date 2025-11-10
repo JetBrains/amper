@@ -74,6 +74,8 @@ markdown_extensions:
   - pymdownx.superfences # required for code highlighting, tabs, and nested content in general
   - pymdownx.tabbed: # for tabs support
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - tables
   - toc:
       permalink: true

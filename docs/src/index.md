@@ -5,60 +5,66 @@ hide:
 
 # Amper
 
-Amper is an experimental build tool for the Kotlin and Java languages.
+Amper is an experimental build tool for the Kotlin and Java languages, with a focus on user experience and tooling.
 
-Its goal is to provide a great and smooth user experience and IDE support.
+It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
+or Ktor, multiplatform projects that share business logic and/or UI, and more.
+
+[Get started](getting-started/index.md){ .md-button .md-button--primary }
+[:material-book-open-page-variant: Learn](user-guide/index.md){ .md-button }
+
+## Philosophy
+
+Amper should be invisible – nobody likes dealing with the build tool. Ideally, you shouldn't have to leave your source
+files.
+When you do edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
+
 We believe that this can be achieved by:
 
-- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but
+- providing a developer- and IDE-friendly declarative configuration DSL – to simplify not only the initial setup but
   also improve maintainability and let IDEs assist with automatic configuration reliably;
-- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the
+- bundling a curated set of compatible toolchains and extensions – to support the majority of the scenarios without the
   need to find compatible plugins;
-- carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent
+- carefully choosing the extensibility points – to keep the overall mental model and UX of the configuration consistent
   and to avoid unexpected third-party code execution.
 
 In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
 
-We are still in the experimental phase.
-We’re currently looking at various aspects, including the configuration of projects for building, packaging, publishing,
-and more. At the current stage, however, the focus is primarily on configuring projects for building. While the current
-use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
-However, the same approach to configuration could work for other languages and technology stacks in the future.
+## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-Supported features:
+Amper is still in the experimental phase, but we encourage you to try it out and 
+[give us feedback](#issues-and-feedback).
 
-* Creating and running JVM, Android, iOS, Linux, and macOS applications.
-* Creating Kotlin Multiplatform libraries.
-* Running tests.
-* Mixing Kotlin, Java and Swift code.
-* Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
-* [Multi-module](user-guide/dependencies.md#module-dependencies) projects.
-* Using [Compose Multiplatform](user-guide/builtin-tech/compose.md).
-* Using Compose [multiplatform resources](user-guide/builtin-tech/compose.md#using-multiplatform-resources).
-* Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
+We’re currently looking at various aspects, including extensibility, publication, and Maven integration.
+
+## Supported features
+
+* [x] Creating and running JVM, Android, iOS, Linux, Windows, and macOS applications
+* [x] Creating Kotlin Multiplatform libraries
+* [x] Running tests
+* [x] Mixing Kotlin, Java and Swift code
+* [x] Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA
+* [x] [Multi-module](user-guide/basics.md#project-layout) projects
+* [x] [Compose Multiplatform](user-guide/builtin-tech/compose.md), with
+  [multiplatform resources](user-guide/builtin-tech/compose.md#using-multiplatform-resources) and
+  [Compose Hot Reload](user-guide/builtin-tech/compose.md#compose-hot-reload-experimental)
+* [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs)
 
 Future directions:
 
-* Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
-* More [product types](user-guide/basics.md#product-types) and platforms, such as watchOS, Windows, etc.
-* Platform-specific test types, including android instrumented tests.
-* Native dependencies support, such as CocoaPods, Swift Package Manager.
-* Packaging and publication.
-* Build variants support.
-* Extensibility.
-
-## Getting started
-
-To get started and try out Amper, head over to our [Getting Started](getting-started/index.md) section.
+* [ ] Extensibility
+* [ ] Packaging, publication, distribution
+* [ ] Maven migration
+* [ ] Platform-specific test types, including android instrumented tests.
+* [ ] Native dependencies support, such as CocoaPods, Swift Package Manager
+* [ ] Build variants support
 
 ## Issues and feedback
 
 Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
 [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
-Before reporting an issue, please check the [FAQ](faq.md).
-
-You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
+You can also join the [:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
 
 ## Examples
 
