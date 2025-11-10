@@ -7,7 +7,7 @@ have a name (an exclusive common ancestor) in the default hierarchy. Aliases can
 
 Read more about [aliases](../user-guide/multiplatform.md#aliases).
 
-Examples:
+Example:
 
 ```yaml
 # Create an alias to share code between JVM and Android platforms.  
@@ -29,7 +29,7 @@ dependencies@jvmAndAndroid:
 
 Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
 
-Examples:
+Example:
 
 ```yaml
 # Apply a `common.module-template.yaml` template to the module
@@ -98,9 +98,7 @@ dependencies:
       scope: runtime-only
 ```
 
-The `dependencies:` section can also be [qualified with a platform](../user-guide/multiplatform.md#platform-qualifier).
-
-Examples:
+The `dependencies:` section can also be [qualified with a platform](../user-guide/multiplatform.md#platform-qualifier):
 
 ```yaml
 # Dependencies used to build the common part of the product
@@ -115,8 +113,12 @@ dependencies@jvm:
 
 ## `layout`
 
-`layout` is a top-level field defines the module file structure. Field can accept values: `amper` and `maven-like`. The
-default value is `amper` which is the default module file layout.
+The `layout` defines the module file structure. Valid values:
+
+* `amper`: place your files in `src`, `test`, and `resources` directories 
+* `maven-like`: just like Maven (`src/main/kotlin`, `src/main/java`, `src/test/kotlin`, `src/main/resources`)
+
+The default value is `amper`.
 
 Examples:
 
@@ -161,20 +163,18 @@ level of their support.
 
 Examples:
 
-```yaml
-# Short form, defaults to all supported platforms for the corresponding target:
+```yaml title="Short form"
+# Defaults to all supported platforms for the corresponding target
 product: macos/app
 ```
 
-```yaml
-# Full form, with an explicitly specified platform
+```yaml title="Full form, explicitly specified platforms"
 product:
   type: macos/app
   platforms: [ macosArm64, macosArm64 ]
 ```
 
-```yaml
-# Multiplatform Library for JVM and Android platforms 
+```yaml title="Multiplatform Library for JVM and Android platforms"
 product:
   type: lib
   platforms: [ jvm, android ]
@@ -202,23 +202,20 @@ Credentials support username/password authentication and have the following attr
 
 Examples:
 
-```yaml
-# Short form
+```yaml title="Short form"
 repositories:
   - https://repo.spring.io/ui/native/release
   - https://jitpack.io
 ```
 
-```yaml
-# Full form
+```yaml title="Full form"
 repositories:
   - url: https://repo.spring.io/ui/native/release
   - id: jitpack
     url: https://jitpack.io
 ```
 
-```yaml
-# Specifying the credentials
+```yaml title="Specifying credentials"
 repositories:
   - url: https://my.private.repository/
     credentials:
@@ -262,15 +259,15 @@ platform in the module. The value can be the simple `enabled` string, or an obje
 | `enabled: boolean`                   | Whether to enable [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an implementation of the `Parcelable` interface is automatically generated for classes annotated with `@Parcelize`.                                                                                                                                                           |         |
 | `additionalAnnotations: string list` | The full-qualified names of additional annotations that should be considered as `@Parcelize`. This is useful if you need to annotate classes in common code shared between different platforms, where the real `@Parcelize` annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it. | (empty) |
 
-```yaml
-# Enables Parcelize to process @Parcelize-annotated classes (short form)
+```yaml title="Short form"
+# Enables Parcelize to process @Parcelize-annotated classes
 settings:
   android:
     parcelize: enabled
 ```
 
-```yaml
-# Enables Parcelize, and configures it to process a custom @com.example.MyCommonParcelize annotation
+```yaml title="Custom annotation"
+# Configures Parcelize to process a custom @com.example.MyCommonParcelize annotation
 settings:
   android:
     parcelize:
@@ -321,22 +318,19 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 
 Examples:
 
-```yaml
-# Short form
+```yaml title="Short form"
 settings:
   compose: enabled
 ```
 
-```yaml
-# Full form
+```yaml title="Full form"
 settings:
   compose:
     enabled: true
     version: 1.6.10
 ```
 
-```yaml
-# Full form with resources configuration
+```yaml title="Full form with resources configuration"
 settings:
   compose:
     enabled: true
@@ -344,15 +338,6 @@ settings:
     resources:
       packageName: "com.example.myapp.resources"
       exposedAccessors: true
-```
-
-```yaml
-# With experimental hot reload enabled
-settings:
-  compose:
-    enabled: true
-    experimental:
-      hotReload: enabled
 ```
 
 ### `settings.java`
@@ -375,7 +360,6 @@ settings:
 Examples:
 
 ```yaml
-# Add an annotation processor
 settings:
   java:
     annotationProcessing:
@@ -383,8 +367,7 @@ settings:
         - org.mapstruct:mapstruct-processor:1.6.3
 ```
 
-```yaml
-# Add an annotation processor with options
+```yaml title="Passing processor options"
 settings:
   java:
     annotationProcessing:
@@ -519,8 +502,7 @@ which makes classes annotated with specific annotations open automatically witho
 
 Examples:
 
-```yaml
-# Enable all-open with custom annotations
+```yaml title="All-open with custom annotations"
 settings:
   kotlin:
     allOpen:
@@ -528,8 +510,7 @@ settings:
       annotations: [ com.example.MyOpen, com.example.MyFramework.Open ]
 ```
 
-```yaml
-# Enable all-open with Spring preset
+```yaml title="All-open with Spring preset"
 settings:
   kotlin:
     allOpen:
@@ -551,7 +532,7 @@ which generates no-arg constructors for classes with specific annotations.
 
 Examples:
 
-```yaml
+```yaml title="No-arg with JPA preset"
 # Enable no-arg for JPA entities
 settings:
   kotlin:
@@ -560,8 +541,7 @@ settings:
       presets: [ jpa ]
 ```
 
-```yaml
-# Enable no-arg with custom annotations and initializers
+```yaml title="No-arg with custom annotations"
 settings:
   kotlin:
     noArg:

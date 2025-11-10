@@ -15,16 +15,17 @@ or Ktor, multiplatform projects that share business logic and/or UI, and more.
 
 ## Philosophy
 
-Amper should be invisible – nobody likes dealing with the build tool. Ideally, you shouldn't have to leave your source
-files.
+Amper should be invisible when you're working on your code – nobody likes dealing with the build tool.
+Ideally, you shouldn't have to leave your source files to adjust the build configuration.
+
 When you do edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
 
 We believe that this can be achieved by:
 
-- providing a developer- and IDE-friendly declarative configuration DSL – to simplify not only the initial setup but
-  also improve maintainability and let IDEs assist with automatic configuration reliably;
-- bundling a curated set of compatible toolchains and extensions – to support the majority of the scenarios without the
-  need to find compatible plugins;
+- providing a declarative configuration DSL – to simplify not only the initial setup but also improve maintainability 
+  and let IDEs assist with automatic configuration reliably;
+- bundling a curated set of toolchains – to support the majority of the scenarios without the need to find compatible
+  plugins;
 - carefully choosing the extensibility points – to keep the overall mental model and UX of the configuration consistent
   and to avoid unexpected third-party code execution.
 
@@ -42,7 +43,7 @@ We’re currently looking at various aspects, including extensibility, publicati
 * [x] Creating and running JVM, Android, iOS, Linux, Windows, and macOS applications
 * [x] Creating Kotlin Multiplatform libraries
 * [x] Running tests
-* [x] Mixing Kotlin, Java and Swift code
+* [x] Mixing Kotlin, Java, and Swift code
 * [x] Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA
 * [x] [Multi-module](user-guide/basics.md#project-layout) projects
 * [x] [Compose Multiplatform](user-guide/builtin-tech/compose.md), with

@@ -15,7 +15,7 @@ By default, the [Kotlin test](https://kotlinlang.org/api/latest/kotlin.test/) fr
 platform. Additional test-only dependencies should be added to the `test-dependencies:` section of your module
 configuration file:
 
-```yaml
+```yaml title="module.yaml"
 product: jvm/app
 
 # these dependencies are available in main and test code
@@ -28,7 +28,7 @@ test-dependencies:
 ```
 
 To add or override [toolchain settings](basics.md#settings) in tests, use the `test-settings:` section:
-```yaml
+```yaml title="module.yaml"
 # these dependencies are available in main and test code
 setting:
   kotlin:
@@ -57,7 +57,7 @@ Example:
 |-module.yaml
 ```
 
-```yaml
+```yaml title="module.yaml"
 product:
   type: lib
   platforms: [android, iosArm64]

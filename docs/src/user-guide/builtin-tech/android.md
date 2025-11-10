@@ -102,8 +102,10 @@ settings:
 You can use `./amper tool generate-keystore` to generate a new keystore if you don't have one yet.
 This will create a new self-signed certificate, using the details in the `keystore.properties` file.
 
-> You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
-> to learn more.
+!!! note
+
+    You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
+    to learn more.
 
 ## Parcelize
 

@@ -8,7 +8,7 @@
     However, to make the most out of Amper and its toolability, we recommend using IntelliJ IDEA.
     There are tons of diagnostics and quick fixes that make your life a bliss when working with Amper.
 
-1. Preferably use the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/). 
+1. Preferably use the latest [:simple-intellijidea: IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/). 
    The best way to get the most recent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
 2. Make sure to install the [Amper plugin](https://plugins.jetbrains.com/plugin/23076-amper):

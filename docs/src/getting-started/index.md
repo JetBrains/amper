@@ -22,7 +22,7 @@ Ready to try Amper? Choose the right approach for you:
 
     Learn about Amper concepts, or deepen your knowledge about specific topics.
 
--   :material-file-cog: **Start from a template project**
+-   :material-file-cog: Start from a template project
 
     ---
 

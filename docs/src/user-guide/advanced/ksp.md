@@ -16,7 +16,7 @@ Some popular libraries also include a KSP processor to enhance their capabilitie
 
 To add KSP processors to your module, add their maven coordinates to the `settings.kotlin.ksp.processors` list:
 
-```yaml
+```yaml title="module.yaml"
 settings:
   kotlin:
     ksp:
@@ -31,7 +31,7 @@ processors.
 If you only want to add KSP processors for a specific platform, use a `settings` block with a
 [`@platform` qualifier](../multiplatform.md#platform-qualifier):
 
-```yaml
+```yaml title="module.yaml"
 # the Room processor will only process code that compiles to the Android platform
 settings@android:
   kotlin:
@@ -84,8 +84,7 @@ Usually, 3 modules are involved:
 The annotations module is a very simple JVM library module without any required dependencies (it's just here to provide
 some annotations to work with, if necessary):
 
-```yaml
-# my-processor-annotations/module.yaml
+```yaml title="my-processor-annotations/module.yaml"
 product:
   type: lib
   platforms: [ jvm ]
@@ -94,8 +93,7 @@ product:
 The processor module is a JVM library with a `compile-only` dependency on KSP facilities, and on the custom annotations
 module:
 
-```yaml
-# my-processor/module.yaml
+```yaml title="my-processor/module.yaml"
 product:
   type: lib
   platforms: [ jvm ]
@@ -107,8 +105,7 @@ dependencies:
 
 The consumer module adds a regular dependency on the annotations module, and a reference to the processor module:
 
-```yaml
-# my-consumer/module.yaml
+```yaml title="my-consumer/module.yaml"
 product: jvm/app
 
 dependencies:

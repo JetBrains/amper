@@ -7,7 +7,6 @@
 To enable [all-open](https://kotlinlang.org/docs/all-open-plugin.html), add the following configuration:
 
 ```yaml
-
   settings:
     kotlin:
       allOpen:
@@ -18,7 +17,6 @@ To enable [all-open](https://kotlinlang.org/docs/all-open-plugin.html), add the 
           - org.springframework.stereotype.Component
           - org.springframework.stereotype.Controller
           - ...
-
 ```
 
 Or you can use one of the preconfigured presets that contain all-open annotations related to specific frameworks:

@@ -88,7 +88,7 @@ You can now build your application using `./amper build`, or run it using `./amp
 
 Let's add a dependency on a Kotlin library from the Maven repository:
 
-```YAML
+```YAML title="module.yaml"
 product: jvm/app
 
 dependencies:
@@ -121,7 +121,7 @@ we only need to add some test code into the `test/` folder:
 |-module.yaml
 ```
 
-```kotlin
+```kotlin title="MyTest.kt"
 import kotlin.test.*
 
 class MyTest {
@@ -136,7 +136,7 @@ To add test-specific dependencies, use the dedicated `test-dependencies:` sectio
 This should be very familiar to Cargo, Flutter and Poetry users.
 As an example, let's add the MockK library to the project:
 
-```YAML
+```YAML title="module.yaml"
 product: jvm/app
 
 dependencies:
@@ -154,7 +154,7 @@ test-dependencies:
 
 Another typical task is configuring compiler settings, such as language level etc. Here is how we do it in Amper:
 
-```YAML
+```YAML title="module.yaml"
 product: jvm/app
 
 dependencies:
@@ -262,7 +262,7 @@ First let's move our current `src`, `test` and `module.yaml` files into a new `j
 
 Add a `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files, with the following content:
 
-```yaml
+```yaml title="project.yaml"
 modules:
   - ./jvm-app
   - ./shared
