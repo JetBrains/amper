@@ -2,6 +2,7 @@ product: jvm/lib
 
 apply:
   - ../../common.module-template.yaml
+  - ../../detekt.module-template.yaml
 
 plugins:
   binary-compatibility-validator:
@@ -15,4 +16,4 @@ settings:
 
 tasks:
   testJvm:
-    dependsOn: [ :amper-extensibility-api:apiCheck@binary-compatibility-validator ]
+    dependsOn: [ apiCheck@binary-compatibility-validator ]

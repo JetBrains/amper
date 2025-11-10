@@ -6,7 +6,8 @@ package org.jetbrains.amper.plugins
 
 /**
  * Applicable to the Paths/Path-referencing properties.
- * Means that the execution avoidance mechanism only considers the value of the Path itself as an input, but ignores the file that it points to, which is neither an [Input] nor an [Output].
+ * Means that the execution avoidance mechanism only considers the value of the Path itself as an input,
+ * but ignores the file that it points to, which is neither an [Input] nor an [Output].
  *
  * @see ExecutionAvoidance
  */
