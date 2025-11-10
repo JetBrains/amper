@@ -3,7 +3,7 @@ site_description: "An experimental build tool for the Kotlin and Java languages,
 site_url: https://jetbrains.github.io/amper
 site_author: JetBrains Amper team
 
-repo_name: amper
+repo_name: JetBrains/amper
 repo_url: https://github.com/JetBrains/amper
 edit_uri: edit/main/docs/
 
