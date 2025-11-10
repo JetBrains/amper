@@ -1,13 +1,21 @@
 # Lombok
 
-Despite there is a way to configure annotation processing in general for Java, for the Kotlin interop you need a
-compiler plugin configured. So if you want to add Lombok to your project it is better to use `settings:lombok` instead
-of configuring `settings:java:annotationProcessing` directly even if your module is java-only. Enabling Lombok is by
+[Project Lombok](https://projectlombok.org/) is a Java library that generates getters, setters, builders, 
+and other boilerplate code from annotations.
 
+Amper provides the `settings.lombok` option to configure Lombok conveniently in your project:
 ```yaml
-
-  settings:
-    lombok: enabled
+settings:
+  lombok: enabled
 ```
 
-adds `lombok` dependency, annotation processor, and kotlin compiler plugin.
+When Lombok is enabled, Amper adds the `lombok` dependency, the annotation processor for Java, 
+and the Kotlin compiler plugin.
+
+You can also customize the version of the Lombok library using the full form of the configuration:
+```yaml
+settings:
+  lombok:
+    enabled: true
+    version: 1.18.42
+```
