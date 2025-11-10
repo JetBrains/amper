@@ -1477,7 +1477,7 @@ We’re expecting most processors to make this upgrade soon, as KSP1 is no longe
 However, at the moment, you might still see some gaps in support, such as issues with native targets.</p>
 </div>
 <p>To add <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processors to your module, add their maven coordinates to the <code>settings.kotlin.ksp.processors</code> list:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
@@ -1488,7 +1488,7 @@ However, at the moment, you might still see some gaps in support, such as issues
 processors.
 If you only want to add <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processors for a specific platform, use a <code>settings</code> block with a
 <a href="../../multiplatform/#platform-qualifier"><code>@platform</code> qualifier</a>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># the Room processor will only process code that compiles to the Android platform</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="c1"># the Room processor will only process code that compiles to the Android platform</span>
 <span class="nt">settings@android</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
@@ -1530,15 +1530,13 @@ other modules in your project.</p>
 </ul>
 <p>The annotations module is a very simple JVM library module without any required dependencies (it's just here to provide
 some annotations to work with, if necessary):</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># my-processor-annotations/module.yaml</span>
-<span class="nt">product</span><span class="p">:</span>
+<div class="highlight"><span class="filename">my-processor-annotations/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <p>The processor module is a JVM library with a <code>compile-only</code> dependency on <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> facilities, and on the custom annotations
 module:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># my-processor/module.yaml</span>
-<span class="nt">product</span><span class="p">:</span>
+<div class="highlight"><span class="filename">my-processor/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
 
@@ -1547,8 +1545,7 @@ module:</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">com.google.devtools.ksp:symbol-processing-api:2.0.21-1.0.25</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
 </code></pre></div>
 <p>The consumer module adds a regular dependency on the annotations module, and a reference to the processor module:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># my-consumer/module.yaml</span>
-<span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><span class="filename">my-consumer/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor-annotations</span><span class="w"> </span><span class="c1"># to be able to annotate the consumer code</span>

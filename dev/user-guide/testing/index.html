@@ -1381,7 +1381,7 @@
 <p>By default, the <a href="https://kotlinlang.org/api/latest/kotlin.test/">Kotlin test</a> framework is preconfigured for each
 platform. Additional test-only dependencies should be added to the <code>test-dependencies:</code> section of your module
 configuration file:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
 <span class="c1"># these dependencies are available in main and test code</span>
 <span class="nt">dependencies</span><span class="p">:</span>
@@ -1392,7 +1392,7 @@ configuration file:</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-server-test-host:2.2.0</span>
 </code></pre></div>
 <p>To add or override <a href="../basics/#settings">toolchain settings</a> in tests, use the <code>test-settings:</code> section:
-<div class="highlight"><pre><span></span><code><span class="c1"># these dependencies are available in main and test code</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="c1"># these dependencies are available in main and test code</span>
 <span class="nt">setting</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
@@ -1417,7 +1417,7 @@ Example:
 |  |-... 
 |-module.yaml
 </code></pre></div></p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
 

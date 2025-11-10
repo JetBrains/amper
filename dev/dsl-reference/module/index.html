@@ -1888,7 +1888,7 @@
 <p>An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
 have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as <code>@platform</code> qualifiers in the settings.</p>
 <p>Read more about <a href="../../user-guide/multiplatform/#aliases">aliases</a>.</p>
-<p>Examples:</p>
+<p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Create an alias to share code between JVM and Android platforms.  </span>
 <span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
@@ -1904,7 +1904,7 @@ have a name (an exclusive common ancestor) in the default hierarchy. Aliases can
 <h2 id="apply"><code>apply</code><a class="headerlink" href="#apply" title="Permanent link">&para;</a></h2>
 <p><code>apply:</code> section lists the templates applied to the module. Read more about the <a href="../../user-guide/templates/">module templates</a></p>
 <p>Use <code>- ./&lt;relative path&gt;</code> or <code>- ../&lt;relative path&gt;</code> notation, where the <code>&lt;relative path&gt;</code> points at a template file.</p>
-<p>Examples:</p>
+<p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Apply a `common.module-template.yaml` template to the module</span>
 <span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
@@ -2013,8 +2013,7 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 <span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
-<p>The <code>dependencies:</code> section can also be <a href="../../user-guide/multiplatform/#platform-qualifier">qualified with a platform</a>.</p>
-<p>Examples:</p>
+<p>The <code>dependencies:</code> section can also be <a href="../../user-guide/multiplatform/#platform-qualifier">qualified with a platform</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Dependencies used to build the common part of the product</span>
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
@@ -2025,8 +2024,12 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
 <h2 id="layout"><code>layout</code><a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
-<p><code>layout</code> is a top-level field defines the module file structure. Field can accept values: <code>amper</code> and <code>maven-like</code>. The
-default value is <code>amper</code> which is the default module file layout.</p>
+<p>The <code>layout</code> defines the module file structure. Valid values:</p>
+<ul>
+<li><code>amper</code>: place your files in <code>src</code>, <code>test</code>, and <code>resources</code> directories </li>
+<li><code>maven-like</code>: just like Maven (<code>src/main/kotlin</code>, <code>src/main/java</code>, <code>src/test/kotlin</code>, <code>src/main/resources</code>)</li>
+</ul>
+<p>The default value is <code>amper</code>.</p>
 <p>Examples:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
@@ -2126,16 +2129,14 @@ Read more about the <a href="../../user-guide/basics/#product-types">product typ
 <p>Check the list of all <a href="https://kotlinlang.org/docs/native-target-support.html">Kotlin Multiplatform targets</a> and the
 level of their support.</p>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Short form, defaults to all supported platforms for the corresponding target:</span>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="c1"># Defaults to all supported platforms for the corresponding target</span>
 <span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">macos/app</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Full form, with an explicitly specified platform</span>
-<span class="nt">product</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Full form, explicitly specified platforms</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">macos/app</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">macosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macosArm64</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Multiplatform Library for JVM and Android platforms </span>
-<span class="nt">product</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Multiplatform Library for JVM and Android platforms</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
@@ -2193,19 +2194,16 @@ Credentials support username/password authentication and have the following attr
 </tbody>
 </table>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Short form</span>
-<span class="nt">repositories</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Full form</span>
-<span class="nt">repositories</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Full form</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span>
 <span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Specifying the credentials</span>
-<span class="nt">repositories</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Specifying credentials</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://my.private.repository/</span>
 <span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./local.properties</span>
@@ -2304,12 +2302,12 @@ platform in the module. The value can be the simple <code>enabled</code> string,
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enables Parcelize to process @Parcelize-annotated classes (short form)</span>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="c1"># Enables Parcelize to process @Parcelize-annotated classes</span>
 <span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">android</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enables Parcelize, and configures it to process a custom @com.example.MyCommonParcelize annotation</span>
+<div class="highlight"><span class="filename">Custom annotation</span><pre><span></span><code><span class="c1"># Configures Parcelize to process a custom @com.example.MyCommonParcelize annotation</span>
 <span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">android</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span>
@@ -2430,31 +2428,21 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose/">Comp
 </tbody>
 </table>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Short form</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Full form</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Full form</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.6.10</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Full form with resources configuration</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Full form with resources configuration</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.6.10</span>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">packageName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.myapp.resources&quot;</span>
 <span class="w">      </span><span class="nt">exposedAccessors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># With experimental hot reload enabled</span>
-<span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">experimental</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">hotReload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
 </code></pre></div>
 <h3 id="settingsjava"><code>settings.java</code><a class="headerlink" href="#settingsjava" title="Permanent link">&para;</a></h3>
 <p><code>settings:java:</code> configures the Java language and the compiler.</p>
@@ -2498,15 +2486,13 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose/">Comp
 </tbody>
 </table>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Add an annotation processor</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">java</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.mapstruct:mapstruct-processor:1.6.3</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Add an annotation processor with options</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Passing processor options</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">java</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
@@ -2759,15 +2745,13 @@ which makes classes annotated with specific annotations open automatically witho
 </tbody>
 </table>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enable all-open with custom annotations</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">All-open with custom annotations</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.MyOpen</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">com.example.MyFramework.Open</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enable all-open with Spring preset</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">All-open with Spring preset</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -2808,15 +2792,14 @@ which generates no-arg constructors for classes with specific annotations.</p>
 </tbody>
 </table>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enable no-arg for JPA entities</span>
+<div class="highlight"><span class="filename">No-arg with JPA preset</span><pre><span></span><code><span class="c1"># Enable no-arg for JPA entities</span>
 <span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jpa</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Enable no-arg with custom annotations and initializers</span>
-<span class="nt">settings</span><span class="p">:</span>
+<div class="highlight"><span class="filename">No-arg with custom annotations</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>

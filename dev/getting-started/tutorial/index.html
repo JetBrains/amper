@@ -1657,7 +1657,7 @@ no need to create separate Maven-like <code>java/</code> and <code>kotlin/</code
 </div>
 <h2 id="step-2-add-dependencies">Step 2. Add dependencies<a class="headerlink" href="#step-2-add-dependencies" title="Permanent link">&para;</a></h2>
 <p>Let's add a dependency on a Kotlin library from the Maven repository:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlinx:kotlinx-datetime:0.6.2</span>
@@ -1682,7 +1682,7 @@ we only need to add some test code into the <code>test/</code> folder:</p>
 |  |-MyTest.kt
 |-module.yaml
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">kotlin.test.*</span>
+<div class="highlight"><span class="filename">MyTest.kt</span><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">kotlin.test.*</span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nc">MyTest</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nd">@Test</span>
@@ -1694,7 +1694,7 @@ we only need to add some test code into the <code>test/</code> folder:</p>
 <p>To add test-specific dependencies, use the dedicated <code>test-dependencies:</code> section.
 This should be very familiar to Cargo, Flutter and Poetry users.
 As an example, let's add the MockK library to the project:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlinx:kotlinx-datetime:0.6.2</span>
@@ -1710,7 +1710,7 @@ As an example, let's add the MockK library to the project:</p>
 </div>
 <h2 id="step-4-configure-java-and-kotlin">Step 4. Configure Java and Kotlin<a class="headerlink" href="#step-4-configure-java-and-kotlin" title="Permanent link">&para;</a></h2>
 <p>Another typical task is configuring compiler settings, such as language level etc. Here is how we do it in Amper:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlinx:kotlinx-datetime:0.6.2</span>
@@ -1805,7 +1805,7 @@ following structure:
 |-amper.bat
 </code></pre></div></p>
 <p>Add a <code>project.yaml</code> file in the root, next to the existing <code>amper</code> and <code>amper.bat</code> files, with the following content:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./jvm-app</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./shared</span>
 </code></pre></div>
