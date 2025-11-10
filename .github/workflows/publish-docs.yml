@@ -64,7 +64,8 @@ jobs:
       - name: Deploy docs
         working-directory: docs
         env:
-          BUILD_BRANCH: ${{ github.ref_name }}
+          MKDOCS_GIT_BRANCH: ${{ github.ref_name }}
+          MKDOCS_GIT_EDIT_URL: edit/${{ github.ref_name }}/docs/src/
         run: |
           version_id="${{ steps.meta.outputs.version_id }}"
           version_title="${{ steps.meta.outputs.version_title }}"
