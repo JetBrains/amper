@@ -27,8 +27,13 @@ jobs:
           python-version: 3.x
 
       # MkDocs to generate the docs, mike to handle versioning
-      - name: Install MkDocs and Mike
-        run: pip install mkdocs-material mkdocs-macros-plugin mike
+      - name: Install MkDocs with its plugins, and Mike
+        run: pip install \
+          mkdocs-material \
+          mkdocs-macros-plugin \
+          mkdocs-git-revision-date-localized-plugin \
+          mkdocs-git-committers-plugin-2 \
+          mike
 
       - name: Configure git
         run: |
@@ -66,6 +71,7 @@ jobs:
         env:
           MKDOCS_GIT_BRANCH: ${{ github.ref_name }}
           MKDOCS_GIT_EDIT_URL: edit/${{ github.ref_name }}/docs/src/
+          MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN: ${{ secrets.MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN}}
         run: |
           version_id="${{ steps.meta.outputs.version_id }}"
           version_title="${{ steps.meta.outputs.version_title }}"
