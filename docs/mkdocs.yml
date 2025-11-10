@@ -62,6 +62,7 @@ markdown_extensions:
   - attr_list # required for attribute-based features (grid, alignment, buttons, tooltips, etc.)
   - def_list # for definition lists (stomp config)
   - footnotes
+  - md_in_html # to process Markdown inside HTML (useful for grids)
   - pymdownx.details # for collapsible admonitions
   - pymdownx.emoji: # for emoji shortcuts with :name: syntax
       emoji_index: !!python/name:material.extensions.emoji.twemoji

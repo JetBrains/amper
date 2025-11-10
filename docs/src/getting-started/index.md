@@ -1,20 +1,34 @@
 # Getting started
 
-Ready to try Amper? Great!
+Ready to try Amper? Choose the right approach for you:
 
-## Where to start?
+<div class="grid cards" markdown>
 
-There are different ways to get to know Amper, depending on your needs and preferences:
+-   :material-note-search: [Examples on GitHub]({{ examples_base_url }})
 
-* :material-note-search: [Examples on GitHub]({{ examples_base_url }}) – to look at complete code examples.
+    ---
 
-* :material-format-list-numbered: [Tutorial](tutorial.md) – to create a project from the ground up, step-by-step.
+    Look at complete example projects, and get inspired.
 
-* :blue_book: [User guide](../user-guide/index.md) – to learn about Amper concepts, or if you're after a specific topic.
+-   :material-format-list-numbered: [Tutorial](tutorial.md)
 
-* :material-file-cog: **Start from a template project** – 2 options here:
-    * create a new Amper project in IntelliJ IDEA with the Kotlin wizard (first, see [IDE setup](ide-setup.md)), or
-    * use `./amper init` (see [CLI setup](cli.md#installation) to get the script).
+    ---
+
+    Create a project from the ground up, step-by-step.
+
+-   :material-book-open-page-variant: [User guide](../user-guide/index.md)
+
+    ---
+
+    Learn about Amper concepts, or deepen your knowledge about specific topics.
+
+-   :material-file-cog: **Start from a template project**
+
+    ---
+
+    Use `./amper init` from the [CLI](cli.md#installation), or create a new Amper project in IntelliJ IDEA.
+
+</div>
 
 !!! info "Good tooling rocks!"
 
