@@ -16,7 +16,7 @@ import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.dependency.resolution.diagnostics.isPotentiallyRecoverable
+import org.jetbrains.amper.dependency.resolution.diagnostics.isCacheable
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
@@ -273,8 +273,8 @@ class Resolver {
                     .minByOrNull { it }
             }
 
-        val wasRecoverableErrorReported = this.messages.any { it.severity >= Severity.ERROR && it.isPotentiallyRecoverable() }
-        val expirationDueToRecoverableErrorTime = if (wasRecoverableErrorReported) Clock.System.now() else null
+        val isNotCacheable = this.messages.any { it.severity >= Severity.ERROR && !it.isCacheable() }
+        val expirationDueToRecoverableErrorTime = if (isNotCacheable) Clock.System.now() else null
 
         return if (snapshotExpirationTime != null && expirationDueToRecoverableErrorTime != null) {
             listOf(snapshotExpirationTime, expirationDueToRecoverableErrorTime)

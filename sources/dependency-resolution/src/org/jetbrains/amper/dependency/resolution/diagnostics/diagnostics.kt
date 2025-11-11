@@ -15,7 +15,7 @@ internal fun SimpleDiagnosticDescriptor.asMessage(
     exception: Throwable? = null,
     overrideSeverity: Severity? = null,
     childMessages: List<Message> = emptyList(),
-    potentiallyRecoverable: Boolean = false,
+    cacheable: Boolean = true,
 ): SimpleMessage = SimpleMessage(
     text = DependencyResolutionBundle.message(id, *messageArgs),
     extra = extra ?: "",
@@ -23,7 +23,7 @@ internal fun SimpleDiagnosticDescriptor.asMessage(
     throwable = exception,
     childMessages = childMessages,
     id = id,
-    potentiallyRecoverable = potentiallyRecoverable
+    cacheable = cacheable
 )
 
 object DependencyResolutionDiagnostics {
