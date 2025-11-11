@@ -49,6 +49,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     buildType = buildType,
+                    jdkProvider = context.jdkProvider,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -87,6 +88,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                                 }
                             }
                         },
+                        jdkProvider = context.jdkProvider,
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
