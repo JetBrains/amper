@@ -123,7 +123,7 @@ nav:
     - 'project.yaml': dsl-reference/project.md
     - 'module.yaml': dsl-reference/module.md
   - 'FAQ': faq.md
-  - 'Releases 🡕': https://github.com/JetBrains/amper/releases
+  - 'Releases ↗': https://github.com/JetBrains/amper/releases
 
 extra:
   # The git_branch variable is used to generate the repo_filetree_url variable to link to repo files from the docs.
