@@ -120,6 +120,8 @@ The `layout` defines the module file structure. Valid values:
 
 The default value is `amper`.
 
+!!! warning "The `maven-like` layout is only supported in modules with `jvm/app` or `jvm/lib` product type."
+
 Examples:
 
 ```yaml
