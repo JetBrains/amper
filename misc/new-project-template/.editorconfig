@@ -1,6 +1,0 @@
-# .editorconfig
-root = true
-
-[*.yaml]
-indent_style = space
-indent_size = 2

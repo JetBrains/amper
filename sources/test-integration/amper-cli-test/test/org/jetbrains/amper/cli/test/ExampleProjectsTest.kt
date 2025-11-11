@@ -221,14 +221,6 @@ class ExampleProjectsTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `new-project-template`() = runSlowTest {
-        val projectRoot = exampleProject("new-project-template")
-        // TODO Assert output
-        runCli(projectRoot, "run")
-        runCli(projectRoot, "test")
-    }
-    
-    @Test
     fun `spring-petclinic`() = runSlowTest {
         val projectRoot = exampleProject("spring-petclinic")
 
