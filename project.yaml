@@ -34,6 +34,7 @@ modules:
   - sources/frontend/plain/toml-psi
   - sources/frontend/plain/yaml-psi
   - sources/frontend/schema
+  - sources/java-incremental-compilation/jvm-inc-builder
   - sources/libraries/async-processes
   - sources/libraries/binary-compatibility-validation
   - sources/libraries/compose-resources
