@@ -14,7 +14,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
 import org.jetbrains.amper.dependency.resolution.attributes.Category
-import org.jetbrains.amper.dependency.resolution.attributes.JvmEnvironment
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinWasmTarget
@@ -1267,7 +1266,7 @@ class MavenDependencyImpl internal constructor(
 
     private fun Dependency.resolveVersion(reportError: (reason: String) -> Unit): String? {
         return if (version == null) {
-            // Empty version of transitive dependency might be resolved from some BOM file from dependency graph
+            // An empty version of transitive dependency might be resolved from some BOM file from the dependency graph
             null
         } else {
             val resolvedVersion = version.resolve()
@@ -1613,6 +1612,7 @@ class MavenDependencyImpl internal constructor(
                         kmpLibraryWithSourceSet.name,
                         extra = DependencyResolutionBundle.message("extra.exception", e),
                         exception = e,
+                        potentiallyRecoverable = true
                     )
                     logger.warn(message.message, e)
                     diagnosticsReporter.addMessage(message)

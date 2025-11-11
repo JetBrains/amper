@@ -37,6 +37,18 @@ interface Message {
      * Whether the message should be reported for transitive dependencies.
      */
     val reportTransitive: Boolean get() = true
+
+    /**
+     * This flag is set to true for diagnostics pointing to the temporary issues
+     * that might be resolved in the later resolution runs (i/o errors, network failures).
+     *
+     * Note: The flag defines whether this particular diagnostic is recoverable or not.
+     * Though the issue might be caused by another one, in that case causing issues might also be taken into account
+     * while calculating the recoverable status of the diagnostic.
+     * Use convenient method [Message.isPotentiallyRecoverable]
+     * to get recoverable state of the diagnostic taking causing issues into account.
+     */
+    val potentiallyRecoverable: Boolean get() = false
 }
 
 val Message.detailedMessage: @Nls String
@@ -50,6 +62,14 @@ internal interface WithChildMessages : Message {
 
     override val details: @Nls String? get() = if (childMessages.isEmpty()) null else nestedMessages()
 }
+
+fun Message.isPotentiallyRecoverable(): Boolean =
+    when(this) {
+        is WithChildMessages ->
+            potentiallyRecoverable || childMessages.any { it.severity >= severity && it.isPotentiallyRecoverable() }
+        else ->
+            potentiallyRecoverable
+    }
 
 private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
     var first = true
@@ -94,6 +114,7 @@ internal data class SimpleMessage(
     override val severity: Severity = Severity.INFO,
     @Transient
     val throwable: Throwable? = null,
+    override val potentiallyRecoverable: Boolean = false,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages {

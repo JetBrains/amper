@@ -15,6 +15,8 @@ import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.dependency.resolution.diagnostics.isPotentiallyRecoverable
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
@@ -22,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.pathString
+import kotlin.time.Clock
 import kotlin.time.Instant
 
 private val logger = LoggerFactory.getLogger("dr/resolver.kt")
@@ -250,18 +253,34 @@ class Resolver {
     private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
         return try {
             distinctBfsSequence()
-                .filterIsInstance<MavenDependencyNodeWithContext>()
-                .flatMap {
-                    it.dependency.files(false).filterIsInstance<SnapshotDependencyFileImpl>()
-                }
                 .toSet()
-                .mapNotNull { it.getExpirationTime() }
+                .mapNotNull { it.calculateNodeExpirationTime() }
                 .minByOrNull { it }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             logger.error("Unable to calculate expiration time of the dependency graph", e)
             return null
+        }
+    }
+
+    private suspend fun DependencyNode.calculateNodeExpirationTime(): Instant? {
+        val snapshotExpirationTime: Instant? =
+            (this as? MavenDependencyNodeWithContext)?.let { node ->
+                node.dependency.files(false)
+                    .filterIsInstance<SnapshotDependencyFileImpl>()
+                    .mapNotNull { it.getExpirationTime() }
+                    .minByOrNull { it }
+            }
+
+        val wasRecoverableErrorReported = this.messages.any { it.severity >= Severity.ERROR && it.isPotentiallyRecoverable() }
+        val expirationDueToRecoverableErrorTime = if (wasRecoverableErrorReported) Clock.System.now() else null
+
+        return if (snapshotExpirationTime != null && expirationDueToRecoverableErrorTime != null) {
+            listOf(snapshotExpirationTime, expirationDueToRecoverableErrorTime)
+                .minByOrNull { it }
+        } else {
+            snapshotExpirationTime ?: expirationDueToRecoverableErrorTime
         }
     }
 

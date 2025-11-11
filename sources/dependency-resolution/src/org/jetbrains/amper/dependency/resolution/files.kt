@@ -565,6 +565,7 @@ open class DependencyFileImpl(
                 dependency,
                 extra = DependencyResolutionBundle.message("extra.exception", t),
                 exception = t,
+                potentiallyRecoverable = true,
             )
             logger.warn(message.message, t)
             diagnosticsReporter.addMessage(message)
@@ -759,6 +760,7 @@ open class DependencyFileImpl(
                             dependency,
                             extra = DependencyResolutionBundle.message("extra.exception", t),
                             exception = t,
+                            potentiallyRecoverable = true
                         )
                     )
                     return null
@@ -1034,6 +1036,7 @@ open class DependencyFileImpl(
                                                         sizeFromResponse,
                                                         size,
                                                         overrideSeverity = overrideSeverity,
+                                                        potentiallyRecoverable = true,
                                                     )
                                                 )
 
@@ -1080,7 +1083,8 @@ open class DependencyFileImpl(
                 UnableToReachURL.asMessage(
                     url,
                     extra = DependencyResolutionBundle.message("extra.exception", e),
-                    exception = e
+                    exception = e,
+                    potentiallyRecoverable = true
                 )
             )
         }
@@ -1202,6 +1206,7 @@ open class DependencyFileImpl(
                             expectedHash.hash,
                             actualHash.hash
                         ),
+
                     ),
                 )
                 return VerificationResult.FAILED
