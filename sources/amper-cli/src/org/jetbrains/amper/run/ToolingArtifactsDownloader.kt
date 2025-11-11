@@ -16,6 +16,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import java.nio.file.Path
 
 val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")
@@ -74,6 +75,6 @@ class ToolingArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
-            return@execute IncrementalCache.ExecutionResult(resolved.paths, expirationTime = resolved.expirationTime)
+            return@execute resolved.toIncrementalCacheResult()
         }.outputFiles
 }

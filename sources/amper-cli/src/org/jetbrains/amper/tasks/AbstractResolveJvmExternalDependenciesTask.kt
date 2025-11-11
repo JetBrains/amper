@@ -23,7 +23,6 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -60,7 +59,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                 else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
             } }.joinToString("|"),
         )
-        val resolvedExternalJars = incrementalCache.executeForFiles(
+        val resolvedExternalJars = incrementalCache.execute(
             incrementalCacheKey,
             configuration,
             emptyList(),
@@ -95,9 +94,9 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                                 }
                             },
                         )
-                    }.toCachedPaths()
+                    }.toIncrementalCacheResult()
                 }
-        }
+        }.outputFiles
 
         return Result(resolvedExternalJars)
     }

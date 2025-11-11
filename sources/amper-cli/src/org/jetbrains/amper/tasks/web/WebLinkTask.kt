@@ -26,7 +26,6 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.incrementalcache.CachedPaths
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.Jdk
@@ -142,7 +141,7 @@ internal abstract class WebLinkTask(
                 includeArtifact = includeArtifact,
             )
 
-            CachedPaths(listOf(artifactPath), null)
+            listOf(artifactPath)
         }.single()
 
         return Result(

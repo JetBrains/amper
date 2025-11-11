@@ -7,7 +7,7 @@ package org.jetbrains.amper.ksp
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.incrementalcache.CachedPaths
+import org.jetbrains.amper.resolver.CachedPaths
 import org.jetbrains.amper.resolver.MavenResolver
 import java.nio.file.Path
 

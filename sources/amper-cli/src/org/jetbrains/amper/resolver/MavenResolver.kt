@@ -27,16 +27,15 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
-import org.jetbrains.amper.incrementalcache.CachedPaths
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.renderMessage
-import org.jetbrains.amper.tasks.toCachedPaths
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
+import kotlin.time.Instant
 
 class MavenResolver(
     private val userCacheRoot: AmperUserCacheRoot,
@@ -183,3 +182,11 @@ private fun DependencyNode.fillExternalDependencies(
         }
     }
 }
+
+class CachedPaths(val paths: List<Path>, val expirationTime: Instant? = null)
+
+internal fun CachedPaths.toIncrementalCacheResult() =
+    IncrementalCache.ExecutionResult(outputFiles = paths, expirationTime = expirationTime)
+
+private fun ResolvedGraph.toCachedPaths() =
+    CachedPaths(root.dependencyPaths(), expirationTime)

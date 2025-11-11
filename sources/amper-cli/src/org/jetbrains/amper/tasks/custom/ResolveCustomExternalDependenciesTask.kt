@@ -21,12 +21,11 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.buildDependenciesGraph
-import org.jetbrains.amper.tasks.toCachedPaths
+import org.jetbrains.amper.tasks.toIncrementalCacheResult
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
@@ -69,7 +68,7 @@ internal class ResolveCustomExternalDependenciesTask(
         )
 
         val externalDependencies = root.getExternalDependencies()
-        val dependencyPaths = incrementalCache.executeForFiles(
+        val dependencyPaths = incrementalCache.execute(
             key = taskName.name,
             inputValues = mapOf(
                 "userCacheRoot" to userCacheRoot.path.pathString,
@@ -84,9 +83,9 @@ internal class ResolveCustomExternalDependenciesTask(
                 .setListAttribute("dependencies-coordinates", externalDependencies.map { it.toString() })
                 .use {
                     val resolvedGraph = mavenResolver.resolve(root, "custom external dependencies")
-                    resolvedGraph.toCachedPaths()
+                    resolvedGraph.toIncrementalCacheResult()
                 }
-        }
+        }.outputFiles
 
         return Result(
             resolvedFiles = dependencyPaths,

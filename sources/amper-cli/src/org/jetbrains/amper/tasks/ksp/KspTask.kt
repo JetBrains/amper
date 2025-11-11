@@ -24,7 +24,6 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.incrementalcache.CachedPaths
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -39,6 +38,7 @@ import org.jetbrains.amper.ksp.KspOutputPaths
 import org.jetbrains.amper.ksp.WebBackend
 import org.jetbrains.amper.ksp.downloadKspJars
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -165,13 +165,15 @@ internal class KspTask(
             "kspVersion" to kspVersion,
             "respositories" to repositories.joinToString("|"),
         )
-        return incrementalCache.executeForFiles("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
+        return incrementalCache.execute("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
             spanBuilder("download-ksp-cli")
                 .setAttribute("ksp-version", kspVersion)
                 .use {
-                    mavenResolver.downloadKspJars(kspVersion, repositories)
+                    mavenResolver
+                        .downloadKspJars(kspVersion, repositories)
+                        .toIncrementalCacheResult()
                 }
-        }
+        }.outputFiles
     }
 
     private suspend fun Ksp.runKsp(
@@ -242,7 +244,7 @@ internal class KspTask(
                     tempRoot = tempRoot,
                 )
             }
-            CachedPaths(kspOutputPaths.outputDirs, null)
+            kspOutputPaths.outputDirs
         }
     }
 

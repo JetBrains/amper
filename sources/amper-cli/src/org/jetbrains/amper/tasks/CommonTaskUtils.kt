@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.incrementalcache.CachedPaths
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 
 object CommonTaskUtils {
     fun Iterable<Fragment>.userReadableList() = map { it.name }.sorted().joinToString(" ")
@@ -32,4 +32,5 @@ fun Collection<Fragment>.identificationPhrase(): String = when (size) {
  */
 fun Fragment.identificationPhrase(): String = "fragment '${name}' of module '${module.userReadableName}'"
 
-internal fun ResolvedGraph.toCachedPaths() = CachedPaths(root.dependencyPaths(), expirationTime)
+internal fun ResolvedGraph.toIncrementalCacheResult() =
+    IncrementalCache.ExecutionResult(outputFiles = root.dependencyPaths(), expirationTime = expirationTime)

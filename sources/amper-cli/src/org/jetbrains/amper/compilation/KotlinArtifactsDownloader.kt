@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import java.nio.file.Path
 import kotlin.io.path.name
 
@@ -75,6 +76,6 @@ internal class KotlinArtifactsDownloader(
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = coordinates,
             )
-            return@execute IncrementalCache.ExecutionResult(resolved.paths, expirationTime = resolved.expirationTime)
+            return@execute resolved.toIncrementalCacheResult()
         }.outputFiles
 }
