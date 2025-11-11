@@ -10,4 +10,4 @@ Amper is an experimental build tool for the Kotlin and Java languages, with a fo
 It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
 or Ktor, multiplatform projects that share business logic and/or UI, and more.
 
-Check out our [website](https://jetbrains.github.io/amper/dev) for the full documentation.
+Check out our [website](https://amper.org/dev) for the full documentation.

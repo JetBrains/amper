@@ -1,6 +1,6 @@
 site_name: Amper
 site_description: "An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling."
-site_url: https://jetbrains.github.io/amper
+site_url: https://amper.org
 site_author: JetBrains Amper team
 
 repo_name: JetBrains/amper
