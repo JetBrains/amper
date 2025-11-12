@@ -64,18 +64,6 @@ object Downloader {
             requestTimeoutMillis = 2.hours.inWholeMilliseconds
             socketTimeoutMillis = 2.minutes.inWholeMilliseconds
         }
-
-        install(ContentEncoding) {
-            // Any `Content-Encoding` will make nginx servers/proxies remove the `Content-Length` header in responses,
-            // but we rely on this header for file-length checks after download.
-            // Hence, we set these encodings to zero weights.
-            deflate(0.0F)
-            gzip(0.0F)
-
-            // Tells the server that no compression is also acceptable.
-            // This is useful when a request is the download of a file that is already compressed.
-            identity()
-        }
     }
 
     suspend fun downloadFileToCacheLocation(
@@ -180,8 +168,8 @@ object Downloader {
     }
 
     private fun checkContentLength(response: HttpResponse, url: String, tempFile: Path) {
-        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
-        check(contentLength > 0) { "Header '${HttpHeaders.ContentLength}' is missing or zero for $url" }
+        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull()?.takeIf { it > 0 }
+            ?: return // skip the check if the header is missing or 0
         val fileSize = tempFile.fileSize()
         check(fileSize == contentLength) {
             "Wrong file length after downloading uri '$url' to '$tempFile': expected length $contentLength " +
