@@ -1543,13 +1543,20 @@
 
 
 <h1 id="lombok">Lombok<a class="headerlink" href="#lombok" title="Permanent link">&para;</a></h1>
-<p>Despite there is a way to configure annotation processing in general for Java, for the Kotlin interop you need a
-compiler plugin configured. So if you want to add Lombok to your project it is better to use <code>settings:lombok</code> instead
-of configuring <code>settings:java:annotationProcessing</code> directly even if your module is java-only. Enabling Lombok is by</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">lombok</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-</code></pre></div>
-<p>adds <code>lombok</code> dependency, annotation processor, and kotlin compiler plugin.</p>
+<p><a href="https://projectlombok.org/">Project Lombok</a> is a Java library that generates getters, setters, builders, 
+and other boilerplate code from annotations.</p>
+<p>Amper provides the <code>settings.lombok</code> option to configure Lombok conveniently in your project:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lombok</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div></p>
+<p>When Lombok is enabled, Amper adds the <code>lombok</code> dependency, the annotation processor for Java, 
+and the Kotlin compiler plugin.</p>
+<p>You can also customize the version of the Lombok library using the full form of the configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lombok</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.18.42</span>
+</code></pre></div></p>
 
 
 
@@ -1570,7 +1577,7 @@ of configuring <code>settings:java:annotationProcessing</code> directly even if 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 12:37:35 UTC">November 10, 2025</span>
   </span>
 
     

@@ -1543,20 +1543,33 @@
 
 
 <h1 id="ktor">Ktor<a class="headerlink" href="#ktor" title="Permanent link">&para;</a></h1>
-<p>To enable Ktor support, add the following to the <code>module.yaml</code> file:</p>
+<p><a href="https://ktor.io/">Ktor</a> is a Kotlin framework for building asynchronous server-side and client-side applications.</p>
+<p>To enable Ktor support, add the following to the <code>module.yaml</code> file:
 <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">ktor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-</code></pre></div>
+</code></pre></div></p>
 <p>Setting <code>ktor: enabled</code> performs the following actions:</p>
 <ul>
 <li>Applies Ktor BOM</li>
 <li>Contributes Ktor-related entries to a built-in library catalog</li>
-<li>Adds default JVM arguments when running the app</li>
+<li>Adds the <code>io.ktor.development=true</code> system property when running the app with <code>amper run</code></li>
 </ul>
 <p>Examples of Ktor projects:</p>
 <ul>
 <li><a href="https://github.com/JetBrains/amper/tree/main/examples/ktor-simplest-sample">ktor-simplest-sample</a></li>
 </ul>
+<p>You can also customize the version of the Ktor libraries using the full form of the configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ktor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.3.2</span>
+</code></pre></div></p>
+<p>If you don't want the Ktor BOM to be applied, you can disable it explicitly:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ktor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">applyBom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
 
 
 
@@ -1577,7 +1590,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 12:47:06 UTC">November 10, 2025</span>
   </span>
 
     

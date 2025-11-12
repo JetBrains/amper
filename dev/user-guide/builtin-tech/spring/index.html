@@ -1543,25 +1543,44 @@
 
 
 <h1 id="spring-boot">Spring Boot<a class="headerlink" href="#spring-boot" title="Permanent link">&para;</a></h1>
-<p>To enable Spring boot support, add the following to the <code>module.yaml</code> file:</p>
+<p><a href="https://spring.io/projects/spring-boot">Spring Boot</a> is a framework that simplifies the creation of stand-alone,
+Spring based applications.</p>
+<p>To enable Spring Boot support, add the following to the <code>module.yaml</code> file:
 <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">springBoot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-</code></pre></div>
+</code></pre></div></p>
 <p>Setting <code>springBoot: enabled</code> performs the following actions:</p>
 <ul>
-<li>Applies the Spring Dependencies BOM</li>
+<li>Applies the <a href="https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies">Spring Boot Dependencies BOM</a></li>
 <li>Adds the <code>spring-boot-starter</code> dependency</li>
 <li>Adds the <code>spring-boot-starter-test</code> test dependency</li>
 <li>Configures <code>all-open</code> and <code>no-arg</code> Kotlin compiler plugins with the <code>spring</code> preset</li>
-<li>Adds the necessary compiler arguments for <code>kotlinc</code> and <code>javac</code></li>
+<li>Adds the necessary compiler arguments for <code>kotlinc</code> and <code>javac</code>:</li>
+<li>For Java, <code>-parameters</code> is passed to the compiler to preserve parameter names.</li>
+<li>For Kotlin, <code>-java-parameters</code> is passed to the compiler for the same reason. Also <code>-Xjsr305</code> is set to <code>strict</code>
+    to favor the null-safety annotations.</li>
 <li>Contributes Spring Boot-related entries to the built-in library catalog</li>
+<li>Makes <code>amper run</code> run with classes instead of JARs (aka the <code>jvm.runtimeClasspathMode</code> setting).<br />
+  This way the <a href="https://docs.spring.io/spring-boot/reference/using/devtools.html">Spring Dev Tools</a> can provide automatic restarts.</li>
 </ul>
-<p>Mixed projects (containing java and kotlin sources simultaneously) are supported.</p>
+<p>Mixed projects (containing Java and Kotlin sources simultaneously) are supported.</p>
 <p>Examples of Spring Boot projects:</p>
 <ul>
 <li><a href="https://github.com/JetBrains/amper/tree/main/examples/spring-petclinic">spring-petclinic</a></li>
 <li><a href="https://github.com/JetBrains/amper/tree/main/examples/spring-petclinic-kotlin">spring-petclinic-kotlin</a></li>
 </ul>
+<p>You can also customize the version of the Spring Boot libraries using the full form of the configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">springBoot</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.5.7</span>
+</code></pre></div></p>
+<p>If you don't want the Spring Boot Dependencies BOM to be applied, you can disable it explicitly:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">springBoot</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">applyBom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
 
 
 
@@ -1582,7 +1601,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 12:59:26 UTC">November 10, 2025</span>
   </span>
 
     
