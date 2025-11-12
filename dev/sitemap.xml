@@ -9,14 +9,6 @@
          <lastmod>2025-11-12</lastmod>
     </url>
     <url>
-         <loc>https://amper.org/dev/dsl-reference/module/</loc>
-         <lastmod>2025-11-12</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/dev/dsl-reference/project/</loc>
-         <lastmod>2025-11-12</lastmod>
-    </url>
-    <url>
          <loc>https://amper.org/dev/getting-started/</loc>
          <lastmod>2025-11-12</lastmod>
     </url>
@@ -30,6 +22,14 @@
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/tutorial/</loc>
+         <lastmod>2025-11-12</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/dev/reference/module/</loc>
+         <lastmod>2025-11-12</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/dev/reference/project/</loc>
          <lastmod>2025-11-12</lastmod>
     </url>
     <url>
