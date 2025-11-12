@@ -2,106 +2,106 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://amper.org/dev/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/faq/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/dsl-reference/module/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/dsl-reference/project/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/cli/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/ide-setup/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/tutorial/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/basics/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/dependencies/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/multiplatform/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/templates/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/testing/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/yaml-primer/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/compiler-plugins/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/java-annotation-processing/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/ksp/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/maven-like-layout/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/android/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/compose/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/ios/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/ktor/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/lombok/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/spring/</loc>
-         <lastmod>2025-11-11</lastmod>
+         <lastmod>2025-11-12</lastmod>
     </url>
 </urlset>
