@@ -74,6 +74,9 @@ markdown_extensions:
   - pymdownx.emoji: # for emoji shortcuts with :name: syntax
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - .icons
   - pymdownx.highlight # for syntax highlighting in code blocks
   - pymdownx.inlinehilite # for inline code highlighting
   - pymdownx.snippets:
@@ -89,6 +92,7 @@ markdown_extensions:
       permalink: true
 
 watch:
+  - .icons
   - includes
 
 nav:
