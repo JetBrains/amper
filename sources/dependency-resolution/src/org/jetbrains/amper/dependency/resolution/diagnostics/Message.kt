@@ -46,7 +46,7 @@ interface Message {
      * In any case, a dependency resolution graph that contains such diagnostics should not be reused
      * and should be recalculated the next time it is requested.
      */
-    fun isCacheable(): Boolean = true
+    val cacheable: Boolean get() = true
 }
 
 val Message.detailedMessage: @Nls String
@@ -60,12 +60,12 @@ internal interface WithChildMessages : Message {
 
     override val details: @Nls String? get() = if (childMessages.isEmpty()) null else nestedMessages()
 
-    override fun isCacheable(): Boolean {
-        return childMessages.all {
+    override val cacheable: Boolean
+        get() = childMessages.all {
             // less severe suppressed diagnostics doesn't prevent as from caching this one
             it.severity < severity
-                    || it.isCacheable() }
-    }
+                    || it.cacheable
+        }
 }
 
 private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
@@ -111,7 +111,7 @@ internal data class SimpleMessage(
     override val severity: Severity = Severity.INFO,
     @Transient
     val throwable: Throwable? = null,
-    private val cacheable: Boolean = true,
+    private val isCacheable: Boolean = true,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages {
@@ -119,9 +119,7 @@ internal data class SimpleMessage(
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 
-    override fun isCacheable(): Boolean {
-        return cacheable && super.isCacheable()
-    }
+    override val cacheable: Boolean get() = isCacheable && super.cacheable
 }
 
 internal fun SerializersModuleBuilder.registerSerializableMessages() {

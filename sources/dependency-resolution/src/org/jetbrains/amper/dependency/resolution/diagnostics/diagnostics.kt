@@ -23,7 +23,7 @@ internal fun SimpleDiagnosticDescriptor.asMessage(
     throwable = exception,
     childMessages = childMessages,
     id = id,
-    cacheable = cacheable
+    isCacheable = cacheable
 )
 
 object DependencyResolutionDiagnostics {

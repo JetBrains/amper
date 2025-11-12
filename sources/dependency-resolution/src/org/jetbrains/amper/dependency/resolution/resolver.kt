@@ -272,7 +272,7 @@ class Resolver {
                     .minByOrNull { it }
             }
 
-        val isNotCacheable = this.messages.any { it.severity >= Severity.ERROR && !it.isCacheable() }
+        val isNotCacheable = this.messages.any { it.severity >= Severity.ERROR && !it.cacheable }
         val expirationDueToRecoverableErrorTime = if (isNotCacheable) Clock.System.now() else null
 
         return if (snapshotExpirationTime != null && expirationDueToRecoverableErrorTime != null) {
