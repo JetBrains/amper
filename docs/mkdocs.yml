@@ -123,9 +123,9 @@ nav:
           - 'Compiler plugins': user-guide/advanced/compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
-  - 'DSL reference':
-    - 'project.yaml': dsl-reference/project.md
-    - 'module.yaml': dsl-reference/module.md
+  - 'Reference':
+    - 'project.yaml': reference/project.md
+    - 'module.yaml': reference/module.md
   - 'FAQ': faq.md
   - 'Releases ↗': https://github.com/JetBrains/amper/releases
 

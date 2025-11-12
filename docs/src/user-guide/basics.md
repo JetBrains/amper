@@ -51,7 +51,7 @@ modules:
   - ./lib
 ```
 
-Check the [reference](../dsl-reference/project.md#modules) for more options to define the list of modules in the 
+Check the [reference](../reference/project.md#modules) for more options to define the list of modules in the 
 `project.yaml` file.
 
 
@@ -235,7 +235,7 @@ settings:
     compileSdk: 31
 ```
 
-Here is the list of [currently supported toolchains and their settings](../dsl-reference/module.md#settings-and-test-settings).
+Here is the list of [currently supported toolchains and their settings](../reference/module.md#settings-and-test-settings).
 
 See the [multiplatform section](multiplatform.md) for more details about how multiple settings sections interact in
 multiplatform modules.
