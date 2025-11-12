@@ -825,7 +825,7 @@ open class DependencyFileImpl(
     private suspend fun getExpectedHash(
         diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel, searchInMetadata: Boolean = true,
     ): Hash? {
-        val hash = LocalStorageHashSource.getExpectedHash(this, searchInMetadata)
+        val hash = LocalStorageHashSource.getExpectedHash(this, dependency.settings, searchInMetadata)
 
         if (hash == null && requestedLevel != ResolutionLevel.NETWORK) {
             diagnosticsReporter.addMessage(
@@ -1167,10 +1167,9 @@ open class DependencyFileImpl(
             /**
              * @return hash of the artifact resolved from a local artifacts storage
              */
-            suspend fun getExpectedHash(artifact: DependencyFileImpl, searchInMetadata: Boolean = true): Hash? =
-                // todo (AB) : Remove this empty Context {}
-                File.getExpectedHash(artifact, Context {}.settings)
-                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, Context {}.settings) else null
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, settings: Settings, searchInMetadata: Boolean = true): Hash? =
+                File.getExpectedHash(artifact, settings)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, settings) else null
         }
     }
 
