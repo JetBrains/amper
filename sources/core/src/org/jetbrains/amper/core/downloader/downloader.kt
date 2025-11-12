@@ -5,7 +5,6 @@
 package org.jetbrains.amper.core.downloader
 
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.compression.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -96,28 +95,14 @@ object Downloader {
                     tempFile.toFile().deleteOnExit()
                     target.parent.createDirectories()
                     try {
-                        // TODO each HttpClient.config call creates a new client, do we really need this?
-                        val effectiveClient = httpClient.config {
-                            install(ContentEncoding) {
-                                // Any `Content-Encoding` will drop `Content-Length` header in nginx responses,
-                                // yet we rely on that header for file-length checks after download.
-                                // Hence, we override `ContentEncoding` plugin config from `httpClient` with zero weights.
-                                deflate(0.0F)
-                                gzip(0.0F)
-                                identity() // tells the server that no compression is also acceptable
+                        val response = httpClient.prepareGet(url) {
+                            // we manually handle errors below
+                            expectSuccess = false
+                        }.execute {
+                            coroutineScope {
+                                it.bodyAsChannel().copyAndClose(writeChannel(tempFile))
                             }
-                        }
-
-                        val response = effectiveClient.use { client ->
-                            client.prepareGet(url) {
-                                // we manually handle errors below
-                                expectSuccess = false
-                            }.execute {
-                                coroutineScope {
-                                    it.bodyAsChannel().copyAndClose(writeChannel(tempFile))
-                                }
-                                it
-                            }
+                            it
                         }
 
                         val statusCode = response.status.value
@@ -171,8 +156,8 @@ object Downloader {
     }
 
     private fun checkContentLength(response: HttpResponse, url: String, tempFile: Path) {
-        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
-        check(contentLength > 0) { "Header '${HttpHeaders.ContentLength}' is missing or zero for $url" }
+        val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull()?.takeIf { it > 0 }
+            ?: return // skip the check if the header is missing or 0
         val fileSize = tempFile.fileSize()
         check(fileSize == contentLength) {
             "Wrong file length after downloading uri '$url' to '$tempFile': expected length $contentLength " +
