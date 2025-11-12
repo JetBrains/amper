@@ -226,7 +226,10 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
  * @throws IOException If some other I/O error occurs
  */
 private suspend fun FileChannel.lockWithRetry(): FileLock? =
-    withRetry(retryOnException = { it is IOException && it.message?.contains("Resource deadlock avoided") == true }) {
+    withRetry(
+        retryOnException = { it is IOException && it.message?.contains("Resource deadlock avoided") == true },
+        retryCount = 150
+    ) {
         runInterruptible {
             lock()
         }
