@@ -39,16 +39,14 @@ interface Message {
     val reportTransitive: Boolean get() = true
 
     /**
-     * This flag is set to false for diagnostics pointing to the temporary issues
+     * @return false if the diagnostic points to the temporary issue
      * that might be resolved in the later resolution runs (i/o errors, network failures).
-     *
-     * Note: The flag defines whether this particular diagnostic is cacheable or not.
-     * Though the issue might be caused by another one, in that case causing issues might also be taken into account
-     * while calculating the cacheable status of the diagnostic.
-     * Use convenience method [Message.isCacheable]
-     * to get cacheable state of the diagnostic taking causing issues into account.
+     * Diagnostic may point to such an issue itself, or it might be one of its nested (child) diagnostics
+     * (of the same or higher severity level).
+     * In any case, a dependency resolution graph that contains such diagnostics should not be reused
+     * and should be recalculated the next time it is requested.
      */
-    val cacheable: Boolean get() = true
+    fun isCacheable(): Boolean = true
 }
 
 val Message.detailedMessage: @Nls String
@@ -61,15 +59,14 @@ internal interface WithChildMessages : Message {
     val childMessages: List<Message>
 
     override val details: @Nls String? get() = if (childMessages.isEmpty()) null else nestedMessages()
-}
 
-fun Message.isCacheable(): Boolean =
-    when(this) {
-        is WithChildMessages ->
-            cacheable && !childMessages.any { it.severity >= severity && !it.isCacheable() }
-        else ->
-            cacheable
+    override fun isCacheable(): Boolean {
+        return childMessages.all {
+            // less severe suppressed diagnostics doesn't prevent as from caching this one
+            it.severity < severity
+                    || it.isCacheable() }
     }
+}
 
 private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
     var first = true
@@ -114,13 +111,17 @@ internal data class SimpleMessage(
     override val severity: Severity = Severity.INFO,
     @Transient
     val throwable: Throwable? = null,
-    override val cacheable: Boolean = true,
+    private val cacheable: Boolean = true,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages {
 
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
+
+    override fun isCacheable(): Boolean {
+        return cacheable && super.isCacheable()
+    }
 }
 
 internal fun SerializersModuleBuilder.registerSerializableMessages() {
