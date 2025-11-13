@@ -14,8 +14,8 @@ docs_dir: src
 
 theme:
   name: material
-  logo: images/amper-logo.svg
-  favicon: images/amper-logo.svg
+  logo: images/amper-icon.svg
+  favicon: images/amper-icon.svg
   features:
     - content.action.edit # adds an "Edit this page" button to each page
     - content.code.annotate # allows annotations (tooltips) inside code blocks
