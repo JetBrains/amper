@@ -139,3 +139,9 @@ extra:
   git_branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
   version:
     provider: mike # enables the version selector
+
+validation:
+  absolute_links: warn
+  anchors: warn
+  omitted_files: warn
+  unrecognized_links: warn
