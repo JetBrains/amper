@@ -284,9 +284,9 @@ class Resolver {
     }
 
     // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)
-    internal fun getDependenciesGraphInput(node: DependencyNodeWithContext): Set<CacheEntryKey> {
-        val cacheEntryKeys: MutableSet<CacheEntryKey> = mutableSetOf()
-        node.distinctBfsSequence().forEach {
+    internal fun getDependenciesGraphInput(node: DependencyNodeWithContext): List<CacheEntryKey> {
+        val cacheEntryKeys: MutableList<CacheEntryKey> = mutableListOf()
+        node.bfsSequence(includeDuplicates = true).forEach {
             // skip the parent node, its cacheEntryKey is used as a cache entry identifier
             // and is not a part of cache configuration that affects entry invalidation
             if (it == node) return@forEach
