@@ -48,3 +48,5 @@ settings:
       - kotlin.time.ExperimentalTime
   jvm:
     release: 21
+  java:
+    compileIncrementally: true
