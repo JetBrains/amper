@@ -1,0 +1,10 @@
+product: jvm/lib
+
+settings:
+  java:
+    <![Error] Java incremental compilation requires JDK 16 or higher, but this module uses JDK 11.!>compileIncrementally: true<!>
+  jvm:
+    test:
+      junitPlatformVersion: 1.14.1 # JUnit Platform for JUnit 5, to avoid the error about Java 17 requirement
+    jdk:
+      <![Error] Java incremental compilation requires JDK 16 or higher, but this module uses JDK 11.!>version: 11<!>

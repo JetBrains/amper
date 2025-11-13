@@ -13,6 +13,7 @@ val AomModelDiagnosticFactories: List<AomModelDiagnosticFactory> = listOf(
 val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> = listOf(
     AndroidVersionShouldBeAtLeastMinSdkFactory,
     ComposeVersionWithDisabledCompose,
+    JavaIncrementalCompilationRequiresJava16Factory,
     JdkDistributionRequiresLicenseFactory,
     JUnitRequiresHigherJdkVersionFactory,
     SerializationVersionWithDisabledSerialization,
