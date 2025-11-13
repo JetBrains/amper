@@ -1612,7 +1612,7 @@ class MavenDependencyImpl internal constructor(
                         kmpLibraryWithSourceSet.name,
                         extra = DependencyResolutionBundle.message("extra.exception", e),
                         exception = e,
-                        cacheable = false
+                        preventCaching = true,
                     )
                     logger.warn(message.message, e)
                     diagnosticsReporter.addMessage(message)

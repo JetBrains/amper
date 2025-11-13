@@ -62,7 +62,7 @@ internal interface WithChildMessages : Message {
 
     override val cacheable: Boolean
         get() = childMessages.all {
-            // less severe suppressed diagnostics doesn't prevent as from caching this one
+            // less severe suppressed diagnostics doesn't prevent us from caching this one
             it.severity < severity
                     || it.cacheable
         }
@@ -111,7 +111,7 @@ internal data class SimpleMessage(
     override val severity: Severity = Severity.INFO,
     @Transient
     val throwable: Throwable? = null,
-    private val isCacheable: Boolean = true,
+    private val preventCaching: Boolean = false,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages {
@@ -119,7 +119,7 @@ internal data class SimpleMessage(
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
 
-    override val cacheable: Boolean get() = isCacheable && super.cacheable
+    override val cacheable: Boolean get() = !preventCaching && super.cacheable
 }
 
 internal fun SerializersModuleBuilder.registerSerializableMessages() {

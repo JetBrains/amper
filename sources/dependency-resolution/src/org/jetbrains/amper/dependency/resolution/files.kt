@@ -565,7 +565,7 @@ open class DependencyFileImpl(
                 dependency,
                 extra = DependencyResolutionBundle.message("extra.exception", t),
                 exception = t,
-                cacheable = false,
+                preventCaching = true,
             )
             logger.warn(message.message, t)
             diagnosticsReporter.addMessage(message)
@@ -760,7 +760,7 @@ open class DependencyFileImpl(
                             dependency,
                             extra = DependencyResolutionBundle.message("extra.exception", t),
                             exception = t,
-                            cacheable = false
+                            preventCaching = true,
                         )
                     )
                     return null
@@ -1036,7 +1036,7 @@ open class DependencyFileImpl(
                                                         sizeFromResponse,
                                                         size,
                                                         overrideSeverity = overrideSeverity,
-                                                        cacheable = false,
+                                                        preventCaching = true,
                                                     )
                                                 )
 
@@ -1084,7 +1084,7 @@ open class DependencyFileImpl(
                     url,
                     extra = DependencyResolutionBundle.message("extra.exception", e),
                     exception = e,
-                    cacheable = false
+                    preventCaching = true,
                 )
             )
         }
