@@ -14,6 +14,7 @@ val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> =
     AndroidVersionShouldBeAtLeastMinSdkFactory,
     ComposeVersionWithDisabledCompose,
     JdkDistributionRequiresLicenseFactory,
+    JUnitRequiresHigherJdkVersionFactory,
     SerializationVersionWithDisabledSerialization,
     SigningEnabledWithoutPropertiesFileFactory,
     KeystorePropertiesDoesNotContainKeyFactory,

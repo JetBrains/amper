@@ -1,0 +1,8 @@
+product: jvm/lib
+
+settings:
+  jvm:
+    jdk:
+      <![Error] JUnit Platform version 6.0.0 requires at least JDK 17, but this module uses JDK 13.!>version: 13<!>
+    test:
+      <![Error] JUnit Platform version 6.0.0 requires at least JDK 17, but this module uses JDK 13.!>junitPlatformVersion: 6.0.0<!>
