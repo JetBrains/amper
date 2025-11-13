@@ -6,7 +6,6 @@ import big.Big;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("STDOUT: ");
         System.out.println("Hello from <Main>, " + Small.getSmall() + ", " + Big.getBig());
     }
 }
