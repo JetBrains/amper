@@ -54,6 +54,7 @@ theme:
 
 plugins:
   - search
+  - social # for proper previews in social media links
   - macros # for variable substitution in Markdown files
   - git-revision-date-localized: # to have the "last update" date in the footer of each page
       enabled: !ENV [CI, false] # we don't put the whole repo in the docker container locally, so there is no git repo
