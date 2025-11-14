@@ -11,12 +11,12 @@ Use one of the following commands to download the script:
 
 Linux/macOS:
 ```shell
-curl -fsSL -o amper https://jb.gg/amper-latest-wrapper.sh && chmod +x amper && ./amper update -c
+curl -fsSL -o amper https://jb.gg/amper/wrapper.sh && chmod +x amper && ./amper update -c
 ```
 
 Windows PowerShell:
 ```powershell
-Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper-latest-wrapper.bat; ./amper update -c
+Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper/wrapper.bat; ./amper update -c
 ```
 
 > [!NOTE]
