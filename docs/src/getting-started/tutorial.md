@@ -23,9 +23,9 @@ product: jvm/app
 And add some code in the `src/` folder:
 
 ```
-|-src/
-|  |-main.kt
-|-module.yaml
+├─ src/
+│  ╰─ main.kt
+╰─ module.yaml
 ```
 
 ```kotlin title="main.kt"
@@ -41,11 +41,11 @@ You also need to add the Amper shell scripts to your root project folder.
 
 Your project should now look like this:
 ```
-|-src/
-|  |-main.kt
-|-module.yaml
-|-amper
-|-amper.bat
+├─ src/
+│  ╰─ main.kt
+├─ module.yaml
+├─ amper
+╰─ amper.bat
 ```
 
 That’s it, we’ve just created a simple JVM application.
@@ -54,10 +54,10 @@ And since it’s a JVM project, you can add Java code. Java and Kotlin files can
 no need to create separate Maven-like `java/` and `kotlin/` folders:
 
 ```
-|-src/
-|  |-main.kt
-|  |-JavaClass.java
-|-module.yaml
+├─ src/
+│  ├─ main.kt
+│  ╰─ JavaClass.java
+╰─ module.yaml
 ```
 
 You can now build your application using `./amper build`, or run it using `./amper run`.
@@ -114,11 +114,11 @@ Now let’s add some tests. Amper configures the testing framework automatically
 we only need to add some test code into the `test/` folder:
 
 ```
-|-src/
-|  |-...
-|-test/
-|  |-MyTest.kt
-|-module.yaml
+├─ src/
+│  ╰─ ...
+├─ test/
+│  ╰─ MyTest.kt
+╰─ module.yaml
 ```
 
 ```kotlin title="MyTest.kt"
@@ -237,27 +237,27 @@ when making the project multiplatform.
 Our goal here is to separate our app into a `shared` library module and a `jvm-app` application module and reach the 
 following structure:
 ```
-|-jvm-app/
-|  |-...
-|  |-module.yaml
-|-shared/
-|  |-...
-|  |-module.yaml
-|-amper
-|-amper.bat
-|-project.yaml
+├─ jvm-app/
+│  ├─ ...
+│  ╰─ module.yaml
+├─ shared/
+│  ├─ ...
+│  ╰─ module.yaml
+├─ amper
+├─ amper.bat
+╰─ project.yaml
 ```
 
 First let's move our current `src`, `test` and `module.yaml` files into a new `jvm-app` directory:
 ```
-|-jvm-app/
-|  |-src/
-|  |  |-main.kt
-|  |-test/
-|  |  |-...
-|  |-module.yaml
-|-amper
-|-amper.bat
+├─ jvm-app/
+│  ├─ src/
+│  │  ╰─ main.kt
+│  ├─ test/
+│  │  ╰─ ...
+│  ╰─ module.yaml
+├─ amper
+╰─ amper.bat
 ```
 
 Add a `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files, with the following content:
@@ -348,22 +348,22 @@ It will be straightforward, since we've already prepared a multi-module layout w
 Here is the project structure that we need:
 
 ```
-|-android-app/
-|  |-src/
-|  |  |-main.kt
-|  |  |-AndroidManifest.xml
-|  |-module.yaml
-|-ios-app/
-|  |-src/
-|  |  |-iosApp.swift
-|  |  |-main.kt
-|  |-module.yaml
-|  |-module.xcodeproj
-|-jvm-app/
-|  |-...
-|-shared/
-|  |-...
-| project.yaml
+├─ android-app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ AndroidManifest.xml
+│  ╰─ module.yaml
+├─ ios-app/
+│  ├─ src/
+│  │  ├─ iosApp.swift
+│  │  ╰─ main.kt
+│  ├─ module.yaml
+│  ╰─ module.xcodeproj
+├─ jvm-app/
+│  ╰─ ...
+├─ shared/
+│  ╰─ ...
+╰─ project.yaml
 ```
 
 Remember to add the new modules into the `project.yaml` file:
@@ -468,19 +468,19 @@ These files bind the Compose UI code with the native application entry points.
 
 Make sure that your project structure looks like this:
 ```
-|-android-app/
-|  |-src/
-|  |  |-main.kt
-|  |  |-AndroidManifest.xml
-|  |-module.yaml
-|-ios-app/
-|  |-src/
-|  |  |-iosApp.swift
-|  |  |-main.kt
-|  |-module.yaml
-|-jvm-app/
-|-shared/
-|-...
+├─ android-app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ AndroidManifest.xml
+│  ╰─ module.yaml
+├─ ios-app/
+│  ├─ src/
+│  │  ├─ iosApp.swift
+│  │  ╰─ main.kt
+│  ╰─ module.yaml
+├─ jvm-app/
+├─ shared/
+╰─ ...
 ```
 
 Now you can build and run both apps using the corresponding IntelliJ IDEA run configurations, or use the CLI commands:
@@ -510,16 +510,16 @@ You might have noticed that there are some settings present in  the `module.yaml
 
 Let's create a couple of `<name>.module-template.yaml` files:
 ```
-|-android-app/
-|  |-...
-|-ios-app/
-|  |-...
-|-jvm-app/
-|  |-...
-|-shared/
-|  |-...
-|-compose.module-template.yaml
-|-app.module-template.yaml
+├─ android-app/
+│  ╰─ ...
+├─ ios-app/
+│  ╰─ ...
+├─ jvm-app/
+│  ╰─ ...
+├─ shared/
+│  ╰─ ...
+├─ compose.module-template.yaml
+╰─ app.module-template.yaml
 ```
 
 A `/compose.module-template.yaml` with settings common to all modules:

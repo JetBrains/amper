@@ -17,14 +17,14 @@ settings@ios:               # ios is a platform family name
 settings@iosArm64:          # iosArm64 is a KMP platform name
 ```
 ```
-|-src/                      # common code for all platforms
-|-src@ios/                  # sees declarations from src/ 
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
+├─ src/                      # common code for all platforms
+├─ src@ios/                  # sees declarations from src/
+╰─ src@iosArm64/             # sees declarations from src/ and from src@ios/
 ```
 ```
-|-resources/                # resources for all platforms
-|-resources@ios/             
-|-resources@iosArm64/       
+├─ resources/                # resources for all platforms
+├─ resources@ios/
+╰─ resources@iosArm64/
 ```
 
 See also how the [resources](basics.md#resources) are handled in the multiplatform projects.
@@ -81,17 +81,17 @@ common  # corresponds to src directories or configuration sections without @plat
 Based on this hierarchy, common code is visible from more `@platform`-specific code, but not vice versa:
 
 ```
-|-src/             
-|  |-...      
-|-src@ios/                  # sees declarations from src/ 
-|  |-...      
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@jvm/                  # sees declarations from src/
-|  |-...      
-|-module.yaml
+├─ src/
+│  ╰─ ...
+├─ src@ios/                  # sees declarations from src/
+│  ╰─ ...
+├─ src@iosArm64/             # sees declarations from src/ and from src@ios/
+│  ╰─ ...
+├─ src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/
+│  ╰─ ...
+├─ src@jvm/                  # sees declarations from src/
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
@@ -133,10 +133,10 @@ settings@jvmAndAndroid:
 ```
 
 ```
-|-src/             
-|-src@jvmAndAndroid/ # sees declarations from src/ 
-|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
-|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
+├─ src/
+├─ src@jvmAndAndroid/ # sees declarations from src/
+├─ src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/
+╰─ src@android/       # sees declarations from src/ and src@jvmAndAndroid/
 ```
 
 ## Multiplatform dependencies
@@ -336,17 +336,17 @@ declarations, and vice versa.
 So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:
 
 ```
-|-src/             
-|  |-main.kt      
-|-src@jvm/             
-|  |-KotlinCode.kt      
-|  |-JavaCode.java      
-|-src@android/             
-|  |-KotlinCode.kt 
-|  |-JavaCode.java
-|-src@ios/
-|  |- ...
-|-module.yaml
+├─ src/
+│  ├─ main.kt
+├─ src@jvm/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@android/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@ios/
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,

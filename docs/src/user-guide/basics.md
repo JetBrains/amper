@@ -21,26 +21,26 @@ dependencies, settings, etc. You'll see it in the examples below.
 A basic single-module Amper project looks like this:
 
 ```
-|-src/             
-|  |-main.kt      
-|-test/       
-|  |-MainTest.kt 
-|-module.yaml
+├─ src/
+│  ╰─ main.kt
+├─ test/
+│  ╰─ MainTest.kt
+╰─ module.yaml
 ```
 
 If there are multiple modules, the `project.yaml` file specifies the list of modules:
 
 ```
-|-app/
-|  |-src/             
-|  |  |-main.kt
-|  |-...      
-|  |-module.yaml
-|-lib/
-|  |-src/             
-|  |  |-util.kt      
-|  |-module.yaml
-|-project.yaml
+├─ app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ ...
+│  ╰─ module.yaml
+├─ lib/
+│  ├─ src/
+│  │  ╰─ util.kt
+│  ╰─ module.yaml
+╰─ project.yaml
 ```
 
 In the above case, the `project.yaml` looks like this:
@@ -60,9 +60,9 @@ Check the [reference](../reference/project.md#modules) for more options to defin
 Source files are located in the `src` folder:
 
 ```
-|-src/             
-|  |-main.kt      
-|-module.yaml
+├─ src/
+│  ╰─ main.kt
+╰─ module.yaml
 ```
 
 By convention, a `main.kt` file, if present, is the default entry point for the application.
@@ -71,24 +71,24 @@ Read more on [configuring the application entry points](#configuring-entry-point
 In a JVM module, you can mix Kotlin and Java source files:
 
 ```
-|-src/             
-|  |-main.kt      
-|  |-Util.java      
-|-module.yaml
+├─ src/
+│  ├─ main.kt
+│  ╰─ Util.java
+╰─ module.yaml
 ```
 
 In a [multiplatform module](multiplatform.md), platform-specific code is located in folders
 with [`@platform`-qualifiers](multiplatform.md#platform-qualifier):
 
 ```
-|-src/             # common code
-|  |-main.kt      
-|  |-util.kt       #  API with ‘expect’ part
-|-src@ios/         # code to be compiled only for iOS targets
-|  |-util.kt       #  API implementation with ‘actual’ part for iOS
-|-src@jvm/         # code to be compiled only for JVM targets
-|  |-util.kt       #  API implementation with ‘actual’ part for JVM
-|-module.yaml
+├─ src/             # common code
+│  ├─ main.kt
+│  ╰─ util.kt       #  API with ‘expect’ part
+├─ src@ios/         # code to be compiled only for iOS targets
+│  ╰─ util.kt       #  API implementation with ‘actual’ part for iOS
+├─ src@jvm/         # code to be compiled only for JVM targets
+│  ╰─ util.kt       #  API implementation with ‘actual’ part for JVM
+╰─ module.yaml
 ```
 
 Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
@@ -99,23 +99,23 @@ refactor the code, as it always exists in the scope of a single module, has a we
 Files placed into the `resources` folder are copied to the resulting products:
 
 ```
-|-src/             
-|  |-...
-|-resources/     # These files are copied into the final products
-|  |-...
+├─ src/
+│  ╰─ ...
+╰─ resources/     # These files are copied into the final products
+   ╰─ ...
 ```
 
 In [multiplatform modules](#multiplatform-configuration), resources are merged from the common folders and corresponding
 platform-specific folders:
 ```
-|-src/             
-|  |-...
-|-resources/          # these resources are copied into the Android and JVM artifact
-|  |-...
-|-resources@android/  # these resources are copied into the Android artifact
-|  |-...
-|-resources@jvm/      # these resources are copied into the JVM artifact
-|  |-...
+├─ src/
+│  ╰─ ...
+├─ resources/          # these resources are copied into the Android and JVM artifact
+│  ╰─ ...
+├─ resources@android/  # these resources are copied into the Android artifact
+│  ╰─ ...
+╰─ resources@jvm/      # these resources are copied into the JVM artifact
+   ╰─ ...
 ```
 
 In case of duplicated names, the common resources are overwritten by the more specific ones.
@@ -126,17 +126,17 @@ folders:
 *[Android modules]: That is, modules with `android` product type.
 
 ```
-|-src/             
-|  |-...
-|-res/
-|  |-drawable/
-|  |  |-...
-|  |-layout/
-|  |  |-...
-|  |-...
-|-assets/
-|  |-...
-|-module.yaml
+├─ src/
+│  ╰─ ...
+├─ res/
+│  ├─ drawable/
+│  │  ╰─ ...
+│  ├─ layout/
+│  │  ╰─ ...
+│  ╰─ ...
+├─ assets/
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 ## Module file anatomy

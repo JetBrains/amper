@@ -82,15 +82,17 @@ Amper supports [Compose Multiplatform resources](https://www.jetbrains.com/help/
 Place your resources in the `composeResources` folder at the root of your module:
 ```
 my-kmp-module/
- |-src/ # your code is here
- |  |-...
- |-composeResources/ # place your multiplatform resources in this folder
- |  |-values/
- |  |  |-strings.xml
- |  |-drawable/
- |  |  |-image.jpg
- |-module.yaml
+├─ src/
+│  ╰─ ... # (1)!
+├─ composeResources/
+│  ├─ values/
+│  │  ╰─ strings.xml
+│  ╰─ drawable/
+│     ╰─ image.jpg
+╰─ module.yaml
 ```
+
+1.   Your Kotlin code is here
 
 Amper then automatically generates the Kotlin accessors for these resources, and you can use them in your Kotlin code:
 

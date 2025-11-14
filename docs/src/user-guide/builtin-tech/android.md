@@ -7,11 +7,11 @@ Use the `android/app` product type in a module to build an Android application.
 The application's entry point is specified in the AndroidManifest.xml file according to the
 [official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
 ```
-|-src/ 
-|  |-MyActivity.kt
-|  |-AndroidManifest.xml
-|  |-... 
-|-module.yaml
+├─ src/
+│  ├─ MyActivity.kt
+│  ├─ AndroidManifest.xml
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 `src/AndroidManifest.xml`:
@@ -55,12 +55,10 @@ proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
 You can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
 
 ```
-|-src/
-|  ...      
-|-test/
-|  ...
-|-proguard-rules.pro
-|-module.yaml
+├─ src/
+├─ test/
+├─ proguard-rules.pro
+╰─ module.yaml
 ```
 
 It is automatically used by Amper if present.
@@ -175,10 +173,10 @@ To enable the [`google-services` plugin](https://developers.google.com/android/g
 your `google-services.json` file in the module containing an `android/app` product, next to `module.yaml`.
 
 ```
-|-androidApp/
-|  |-src/
-|  |-google-services.json
-|  |-module.yaml
+╰─ androidApp/
+   ├─ src/
+   ├─ google-services.json
+   ╰─ module.yaml
 ```
 
 This file will be found and consumed automatically.

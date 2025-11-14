@@ -24,13 +24,13 @@ Example: given the project layout
 
 ```
 root/
-  |-app/
-  |  |-src/
-  |  |-module.yaml
-  |-ui/
-  |  |-utils/
-  |  |  |-src/
-  |  |  |-module.yaml
+├─ app/
+│  ├─ src/
+│  ╰─ module.yaml
+╰─ ui/
+   ╰─ utils/
+      ├─ src/
+      ╰─ module.yaml
 ```
 
 The `app/module.yaml` can declare a dependency on `ui/utils` as follows:

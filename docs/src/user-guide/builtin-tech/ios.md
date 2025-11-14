@@ -30,12 +30,12 @@ Changes to the Xcode project that do not break these requirements are allowed.
 
 So the iOS app module layout looks like this:
 ```
-|-src/             
-|  |-KotlinCode.kt      # optional, if all the code is in the libraries
-|  |-EntryPoint.swift
-|  |-Info.plist
-|-module.yaml           # ios/app
-|-module.xcodeproj      # xcode project
+├─ src/
+│  ├─ KotlinCode.kt      # optional, if all the code is in the libraries
+│  ├─ EntryPoint.swift
+│  ├─ Info.plist
+├─ module.yaml           # ios/app
+╰─ module.xcodeproj      # xcode project
 ```
 
 !!! tip
@@ -47,11 +47,11 @@ So the iOS app module layout looks like this:
 For iOS applications, the entrypoint is expected to be a `@main` struct in any Swift file in the `src` folder.
 
 ```
-|-src/ 
-|  |-main.swift
-|  |-... 
-|-module.yaml
-|-module.xcodeproj
+├─ src/
+│  ├─ main.swift
+│  ╰─ ...
+├─ module.yaml
+╰─ module.xcodeproj
 ```
 
 src/main.swift:
