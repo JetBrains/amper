@@ -2512,12 +2512,12 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 <tr>
 <td><code>compileSdk: int</code></td>
 <td>The API level to compile the code. The code can use only the Android APIs up to that API level. <a href="https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()">Read more</a>.</td>
-<td>(targetSdk)</td>
+<td>36</td>
 </tr>
 <tr>
 <td><code>targetSdk: int</code></td>
 <td>The target API level for the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
-<td>35</td>
+<td>(compileSdk)</td>
 </tr>
 <tr>
 <td><code>minSdk: int</code></td>
@@ -2630,7 +2630,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <tr>
 <td><code>version: string</code></td>
 <td>The Compose plugin version to use.</td>
-<td><code>1.7.3</code></td>
+<td><code>1.8.2</code></td>
 </tr>
 <tr>
 <td><code>resources: object</code></td>
@@ -2683,7 +2683,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </tr>
 </tbody>
 </table>
-<p><code>settings:compose:experimental:hotReload:</code> configures experimental hot reload.</p>
+<p><code>settings:compose:experimental:hotReload:</code> configures experimental hot reload (JVM only).</p>
 <table>
 <thead>
 <tr>
@@ -2694,9 +2694,9 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </thead>
 <tbody>
 <tr>
-<td><code>enabled: boolean</code></td>
-<td>Enable hot reload</td>
-<td><code>false</code></td>
+<td><code>version: string</code></td>
+<td>The Compose Hot Reload toolchain version to use.</td>
+<td><code>1.0.0-rc01</code></td>
 </tr>
 </tbody>
 </table>
@@ -2732,6 +2732,16 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <td><code>annotationProcessing: object</code></td>
 <td>Java annotation processing settings</td>
 <td>(empty)</td>
+</tr>
+<tr>
+<td><code>freeCompilerArgs: string list</code></td>
+<td>Pass any compiler option directly to the Java compiler</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>compileIncrementally: boolean</code></td>
+<td>Enables incremental compilation for Java sources</td>
+<td><code>false</code></td>
 </tr>
 </tbody>
 </table>
@@ -2813,7 +2823,7 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 <tr>
 <td><code>release: enum</code></td>
 <td>The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.</td>
-<td>17</td>
+<td>21</td>
 </tr>
 <tr>
 <td><code>mainClass: string</code></td>
@@ -2824,6 +2834,11 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 <td><code>storeParameterNames: boolean</code></td>
 <td>Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.</td>
 <td>false</td>
+</tr>
+<tr>
+<td><code>runtimeClasspathMode: enum</code></td>
+<td>How the runtime classpath is constructed: <code>jars</code> (default) builds local module dependencies as jars; <code>classes</code> uses compiled classes for local modules on the runtime classpath.</td>
+<td><code>jars</code></td>
 </tr>
 </tbody>
 </table>
@@ -2839,11 +2854,15 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>junitPlatformVersion: string</code></td>
+<td>The JUnit platform version used to run tests.</td>
+</tr>
+<tr>
 <td><code>systemProperties: map</code></td>
 <td>JVM system properties for the test process.</td>
 </tr>
 <tr>
-<td><code>jvmFreeArgs: string list</code></td>
+<td><code>freeJvmArgs: string list</code></td>
 <td>Free JVM arguments for the test process.</td>
 </tr>
 </tbody>
@@ -2944,7 +2963,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <tr>
 <td><code>version: string</code></td>
 <td>The version to use for the core serialization library and the serialization formats.</td>
-<td><code>1.7.3</code></td>
+<td><code>1.9.0</code></td>
 </tr>
 </tbody>
 </table>
@@ -2966,7 +2985,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span>
 <span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9.0</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># Enable Kotlin Serialization with multiple formats</span>
 <span class="nt">settings</span><span class="p">:</span>
@@ -2982,7 +3001,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9.0</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
@@ -3098,7 +3117,12 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <tr>
 <td><code>version: string</code></td>
 <td>Ktor version</td>
-<td><code>3.1.1</code></td>
+<td><code>3.2.3</code></td>
+</tr>
+<tr>
+<td><code>applyBom: boolean</code></td>
+<td>Whether to apply the Ktor BOM</td>
+<td><code>true</code></td>
 </tr>
 </tbody>
 </table>
@@ -3123,6 +3147,11 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <td><code>enabled: boolean</code></td>
 <td>Enable Lombok</td>
 <td><code>false</code></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>Lombok version for runtime and annotation processor</td>
+<td><code>1.18.38</code></td>
 </tr>
 </tbody>
 </table>
@@ -3174,7 +3203,12 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <tr>
 <td><code>version: string</code></td>
 <td>Spring Boot version</td>
-<td><code>3.4.3</code></td>
+<td><code>3.5.5</code></td>
+</tr>
+<tr>
+<td><code>applyBom: boolean</code></td>
+<td>Whether to apply the Spring Boot BOM</td>
+<td><code>true</code></td>
 </tr>
 </tbody>
 </table>
@@ -3204,7 +3238,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 01:55:18 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 18:16:38 UTC">November 14, 2025</span>
   </span>
 
     
