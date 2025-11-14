@@ -16,7 +16,7 @@
    ![](../images/ij-plugin.png)
 
 3. [Optional] If you want to write code for :material-apple: Apple platforms or share code between several platforms, 
-   install the [Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform).
+   install the [:kotlin-multiplatform: Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform).
 
 4. [Optional] If you want to write some Android-specific code, also install the
    [:android-head-flat: Android plugin](https://plugins.jetbrains.com/plugin/22989-android).

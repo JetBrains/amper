@@ -86,7 +86,7 @@ private fun displayHelloText() {
 Read more about setting up and using compose resources in 
 [the documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
 
-## Compose Hot Reload (experimental)
+## :compose-hot-reload: Compose Hot Reload (experimental)
 
 Amper supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload), allowing you to see UI changes in
 real-time without restarting the application. This significantly improves the developer experience by shortening the
