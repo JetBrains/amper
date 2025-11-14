@@ -1,4 +1,4 @@
-# Compose Multiplatform
+# :compose-multiplatform: Compose Multiplatform
 
 To enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/)
 (with a compiler plugin and required dependencies), add the following configuration:

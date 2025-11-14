@@ -1,4 +1,4 @@
-# Ktor
+# :ktor: Ktor
 
 [Ktor](https://ktor.io/) is a Kotlin framework for building asynchronous server-side and client-side applications.
 

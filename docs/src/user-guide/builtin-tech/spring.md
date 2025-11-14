@@ -1,4 +1,4 @@
-# Spring Boot
+# :spring-boot: Spring Boot
 
 [Spring Boot](https://spring.io/projects/spring-boot) is a framework that simplifies the creation of stand-alone,
 Spring based applications.
