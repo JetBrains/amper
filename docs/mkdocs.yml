@@ -115,7 +115,7 @@ nav:
       - 'Templates': user-guide/templates.md
       - 'Built-in technologies':
           - 'Android': user-guide/builtin-tech/android.md
-          - 'Compose': user-guide/builtin-tech/compose.md
+          - 'Compose Multiplatform': user-guide/builtin-tech/compose-multiplatform.md
           - 'iOS': user-guide/builtin-tech/ios.md
           - 'Kotlin Serialization': user-guide/builtin-tech/kotlin-serialization.md
           - 'Ktor': user-guide/builtin-tech/ktor.md

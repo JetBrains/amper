@@ -290,7 +290,7 @@ settings:
 ### `settings.compose`
 
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose.md).
+framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose-multiplatform.md).
 
 | Attribute              | Description                                                    | Default |
 |------------------------|----------------------------------------------------------------|---------|

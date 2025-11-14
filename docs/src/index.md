@@ -46,9 +46,9 @@ We’re currently looking at various aspects, including extensibility, publicati
 * [x] Mixing Kotlin, Java, and Swift code
 * [x] Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA
 * [x] [Multi-module](user-guide/basics.md#project-layout) projects
-* [x] [Compose Multiplatform](user-guide/builtin-tech/compose.md), with
-  [multiplatform resources](user-guide/builtin-tech/compose.md#using-multiplatform-resources) and
-  [Compose Hot Reload](user-guide/builtin-tech/compose.md#compose-hot-reload-experimental)
+* [x] [Compose Multiplatform](user-guide/builtin-tech/compose-multiplatform.md), with
+  [multiplatform resources](user-guide/builtin-tech/compose-multiplatform.md#using-multiplatform-resources) and
+  [Compose Hot Reload](user-guide/builtin-tech/compose-multiplatform.md#compose-hot-reload-experimental)
 * [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs)
 
 Future directions:

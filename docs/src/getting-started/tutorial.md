@@ -227,7 +227,7 @@ Now we have a GUI application!
     - [Compose iOS]({{ examples_base_url }}/compose-ios)
     - [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)
 
-!!! abstract "Related documentation: [Compose](../user-guide/builtin-tech/compose.md)"
+!!! abstract "Related documentation: [Compose Multiplatform](../user-guide/builtin-tech/compose-multiplatform.md)"
 
 ## Step 6. Modularize
 
@@ -502,7 +502,7 @@ Now you can build and run both apps using the corresponding IntelliJ IDEA run co
 !!! abstract "Related documentation"
 
     - [multiplatform configuration](../user-guide/multiplatform.md)
-    - [Compose](../user-guide/builtin-tech/compose.md)
+    - [Compose](../user-guide/builtin-tech/compose-multiplatform.md)
 
 ## Step 8. Deduplicate common configuration
 
