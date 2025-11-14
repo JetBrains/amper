@@ -53,8 +53,6 @@ theme:
         name: Switch to system preference
 
 plugins:
-  - search
-  - social # for proper previews in social media links
   - macros # for variable substitution in Markdown files
   - git-revision-date-localized: # to have the "last update" date in the footer of each page
       enabled: !ENV [CI, false] # we don't put the whole repo in the docker container locally, so there is no git repo
@@ -63,6 +61,8 @@ plugins:
       repository: JetBrains/amper
       branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
       token: !ENV [MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN, ""]
+  - search
+  - social # for proper previews in social media links
 
 markdown_extensions:
   - abbr # for abbreviation tooltips
