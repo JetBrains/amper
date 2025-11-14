@@ -1,3 +1,7 @@
+<!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 48 48">
   <defs>
     <linearGradient id="a" x1="1" x2="31" y1="17" y2="47" gradientUnits="userSpaceOnUse">

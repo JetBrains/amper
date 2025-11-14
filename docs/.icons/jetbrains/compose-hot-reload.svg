@@ -1,3 +1,7 @@
+<!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
 <svg fill="none" height="56" viewBox="0 0 48 56" width="48" xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink">
     <linearGradient id="compose_hot_reload_gradient" gradientUnits="userSpaceOnUse" x1="33" x2="20.984" y1="5.2998" y2="35.7935">

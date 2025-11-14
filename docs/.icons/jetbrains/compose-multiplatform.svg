@@ -1,3 +1,7 @@
+<!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
 <svg width="50" height="56" viewBox="0 0 50 56" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M49 14V42L25 56L1 42V14L25 0L49 14Z" fill="#6075F2"/>
 <path d="M34.5 22.5V33.5L25 39V56L49 42V13.9998L34.5 22.5Z" fill="#6B57FF"/>

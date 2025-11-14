@@ -62,7 +62,7 @@ Future directions:
 
 ## Issues and feedback
 
-Amper uses [:youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
+Amper uses [:jetbrains-youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
 [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
 You can also join the [:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.

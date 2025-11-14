@@ -1,4 +1,4 @@
-# :compose-multiplatform: Compose Multiplatform
+# :jetbrains-compose-multiplatform: Compose Multiplatform
 
 [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/) is a declarative UI framework developed by
 JetBrains for sharing Kotlin UI code across multiple platforms.
@@ -38,7 +38,7 @@ Use `settings.compose.enabled` to enable Compose:
     1.    These libraries are from the built-in `$compose` catalog, accessible when Compose is enabled
     2.    Enables the Compose toolchain (compiler plugin and runtime dependencies)
 
-=== ":kotlin-multiplatform: Shared library"
+=== ":jetbrains-kotlin-multiplatform: Shared library"
 
     ```yaml
     product:
@@ -125,7 +125,7 @@ settings:
       packageName: com.example.gen
 ```
 
-## :compose-hot-reload: Compose Hot Reload (experimental)
+## :jetbrains-compose-hot-reload: Compose Hot Reload (experimental)
 
 Amper supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload), allowing you to see UI changes in
 real-time without restarting the application. This significantly improves the developer experience by shortening the
@@ -133,7 +133,7 @@ feedback loop during UI development.
 
 ### Hot-run your application
 
-=== ":intellij-idea: IntelliJ IDEA"
+=== ":jetbrains-intellij-idea: IntelliJ IDEA"
 
     To run your application with Compose Hot Reload, simply select the *Run with Compose Hot Reload* option from the 
     IDE:
