@@ -7,3 +7,4 @@ apply:
 
 dependencies:
   - $libs.kotlinx.coroutines.core
+  - $libs.slf4j.api

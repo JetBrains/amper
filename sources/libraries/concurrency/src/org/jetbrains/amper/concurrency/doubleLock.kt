@@ -10,6 +10,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.yield
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.ClosedChannelException
@@ -25,6 +26,8 @@ import kotlin.contracts.contract
 import kotlin.io.path.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
+private val logger = LoggerFactory.getLogger("concurrency/doubleLock.kt")
 
 /**
  * Executes the given [block] under a double lock:
@@ -165,13 +168,23 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
             FileChannel.open(this, *options)
         }
         lockFileChannel.use { fileChannel ->
+            val pidPrefix = "[pid: " +
+                    ProcessHandle.current().pid().toString().padEnd(10, ' ') +
+                    ", " +
+                    Thread.currentThread().hashCode().toString().padEnd(10, ' ').substring(0..9) +
+                    "]"
+            val file = "${this.fileName}       [${this.parent}]"
             val fileLock = try {
-                fileChannel.lockWithRetry()
+                logger.info("$pidPrefix Locking $file")
+                fileChannel.lockWithRetry().also {
+                    logger.info("$pidPrefix Lock acquired $file")
+                }
             } catch (e: NoSuchFileException) {
                 val fileCreatedByOpen = options.any {
                     it == StandardOpenOption.CREATE || it == StandardOpenOption.CREATE_NEW
                 }
                 if (fileCreatedByOpen) {
+                    logger.error("$pidPrefix Locking failed $file ${System.lineSeparator()} ${System.lineSeparator()} [reason: ${e.toString()}]")
                     // With the current open options, the file should be created by FileChannel.open().
                     // In this case, NoSuchFileException means the file was deleted between the channel opening and the
                     // locking attempt. We should re-open the channel (to re-create the file) and try locking again.
@@ -184,9 +197,17 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
                     // In this case, NoSuchFileException means the caller made a mistake and we should let it bubble up.
                     throw e
                 }
+            } catch(t: Throwable) {
+                logger.error("$pidPrefix Locking failed $file ${System.lineSeparator()} [reason: ${t.toString()}]")
+                throw t
             }
-            return fileLock.use {
-                block(fileChannel)
+
+            return try {
+                fileLock.use {
+                    block(fileChannel)
+                }
+            } finally {
+                logger.info("$pidPrefix Lock released $file")
             }
         }
     }
