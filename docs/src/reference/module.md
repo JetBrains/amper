@@ -242,8 +242,8 @@ the [module tests](../user-guide/testing.md).
 |-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
 | `applicationId: string`       | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     | (namespace)           |
 | `namespace: string`           | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           | org.example.namespace |
-| `compileSdk: int`             | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | (targetSdk)           |
-| `targetSdk: int`              | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | 35                    |
+| `compileSdk: int`             | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). | 36                    |
+| `targetSdk: int`              | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             | (compileSdk)          |
 | `minSdk: int`                 | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      | 21                    |
 | `maxSdk: int`                 | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |                       |
 | `signing: object`             | Android signing settings. [Read more](https://developer.android.com/studio/publish/app-signing).                                                                                                                              |                       |
@@ -295,7 +295,7 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 | Attribute              | Description                                                    | Default |
 |------------------------|----------------------------------------------------------------|---------|
 | `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
-| `version: string`      | The Compose plugin version to use.                             | `1.7.3` |
+| `version: string`      | The Compose plugin version to use.                             | `1.8.2` |
 | `resources: object`    | Compose Resources settings.                                    |         |
 | `experimental: object` | Experimental Compose settings.                                 |         |
 
@@ -312,11 +312,11 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 |---------------------|-------------------------------------------|---------|
 | `hotReload: object` | Experimental Compose hot-reload settings. |         |
 
-`settings:compose:experimental:hotReload:` configures experimental hot reload.
+`settings:compose:experimental:hotReload:` configures experimental hot reload (JVM only).
 
-| Attribute          | Description       | Default |
-|--------------------|-------------------|---------|
-| `enabled: boolean` | Enable hot reload | `false` |
+| Attribute         | Description                                          | Default       |
+|-------------------|------------------------------------------------------|---------------|
+| `version: string` | The Compose Hot Reload toolchain version to use.     | `1.0.0-rc01` |
 
 Examples:
 
@@ -346,9 +346,11 @@ settings:
 
 `settings:java:` configures the Java language and the compiler.
 
-| Attribute                      | Description                         | Default |
-|--------------------------------|-------------------------------------|---------|
-| `annotationProcessing: object` | Java annotation processing settings | (empty) |
+| Attribute                      | Description                                              | Default |
+|--------------------------------|----------------------------------------------------------|---------|
+| `annotationProcessing: object` | Java annotation processing settings                      | (empty) |
+| `freeCompilerArgs: string list`| Pass any compiler option directly to the Java compiler   | (empty) |
+| `compileIncrementally: boolean`| Enables incremental compilation for Java sources         | `false` |
 
 #### `settings.java.annotationProcessing`
 
@@ -398,9 +400,10 @@ By default, JUnit 5 is used.
 
 | Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                           |
+| `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 21                                           |
 | `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
 | `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
+| `runtimeClasspathMode: enum`   | How the runtime classpath is constructed: `jars` (default) builds local module dependencies as jars; `classes` uses compiled classes for local modules on the runtime classpath.                                                                                                              | `jars`                                       |
 
 #### `settings.jvm.test`
 
@@ -409,8 +412,9 @@ Read more about [testing support](../user-guide/testing.md).
 
 | Value                      | Description                                                                                                   |
 |----------------------------|---------------------------------------------------------------------------------------------------------------|
+| `junitPlatformVersion: string` | The JUnit platform version used to run tests.                                                              |
 | `systemProperties: map`    | JVM system properties for the test process.                                                                   |
-| `jvmFreeArgs: string list` | Free JVM arguments for the test process.                                                                      |
+| `freeJvmArgs: string list` | Free JVM arguments for the test process.                                                                      |
 
 ### `settings.kotlin`
 
@@ -437,7 +441,7 @@ The `serialization:` attribute is an object with the following properties:
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
 | `enabled: boolean` | Enable the `@Serializable` annotation processing, and add the core serialization library. When enabled, a built-in catalog for kotlinx.serialization format dependencies is provided. | `false` |
 | `format: enum`     | A shortcut for `enabled: true` and adding the given serialization format dependency. For instance, `json` adds the JSON format in addition to enabling serialization.                 |         |
-| `version: string`  | The version to use for the core serialization library and the serialization formats.                                                                                                  | `1.7.3` |
+| `version: string`  | The version to use for the core serialization library and the serialization formats.                                                                                                  | `1.9.0` |
 
 You can also use a short form and directly specify `serialization: enabled` or `serialization: json`.
 
@@ -464,7 +468,7 @@ settings:
   kotlin:
     serialization: 
       format: json
-      version: 1.7.3
+      version: 1.9.0
 ```
 
 ```yaml
@@ -484,7 +488,7 @@ settings:
   kotlin:
     serialization: 
       enabled: true
-      version: 1.7.3
+      version: 1.9.0
 
 dependencies:
   - $kotlin.serialization.json
@@ -559,7 +563,8 @@ settings:
 | Attribute          | Description  | Default |
 |--------------------|--------------|---------|  
 | `enabled: boolean` | Enable Ktor  | `false` |  
-| `version: string`  | Ktor version | `3.1.1` |  
+| `version: string`  | Ktor version | `3.2.3` |  
+| `applyBom: boolean`| Whether to apply the Ktor BOM | `true` |
 
 Example:
 
@@ -574,9 +579,10 @@ settings:
 
 `settings:lombok:` configures Lombok.
 
-| Attribute          | Description    | Default |
-|--------------------|----------------|---------|  
-| `enabled: boolean` | Enable Lombok  | `false` |  
+| Attribute          | Description                                 | Default   |
+|--------------------|---------------------------------------------|-----------|  
+| `enabled: boolean` | Enable Lombok                               | `false`   |  
+| `version: string`  | Lombok version for runtime and annotation processor | `1.18.38` |
 
 Example:
 
@@ -610,7 +616,8 @@ settings:
 | Attribute          | Description               | Default |
 |--------------------|---------------------------|---------|  
 | `enabled: boolean` | Enable Spring Boot        | `false` |  
-| `version: string`  | Spring Boot version       | `3.4.3` |  
+| `version: string`  | Spring Boot version       | `3.5.5` |  
+| `applyBom: boolean`| Whether to apply the Spring Boot BOM        | `true`   |
 
 Example:
 
