@@ -231,7 +231,7 @@ You can use `@platform`-qualifier.
 Note that certain platform names match the toolchain names, e.g. Android:
 
 - `settings@android` qualifier specifies settings for all Android target platforms
-- `settings:android:` is an Android toolchain settings
+- `settings.android` is an Android toolchain settings
 
 This could lead to confusion in cases like:
 

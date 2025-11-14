@@ -78,5 +78,5 @@ settings:
 # these settings affect tests only
 test-settings:
   kotlin:
-    languageVersion: 1.9 # overrides `settings:kotlin:languageVersion: 1.8`
+    languageVersion: 1.9 # overrides settings.kotlin.languageVersion 1.8
 ```

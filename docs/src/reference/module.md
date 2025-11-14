@@ -236,7 +236,7 @@ the [module tests](../user-guide/testing.md).
 
 ### `settings.android`
 
-`settings:android:` configures the Android toolchain and platform.
+`settings.android` configures the Android toolchain and platform.
 
 | Attribute                     | Description                                                                                                                                                                                                                   | Default               |
 |-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
@@ -253,7 +253,7 @@ the [module tests](../user-guide/testing.md).
 
 #### `settings.android.parcelize`
 
-`settings:android:parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
+`settings.android.parcelize` configures [Parcelize](https://developer.android.com/kotlin/parcelize) for the Android
 platform in the module. The value can be the simple `enabled` string, or an object with the following attributes:
 
 | Attribute                            | Description                                                                                                                                                                                                                                                                                                                                                                | Default |
@@ -279,7 +279,7 @@ settings:
 
 #### `settings.android.signing`
 
-`settings:android:signing:` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
+`settings.android.signing` configures signing of Android apps [Read more](https://developer.android.com/studio/publish/app-signing)
 
 
 | Attribute              | Description                                                                                            | Default               |
@@ -289,7 +289,7 @@ settings:
 
 ### `settings.compose`
 
-`settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
+`settings.compose` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose-multiplatform.md).
 
 | Attribute              | Description                                                    | Default |
@@ -299,20 +299,20 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 | `resources: object`    | Compose Resources settings.                                    |         |
 | `experimental: object` | Experimental Compose settings.                                 |         |
 
-`settings:compose:resources:` configures Compose Resources settings.
+`settings.compose.resources` configures Compose Resources settings.
 
 | Attribute                   | Description                                                                                                                                                 | Default |
 |-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
 | `packageName: string`       | A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact. | `""`    |
 | `exposedAccessors: boolean` | Whether the generated resources accessors should be exposed to other modules (public) or internal.                                                          | `false` |
 
-`settings:compose:experimental:` configures experimental Compose features.
+`settings.compose.experimental` configures experimental Compose features.
 
 | Attribute           | Description                               | Default |
 |---------------------|-------------------------------------------|---------|
 | `hotReload: object` | Experimental Compose hot-reload settings. |         |
 
-`settings:compose:experimental:hotReload:` configures experimental hot reload (JVM only).
+`settings.compose.experimental.hotReload` configures experimental hot reload (JVM only).
 
 | Attribute         | Description                                          | Default       |
 |-------------------|------------------------------------------------------|---------------|
@@ -344,7 +344,7 @@ settings:
 
 ### `settings.java`
 
-`settings:java:` configures the Java language and the compiler.
+`settings.java` configures the Java language and the compiler.
 
 | Attribute                      | Description                                              | Default |
 |--------------------------------|----------------------------------------------------------|---------|
@@ -354,7 +354,7 @@ settings:
 
 #### `settings.java.annotationProcessing`
 
-`settings:java:annotationProcessing:` configures Java annotation processing.
+`settings.java.annotationProcessing` configures Java annotation processing.
 
 | Attribute               | Description                                                                                                                    | Default |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------|
@@ -383,7 +383,7 @@ settings:
 
 ### `settings.junit`
 
-`settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
+`settings.junit` configures the JUnit test runner on the JVM and Android platforms. Read more
 about [testing support](../user-guide/testing.md).
 
 By default, JUnit 5 is used.
@@ -396,7 +396,7 @@ By default, JUnit 5 is used.
 
 ### `settings.jvm`
 
-`settings:jvm:` configures the JVM platform-specific settings.
+`settings.jvm` configures the JVM platform-specific settings.
 
 | Attribute                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                                      |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
@@ -407,7 +407,7 @@ By default, JUnit 5 is used.
 
 #### `settings.jvm.test`
 
-`settings:jvm:test:` configures the test settings on the JVM and Android platforms.
+`settings.jvm.test` configures the test settings on the JVM and Android platforms.
 Read more about [testing support](../user-guide/testing.md).
 
 | Value                      | Description                                                                                                   |
@@ -418,7 +418,7 @@ Read more about [testing support](../user-guide/testing.md).
 
 ### `settings.kotlin`
 
-`settings:kotlin:` configures the Kotlin language and the compiler.
+`settings.kotlin` configures the Kotlin language and the compiler.
 
 | Attribute                       | Description                                                                                                                                                          | Default           |
 |---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
@@ -497,7 +497,7 @@ dependencies:
 
 #### `settings.kotlin.allOpen`
 
-`settings:kotlin:allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html),
+`settings.kotlin.allOpen` configures the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html),
 which makes classes annotated with specific annotations open automatically without the explicit `open` keyword.
 
 | Attribute                  | Description                                                                                                    | Default |
@@ -526,7 +526,7 @@ settings:
 
 #### `settings.kotlin.noArg`
 
-`settings:kotlin:noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html),
+`settings.kotlin.noArg` configures the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html),
 which generates no-arg constructors for classes with specific annotations.
 
 | Attribute                     | Description                                                                             | Default |
@@ -558,7 +558,7 @@ settings:
 
 ### `settings.ktor`
 
-`settings:ktor:` configures the Ktor.
+`settings.ktor` configures the Ktor.
 
 | Attribute          | Description  | Default |
 |--------------------|--------------|---------|  
@@ -577,7 +577,7 @@ settings:
 
 ### `settings.lombok`
 
-`settings:lombok:` configures Lombok.
+`settings.lombok` configures Lombok.
 
 | Attribute          | Description                                 | Default   |
 |--------------------|---------------------------------------------|-----------|  
@@ -594,7 +594,7 @@ settings:
 
 ### `settings.native`
 
-`settings:native:` configures settings specific to native applications.
+`settings.native` configures settings specific to native applications.
 
 | Attribute            | Description                                                        | Default |
 |----------------------|--------------------------------------------------------------------|---------|
@@ -611,7 +611,7 @@ settings:
 
 ### `settings.springBoot`
 
-`settings:springBoot:` configures the Spring Boot framework (JVM platform only).
+`settings.springBoot` configures the Spring Boot framework (JVM platform only).
 
 | Attribute          | Description               | Default |
 |--------------------|---------------------------|---------|  
