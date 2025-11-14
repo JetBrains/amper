@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.concurrency
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -184,7 +185,7 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
                     it == StandardOpenOption.CREATE || it == StandardOpenOption.CREATE_NEW
                 }
                 if (fileCreatedByOpen) {
-                    logger.error("$pidPrefix Locking failed $file ${System.lineSeparator()} ${System.lineSeparator()} [reason: ${e.toString()}]")
+                    logger.warn("$pidPrefix Locking failed $file ${System.lineSeparator()} ${System.lineSeparator()} [reason: ${e.toString()}]")
                     // With the current open options, the file should be created by FileChannel.open().
                     // In this case, NoSuchFileException means the file was deleted between the channel opening and the
                     // locking attempt. We should re-open the channel (to re-create the file) and try locking again.
@@ -198,7 +199,7 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
                     throw e
                 }
             } catch(t: Throwable) {
-                logger.error("$pidPrefix Locking failed $file ${System.lineSeparator()} [reason: ${t.toString()}]")
+                logger.warn("$pidPrefix Locking failed $file ${System.lineSeparator()} [reason: ${t.toString()}]")
                 throw t
             }
 
