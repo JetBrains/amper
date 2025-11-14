@@ -125,7 +125,8 @@ as dependencies to multiple modules without having to repeat the coordinates or 
 Amper currently supports 2 types of dependency catalogs:
 
 - toolchain catalogs (such as Kotlin, Compose Multiplatform etc.)
-- Gradle version catalogs that are placed in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration)
+- [Gradle version catalogs in TOML format](https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration) 
+  that are placed in the default `gradle/libs.versions.toml` location or in `libs.versions.toml` at the root of the project.
 
 The toolchain catalogs are implicitly defined, and contain predefined libraries that relate to the corresponding toolchain.
 The name of such a catalog corresponds to the name of the corresponding toolchain in the [settings section](basics.md#settings).
