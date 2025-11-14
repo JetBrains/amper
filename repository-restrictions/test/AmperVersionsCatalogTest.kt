@@ -37,7 +37,7 @@ class AmperVersionsCatalogTest {
     private class GradleCatalog(val versionLines: List<String>, val libraryLines: List<String>)
 
     private fun readCatalog(): GradleCatalog {
-        val catalogFile = Dirs.amperCheckoutRoot.resolve("gradle/libs.versions.toml")
+        val catalogFile = Dirs.amperCheckoutRoot.resolve("libs.versions.toml")
         val catalogLines = catalogFile.readLines().map { it.trim() }
         val versionLines = catalogLines.extractTomlSectionLines("versions")
         val libraryLines = catalogLines.extractTomlSectionLines("libraries")

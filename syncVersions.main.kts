@@ -53,7 +53,7 @@ val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
 val amperWrapperModuleDir = amperRootDir / "sources/amper-wrapper"
 val docsDir = amperRootDir / "docs"
-val versionsCatalogToml = amperRootDir / "gradle/libs.versions.toml"
+val versionsCatalogToml = amperRootDir / "libs.versions.toml"
 val usedVersionsKt = amperRootDir / "sources/core/src/org/jetbrains/amper/core/UsedVersions.kt"
 
 fun syncVersions() {
