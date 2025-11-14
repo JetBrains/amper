@@ -134,15 +134,13 @@ class MavenResolver(
 
         for (buildProblem in buildProblems) {
             when (buildProblem.level) {
+                Level.WeakWarning -> logger.info(buildProblem.message)
                 Level.Warning -> logger.warn(buildProblem.message)
                 Level.Error -> {
                     span.recordException(MavenResolverException(buildProblem.message))
                     DoNotLogToTerminalCookie.use {
                         logger.error(buildProblem.message)
                     }
-                }
-
-                else -> { /* do nothing */
                 }
             }
         }
