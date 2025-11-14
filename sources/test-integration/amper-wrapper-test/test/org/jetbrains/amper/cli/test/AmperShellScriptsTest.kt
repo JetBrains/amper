@@ -34,6 +34,7 @@ import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
@@ -74,6 +75,9 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
         assertTrue("Process output must contain 'Hello for Shell Scripts Test' the first time. Output:\n${result1.stdout}") {
             result1.stdout.contains("Hello for Shell Scripts Test")
         }
+        assertTrue("Process output must contain welcome banner the first time. Output:\n${result1.stdout}") {
+            result1.stdout.contains("Welcome")
+        }
         val nDownloadingLines1 = result1.stdout.lines().count { it.startsWith("Downloading ") }
         assertEquals(
             2,
@@ -103,6 +107,31 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             actual = listOf(LocalAmperPublication.distTgz),
             message = "The Amper script run should request the Amper distribution (and only this)",
         )
+    }
+
+    /**
+     * It's expected on the start that wrappers and cli dist are published to maven local
+     */
+    @Test
+    fun `shell script does not show the welcome banner if disabled`() = runBlocking {
+        val templatePath = shellScriptExampleProject
+        assertTrue { templatePath.isDirectory() }
+
+        templatePath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
+
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        val result1 = runAmper(
+            workingDir = tempDir,
+            args = listOf("run"),
+            bootstrapCacheDir = bootstrapCacheDir,
+            // We want to test the proper download of the JRE to the bootstrap dir, so we have to unset this
+            amperJavaHomeMode = AmperJavaHomeMode.ForceUnset,
+            environment = mapOf("AMPER_NO_WELCOME_BANNER" to "1"),
+        )
+        assertFalse("Process output must NOT contain welcome banner even the first time when disabled. Output:\n${result1.stdout}") {
+            result1.stdout.contains("Welcome")
+        }
     }
 
     /**

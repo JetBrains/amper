@@ -12,6 +12,7 @@
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 @rem   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
+@rem   AMPER_NO_WELCOME_BANNER    Disables the first-run welcome message if set to a non-empty value
 
 setlocal
 
@@ -67,7 +68,7 @@ if (-not $createdNew) { ^
  ^
 try { ^
     if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%sha%') { ^
-        if ('%show_banner_on_cache_miss%' -eq 'true') { ^
+        if (('%show_banner_on_cache_miss%' -eq 'true') -and [string]::IsNullOrEmpty('%AMPER_NO_WELCOME_BANNER%')) { ^
             Write-Host '*** Welcome to Amper v.%amper_version%! ***'; ^
             Write-Host ''; ^
             Write-Host 'This is the first run of this version, so we need to download the actual Amper distribution.'; ^
