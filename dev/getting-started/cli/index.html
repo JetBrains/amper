@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../images/amper-logo.svg">
+      <link rel="icon" href="../../images/amper-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
@@ -100,7 +100,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../images/amper-logo.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -388,7 +388,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../images/amper-logo.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     Amper
@@ -1019,14 +1019,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user-guide/builtin-tech/compose/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Compose
+    Compose Multiplatform
   
 
     
@@ -1687,7 +1687,7 @@ installation, no matter their OS.</p>
 Amper <code>module.yaml</code> file in a blank project, IntelliJ IDEA will offer to setup the wrapper scripts for you.</p>
 </details>
 <p>Use the following command in your project directory to download the script and set up Amper:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Linux / macOS</label><label for="__tabbed_1_2">Windows</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="linux--macos" name="__tabbed_1" type="radio" /><input id="windows" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="linux--macos">Linux / macOS</label><label for="windows">Windows</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>amper<span class="w"> </span>https://jb.gg/amper-latest-wrapper.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>amper<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./amper<span class="w"> </span>update<span class="w"> </span>-c
@@ -1732,7 +1732,7 @@ Subsequent runs will be faster, as the downloaded files will be cached locally.<
 <p>If you’re using <code>bash</code>, <code>zsh</code>, or <code>fish</code>, you can generate a completion script to source as part of your shell’s
 configuration, to get tab completion for Amper commands.</p>
 <p>First, generate the completion script using the <code>generate-completion</code> command, specifying the shell you use:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">bash</label><label for="__tabbed_2_2">zsh</label><label for="__tabbed_2_3">fish</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="bash" name="__tabbed_2" type="radio" /><input id="zsh" name="__tabbed_2" type="radio" /><input id="fish" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="bash">bash</label><label for="zsh">zsh</label><label for="fish">fish</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>generate-completion<span class="w"> </span>bash<span class="w"> </span>&gt;<span class="w"> </span>~/amper-completion.sh
