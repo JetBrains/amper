@@ -7,7 +7,7 @@ JetBrains for sharing Kotlin UI code across multiple platforms.
 
 Use `settings.compose.enabled` to enable Compose:
 
-=== ":material-language-java: JVM Desktop"
+=== ":intellij-java: JVM Desktop"
 
     ```yaml
     product: jvm/app

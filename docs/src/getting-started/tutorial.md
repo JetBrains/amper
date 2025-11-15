@@ -64,7 +64,7 @@ You can now build your application using `./amper build`, or run it using `./amp
 
 ??? info "Run it directly from IntelliJ IDEA"
 
-    If you're using IntelliJ IDEA, you use the :fontawesome-solid-play: Run icon in any of those places:
+    If you're using IntelliJ IDEA, you can use the :intellij-run: Run icon in any of those places:
 
       * next to the `product: ` section in `module.yaml`:
       
@@ -73,10 +73,8 @@ You can now build your application using `./amper build`, or run it using `./amp
       * next to the `main()` function in `main.kt`:
       
       ![](../images/ij-run-main.png)
-      
-      * use [Run/Debug configurations](https://www.jetbrains.com/help/idea/run-debug-configuration.html):
-      
-      ![](../images/ij-run-config-jvm.png)
+
+      * in the main toolbar
 
 !!! abstract "Related documentation"
 
