@@ -27,6 +27,7 @@ jobs:
       - name: Install MkDocs with its plugins, and Mike
         run: pip install \
           mkdocs-material \
+          "mkdocs-material[imaging]" \
           mkdocs-macros-plugin \
           mkdocs-git-revision-date-localized-plugin \
           mkdocs-git-committers-plugin-2 \
