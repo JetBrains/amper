@@ -16,6 +16,8 @@ theme:
   name: material
   logo: images/amper-icon.svg
   favicon: images/amper-icon.svg
+  font:
+    code: JetBrains Mono
   features:
     - content.action.edit # adds an "Edit this page" button to each page
     - content.code.annotate # allows annotations (tooltips) inside code blocks
