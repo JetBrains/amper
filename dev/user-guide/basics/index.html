@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Basic concepts - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/basics.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/basics/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Basic concepts - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/basics.png" />
+</head>
   
   
     
@@ -1938,23 +1951,23 @@ configuration. There is a dedicated <a href="../multiplatform/#platform-qualifie
 dependencies, settings, etc. You'll see it in the examples below.</p>
 <h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
 <p>A basic single-module Amper project looks like this:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-main.kt      
-|-test/       
-|  |-MainTest.kt 
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ main.kt
+├─ test/
+│  ╰─ MainTest.kt
+╰─ module.yaml
 </code></pre></div>
 <p>If there are multiple modules, the <code>project.yaml</code> file specifies the list of modules:</p>
-<div class="highlight"><pre><span></span><code>|-app/
-|  |-src/             
-|  |  |-main.kt
-|  |-...      
-|  |-module.yaml
-|-lib/
-|  |-src/             
-|  |  |-util.kt      
-|  |-module.yaml
-|-project.yaml
+<div class="highlight"><pre><span></span><code>├─ app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ ...
+│  ╰─ module.yaml
+├─ lib/
+│  ├─ src/
+│  │  ╰─ util.kt
+│  ╰─ module.yaml
+╰─ project.yaml
 </code></pre></div>
 <p>In the above case, the <code>project.yaml</code> looks like this:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
@@ -1965,64 +1978,64 @@ dependencies, settings, etc. You'll see it in the examples below.</p>
 <code>project.yaml</code> file.</p>
 <h3 id="source-code">Source code<a class="headerlink" href="#source-code" title="Permanent link">&para;</a></h3>
 <p>Source files are located in the <code>src</code> folder:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-main.kt      
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ main.kt
+╰─ module.yaml
 </code></pre></div>
 <p>By convention, a <code>main.kt</code> file, if present, is the default entry point for the application.
 Read more on <a href="#configuring-entry-points">configuring the application entry points</a>.</p>
 <p>In a JVM module, you can mix Kotlin and Java source files:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-main.kt      
-|  |-Util.java      
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ├─ main.kt
+│  ╰─ Util.java
+╰─ module.yaml
 </code></pre></div>
 <p>In a <a href="../multiplatform/">multiplatform module</a>, platform-specific code is located in folders
 with <a href="../multiplatform/#platform-qualifier"><code>@platform</code>-qualifiers</a>:</p>
-<div class="highlight"><pre><span></span><code>|-src/             # common code
-|  |-main.kt      
-|  |-util.kt       #  API with ‘expect’ part
-|-src@ios/         # code to be compiled only for iOS targets
-|  |-util.kt       #  API implementation with ‘actual’ part for iOS
-|-src@jvm/         # code to be compiled only for JVM targets
-|  |-util.kt       #  API implementation with ‘actual’ part for JVM
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/             # common code
+│  ├─ main.kt
+│  ╰─ util.kt       #  API with ‘expect’ part
+├─ src@ios/         # code to be compiled only for iOS targets
+│  ╰─ util.kt       #  API implementation with ‘actual’ part for iOS
+├─ src@jvm/         # code to be compiled only for JVM targets
+│  ╰─ util.kt       #  API implementation with ‘actual’ part for JVM
+╰─ module.yaml
 </code></pre></div>
 <p>Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
 refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.</p>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <p>Files placed into the <code>resources</code> folder are copied to the resulting products:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-...
-|-resources/     # These files are copied into the final products
-|  |-...
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ ...
+╰─ resources/     # These files are copied into the final products
+   ╰─ ...
 </code></pre></div>
 <p>In <a href="#multiplatform-configuration">multiplatform modules</a>, resources are merged from the common folders and corresponding
 platform-specific folders:
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-...
-|-resources/          # these resources are copied into the Android and JVM artifact
-|  |-...
-|-resources@android/  # these resources are copied into the Android artifact
-|  |-...
-|-resources@jvm/      # these resources are copied into the JVM artifact
-|  |-...
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ ...
+├─ resources/          # these resources are copied into the Android and JVM artifact
+│  ╰─ ...
+├─ resources@android/  # these resources are copied into the Android artifact
+│  ╰─ ...
+╰─ resources@jvm/      # these resources are copied into the JVM artifact
+   ╰─ ...
 </code></pre></div></p>
 <p>In case of duplicated names, the common resources are overwritten by the more specific ones.
 That is <code>resources/foo.txt</code> will be overwritten by <code>resources@android/foo.txt</code>.</p>
 <p><abbr title="That is, modules with `android` product type.">Android modules</abbr> also have <a href="https://developer.android.com/guide/topics/resources/providing-resources"><code>res</code> and <code>assets</code></a> 
 folders:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-...
-|-res/
-|  |-drawable/
-|  |  |-...
-|  |-layout/
-|  |  |-...
-|  |-...
-|-assets/
-|  |-...
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ ...
+├─ res/
+│  ├─ drawable/
+│  │  ╰─ ...
+│  ├─ layout/
+│  │  ╰─ ...
+│  ╰─ ...
+├─ assets/
+│  ╰─ ...
+╰─ module.yaml
 </code></pre></div>
 <h2 id="module-file-anatomy">Module file anatomy<a class="headerlink" href="#module-file-anatomy" title="Permanent link">&para;</a></h2>
 <p>A <code>module.yaml</code> file has several main sections: <code>product:</code>, <code>dependencies:</code> and <code>settings:</code>. A module can produce a
@@ -2173,7 +2186,7 @@ duplicate files.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 12, 2025 09:16:28 UTC">November 12, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:56:16 UTC">November 14, 2025</span>
   </span>
 
     

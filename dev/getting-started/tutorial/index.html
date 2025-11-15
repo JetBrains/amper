@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Tutorial - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/getting-started/tutorial.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/getting-started/tutorial/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Tutorial - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/getting-started/tutorial.png" />
+</head>
   
   
     
@@ -1820,9 +1833,9 @@ Here is what we do:</p>
 <div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
 </code></pre></div>
 <p>And add some code in the <code>src/</code> folder:</p>
-<div class="highlight"><pre><span></span><code>|-src/
-|  |-main.kt
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ main.kt
+╰─ module.yaml
 </code></pre></div>
 <div class="highlight"><span class="filename">main.kt</span><pre><span></span><code><span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Hello, World!&quot;</span><span class="p">)</span>
@@ -1834,24 +1847,30 @@ Here is what we do:</p>
 <li>If not, follow the <a href="../cli/#installation">CLI installation instructions</a> to download them.</li>
 </ul>
 <p>Your project should now look like this:
-<div class="highlight"><pre><span></span><code>|-src/
-|  |-main.kt
-|-module.yaml
-|-amper
-|-amper.bat
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ main.kt
+├─ module.yaml
+├─ amper
+╰─ amper.bat
 </code></pre></div></p>
 <p>That’s it, we’ve just created a simple JVM application.</p>
 <p>And since it’s a JVM project, you can add Java code. Java and Kotlin files can reside together,
 no need to create separate Maven-like <code>java/</code> and <code>kotlin/</code> folders:</p>
-<div class="highlight"><pre><span></span><code>|-src/
-|  |-main.kt
-|  |-JavaClass.java
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ├─ main.kt
+│  ╰─ JavaClass.java
+╰─ module.yaml
 </code></pre></div>
 <p>You can now build your application using <code>./amper build</code>, or run it using <code>./amper run</code>.</p>
 <details class="info">
 <summary>Run it directly from IntelliJ IDEA</summary>
-<p>If you're using IntelliJ IDEA, you use the <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M91.2 36.9c-12.4-6.8-27.4-6.5-39.6.7S32 57.9 32 72v368c0 14.1 7.5 27.2 19.6 34.4s27.2 7.5 39.6.7l336-184c12.8-7 20.8-20.5 20.8-35.1s-8-28.1-20.8-35.1z"/></svg></span> Run icon in any of those places:</p>
+<p>If you're using IntelliJ IDEA, you can use the <span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 6.13399C12.6667 6.51889 12.6667 7.48114 12 7.86604L3 13.0622C2.33333 13.4471 1.5 12.966 1.5 12.1962L1.5 1.80386C1.5 1.03406 2.33333 0.552935 3 0.937835L12 6.13399Z" fill="none" stroke="#208A3C"/>
+</svg>
+</span> Run icon in any of those places:</p>
 <ul>
 <li>next to the <code>product:</code> section in <code>module.yaml</code>:</li>
 </ul>
@@ -1861,9 +1880,8 @@ no need to create separate Maven-like <code>java/</code> and <code>kotlin/</code
 </ul>
 <p><img alt="" src="../../images/ij-run-main.png" /></p>
 <ul>
-<li>use <a href="https://www.jetbrains.com/help/idea/run-debug-configuration.html">Run/Debug configurations</a>:</li>
+<li>in the main toolbar</li>
 </ul>
-<p><img alt="" src="../../images/ij-run-config-jvm.png" /></p>
 </details>
 <div class="admonition abstract">
 <p class="admonition-title">Related documentation</p>
@@ -1894,11 +1912,11 @@ no need to create separate Maven-like <code>java/</code> and <code>kotlin/</code
 <h2 id="step-3-add-tests">Step 3. Add tests<a class="headerlink" href="#step-3-add-tests" title="Permanent link">&para;</a></h2>
 <p>Now let’s add some tests. Amper configures the testing framework automatically,
 we only need to add some test code into the <code>test/</code> folder:</p>
-<div class="highlight"><pre><span></span><code>|-src/
-|  |-...
-|-test/
-|  |-MyTest.kt
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ ...
+├─ test/
+│  ╰─ MyTest.kt
+╰─ module.yaml
 </code></pre></div>
 <div class="highlight"><span class="filename">MyTest.kt</span><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">kotlin.test.*</span>
 
@@ -2002,25 +2020,25 @@ Read more about library catalogs in the <a href="../../user-guide/dependencies/#
 when making the project multiplatform.</p>
 <p>Our goal here is to separate our app into a <code>shared</code> library module and a <code>jvm-app</code> application module and reach the 
 following structure:
-<div class="highlight"><pre><span></span><code>|-jvm-app/
-|  |-...
-|  |-module.yaml
-|-shared/
-|  |-...
-|  |-module.yaml
-|-amper
-|-amper.bat
-|-project.yaml
+<div class="highlight"><pre><span></span><code>├─ jvm-app/
+│  ├─ ...
+│  ╰─ module.yaml
+├─ shared/
+│  ├─ ...
+│  ╰─ module.yaml
+├─ amper
+├─ amper.bat
+╰─ project.yaml
 </code></pre></div></p>
 <p>First let's move our current <code>src</code>, <code>test</code> and <code>module.yaml</code> files into a new <code>jvm-app</code> directory:
-<div class="highlight"><pre><span></span><code>|-jvm-app/
-|  |-src/
-|  |  |-main.kt
-|  |-test/
-|  |  |-...
-|  |-module.yaml
-|-amper
-|-amper.bat
+<div class="highlight"><pre><span></span><code>├─ jvm-app/
+│  ├─ src/
+│  │  ╰─ main.kt
+│  ├─ test/
+│  │  ╰─ ...
+│  ╰─ module.yaml
+├─ amper
+╰─ amper.bat
 </code></pre></div></p>
 <p>Add a <code>project.yaml</code> file in the root, next to the existing <code>amper</code> and <code>amper.bat</code> files, with the following content:</p>
 <div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
@@ -2092,22 +2110,22 @@ explicitly depend on them.</p>
 Let's add an Android and an iOS application.
 It will be straightforward, since we've already prepared a multi-module layout with a shared module that we can reuse.</p>
 <p>Here is the project structure that we need:</p>
-<div class="highlight"><pre><span></span><code>|-android-app/
-|  |-src/
-|  |  |-main.kt
-|  |  |-AndroidManifest.xml
-|  |-module.yaml
-|-ios-app/
-|  |-src/
-|  |  |-iosApp.swift
-|  |  |-main.kt
-|  |-module.yaml
-|  |-module.xcodeproj
-|-jvm-app/
-|  |-...
-|-shared/
-|  |-...
-| project.yaml
+<div class="highlight"><pre><span></span><code>├─ android-app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ AndroidManifest.xml
+│  ╰─ module.yaml
+├─ ios-app/
+│  ├─ src/
+│  │  ├─ iosApp.swift
+│  │  ╰─ main.kt
+│  ├─ module.yaml
+│  ╰─ module.xcodeproj
+├─ jvm-app/
+│  ╰─ ...
+├─ shared/
+│  ╰─ ...
+╰─ project.yaml
 </code></pre></div>
 <p>Remember to add the new modules into the <code>project.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
@@ -2191,19 +2209,19 @@ Create a <code>MainActivity.kt</code> file in <code>android-app/src</code> with 
 into <code>android-app/src</code> folder, and the <a href="https://github.com/JetBrains/amper/tree/main/examples/compose-multiplatform/ios-app/src/iosApp.swift">iosApp.swift file</a> into the <code>ios-app/src</code>.
 These files bind the Compose UI code with the native application entry points.</p>
 <p>Make sure that your project structure looks like this:
-<div class="highlight"><pre><span></span><code>|-android-app/
-|  |-src/
-|  |  |-main.kt
-|  |  |-AndroidManifest.xml
-|  |-module.yaml
-|-ios-app/
-|  |-src/
-|  |  |-iosApp.swift
-|  |  |-main.kt
-|  |-module.yaml
-|-jvm-app/
-|-shared/
-|-...
+<div class="highlight"><pre><span></span><code>├─ android-app/
+│  ├─ src/
+│  │  ├─ main.kt
+│  │  ╰─ AndroidManifest.xml
+│  ╰─ module.yaml
+├─ ios-app/
+│  ├─ src/
+│  │  ├─ iosApp.swift
+│  │  ╰─ main.kt
+│  ╰─ module.yaml
+├─ jvm-app/
+├─ shared/
+╰─ ...
 </code></pre></div></p>
 <p>Now you can build and run both apps using the corresponding IntelliJ IDEA run configurations, or use the CLI commands:
 <div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>android-app
@@ -2229,16 +2247,16 @@ See <a href="../../user-guide/builtin-tech/ios/">iOS Support</a> to learn more a
 <h2 id="step-8-deduplicate-common-configuration">Step 8. Deduplicate common configuration<a class="headerlink" href="#step-8-deduplicate-common-configuration" title="Permanent link">&para;</a></h2>
 <p>You might have noticed that there are some settings present in  the <code>module.yaml</code> files. To redce duplication we can extract them into a template.</p>
 <p>Let's create a couple of <code>&lt;name&gt;.module-template.yaml</code> files:
-<div class="highlight"><pre><span></span><code>|-android-app/
-|  |-...
-|-ios-app/
-|  |-...
-|-jvm-app/
-|  |-...
-|-shared/
-|  |-...
-|-compose.module-template.yaml
-|-app.module-template.yaml
+<div class="highlight"><pre><span></span><code>├─ android-app/
+│  ╰─ ...
+├─ ios-app/
+│  ╰─ ...
+├─ jvm-app/
+│  ╰─ ...
+├─ shared/
+│  ╰─ ...
+├─ compose.module-template.yaml
+╰─ app.module-template.yaml
 </code></pre></div></p>
 <p>A <code>/compose.module-template.yaml</code> with settings common to all modules:
 <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
@@ -2318,7 +2336,7 @@ for various typical configurations in the project.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 01:55:18 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 15, 2025 00:25:49 UTC">November 15, 2025</span>
   </span>
 
     

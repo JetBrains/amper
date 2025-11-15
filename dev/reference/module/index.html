@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="module.yaml - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/reference/module.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/reference/module/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="module.yaml - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/reference/module.png" />
+</head>
   
   
     
@@ -2489,7 +2502,7 @@ about <a href="../../user-guide/basics/#settings">settings configuration</a>.</p
 <p><code>test-settings:</code> section controls building and running the module tests. Read more about
 the <a href="../../user-guide/testing/">module tests</a>.</p>
 <h3 id="settingsandroid"><code>settings.android</code><a class="headerlink" href="#settingsandroid" title="Permanent link">&para;</a></h3>
-<p><code>settings:android:</code> configures the Android toolchain and platform.</p>
+<p><code>settings.android</code> configures the Android toolchain and platform.</p>
 <table>
 <thead>
 <tr>
@@ -2552,7 +2565,7 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 </tbody>
 </table>
 <h4 id="settingsandroidparcelize"><code>settings.android.parcelize</code><a class="headerlink" href="#settingsandroidparcelize" title="Permanent link">&para;</a></h4>
-<p><code>settings:android:parcelize</code> configures <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a> for the Android
+<p><code>settings.android.parcelize</code> configures <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a> for the Android
 platform in the module. The value can be the simple <code>enabled</code> string, or an object with the following attributes:</p>
 <table>
 <thead>
@@ -2588,7 +2601,7 @@ platform in the module. The value can be the simple <code>enabled</code> string,
 <span class="w">      </span><span class="nt">additionalAnnotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.MyCommonParcelize</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <h4 id="settingsandroidsigning"><code>settings.android.signing</code><a class="headerlink" href="#settingsandroidsigning" title="Permanent link">&para;</a></h4>
-<p><code>settings:android:signing:</code> configures signing of Android apps <a href="https://developer.android.com/studio/publish/app-signing">Read more</a></p>
+<p><code>settings.android.signing</code> configures signing of Android apps <a href="https://developer.android.com/studio/publish/app-signing">Read more</a></p>
 <table>
 <thead>
 <tr>
@@ -2611,7 +2624,7 @@ platform in the module. The value can be the simple <code>enabled</code> string,
 </tbody>
 </table>
 <h3 id="settingscompose"><code>settings.compose</code><a class="headerlink" href="#settingscompose" title="Permanent link">&para;</a></h3>
-<p><code>settings:compose:</code> configures the <a href="https://www.jetbrains.com/lp/compose-multiplatform/">Compose Multiplatform</a>
+<p><code>settings.compose</code> configures the <a href="https://www.jetbrains.com/lp/compose-multiplatform/">Compose Multiplatform</a>
 framework. Read more about <a href="../../user-guide/builtin-tech/compose-multiplatform/">Compose configuration</a>.</p>
 <table>
 <thead>
@@ -2644,7 +2657,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </tr>
 </tbody>
 </table>
-<p><code>settings:compose:resources:</code> configures Compose Resources settings.</p>
+<p><code>settings.compose.resources</code> configures Compose Resources settings.</p>
 <table>
 <thead>
 <tr>
@@ -2666,7 +2679,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </tr>
 </tbody>
 </table>
-<p><code>settings:compose:experimental:</code> configures experimental Compose features.</p>
+<p><code>settings.compose.experimental</code> configures experimental Compose features.</p>
 <table>
 <thead>
 <tr>
@@ -2683,7 +2696,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </tr>
 </tbody>
 </table>
-<p><code>settings:compose:experimental:hotReload:</code> configures experimental hot reload (JVM only).</p>
+<p><code>settings.compose.experimental.hotReload</code> configures experimental hot reload (JVM only).</p>
 <table>
 <thead>
 <tr>
@@ -2718,7 +2731,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <span class="w">      </span><span class="nt">exposedAccessors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="settingsjava"><code>settings.java</code><a class="headerlink" href="#settingsjava" title="Permanent link">&para;</a></h3>
-<p><code>settings:java:</code> configures the Java language and the compiler.</p>
+<p><code>settings.java</code> configures the Java language and the compiler.</p>
 <table>
 <thead>
 <tr>
@@ -2746,7 +2759,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 </tbody>
 </table>
 <h4 id="settingsjavaannotationprocessing"><code>settings.java.annotationProcessing</code><a class="headerlink" href="#settingsjavaannotationprocessing" title="Permanent link">&para;</a></h4>
-<p><code>settings:java:annotationProcessing:</code> configures Java annotation processing.</p>
+<p><code>settings.java.annotationProcessing</code> configures Java annotation processing.</p>
 <table>
 <thead>
 <tr>
@@ -2784,7 +2797,7 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <span class="w">        </span><span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="settingsjunit"><code>settings.junit</code><a class="headerlink" href="#settingsjunit" title="Permanent link">&para;</a></h3>
-<p><code>settings:junit:</code> configures the JUnit test runner on the JVM and Android platforms. Read more
+<p><code>settings.junit</code> configures the JUnit test runner on the JVM and Android platforms. Read more
 about <a href="../../user-guide/testing/">testing support</a>.</p>
 <p>By default, JUnit 5 is used.</p>
 <table>
@@ -2810,7 +2823,7 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tbody>
 </table>
 <h3 id="settingsjvm"><code>settings.jvm</code><a class="headerlink" href="#settingsjvm" title="Permanent link">&para;</a></h3>
-<p><code>settings:jvm:</code> configures the JVM platform-specific settings.</p>
+<p><code>settings.jvm</code> configures the JVM platform-specific settings.</p>
 <table>
 <thead>
 <tr>
@@ -2843,7 +2856,7 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tbody>
 </table>
 <h4 id="settingsjvmtest"><code>settings.jvm.test</code><a class="headerlink" href="#settingsjvmtest" title="Permanent link">&para;</a></h4>
-<p><code>settings:jvm:test:</code> configures the test settings on the JVM and Android platforms.
+<p><code>settings.jvm.test</code> configures the test settings on the JVM and Android platforms.
 Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <table>
 <thead>
@@ -2868,7 +2881,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tbody>
 </table>
 <h3 id="settingskotlin"><code>settings.kotlin</code><a class="headerlink" href="#settingskotlin" title="Permanent link">&para;</a></h3>
-<p><code>settings:kotlin:</code> configures the Kotlin language and the compiler.</p>
+<p><code>settings.kotlin</code> configures the Kotlin language and the compiler.</p>
 <table>
 <thead>
 <tr>
@@ -3008,7 +3021,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
 </code></pre></div>
 <h4 id="settingskotlinallopen"><code>settings.kotlin.allOpen</code><a class="headerlink" href="#settingskotlinallopen" title="Permanent link">&para;</a></h4>
-<p><code>settings:kotlin:allOpen</code> configures the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>,
+<p><code>settings.kotlin.allOpen</code> configures the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>,
 which makes classes annotated with specific annotations open automatically without the explicit <code>open</code> keyword.</p>
 <table>
 <thead>
@@ -3050,7 +3063,7 @@ which makes classes annotated with specific annotations open automatically witho
 <span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">spring</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <h4 id="settingskotlinnoarg"><code>settings.kotlin.noArg</code><a class="headerlink" href="#settingskotlinnoarg" title="Permanent link">&para;</a></h4>
-<p><code>settings:kotlin:noArg</code> configures the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>,
+<p><code>settings.kotlin.noArg</code> configures the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>,
 which generates no-arg constructors for classes with specific annotations.</p>
 <table>
 <thead>
@@ -3099,7 +3112,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">      </span><span class="nt">invokeInitializers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="settingsktor"><code>settings.ktor</code><a class="headerlink" href="#settingsktor" title="Permanent link">&para;</a></h3>
-<p><code>settings:ktor:</code> configures the Ktor.</p>
+<p><code>settings.ktor</code> configures the Ktor.</p>
 <table>
 <thead>
 <tr>
@@ -3133,7 +3146,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.3.2</span><span class="w"> </span><span class="c1"># version customization</span>
 </code></pre></div>
 <h3 id="settingslombok"><code>settings.lombok</code><a class="headerlink" href="#settingslombok" title="Permanent link">&para;</a></h3>
-<p><code>settings:lombok:</code> configures Lombok.</p>
+<p><code>settings.lombok</code> configures Lombok.</p>
 <table>
 <thead>
 <tr>
@@ -3161,7 +3174,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="settingsnative"><code>settings.native</code><a class="headerlink" href="#settingsnative" title="Permanent link">&para;</a></h3>
-<p><code>settings:native:</code> configures settings specific to native applications.</p>
+<p><code>settings.native</code> configures settings specific to native applications.</p>
 <table>
 <thead>
 <tr>
@@ -3185,7 +3198,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">    </span><span class="nt">entryPoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.example.MainKt.main</span>
 </code></pre></div>
 <h3 id="settingsspringboot"><code>settings.springBoot</code><a class="headerlink" href="#settingsspringboot" title="Permanent link">&para;</a></h3>
-<p><code>settings:springBoot:</code> configures the Spring Boot framework (JVM platform only).</p>
+<p><code>settings.springBoot</code> configures the Spring Boot framework (JVM platform only).</p>
 <table>
 <thead>
 <tr>
@@ -3238,7 +3251,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 18:16:38 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:32:09 UTC">November 14, 2025</span>
   </span>
 
     

@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Compose Multiplatform - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/compose-multiplatform.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/builtin-tech/compose-multiplatform/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Compose Multiplatform - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/compose-multiplatform.png" />
+</head>
   
   
     
@@ -1799,7 +1812,11 @@
   
 
 
-<h1 id="compose-multiplatform"><span class="twemoji"><svg width="50" height="56" viewBox="0 0 50 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<h1 id="compose-multiplatform"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="50" height="56" viewBox="0 0 50 56" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M49 14V42L25 56L1 42V14L25 0L49 14Z" fill="#6075F2"/>
 <path d="M34.5 22.5V33.5L25 39V56L49 42V13.9998L34.5 22.5Z" fill="#6B57FF"/>
 <path d="M25 39L15.5 33.5V22.5L1 14V42L25 56V39Z" fill="url(#paint0_radial_1333_5021)"/>
@@ -1821,7 +1838,19 @@
 JetBrains for sharing Kotlin UI code across multiple platforms.</p>
 <h2 id="enabling-compose">Enabling Compose<a class="headerlink" href="#enabling-compose" title="Permanent link">&para;</a></h2>
 <p>Use <code>settings.compose.enabled</code> to enable Compose:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="jvm-desktop" name="__tabbed_1" type="radio" /><input id="android" name="__tabbed_1" type="radio" /><input id="shared-library" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="jvm-desktop"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 6.08s-6.84 1.71-3.56 5.48c.97 1.11-.25 2.11-.25 2.11s2.45-1.25 1.31-2.85c-1.06-1.47-1.86-2.2 2.5-4.74m-4.47 1.2C16.08 4.08 14 2 14 2c.84 3.3-2.96 4.3-4.33 6.36-.94 1.4.46 2.91 2.33 4.64-.71-1.7-3.22-3.16.03-5.72M9.37 17.47c-3.08.86 1.88 2.63 5.79.96-.38-.15-.75-.33-1.1-.54-1.36.31-2.76.37-4.14.18-1.31-.16-.55-.6-.55-.6m5.32-1.68c-1.75.38-3.56.47-5.34.26-1.31-.13-.45-.77-.45-.77-3.4 1.13 1.88 2.4 6.6 1.02-.29-.11-.57-.3-.81-.51m3.42 3.3s.57.47-.61.83c-2.28.68-9.43.89-11.41.03-.71-.31.63-.74 1.05-.83.23-.06.46-.08.69-.08-.79-.54-5.13 1.1-2.19 1.56 7.97 1.3 14.54-.6 12.47-1.51m-2.74-4.86c.29-.19.6-.35.92-.49 0 0-1.51.26-3.02.4-1.6.16-3.21.18-4.81.06-2.35-.31 1.29-1.2 1.29-1.2-1.1 0-2.18.26-3.16.75-2.05 1 5.1 1.45 8.78.48m.9 2.42c-.02.04-.04.07-.08.1 5.01-1.31 3.17-4.64.77-3.81-.13.06-.24.14-.31.25.14-.05.28-.09.43-.12 1.2-.24 2.92 1.63-.81 3.58m.13 4.61c-3.01.52-6.09.56-9.12.14 0 0 .46.38 2.81.53 3.6.23 9.13-.13 9.26-1.83.03.01-.23.65-2.95 1.16"/></svg></span> JVM Desktop</label><label for="android"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="152" height="89" viewBox="0 0 152 89" fill="none"><g clip-path="url(#a)"><path fill="#34A853" d="M151.025 85.224q-.071-.464-.147-.92a75.665 75.665 0 0 0-7.546-22.597 76.5 76.5 0 0 0-5.511-8.995 76 76 0 0 0-8.322-9.808 76.034 76.034 0 0 0-13.398-10.626q.042-.074.085-.148 2.286-3.948 4.572-7.897l4.47-7.712a3946 3946 0 0 0 3.208-5.54q.38-.658.604-1.355a6.97 6.97 0 0 0-.652-5.702 6.9 6.9 0 0 0-2.406-2.398 7 7 0 0 0-2.954-.95 7 7 0 0 0-2.376.206 6.93 6.93 0 0 0-4.22 3.227q-1.606 2.77-3.208 5.54l-4.47 7.712c-1.523 2.634-3.05 5.263-4.573 7.897q-.25.43-.5.865c-.232-.092-.46-.184-.692-.272-8.398-3.205-17.511-4.958-27.036-4.958q-.39-.001-.78.004A75.7 75.7 0 0 0 50.977 25q-1.317.46-2.608.968-.234-.404-.467-.806-2.286-3.95-4.573-7.897l-4.47-7.713a4385 4385 0 0 1-3.208-5.54A6.93 6.93 0 0 0 29.055.58a6.9 6.9 0 0 0-2.954.95 6.92 6.92 0 0 0-3.157 4.185 6.96 6.96 0 0 0 .703 5.27l3.208 5.54 4.47 7.713c1.523 2.634 3.05 5.263 4.573 7.897.01.022.025.044.036.066a76.3 76.3 0 0 0-13.527 10.711 76.5 76.5 0 0 0-8.322 9.808 75.4 75.4 0 0 0-5.51 8.995 75.7 75.7 0 0 0-7.546 22.597 76.038 76.038 0 0 0-.581 4.247h151a77 77 0 0 0-.434-3.327z"/><path fill="#202124" d="M115.225 67.663c3.022-2.012 3.461-6.668.981-10.4-2.48-3.73-6.939-5.123-9.96-3.11-3.021 2.012-3.46 6.668-.98 10.4 2.479 3.73 6.938 5.123 9.959 3.11M46.762 64.564c2.48-3.73 2.04-8.387-.98-10.4-3.022-2.012-7.481-.619-9.96 3.112s-2.041 8.387.98 10.4 7.48.62 9.96-3.112"/></g><defs><clipPath id="a"><path fill="#fff" d="M.459.555h151v88h-151z"/></clipPath></defs></svg></span> Android</label><label for="shared-library"><span class="twemoji"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="jvm-desktop" name="__tabbed_1" type="radio" /><input id="android" name="__tabbed_1" type="radio" /><input id="shared-library" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="jvm-desktop"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" stroke="#C77D55"/>
+</svg>
+</span> JVM Desktop</label><label for="android"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="152" height="89" viewBox="0 0 152 89" fill="none"><g clip-path="url(#a)"><path fill="#34A853" d="M151.025 85.224q-.071-.464-.147-.92a75.665 75.665 0 0 0-7.546-22.597 76.5 76.5 0 0 0-5.511-8.995 76 76 0 0 0-8.322-9.808 76.034 76.034 0 0 0-13.398-10.626q.042-.074.085-.148 2.286-3.948 4.572-7.897l4.47-7.712a3946 3946 0 0 0 3.208-5.54q.38-.658.604-1.355a6.97 6.97 0 0 0-.652-5.702 6.9 6.9 0 0 0-2.406-2.398 7 7 0 0 0-2.954-.95 7 7 0 0 0-2.376.206 6.93 6.93 0 0 0-4.22 3.227q-1.606 2.77-3.208 5.54l-4.47 7.712c-1.523 2.634-3.05 5.263-4.573 7.897q-.25.43-.5.865c-.232-.092-.46-.184-.692-.272-8.398-3.205-17.511-4.958-27.036-4.958q-.39-.001-.78.004A75.7 75.7 0 0 0 50.977 25q-1.317.46-2.608.968-.234-.404-.467-.806-2.286-3.95-4.573-7.897l-4.47-7.713a4385 4385 0 0 1-3.208-5.54A6.93 6.93 0 0 0 29.055.58a6.9 6.9 0 0 0-2.954.95 6.92 6.92 0 0 0-3.157 4.185 6.96 6.96 0 0 0 .703 5.27l3.208 5.54 4.47 7.713c1.523 2.634 3.05 5.263 4.573 7.897.01.022.025.044.036.066a76.3 76.3 0 0 0-13.527 10.711 76.5 76.5 0 0 0-8.322 9.808 75.4 75.4 0 0 0-5.51 8.995 75.7 75.7 0 0 0-7.546 22.597 76.038 76.038 0 0 0-.581 4.247h151a77 77 0 0 0-.434-3.327z"/><path fill="#202124" d="M115.225 67.663c3.022-2.012 3.461-6.668.981-10.4-2.48-3.73-6.939-5.123-9.96-3.11-3.021 2.012-3.46 6.668-.98 10.4 2.479 3.73 6.938 5.123 9.959 3.11M46.762 64.564c2.48-3.73 2.04-8.387-.98-10.4-3.022-2.012-7.481-.619-9.96 3.112s-2.041 8.387.98 10.4 7.48.62 9.96-3.112"/></g><defs><clipPath id="a"><path fill="#fff" d="M.459.555h151v88h-151z"/></clipPath></defs></svg></span> Android</label><label for="shared-library"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
 <defs>
 <radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
@@ -1900,15 +1929,18 @@ JetBrains for sharing Kotlin UI code across multiple platforms.</p>
 <p>Amper supports <a href="https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html">Compose Multiplatform resources</a>.</p>
 <p>Place your resources in the <code>composeResources</code> folder at the root of your module:
 <div class="highlight"><pre><span></span><code>my-kmp-module/
- |-src/ # your code is here
- |  |-...
- |-composeResources/ # place your multiplatform resources in this folder
- |  |-values/
- |  |  |-strings.xml
- |  |-drawable/
- |  |  |-image.jpg
- |-module.yaml
+├─ src/
+│  ╰─ ... # (1)!
+├─ composeResources/
+│  ├─ values/
+│  │  ╰─ strings.xml
+│  ╰─ drawable/
+│     ╰─ image.jpg
+╰─ module.yaml
 </code></pre></div></p>
+<ol>
+<li>Your Kotlin code is here</li>
+</ol>
 <p>Amper then automatically generates the Kotlin accessors for these resources, and you can use them in your Kotlin code:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">my_kmp_module.generated.resources.Res</span>
 <span class="k">import</span><span class="w"> </span><span class="nn">my_kmp_module.generated.resources.hello</span>
@@ -1932,7 +1964,11 @@ therefore <code>my_kmp_module.generated.resources</code>.</p>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">packageName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.example.gen</span>
 </code></pre></div>
-<h2 id="compose-hot-reload-experimental"><span class="twemoji"><svg fill="none" height="56" viewBox="0 0 48 56" width="48" xmlns="http://www.w3.org/2000/svg"
+<h2 id="compose-hot-reload-experimental"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg fill="none" height="56" viewBox="0 0 48 56" width="48" xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink">
     <linearGradient id="compose_hot_reload_gradient" gradientUnits="userSpaceOnUse" x1="33" x2="20.984" y1="5.2998" y2="35.7935">
         <stop offset="0" stop-color="#33c3ff"/>
@@ -1946,7 +1982,11 @@ therefore <code>my_kmp_module.generated.resources</code>.</p>
 real-time without restarting the application. This significantly improves the developer experience by shortening the
 feedback loop during UI development.</p>
 <h3 id="hot-run-your-application">Hot-run your application<a class="headerlink" href="#hot-run-your-application" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="intellij-idea" name="__tabbed_2" type="radio" /><input id="cli" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="intellij-idea"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="intellij-idea" name="__tabbed_2" type="radio" /><input id="cli" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="intellij-idea"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="a" x1="-.717383" x2="24.1455" y1="7.61946" y2="61.2456" gradientUnits="userSpaceOnUse">
       <stop offset=".1" stop-color="#FC801D"/>
@@ -2066,7 +2106,7 @@ the parameter values you want to use for the hot run, and annotate the wrapper w
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 22:44:20 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 15, 2025 00:25:49 UTC">November 15, 2025</span>
   </span>
 
     

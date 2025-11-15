@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="IDE setup - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/getting-started/ide-setup.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/getting-started/ide-setup/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="IDE setup - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/getting-started/ide-setup.png" />
+</head>
   
   
     
@@ -1552,7 +1565,11 @@ There are tons of diagnostics and quick fixes that make your life a bliss when w
 </details>
 <ol>
 <li>
-<p>Preferably use the latest <a href="https://www.jetbrains.com/idea/nextversion/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+<p>Preferably use the latest <a href="https://www.jetbrains.com/idea/nextversion/"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="a" x1="-.717383" x2="24.1455" y1="7.61946" y2="61.2456" gradientUnits="userSpaceOnUse">
       <stop offset=".1" stop-color="#FC801D"/>
@@ -1572,7 +1589,11 @@ There are tons of diagnostics and quick fixes that make your life a bliss when w
   <path fill="#fff" d="M17 44h16v3H17v-3Z"/>
 </svg>
 </span> IntelliJ IDEA EAP</a>. 
-   The best way to get the most recent IDE versions is by using the <a href="https://www.jetbrains.com/lp/toolbox/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" fill="none" viewBox="0 0 48 56">
+   The best way to get the most recent IDE versions is by using the <a href="https://www.jetbrains.com/lp/toolbox/"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" fill="none" viewBox="0 0 48 56">
   <defs>
     <linearGradient id="a" x1=".254835" x2="48.1428" y1="40.072" y2="15.2" gradientUnits="userSpaceOnUse">
       <stop offset=".04" stop-color="#FC801D"/>
@@ -1587,7 +1608,11 @@ There are tons of diagnostics and quick fixes that make your life a bliss when w
 </span> Toolbox App</a>.</p>
 </li>
 <li>
-<p>Make sure to install the <a href="https://plugins.jetbrains.com/plugin/23076-amper"><span class="twemoji"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<p>Make sure to install the <a href="https://plugins.jetbrains.com/plugin/23076-amper"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M36 36H4L26.2117 4H35.9778L36 36ZM26.0666 19.6083L21.4439 26.2681H26.0666V19.6083Z" fill="url(#paint0_linear_3772_154)"/>
 <defs>
 <linearGradient id="paint0_linear_3772_154" x1="11.8703" y1="11.8778" x2="36.2903" y2="36.2871" gradientUnits="userSpaceOnUse">
@@ -1603,7 +1628,11 @@ There are tons of diagnostics and quick fixes that make your life a bliss when w
 <ol>
 <li>
 <p>[Optional] If you want to write code for <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg></span> Apple platforms or share code between several platforms, 
-   install the <a href="https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform"><span class="twemoji"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+   install the <a href="https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
 <defs>
 <radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
@@ -1640,7 +1669,7 @@ There are tons of diagnostics and quick fixes that make your life a bliss when w
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 11:51:52 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:41:42 UTC">November 14, 2025</span>
   </span>
 
     

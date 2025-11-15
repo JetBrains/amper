@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -61,7 +61,20 @@
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Multiplatform modules - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/multiplatform.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/multiplatform/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Multiplatform modules - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/multiplatform.png" />
+</head>
   
   
     
@@ -1766,13 +1779,13 @@ as <code>@platform</code>-qualifier.</p>
 <span class="nt">settings@ios</span><span class="p">:</span><span class="w">               </span><span class="c1"># ios is a platform family name  </span>
 <span class="nt">settings@iosArm64</span><span class="p">:</span><span class="w">          </span><span class="c1"># iosArm64 is a KMP platform name</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>|-src/                      # common code for all platforms
-|-src@ios/                  # sees declarations from src/ 
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
+<div class="highlight"><pre><span></span><code>├─ src/                      # common code for all platforms
+├─ src@ios/                  # sees declarations from src/
+╰─ src@iosArm64/             # sees declarations from src/ and from src@ios/
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>|-resources/                # resources for all platforms
-|-resources@ios/             
-|-resources@iosArm64/       
+<div class="highlight"><pre><span></span><code>├─ resources/                # resources for all platforms
+├─ resources@ios/
+╰─ resources@iosArm64/
 </code></pre></div></p>
 <p>See also how the <a href="../basics/#resources">resources</a> are handled in the multiplatform projects.</p>
 <p>Only the platform names (but not the platform family names) can be currently used in the <code>platforms:</code> list:</p>
@@ -1818,17 +1831,17 @@ They form a hierarchy as follows:
 Additional platforms may also exist in addition to the ones listed here, but are also untested/highly experimental.</p>
 </div>
 <p>Based on this hierarchy, common code is visible from more <code>@platform</code>-specific code, but not vice versa:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-...      
-|-src@ios/                  # sees declarations from src/ 
-|  |-...      
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@jvm/                  # sees declarations from src/
-|  |-...      
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ╰─ ...
+├─ src@ios/                  # sees declarations from src/
+│  ╰─ ...
+├─ src@iosArm64/             # sees declarations from src/ and from src@ios/
+│  ╰─ ...
+├─ src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/
+│  ╰─ ...
+├─ src@jvm/                  # sees declarations from src/
+│  ╰─ ...
+╰─ module.yaml
 </code></pre></div>
 <p>You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
 code placed in <code>src@ios</code> is shared between <code>iosArm64</code> and <code>iosSimulatorArm64</code>, for instance.</p>
@@ -1861,10 +1874,10 @@ You can then use the alias in places where <code>@platform</code> suffixes usual
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">-jvm-default=no-compatibility</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>|-src/             
-|-src@jvmAndAndroid/ # sees declarations from src/ 
-|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
-|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
+<div class="highlight"><pre><span></span><code>├─ src/
+├─ src@jvmAndAndroid/ # sees declarations from src/
+├─ src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/
+╰─ src@android/       # sees declarations from src/ and src@jvmAndAndroid/
 </code></pre></div>
 <h2 id="multiplatform-dependencies">Multiplatform dependencies<a class="headerlink" href="#multiplatform-dependencies" title="Permanent link">&para;</a></h2>
 <p>When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.</p>
@@ -1936,7 +1949,7 @@ You can use <code>@platform</code>-qualifier.</p>
 <p>Note that certain platform names match the toolchain names, e.g. Android:</p>
 <ul>
 <li><code>settings@android</code> qualifier specifies settings for all Android target platforms</li>
-<li><code>settings:android:</code> is an Android toolchain settings</li>
+<li><code>settings.android</code> is an Android toolchain settings</li>
 </ul>
 <p>This could lead to confusion in cases like:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
@@ -2022,17 +2035,17 @@ There are three distinct scenarios where such interoperability is needed:</p>
 <p>Joint compilation is already supported for Java and Kotlin, with 2-way interoperability: Java code can reference Kotlin
 declarations, and vice versa.
 So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:</p>
-<div class="highlight"><pre><span></span><code>|-src/             
-|  |-main.kt      
-|-src@jvm/             
-|  |-KotlinCode.kt      
-|  |-JavaCode.java      
-|-src@android/             
-|  |-KotlinCode.kt 
-|  |-JavaCode.java
-|-src@ios/
-|  |- ...
-|-module.yaml
+<div class="highlight"><pre><span></span><code>├─ src/
+│  ├─ main.kt
+├─ src@jvm/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@android/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@ios/
+│  ╰─ ...
+╰─ module.yaml
 </code></pre></div>
 <p>In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,
 but this is not the case yet.
@@ -2060,7 +2073,7 @@ See more in the dedicated <a href="../builtin-tech/ios/#swift-support">Swift sup
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:56:16 UTC">November 14, 2025</span>
   </span>
 
     
