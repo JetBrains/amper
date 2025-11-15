@@ -12,10 +12,10 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/advanced/compiler-plugins/">
+        <link rel="canonical" href="https://amper.org/dev/user-guide/advanced/kotlin-compiler-plugins/">
       
       
-        <link rel="prev" href="../java-annotation-processing/">
+        <link rel="prev" href="../ksp/">
       
       
         <link rel="next" href="../maven-like-layout/">
@@ -29,7 +29,7 @@
     
     
       
-        <title>Compiler plugins - Amper</title>
+        <title>Kotlin compiler plugins - Amper</title>
       
     
     
@@ -63,17 +63,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Compiler plugins - Amper" />
+<meta property="og:title" content="Kotlin compiler plugins - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/compiler-plugins.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/kotlin-compiler-plugins.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/advanced/compiler-plugins/" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/advanced/kotlin-compiler-plugins/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Compiler plugins - Amper" />
+<meta property="twitter:title" content="Kotlin compiler plugins - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/compiler-plugins.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/kotlin-compiler-plugins.png" />
 </head>
   
   
@@ -130,7 +130,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Compiler plugins
+              Kotlin compiler plugins
             
           </span>
         </div>
@@ -1179,14 +1179,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../ksp/" class="md-nav__link">
+      <a href="../java-annotation-processing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Kotlin Symbol Processing (KSP)
+    Java annotation processing
   
 
     
@@ -1207,14 +1207,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../java-annotation-processing/" class="md-nav__link">
+      <a href="../ksp/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Java annotation processing
+    Kotlin Symbol Processing (KSP)
   
 
     
@@ -1251,7 +1251,7 @@
   <span class="md-ellipsis">
     
   
-    Compiler plugins
+    Kotlin compiler plugins
   
 
     
@@ -1269,7 +1269,7 @@
   <span class="md-ellipsis">
     
   
-    Compiler plugins
+    Kotlin compiler plugins
   
 
     
@@ -1298,7 +1298,7 @@
   <a href="#all-open" class="md-nav__link">
     <span class="md-ellipsis">
       
-        all-open
+        All-open
       
     </span>
   </a>
@@ -1309,7 +1309,62 @@
   <a href="#no-arg" class="md-nav__link">
     <span class="md-ellipsis">
       
-        no-arg
+        No-arg
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-assert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power Assert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kotlin-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kotlin Serialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcelize
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lombok
       
     </span>
   </a>
@@ -1601,7 +1656,7 @@
   <a href="#all-open" class="md-nav__link">
     <span class="md-ellipsis">
       
-        all-open
+        All-open
       
     </span>
   </a>
@@ -1612,7 +1667,62 @@
   <a href="#no-arg" class="md-nav__link">
     <span class="md-ellipsis">
       
-        no-arg
+        No-arg
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-assert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power Assert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kotlin-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kotlin Serialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcelize
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lombok
       
     </span>
   </a>
@@ -1636,7 +1746,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/advanced/compiler-plugins.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/advanced/kotlin-compiler-plugins.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1645,49 +1755,99 @@
 
 
 <h1 id="kotlin-compiler-plugins">Kotlin compiler plugins<a class="headerlink" href="#kotlin-compiler-plugins" title="Permanent link">&para;</a></h1>
+<p>Compiler plugins are a powerful feature of Kotlin that allow you to extend the language with new features.
+There is a handful of bundled compiler plugins that can be enabled in Amper.</p>
 <div class="admonition warning">
 <p class="admonition-title">Third-party compiler plugins are not supported at the moment</p>
 </div>
-<h2 id="all-open">all-open<a class="headerlink" href="#all-open" title="Permanent link">&para;</a></h2>
-<p>To enable <a href="https://kotlinlang.org/docs/all-open-plugin.html">all-open</a>, add the following configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">allOpen</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.context.annotation.Configuration</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Service</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Component</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Controller</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<h2 id="all-open">All-open<a class="headerlink" href="#all-open" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://kotlinlang.org/docs/all-open-plugin.html">All-open</a> compiler plugin allows you to mark entire groups of
+classes as <code>open</code> automatically, without having to mark each class with the <code>open</code> keyword in your sources.</p>
+<p>To enable All-open, add the following configuration to your module file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="c1"># (1)!</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.context.annotation.Configuration</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Service</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Component</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.springframework.stereotype.Controller</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
+<ol>
+<li>Lists the annotations that mark classes as open.</li>
+</ol>
 <p>Or you can use one of the preconfigured presets that contain all-open annotations related to specific frameworks:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">allOpen</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">        </span><span class="nt">presets</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spring</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">micronaut</span>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">presets</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spring</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">micronaut</span>
 </code></pre></div>
-<h2 id="no-arg">no-arg<a class="headerlink" href="#no-arg" title="Permanent link">&para;</a></h2>
-<p>To enable <a href="https://kotlinlang.org/docs/no-arg-plugin.html">no-arg</a>, add the following configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">noArg</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jakarta.persistence.Entity</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<div class="admonition success">
+<p class="admonition-title">Already covered by the <a href="../../builtin-tech/spring/">Spring Boot support</a></p>
+<p>The All-open plugin is invaluable for Spring projects, because Spring needs to create proxy classes that extend
+the original classes. This is why using <code>springBoot: enabled</code> automatically enables the All-open plugin with the
+Spring preset.</p>
+</div>
+<h2 id="no-arg">No-arg<a class="headerlink" href="#no-arg" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://kotlinlang.org/docs/no-arg-plugin.html">No-arg</a> compiler plugin automatically generates a no-arg 
+constructor for all classes marked with the configured annotations.</p>
+<p>To enable <a href="https://kotlinlang.org/docs/no-arg-plugin.html">No-arg</a>, add the following configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jakarta.persistence.Entity</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 <p>Or you can use one of the preconfigured presets that contain no-arg annotations related to specific frameworks:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">settings</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">noArg</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">        </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jpa</span>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jpa</span>
 </code></pre></div>
+<h2 id="power-assert">Power Assert<a class="headerlink" href="#power-assert" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://kotlinlang.org/docs/power-assert.html">Power Assert</a> compiler plugin enhances the output of failed 
+assertions with additional information about the values of variables and expressions:</p>
+<div class="highlight"><pre><span></span><code>Incorrect length
+assert(hello.length == world.substring(1, 4).length) { &quot;Incorrect length&quot; }
+       |     |      |  |     |               |
+       |     |      |  |     |               3
+       |     |      |  |     orl
+       |     |      |  world!
+       |     |      false
+       |     5
+       Hello
+</code></pre></div>
+<p>To enable Power Assert, add the following configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">powerAssert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>By default, Power Assert is enabled for <code>kotlin.assert</code> function. You can enable it for other functions as well:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">powerAssert</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">functions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">kotlin.test.assertTrue</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kotlin.test.assertEquals</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kotlin.test.assertNull</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h2 id="compose">Compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h2>
+<p>While Compose includes a compiler plugin, it is covered in its 
+<a href="../../builtin-tech/compose-multiplatform/">dedicated section</a>.</p>
+<h2 id="kotlin-serialization">Kotlin Serialization<a class="headerlink" href="#kotlin-serialization" title="Permanent link">&para;</a></h2>
+<p>While Kotlin Serialization includes a compiler plugin, it is covered in its 
+<a href="../../builtin-tech/kotlin-serialization/">dedicated section</a>.</p>
+<h2 id="parcelize">Parcelize<a class="headerlink" href="#parcelize" title="Permanent link">&para;</a></h2>
+<p>While Parcelize includes a compiler plugin, it is covered in the <a href="../../builtin-tech/android/">Android section</a>.</p>
+<h2 id="lombok">Lombok<a class="headerlink" href="#lombok" title="Permanent link">&para;</a></h2>
+<p>While Lombok includes a compiler plugin, it is covered in its <a href="../../builtin-tech/lombok/">dedicated section</a>.</p>
 
 
 
@@ -1708,7 +1868,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 01:00:19 UTC">November 10, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 15, 2025 01:11:20 UTC">November 15, 2025</span>
   </span>
 
     
@@ -1744,7 +1904,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../java-annotation-processing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Java annotation processing">
+          <a href="../ksp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kotlin Symbol Processing (KSP)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1754,7 +1914,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Java annotation processing
+                Kotlin Symbol Processing (KSP)
               </div>
             </div>
           </a>
