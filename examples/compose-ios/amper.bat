@@ -12,13 +12,14 @@
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 @rem   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
+@rem   AMPER_NO_WELCOME_BANNER    Disables the first-run welcome message if set to a non-empty value
 
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.9.0-dev-3433
+set amper_version=0.9.0-dev-3439
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=2f178395b00bbd498c8441cbbe755fd82b2a3b6aa5197d6f1ee5c87d14e0c6f0
+set amper_sha256=ba5a209e356fc79ba539cdc3f629e70d9874fe11a8e0c6d6d8af5615fee110ea
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -67,7 +68,7 @@ if (-not $createdNew) { ^
  ^
 try { ^
     if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%sha%') { ^
-        if ('%show_banner_on_cache_miss%' -eq 'true') { ^
+        if (('%show_banner_on_cache_miss%' -eq 'true') -and [string]::IsNullOrEmpty('%AMPER_NO_WELCOME_BANNER%')) { ^
             Write-Host '*** Welcome to Amper v.%amper_version%! ***'; ^
             Write-Host ''; ^
             Write-Host 'This is the first run of this version, so we need to download the actual Amper distribution.'; ^
@@ -131,7 +132,7 @@ call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "
 if errorlevel 1 goto fail
 
 REM !! DO NOT REMOVE !!
-REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        exit /b %ERRORLEVEL%
+REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      exit /b %ERRORLEVEL%
 REM
 REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
 REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
