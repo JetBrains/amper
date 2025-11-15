@@ -1,57 +1,128 @@
 # Kotlin compiler plugins
 
+Compiler plugins are a powerful feature of Kotlin that allow you to extend the language with new features.
+There is a handful of bundled compiler plugins that can be enabled in Amper.
+
 !!! warning "Third-party compiler plugins are not supported at the moment"
 
-## all-open
+## All-open
 
-To enable [all-open](https://kotlinlang.org/docs/all-open-plugin.html), add the following configuration:
+The [All-open](https://kotlinlang.org/docs/all-open-plugin.html) compiler plugin allows you to mark entire groups of
+classes as `open` automatically, without having to mark each class with the `open` keyword in your sources.
+
+To enable All-open, add the following configuration to your module file:
 
 ```yaml
-  settings:
-    kotlin:
-      allOpen:
-        enabled: true
-        annotations: 
-          - org.springframework.context.annotation.Configuration
-          - org.springframework.stereotype.Service
-          - org.springframework.stereotype.Component
-          - org.springframework.stereotype.Controller
-          - ...
+settings:
+  kotlin:
+    allOpen:
+      enabled: true
+      annotations: # (1)!
+        - org.springframework.context.annotation.Configuration
+        - org.springframework.stereotype.Service
+        - org.springframework.stereotype.Component
+        - org.springframework.stereotype.Controller
+        - ...
 ```
+
+1.   Lists the annotations that mark classes as open.
 
 Or you can use one of the preconfigured presets that contain all-open annotations related to specific frameworks:
 
 ```yaml
-  settings:
-    kotlin:
-      allOpen:
-        enabled: true
-        presets:
-          - spring
-          - micronaut
+settings:
+  kotlin:
+    allOpen:
+      enabled: true
+      presets:
+        - spring
+        - micronaut
 ```
 
-## no-arg
+!!! success "Already covered by the [Spring Boot support](../builtin-tech/spring.md)"
 
-To enable [no-arg](https://kotlinlang.org/docs/no-arg-plugin.html), add the following configuration:
+    The All-open plugin is invaluable for Spring projects, because Spring needs to create proxy classes that extend
+    the original classes. This is why using `springBoot: enabled` automatically enables the All-open plugin with the
+    Spring preset.
+ 
+
+## No-arg
+
+The [No-arg](https://kotlinlang.org/docs/no-arg-plugin.html) compiler plugin automatically generates a no-arg 
+constructor for all classes marked with the configured annotations.
+
+To enable [No-arg](https://kotlinlang.org/docs/no-arg-plugin.html), add the following configuration:
 
 ```yaml
-  settings:
-    kotlin:
-      noArg:
-        enabled: true
-        annotations: 
-          - jakarta.persistence.Entity
-          - ...
+settings:
+  kotlin:
+    noArg:
+      enabled: true
+      annotations: 
+        - jakarta.persistence.Entity
+        - ...
 ```
 
 Or you can use one of the preconfigured presets that contain no-arg annotations related to specific frameworks:
 
 ```yaml
-  settings:
-    kotlin:
-      noArg:
-        enabled: true
-        presets: 
-          - jpa
+settings:
+  kotlin:
+    noArg:
+      enabled: true
+      presets: 
+        - jpa
 ```
+
+## Power Assert
+
+The [Power Assert](https://kotlinlang.org/docs/power-assert.html) compiler plugin enhances the output of failed 
+assertions with additional information about the values of variables and expressions:
+
+```
+Incorrect length
+assert(hello.length == world.substring(1, 4).length) { "Incorrect length" }
+       |     |      |  |     |               |
+       |     |      |  |     |               3
+       |     |      |  |     orl
+       |     |      |  world!
+       |     |      false
+       |     5
+       Hello
+```
+
+To enable Power Assert, add the following configuration:
+
+```yaml
+settings:
+  kotlin:
+    powerAssert: enabled
+```
+
+By default, Power Assert is enabled for `kotlin.assert` function. You can enable it for other functions as well:
+
+```yaml
+settings:
+  kotlin:
+    powerAssert:
+      enabled: true
+      functions: [ kotlin.test.assertTrue, kotlin.test.assertEquals, kotlin.test.assertNull ]
+```
+
+## Compose
+
+While Compose includes a compiler plugin, it is covered in its 
+[dedicated section](../builtin-tech/compose-multiplatform.md).
+
+## Kotlin Serialization
+
+While Kotlin Serialization includes a compiler plugin, it is covered in its 
+[dedicated section](../builtin-tech/kotlin-serialization.md).
+
+## Parcelize
+
+While Parcelize includes a compiler plugin, it is covered in the [Android section](../builtin-tech/android.md).
+
+## Lombok
+
+While Lombok includes a compiler plugin, it is covered in its [dedicated section](../builtin-tech/lombok.md).
