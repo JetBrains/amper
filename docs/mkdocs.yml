@@ -124,9 +124,9 @@ nav:
           - 'Lombok': user-guide/builtin-tech/lombok.md
           - 'Spring Boot': user-guide/builtin-tech/spring.md
       - 'Advanced topics':
-          - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
-          - 'Compiler plugins': user-guide/advanced/compiler-plugins.md
+          - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
+          - 'Kotlin compiler plugins': user-guide/advanced/kotlin-compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
   - 'Reference':
