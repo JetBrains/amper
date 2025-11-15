@@ -45,7 +45,11 @@ They form a hierarchy as follows:
 ```yaml
 common  # corresponds to src directories or configuration sections without @platform suffix
   jvm
-  android  
+  android
+  web
+    js
+    wasmJs
+  wasmWasi
   native
     linux
       linuxX64
@@ -65,11 +69,15 @@ common  # corresponds to src directories or configuration sections without @plat
         watchosArm64
         watchosDeviceArm64
         watchosSimulatorArm64
-        watchosX64
       tvos
         tvosArm64
         tvosSimulatorArm64
         tvosX64
+    androidNative
+      androidNativeArm32
+      androidNativeArm64
+      androidNativeX64
+      androidNativeX86
   ...
 ```
 
