@@ -4,7 +4,7 @@ An Amper **project** is defined by a `project.yaml` file. This file contains the
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the 
 project root (at any depth). If there is only one module in the project, the `project.yaml` file is not required.
 
-An Amper **module** is a directory with a `module.yaml` configuration file, sources, and resources.
+An Amper **module** is a directory with a `module.yaml` configuration file, and optionally sources and resources.
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
 Each module describes a single product. Several modules can't share the same sources or resources, but they can depend 
 on each other.
@@ -12,48 +12,138 @@ _How_ to produce the desired product, that is, the build rules, is the responsib
 
 !!! question "If you are not familiar with YAML, see [our brief YAML primer](yaml-primer.md)."
 
-Amper supports Kotlin Multiplatform as a core concept and offers special syntax to deal with multiplatform
-configuration. There is a dedicated [**@platform-qualifier**](multiplatform.md#platform-qualifier) used to mark platform-specific
-dependencies, settings, etc. You'll see it in the examples below.
-
 ## Project layout
 
-A basic single-module Amper project looks like this:
+### Single-module project
 
-```
+A single-module Amper project doesn't need a `project.yaml` file.
+Just create a single valid module, and it is also a valid project[^1]:
+[^1]: As long as it is not included in a `project.yaml` higher in the directory tree.
+
+```shell title="Single-module project structure"
+my-project/ #(1)!
 ├─ src/
-│  ╰─ main.kt
+│  ├─ main.kt
 ├─ test/
 │  ╰─ MainTest.kt
 ╰─ module.yaml
 ```
 
+1.   This is the project root but also the root of the only module in the project.
+
+See the [Module layout](#module-layout) section for more details about the module structure itself. 
+
+### Multi-module project
+
 If there are multiple modules, the `project.yaml` file specifies the list of modules:
 
-```
+<div class="grid" markdown>
+<div class="annotate">
+```shell title="Structure"
 ├─ app/
 │  ├─ src/
 │  │  ├─ main.kt
 │  │  ╰─ ...
 │  ╰─ module.yaml
-├─ lib/
-│  ├─ src/
-│  │  ╰─ util.kt
-│  ╰─ module.yaml
+├─ libs/ #(1)!
+│  ├─ lib1/
+│  │  ├─ src/
+│  │  │  ╰─ myLib1.kt
+│  │  ╰─ module.yaml
+│  ╰─ lib2/
+│     ├─ src/
+│     │  ╰─ myLib2.kt
+│     ╰─ module.yaml
 ╰─ project.yaml
 ```
+</div>
 
-In the above case, the `project.yaml` looks like this:
+1.   This hierarchy is arbitrary, it can be organized however you like. The structure is understood by Amper based on 
+     the list of module paths in `project.yaml` — there is no convention for multi-module projects.
 
-```yaml
+<div class="annotate">
+```yaml title="project.yaml"
 modules:
   - ./app
-  - ./lib
+  - ./libs/lib1 #(1)!
+  - ./libs/lib2
 ```
 
-Check the [reference](../reference/project.md#modules) for more options to define the list of modules in the 
-`project.yaml` file.
+```yaml title="app/module.yaml"
+product: jvm/app
 
+dependencies:
+  - ./libs/lib1
+  - ./libs/lib2
+```
+</div>
+
+1.   It is also possible to use globs to list multiple modules at once (e.g., `./libs/*`), although we encourage 
+     listing them explicitly. See details in the [project file reference](../reference/project.md#modules).
+
+</div>
+
+See the [Module layout](#module-layout) section for more details about what goes inside each module directory.
+
+??? note "Multi-module project with root module"
+
+    It is also possible to have a root module even if there are multiple modules in the project, although this is 
+    generally discouraged.
+
+    ```shell
+    ├─ lib/
+    │  ├─ src/
+    │  │  ╰─ util.kt
+    │  ╰─ module.yaml
+    ├─ src/  # src of the root module
+    │  ├─ main.kt
+    │  ╰─ ...
+    ├─ module.yaml  # the module file of the root module
+    ╰─ project.yaml
+    ```
+
+    ```yaml title="project.yaml"
+    modules:  # The root module is included implicitly
+      - ./lib
+    ```
+
+## Module layout
+
+### Overview
+
+A typical Amper module looks like this:
+
+```shell title="Module directory structure"
+my-project/
+├─ resources/ # (1)!
+│  ╰─ logback.xml  # (2)!
+├─ src/
+│  ├─ main.kt
+│  ╰─ MyClass.java  # (3)!
+├─ test/
+│  ╰─ MainTest.kt
+├─ testResources/
+│  ╰─ logback-test.xml # (4)!
+╰─ module.yaml
+```
+
+1. Resources placed here are copied to the resulting products (e.g., the jar or APK).
+2. This is just an example resource and can be omitted.
+3. You can mix Kotlin and Java source files in a single module, all in the `src` folder.
+4. This is just an example resource and can be omitted.
+
+All sources and resources are optional: **only the `module.yaml` file is required.**
+For example, your module could get all its code from dependencies and have no `src` folder.
+
+!!! info "Special layouts"
+
+    Some modules have a special layout described in their dedicated sections:
+
+    * [Multiplatforms modules](multiplatform.md) (special `@platform` suffixes)
+    * [Android modules](builtin-tech/android.md) (`res` and `assets` folders)
+    * Modules that use the [Maven-like layout](advanced/maven-like-layout.md)
+
+*[Android modules]: That is, modules with `android/app` product type.
 
 ### Source code
 
