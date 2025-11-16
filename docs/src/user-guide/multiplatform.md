@@ -40,51 +40,67 @@ product:
 
 ## Platforms hierarchy
 
+In the diagram below, you'll find all supported platforms.
 Some target platforms belong to the same family and share some common APIs.
 They form a hierarchy as follows:
-```yaml
-common  # corresponds to src directories or configuration sections without @platform suffix
-  jvm
-  android
-  web
-    js
-    wasmJs
-  wasmWasi
-  native
-    linux
-      linuxX64
-      linuxArm64
-    mingw
-      mingwX64
-    apple
-      macos
-        macosX64
-        macosArm64
-      ios
-        iosArm64
-        iosSimulatorArm64
-        iosX64            # iOS Simulator for Intel Mac
-      watchos
-        watchosArm32
-        watchosArm64
-        watchosDeviceArm64
-        watchosSimulatorArm64
-      tvos
-        tvosArm64
-        tvosSimulatorArm64
-        tvosX64
-    androidNative
-      androidNativeArm32
-      androidNativeArm64
-      androidNativeX64
-      androidNativeX86
-  ...
-```
 
-!!! note
+???+ info "Platform hierarchy diagram"
 
-    Note: not all platforms listed here are equally supported or tested.
-    Additional platforms may also exist in addition to the ones listed here, but are also untested/highly experimental.
+    ```mermaid
+    %%{ init: { 'flowchart': { 'htmlLabels': 'false' } } }%%
+    flowchart LR
+      %% Intermediate nodes use rounded corners; leaves use stadium shape
+    
+      common[**common**]
+    
+      common --> jvm([jvm])
+      common --> android([android])
+    
+      common --> web[**web**]
+      web --> js([js])
+      web --> wasmJs([wasmJs])
+    
+      common --> wasmWasi([wasmWasi])
+    
+      common --> native[**native**]
+    
+      native --> linux[**linux**]
+      linux --> linuxX64([linuxX64])
+      linux --> linuxArm64([linuxArm64])
+    
+      native --> mingw[**mingw**]
+      mingw --> mingwX64([mingwX64])
+    
+      native --> apple[**apple**]
+    
+      apple --> macos[**macos**]
+      macos --> macosX64([macosX64])
+      macos --> macosArm64([macosArm64])
+    
+      apple --> ios[**ios**]
+      ios --> iosArm64([iosArm64])
+      ios --> iosSimulatorArm64([iosSimulatorArm64])
+      ios --> iosX64([iosX64])
+    
+      apple --> watchos[**watchos**]
+      watchos --> watchosArm32([watchosArm32])
+      watchos --> watchosArm64([watchosArm64])
+      watchos --> watchosDeviceArm64([watchosDeviceArm64])
+      watchos --> watchosSimulatorArm64([watchosSimulatorArm64])
+    
+      apple --> tvos[**tvos**]
+      tvos --> tvosArm64([tvosArm64])
+      tvos --> tvosSimulatorArm64([tvosSimulatorArm64])
+      tvos --> tvosX64([tvosX64])
+    
+      native --> androidNative[**androidNative**]
+      androidNative --> androidNativeArm32([androidNativeArm32])
+      androidNative --> androidNativeArm64([androidNativeArm64])
+      androidNative --> androidNativeX64([androidNativeX64])
+      androidNative --> androidNativeX86([androidNativeX86])
+    ```
+    
+!!! warning "The platforms listed here are not all equally supported or tested."
 
 Based on this hierarchy, common code is visible from more `@platform`-specific code, but not vice versa:
 
