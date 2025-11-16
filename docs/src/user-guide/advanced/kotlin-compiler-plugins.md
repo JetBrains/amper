@@ -111,18 +111,18 @@ settings:
 
 ## Compose
 
-While Compose includes a compiler plugin, it is covered in its 
-[dedicated section](../builtin-tech/compose-multiplatform.md).
+The Compose compiler plugin is covered in the mode general
+[Compose Multiplatform](../builtin-tech/compose-multiplatform.md) section.
 
-## Kotlin Serialization
+## Kotlinx Serialization
 
-While Kotlin Serialization includes a compiler plugin, it is covered in its 
-[dedicated section](../builtin-tech/kotlin-serialization.md).
+The Kotlinx Serialization compiler plugin is covered in the more general 
+[Kotlin Serialization](../builtin-tech/kotlin-serialization.md) section.
 
 ## Parcelize
 
-While Parcelize includes a compiler plugin, it is covered in the [Android section](../builtin-tech/android.md).
+The Parcelize compiler plugin is covered in the [Android](../builtin-tech/android.md) section.
 
 ## Lombok
 
-While Lombok includes a compiler plugin, it is covered in its [dedicated section](../builtin-tech/lombok.md).
+The Lombok compiler plugin is covered in the more general [Lombok](../builtin-tech/lombok.md) section.
