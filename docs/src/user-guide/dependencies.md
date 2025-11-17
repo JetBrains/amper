@@ -2,7 +2,7 @@
 
 ## External Maven dependencies
 
-Maven dependencies can be added via their coordinates using the usual `:`-separated notation:
+Maven dependencies can be added via their coordinates[^1] using the usual `:`-separated notation:
 
 ```yaml
 dependencies:
@@ -10,15 +10,19 @@ dependencies:
   - io.ktor:ktor-client-core:2.2.0
 ```
 
+[^1]: If you're not familiar with Maven coordinates, check out the 
+[Maven documentation :fontawesome-solid-external-link:](https://maven.apache.org/pom.html#Maven_Coordinates).
+
 ## Module dependencies
 
-To depend on another Module, use a relative path to the folder which contains the corresponding `module.yaml`.
+To depend on another module of your project, use a relative path to the folder which contains the corresponding 
+`module.yaml`.
 The path should start either with `./` or `../`.
 
 !!! note
 
     Dependencies between modules are only allowed within the project scope.
-    That is, they must be listed in the `project.yaml` file.
+    That is, they must be listed in the `project.yaml` file and cannot be outside the project root directory.
 
 Example: given the project layout
 
