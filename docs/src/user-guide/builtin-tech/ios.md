@@ -42,9 +42,9 @@ So the iOS app module layout looks like this:
 
     The Xcode project can be built normally from the Xcode IDE, if needed.
 
-## Application entrypoint
+## Application entry point
 
-For iOS applications, the entrypoint is expected to be a `@main` struct in any Swift file in the `src` folder.
+For iOS applications, the entry point is expected to be a `@main` struct in any Swift file in the `src` folder.
 
 ```
 ├─ src/

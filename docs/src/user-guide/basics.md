@@ -334,7 +334,7 @@ multiplatform modules.
 
 ##### JVM
 
-By default, the entrypoint of JVM applications (the `main` function) is expected to be in a `main.kt` file
+By default, the entry point of JVM applications (the `main` function) is expected to be in a `main.kt` file
 (case-insensitive) in the `src` folder.
 
 This can be overridden by specifying a main class explicitly in the module settings:
@@ -357,7 +357,7 @@ settings:
 
 ##### Native
 
-By default, the entrypoint of Kotlin native applications (the `main` function) is expected to be in a `main.kt` file
+By default, the entry point of Kotlin native applications (the `main` function) is expected to be in a `main.kt` file
 (case-insensitive) in the `src` folder.
 
 This can be overridden by specifying the fully qualified name of the `main` function explicitly in the module settings:
@@ -378,7 +378,7 @@ Android apps have their own way to configure the entry point, see the
 ##### iOS
 
 iOS apps have their own way to configure the entry point, see the
-[dedicated iOS section](builtin-tech/ios.md#application-entrypoint).
+[dedicated iOS section](builtin-tech/ios.md#application-entry-point).
 
 ## Packaging
 

@@ -30,7 +30,7 @@ Check out our [Compose Multiplatform guide](user-guide/builtin-tech/compose-mult
 ### Does Amper support Kotlin/JS or Kotlin/Wasm projects?
 
 Yes, but it doesn't provide tooling to work on full stack web projects yet. For instance, Amper doesn't install any 
-browser or Node.js runtime, doesn't generate or process any HTML entrypoint, and cannot run `js/app` modules on its own.
+browser or Node.js runtime, doesn't generate or process any HTML entry point, and cannot run `js/app` modules on its own.
 
 ### What functionality do you plan to support?
 
