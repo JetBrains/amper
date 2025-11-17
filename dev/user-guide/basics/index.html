@@ -853,6 +853,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#settings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2084,6 +2095,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#settings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2219,7 +2241,7 @@ on each other.
 <h3 id="single-module-project">Single-module project<a class="headerlink" href="#single-module-project" title="Permanent link">&para;</a></h3>
 <p>A single-module Amper project doesn't need a <code>project.yaml</code> file.
 Just create a single valid module, and it is also a valid project<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>:</p>
-<div class="highlight"><span class="filename">Single-module project structure</span><pre><span></span><code>my-project/<span class="w"> </span><span class="c1">#(1)!</span>
+<div class="highlight"><span class="filename">Single-module project layout</span><pre><span></span><code>my-project/<span class="w"> </span><span class="c1">#(1)!</span>
 ├─<span class="w"> </span>src/
 │<span class="w">  </span>├─<span class="w"> </span>main.kt
 ├─<span class="w"> </span>test/
@@ -2234,7 +2256,7 @@ Just create a single valid module, and it is also a valid project<sup id="fnref:
 <p>If there are multiple modules, the <code>project.yaml</code> file specifies the list of modules:</p>
 <div class="grid">
 <div class="annotate">
-<div class="highlight"><span class="filename">Structure</span><pre><span></span><code>├─<span class="w"> </span>app/
+<div class="highlight"><span class="filename">Multi-module project layout</span><pre><span></span><code>├─<span class="w"> </span>app/
 │<span class="w">  </span>├─<span class="w"> </span>src/
 │<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.kt
 │<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>...
@@ -2438,28 +2460,129 @@ For example, your module could get all its code from dependencies and have no <c
 modules can depend on. This ensures that the IDE always knows how to analyze and refactor the code, as it always has a 
 single well-defined set of settings and dependencies.</p>
 <h2 id="module-file-anatomy">Module file anatomy<a class="headerlink" href="#module-file-anatomy" title="Permanent link">&para;</a></h2>
-<p>A <code>module.yaml</code> file has several main sections: <code>product</code>, <code>dependencies</code> and <code>settings</code>.
-A module can produce a single product, such as a reusable library or an application.
+<p>A <code>module.yaml</code> file has several main sections: <code>product</code>, <code>dependencies</code> and <code>settings</code>.</p>
+<p>A module can produce a single product, such as a reusable library or an application.
 Read more on the <a href="#product-types">supported product types</a> below.</p>
-<p>Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<p>Here are some example module files for different types of modules:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="jvm-application" name="__tabbed_2" type="radio" /><input id="kmp-library" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="jvm-application"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" stroke="#C77D55"/>
+</svg>
+</span> JVM application</label><label for="kmp-library"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> <abbr title="Kotlin Multiplatform">KMP</abbr> library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span><span class="w"> </span><span class="c1">#(1)!</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-java:2.3.0</span><span class="w"> </span><span class="c1">#(2)!</span>
 
-<span class="nt">settings</span><span class="p">:</span>
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span><span class="c1">#(3)!</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
-</code></pre></div></p>
-<p>Example of a <abbr title="Kotlin Multiplatform">KMP</abbr> library:
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.2.21</span><span class="w"> </span><span class="c1">#(4)!</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1">#(5)!</span>
+</code></pre></div>
+<ol>
+<li>This short form is equivalent to:
+   <div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nt">product</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+</code></pre></div>
+   The <code>jvm/app</code> product type means that the module produces a JVM application.</li>
+<li>The <code>dependencies</code> section contains the list of dependencies for this module. 
+   Here <code>io.ktor:ktor-client-core:2.3.0</code> are the 
+   <a href="https://maven.apache.org/pom.html#Maven_Coordinates">Maven coordinates <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a> of 
+   the Ktor client library (with Java engine).
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.</li>
+<li>The <code>settings</code> section contains the configuration of different toolchains. </li>
+<li>An example setting: the Kotlin compiler version used for this module.</li>
+<li>An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1">#(2)!</span>
 
-<span class="nt">settings</span><span class="p">:</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span><span class="w"> </span><span class="c1">#(3)!</span>
+
+<span class="nt">dependencies@android</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-android:2.3.0</span><span class="w"> </span><span class="c1">#(4)!</span>
+
+<span class="nt">dependencies@ios</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-darwin:2.3.0</span><span class="w"> </span><span class="c1">#(5)!</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span><span class="c1">#(6)!</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
-</code></pre></div></p>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.2.21</span><span class="w"> </span><span class="c1">#(7)!</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1">#(8)!</span>
+
+<span class="nt">settings@ios</span><span class="p">:</span><span class="w"> </span><span class="c1">#(9)!</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"> </span><span class="c1">#(10)!</span>
+</code></pre></div>
+<ol>
+<li>The <code>lib</code> product type means that the module produces a <span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> Kotlin Multiplatform 
+   library.</li>
+<li>The <code>platforms</code> list contains the platforms that this module is built for.</li>
+<li>The <code>dependencies</code> section contains the list of common dependencies for this module. 
+   Here <code>io.ktor:ktor-client-core:2.3.0</code> are the 
+   <a href="https://maven.apache.org/pom.html#Maven_Coordinates">Maven coordinates <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a> of 
+   the Ktor client core library.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>dependencies@android</code> section contains the list of dependencies that are only used when building the module 
+   for the Android target. 
+   Here the <code>io.ktor:ktor-client-android:2.3.0</code> will not be present when building the module for the iOS targets.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>dependencies@ios</code> section contains the list of dependencies that are only used when building the module 
+   for the iOS target. 
+   Here the <code>io.ktor:ktor-client-darwin:2.3.0</code> will not be present when building the module for the Android target.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>settings</code> section contains the configuration of different toolchains for common code, and also serves as 
+   default for platform-specific code.. </li>
+<li>An example setting: the Kotlin compiler version used for this module.</li>
+<li>An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.</li>
+<li>The <code>settings@ios</code> section contains the configuration of different toolchains for iOS-specific compilation.</li>
+<li>This setting overrides the one that we set in the <code>settings</code> section.
+    Read more about this in the <a href="../multiplatform/#multiplatform-settings">settings propagation</a> section.</li>
+</ol>
+</div>
+</div>
+</div>
 <h3 id="product-types">Product types<a class="headerlink" href="#product-types" title="Permanent link">&para;</a></h3>
 <p>Product type describes the target platform and the type of the project at the same time. Below is the list of supported
 product types:</p>
@@ -2473,6 +2596,10 @@ product types:</p>
 <li><code>android/app</code> - an <a href="../builtin-tech/android/">Android</a> application</li>
 <li><code>ios/app</code> - an <a href="../builtin-tech/ios/">iOS</a> application</li>
 </ul>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<p>The <code>dependencies</code> section contains the list of dependencies for this module.
+They can be external maven libraries, other modules in the project, and more.</p>
+<p>Please see the <a href="../dependencies/">Dependencies</a> section for more details.</p>
 <h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
 <p>The <code>settings</code> section contains toolchains settings.
 A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).</p>
@@ -2483,7 +2610,7 @@ A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (l
 <span class="w">  </span><span class="nt">android</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31</span>
 </code></pre></div></p>
-<p>Here is the list of <a href="../../reference/module/#settings-and-test-settings">currently supported toolchains and their settings</a>.</p>
+<p>Check out the <a href="../../reference/module/#settings-and-test-settings">Reference</a> page for the full list of supported settings.</p>
 <p>See the <a href="../multiplatform/">multiplatform section</a> for more details about how multiple settings sections interact in
 multiplatform modules.</p>
 <h4 id="configuring-entry-points">Configuring entry points<a class="headerlink" href="#configuring-entry-points" title="Permanent link">&para;</a></h4>
@@ -2558,7 +2685,7 @@ duplicate files.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 00:52:01 UTC">November 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 23:19:35 UTC">November 17, 2025</span>
   </span>
 
     
