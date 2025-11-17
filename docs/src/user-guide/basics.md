@@ -22,7 +22,7 @@ A single-module Amper project doesn't need a `project.yaml` file.
 Just create a single valid module, and it is also a valid project[^1]:
 [^1]: As long as it is not included in a `project.yaml` higher in the directory tree.
 
-```shell title="Single-module project structure"
+```shell title="Single-module project layout"
 my-project/ #(1)!
 ├─ src/
 │  ├─ main.kt
@@ -41,7 +41,7 @@ If there are multiple modules, the `project.yaml` file specifies the list of mod
 
 <div class="grid" markdown>
 <div class="annotate">
-```shell title="Structure"
+```shell title="Multi-module project layout"
 ├─ app/
 │  ├─ src/
 │  │  ├─ main.kt
@@ -168,31 +168,93 @@ single well-defined set of settings and dependencies.
 ## Module file anatomy
 
 A `module.yaml` file has several main sections: `product`, `dependencies` and `settings`.
+
 A module can produce a single product, such as a reusable library or an application.
 Read more on the [supported product types](#product-types) below.
 
-Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
-```yaml
-product: jvm/app
+Here are some example module files for different types of modules:
 
-dependencies:
-  - io.ktor:ktor-client-core:2.3.0
+=== ":intellij-java: JVM application"
 
-settings:
-  kotlin:
-    languageVersion: 1.9
-```
+    ```yaml
+    product: jvm/app #(1)!
+    
+    dependencies:
+      - io.ktor:ktor-client-java:2.3.0 #(2)!
+    
+    settings: #(3)!
+      kotlin:
+        version: 2.2.21 #(4)!
+        allWarningsAsErrors: true #(5)!
+    ```
 
-Example of a KMP library:
-```yaml
-product: 
-  type: lib
-  platforms: [android, iosArm64]
+    1. This short form is equivalent to:
+       ```yaml
+        product:
+          type: jvm/app
+       ```
+       The `jvm/app` product type means that the module produces a JVM application.
+    2. The `dependencies` section contains the list of dependencies for this module. 
+       Here `io.ktor:ktor-client-core:2.3.0` are the 
+       [Maven coordinates :fontawesome-solid-external-link:](https://maven.apache.org/pom.html#Maven_Coordinates) of 
+       the Ktor client library (with Java engine).
+       Read more about dependencies in general in the [Dependencies](dependencies.md) section.
+    3. The `settings` section contains the configuration of different toolchains. 
+    4. An example setting: the Kotlin compiler version used for this module.
+    5. An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.
 
-settings:
-  kotlin:
-    languageVersion: 1.9
-```
+=== ":jetbrains-kotlin-multiplatform: KMP library"
+
+    ```yaml
+    product:
+      type: lib #(1)!
+      platforms: [android, iosArm64, iosSimulatorArm64] #(2)!
+    
+    dependencies:
+      - io.ktor:ktor-client-core:2.3.0 #(3)!
+    
+    dependencies@android:
+      - io.ktor:ktor-client-android:2.3.0 #(4)!
+    
+    dependencies@ios:
+      - io.ktor:ktor-client-darwin:2.3.0 #(5)!
+
+    settings: #(6)!
+      kotlin:
+        version: 2.2.21 #(7)!
+        allWarningsAsErrors: true #(8)!
+
+    settings@ios: #(9)!
+      kotlin:
+        allWarningsAsErrors: false #(10)!
+    ```
+
+    1. The `lib` product type means that the module produces a :jetbrains-kotlin-multiplatform: Kotlin Multiplatform 
+       library.
+    2. The `platforms` list contains the platforms that this module is built for.
+    3. The `dependencies` section contains the list of common dependencies for this module. 
+       Here `io.ktor:ktor-client-core:2.3.0` are the 
+       [Maven coordinates :fontawesome-solid-external-link:](https://maven.apache.org/pom.html#Maven_Coordinates) of 
+       the Ktor client core library.
+       Read more about dependencies in general in the [Dependencies](dependencies.md) section.
+       Read more about multiplatform dependencies in the [Multiplatform dependencies](multiplatform.md#multiplatform-dependencies) section.
+    4. The `dependencies@android` section contains the list of dependencies that are only used when building the module 
+       for the Android target. 
+       Here the `io.ktor:ktor-client-android:2.3.0` will not be present when building the module for the iOS targets.
+       Read more about dependencies in general in the [Dependencies](dependencies.md) section.
+       Read more about multiplatform dependencies in the [Multiplatform dependencies](multiplatform.md#multiplatform-dependencies) section.
+    5. The `dependencies@ios` section contains the list of dependencies that are only used when building the module 
+       for the iOS target. 
+       Here the `io.ktor:ktor-client-darwin:2.3.0` will not be present when building the module for the Android target.
+       Read more about dependencies in general in the [Dependencies](dependencies.md) section.
+       Read more about multiplatform dependencies in the [Multiplatform dependencies](multiplatform.md#multiplatform-dependencies) section.
+    6. The `settings` section contains the configuration of different toolchains for common code, and also serves as 
+       default for platform-specific code.. 
+    7. An example setting: the Kotlin compiler version used for this module.
+    8. An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.
+    9. The `settings@ios` section contains the configuration of different toolchains for iOS-specific compilation.
+    10. This setting overrides the one that we set in the `settings` section.
+        Read more about this in the [settings propagation](multiplatform.md#multiplatform-settings) section.
 
 ### Product types
 
@@ -208,6 +270,13 @@ product types:
 - `android/app` - an [Android](builtin-tech/android.md) application
 - `ios/app` - an [iOS](builtin-tech/ios.md) application
 
+### Dependencies
+
+The `dependencies` section contains the list of dependencies for this module.
+They can be external maven libraries, other modules in the project, and more.
+
+Please see the [Dependencies](dependencies.md) section for more details.
+
 ### Settings
 
 The `settings` section contains toolchains settings.
@@ -222,7 +291,7 @@ settings:
     compileSdk: 31
 ```
 
-Here is the list of [currently supported toolchains and their settings](../reference/module.md#settings-and-test-settings).
+Check out the [Reference](../reference/module.md#settings-and-test-settings) page for the full list of supported settings.
 
 See the [multiplatform section](multiplatform.md) for more details about how multiple settings sections interact in
 multiplatform modules.
