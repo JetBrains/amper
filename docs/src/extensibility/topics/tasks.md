@@ -330,8 +330,6 @@ To do that we can refer to the `${module.jar}` which has the `org.jetbrains.ampe
     1.    A convenience value for the `#!yaml { from: ${module.self} }`
 
 
-See the [corresponding section in the guide](../quick_start.md#consuming-things-from-the-build).
-
 ## Run a task
 
 If the task [contributes](#contributing-back-to-the-build) something to the build,
