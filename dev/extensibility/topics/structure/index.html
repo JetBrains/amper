@@ -12,25 +12,31 @@
         <meta name="author" content="JetBrains Amper team">
       
       
+        <link rel="canonical" href="https://amper.org/dev/extensibility/topics/structure/">
       
+      
+        <link rel="prev" href="../../quick_start/">
+      
+      
+        <link rel="next" href="../configuration/">
       
       
         
       
       
-      <link rel="icon" href="/dev/images/amper-icon.svg">
+      <link rel="icon" href="../../../images/amper-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Amper</title>
+        <title>Plugin Structure - Amper</title>
       
     
     
-      <link rel="stylesheet" href="/dev/assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="/dev/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,15 +55,28 @@
       
     
     
-      <link rel="stylesheet" href="/dev/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("/dev",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
-  </head>
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Plugin Structure - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/extensibility/topics/structure.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/extensibility/topics/structure/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Plugin Structure - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/extensibility/topics/structure.png" />
+</head>
   
   
     
@@ -75,6 +94,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#plugin-structure" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -89,9 +113,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/dev/." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="/dev/images/amper-icon.svg" alt="logo">
+  <img src="../../../images/amper-icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -108,7 +132,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Plugin Structure
             
           </span>
         </div>
@@ -236,7 +260,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/dev/." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -257,7 +281,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/dev/getting-started/" class="md-tabs__link">
+        <a href="../../../getting-started/" class="md-tabs__link">
           
   
   
@@ -275,11 +299,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/dev/user-guide/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../user-guide/" class="md-tabs__link">
           
   
   
@@ -301,7 +327,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/dev/reference/project/" class="md-tabs__link">
+        <a href="../../../reference/project/" class="md-tabs__link">
           
   
   
@@ -321,7 +347,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/dev/faq/" class="md-tabs__link">
+      <a href="../../../faq/" class="md-tabs__link">
         
   
   
@@ -375,9 +401,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/dev/." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="/dev/images/amper-icon.svg" alt="logo">
+  <img src="../../../images/amper-icon.svg" alt="logo">
 
     </a>
     Amper
@@ -404,7 +430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -460,7 +486,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/dev/getting-started/" class="md-nav__link ">
+            <a href="../../../getting-started/" class="md-nav__link ">
               
   
   
@@ -504,7 +530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/getting-started/ide-setup/" class="md-nav__link">
+      <a href="../../../getting-started/ide-setup/" class="md-nav__link">
         
   
   
@@ -532,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/getting-started/tutorial/" class="md-nav__link">
+      <a href="../../../getting-started/tutorial/" class="md-nav__link">
         
   
   
@@ -560,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/getting-started/cli/" class="md-nav__link">
+      <a href="../../../getting-started/cli/" class="md-nav__link">
         
   
   
@@ -592,6 +618,8 @@
       
   
   
+    
+  
   
   
     
@@ -623,20 +651,21 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/dev/user-guide/" class="md-nav__link ">
+            <a href="../../../user-guide/" class="md-nav__link ">
               
   
   
@@ -654,13 +683,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -680,7 +709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/basics/" class="md-nav__link">
+      <a href="../../../user-guide/basics/" class="md-nav__link">
         
   
   
@@ -708,7 +737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/dependencies/" class="md-nav__link">
+      <a href="../../../user-guide/dependencies/" class="md-nav__link">
         
   
   
@@ -736,7 +765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/multiplatform/" class="md-nav__link">
+      <a href="../../../user-guide/multiplatform/" class="md-nav__link">
         
   
   
@@ -764,7 +793,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/testing/" class="md-nav__link">
+      <a href="../../../user-guide/testing/" class="md-nav__link">
         
   
   
@@ -792,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/templates/" class="md-nav__link">
+      <a href="../../../user-guide/templates/" class="md-nav__link">
         
   
   
@@ -888,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/android/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/android/" class="md-nav__link">
         
   
   
@@ -916,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
         
   
   
@@ -944,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/ios/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/ios/" class="md-nav__link">
         
   
   
@@ -972,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
         
   
   
@@ -1000,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/ktor/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/ktor/" class="md-nav__link">
         
   
   
@@ -1028,7 +1057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/lombok/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/lombok/" class="md-nav__link">
         
   
   
@@ -1056,7 +1085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/builtin-tech/spring/" class="md-nav__link">
+      <a href="../../../user-guide/builtin-tech/spring/" class="md-nav__link">
         
   
   
@@ -1089,8 +1118,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -1113,13 +1144,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" checked>
         
           
           <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
@@ -1140,7 +1169,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1158,7 +1187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/extensibility/overview/" class="md-nav__link">
+      <a href="../../overview/" class="md-nav__link">
         
   
   
@@ -1186,7 +1215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/extensibility/quick_start/" class="md-nav__link">
+      <a href="../../quick_start/" class="md-nav__link">
         
   
   
@@ -1211,10 +1240,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/dev/extensibility/topics/structure/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Structure
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1230,6 +1286,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-plugins-available-in-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making plugins available in the project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling plugins
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1242,7 +1340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/extensibility/topics/configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -1270,7 +1368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/extensibility/topics/references/" class="md-nav__link">
+      <a href="../references/" class="md-nav__link">
         
   
   
@@ -1298,7 +1396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/extensibility/topics/tasks/" class="md-nav__link">
+      <a href="../tasks/" class="md-nav__link">
         
   
   
@@ -1396,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/advanced/java-annotation-processing/" class="md-nav__link">
+      <a href="../../../user-guide/advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1424,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/advanced/ksp/" class="md-nav__link">
+      <a href="../../../user-guide/advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1452,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/advanced/kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../../../user-guide/advanced/kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1480,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/advanced/maven-like-layout/" class="md-nav__link">
+      <a href="../../../user-guide/advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1516,7 +1614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/user-guide/yaml-primer/" class="md-nav__link">
+      <a href="../../../user-guide/yaml-primer/" class="md-nav__link">
         
   
   
@@ -1609,7 +1707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/reference/project/" class="md-nav__link">
+      <a href="../../../reference/project/" class="md-nav__link">
         
   
   
@@ -1637,7 +1735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/reference/module/" class="md-nav__link">
+      <a href="../../../reference/module/" class="md-nav__link">
         
   
   
@@ -1672,7 +1770,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/dev/faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   
@@ -1736,6 +1834,38 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-plugins-available-in-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making plugins available in the project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling plugins
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1748,8 +1878,123 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/extensibility/topics/structure.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="plugin-structure">Plugin structure<a class="headerlink" href="#plugin-structure" title="Permanent link">&para;</a></h1>
+<p>Plugin is a normal Amper module with the <code>jvm/amper-plugin</code> product type.
+It has a normal <code>module.yaml</code> build file, with an additional <a href="../../../reference/module/#plugininfo"><code>pluginInfo</code> section</a> available.</p>
+<p>In addition, a plugin has a <code>plugin.yaml</code> file, where <a href="../tasks/">tasks</a> are registered and configured.</p>
+<p>Plugin build logic is written in Kotlin in the <code>src</code> directory.</p>
+<details class="question">
+<summary>Planned: simple cases – simpler structure</summary>
+<p>There can be simpler cases for custom build logic for which having a full-blown plugin may be overkill.
+For example, a single ad-hoc task action that is only needed in one module.</p>
+<p>We are planning to improve UX for such cases and provide a more laconic way to express them.</p>
+</details>
+<p>Plugin has an <strong>ID</strong>, which equals to its module name by default.
+The <strong>plugin ID</strong> is used across the project to refer to the plugin, e.g., when enabling it or in diagnostic messages.</p>
+<details class="info">
+<summary>Plugin ID can be customized</summary>
+<p>For example:
+<div class="highlight"><span class="filename">build-config/module.yaml</span><pre><span></span><code><span class="nt">pluginInfo</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;build-konfig&quot;</span>
+</code></pre></div>
+This changes the ID from the default <code>build-config</code> to <code>build-konfig</code>.</p>
+<p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> Changing the default ID makes little sense if we are not sharing the plugin between projects, which is not supported yet.
+Currently, the ID string doesn't have well-defined format, so leaving the ID at its default is a good idea. </p>
+</details>
+<h2 id="making-plugins-available-in-the-project">Making plugins available in the project<a class="headerlink" href="#making-plugins-available-in-the-project" title="Permanent link">&para;</a></h2>
+<p>Amper plugins are module-level plugins – they are enabled and applied per module.
+There is no such concept as a project-wide plugin in Amper.</p>
+<p>To make a plugin available in the project,
+the dependency on it must be listed under the <a href="../../../reference/project/#plugins"><code>plugins</code>section</a> of the <code>project.yaml</code> file:
+<div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plugins/my-plugin</span>
+
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./plugins/my-plugin</span>
+</code></pre></div></p>
+<p>Plugins listed this way are not yet enabled anywhere.
+One must enable them manually in each module where they are needed.</p>
+<p>There may be cases where a plugin is developed as part of the project, but not needed <em>in the project itself</em>.
+Then such a plugin is present in the <code>modules</code> list, but not included in the <code>plugins</code> list.</p>
+<details class="note">
+<summary>Similar to <code>apply false</code> in Gradle...</summary>
+<p>Amper's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
+recommended approach in Gradle. There one lists plugins at the project level with the <code>apply false</code> clause and
+then just enables them where needed.</p>
+</details>
+<h2 id="enabling-plugins">Enabling plugins<a class="headerlink" href="#enabling-plugins" title="Permanent link">&para;</a></h2>
+<p>Plugins can be enabled and <a href="../configuration/#plugin-settings">configured</a> like this:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="moduleyaml-shorthand" name="__tabbed_1" type="radio" /><input id="moduleyaml-expanded" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="moduleyaml-shorthand">module.yaml (shorthand)</label><label for="moduleyaml-expanded">module.yaml (expanded)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Just to enable the plugin and leave the default configuration:
+<div class="highlight"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">&lt;plugin-id&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>To enable the plugin and configure the plugin settings:
+<div class="highlight"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">&lt;plugin-id&gt;</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="c1"># other options</span>
+</code></pre></div></p>
+</div>
+</div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If many modules use the same plugin, potentially even using some common settings for it,
+then it may make sense to use a dedicated <a href="../../../user-guide/templates/">module template</a>
+that enables and configures the plugin.</p>
+</div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 8, 2025 19:36:05 UTC">November 8, 2025</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -1767,6 +2012,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../quick_start/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Quick Start">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Quick Start
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Configuration
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -1798,10 +2081,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/dev", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "/dev/assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/dev/assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
