@@ -166,7 +166,7 @@ settings@jvmAndAndroid:
 When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.
 
 Example:
-To add the [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multiplatform module, simply write
+To add the [KmLogging library](https://github.com/DiamondEdge1/KmLogging) to a multiplatform module, simply write
 
 ```yaml
 product:
@@ -174,25 +174,25 @@ product:
   platforms: [android, iosArm64, jvm]
 
 dependencies:
-  - org.lighthousegames:logging:1.3.0
+  - com.diamondedge:logging:2.1.0
 ```
 
 The effective dependency lists are:
 
 ```yaml
 dependencies@android:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-android:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-android:2.1.0
 ```
 ```yaml
 dependencies@iosArm64:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-iosarm64:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-iosarm64:2.1.0
 ```
 ```yaml
 dependencies@jvm:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-jvm:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-jvm:2.1.0
 ```
 
 For the explicitly specified dependencies in the `@platform`-sections the general 
