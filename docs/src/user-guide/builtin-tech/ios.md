@@ -1,4 +1,10 @@
-# iOS
+# :simple-apple: iOS
+
+## Module layout
+
+Here is an overview of the module layout for iOS application:
+
+--8<-- "includes/module-layouts/ios-app.md"
 
 ## Xcode Project
 

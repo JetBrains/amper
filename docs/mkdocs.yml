@@ -22,6 +22,8 @@ theme:
     - content.action.edit # adds an "Edit this page" button to each page
     - content.code.annotate # allows annotations (tooltips) inside code blocks
     - content.code.copy # adds a copy button to code blocks
+    - content.footnote.tooltips # adds a tooltip to footnotes references on hover
+    - content.tooltips # replaces the default browser title tooltips with nicer tooltips
     - navigation.expand # makes the navigation sections collapsible
     - navigation.footer # for next/prev links at the bottom of each page
     - navigation.indexes # to be able to associate a Markdown file with the "root" of a section without a nested page
@@ -148,7 +150,7 @@ extra:
     provider: mike # enables the version selector
 
 validation:
-  absolute_links: warn
+  absolute_links: relative_to_docs
   anchors: warn
   omitted_files: warn
   unrecognized_links: warn

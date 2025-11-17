@@ -1,5 +1,7 @@
 # Basic concepts
 
+## Project and modules
+
 An Amper **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the 
 project root (at any depth). If there is only one module in the project, the `project.yaml` file is not required.
@@ -109,130 +111,64 @@ See the [Module layout](#module-layout) section for more details about what goes
 
 ## Module layout
 
-### Overview
+Here are typical module structures at a glance:
 
-A typical Amper module looks like this:
+=== ":intellij-java: JVM"
 
-```shell title="Module directory structure"
-my-project/
-├─ resources/ # (1)!
-│  ╰─ logback.xml  # (2)!
-├─ src/
-│  ├─ main.kt
-│  ╰─ MyClass.java  # (3)!
-├─ test/
-│  ╰─ MainTest.kt
-├─ testResources/
-│  ╰─ logback-test.xml # (4)!
-╰─ module.yaml
-```
+    ```shell
+    my-module/
+    ├─ resources/ # (1)!
+    │  ╰─ logback.xml # (2)!
+    ├─ src/
+    │  ├─ main.kt
+    │  ╰─ Util.java # (3)!
+    ├─ test/
+    │  ╰─ MainTest.java # (4)!
+    │  ╰─ UtilTest.kt
+    ├─ testResources/
+    │  ╰─ logback-test.xml # (5)!
+    ╰─ module.yaml
+    ```
 
-1. Resources placed here are copied to the resulting products (e.g., the jar or APK).
-2. This is just an example resource and can be omitted.
-3. You can mix Kotlin and Java source files in a single module, all in the `src` folder.
-4. This is just an example resource and can be omitted.
+    1. Resources placed here are copied into the resulting jar.
+    2. This is just an example resource and can be omitted.
+    3. You can mix Kotlin and Java source files in a single module, all in the `src` folder.
+    4. You can test Java code with Kotlin tests or Kotlin code with Java tests.
+    5. This is just an example resource and can be omitted.
+
+    !!! note "Maven compatibility layout for JVM-only modules"
+    
+        If you're migrating from Maven, you can also configure the [Maven-like layout](advanced/maven-like-layout.md)
+
+=== ":jetbrains-kotlin-multiplatform: Kotlin Multiplatform"
+
+    --8<-- "includes/module-layouts/kmp-lib.md"
+
+    !!! info "Read more in the dedicated [Multiplatform modules](multiplatform.md) section."
+
+=== ":android-head-flat: Android app"
+
+    --8<-- "includes/module-layouts/android-app.md"
+
+    !!! info "Read more in the dedicated [Android](builtin-tech/android.md) section."
+
+=== ":simple-apple: iOS app"
+
+    --8<-- "includes/module-layouts/ios-app.md"
+
+    !!! info "Read more in the dedicated [iOS](builtin-tech/ios.md) section."
 
 All sources and resources are optional: **only the `module.yaml` file is required.**
 For example, your module could get all its code from dependencies and have no `src` folder.
 
-!!! info "Special layouts"
-
-    Some modules have a special layout described in their dedicated sections:
-
-    * [Multiplatforms modules](multiplatform.md) (special `@platform` suffixes)
-    * [Android modules](builtin-tech/android.md) (`res` and `assets` folders)
-    * Modules that use the [Maven-like layout](advanced/maven-like-layout.md)
-
-*[Android modules]: That is, modules with `android/app` product type.
-
-### Source code
-
-Source files are located in the `src` folder:
-
-```
-├─ src/
-│  ╰─ main.kt
-╰─ module.yaml
-```
-
-By convention, a `main.kt` file, if present, is the default entry point for the application.
-Read more on [configuring the application entry points](#configuring-entry-points).
-
-In a JVM module, you can mix Kotlin and Java source files:
-
-```
-├─ src/
-│  ├─ main.kt
-│  ╰─ Util.java
-╰─ module.yaml
-```
-
-In a [multiplatform module](multiplatform.md), platform-specific code is located in folders
-with [`@platform`-qualifiers](multiplatform.md#platform-qualifier):
-
-```
-├─ src/             # common code
-│  ├─ main.kt
-│  ╰─ util.kt       #  API with ‘expect’ part
-├─ src@ios/         # code to be compiled only for iOS targets
-│  ╰─ util.kt       #  API implementation with ‘actual’ part for iOS
-├─ src@jvm/         # code to be compiled only for JVM targets
-│  ╰─ util.kt       #  API implementation with ‘actual’ part for JVM
-╰─ module.yaml
-```
-
-Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
-refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.
-
-### Resources
-
-Files placed into the `resources` folder are copied to the resulting products:
-
-```
-├─ src/
-│  ╰─ ...
-╰─ resources/     # These files are copied into the final products
-   ╰─ ...
-```
-
-In [multiplatform modules](#multiplatform-configuration), resources are merged from the common folders and corresponding
-platform-specific folders:
-```
-├─ src/
-│  ╰─ ...
-├─ resources/          # these resources are copied into the Android and JVM artifact
-│  ╰─ ...
-├─ resources@android/  # these resources are copied into the Android artifact
-│  ╰─ ...
-╰─ resources@jvm/      # these resources are copied into the JVM artifact
-   ╰─ ...
-```
-
-In case of duplicated names, the common resources are overwritten by the more specific ones.
-That is `resources/foo.txt` will be overwritten by `resources@android/foo.txt`.
-
-Android modules also have [`res` and `assets`](https://developer.android.com/guide/topics/resources/providing-resources) 
-folders:
-*[Android modules]: That is, modules with `android` product type.
-
-```
-├─ src/
-│  ╰─ ...
-├─ res/
-│  ├─ drawable/
-│  │  ╰─ ...
-│  ├─ layout/
-│  │  ╰─ ...
-│  ╰─ ...
-├─ assets/
-│  ╰─ ...
-╰─ module.yaml
-```
+Sources and resources can't be defined as part of multiple modules — they must belong to a single module, which other 
+modules can depend on. This ensures that the IDE always knows how to analyze and refactor the code, as it always has a 
+single well-defined set of settings and dependencies.
 
 ## Module file anatomy
 
-A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`. A module can produce a
-single product, such as a reusable library or an application.
+A `module.yaml` file has several main sections: `product`, `dependencies` and `settings`.
+A module can produce a single product, such as a reusable library or an application.
 Read more on the [supported product types](#product-types) below.
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
@@ -267,56 +203,17 @@ product types:
 - `jvm/lib` - a reusable JVM library which can be used as a dependency by other modules in the Amper project
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 application
-- `linux/app` - a native linux application
+- `linux/app` - a native Linux application
 - `macos/app` - a native macOS application
-- `android/app` - an Android VM application
-- `ios/app` - an iOS/iPadOS application
-
-### Multiplatform configuration
-
-`dependencies:` and `setting:` sections can be specialized for each platform using the `@platform`-qualifier.
-An example of a multiplatform library with some common and platform-specific code:
-```yaml
-product:
-  type: lib
-  platforms: [iosArm64, android]
-
-# These dependencies are available in common code.
-# They are also propagated to iOS and Android code, along with their platform-specific counterparts 
-dependencies:
-  - io.ktor:ktor-client-core:2.3.0
-
-# These dependencies are available in Android code only
-dependencies@android:
-  - io.ktor:ktor-client-android:2.3.0
-  - com.google.android.material:material:1.5.0
-
-# These dependencies are available in iOS code only
-dependencies@ios:
-  - io.ktor:ktor-client-darwin:2.3.0
-
-# These settings are for common code.
-# They are also propagated to iOS and Android code 
-settings:
-  kotlin:
-    languageVersion: 1.8
-  android:
-    compileSdk: 33
-
-# We can add or override settings for specific platforms. 
-# Let's override the Kotlin language version for iOS code: 
-settings@ios:
-  kotlin:
-    languageVersion: 1.9 
-```
-See details on multiplatform configuration in the dedicated [multiplatform](multiplatform.md) section.
+- `android/app` - an [Android](builtin-tech/android.md) application
+- `ios/app` - an [iOS](builtin-tech/ios.md) application
 
 ### Settings
 
-The `settings:` section contains toolchains settings.
+The `settings` section contains toolchains settings.
 A _toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).
 
-All toolchain settings are specified in dedicated groups in the `settings:` section:
+All toolchain settings are specified in dedicated groups in the `settings` section:
 ```yaml
 settings:
   kotlin:
@@ -363,7 +260,7 @@ By default, the entry point of Kotlin native applications (the `main` function) 
 This can be overridden by specifying the fully qualified name of the `main` function explicitly in the module settings:
 
 ```yaml
-product: jvm/app
+product: linux/app
 
 settings:
   native:

@@ -2,20 +2,18 @@
 
 Use the `android/app` product type in a module to build an Android application.
 
+## Module layout
+
+Here is an overview of the module layout for an Android application:
+
+--8<-- "includes/module-layouts/android-app.md"
+
 ## Entry point
 
-The application's entry point is specified in the AndroidManifest.xml file according to the
-[official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
-```
-├─ src/
-│  ├─ MyActivity.kt
-│  ├─ AndroidManifest.xml
-│  ╰─ ...
-╰─ module.yaml
-```
+The application's entry point is specified in the `AndroidManifest.xml` file according to the
+[official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro):
 
-`src/AndroidManifest.xml`:
-```xml
+```xml title="src/AndroidManifest.xml"
 <manifest ... >
   <application ... >
     <activity android:name="com.example.myapp.MainActivity" ... >
@@ -24,7 +22,7 @@ The application's entry point is specified in the AndroidManifest.xml file accor
 </manifest>
 ```
 
-You can run your application using the `run` command.
+You can run your application using the `./amper run` command.
 
 ??? tip "Run in IntelliJ IDEA"
 
