@@ -973,6 +973,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#entry-point" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1648,6 +1659,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#entry-point" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1746,24 +1768,44 @@
 
 <h1 id="android"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="152" height="89" viewBox="0 0 152 89" fill="none"><g clip-path="url(#a)"><path fill="#34A853" d="M151.025 85.224q-.071-.464-.147-.92a75.665 75.665 0 0 0-7.546-22.597 76.5 76.5 0 0 0-5.511-8.995 76 76 0 0 0-8.322-9.808 76.034 76.034 0 0 0-13.398-10.626q.042-.074.085-.148 2.286-3.948 4.572-7.897l4.47-7.712a3946 3946 0 0 0 3.208-5.54q.38-.658.604-1.355a6.97 6.97 0 0 0-.652-5.702 6.9 6.9 0 0 0-2.406-2.398 7 7 0 0 0-2.954-.95 7 7 0 0 0-2.376.206 6.93 6.93 0 0 0-4.22 3.227q-1.606 2.77-3.208 5.54l-4.47 7.712c-1.523 2.634-3.05 5.263-4.573 7.897q-.25.43-.5.865c-.232-.092-.46-.184-.692-.272-8.398-3.205-17.511-4.958-27.036-4.958q-.39-.001-.78.004A75.7 75.7 0 0 0 50.977 25q-1.317.46-2.608.968-.234-.404-.467-.806-2.286-3.95-4.573-7.897l-4.47-7.713a4385 4385 0 0 1-3.208-5.54A6.93 6.93 0 0 0 29.055.58a6.9 6.9 0 0 0-2.954.95 6.92 6.92 0 0 0-3.157 4.185 6.96 6.96 0 0 0 .703 5.27l3.208 5.54 4.47 7.713c1.523 2.634 3.05 5.263 4.573 7.897.01.022.025.044.036.066a76.3 76.3 0 0 0-13.527 10.711 76.5 76.5 0 0 0-8.322 9.808 75.4 75.4 0 0 0-5.51 8.995 75.7 75.7 0 0 0-7.546 22.597 76.038 76.038 0 0 0-.581 4.247h151a77 77 0 0 0-.434-3.327z"/><path fill="#202124" d="M115.225 67.663c3.022-2.012 3.461-6.668.981-10.4-2.48-3.73-6.939-5.123-9.96-3.11-3.021 2.012-3.46 6.668-.98 10.4 2.479 3.73 6.938 5.123 9.959 3.11M46.762 64.564c2.48-3.73 2.04-8.387-.98-10.4-3.022-2.012-7.481-.619-9.96 3.112s-2.041 8.387.98 10.4 7.48.62 9.96-3.112"/></g><defs><clipPath id="a"><path fill="#fff" d="M.459.555h151v88h-151z"/></clipPath></defs></svg></span> Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h1>
 <p>Use the <code>android/app</code> product type in a module to build an Android application.</p>
+<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
+<p>Here is an overview of the module layout for an Android application:</p>
+<div class="highlight"><pre><span></span><code>my-android-app/
+├─<span class="w"> </span>assets/<span class="w"> </span><span class="c1"># (1)!</span>
+├─<span class="w"> </span>res/<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>drawable/
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>graphic.png
+│<span class="w">  </span>├─<span class="w"> </span>layout/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.xml
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>info.xml
+│<span class="w">  </span>╰─<span class="w"> </span>...
+├─<span class="w"> </span>resources/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>AndroidManifest.xml<span class="w"> </span><span class="c1"># (3)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainActivity.kt<span class="w"> </span><span class="c1"># (4)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
+├─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>proguard-rules.pro<span class="w"> </span><span class="c1"># (5)!</span>
+</code></pre></div>
+<ol>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li>The manifest file of your application.</li>
+<li>An activity (screen) of your application.</li>
+<li>Optional configuration for R8 code shrinking and obfuscation. See <a href="./#code-shrinking">code shrinking</a>.</li>
+</ol>
 <h2 id="entry-point">Entry point<a class="headerlink" href="#entry-point" title="Permanent link">&para;</a></h2>
-<p>The application's entry point is specified in the AndroidManifest.xml file according to the
-<a href="https://developer.android.com/guide/topics/manifest/manifest-intro">official Android documentation</a>.
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ├─ MyActivity.kt
-│  ├─ AndroidManifest.xml
-│  ╰─ ...
-╰─ module.yaml
-</code></pre></div></p>
-<p><code>src/AndroidManifest.xml</code>:
-<div class="highlight"><pre><span></span><code><span class="nt">&lt;manifest</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
+<p>The application's entry point is specified in the <code>AndroidManifest.xml</code> file according to the
+<a href="https://developer.android.com/guide/topics/manifest/manifest-intro">official Android documentation</a>:</p>
+<div class="highlight"><span class="filename">src/AndroidManifest.xml</span><pre><span></span><code><span class="nt">&lt;manifest</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;application</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;activity</span><span class="w"> </span><span class="na">android:name=</span><span class="s">&quot;com.example.myapp.MainActivity&quot;</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/activity&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/application&gt;</span>
 <span class="nt">&lt;/manifest&gt;</span>
-</code></pre></div></p>
-<p>You can run your application using the <code>run</code> command.</p>
+</code></pre></div>
+<p>You can run your application using the <code>./amper run</code> command.</p>
 <details class="tip">
 <summary>Run in IntelliJ IDEA</summary>
 <p>IntelliJ IDEA with the Amper plugin automatically detects the <code>android/app</code> product type and provides a run
@@ -1896,7 +1938,7 @@ your <code>google-services.json</code> file in the module containing an <code>an
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:56:16 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 00:52:01 UTC">November 17, 2025</span>
   </span>
 
     
@@ -1996,7 +2038,7 @@ your <code>google-services.json</code> file in the module containing an <code>an
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>

@@ -765,6 +765,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#project-and-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project and modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#project-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -777,10 +788,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#source-code" class="md-nav__link">
+  <a href="#single-module-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source code
+        Single-module project
       
     </span>
   </a>
@@ -788,10 +799,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#resources" class="md-nav__link">
+  <a href="#multi-module-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resources
+        Multi-module project
       
     </span>
   </a>
@@ -800,6 +811,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
   
 </li>
       
@@ -820,17 +842,6 @@
     <span class="md-ellipsis">
       
         Product types
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multiplatform-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform configuration
       
     </span>
   </a>
@@ -1743,6 +1754,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#project-and-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project and modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#project-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1755,10 +1777,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#source-code" class="md-nav__link">
+  <a href="#single-module-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source code
+        Single-module project
       
     </span>
   </a>
@@ -1766,10 +1788,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#resources" class="md-nav__link">
+  <a href="#multi-module-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resources
+        Multi-module project
       
     </span>
   </a>
@@ -1778,6 +1800,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1798,17 +1831,6 @@
     <span class="md-ellipsis">
       
         Product types
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multiplatform-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform configuration
       
     </span>
   </a>
@@ -1935,10 +1957,11 @@
 
 
 <h1 id="basic-concepts">Basic concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">&para;</a></h1>
+<h2 id="project-and-modules">Project and modules<a class="headerlink" href="#project-and-modules" title="Permanent link">&para;</a></h2>
 <p>An Amper <strong>project</strong> is defined by a <code>project.yaml</code> file. This file contains the list of modules and the project-wide
 configuration. The folder with the <code>project.yaml</code> file is the project root. Modules can only be located under the 
 project root (at any depth). If there is only one module in the project, the <code>project.yaml</code> file is not required.</p>
-<p>An Amper <strong>module</strong> is a directory with a <code>module.yaml</code> configuration file, sources, and resources.
+<p>An Amper <strong>module</strong> is a directory with a <code>module.yaml</code> configuration file, and optionally sources and resources.
 A <em>module configuration file</em> describes <em>what</em> to produce: e.g. a reusable library or a platform-specific application.
 Each module describes a single product. Several modules can't share the same sources or resources, but they can depend 
 on each other.
@@ -1946,100 +1969,231 @@ on each other.
 <div class="admonition question">
 <p class="admonition-title">If you are not familiar with YAML, see <a href="../yaml-primer/">our brief YAML primer</a>.</p>
 </div>
-<p>Amper supports Kotlin Multiplatform as a core concept and offers special syntax to deal with multiplatform
-configuration. There is a dedicated <a href="../multiplatform/#platform-qualifier"><strong>@platform-qualifier</strong></a> used to mark platform-specific
-dependencies, settings, etc. You'll see it in the examples below.</p>
 <h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
-<p>A basic single-module Amper project looks like this:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ╰─ main.kt
-├─ test/
-│  ╰─ MainTest.kt
-╰─ module.yaml
+<h3 id="single-module-project">Single-module project<a class="headerlink" href="#single-module-project" title="Permanent link">&para;</a></h3>
+<p>A single-module Amper project doesn't need a <code>project.yaml</code> file.
+Just create a single valid module, and it is also a valid project<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>:</p>
+<div class="highlight"><span class="filename">Single-module project structure</span><pre><span></span><code>my-project/<span class="w"> </span><span class="c1">#(1)!</span>
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
+╰─<span class="w"> </span>module.yaml
 </code></pre></div>
+<ol>
+<li>This is the project root but also the root of the only module in the project.</li>
+</ol>
+<p>See the <a href="#module-layout">Module layout</a> section for more details about the module structure itself. </p>
+<h3 id="multi-module-project">Multi-module project<a class="headerlink" href="#multi-module-project" title="Permanent link">&para;</a></h3>
 <p>If there are multiple modules, the <code>project.yaml</code> file specifies the list of modules:</p>
-<div class="highlight"><pre><span></span><code>├─ app/
-│  ├─ src/
-│  │  ├─ main.kt
-│  │  ╰─ ...
-│  ╰─ module.yaml
-├─ lib/
-│  ├─ src/
-│  │  ╰─ util.kt
-│  ╰─ module.yaml
-╰─ project.yaml
+<div class="grid">
+<div class="annotate">
+<div class="highlight"><span class="filename">Structure</span><pre><span></span><code>├─<span class="w"> </span>app/
+│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>...
+│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+├─<span class="w"> </span>libs/<span class="w"> </span><span class="c1">#(1)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>lib1/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>myLib1.kt
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+│<span class="w">  </span>╰─<span class="w"> </span>lib2/
+│<span class="w">     </span>├─<span class="w"> </span>src/
+│<span class="w">     </span>│<span class="w">  </span>╰─<span class="w"> </span>myLib2.kt
+│<span class="w">     </span>╰─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>project.yaml
 </code></pre></div>
-<p>In the above case, the <code>project.yaml</code> looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+</div>
+<ol>
+<li>This hierarchy is arbitrary, it can be organized however you like. The structure is understood by Amper based on 
+     the list of module paths in <code>project.yaml</code> — there is no convention for multi-module projects.</li>
+</ol>
+<div class="annotate">
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./app</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib1</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib2</span>
+</code></pre></div>
+
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib2</span>
+</code></pre></div>
+</div>
+<ol>
+<li>It is also possible to use globs to list multiple modules at once (e.g., <code>./libs/*</code>), although we encourage 
+     listing them explicitly. See details in the <a href="../../reference/project/#modules">project file reference</a>.</li>
+</ol>
+</div>
+<p>See the <a href="#module-layout">Module layout</a> section for more details about what goes inside each module directory.</p>
+<details class="note">
+<summary>Multi-module project with root module</summary>
+<p>It is also possible to have a root module even if there are multiple modules in the project, although this is 
+generally discouraged.</p>
+<div class="highlight"><pre><span></span><code>├─<span class="w"> </span>lib/
+│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>util.kt
+│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+├─<span class="w"> </span>src/<span class="w">  </span><span class="c1"># src of the root module</span>
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>...
+├─<span class="w"> </span>module.yaml<span class="w">  </span><span class="c1"># the module file of the root module</span>
+╰─<span class="w"> </span>project.yaml
+</code></pre></div>
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span><span class="w">  </span><span class="c1"># The root module is included implicitly</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./lib</span>
 </code></pre></div>
-<p>Check the <a href="../../reference/project/#modules">reference</a> for more options to define the list of modules in the 
-<code>project.yaml</code> file.</p>
-<h3 id="source-code">Source code<a class="headerlink" href="#source-code" title="Permanent link">&para;</a></h3>
-<p>Source files are located in the <code>src</code> folder:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ╰─ main.kt
-╰─ module.yaml
+</details>
+<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
+<p>Here are typical module structures at a glance:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="jvm_1" name="__tabbed_1" type="radio" /><input id="kotlin-multiplatform" name="__tabbed_1" type="radio" /><input id="android-app" name="__tabbed_1" type="radio" /><input id="ios-app" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="jvm_1"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" stroke="#C77D55"/>
+</svg>
+</span> JVM</label><label for="kotlin-multiplatform"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> Kotlin Multiplatform</label><label for="android-app"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="152" height="89" viewBox="0 0 152 89" fill="none"><g clip-path="url(#a)"><path fill="#34A853" d="M151.025 85.224q-.071-.464-.147-.92a75.665 75.665 0 0 0-7.546-22.597 76.5 76.5 0 0 0-5.511-8.995 76 76 0 0 0-8.322-9.808 76.034 76.034 0 0 0-13.398-10.626q.042-.074.085-.148 2.286-3.948 4.572-7.897l4.47-7.712a3946 3946 0 0 0 3.208-5.54q.38-.658.604-1.355a6.97 6.97 0 0 0-.652-5.702 6.9 6.9 0 0 0-2.406-2.398 7 7 0 0 0-2.954-.95 7 7 0 0 0-2.376.206 6.93 6.93 0 0 0-4.22 3.227q-1.606 2.77-3.208 5.54l-4.47 7.712c-1.523 2.634-3.05 5.263-4.573 7.897q-.25.43-.5.865c-.232-.092-.46-.184-.692-.272-8.398-3.205-17.511-4.958-27.036-4.958q-.39-.001-.78.004A75.7 75.7 0 0 0 50.977 25q-1.317.46-2.608.968-.234-.404-.467-.806-2.286-3.95-4.573-7.897l-4.47-7.713a4385 4385 0 0 1-3.208-5.54A6.93 6.93 0 0 0 29.055.58a6.9 6.9 0 0 0-2.954.95 6.92 6.92 0 0 0-3.157 4.185 6.96 6.96 0 0 0 .703 5.27l3.208 5.54 4.47 7.713c1.523 2.634 3.05 5.263 4.573 7.897.01.022.025.044.036.066a76.3 76.3 0 0 0-13.527 10.711 76.5 76.5 0 0 0-8.322 9.808 75.4 75.4 0 0 0-5.51 8.995 75.7 75.7 0 0 0-7.546 22.597 76.038 76.038 0 0 0-.581 4.247h151a77 77 0 0 0-.434-3.327z"/><path fill="#202124" d="M115.225 67.663c3.022-2.012 3.461-6.668.981-10.4-2.48-3.73-6.939-5.123-9.96-3.11-3.021 2.012-3.46 6.668-.98 10.4 2.479 3.73 6.938 5.123 9.959 3.11M46.762 64.564c2.48-3.73 2.04-8.387-.98-10.4-3.022-2.012-7.481-.619-9.96 3.112s-2.041 8.387.98 10.4 7.48.62 9.96-3.112"/></g><defs><clipPath id="a"><path fill="#fff" d="M.459.555h151v88h-151z"/></clipPath></defs></svg></span> Android app</label><label for="ios-app"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg></span> iOS app</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>resources/<span class="w"> </span><span class="c1"># (1)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>logback.xml<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>Util.java<span class="w"> </span><span class="c1"># (3)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.java<span class="w"> </span><span class="c1"># (4)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>UtilTest.kt
+├─<span class="w"> </span>testResources/
+│<span class="w">  </span>╰─<span class="w"> </span>logback-test.xml<span class="w"> </span><span class="c1"># (5)!</span>
+╰─<span class="w"> </span>module.yaml
 </code></pre></div>
-<p>By convention, a <code>main.kt</code> file, if present, is the default entry point for the application.
-Read more on <a href="#configuring-entry-points">configuring the application entry points</a>.</p>
-<p>In a JVM module, you can mix Kotlin and Java source files:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ├─ main.kt
-│  ╰─ Util.java
-╰─ module.yaml
+<ol>
+<li>Resources placed here are copied into the resulting jar.</li>
+<li>This is just an example resource and can be omitted.</li>
+<li>You can mix Kotlin and Java source files in a single module, all in the <code>src</code> folder.</li>
+<li>You can test Java code with Kotlin tests or Kotlin code with Java tests.</li>
+<li>This is just an example resource and can be omitted.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Maven compatibility layout for JVM-only modules</p>
+<p>If you're migrating from Maven, you can also configure the <a href="../advanced/maven-like-layout/">Maven-like layout</a></p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>resources/<span class="w">       </span><span class="c1"># common resources, used in all targets</span>
+├─<span class="w"> </span>resources@ios/<span class="w">   </span><span class="c1"># resources that are only available to the iOS code</span>
+├─<span class="w"> </span>resources@jvm/<span class="w">   </span><span class="c1"># resources that are only available to the JVM code</span>
+├─<span class="w"> </span>src/<span class="w">             </span><span class="c1"># common code, compiled for all targets</span>
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (1)!</span>
+├─<span class="w"> </span>src@native/<span class="w">      </span><span class="c1"># code to be compiled for all native targets</span>
+├─<span class="w"> </span>src@apple/<span class="w">       </span><span class="c1"># code to be compiled for all Apple targets</span>
+├─<span class="w"> </span>src@ios/<span class="w">         </span><span class="c1"># code to be compiled only for iOS targets</span>
+│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>src@jvm/<span class="w">         </span><span class="c1"># code to be compiled only for JVM targets</span>
+│<span class="w">  </span>├─<span class="w"> </span>util.kt
+│<span class="w">  </span>╰─<span class="w"> </span>MyClass.java<span class="w"> </span><span class="c1"># (3)!</span>
+├─<span class="w"> </span>test/<span class="w">            </span><span class="c1"># common tests, compiled for all targets</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt<span class="w">   </span>
+├─<span class="w"> </span>test@ios/<span class="w">        </span><span class="c1"># tests that are only run on iOS simulator</span>
+│<span class="w">  </span>╰─<span class="w"> </span>SomeIosTest.kt
+├─<span class="w"> </span>test@jvm/<span class="w">        </span><span class="c1"># tests that are only run on JVM</span>
+│<span class="w">  </span>╰─<span class="w"> </span>SomeJvmTest.kt
+├─<span class="w"> </span>testResources/<span class="w">       </span><span class="c1"># common test resources, used in all targets</span>
+├─<span class="w"> </span>testResources@ios/<span class="w">   </span><span class="c1"># test resources that are only available to the iOS code</span>
+├─<span class="w"> </span>testResources@jvm/<span class="w">   </span><span class="c1"># test resources that are only available to the JVM code</span>
+╰─<span class="w"> </span>module.yaml
 </code></pre></div>
-<p>In a <a href="../multiplatform/">multiplatform module</a>, platform-specific code is located in folders
-with <a href="../multiplatform/#platform-qualifier"><code>@platform</code>-qualifiers</a>:</p>
-<div class="highlight"><pre><span></span><code>├─ src/             # common code
-│  ├─ main.kt
-│  ╰─ util.kt       #  API with ‘expect’ part
-├─ src@ios/         # code to be compiled only for iOS targets
-│  ╰─ util.kt       #  API implementation with ‘actual’ part for iOS
-├─ src@jvm/         # code to be compiled only for JVM targets
-│  ╰─ util.kt       #  API implementation with ‘actual’ part for JVM
-╰─ module.yaml
+<ol>
+<li>This file may define <code>expect</code> declarations to be implemented differently on different platforms.</li>
+<li>This file defines the <code>actual</code> implementations corresponding to the <code>expect</code> declarations from <code>src</code>.</li>
+<li>It's ok to have Java sources in JVM-only source directories.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../multiplatform/">Multiplatform modules</a> section.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-android-app/
+├─<span class="w"> </span>assets/<span class="w"> </span><span class="c1"># (1)!</span>
+├─<span class="w"> </span>res/<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>drawable/
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>graphic.png
+│<span class="w">  </span>├─<span class="w"> </span>layout/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.xml
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>info.xml
+│<span class="w">  </span>╰─<span class="w"> </span>...
+├─<span class="w"> </span>resources/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>AndroidManifest.xml<span class="w"> </span><span class="c1"># (3)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainActivity.kt<span class="w"> </span><span class="c1"># (4)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
+├─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>proguard-rules.pro<span class="w"> </span><span class="c1"># (5)!</span>
 </code></pre></div>
-<p>Sources and resources can't be shared by multiple modules. This ensures that the IDE always knows how to analyze and
-refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.</p>
-<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
-<p>Files placed into the <code>resources</code> folder are copied to the resulting products:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ╰─ ...
-╰─ resources/     # These files are copied into the final products
-   ╰─ ...
+<ol>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li>The manifest file of your application.</li>
+<li>An activity (screen) of your application.</li>
+<li>Optional configuration for R8 code shrinking and obfuscation. See <a href="../builtin-tech/android/#code-shrinking">code shrinking</a>.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../builtin-tech/android/">Android</a> section.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-ios-app/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>KotlinCode.kt<span class="w"> </span><span class="c1"># (1)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>EntryPoint.swift<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>Info.plist
+├─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>module.xcodeproj<span class="w"> </span><span class="c1"># (3)!</span>
 </code></pre></div>
-<p>In <a href="#multiplatform-configuration">multiplatform modules</a>, resources are merged from the common folders and corresponding
-platform-specific folders:
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ╰─ ...
-├─ resources/          # these resources are copied into the Android and JVM artifact
-│  ╰─ ...
-├─ resources@android/  # these resources are copied into the Android artifact
-│  ╰─ ...
-╰─ resources@jvm/      # these resources are copied into the JVM artifact
-   ╰─ ...
-</code></pre></div></p>
-<p>In case of duplicated names, the common resources are overwritten by the more specific ones.
-That is <code>resources/foo.txt</code> will be overwritten by <code>resources@android/foo.txt</code>.</p>
-<p><abbr title="That is, modules with `android` product type.">Android modules</abbr> also have <a href="https://developer.android.com/guide/topics/resources/providing-resources"><code>res</code> and <code>assets</code></a> 
-folders:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ╰─ ...
-├─ res/
-│  ├─ drawable/
-│  │  ╰─ ...
-│  ├─ layout/
-│  │  ╰─ ...
-│  ╰─ ...
-├─ assets/
-│  ╰─ ...
-╰─ module.yaml
-</code></pre></div>
+<ol>
+<li>Kotlin code is optional. Everything could come from dependencies.</li>
+<li>The entrypoint of iOS apps must be a <code>@main</code> struct in a Swift file.
+   <a href="../builtin-tech/ios/#application-entry-point">Read more</a></li>
+<li>An Xcode project is required but it can be automatically generated by Amper the first time.
+   <a href="../builtin-tech/ios/#xcode-project">Read more</a></li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../builtin-tech/ios/">iOS</a> section.</p>
+</div>
+</div>
+</div>
+</div>
+<p>All sources and resources are optional: <strong>only the <code>module.yaml</code> file is required.</strong>
+For example, your module could get all its code from dependencies and have no <code>src</code> folder.</p>
+<p>Sources and resources can't be defined as part of multiple modules — they must belong to a single module, which other 
+modules can depend on. This ensures that the IDE always knows how to analyze and refactor the code, as it always has a 
+single well-defined set of settings and dependencies.</p>
 <h2 id="module-file-anatomy">Module file anatomy<a class="headerlink" href="#module-file-anatomy" title="Permanent link">&para;</a></h2>
-<p>A <code>module.yaml</code> file has several main sections: <code>product:</code>, <code>dependencies:</code> and <code>settings:</code>. A module can produce a
-single product, such as a reusable library or an application.
+<p>A <code>module.yaml</code> file has several main sections: <code>product</code>, <code>dependencies</code> and <code>settings</code>.
+A module can produce a single product, such as a reusable library or an application.
 Read more on the <a href="#product-types">supported product types</a> below.</p>
 <p>Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
@@ -2068,51 +2222,15 @@ product types:</p>
 <li><code>jvm/lib</code> - a reusable JVM library which can be used as a dependency by other modules in the Amper project</li>
 <li><code>jvm/app</code> - a JVM console or desktop application</li>
 <li><code>windows/app</code> - a mingw64 application</li>
-<li><code>linux/app</code> - a native linux application</li>
+<li><code>linux/app</code> - a native Linux application</li>
 <li><code>macos/app</code> - a native macOS application</li>
-<li><code>android/app</code> - an Android VM application</li>
-<li><code>ios/app</code> - an iOS/iPadOS application</li>
+<li><code>android/app</code> - an <a href="../builtin-tech/android/">Android</a> application</li>
+<li><code>ios/app</code> - an <a href="../builtin-tech/ios/">iOS</a> application</li>
 </ul>
-<h3 id="multiplatform-configuration">Multiplatform configuration<a class="headerlink" href="#multiplatform-configuration" title="Permanent link">&para;</a></h3>
-<p><code>dependencies:</code> and <code>setting:</code> sections can be specialized for each platform using the <code>@platform</code>-qualifier.
-An example of a multiplatform library with some common and platform-specific code:
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">]</span>
-
-<span class="c1"># These dependencies are available in common code.</span>
-<span class="c1"># They are also propagated to iOS and Android code, along with their platform-specific counterparts </span>
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span>
-
-<span class="c1"># These dependencies are available in Android code only</span>
-<span class="nt">dependencies@android</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-android:2.3.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.google.android.material:material:1.5.0</span>
-
-<span class="c1"># These dependencies are available in iOS code only</span>
-<span class="nt">dependencies@ios</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-darwin:2.3.0</span>
-
-<span class="c1"># These settings are for common code.</span>
-<span class="c1"># They are also propagated to iOS and Android code </span>
-<span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
-
-<span class="c1"># We can add or override settings for specific platforms. </span>
-<span class="c1"># Let&#39;s override the Kotlin language version for iOS code: </span>
-<span class="nt">settings@ios</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w"> </span>
-</code></pre></div>
-See details on multiplatform configuration in the dedicated <a href="../multiplatform/">multiplatform</a> section.</p>
 <h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
-<p>The <code>settings:</code> section contains toolchains settings.
+<p>The <code>settings</code> section contains toolchains settings.
 A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).</p>
-<p>All toolchain settings are specified in dedicated groups in the <code>settings:</code> section:
+<p>All toolchain settings are specified in dedicated groups in the <code>settings</code> section:
 <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
@@ -2124,7 +2242,7 @@ A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (l
 multiplatform modules.</p>
 <h4 id="configuring-entry-points">Configuring entry points<a class="headerlink" href="#configuring-entry-points" title="Permanent link">&para;</a></h4>
 <h5 id="jvm">JVM<a class="headerlink" href="#jvm" title="Permanent link">&para;</a></h5>
-<p>By default, the entrypoint of JVM applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
+<p>By default, the entry point of JVM applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
 (case-insensitive) in the <code>src</code> folder.</p>
 <p>This can be overridden by specifying a main class explicitly in the module settings:
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
@@ -2142,10 +2260,10 @@ the name and turning the <code>.kt</code> extension into a <code>Kt</code> suffi
 <p>For example, the top-level declarations of <code>myMain.kt</code> will be in a class named <code>MyMainKt</code>.</p>
 </div>
 <h5 id="native">Native<a class="headerlink" href="#native" title="Permanent link">&para;</a></h5>
-<p>By default, the entrypoint of Kotlin native applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
+<p>By default, the entry point of Kotlin native applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
 (case-insensitive) in the <code>src</code> folder.</p>
 <p>This can be overridden by specifying the fully qualified name of the <code>main</code> function explicitly in the module settings:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux/app</span>
 
 <span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">native</span><span class="p">:</span>
@@ -2156,7 +2274,7 @@ the name and turning the <code>.kt</code> extension into a <code>Kt</code> suffi
 <a href="../builtin-tech/android/#entry-point">dedicated Android section</a>.</p>
 <h5 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h5>
 <p>iOS apps have their own way to configure the entry point, see the
-<a href="../builtin-tech/ios/#application-entrypoint">dedicated iOS section</a>.</p>
+<a href="../builtin-tech/ios/#application-entry-point">dedicated iOS section</a>.</p>
 <h2 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h2>
 <p>Amper provides a <code>package</code> command to build a project for distribution.</p>
 <p>For <code>jvm/app</code> modules it produces executable jars which follow 
@@ -2166,6 +2284,14 @@ suitable for any JVM application. This format provides a convenient, runnable se
 includes all necessary dependencies, but unlike the "fat jar" approach, it doesn't suffer from the problems of handling
 duplicate files.</p>
 <p>For <code>android/app</code> modules, see the dedicated <a href="../builtin-tech/android/#packaging">Android packaging</a> section.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>As long as it is not included in a <code>project.yaml</code> higher in the directory tree.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
@@ -2186,7 +2312,7 @@ duplicate files.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 14, 2025 23:56:16 UTC">November 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 00:52:01 UTC">November 17, 2025</span>
   </span>
 
     
@@ -2286,7 +2412,7 @@ duplicate files.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>

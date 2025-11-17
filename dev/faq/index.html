@@ -2183,15 +2183,17 @@ Also, because one of Amper's main targets is Kotlin Multiplatform projects, it s
 those cannot be run directly with Amper).</p>
 <p>Libraries can be created for all Kotlin Multiplatform targets.</p>
 <h3 id="does-amper-support-compose-multiplatform">Does Amper support Compose Multiplatform?<a class="headerlink" href="#does-amper-support-compose-multiplatform" title="Permanent link">&para;</a></h3>
-<p>Yes, you can configure Compose for Android, iOS, and desktop.</p>
+<p>Yes, you can configure Compose for Android, iOS, and desktop.
+Check out our <a href="../user-guide/builtin-tech/compose-multiplatform/">Compose Multiplatform guide</a>.</p>
 <h3 id="does-amper-support-kotlinjs-or-kotlinwasm-projects">Does Amper support Kotlin/JS or Kotlin/Wasm projects?<a class="headerlink" href="#does-amper-support-kotlinjs-or-kotlinwasm-projects" title="Permanent link">&para;</a></h3>
 <p>Yes, but it doesn't provide tooling to work on full stack web projects yet. For instance, Amper doesn't install any 
-browser or Node.js runtime, doesn't generate or process any HTML entrypoint, and cannot run <code>js/app</code> modules on its own.</p>
+browser or Node.js runtime, doesn't generate or process any HTML entry point, and cannot run <code>js/app</code> modules on its own.</p>
 <h3 id="what-functionality-do-you-plan-to-support">What functionality do you plan to support?<a class="headerlink" href="#what-functionality-do-you-plan-to-support" title="Permanent link">&para;</a></h3>
-<p>We’re working on the project library catalogs, publication, and extensibility.</p>
+<p>We plan to cover all the common use cases based on demand.
+At the moment, we’re working on extensibility, publication, and exploring Maven migration and integration.</p>
 <h3 id="will-amper-be-open-source">Will Amper be open source?<a class="headerlink" href="#will-amper-be-open-source" title="Permanent link">&para;</a></h3>
-<p>Yes, Amper is already open source. The default branch is the latest stable release branch, but you can also take a look
-at the <a href="https://github.com/JetBrains/amper/tree/main">main branch</a> to see what's cooking!</p>
+<p>Amper is already open source. Check out our <a href="https://github.com/JetBrains/amper">GitHub repository</a> to see what we're 
+up to!</p>
 <h3 id="when-will-amper-be-released-as-stable">When will Amper be released as stable?<a class="headerlink" href="#when-will-amper-be-released-as-stable" title="Permanent link">&para;</a></h3>
 <p>Right now, we’re focusing on getting feedback and understanding your needs. Based on that, we’ll be able to provide a
 more accurate estimate of a release date sometime in the future.</p>
@@ -2203,9 +2205,27 @@ phase, and we expect things to change.</p>
 to hear about the challenges you may face porting existing projects. However, please understand that the project is
 still in the experimental phase, and we cannot guarantee that all scenarios can be supported.</p>
 <h3 id="how-do-i-report-a-bug">How do I report a bug?<a class="headerlink" href="#how-do-i-report-a-bug" title="Permanent link">&para;</a></h3>
-<p>Please report problems to <a href="https://youtrack.jetbrains.com/issues/AMPER">our issue tracker</a>. Since this project is in the
-experimental phase, we would also greatly appreciate feedback and suggestions regarding the configuration experience –
-join our <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a> for discussion.</p>
+<p>Please report problems to our <a href="https://youtrack.jetbrains.com/issues/AMPER"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="a" x1="-.102411" x2="64.0532" y1="32.0002" y2="32.0002" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB43FF"/>
+      <stop offset=".97" stop-color="#FB406D"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#a)" d="M1.30634 51.2446c-.09688-.0713-.12875-.2019-.07625-.31L8.86571 35.209.058214 24.6908c-.08875-.1056-.074375-.2637.031875-.3518L25.7788 2.93209C30.3495-.877908 36.967-.985408 41.6626 2.67147c4.6937 3.65687 6.1937 10.08813 3.5969 15.43623l-2.7994 5.7669c1.0919-.3663 2.1725-.6994 3.2412-.9988l12.6738-3.6406c.1381-.04.2819.045.3131.1856l5.3056 23.585c.0325.1457-.0662.2882-.215.3069-1.6818.2119-10.8575 1.53-22.2812 6.3294-12.9431 5.4362-21.4844 13.1625-22.6944 14.2925-.0894.0837-.2206.0869-.3187.0144L1.30634 51.2446Z"/>
+  <path fill="#000" d="M52 12H12v40h40V12Z"/>
+  <path fill="#fff" d="m21.4666 26.3709-5.4881-9.3787h3.1513l3.3981 5.9919.3969.8575.3968-.8682 3.3119-5.9812h3.0975l-5.4025 9.3575v5.6487h-2.8619v-5.6275Z"/>
+  <path fill="#fff" d="M33 43.9984H17v3h16v-3Z"/>
+  <path fill="#fff" d="M42.3248 16.9922H30.2879l-.0006 2.6369h4.5662v12.3693h2.9263V19.6291h4.545v-2.6369Z"/>
+</svg>
+</span> YouTrack issue tracker</a>.
+Since this project is in the experimental phase, we would also greatly appreciate feedback and suggestions regarding 
+the configuration experience – join our 
+<a href="https://kotlinlang.slack.com/archives/C062WG3A7T8"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2zm2-8a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2zm8 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 2 2 0 0 1 2 2zm-2 8a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2z"/></svg></span> Slack channel</a> for discussion.</p>
 <h3 id="why-dont-you-use-kotlin-for-ampers-configuration-files">Why don’t you use Kotlin for Amper's configuration files?<a class="headerlink" href="#why-dont-you-use-kotlin-for-ampers-configuration-files" title="Permanent link">&para;</a></h3>
 <p>Currently, we use YAML as a simple and readable markup language. It allows us to experiment with the UX and the IDE
 support much faster. We’ll review the language choice as we proceed with the design and based on demand. The Kotlin DSL,
@@ -2227,8 +2247,8 @@ the design.</p>
 <p>At the same time, we are also <a href="https://blog.gradle.org/declarative-gradle">working with the Gradle team</a> to improve
 Gradle support in our IDEs and Gradle itself.</p>
 <h3 id="what-about-gradle-extensibility-and-plugins">What about Gradle extensibility and plugins?<a class="headerlink" href="#what-about-gradle-extensibility-and-plugins" title="Permanent link">&para;</a></h3>
-<p>We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box 
-and offer a reasonable level of extensibility.</p>
+<p>We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box and offer a reasonable level of
+extensibility.</p>
 <h3 id="how-do-amper-and-declarative-gradle-relate-to-each-other">How do Amper and Declarative Gradle relate to each other?<a class="headerlink" href="#how-do-amper-and-declarative-gradle-relate-to-each-other" title="Permanent link">&para;</a></h3>
 <p>Both projects aim to improve the developer experience and the IDE support, but from opposite directions and with
 different constraints. Amper's approach is to design, from the ground up, a tool that is easy to use for the developers
@@ -2238,19 +2258,23 @@ improving the developer experience and the IDE support in an already exising pow
 <p>While both projects are still experimental, it's important that you provide your feedback to shape the future development.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <h3 id="what-are-the-requirements-to-use-amper">What are the requirements to use Amper?<a class="headerlink" href="#what-are-the-requirements-to-use-amper" title="Permanent link">&para;</a></h3>
-<p>To learn about the required plugins in IntelliJ IDEA, see the <a href="../getting-started/ide-setup/">IDE setup instructions</a>.</p>
 <p>The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
 build iOS applications. See the <a href="../getting-started/cli/">CLI instructions</a>.</p>
-<p>The latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> is advised to work with Amper projects.</p>
+<p>We recommend using the latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> to make the most out of
+Amper. Our focus on the tooling and UX really pays off in IntelliJ IDEA. To learn about the required and optional 
+plugins in IntelliJ IDEA, see the <a href="../getting-started/ide-setup/">IDE setup instructions</a>.</p>
 <h3 id="how-do-i-create-a-new-amper-project">How do I create a new Amper project?<a class="headerlink" href="#how-do-i-create-a-new-amper-project" title="Permanent link">&para;</a></h3>
 <p>You have several options:</p>
 <ul>
 <li>
+<p>Open IntelliJ IDEA and create a new Kotlin project with the Amper build tool</p>
+</li>
+<li>
 <p>Kick-start your project using one of the <a href="https://github.com/JetBrains/amper/tree/main/examples">examples</a></p>
 </li>
 <li>
-<p>Download the Amper script by following the <a href="../getting-started/cli/">usage instructions</a>, and generate a project 
-  from a template using the <code>amper init</code> command.</p>
+<p>Download the Amper script by following the <a href="../getting-started/cli/">CLI instructions</a>, and generate a project 
+  from a template using the <code>./amper init</code> command.</p>
 </li>
 </ul>
 <h3 id="how-do-i-create-a-multi-module-project-in-amper">How do I create a multi-module project in Amper?<a class="headerlink" href="#how-do-i-create-a-multi-module-project-in-amper" title="Permanent link">&para;</a></h3>
@@ -2258,9 +2282,28 @@ build iOS applications. See the <a href="../getting-started/cli/">CLI instructio
 <h3 id="is-there-an-automated-migration-tool">Is there an automated migration tool?<a class="headerlink" href="#is-there-an-automated-migration-tool" title="Permanent link">&para;</a></h3>
 <p>Not currently, but it's certainly something we’re looking into.</p>
 <h3 id="feature-x-is-not-yet-supported-what-can-i-do">Feature X is not yet supported, what can I do?<a class="headerlink" href="#feature-x-is-not-yet-supported-what-can-i-do" title="Permanent link">&para;</a></h3>
-<p>We plan to expand the list of supported use cases based on demand. Please submit your requests and suggestions in
-the <a href="https://youtrack.jetbrains.com/issues/AMPER">tracker</a> or join
-the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a> for discussions.</p>
+<p>Please let us know about it! We're eager to hear what you're trying to do, because we plan to expand the list of
+supported use cases based on demand.
+Please submit your requests and sugg estions in the
+<a href="https://youtrack.jetbrains.com/issues/AMPER"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="a" x1="-.102411" x2="64.0532" y1="32.0002" y2="32.0002" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB43FF"/>
+      <stop offset=".97" stop-color="#FB406D"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#a)" d="M1.30634 51.2446c-.09688-.0713-.12875-.2019-.07625-.31L8.86571 35.209.058214 24.6908c-.08875-.1056-.074375-.2637.031875-.3518L25.7788 2.93209C30.3495-.877908 36.967-.985408 41.6626 2.67147c4.6937 3.65687 6.1937 10.08813 3.5969 15.43623l-2.7994 5.7669c1.0919-.3663 2.1725-.6994 3.2412-.9988l12.6738-3.6406c.1381-.04.2819.045.3131.1856l5.3056 23.585c.0325.1457-.0662.2882-.215.3069-1.6818.2119-10.8575 1.53-22.2812 6.3294-12.9431 5.4362-21.4844 13.1625-22.6944 14.2925-.0894.0837-.2206.0869-.3187.0144L1.30634 51.2446Z"/>
+  <path fill="#000" d="M52 12H12v40h40V12Z"/>
+  <path fill="#fff" d="m21.4666 26.3709-5.4881-9.3787h3.1513l3.3981 5.9919.3969.8575.3968-.8682 3.3119-5.9812h3.0975l-5.4025 9.3575v5.6487h-2.8619v-5.6275Z"/>
+  <path fill="#fff" d="M33 43.9984H17v3h16v-3Z"/>
+  <path fill="#fff" d="M42.3248 16.9922H30.2879l-.0006 2.6369h4.5662v12.3693h2.9263V19.6291h4.545v-2.6369Z"/>
+</svg>
+</span> YouTrack issue tracker</a> or join the
+<a href="https://kotlinlang.slack.com/archives/C062WG3A7T8"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2zm2-8a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2zm8 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 2 2 0 0 1 2 2zm-2 8a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2z"/></svg></span> Slack channel</a> for discussions.</p>
 <h3 id="can-i-write-a-custom-task-or-use-a-plugin">Can I write a custom task or use a plugin?<a class="headerlink" href="#can-i-write-a-custom-task-or-use-a-plugin" title="Permanent link">&para;</a></h3>
 <p>Extensibility is not currently implemented in Amper, but we are working on it.</p>
 <h3 id="how-can-i-use-c-interop-in-amper">How can I use C-interop in Amper?<a class="headerlink" href="#how-can-i-use-c-interop-in-amper" title="Permanent link">&para;</a></h3>
@@ -2285,7 +2328,7 @@ the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 01:09:59 UTC">November 10, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 00:47:50 UTC">November 17, 2025</span>
   </span>
 
     
@@ -2373,7 +2416,7 @@ the <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8">Slack channel</a
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
