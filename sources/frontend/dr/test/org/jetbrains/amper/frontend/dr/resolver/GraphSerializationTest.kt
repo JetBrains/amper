@@ -12,11 +12,11 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyGraph
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.GraphJson
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.isOrphan
@@ -279,7 +279,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     @OptIn(ExperimentalSerializationApi::class)
    inline fun <reified T: Any> checkPolymorphicRequirements(
         kClass: KClass<T>,
-        excludingSubClasses: List<KClass<out T>>? = null
+        excludingSubClasses: List<KClass<out T>>? = null,
     ) {
         assertTrue("An abstract class or interface is expected, but ${kClass.simpleName} was given") { kClass.isAbstract }
 

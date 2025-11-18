@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.concurrency
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -45,7 +44,7 @@ private val logger = LoggerFactory.getLogger("concurrency/doubleLock.kt")
  * If an [owner] object is given, the owner's identity is used to detect such issues and eagerly fail instead of
  * hanging.
  *
- * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this JVM
+ * @throws OverlappingFileLockException If this JVM already holds a lock that overlaps the requested region
  * @throws NonWritableChannelException If this file was not opened for writing
  * @throws FileAlreadyExistsException If a file of that name already exists and the [StandardOpenOption.CREATE_NEW]
  *         option is specified and the file is being opened for writing
@@ -103,7 +102,7 @@ annotation class DelicateConcurrentApi
  * (or similar locking functions) again from inside the given [computeUnderLock] function - that would make the current
  * coroutine hang.
  *
- * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this JVM
+ * @throws OverlappingFileLockException If this JVM already holds a lock that overlaps the requested region
  * @throws IOException If some other I/O error occurs
  */
 @DelicateConcurrentApi
@@ -169,23 +168,13 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
             FileChannel.open(this, *options)
         }
         lockFileChannel.use { fileChannel ->
-            val pidPrefix = "[pid: " +
-                    ProcessHandle.current().pid().toString().padEnd(10, ' ') +
-                    ", " +
-                    Thread.currentThread().hashCode().toString().padEnd(10, ' ').substring(0..9) +
-                    "]"
-            val file = "${this.fileName}       [${this.parent}]"
             val fileLock = try {
-                logger.info("$pidPrefix Locking $file")
-                fileChannel.lockWithRetry().also {
-                    logger.info("$pidPrefix Lock acquired $file")
-                }
+                fileChannel.lockWithRetry()
             } catch (e: NoSuchFileException) {
                 val fileCreatedByOpen = options.any {
                     it == StandardOpenOption.CREATE || it == StandardOpenOption.CREATE_NEW
                 }
                 if (fileCreatedByOpen) {
-                    logger.warn("$pidPrefix Locking failed $file ${System.lineSeparator()} ${System.lineSeparator()} [reason: ${e.toString()}]")
                     // With the current open options, the file should be created by FileChannel.open().
                     // In this case, NoSuchFileException means the file was deleted between the channel opening and the
                     // locking attempt. We should re-open the channel (to re-create the file) and try locking again.
@@ -195,27 +184,20 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
                     return@use // TODO use 'continue' when moving to Kotlin 2.2
                 } else {
                     // With the current open options, the file isn't automatically created by the FileChannel.open().
-                    // In this case, NoSuchFileException means the caller made a mistake and we should let it bubble up.
+                    // In this case, NoSuchFileException means the caller made a mistake, and we should let it bubble up.
                     throw e
                 }
-            } catch(t: Throwable) {
-                logger.warn("$pidPrefix Locking failed $file ${System.lineSeparator()} [reason: ${t.toString()}]")
-                throw t
             }
 
-            return try {
-                fileLock.use {
-                    block(fileChannel)
-                }
-            } finally {
-                logger.info("$pidPrefix Lock released $file")
+            return fileLock.use {
+                block(fileChannel)
             }
         }
     }
 }
 
 /**
- * Acquires an exclusive lock on this channel's file, retrying in case of "Resource deadlock avoided" exception.
+ * Acquires an exclusive lock on this channel's file, retrying in case of the exception "Resource deadlock avoided".
  * See the "Why retry?" section below for more details.
  *
  * This function blocks until the file can be locked or the current coroutine is canceled, whichever comes first.
@@ -230,10 +212,10 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
  * The problem is that this check is at the level of processes and doesn't know about threads. So, if 2 processes both
  * lock the same 2 files at the same time, but each in different threads, the system will think there is a deadlock even
  * when there isn't:
- * * Process 1, thread A, gets lock on file A.
- * * Process 2, thread B, gets lock on file B.
+ * * Process 1, thread A, acquires lock on file A.
+ * * Process 2, thread B, acquires lock on file B.
  * * Process 1, thread B, tries to lock file B and blocks.
- * * Process 2, thread A, tries to lock file A and fails with "Resource deadlock avoided" exception.
+ * * Process 2, thread A, tries to lock file A and fails with the exception "Resource deadlock avoided".
  *
  * Since we can't really prevent this, our best bet is just to retry a few times to see if the locks are eventually
  * released. If not, we can finally rethrow the exception.
@@ -250,7 +232,6 @@ private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOpti
 private suspend fun FileChannel.lockWithRetry(): FileLock? =
     withRetry(
         retryOnException = { it is IOException && it.message?.contains("Resource deadlock avoided") == true },
-        retryCount = 150
     ) {
         runInterruptible {
             lock()

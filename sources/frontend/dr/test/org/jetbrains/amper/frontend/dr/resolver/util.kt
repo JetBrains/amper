@@ -4,8 +4,10 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.frontend.Model
@@ -24,7 +26,7 @@ import kotlin.time.Duration.Companion.minutes
  * [runTest] but with a 5-minute timeout.
  */
 internal fun runSlowTest(context: CoroutineContext = EmptyCoroutineContext, testBody: suspend TestScope.() -> Unit) =
-    runTest(context = context, timeout = 5.minutes, testBody = testBody)
+    runTest(context = context, timeout = 5.minutes, testBody = { withContext(Dispatchers.Default) { testBody() }})
 
 internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNode = children
     .filterIsInstance<ModuleDependencyNode>()
