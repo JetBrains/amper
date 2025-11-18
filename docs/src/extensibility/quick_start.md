@@ -18,16 +18,16 @@ Let's take a look at the whole project structure we aim for in advance:
 <!-- We use python here just to enable annotations -->
 ```python
 <root>/
-├─ ... #(1)!
-├─ utils/
-│  ╰─ module.yaml
 ├─ app/
 │  ╰─ module.yaml
 ├─ build-config/
 │  ├─ src/
 │  │  ╰─ **.kt
-│  ├─ plugin.yaml
+│  ├─ module.yaml
+│  ╰─ plugin.yaml
+├─ utils/
 │  ╰─ module.yaml
+├─ ... #(1)!
 ╰─ project.yaml
 ```
 
@@ -36,19 +36,19 @@ Let's take a look at the whole project structure we aim for in advance:
 The `project.yaml` would look like this then:
 ```yaml title="project.yaml"
 modules:
-  - utils #(2)!
-  - app   #(3)!
-  - build-config #(4)!
-  - ...   #(1)!
+  - app   #(1)!
+  - build-config #(2)!
+  - utils #(3)!
+  - ...   #(4)!
 
 plugins: #(5)!
   - ./build-config
 ```
 
-1.    There may be other project modules
-2.    Regular `jvm/lib` module, that contains, e.g., generic utilities useful for most modules in the project
-3.    Regular module, e.g., `jvm/app`
-4.    Our plugin is also a normal module and needs to be listed here
+1.    Regular module, e.g., `jvm/app`
+2.    Our plugin is also a normal module and needs to be listed here
+3.    Regular `jvm/lib` module, that contains, e.g., generic utilities useful for most modules in the project
+4.    There may be other project modules
 5.    This is a block where we list our plugin dependencies to [make available](topics/structure.md#making-plugins-available-in-the-project) in the project.
 
 And the `build-config/module.yaml` would look like:
