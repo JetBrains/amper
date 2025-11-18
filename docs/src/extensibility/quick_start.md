@@ -63,7 +63,7 @@ The plugin ID is the string by which the plugin is going to be referred to throu
 
 Declaring the plugin in the `plugins` section of `project.yaml` makes it *available to the project*,
 but it is not yet *enabled in* (*applied to*) any of its modules.
-Learn more about it [here](topics/structure.md#making-plugins-available-in-the-project)
+Learn more about it [here](topics/structure.md#making-plugins-available-in-the-project).
 But it doesn't contain anything useful yet.
 
 Let's start implementing our plugin by writing a [task action](topics/tasks.md#task-action-definition)
