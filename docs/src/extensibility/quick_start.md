@@ -79,6 +79,7 @@ import java.util.*
 import kotlin.io.path.*
 
 @TaskAction
+@OptIn(ExperimentalPathApi::class)
 fun generateSources(
     @Input propertiesFile: Path,
     @Output generatedSourceDir: Path,
