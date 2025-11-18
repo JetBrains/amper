@@ -84,10 +84,9 @@ fun generateSources(
     @Input propertiesFile: Path,
     @Output generatedSourceDir: Path,
 ) {
-    val outputFile = generatedSourceDir.apply {  
-        deleteRecursively()//(1)!
-        resolve("properties.kt")
-    }
+    generatedSourceDir.deleteRecursively() //(1)!
+    val outputFile = generatedSourceDir / "properties.kt"
+
     if (!propertiesFile.isRegularFile()) {//(2)!
         println("No input")
         return
