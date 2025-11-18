@@ -16,6 +16,9 @@ theme:
   name: material
   logo: images/amper-icon.svg
   favicon: images/amper-icon.svg
+  icon:
+    annotation: material/information-slab-circle
+    repo: fontawesome/brands/github
   font:
     code: JetBrains Mono
   features:
@@ -34,8 +37,6 @@ theme:
     - search.highlight # highlights the search term in the target page when clicking a search result
     - search.share # allows deep linking to search results
     - search.suggest # enables completion in the search bar
-  icon:
-    repo: fontawesome/brands/github
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
