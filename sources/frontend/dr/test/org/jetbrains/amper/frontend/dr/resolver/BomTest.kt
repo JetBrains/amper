@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -23,7 +22,7 @@ class BomTest: BaseModuleDrTest() {
      * Version of a direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of a direct dependency from BOM`() = runTest {
+    fun `resolving version of a direct dependency from BOM`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
 
         val jvmAppDeps = doTest(
@@ -71,7 +70,7 @@ class BomTest: BaseModuleDrTest() {
      * Version of an exported direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) = runTest {
+    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support-exported", testDataRoot)
 
         val jvmAppDeps = doTestByFile(
@@ -110,7 +109,7 @@ class BomTest: BaseModuleDrTest() {
      * directly declared along with the dependency on 'io.github.dokar3:sonner:0.3.8' itself.
      */
     @Test
-    fun `resolving version of a transitive dependency from BOM`(testInfo: TestInfo) = runTest {
+    fun `resolving version of a transitive dependency from BOM`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support-unspecified-transitive", testDataRoot)
 
         val androidAppDeps = doTestByFile(
@@ -148,7 +147,7 @@ class BomTest: BaseModuleDrTest() {
      * and DR reports a corresponding error.
      */
     @Test
-    fun `reporting unspecified version of a transitive dependency`(testInfo: TestInfo) = runTest {
+    fun `reporting unspecified version of a transitive dependency`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-unspecified-transitive", testDataRoot)
 
         val androidAppDeps = doTestByFile(

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -37,7 +36,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         get() = super.testGoldenFilesRoot.resolve("diagnostics")
 
     @Test
-    fun `test sync diagnostics`() = runTest {
+    fun `test sync diagnostics`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("multi-module-failed-resolve", testDataRoot)
 
         assertEquals(
@@ -177,7 +176,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
 
     // AMPER-4270
     @Test
-    fun `overridden version for BOM version is not displayed for unspecified versions`() = runTest {
+    fun `overridden version for BOM version is not displayed for unspecified versions`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
         val mainFragmentDeps = doTest(
             aom,
@@ -221,7 +220,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
      * taken from BOM, but later was overridden due to conflict resolution.
      */
     @Test
-    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runTest {
+    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support-overridden", testDataRoot)
         val commonDeps = doTestByFile(
             testInfo = testInfo,

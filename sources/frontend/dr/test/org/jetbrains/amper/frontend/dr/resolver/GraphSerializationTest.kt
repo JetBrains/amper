@@ -38,7 +38,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     val json = GraphJson.json
 
     @Test
-    fun serializationTestJava(testInfo: TestInfo) = runSlowTest {
+    fun serializationTestJava(testInfo: TestInfo) = runSlowModuleDependenciesTest(checkIncrementalCache = false) {
         val aom = getTestProjectModel("jvm-transitive-dependencies", testDataRoot)
 
         val appModuleGraph = doTestByFile(
@@ -56,7 +56,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     }
 
     @Test
-    fun serializationTestKmp(testInfo: TestInfo) = runSlowTest {
+    fun serializationTestKmp(testInfo: TestInfo) = runSlowModuleDependenciesTest(checkIncrementalCache = false) {
         val aom = getTestProjectModel("compose-multiplatform", testDataRoot)
 
         val iosAppModuleDeps = doTestByFile(
@@ -74,7 +74,7 @@ class GraphSerializationTest: BaseModuleDrTest() {
     }
 
     @Test
-    fun serializationTestInvalidDependencies(testInfo: TestInfo) = runSlowTest {
+    fun serializationTestInvalidDependencies(testInfo: TestInfo) = runSlowModuleDependenciesTest(checkIncrementalCache = false) {
         val aom = getTestProjectModel("jvm-unresolved-dependencies", testDataRoot)
 
         // Run the test that calculates diagnostics for all invalid dependencies

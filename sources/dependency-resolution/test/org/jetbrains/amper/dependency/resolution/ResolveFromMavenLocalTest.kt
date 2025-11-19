@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.metadata.xml.SnapshotVersion
@@ -56,7 +55,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
     private fun uniqueCacheRoot() = (tmpDir / UUID.randomUUID().toString().substring(0, 8)).createDirectories()
 
     @Test
-    fun `release artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runTest {
+    fun `release artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runDrTest {
         val testCacheRoot = uniqueCacheRoot()
 
         checkLocalRepositoryUsage(
@@ -79,7 +78,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
     }
 
     @Test
-    fun `SNAPSHOT artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runTest {
+    fun `SNAPSHOT artifacts are resolved from mavenLocal`(testInfo: TestInfo) = runDrTest {
         val testCacheRoot = uniqueCacheRoot()
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 
@@ -118,7 +117,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
     @Test
     fun `SNAPSHOT artifacts can not be resolved from mavenLocal if maven-metadata-local xml is absent`(
         testInfo: TestInfo,
-    ) = runTest {
+    ) = runDrTest {
         val testCacheRoot = uniqueCacheRoot()
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 
@@ -163,7 +162,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
     @Test
     fun `SNAPSHOT artifacts can not be resolved from mavenLocal if maven-metadata-local contains outdated timestamps`(
         testInfo: TestInfo,
-    ) = runTest {
+    ) = runDrTest {
         val testCacheRoot = uniqueCacheRoot()
         val mavenLocalPath = testCacheRoot.resolve("maven").createDirectories()
 

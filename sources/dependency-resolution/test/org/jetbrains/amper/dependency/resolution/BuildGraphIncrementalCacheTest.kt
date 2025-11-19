@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -34,7 +33,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
      * - restored from there.
      */
     @Test
-    fun `com_jetbrains_intellij_platform jps-build-dependency-graph 253_25908_13-EAP-SNAPSHOT`(testInfo: TestInfo) = runTest {
+    fun `com_jetbrains_intellij_platform jps-build-dependency-graph 253_25908_13-EAP-SNAPSHOT`(testInfo: TestInfo) = runSlowDrTest {
 
         val coordinates = "com.jetbrains.intellij.platform:jps-build-dependency-graph:253.25908.13-EAP-SNAPSHOT".toMavenCoordinates()
         val repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS)
@@ -61,7 +60,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
      * instead it will be recalculated.
      */
     @Test
-    fun `check that recoverable network error prevents reusing of resolved graph`(testInfo: TestInfo) = runTest(timeout = 10.minutes) {
+    fun `check that recoverable network error prevents reusing of resolved graph`(testInfo: TestInfo) = runSlowDrTest(timeout = 10.minutes) {
 
         val coordinates = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2".toMavenCoordinates()
         val repository = MavenRepository("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/")

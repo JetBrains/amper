@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.Test
@@ -15,7 +14,7 @@ import kotlin.test.assertTrue
 class ResolverTest: BaseDRTest() {
 
     @Test
-    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME)`() = runTest {
+    fun `junit-jupiter-params resolved in two contexts (COMPILE, RUNTIME)`() = runDrTest {
         val jupiterParamsCoordinates = "org.junit.jupiter:junit-jupiter-params:5.7.2"
 
         val nodeInCompileContext = jupiterParamsCoordinates.toMavenNode(context(ResolutionScope.COMPILE))
@@ -68,7 +67,7 @@ class ResolverTest: BaseDRTest() {
     }
 
     @Test
-    fun `kmp library sources downloaded`(testInfo: TestInfo) = runTest {
+    fun `kmp library sources downloaded`(testInfo: TestInfo) = runDrTest {
         val kmpLibrary = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
 
         val root = doTest(
@@ -111,7 +110,7 @@ class ResolverTest: BaseDRTest() {
     }
 
     @Test
-    fun `sources downloaded even if variant is not defined in Gradle metadata`(testInfo: TestInfo) = runTest {
+    fun `sources downloaded even if variant is not defined in Gradle metadata`(testInfo: TestInfo) = runDrTest {
         val library = "com.fasterxml.jackson.core:jackson-core:2.17.2"
 
         val root = doTest(
@@ -137,7 +136,7 @@ class ResolverTest: BaseDRTest() {
     }
 
     @Test
-    fun `invalid version is correctly reported`(testInfo: TestInfo) = runTest {
+    fun `invalid version is correctly reported`(testInfo: TestInfo) = runDrTest {
         val library = "com.fasterxml.jackson.core:jackson-core:2.17.2 - ../shared"
 
         val root = doTest(

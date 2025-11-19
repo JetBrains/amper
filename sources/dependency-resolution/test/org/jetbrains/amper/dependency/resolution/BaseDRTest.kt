@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import io.opentelemetry.api.OpenTelemetry
+import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -13,11 +14,14 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.runTestRespectingDelays
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.fail
 import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
@@ -31,6 +35,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseDRTest {
     protected open val testDataPath: Path
@@ -354,6 +360,26 @@ abstract class BaseDRTest {
             MavenRepository("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public")
 
         internal val MAVEN_LOCAL = MavenLocal
+
+        /**
+         * Run DR test respecting delays inside DR code.
+         */
+        fun BaseDRTest.runDrTest(
+            context: CoroutineContext = EmptyCoroutineContext,
+            timeout: Duration = 1.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) =
+            runTestRespectingDelays(context = context, timeout = timeout, testBody = testBody)
+
+        /**
+         * Run DR test respecting delays inside DR code.
+         */
+        fun BaseDRTest.runSlowDrTest(
+            context: CoroutineContext = EmptyCoroutineContext,
+            timeout: Duration = 5.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) =
+            runDrTest(context = context, testBody = testBody, timeout = timeout)
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { it.severity > Severity.INFO }
