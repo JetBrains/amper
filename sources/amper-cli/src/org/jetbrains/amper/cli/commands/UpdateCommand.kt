@@ -250,12 +250,6 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         return runProcessWithInheritedIO(
             workingDir = bashWrapper.absolute().parent,
             command = command,
-            // AMPER_JAVA_HOME can be used to bypass Amper's JRE provisioning and just use a specific JRE.
-            // When Amper provisions its JRE, it also sets AMPER_JAVA_HOME even if the user had not set it.
-            // This means that, by default, child Amper processes get this variable and provisioning is bypassed.
-            // For the update command, we want to make sure to respect the JRE provisioning of the new version,
-            // otherwise we could impose an incorrect JRE.
-            environment = mapOf("AMPER_JAVA_HOME" to ""),
         )
     }
 
