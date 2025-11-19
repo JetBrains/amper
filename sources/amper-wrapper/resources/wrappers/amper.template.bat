@@ -150,7 +150,16 @@ REM adjust the position of the exit command, hence the padding placeholder.
 
 REM ********** Provision JRE for Amper **********
 
-if defined AMPER_JAVA_HOME goto jre_provisioned
+if defined AMPER_JAVA_HOME (
+    @rem If AMPER_JAVA_HOME contains "jbr-21", it means we're inheriting it from the old Amper's update command.
+    @rem We must ignore it because Amper needs 25.
+    if "%AMPER_JAVA_HOME%"=="%AMPER_JAVA_HOME:jbr-21=%" (
+        goto jre_provisioned
+    ) else (
+        echo WARN: AMPER_JAVA_HOME will be ignored because it points to a JBR 21, which is not valid for Amper anymore.
+        echo If you're updating from an Amper version older than 0.8.0, please ignore this message.
+    )
+)
 
 @rem Auto-updated from syncVersions.main.kts, do not modify directly here
 set zulu_version=25.28.85
