@@ -113,6 +113,9 @@ finally { ^
     $lock.ReleaseMutex(); ^
 }
 
+rem We reset the PSModulePath in case this batch script was called from PowerShell Core
+rem See https://github.com/PowerShell/PowerShell/issues/18108#issuecomment-2269703022
+set PSModulePath=
 set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 "%powershell%" -NonInteractive -NoProfile -NoLogo -Command %download_and_extract_ps1%
 if errorlevel 1 exit /b 1
