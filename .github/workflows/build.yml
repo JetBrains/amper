@@ -35,6 +35,12 @@ jobs:
           path: build/logs/**
           archive: true
 
+      - name: Test summary
+        uses: test-summary/action@v2
+        if: ${{ !cancelled() }} # run this step even if the previous step failed, but not if canceled
+        with:
+          paths: build/reports/**/TEST-*.xml
+
   test-mobile:
     strategy:
       fail-fast: false # So that all jobs run to completion even when one fails
@@ -83,3 +89,9 @@ jobs:
           name: build-logs-mobile-${{ matrix.description }}
           path: build/logs/**
           archive: true
+
+      - name: Test summary
+        uses: test-summary/action@v2
+        if: ${{ !cancelled() }} # run this step even if the previous step failed, but not if canceled
+        with:
+          paths: build/reports/**/TEST-*.xml
