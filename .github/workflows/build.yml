@@ -27,6 +27,12 @@ jobs:
       - name: Run regular tests
         run: ./amper test --exclude-module=amper-mobile-test
 
+      - name: Test summary
+        uses: test-summary/action@v2
+        if: ${{ !cancelled() }} # run this step even if the previous step failed, but not if canceled
+        with:
+          paths: build/reports/**/TEST-*.xml
+
   test-mobile:
     strategy:
       fail-fast: false # So that all jobs run to completion even when one fails
@@ -59,3 +65,9 @@ jobs:
 
       - name: Run mobile tests
         run: ./amper test -m amper-mobile-test ${{ matrix.testArgs }}
+
+      - name: Test summary
+        uses: test-summary/action@v2
+        if: ${{ !cancelled() }} # run this step even if the previous step failed, but not if canceled
+        with:
+          paths: build/reports/**/TEST-*.xml
