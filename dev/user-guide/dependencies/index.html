@@ -40,6 +40,12 @@
       
       
 
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2022c5.5%200%2010-4.5%2010-10S17.5%202%2012%202%202%206.5%202%2012s4.5%2010%2010%2010M11%207h2v2h-2zm3%2010h-4v-2h1v-2h-1v-2h3v4h1z%22/%3E%3C/svg%3E');}</style>
+
 
     
     
@@ -797,17 +803,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#external-maven-dependencies" class="md-nav__link">
+  <a href="#declaring-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        External Maven dependencies
+        Declaring dependencies
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Declaring dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#module-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -817,37 +824,109 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#scopes-and-visibility" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scopes and visibility
+        External Maven dependencies
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#bom-dependencies" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#catalog-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        BOM dependencies
+        Catalog dependencies
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#library-catalogs-aka-version-catalogs" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#transitivity-and-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Library Catalogs (a.k.a Version Catalogs)
+        Transitivity and scope
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Transitivity and scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transitivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#library-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Library Catalogs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Library Catalogs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project catalog
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#toolchain-catalogs-built-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Toolchain catalogs (built-in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -856,6 +935,17 @@
     <span class="md-ellipsis">
       
         Managing Maven repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-maven-bom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a Maven BOM
       
     </span>
   </a>
@@ -1888,17 +1978,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#external-maven-dependencies" class="md-nav__link">
+  <a href="#declaring-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        External Maven dependencies
+        Declaring dependencies
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Declaring dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#module-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1908,37 +1999,109 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#scopes-and-visibility" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#external-maven-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scopes and visibility
+        External Maven dependencies
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#bom-dependencies" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#catalog-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        BOM dependencies
+        Catalog dependencies
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#library-catalogs-aka-version-catalogs" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#transitivity-and-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Library Catalogs (a.k.a Version Catalogs)
+        Transitivity and scope
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Transitivity and scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transitivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#library-catalogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Library Catalogs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Library Catalogs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project catalog
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#toolchain-catalogs-built-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Toolchain catalogs (built-in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1947,6 +2110,17 @@
     <span class="md-ellipsis">
       
         Managing Maven repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-maven-bom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a Maven BOM
       
     </span>
   </a>
@@ -1979,145 +2153,316 @@
 
 
 <h1 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h1>
-<h2 id="external-maven-dependencies">External Maven dependencies<a class="headerlink" href="#external-maven-dependencies" title="Permanent link">&para;</a></h2>
-<p>Maven dependencies can be added via their coordinates<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> using the usual <code>:</code>-separated notation:</p>
+<p>Dependencies are pieces of code (e.g., libraries or other modules) that your module depends on.</p>
+<h2 id="declaring-dependencies">Declaring dependencies<a class="headerlink" href="#declaring-dependencies" title="Permanent link">&para;</a></h2>
+<p>Dependencies are declared in the <code>dependencies</code> list of the <code>module.yaml</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlin:kotlin-serialization:1.8.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./my-other-module</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1</span><span class="w"> </span><span class="c1">#(2)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.apache.commons.lang3</span><span class="w"> </span><span class="c1">#(3)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.reflect</span><span class="w"> </span><span class="c1">#(4)!</span>
 </code></pre></div>
-<h2 id="module-dependencies">Module dependencies<a class="headerlink" href="#module-dependencies" title="Permanent link">&para;</a></h2>
-<p>To depend on another module of your project, use a relative path to the folder which contains the corresponding 
-<code>module.yaml</code>.
-The path should start either with <code>./</code> or <code>../</code>.</p>
+<ol>
+<li>Dependency on another module of the project (see <a href="#module-dependencies">Module dependencies</a>).</li>
+<li>Dependency on an external Maven library, with the provided coordinates (see <a href="#external-maven-dependencies">External Maven dependencies</a>).</li>
+<li>Dependency on a library from the project's <a href="#library-catalogs">Library Catalog</a>.</li>
+<li>Dependency on a library from a built-in <a href="#library-catalogs">Library Catalog</a>
+   (in this case, the catalog brought by the Kotlin "toolchain").</li>
+</ol>
+<h3 id="module-dependencies">Module dependencies<a class="headerlink" href="#module-dependencies" title="Permanent link">&para;</a></h3>
+<p>To depend on another module of your project, use the path to that module, relative to the current module's root
+directory. The path must start either with <code>./</code> or <code>../</code>.</p>
+<p>For example, here the <code>app</code> module declares a dependency on the <code>nested-lib</code> and <code>ui/utils</code> modules:</p>
+<div class="grid">
+<div>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="hll"><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./nested-lib</span>
+</span><span class="hll"><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../ui/utils</span>
+</span></code></pre></div>
+
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app/nested-lib</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ui/utils</span>
+</code></pre></div>
+</div>
+<div>
+<div class="highlight"><span class="filename">Project structure</span><pre><span></span><code>root/
+├─ app/
+│  ├─ nested-lib/
+│  │  ├─ src/
+│  │  ╰─ module.yaml
+│  ├─ src/
+│  ╰─ module.yaml
+├─ ui/
+│  ╰─ utils/
+│     ├─ src/
+│     ╰─ module.yaml
+╰─ project.yaml
+‎ 
+</code></pre></div>
+</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Dependencies between modules are only allowed within the project scope.
 That is, they must be listed in the <code>project.yaml</code> file and cannot be outside the project root directory.</p>
 </div>
-<p>Example: given the project layout</p>
-<div class="highlight"><pre><span></span><code>root/
-├─ app/
-│  ├─ src/
-│  ╰─ module.yaml
-╰─ ui/
-   ╰─ utils/
-      ├─ src/
-      ╰─ module.yaml
-</code></pre></div>
-<p>The <code>app/module.yaml</code> can declare a dependency on <code>ui/utils</code> as follows:</p>
+<h3 id="external-maven-dependencies">External Maven dependencies<a class="headerlink" href="#external-maven-dependencies" title="Permanent link">&para;</a></h3>
+<p>Maven dependencies can be added via their coordinates<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> using the usual <code>:</code>-separated notation:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../ui/utils</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.jetbrains.kotlin:kotlin-serialization:1.8.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
 </code></pre></div>
-<p>Other examples of the internal dependencies:</p>
+<p>Maven dependencies are fetched from a Maven repository<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup> before being cached locally.
+Default repositories are provided out of the box, so you don't have to configure anything.
+If you need to customize the repositories, see <a href="#managing-maven-repositories">Managing Maven repositories</a>.</p>
+<h3 id="catalog-dependencies">Catalog dependencies<a class="headerlink" href="#catalog-dependencies" title="Permanent link">&para;</a></h3>
+<p>See <a href="#library-catalogs">Library Catalogs</a>.</p>
+<h3 id="transitivity-and-scope">Transitivity and scope<a class="headerlink" href="#transitivity-and-scope" title="Permanent link">&para;</a></h3>
+<h4 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h4>
+<p>The <strong><em>scope</em></strong> of a dependency defines whether it is available during compilation (<em>compile classpath</em>) and/or 
+available at runtime (<em>runtime classpath</em>):</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th style="text-align: center;">Compilation</th>
+<th style="text-align: center;">Runtime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>all</code> (default)</td>
+<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/2705.svg" title=":white_check_mark:" /></td>
+<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/2705.svg" title=":white_check_mark:" /></td>
+</tr>
+<tr>
+<td><code>compile-only</code></td>
+<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/2705.svg" title=":white_check_mark:" /></td>
+<td style="text-align: center;"><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td><code>runtime-only</code></td>
+<td style="text-align: center;"><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/274c.svg" title=":x:" /></td>
+<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/2705.svg" title=":white_check_mark:" /></td>
+</tr>
+</tbody>
+</table>
+<p>By default, the scope is <code>all</code>. You can restrict a dependency's scope as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="short-form" name="__tabbed_1" type="radio" /><input id="long-form" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="short-form">Short form</label><label for="long-form">Long form</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./nested-folder-with-module-yaml</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../sibling-folder-with-module-yaml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span><span class="w">  </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
-<h2 id="scopes-and-visibility">Scopes and visibility<a class="headerlink" href="#scopes-and-visibility" title="Permanent link">&para;</a></h2>
-<p>There are three dependency scopes:</p>
-<ul>
-<li><code>all</code> - (default) the dependency is available during compilation and runtime.</li>
-<li><code>compile-only</code> - the dependency is only available during compilation. This is a 'provided' dependency in Maven terminology.</li>
-<li><code>runtime-only</code> - the dependency is not available during compilation, but available during testing and running</li>
-</ul>
-<p>In a full form you can declare scope as follows:</p>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span><span class="w"> </span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span><span class="w"> </span>
 </code></pre></div>
-<p>There is also an inline form:</p>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The long form is necessary when you also need to mark the dependency as <code>exported</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span><span class="w">  </span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
 </code></pre></div>
-<p>All dependencies by default are not accessible from the dependent code.<br />
-In order to make a dependency visible to a dependent module, you need to explicitly mark it as <code>exported</code> (this is
-equivalent to declaring a dependency using the <code>api()</code> configuration in Gradle).</p>
+</div>
+<h4 id="transitivity">Transitivity<a class="headerlink" href="#transitivity" title="Permanent link">&para;</a></h4>
+<p>By default, dependencies of your module are not added to the compilation of dependent modules.
+In the following setup, <code>app</code> cannot directly use Ktor classes in its code:</p>
+<div class="highlight"><span class="filename">lib/module.yaml</span><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span><span class="w"> </span><span class="c1">#(1)! </span>
+</code></pre></div>
+<ol>
+<li>Regular dependency, not <code>exported</code>.</li>
+</ol>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../lib</span><span class="w"> </span><span class="c1">#(1)! </span>
+</code></pre></div>
+<ol>
+<li>Brings the <code>ktor-client-core</code> dependency from the <code>lib</code> module at runtime, but doesn't expose it at compile time.</li>
+</ol>
+<p>To make a dependency accessible to all dependent modules during their compilation, you need to explicitly mark it as 
+<code>exported</code> (this is equivalent to declaring a dependency using the <code>api()</code> configuration in Gradle).</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="short-form_1" name="__tabbed_2" type="radio" /><input id="long-form_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="short-form_1">Short form</label><label for="long-form_1">Long form</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
 </code></pre></div>
-<p>There is also an inline form:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../ui/utils</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
-</code></pre></div>
-<p>Here is an example of a <code>compile-only</code> and <code>exported</code> dependency:</p>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The long form is necessary when you also need to customize the scope</p>
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:2.2.0</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
 <span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
 </code></pre></div>
-<h2 id="bom-dependencies">BOM dependencies<a class="headerlink" href="#bom-dependencies" title="Permanent link">&para;</a></h2>
-<p>To import a BOM (Bill of materials), specify its coordinates prefixed by <code>bom:</code></p>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-bom:2.2.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core</span><span class="w"> </span>
+</div>
+<details class="question">
+<summary>When should I use <code>exported</code>?</summary>
+<p>Ideally, as little as possible. The rule of thumb is that, if your module uses some types from the dependency in 
+its public API, you should mark it as <code>exported</code>. If not, you should probably avoid it.</p>
+<p>For example, if you depend on <code>ktor-client-core</code> in your module, and you have the following class:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyApi</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">client</span><span class="p">:</span><span class="w"> </span><span class="n">HttpClient</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
 </code></pre></div>
-<p>After a BOM is imported, the versions of the dependencies declared in the module can be omitted,
-unspecified versions are resolved from the BOM.
-Dependency versions declared in the BOM participate in version conflict resolution.</p>
-<h2 id="library-catalogs-aka-version-catalogs">Library Catalogs (a.k.a Version Catalogs)<a class="headerlink" href="#library-catalogs-aka-version-catalogs" title="Permanent link">&para;</a></h2>
+<p>The <code>HttpClient</code> type is used in your public constructor, so your consumers will need to see it at compile time.
+You should therefore mark <code>ktor-client-core</code> as <code>exported</code>.</p>
+</details>
+<details class="info">
+<summary><code>exported</code> is like a scope for transitive consumers</summary>
+<p>We can see <code>exported</code> as a way to modify the scope of a transitive dependency in the context of the consuming 
+module. For example, say <code>app</code> depends on <code>lib</code>, which depends on <code>ktor</code>. The <code>ktor</code> dependency is transitively 
+part of the dependencies of <code>app</code>.</p>
+<ul>
+<li>If <code>lib</code> doesn't export <code>ktor</code>, the <code>ktor</code> dependency effectively has a <code>scope: runtime-only</code> in <code>app</code></li>
+<li>If <code>lib</code> marks <code>ktor</code> as <code>exported</code>, the <code>ktor</code> dependency effectively has a <code>scope: all</code> in <code>app</code></li>
+</ul>
+</details>
+<h2 id="library-catalogs">Library Catalogs<a class="headerlink" href="#library-catalogs" title="Permanent link">&para;</a></h2>
 <p>A library catalog associates keys to library coordinates (including the version), and allows adding the same libraries
 as dependencies to multiple modules without having to repeat the coordinates or the versions of the libraries.</p>
-<p>Amper currently supports 2 types of dependency catalogs:</p>
+<p>Amper currently supports the following library catalogs:</p>
 <ul>
-<li>toolchain catalogs (such as Kotlin, Compose Multiplatform etc.)</li>
-<li><a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration">Gradle version catalogs in TOML format</a> 
-  that are placed in the default <code>gradle/libs.versions.toml</code> location or in <code>libs.versions.toml</code> at the root of the project.</li>
+<li>one project catalog (user-defined)</li>
+<li>several toolchain catalogs (a.k.a built-in catalogs, such as Kotlin or Compose Multiplatform)</li>
 </ul>
-<p>The toolchain catalogs are implicitly defined, and contain predefined libraries that relate to the corresponding toolchain.
-The name of such a catalog corresponds to the name of the corresponding toolchain in the <a href="../basics/#settings">settings section</a>.
-For example, dependencies for the Compose Multiplatform frameworks are accessible using the <code>$compose</code> catalog.
-All dependencies in such catalogs usually have the same version, which is the toolchain version.</p>
-<p>The Gradle version catalogs are user-defined catalogs using the Gradle format.
-Dependencies from this catalog can be accessed via the <code>$libs</code> catalog, and the library keys are defined according
-to the <a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:mapping-aliases-to-accessors">Gradle name mapping rules</a>.</p>
-<p>To use dependencies from catalogs, use the syntax <code>$&lt;catalog-name&gt;.&lt;key&gt;</code> instead of the coordinates, for example:
+<h3 id="project-catalog">Project catalog<a class="headerlink" href="#project-catalog" title="Permanent link">&para;</a></h3>
+<p>The <strong>project catalog</strong> is the user-defined catalog for the project.</p>
+<p>It is defined in a file named <code>libs.versions.toml</code>, and is written in the TOML format<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup> of
+<a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:version-catalog-declaration">Gradle version catalogs</a>.
+It can be located at the root of the project or at <code>gradle/libs.versions.toml</code> (the default from Gradle, to ease 
+migration).</p>
+<div class="admonition info">
+<p class="admonition-title">You can only have one project catalog</p>
+<p>You have to choose between <code>libs.versions.toml</code> and <code>gradle/libs.versions.toml</code>", but cannot use both at the same 
+time.</p>
+</div>
+<p>To use dependencies from the project catalog, use the syntax <code>$libs.&lt;key&gt;</code> instead of the coordinates, where <code>$libs</code> is
+the catalog name of the project catalog, and <code>&lt;key&gt;</code> is defined according to the
+<a href="https://docs.gradle.org/current/userguide/version_catalogs.html#sec:mapping-aliases-to-accessors">Gradle name mapping rules</a>.</p>
+<p>Example:</p>
+<div class="highlight"><span class="filename">libs.versions.toml</span><pre><span></span><code><span class="k">[versions]</span>
+<span class="n">ktor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.3.2&quot;</span>
+
+<span class="k">[libraries]</span>
+<span class="n">ktor-client-auth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;io.ktor:ktor-client-auth&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;ktor&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">ktor-client-cio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;io.ktor:ktor-client-cio&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;ktor&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">ktor-client-contentNegotiation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;io.ktor:ktor-client-content-negotiation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;ktor&quot;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.ktor.client.auth</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.ktor.client.cio</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.ktor.client.contentNegotiation</span>
+</code></pre></div>
+<h3 id="toolchain-catalogs-built-in">Toolchain catalogs (built-in)<a class="headerlink" href="#toolchain-catalogs-built-in" title="Permanent link">&para;</a></h3>
+<p>The <strong>toolchain catalogs</strong> are implicitly defined, and contain predefined libraries that relate to the corresponding 
+toolchain. The name of such a catalog corresponds to the name of the toolchain in the 
+<a href="../basics/#settings">settings section</a>. All dependencies in such catalogs usually have the same version, which is the
+toolchain version.</p>
+<p>For example, dependencies for the Compose Multiplatform framework are accessible using the <code>$compose</code> catalog name, and
+take their versions from the <code>settings.compose.version</code> setting.</p>
+<p>To use dependencies from toolchain catalogs, use the syntax <code>$&lt;catalog-name&gt;.&lt;key&gt;</code> instead of the coordinates, for
+example:
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.reflect</span><span class="w">      </span><span class="c1"># dependency from the Kotlin catalog</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.material3</span><span class="w">   </span><span class="c1"># dependency from the Compose Multiplatform catalog</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.commons.lang3</span><span class="w">  </span><span class="c1"># dependency from the Gradle default libs.versions.toml catalog</span>
 </code></pre></div></p>
-<p>Catalog dependencies can still have a <a href="#scopes-and-visibility">scope and visibility</a> even when coming from a catalog:</p>
+<p>Catalog dependencies can still have a <a href="#transitivity-and-scope">scope and visibility</a> even when coming from a catalog:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$compose.foundation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$my-catalog.db-engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span><span class="w"> </span>
 </code></pre></div>
 <h2 id="managing-maven-repositories">Managing Maven repositories<a class="headerlink" href="#managing-maven-repositories" title="Permanent link">&para;</a></h2>
 <p>By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://dl.google.com/dl/android/maven2/</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span>
 <span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
 </code></pre></div>
-<p>To configure repository credentials, use the following snippet:
-<div class="highlight"><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<p>For private repositories, you can configure credentials this way:</p>
+<div class="grid">
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://my.private.repository/</span>
 <span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../local.properties</span><span class="w"> </span><span class="c1"># relative path to the file with credentials</span>
 <span class="w">      </span><span class="nt">usernameKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.username</span>
 <span class="w">      </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.password</span>
-</code></pre></div></p>
-<p>Here is the file <code>../local.properties</code>:
-<div class="highlight"><pre><span></span><code><span class="na">my.private.repository.username</span><span class="o">=</span><span class="s">...</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">local.properties</span><pre><span></span><code><span class="na">my.private.repository.username</span><span class="o">=</span><span class="s">...</span>
 <span class="na">my.private.repository.password</span><span class="o">=</span><span class="s">...</span>
-</code></pre></div></p>
+</code></pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Currently only <code>*.properties</code> files with credentials are supported.</p>
+</div>
+<h2 id="using-a-maven-bom">Using a Maven <abbr title="Bill of materials">BOM</abbr><a class="headerlink" href="#using-a-maven-bom" title="Permanent link">&para;</a></h2>
+<p>To import a <abbr title="Bill of materials">BOM</abbr>, specify its coordinates prefixed by <code>bom:</code></p>
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-bom:2.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core</span><span class="w"> </span>
+</code></pre></div>
+<p>The effects are the following:</p>
+<ul>
+<li>Maven dependencies that are listed in the <abbr title="Bill of materials">BOM</abbr> no longer need a version (e.g., <code>io.ktor:ktor-client-core</code>).
+  The version from the <abbr title="Bill of materials">BOM</abbr> is used in this case.</li>
+<li>Dependency versions declared in the <abbr title="Bill of materials">BOM</abbr> participate in version conflict resolution.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">This also applies to catalog dependencies!</p>
+<p>If a dependency in the <a href="#library-catalogs">library catalog</a> is only used in modules that 
+declare a <abbr title="Bill of materials">BOM</abbr> that provides a version for it, then the version can be omitted there:</p>
+<p><div class="grid" markdown>
+<div class="highlight"><span class="filename">libs.versions.toml</span><pre><span></span><code><span class="p p-Indicator">[</span><span class="nv">libraries</span><span class="p p-Indicator">]</span>
+<span class="l l-Scalar l-Scalar-Plain">ktor-client-core = { module = &quot;io.ktor:ktor-client-core&quot; }</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-bom:3.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.ktor.client.core</span>
+</code></pre></div>
+</div></p>
 </div>
 <div class="footnote">
 <hr />
 <ol>
 <li id="fn:1">
-<p>If you're not familiar with Maven coordinates, check out the 
-<a href="https://maven.apache.org/pom.html#Maven_Coordinates">Maven documentation <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<p>If you're not familiar with Maven coordinates, check out Maven's 
+<a href="https://maven.apache.org/pom.html#Maven_Coordinates">POM reference <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>If you're not familiar with Maven repositories, check out Maven's
+<a href="https://maven.apache.org/guides/introduction/introduction-to-repositories.html">Introduction to repositories <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a>.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>Only <code>[versions]</code> and <code>[libraries]</code> sections are supported from the Gradle format, not <code>[bundles]</code> and <code>[plugins]</code>.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -2141,7 +2486,7 @@ to the <a href="https://docs.gradle.org/current/userguide/version_catalogs.html#
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 17, 2025 23:18:16 UTC">November 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 19, 2025 01:35:25 UTC">November 19, 2025</span>
   </span>
 
     
