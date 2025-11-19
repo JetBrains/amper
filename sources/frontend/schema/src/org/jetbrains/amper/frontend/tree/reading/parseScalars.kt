@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ScalarValue

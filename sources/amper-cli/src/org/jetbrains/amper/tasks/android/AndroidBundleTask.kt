@@ -7,7 +7,6 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.PackageTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment

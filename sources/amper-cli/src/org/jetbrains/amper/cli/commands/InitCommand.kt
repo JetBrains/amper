@@ -18,12 +18,10 @@ import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
 import org.jetbrains.amper.templates.TemplateFile
 import org.jetbrains.amper.wrapper.AmperWrappers
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.name
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 

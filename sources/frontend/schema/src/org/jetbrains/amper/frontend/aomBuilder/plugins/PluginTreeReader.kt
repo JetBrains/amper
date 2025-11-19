@@ -34,7 +34,6 @@ import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
-import org.jetbrains.amper.frontend.tree.asMapLike
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree

@@ -11,6 +11,7 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
@@ -27,7 +28,6 @@ import org.jetbrains.amper.maven.publish.merge
 import org.jetbrains.amper.maven.publish.publicationCoordinates
 import org.jetbrains.amper.maven.publish.writePomFor
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.slf4j.LoggerFactory
@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
 import kotlin.io.path.extension
-import kotlin.io.path.isRegularFile
 
 private val mavenLocalRepository by lazy {
     spanBuilder("Initialize maven local repository").useWithoutCoroutines {

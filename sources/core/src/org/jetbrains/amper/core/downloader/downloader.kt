@@ -5,7 +5,6 @@
 package org.jetbrains.amper.core.downloader
 
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

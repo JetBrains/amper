@@ -7,7 +7,6 @@ package org.jetbrains.amper.core.downloader
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 

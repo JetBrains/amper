@@ -40,7 +40,6 @@ import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText

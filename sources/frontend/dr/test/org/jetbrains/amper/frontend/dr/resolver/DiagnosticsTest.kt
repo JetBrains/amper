@@ -8,12 +8,10 @@ import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.dependency.resolution.version
-import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.ModuleDependencyWithOverriddenVersion
@@ -22,7 +20,6 @@ import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract

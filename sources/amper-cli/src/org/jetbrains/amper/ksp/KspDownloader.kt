@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.ksp
@@ -9,7 +9,6 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.resolver.CachedPaths
 import org.jetbrains.amper.resolver.MavenResolver
-import java.nio.file.Path
 
 suspend fun MavenResolver.downloadKspJars(kspVersion: String, repositories: List<Repository>): CachedPaths = resolve(
     // Copying the KSP Gradle plugin's classpath

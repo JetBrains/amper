@@ -17,8 +17,6 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.MessageBundle
-import java.nio.file.InvalidPathException
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 object FrontendDrBundle : MessageBundle("messages.FrontendDrBundle")

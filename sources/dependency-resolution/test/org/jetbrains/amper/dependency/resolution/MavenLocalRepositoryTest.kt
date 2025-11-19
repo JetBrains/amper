@@ -5,18 +5,9 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.copyTo
-import kotlin.io.path.createDirectories
-import kotlin.io.path.div
 import kotlin.io.path.relativeTo
 import kotlin.test.Test
 import kotlin.test.assertEquals

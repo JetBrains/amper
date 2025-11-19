@@ -7,14 +7,12 @@ package org.jetbrains.amper.cli.test.utils
 import jetbrains.buildServer.messages.serviceMessages.MessageWithAttributes
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessageTypes
-import jetbrains.buildServer.messages.serviceMessages.TestFailed
 import jetbrains.buildServer.messages.serviceMessages.TestFinished
 import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
-import org.opentest4j.AssertionFailedError
 import java.util.*
 
 fun buildServiceMessages(block: ServiceMessagesBuilder.() -> Unit): List<ServiceMessage> =

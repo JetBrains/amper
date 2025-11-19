@@ -13,7 +13,6 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /**
  * New line character for the current OS.

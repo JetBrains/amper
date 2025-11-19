@@ -5,7 +5,6 @@
 package org.jetbrains.amper.dependency.resolution.metadata.json.module
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import org.jetbrains.amper.dependency.resolution.metadata.json.json
 
 /**
