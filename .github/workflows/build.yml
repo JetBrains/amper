@@ -35,15 +35,16 @@ jobs:
           - description: Android examples
             testArgs: "--include-classes=RunAndroidExamplesOnEmulatorsTestsStandalone"
             os: ubuntu-latest
-          - description: Android external projects
-            testArgs: "--include-classes=RunAndroidExternalProjectsStandalone"
-            os: ubuntu-latest
           - description: iOS examples
             testArgs: "--include-classes=RuniOSExamplesOnEmulatorsTestsStandalone"
             os: macos-latest
-          - description: iOS external projects
-            testArgs: "--include-classes=RuniOSExternalProjectsStandalone"
-            os: macos-latest
+            # FIXME external projects require git credentials - maybe they should just be in our examples...
+#          - description: Android external projects
+#            testArgs: "--include-classes=RunAndroidExternalProjectsStandalone"
+#            os: ubuntu-latest
+#          - description: iOS external projects
+#            testArgs: "--include-classes=RuniOSExternalProjectsStandalone"
+#            os: macos-latest
     name: Mobile tests (${{ matrix.description }})
     runs-on: ${{ matrix.os }}
     steps:
