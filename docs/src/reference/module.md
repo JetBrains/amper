@@ -54,16 +54,16 @@ Supported dependency types:
 |--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](../user-guide/dependencies.md#module-dependencies) in the codebase.                         |
 | `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](../user-guide/dependencies.md#external-maven-dependencies) in a Maven repository. |
-| `- $<catalog.key>`                               | Dependency from [a dependency catalog](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).               |
-| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](../user-guide/dependencies.md#bom-dependencies).                                                     |
-| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).      |
+| `- $<catalog.key>`                               | Dependency from [a dependency catalog](../user-guide/dependencies.md#library-catalogs).                                    |
+| `- bom: <group ID>:<artifact ID>:<version>`      | Dependency on [a BOM](../user-guide/dependencies.md#using-a-maven-bom).                                                    |
+| `- bom: $<catalog.key>`                          | Dependency on [a BOM from a dependency catalog](../user-guide/dependencies.md#library-catalogs).                           |
 
 Each dependency (except BOM) has the following attributes:
 
-| Attribute           | Description                                                                                                                       | Default |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------------------|---------|
-| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](../user-guide/dependencies.md#scopes-and-visibility).       | `false` |
-| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](../user-guide/dependencies.md#scopes-and-visibility). | `all`   |
+| Attribute           | Description                                                                                                                        | Default |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](../user-guide/dependencies.md#transitivity-and-scope).       | `false` |
+| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](../user-guide/dependencies.md#transitivity-and-scope). | `all`   |
 
 Available scopes:
 
@@ -314,9 +314,9 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 
 `settings.compose.experimental.hotReload` configures experimental hot reload (JVM only).
 
-| Attribute         | Description                                          | Default       |
-|-------------------|------------------------------------------------------|---------------|
-| `version: string` | The Compose Hot Reload toolchain version to use.     | `1.0.0-rc01` |
+| Attribute         | Description                                      | Default      |
+|-------------------|--------------------------------------------------|--------------|
+| `version: string` | The Compose Hot Reload toolchain version to use. | `1.0.0-rc01` |
 
 Examples:
 
@@ -346,11 +346,11 @@ settings:
 
 `settings.java` configures the Java language and the compiler.
 
-| Attribute                      | Description                                              | Default |
-|--------------------------------|----------------------------------------------------------|---------|
-| `annotationProcessing: object` | Java annotation processing settings                      | (empty) |
-| `freeCompilerArgs: string list`| Pass any compiler option directly to the Java compiler   | (empty) |
-| `compileIncrementally: boolean`| Enables incremental compilation for Java sources         | `false` |
+| Attribute                       | Description                                            | Default |
+|---------------------------------|--------------------------------------------------------|---------|
+| `annotationProcessing: object`  | Java annotation processing settings                    | (empty) |
+| `freeCompilerArgs: string list` | Pass any compiler option directly to the Java compiler | (empty) |
+| `compileIncrementally: boolean` | Enables incremental compilation for Java sources       | `false` |
 
 #### `settings.java.annotationProcessing`
 
@@ -403,18 +403,18 @@ By default, JUnit 5 is used.
 | `release: enum`                | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 21                                           |
 | `mainClass: string`            | (Only for `jvm/app` [product type](../user-guide/basics.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                  | [auto-detected](../user-guide/basics.md#jvm) |
 | `storeParameterNames: boolean` | Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.                                                                                                                                                                                                                                                                                                                 | false                                        |
-| `runtimeClasspathMode: enum`   | How the runtime classpath is constructed: `jars` (default) builds local module dependencies as jars; `classes` uses compiled classes for local modules on the runtime classpath.                                                                                                              | `jars`                                       |
+| `runtimeClasspathMode: enum`   | How the runtime classpath is constructed: `jars` (default) builds local module dependencies as jars; `classes` uses compiled classes for local modules on the runtime classpath.                                                                                                                                                                                                                                                                               | `jars`                                       |
 
 #### `settings.jvm.test`
 
 `settings.jvm.test` configures the test settings on the JVM and Android platforms.
 Read more about [testing support](../user-guide/testing.md).
 
-| Value                      | Description                                                                                                   |
-|----------------------------|---------------------------------------------------------------------------------------------------------------|
-| `junitPlatformVersion: string` | The JUnit platform version used to run tests.                                                              |
-| `systemProperties: map`    | JVM system properties for the test process.                                                                   |
-| `freeJvmArgs: string list` | Free JVM arguments for the test process.                                                                      |
+| Value                          | Description                                   |
+|--------------------------------|-----------------------------------------------|
+| `junitPlatformVersion: string` | The JUnit platform version used to run tests. |
+| `systemProperties: map`        | JVM system properties for the test process.   |
+| `freeJvmArgs: string list`     | Free JVM arguments for the test process.      |
 
 ### `settings.kotlin`
 
@@ -560,11 +560,11 @@ settings:
 
 `settings.ktor` configures the Ktor.
 
-| Attribute          | Description  | Default |
-|--------------------|--------------|---------|  
-| `enabled: boolean` | Enable Ktor  | `false` |  
-| `version: string`  | Ktor version | `3.2.3` |  
-| `applyBom: boolean`| Whether to apply the Ktor BOM | `true` |
+| Attribute           | Description                   | Default |
+|---------------------|-------------------------------|---------|  
+| `enabled: boolean`  | Enable Ktor                   | `false` |  
+| `version: string`   | Ktor version                  | `3.2.3` |  
+| `applyBom: boolean` | Whether to apply the Ktor BOM | `true`  |
 
 Example:
 
@@ -579,9 +579,9 @@ settings:
 
 `settings.lombok` configures Lombok.
 
-| Attribute          | Description                                 | Default   |
-|--------------------|---------------------------------------------|-----------|  
-| `enabled: boolean` | Enable Lombok                               | `false`   |  
+| Attribute          | Description                                         | Default   |
+|--------------------|-----------------------------------------------------|-----------|  
+| `enabled: boolean` | Enable Lombok                                       | `false`   |  
 | `version: string`  | Lombok version for runtime and annotation processor | `1.18.38` |
 
 Example:
@@ -613,11 +613,11 @@ settings:
 
 `settings.springBoot` configures the Spring Boot framework (JVM platform only).
 
-| Attribute          | Description               | Default |
-|--------------------|---------------------------|---------|  
-| `enabled: boolean` | Enable Spring Boot        | `false` |  
-| `version: string`  | Spring Boot version       | `3.5.5` |  
-| `applyBom: boolean`| Whether to apply the Spring Boot BOM        | `true`   |
+| Attribute           | Description                          | Default |
+|---------------------|--------------------------------------|---------|  
+| `enabled: boolean`  | Enable Spring Boot                   | `false` |  
+| `version: string`   | Spring Boot version                  | `3.5.5` |  
+| `applyBom: boolean` | Whether to apply the Spring Boot BOM | `true`  |
 
 Example:
 

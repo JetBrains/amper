@@ -200,7 +200,7 @@ settings:
 
     The `$compose.*` dependencies are declared with a special reference syntax here.
     These are references to the Compose toolchain library catalog, and are available because we enabled the toolchain.
-    Read more about library catalogs in the [documentation](../user-guide/dependencies.md#library-catalogs-aka-version-catalogs).
+    Read more about library catalogs in the [documentation](../user-guide/dependencies.md#library-catalogs).
 
 We can then replace the contents of `main.kt` with the following code:
 
@@ -335,7 +335,7 @@ We now have a multi-module project with some neatly extracted shared code.
 
     - [Project layout](../user-guide/basics.md#project-layout)
     - [Module dependencies](../user-guide/dependencies.md#module-dependencies)
-    - [Dependency visibility and scope](../user-guide/dependencies.md#scopes-and-visibility)
+    - [Dependency visibility and scope](../user-guide/dependencies.md#transitivity-and-scope)
 
 ## Step 7. Make the project multiplatform
 

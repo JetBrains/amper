@@ -49,7 +49,7 @@ We’re currently looking at various aspects, including extensibility, publicati
 * [x] [Compose Multiplatform](user-guide/builtin-tech/compose-multiplatform.md), with
   [multiplatform resources](user-guide/builtin-tech/compose-multiplatform.md#using-multiplatform-resources) and
   [Compose Hot Reload](user-guide/builtin-tech/compose-multiplatform.md#compose-hot-reload-experimental)
-* [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs)
+* [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs)
 * [x] Extensibility (Preview)
 
 Future directions:
