@@ -2,31 +2,59 @@ name: build
 
 on:
   workflow_dispatch: {}
+  push:
+    branches:
+      - jbion/github-build
 
 jobs:
-  test-linux:
-    runs-on: ubuntu-latest
+  test-standard:
+    strategy:
+      fail-fast: false # So that all jobs run to completion even when one fails
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    name: Standard tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
 
-      - name: Run tests
-        run: ./amper test
+      - name: Create local.properties with empty credentials
+        shell: bash
+        run: |
+          echo "space.username=" >> local.properties
+          echo "space.password=" >> local.properties
 
-  test-macos:
-    runs-on: macos-latest
+      - name: Run regular tests
+        run: ./amper test --exclude-module=amper-mobile-test
+
+  test-mobile:
+    strategy:
+      fail-fast: false # So that all jobs run to completion even when one fails
+      matrix:
+        include:
+          - description: Android examples
+            testArgs: "--include-classes=RunAndroidExamplesOnEmulatorsTestsStandalone"
+            os: ubuntu-latest
+          - description: Android external projects
+            testArgs: "--include-classes=RunAndroidExternalProjectsStandalone"
+            os: ubuntu-latest
+          - description: iOS examples
+            testArgs: "--include-classes=RuniOSExamplesOnEmulatorsTestsStandalone"
+            os: macos-latest
+          - description: iOS external projects
+            testArgs: "--include-classes=RuniOSExternalProjectsStandalone"
+            os: macos-latest
+    name: Mobile tests (${{ matrix.description }})
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
 
-      - name: Run tests
-        run: ./amper test
+      - name: Create local.properties with empty credentials
+        shell: bash
+        run: |
+          echo "space.username=" >> local.properties
+          echo "space.password=" >> local.properties
 
-  test-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Run tests
-        run: ./amper test
+      - name: Run mobile tests
+        run: ./amper test -m amper-mobile-test ${{ matrix.testArgs }}
