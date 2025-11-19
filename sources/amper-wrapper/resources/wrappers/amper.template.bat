@@ -151,6 +151,10 @@ REM adjust the position of the exit command, hence the padding placeholder.
 REM ********** Provision JRE for Amper **********
 
 if defined AMPER_JAVA_HOME (
+    if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
+      echo Invalid AMPER_JAVA_HOME provided: cannot find %AMPER_JAVA_HOME%\bin\java.exe
+      goto fail
+    )
     @rem If AMPER_JAVA_HOME contains "jbr-21", it means we're inheriting it from the old Amper's update command.
     @rem We must ignore it because Amper needs 25.
     if "%AMPER_JAVA_HOME%"=="%AMPER_JAVA_HOME:jbr-21=%" (
