@@ -1,13 +1,16 @@
 # Tutorial
 
-This tutorial gives a short introduction to Amper and how to create a new project.
+This tutorial gives a short introduction to Amper and shows how to create and configure a new project, step-by-step.
+If you are looking for a detailed comprehensive documentation, check the [User guide](../user-guide/index.md) instead.
 
-If you are looking for more detailed information, check [the user guide](../user-guide/index.md).
+!!! tip "Before you start"
 
-## Before you start
+    To make the most out of Amper and its toolability, we recommend using 
+    [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/) with the 
+    [Amper plugin](https://plugins.jetbrains.com/plugin/23076-amper) when following this tutorial.
 
-If you want to use IntelliJ IDEA to write the code, check the [IDE setup instructions](ide-setup.md) to get the relevant
-plugins.
+    This is not required, though. Amper is a standalone command-line tool, which can definitely be used without an IDE.
+    A great CLI experience is an integral part of our ideal UX, and we're striving for it too.
 
 ## Step 1. Hello, World
 
@@ -22,7 +25,8 @@ product: jvm/app
 
 And add some code in the `src/` folder:
 
-```
+<div class="grid" markdown>
+``` title="Project structure"  hl_lines="1 2"
 ├─ src/
 │  ╰─ main.kt
 ╰─ module.yaml
@@ -33,6 +37,7 @@ fun main() {
     println("Hello, World!")
 }
 ```
+</div>
 
 You also need to add the Amper shell scripts to your root project folder.
 
@@ -40,12 +45,12 @@ You also need to add the Amper shell scripts to your root project folder.
 * If not, follow the [CLI installation instructions](./cli.md#installation) to download them.
 
 Your project should now look like this:
-```
+``` hl_lines="3 4"
 ├─ src/
 │  ╰─ main.kt
-├─ module.yaml
 ├─ amper
-╰─ amper.bat
+├─ amper.bat
+╰─ module.yaml
 ```
 
 That’s it, we’ve just created a simple JVM application.
@@ -53,10 +58,12 @@ That’s it, we’ve just created a simple JVM application.
 And since it’s a JVM project, you can add Java code. Java and Kotlin files can reside together,
 no need to create separate Maven-like `java/` and `kotlin/` folders:
 
-```
+``` hl_lines="3"
 ├─ src/
 │  ├─ main.kt
 │  ╰─ JavaClass.java
+├─ amper
+├─ amper.bat
 ╰─ module.yaml
 ```
 
@@ -84,9 +91,9 @@ You can now build your application using `./amper build`, or run it using `./amp
 
 ## Step 2. Add dependencies
 
-Let's add a dependency on a Kotlin library from the Maven repository:
+Let's add a dependency on a Kotlin library using its Maven coordinates:
 
-```YAML title="module.yaml"
+```YAML title="module.yaml" hl_lines="3 4"
 product: jvm/app
 
 dependencies:
@@ -111,12 +118,16 @@ fun main() {
 Now let’s add some tests. Amper configures the testing framework automatically,
 we only need to add some test code into the `test/` folder:
 
-```
+<div class="grid" markdown>
+``` title="Project structure" hl_lines="3 4"
 ├─ src/
 │  ╰─ ...
 ├─ test/
 │  ╰─ MyTest.kt
+├─ amper
+├─ amper.bat
 ╰─ module.yaml
+‎
 ```
 
 ```kotlin title="MyTest.kt"
@@ -129,12 +140,13 @@ class MyTest {
     }
 }
 ```
+</div>
 
-To add test-specific dependencies, use the dedicated `test-dependencies:` section.
+To add test-specific dependencies, use the dedicated `test-dependencies` section.
 This should be very familiar to Cargo, Flutter and Poetry users.
 As an example, let's add the MockK library to the project:
 
-```YAML title="module.yaml"
+```YAML title="module.yaml" hl_lines="6 7"
 product: jvm/app
 
 dependencies:
@@ -152,7 +164,7 @@ test-dependencies:
 
 Another typical task is configuring compiler settings, such as language level etc. Here is how we do it in Amper:
 
-```YAML title="module.yaml"
+```YAML title="module.yaml" hl_lines="9-13"
 product: jvm/app
 
 dependencies:
@@ -163,7 +175,7 @@ test-dependencies:
 
 settings:
   kotlin:
-    languageVersion: 1.8  # Set Kotlin source compatibility to 1.8
+    version: 2.2.21  # Set Kotlin compiler version to 2.2.21
   jvm:
     release: 17  # Set the minimum JVM version that the Kotlin and Java code should be compatible with.
 ```
@@ -200,7 +212,7 @@ settings:
 
     The `$compose.*` dependencies are declared with a special reference syntax here.
     These are references to the Compose toolchain library catalog, and are available because we enabled the toolchain.
-    Read more about library catalogs in the [documentation](../user-guide/dependencies.md#library-catalogs).
+    Read more in the [Library catalogs](../user-guide/dependencies.md#library-catalogs) section.
 
 We can then replace the contents of `main.kt` with the following code:
 
@@ -247,7 +259,7 @@ following structure:
 ```
 
 First let's move our current `src`, `test` and `module.yaml` files into a new `jvm-app` directory:
-```
+``` hl_lines="1-6"
 ├─ jvm-app/
 │  ├─ src/
 │  │  ╰─ main.kt
@@ -276,7 +288,7 @@ product:
   platforms: [jvm]
 
 dependencies:
-  - $compose.foundation: exported
+  - $compose.foundation: exported #(1)!
   - $compose.material3: exported
   - $compose.desktop.currentOs: exported
 
@@ -285,23 +297,25 @@ settings:
     enabled: true
 ```
 
-Note how the library 'exports' its dependencies. The dependent module will 'see' these dependencies and don't need to
-explicitly depend on them.
+1. The `exported` keyword here means that the library exposes its dependencies to the dependent module's compilation.
+   That module will therefore be able to use these dependencies in its code without depending on them.
+   Read more about transitivity in the [Transitivity](../user-guide/dependencies.md#transitivity) section.
 
 We can now change our `jvm-app/module.yaml` to depend on the `shared` module:
 
-```YAML
+```yaml hl_lines="4"
 product: jvm/app
 
 dependencies:
-  - ../shared # use the 'shared' module as a dependency
+  - ../shared #(1)!
 
 settings:
   compose:
     enabled: true
 ```
 
-Note how the dependency on the `shared` module is declared using a relative path.
+1. The dependency on the `shared` module is declared using a relative path. Read more about module dependencies in the 
+   [Module dependencies](../user-guide/dependencies.md#module-dependencies) section.
 
 Let's extract the common code into a new `shared/src/hello.kt` file:
 
@@ -316,7 +330,8 @@ fun sayHello() {
 ```
 
 And re-use it in the `jvm-app/src/main.kt` file:
-```kotlin
+
+```kotlin hl_lines="6"
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
@@ -339,7 +354,7 @@ We now have a multi-module project with some neatly extracted shared code.
 
 ## Step 7. Make the project multiplatform
 
-So far we've been working with a JVM platform to create a desktop application.
+So far we've been working with the JVM platform to create a desktop application.
 Let's add an Android and an iOS application.
 It will be straightforward, since we've already prepared a multi-module layout with a shared module that we can reuse.
 
@@ -366,7 +381,7 @@ Here is the project structure that we need:
 
 Remember to add the new modules into the `project.yaml` file:
 
-```yaml
+```yaml hl_lines="2-3"
 modules:
   - ./android-app
   - ./ios-app
@@ -374,8 +389,10 @@ modules:
   - ./shared   
 ```
 
-The `android-app/module.yaml` will look like this way:
-```YAML
+The new module files will look like this:
+
+<div class="grid" markdown>
+```yaml title="android-app/module.yaml"
 product: android/app
 
 dependencies:
@@ -386,9 +403,7 @@ settings:
     enabled: true
 ```
 
-And the `ios-app/module.yaml`:
-
-```YAML
+```yaml title="ios-app/module.yaml"
 product: ios/app
 
 dependencies:
@@ -398,10 +413,11 @@ settings:
   compose:
     enabled: true
 ```
+</div>
 
 Let's update the `shared/module.yaml` and add the new platforms and a couple of additional dependencies for Android:
 
-```YAML
+```yaml hl_lines="3 9-10 12-15"
 product:
   type: lib
   platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
@@ -426,7 +442,7 @@ settings:
 Note how we used the `dependencies@jvm:` and `dependencies@android:` sections to specify JVM- and Android-specific dependencies.
 These dependencies will be added to the JVM and Android versions of the `shared` library correspondingly.
 They will also be available for the `jvm-app` and `android-app` modules, since they depend on the `shared` module.
-Read more about multiplatform configuration in the [documentation](../user-guide/multiplatform.md).
+Read more about multiplatform configuration in the [Multiplatform modules](../user-guide/multiplatform.md) section.
 
 Now, as we have the module structure, we need to add platform-specific application code to the Android and iOS modules.
 Create a `MainActivity.kt` file in `android-app/src` with the following content:
@@ -465,7 +481,7 @@ into `android-app/src` folder, and the [iosApp.swift file]({{ examples_base_url 
 These files bind the Compose UI code with the native application entry points.
 
 Make sure that your project structure looks like this:
-```
+``` hl_lines="4 8"
 ├─ android-app/
 │  ├─ src/
 │  │  ├─ main.kt
@@ -504,10 +520,14 @@ Now you can build and run both apps using the corresponding IntelliJ IDEA run co
 
 ## Step 8. Deduplicate common configuration
 
-You might have noticed that there are some settings present in  the `module.yaml` files. To redce duplication we can extract them into a template.
+You might have noticed that there are some settings present in multiple `module.yaml` files.
+To reduce duplication we can extract them into a template.
 
-Let's create a couple of `<name>.module-template.yaml` files:
-```
+Let's create a couple of template files:
+
+<div class="grid" markdown>
+<div>
+``` title="Project structure" hl_lines="9-10"
 ├─ android-app/
 │  ╰─ ...
 ├─ ios-app/
@@ -519,24 +539,24 @@ Let's create a couple of `<name>.module-template.yaml` files:
 ├─ compose.module-template.yaml
 ╰─ app.module-template.yaml
 ```
-
-A `/compose.module-template.yaml` with settings common to all modules:
-```YAML
+</div>
+<div>
+```yaml title="compose.module-template.yaml"
 settings:
   compose:
     enabled: true
 ```
 
-and `/app.module-template.yaml` with dependencies that are used in the application modules:
-```YAML
+```yaml title="app.module-template.yaml"
 dependencies:
   - ./shared
 ```
+</div>
+</div>
 
 Now we will apply these templates to our module files:
 
-`/shared/module.yaml`:
-```YAML
+```yaml title="shared/module.yaml" hl_lines="5-6"
 product:
   type: lib
   platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
@@ -557,8 +577,7 @@ dependencies@android:
   - androidx.appcompat:appcompat:1.6.1: exported
 ```
 
-`/jvm-app/module.yaml`:
-```YAML
+```yaml title="jvm-app/module.yaml"
 product: jvm/app
 
 apply:
@@ -566,18 +585,15 @@ apply:
   - ../app.module-template.yaml
 ```
 
-`/android-app/module.yaml`:
-```YAML
+```yaml title="android-app/module.yaml"
 product: android/app
 
 apply:
   - ../compose.module-template.yaml
   - ../app.module-template.yaml
-
 ```
 
-`/ios-app/module.yaml`:
-```YAML
+```yaml title="ios-app/module.yaml"
 product: ios/app
 
 apply:
