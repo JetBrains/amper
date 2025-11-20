@@ -25,7 +25,8 @@ dependencies@jvmAndAndroid:
 
 ## `apply`
 
-`apply:` section lists the templates applied to the module. Read more about the [module templates](../user-guide/templates.md)
+The `apply` section lists the templates applied to the module.
+Read more in [Module templates](../user-guide/templates.md) section.
 
 Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
 
@@ -41,12 +42,12 @@ apply:
 
 ## `dependencies` and `test-dependencies`
 
-`dependencies:` section defines the list of modules and libraries necessary to build the module.
+The `dependencies` section defines the list of modules and libraries necessary to build the module.
 Certain dependencies can also be exported as part of the module API.
-Read more about the [dependencies](../user-guide/dependencies.md).
+Read more in the [Dependencies](../user-guide/dependencies.md) section.
 
-`test-dependencies:` section defines the dependencies necessary to build and run tests of the module. Read more about
-the [module tests](../user-guide/testing.md).
+The `test-dependencies` section defines the dependencies necessary to build and run tests of the module.
+Read more in the [Testing](../user-guide/testing.md) section.
 
 Supported dependency types:
 
@@ -98,7 +99,7 @@ dependencies:
       scope: runtime-only
 ```
 
-The `dependencies:` section can also be [qualified with a platform](../user-guide/multiplatform.md#platform-qualifier):
+The `dependencies` section can also be [qualified with a platform](../user-guide/multiplatform.md#platform-qualifier):
 
 ```yaml
 # Dependencies used to build the common part of the product
@@ -134,9 +135,20 @@ settings:
 
 ```
 
+## `pluginInfo`
+
+The `pluginInfo` section is only available if the `product.type` is `jvm/amper-plugin`.
+It configures plugin-specific build settings.
+
+| Attribute               | Description                                                                                                                                                                                     | Default     |
+|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|  
+| `id: string`            | The ID that is used to refer to the plugin in the configuration files.                                                                                                                          | Module name |  
+| `description: string`   | The plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.                                                                            | `null`      |  
+| `settingsClass: string` | The fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory. | `null`      |
+
 ## `product`
 
-The `product:` section defines what should be produced out of the module.
+The `product` section defines what should be produced out of the module.
 Read more about the [product types](../user-guide/basics.md#product-type).
 
 | Attribute             | Description                                 |
@@ -184,7 +196,7 @@ product:
 
 ## `repositories`
 
-`repositories:` section defines the list of repositories used to look up and download the module dependencies.
+The `repositories` section defines the list of repositories used to look up and download the module dependencies.
 Read more about the [dependency repositories](../user-guide/dependencies.md#managing-maven-repositories).
 
 | Attribute             | Description                                         | Default        | 
@@ -228,11 +240,10 @@ repositories:
 
 ## `settings` and `test-settings`
 
-`settings:` section configures the toolchains used in the build process. Read more
-about [settings configuration](../user-guide/basics.md#settings).
+The `settings` section configures the toolchains used in the build process.
 
-`test-settings:` section controls building and running the module tests. Read more about
-the [module tests](../user-guide/testing.md).
+The `test-settings` section controls building and running the module tests.
+Read more in the [Testing](../user-guide/testing.md) section.
 
 ### `settings.android`
 
@@ -435,7 +446,7 @@ Read more about [testing support](../user-guide/testing.md).
 | `allOpen: object`               | Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html).                                                                   |                   |
 | `noArg: object`                 | Configure the [Kotlin no-arg compiler plugin](https://kotlinlang.org/docs/no-arg-plugin.html).                                                                       |                   |
 
-The `serialization:` attribute is an object with the following properties:
+The `serialization` attribute is an object with the following properties:
 
 | Attribute          | Description                                                                                                                                                                           | Default |
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
@@ -627,14 +638,3 @@ settings:
     enabled: true
     version: 3.1.0 # version customization
 ```
-
-### `pluginInfo`
-
-`pluginInfo:` is only available if the `product.type` is `jvm/amper-plugin`.
-It configures plugin-specific build settings.
-
-| Attribute               | Description                                                                                                                                                                                 | Default     |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|  
-| `id: string`            | Plugin id that is going to be used to refer to the plugin in the configuration files.                                                                                                       | Module name |  
-| `description: string`   | Plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.                                                                            | `null`      |  
-| `settingsClass: string` | Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory. | `null`      |

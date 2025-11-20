@@ -2,7 +2,7 @@
 
 ## `modules`
 
-The `modules:` section lists all the modules in the project, except the root module.
+The `modules` section lists all the modules in the project, except the root module.
 If a `module.yaml` is present at the root of the project, the root module is implicitly included and doesn't need to be
 listed.
 
@@ -38,8 +38,8 @@ modules:
 
 ## `plugins`
 
-`plugins:` section lists all the plugins that are available in the project.
-The list of plugin _dependencies_ to make *available* in the project modules.
+The `plugins` section lists all the plugins that are available in the project.
+It is a list of plugin _dependencies_ to make *available* in the project modules.
 
 Example:
 ```yaml
@@ -53,7 +53,7 @@ plugins:
     as there are no published Amper plugins, and it's not possible to publish them yet.
     So, the elements of this list use the same format as [module dependencies](../user-guide/dependencies.md#module-dependencies).
 
-Listing the plugins here does not *enable* them yet.
+Listing the plugins here does not *enable* them in any module.
 Each plugin from this list can then be **enabled and configured** on a per-module basis.
 
 Learn more about the [plugin structure](../plugins/topics/structure.md).
