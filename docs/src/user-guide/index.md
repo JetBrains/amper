@@ -1,7 +1,7 @@
 # User guide
 
 This is the comprehensive documentation of Amper.
-Here, you can learn everything about Amper concepts and built-in support for some popular technologies.
+Here, you can learn everything about Amper concepts and features, and its support for some popular technologies.
 
 !!! tip "Not sure where to start?"
 

@@ -18,7 +18,7 @@ or Ktor, multiplatform projects that share business logic and/or UI, and more.
 Amper should be invisible when you're working on your code – nobody likes dealing with the build tool.
 Ideally, you shouldn't have to leave your source files to adjust the build configuration.
 
-When you do edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
+When you _do_ edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
 
 We believe that this can be achieved by:
 
@@ -29,7 +29,8 @@ We believe that this can be achieved by:
 - carefully choosing the extensibility points – to keep the overall mental model and UX of the configuration consistent
   and to avoid unexpected third-party code execution.
 
-In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
+In essence, we aim to achieve a similar well-thought-out and well-tested experience as with 
+[:intellij-jetbrains: JetBrains IDEs](https://www.jetbrains.com/ides/).
 
 ## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://github.com/JetBrains#jetbrains-on-github)
 

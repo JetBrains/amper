@@ -170,7 +170,7 @@ single well-defined set of settings and dependencies.
 A `module.yaml` file has several main sections: `product`, `dependencies` and `settings`.
 
 A module can produce a single product, such as a reusable library or an application.
-Read more on the [supported product types](#product-types) below.
+Read more on the [supported product types](#product-type) below.
 
 Here are some example module files for different types of modules:
 
@@ -256,10 +256,10 @@ Here are some example module files for different types of modules:
     10. This setting overrides the one that we set in the `settings` section.
         Read more about this in the [settings propagation](multiplatform.md#multiplatform-settings) section.
 
-### Product types
+### Product type
 
-Product type describes the target platform and the type of the project at the same time. Below is the list of supported
-product types:
+The **product type** describes the target platform and the type of the project at the same time. Below is the list of 
+supported product types:
 
 - `lib` - a reusable Kotlin Multiplatform library which can be used as a dependency by other modules in the Amper project
 - `jvm/lib` - a reusable JVM library which can be used as a dependency by other modules in the Amper project
