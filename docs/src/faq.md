@@ -150,7 +150,7 @@ Please submit your requests and sugg estions in the
 
 ### Can I write a custom task or use a plugin?
 
-Yes! Amper now includes a preview of a plugin system. See the dedicated [docs](extensibility/overview.md).
+Yes! Amper now includes a preview of a plugin system. See the dedicated [docs](plugins/overview.md).
 
 ### How can I use C-interop in Amper?
 

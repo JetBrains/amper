@@ -56,4 +56,4 @@ plugins:
 Listing the plugins here does not *enable* them yet.
 Each plugin from this list can then be **enabled and configured** on a per-module basis.
 
-Learn more about the [plugin structure](../extensibility/topics/structure.md).
+Learn more about the [plugin structure](../plugins/topics/structure.md).

@@ -132,12 +132,12 @@ nav:
           - 'Lombok': user-guide/builtin-tech/lombok.md
           - 'Spring Boot': user-guide/builtin-tech/spring.md
       - 'Plugins':
-          - 'Overview': extensibility/overview.md
-          - 'Quick Start': extensibility/quick_start.md
-          - 'Plugin Structure': extensibility/topics/structure.md
-          - 'Configuration': extensibility/topics/configuration.md
-          - 'References': extensibility/topics/references.md
-          - 'Tasks': extensibility/topics/tasks.md
+          - 'Overview': plugins/overview.md
+          - 'Quick Start': plugins/quick_start.md
+          - 'Plugin Structure': plugins/topics/structure.md
+          - 'Configuration': plugins/topics/configuration.md
+          - 'References': plugins/topics/references.md
+          - 'Tasks': plugins/topics/tasks.md
       - 'Advanced topics':
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
           - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
