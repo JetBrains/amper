@@ -70,7 +70,7 @@ root/
 
 ### External Maven dependencies
 
-Maven dependencies can be added via their coordinates[^1] using the usual `:`-separated notation:
+Maven dependencies can be added via their coordinates[^1] in the usual `group:artifact:version` notation:
 
 ```yaml
 dependencies:
@@ -141,19 +141,20 @@ By default, the scope is `all`. You can restrict a dependency's scope as follows
 By default, dependencies of your module are not added to the compilation of dependent modules.
 In the following setup, `app` cannot directly use Ktor classes in its code:
 
+<div class="grid" markdown>
 ```yaml title="lib/module.yaml"
 dependencies:
-  - io.ktor:ktor-client-core:2.2.0 #(1)! 
+  - io.ktor:ktor-client-core:2.2.0
 ```
-
-1. Regular dependency, not `exported`.
 
 ```yaml title="app/module.yaml"
 dependencies:
   - ../lib #(1)! 
 ```
 
-1. Brings the `ktor-client-core` dependency from the `lib` module at runtime, but doesn't expose it at compile time.
+1. The `../lib` dependency is added to the compilation and runtime of the `app` module (scope `all` by default). It
+   brings the transitive dependency on `ktor-client-core` at runtime, but doesn't expose it at compile time.
+</div>
 
 To make a dependency accessible to all dependent modules during their compilation, you need to explicitly mark it as 
 `exported` (this is equivalent to declaring a dependency using the `api()` configuration in Gradle).
@@ -187,23 +188,6 @@ To make a dependency accessible to all dependent modules during their compilatio
           scope: compile-only
     ```
 
-
-??? question "When should I use `exported`?"
-
-    Ideally, as little as possible. The rule of thumb is that, if your module uses some types from the dependency in 
-    its public API, you should mark it as `exported`. If not, you should probably avoid it.
-
-    For example, if you depend on `ktor-client-core` in your module, and you have the following class:
-
-    ```kotlin
-    class MyApi(private val client: HttpClient) {
-        // ...
-    }
-    ```
-
-    The `HttpClient` type is used in your public constructor, so your consumers will need to see it at compile time.
-    You should therefore mark `ktor-client-core` as `exported`.
-
 ??? info "`exported` is like a scope for transitive consumers"
 
     We can see `exported` as a way to modify the scope of a transitive dependency in the context of the consuming 
@@ -212,6 +196,23 @@ To make a dependency accessible to all dependent modules during their compilatio
 
     * If `lib` doesn't export `ktor`, the `ktor` dependency effectively has a `scope: runtime-only` in `app`
     * If `lib` marks `ktor` as `exported`, the `ktor` dependency effectively has a `scope: all` in `app`
+
+##### When to use `exported`
+
+Ideally, you should use `exported` dependencies as little as possible.
+The rule of thumb is that, if your module uses some types from the dependency in its public API, you should mark it as
+`exported`. If not, you should probably avoid it.
+
+For example, if you depend on `ktor-client-core` in your module, and you have the following class:
+
+```kotlin
+class MyApi(private val client: HttpClient) {
+    // ...
+}
+```
+
+The `HttpClient` type is used in your public constructor, so your consumers will need to see it at compile time.
+You should therefore mark `ktor-client-core` as `exported`.
 
 ## Library Catalogs
 
@@ -262,12 +263,11 @@ dependencies:
   - $libs.ktor.client.contentNegotiation
 ```
 
-### Toolchain catalogs (built-in)
+### Toolchain catalogs
 
-The **toolchain catalogs** are implicitly defined, and contain predefined libraries that relate to the corresponding 
-toolchain. The name of such a catalog corresponds to the name of the toolchain in the 
-[settings section](basics.md#settings). All dependencies in such catalogs usually have the same version, which is the
-toolchain version.
+The **toolchain catalogs** are implicitly defined, and contain libraries that relate to the corresponding toolchain.
+The name of such a catalog corresponds to the name of the toolchain in the [settings section](basics.md#settings).
+All dependencies in such catalogs usually have the same version, which is the toolchain version.
 
 For example, dependencies for the Compose Multiplatform framework are accessible using the `$compose` catalog name, and
 take their versions from the `settings.compose.version` setting.
@@ -305,16 +305,18 @@ For private repositories, you can configure credentials this way:
 <div class="grid" markdown>
 ```yaml title="module.yaml"
 repositories:
-  - url: https://my.private.repository/
+  - url: https://repo.company.com
     credentials:
-      file: ../local.properties # relative path to the file with credentials
-      usernameKey: my.private.repository.username
-      passwordKey: my.private.repository.password
+      file: ../local.properties # (1)!
+      usernameKey: my.username
+      passwordKey: my.password
 ```
 
+1. The relative path to a `.properties` file containing the repository's credentials
+
 ```properties title="local.properties"
-my.private.repository.username=...
-my.private.repository.password=...
+my.username=joffrey.bion
+my.password=YouWishYouKnewIt
 ```
 </div>
 
@@ -346,7 +348,7 @@ The effects are the following:
     <div class="grid" markdown>
     ```yaml title="libs.versions.toml"
     [libraries]
-    ktor-client-core = { module = "io.ktor:ktor-client-core" }
+    ktor-client-core = "io.ktor:ktor-client-core"
     ```
     ```yaml title="module.yaml"
     dependencies:
