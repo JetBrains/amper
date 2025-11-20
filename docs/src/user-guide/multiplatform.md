@@ -71,8 +71,8 @@ product:
 In multiplatform modules, some source directories and sections in the configuration files can be platform-specific.
 Amper defines a special suffix, called the `@platform` qualifier, to mark such platform-specific things.
 
-What follows the `@` sign is the name of a _platform_ or _platform family_. The available platform and platform families
-are described in the [Platforms hierarchy](#supported-platforms) section.
+What follows the `@` sign is the name of a _platform_ or _platform family_. The available platforms and platform 
+families are described in the [Platforms hierarchy](#supported-platforms) section.
 
 We'll see in the next sections how these directories and settings interact.
 
