@@ -14,13 +14,7 @@ installation, no matter their OS.
 
 Use the following command in your project directory to download the script and set up Amper:
 
-=== ":material-linux: Linux"
-    
-    ```shell
-    curl -fsSL -o amper https://jb.gg/amper/wrapper.sh && chmod +x amper && ./amper update -c
-    ```
-
-=== ":material-apple: macOS"
+=== ":material-linux: Linux / :material-apple: macOS"
     
     ```shell
     curl -fsSL -o amper https://jb.gg/amper/wrapper.sh && chmod +x amper && ./amper update -c
