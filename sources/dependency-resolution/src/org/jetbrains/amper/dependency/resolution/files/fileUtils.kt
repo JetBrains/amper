@@ -69,10 +69,10 @@ private suspend fun <T> fileChannelReadOperationWithRetry(
             .use { block(it) }
     }
 
-private suspend fun <T> fileOperationWithRetry(
+internal suspend fun <T> fileOperationWithRetry(
     path: Path,
     retryOnException: (e: Exception) -> Boolean = { e -> retryFileOperationOnException(e, path) },
-    block:(Path) -> T
+    block: suspend (Path) -> T
 ): T {
     return withRetry(retryOnException = retryOnException) {
         withContext(Dispatchers.IO) {
@@ -88,8 +88,8 @@ private fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
         is IOException -> {
             // Retry until the file could be opened.
             // It could have been exclusively locked by DR for a very short period of time:
-            // after downloaded file was moved from temp to target location (and thus became discoverable),
-            // and before the process released file lock on that file (lock is hold on file moving)
+            // after a downloaded file was moved from temp to the target location (and thus became discoverable),
+            // and before the process released the file, lock on that file (lock is hold on file moving)
             logger.debug(
                 "File operation was interrupted by {}: {} ({})",
                 e::class.simpleName, e.message, path

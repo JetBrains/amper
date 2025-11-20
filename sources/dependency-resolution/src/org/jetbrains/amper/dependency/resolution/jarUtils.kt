@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.dependency.resolution.files.fileOperationWithRetry
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -36,12 +37,12 @@ internal suspend fun hasJarEntry(jarPath: Path, entryPath: String) : Boolean? =
  * @return null if the entry is not found, and result of the given [block] otherwise
  */
 suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: suspend (InputStream) -> T) : T? =
-    withContext(Dispatchers.IO) {
-        val jarFile = jarPath.toJarFile()
+    fileOperationWithRetry(jarPath) {
+        val jarFile = it.toJarFile()
         jarFile.use {
-            val jarEntry: JarEntry = jarFile.getJarEntry(entryPath) ?: return@withContext null
-            jarFile.getInputStream(jarEntry).use {
-                block(it)
+            val jarEntry: JarEntry = jarFile.getJarEntry(entryPath) ?: return@fileOperationWithRetry null
+            jarFile.getInputStream(jarEntry).use { stream ->
+                block(stream)
             }
         }
     }
