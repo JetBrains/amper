@@ -1,8 +1,16 @@
 # :simple-apple: iOS
 
+Use the `ios/app` product type in a module to build an iOS application.
+
+!!! tip "Using IntelliJ IDEA?"
+
+    Make sure to install the 
+    [:jetbrains-kotlin-multiplatform: Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform)
+    to get proper support for Kotlin Native and iOS integration features.
+
 ## Module layout
 
-Here is an overview of the module layout for iOS application:
+Here is an overview of the module layout for an iOS application:
 
 --8<-- "includes/module-layouts/ios-app.md"
 

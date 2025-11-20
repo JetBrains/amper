@@ -2,6 +2,11 @@
 
 Use the `android/app` product type in a module to build an Android application.
 
+!!! tip "Using IntelliJ IDEA?"
+
+    Make sure to install the [:android-head-flat: Android plugin](https://plugins.jetbrains.com/plugin/22989-android) to
+    get proper support for Android-specific features.
+
 ## Module layout
 
 Here is an overview of the module layout for an Android application:
