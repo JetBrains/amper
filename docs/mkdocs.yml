@@ -64,7 +64,8 @@ plugins:
   - git-committers: # to have the list of authors of the page
       enabled: !ENV [CI, false] # we don't put the whole repo in the docker container locally, so there is no git repo
       repository: JetBrains/amper
-      branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
+      docs_path: docs/src/ # the path to the docs sources within the git repo (the trailing slash is required!)
+      branch: !ENV [MKDOCS_GIT_BRANCH, "main"]
       token: !ENV [MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN, ""]
   - search
   - social # for proper previews in social media links
