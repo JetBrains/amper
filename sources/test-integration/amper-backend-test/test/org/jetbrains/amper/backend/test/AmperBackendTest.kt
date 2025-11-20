@@ -45,7 +45,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         }
             ?: error("Couldn't read project model for test project '$testProjectName'")
         if (problemReporter.problems.isNotEmpty()) {
-            fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n")}")
+            fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n") { it.message }}")
         }
         return AmperBackend(
             context = cliContext,
