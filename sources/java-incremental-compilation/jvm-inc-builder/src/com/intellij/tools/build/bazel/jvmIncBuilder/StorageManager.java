@@ -1,13 +1,13 @@
 // Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package com.intellij.tools.build.bazel.jvmIncBuilder;
 
+import com.intellij.tools.build.bazel.amper.StorageManagerFileOpenOption;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.AmperZipOutputBuilderWithClasses;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.CompositeZipOutputBuilder;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.Utils;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.ZipOutputBuilderImpl;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.graph.PersistentMVStoreMapletFactory;
 import com.intellij.tools.build.bazel.jvmIncBuilder.instrumentation.InstrumentationClassFinder;
-import com.sun.nio.file.ExtendedOpenOption;
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.OffHeapStore;
 import org.jetbrains.annotations.NotNull;
@@ -275,7 +275,7 @@ public class StorageManager implements CloseableExt {
       if (!Files.exists(copyFile)) {
         Path tempFile = Files.createTempFile(tempDir, null, null);
         try {
-          try (OutputStream out = Files.newOutputStream(tempFile, ExtendedOpenOption.NOSHARE_WRITE)) {
+          try (OutputStream out = Files.newOutputStream(tempFile, StorageManagerFileOpenOption.INSTANCE.getWriteOption())) {
             Files.copy(originalFile, out);
           }
 
