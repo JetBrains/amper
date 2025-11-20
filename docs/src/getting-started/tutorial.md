@@ -5,12 +5,17 @@ If you are looking for a detailed comprehensive documentation, check the [User g
 
 !!! tip "Before you start"
 
-    To make the most out of Amper and its toolability, we recommend using 
-    [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/) with the 
-    [Amper plugin](https://plugins.jetbrains.com/plugin/23076-amper) when following this tutorial.
+    Amper is designed with IDE support in mind, and much of the UX comes from the IDE.
+    While the [Amper CLI](cli.md) works well with any text editor, we recommend using 
+    :jetbrains-intellij-idea: IntelliJ IDEA[^1] to get the most out of Amper.
 
-    This is not required, though. Amper is a standalone command-line tool, which can definitely be used without an IDE.
-    A great CLI experience is an integral part of our ideal UX, and we're striving for it too.
+    That said, it is not required for this tutorial – there are no IDE-specific steps.
+
+[^1]: Since Amper is moving fast, it's best to use the latest 
+      [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) version.
+      The best way to get the most recent IDE versions is by using the 
+      [:jetbrains-toolbox-app: Toolbox App](https://www.jetbrains.com/lp/toolbox/).
+      Also, don't forget to install the [Amper plugin](https://plugins.jetbrains.com/plugin/23076-amper). 
 
 ## Step 1. Hello, World
 
