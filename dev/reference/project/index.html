@@ -1898,7 +1898,7 @@
 
 <h1 id="project-file-reference">Project file reference<a class="headerlink" href="#project-file-reference" title="Permanent link">&para;</a></h1>
 <h2 id="modules"><code>modules</code><a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
-<p>The <code>modules:</code> section lists all the modules in the project, except the root module.
+<p>The <code>modules</code> section lists all the modules in the project, except the root module.
 If a <code>module.yaml</code> is present at the root of the project, the root module is implicitly included and doesn't need to be
 listed.</p>
 <p>Each element in the list must be the path to a module directory, relative to the project root.
@@ -1924,8 +1924,8 @@ Only directories that contain a <code>module.yaml</code> file will be considered
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./plugins/*</span>
 </code></pre></div>
 <h2 id="plugins"><code>plugins</code><a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h2>
-<p><code>plugins:</code> section lists all the plugins that are available in the project.
-The list of plugin <em>dependencies</em> to make <em>available</em> in the project modules.</p>
+<p>The <code>plugins</code> section lists all the plugins that are available in the project.
+It is a list of plugin <em>dependencies</em> to make <em>available</em> in the project modules.</p>
 <p>Example:
 <div class="highlight"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./my-plugin</span>
@@ -1937,7 +1937,7 @@ The list of plugin <em>dependencies</em> to make <em>available</em> in the proje
 as there are no published Amper plugins, and it's not possible to publish them yet.
 So, the elements of this list use the same format as <a href="../../user-guide/dependencies/#module-dependencies">module dependencies</a>.</p>
 </div>
-<p>Listing the plugins here does not <em>enable</em> them yet.
+<p>Listing the plugins here does not <em>enable</em> them in any module.
 Each plugin from this list can then be <strong>enabled and configured</strong> on a per-module basis.</p>
 <p>Learn more about the <a href="../../plugins/topics/structure/">plugin structure</a>.</p>
 
@@ -1960,7 +1960,7 @@ Each plugin from this list can then be <strong>enabled and configured</strong> o
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 14:25:14 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:35:06 UTC">November 20, 2025</span>
   </span>
 
     
@@ -2060,7 +2060,7 @@ Each plugin from this list can then be <strong>enabled and configured</strong> o
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>

@@ -1776,6 +1776,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plugininfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pluginInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#product" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2003,17 +2014,6 @@
     <span class="md-ellipsis">
       
         settings.springBoot
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#plugininfo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        pluginInfo
       
     </span>
   </a>
@@ -2166,6 +2166,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plugininfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pluginInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#product" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2399,17 +2410,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#plugininfo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        pluginInfo
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2459,7 +2459,8 @@ have a name (an exclusive common ancestor) in the default hierarchy. Aliases can
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 <h2 id="apply"><code>apply</code><a class="headerlink" href="#apply" title="Permanent link">&para;</a></h2>
-<p><code>apply:</code> section lists the templates applied to the module. Read more about the <a href="../../user-guide/templates/">module templates</a></p>
+<p>The <code>apply</code> section lists the templates applied to the module.
+Read more in <a href="../../user-guide/templates/">Module templates</a> section.</p>
 <p>Use <code>- ./&lt;relative path&gt;</code> or <code>- ../&lt;relative path&gt;</code> notation, where the <code>&lt;relative path&gt;</code> points at a template file.</p>
 <p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Apply a `common.module-template.yaml` template to the module</span>
@@ -2469,11 +2470,11 @@ have a name (an exclusive common ancestor) in the default hierarchy. Aliases can
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../common.module-template.yaml</span>
 </code></pre></div>
 <h2 id="dependencies-and-test-dependencies"><code>dependencies</code> and <code>test-dependencies</code><a class="headerlink" href="#dependencies-and-test-dependencies" title="Permanent link">&para;</a></h2>
-<p><code>dependencies:</code> section defines the list of modules and libraries necessary to build the module.
+<p>The <code>dependencies</code> section defines the list of modules and libraries necessary to build the module.
 Certain dependencies can also be exported as part of the module API.
-Read more about the <a href="../../user-guide/dependencies/">dependencies</a>.</p>
-<p><code>test-dependencies:</code> section defines the dependencies necessary to build and run tests of the module. Read more about
-the <a href="../../user-guide/testing/">module tests</a>.</p>
+Read more in the <a href="../../user-guide/dependencies/">Dependencies</a> section.</p>
+<p>The <code>test-dependencies</code> section defines the dependencies necessary to build and run tests of the module.
+Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <p>Supported dependency types:</p>
 <table>
 <thead>
@@ -2570,7 +2571,7 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 <span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
-<p>The <code>dependencies:</code> section can also be <a href="../../user-guide/multiplatform/#platform-qualifier">qualified with a platform</a>:</p>
+<p>The <code>dependencies</code> section can also be <a href="../../user-guide/multiplatform/#platform-qualifier">qualified with a platform</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Dependencies used to build the common part of the product</span>
 <span class="nt">dependencies</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
@@ -2598,8 +2599,37 @@ the <a href="../../user-guide/testing/">module tests</a>.</p>
 <span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># ...</span>
 </code></pre></div>
+<h2 id="plugininfo"><code>pluginInfo</code><a class="headerlink" href="#plugininfo" title="Permanent link">&para;</a></h2>
+<p>The <code>pluginInfo</code> section is only available if the <code>product.type</code> is <code>jvm/amper-plugin</code>.
+It configures plugin-specific build settings.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id: string</code></td>
+<td>The ID that is used to refer to the plugin in the configuration files.</td>
+<td>Module name</td>
+</tr>
+<tr>
+<td><code>description: string</code></td>
+<td>The plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.</td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><code>settingsClass: string</code></td>
+<td>The fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory.</td>
+<td><code>null</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="product"><code>product</code><a class="headerlink" href="#product" title="Permanent link">&para;</a></h2>
-<p>The <code>product:</code> section defines what should be produced out of the module.
+<p>The <code>product</code> section defines what should be produced out of the module.
 Read more about the <a href="../../user-guide/basics/#product-type">product types</a>.</p>
 <table>
 <thead>
@@ -2701,7 +2731,7 @@ level of their support.</p>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <h2 id="repositories"><code>repositories</code><a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
-<p><code>repositories:</code> section defines the list of repositories used to look up and download the module dependencies.
+<p>The <code>repositories</code> section defines the list of repositories used to look up and download the module dependencies.
 Read more about the <a href="../../user-guide/dependencies/#managing-maven-repositories">dependency repositories</a>.</p>
 <table>
 <thead>
@@ -2771,10 +2801,9 @@ Credentials support username/password authentication and have the following attr
 <span class="w">      </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.password</span><span class="w">  </span>
 </code></pre></div>
 <h2 id="settings-and-test-settings"><code>settings</code> and <code>test-settings</code><a class="headerlink" href="#settings-and-test-settings" title="Permanent link">&para;</a></h2>
-<p><code>settings:</code> section configures the toolchains used in the build process. Read more
-about <a href="../../user-guide/basics/#settings">settings configuration</a>.</p>
-<p><code>test-settings:</code> section controls building and running the module tests. Read more about
-the <a href="../../user-guide/testing/">module tests</a>.</p>
+<p>The <code>settings</code> section configures the toolchains used in the build process.</p>
+<p>The <code>test-settings</code> section controls building and running the module tests.
+Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <h3 id="settingsandroid"><code>settings.android</code><a class="headerlink" href="#settingsandroid" title="Permanent link">&para;</a></h3>
 <p><code>settings.android</code> configures the Android toolchain and platform.</p>
 <table>
@@ -3227,7 +3256,7 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tr>
 </tbody>
 </table>
-<p>The <code>serialization:</code> attribute is an object with the following properties:</p>
+<p>The <code>serialization</code> attribute is an object with the following properties:</p>
 <table>
 <thead>
 <tr>
@@ -3505,35 +3534,6 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.1.0</span><span class="w"> </span><span class="c1"># version customization</span>
 </code></pre></div>
-<h3 id="plugininfo"><code>pluginInfo</code><a class="headerlink" href="#plugininfo" title="Permanent link">&para;</a></h3>
-<p><code>pluginInfo:</code> is only available if the <code>product.type</code> is <code>jvm/amper-plugin</code>.
-It configures plugin-specific build settings.</p>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>id: string</code></td>
-<td>Plugin id that is going to be used to refer to the plugin in the configuration files.</td>
-<td>Module name</td>
-</tr>
-<tr>
-<td><code>description: string</code></td>
-<td>Plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.</td>
-<td><code>null</code></td>
-</tr>
-<tr>
-<td><code>settingsClass: string</code></td>
-<td>Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory.</td>
-<td><code>null</code></td>
-</tr>
-</tbody>
-</table>
 
 
 
@@ -3554,7 +3554,7 @@ It configures plugin-specific build settings.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 17:20:04 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:35:06 UTC">November 20, 2025</span>
   </span>
 
     
@@ -3654,7 +3654,7 @@ It configures plugin-specific build settings.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>

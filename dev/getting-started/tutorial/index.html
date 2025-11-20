@@ -2055,11 +2055,33 @@
 If you are looking for a detailed comprehensive documentation, check the <a href="../../user-guide/">User guide</a> instead.</p>
 <div class="admonition tip">
 <p class="admonition-title">Before you start</p>
-<p>To make the most out of Amper and its toolability, we recommend using 
-<a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA</a> with the 
-<a href="https://plugins.jetbrains.com/plugin/23076-amper">Amper plugin</a> when following this tutorial.</p>
-<p>This is not required, though. Amper is a standalone command-line tool, which can definitely be used without an IDE.
-A great CLI experience is an integral part of our ideal UX, and we're striving for it too.</p>
+<p>Amper is designed with IDE support in mind, and much of the UX comes from the IDE.
+While the <a href="../cli/">Amper CLI</a> works well with any text editor, we recommend using 
+<span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="a" x1="-.717383" x2="24.1455" y1="7.61946" y2="61.2456" gradientUnits="userSpaceOnUse">
+      <stop offset=".1" stop-color="#FC801D"/>
+      <stop offset=".59" stop-color="#FE2857"/>
+    </linearGradient>
+    <linearGradient id="b" x1="4.22243" x2="62.9273" y1="60.0186" y2="1.31316" gradientUnits="userSpaceOnUse">
+      <stop offset=".21" stop-color="#FE2857"/>
+      <stop offset=".7" stop-color="#007EFF"/>
+    </linearGradient>
+  </defs>
+  <path fill="#FF8100" d="m15.9476 5.81641-11.87545.00174C1.82284 5.81815 0 7.64157 0 9.89088V21.3975c0 1.1887.519564 2.3185 1.42196 3.0924L39.5828 57.1997c.7384.6324 1.6786.9803 2.6508.9803h11.8755c2.2493 0 4.0727-1.8234 4.0727-4.0727V42.599c0-1.1887-.5195-2.3186-1.4219-3.0924L18.599 6.79735c-.7383-.63302-1.6786-.98036-2.6514-.98036v-.00058Z"/>
+  <path fill="url(#a)" d="M14.5193 5.81641H4.07273C1.82342 5.81641 0 7.63982 0 9.88913V22.9818c0 .1926.013964.3852.040727.576L5.31782 60.5015c.28683 2.0067 2.00494 3.4967 4.032 3.4967H25.0228c2.2499 0 4.0733-1.824 4.0728-4.0739l-.0047-18.5384c0-.4376-.0704-.8722-.2089-1.287L18.3825 8.60099c-.5544-1.66284-2.1108-2.78458-3.8638-2.78458h.0006Z"/>
+  <path fill="url(#b)" d="M59.9275 0H25.9592c-1.6291 0-3.1017.971054-3.7435 2.46807L6.14767 39.9587c-.21702.5068-.32931 1.0531-.32931 1.6046v18.364C5.81836 62.1766 7.64178 64 9.89109 64H27.8571c.8046 0 1.5912-.2385 2.2609-.6854l32.0687-21.4033c1.1322-.7552 1.8117-2.0265 1.8117-3.3874l.0018-34.45117C64.0002 1.82342 62.1768 0 59.9275 0Z"/>
+  <path fill="#000" d="M52 12H12v40h40V12Z"/>
+  <path fill="#fff" d="M17 29.3856h2.9788v-9.7712H17V17h8.839v2.6144h-2.9788v9.7712h2.9788V32H17v-2.6144Z"/>
+  <path fill="#fff" d="M27.3389 29.3002h2.1538c.4354 0 .8233-.0928 1.1625-.2784.3392-.1857.6016-.4481.7872-.7873.1857-.3392.2785-.7265.2785-1.1625V17h2.9249v10.2748c0 .9001-.2074 1.7092-.6216 2.4271-.4143.7179-.9855 1.2805-1.7143 1.6873-.7288.4074-1.5464.6108-2.4534.6108h-2.5176v-2.6998Z"/>
+  <path fill="#fff" d="M17 44h16v3H17v-3Z"/>
+</svg>
+</span> IntelliJ IDEA<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> to get the most out of Amper.</p>
+<p>That said, it is not required for this tutorial – there are no IDE-specific steps.</p>
 </div>
 <h2 id="step-1-hello-world">Step 1. Hello, World<a class="headerlink" href="#step-1-hello-world" title="Permanent link">&para;</a></h2>
 <p>The first thing you’d want to try when getting familiar with a new tool is just a simple "Hello, World" application.
@@ -2569,6 +2591,34 @@ for various typical configurations in the project.</p>
 </div>
 <h2 id="further-steps">Further steps<a class="headerlink" href="#further-steps" title="Permanent link">&para;</a></h2>
 <p>Check the <a href="../../user-guide/">user guide</a> and explore <a href="https://github.com/JetBrains/amper/tree/main/examples">example projects</a>.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Since Amper is moving fast, it's best to use the latest 
+  <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> version.
+  The best way to get the most recent IDE versions is by using the 
+  <a href="https://www.jetbrains.com/lp/toolbox/"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" fill="none" viewBox="0 0 48 56">
+  <defs>
+    <linearGradient id="a" x1=".254835" x2="48.1428" y1="40.072" y2="15.2" gradientUnits="userSpaceOnUse">
+      <stop offset=".04" stop-color="#FC801D"/>
+      <stop offset=".38" stop-color="#FE2857"/>
+      <stop offset=".99" stop-color="#AF1DF5"/>
+    </linearGradient>
+  </defs>
+  <path fill="#000" d="m24.0068 56 24-14V14l-24 13.9999V56Z"/>
+  <path fill="#fff" d="m39.0068 42-10 6v-4l10-6v4Z"/>
+  <path fill="url(#a)" d="M24.0068 0 .006836 14v28L24.0068 56V28l24-14-24-14Z"/>
+</svg>
+</span> Toolbox App</a>.
+  Also, don't forget to install the <a href="https://plugins.jetbrains.com/plugin/23076-amper">Amper plugin</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
@@ -2589,7 +2639,7 @@ for various typical configurations in the project.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 17:57:05 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:21:50 UTC">November 20, 2025</span>
   </span>
 
     
@@ -2689,7 +2739,7 @@ for various typical configurations in the project.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
