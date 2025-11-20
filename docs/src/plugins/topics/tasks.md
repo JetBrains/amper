@@ -174,7 +174,7 @@ This is also what you see in tasks output and what you pass to the task command 
 !!! info
     The plugin ID is part of the internal task name.
     By default, it is the plugin module name, unless overridden in `pluginInfo.id`. 
-    See the [quick start guide](../quick_start.md#basic-example) for examples of running tasks and customizing the plugin ID.
+    See the [quick start guide](../quick-start.md#basic-example) for examples of running tasks and customizing the plugin ID.
 
 The internal name of a task should not ideally be exposed and used externally. We are working on making it so. 
 
@@ -348,5 +348,5 @@ We are working on providing a proper UX for calling plugin tasks.
 ## Learn more
 
 To see more practical examples of how to write tasks,
-you are welcome to check out the [quick start guide](../quick_start.md) and our
+you are welcome to check out the [quick start guide](../quick-start.md) and our
 plugin samples in the `build-sources` directory of the Amper project.

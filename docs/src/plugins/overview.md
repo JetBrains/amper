@@ -5,7 +5,7 @@
     2. Support for KMP is limited; the current preview is focused on JVM-only projects mostly. 
        We may cover KMP scenarios better as the plugin subsystem evolves.
 
-You can read this functionality summary or jump right into the [Quick Start guide](quick_start.md).
+You can read this functionality summary or jump right into the [Quick Start guide](quick-start.md).
 
 ## Ideas at the core of the preview
 

@@ -127,7 +127,7 @@ nav:
           - 'Spring Boot': user-guide/builtin-tech/spring.md
       - 'Plugins':
           - 'Overview': plugins/overview.md
-          - 'Quick Start': plugins/quick_start.md
+          - 'Quick Start': plugins/quick-start.md
           - 'Plugin Structure': plugins/topics/structure.md
           - 'Configuration': plugins/topics/configuration.md
           - 'References': plugins/topics/references.md
