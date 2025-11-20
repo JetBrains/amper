@@ -79,6 +79,6 @@ jobs:
 
           echo "Deploying version with ID: $version_id"
           echo "Title (for the UI selector): $version_title"
-          echo "BUILD_BRANCH: $BUILD_BRANCH"
+          echo "Source branch: $MKDOCS_GIT_BRANCH"
 
           mike deploy "$version_id" --title "$version_title" --update --push
