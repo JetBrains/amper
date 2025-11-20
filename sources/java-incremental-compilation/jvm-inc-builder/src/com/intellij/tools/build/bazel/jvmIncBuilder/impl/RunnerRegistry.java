@@ -19,6 +19,7 @@ public final class RunnerRegistry {
     new Entry<>(BytecodeInstrumentationRunner.class, BytecodeInstrumentationRunner::new)
   );
 
+  @SuppressWarnings("unchecked")
   public static Iterable<RunnerFactory<? extends CompilerRunner>> getRoundCompilers() {
     return filter(map(ourRunners, entry -> CompilerRunner.class.isAssignableFrom(entry.runnerClass())? (RunnerFactory<CompilerRunner>)entry.factory : null), Objects::nonNull);
   }

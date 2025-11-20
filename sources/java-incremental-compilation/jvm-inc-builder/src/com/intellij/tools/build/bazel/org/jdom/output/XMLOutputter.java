@@ -374,6 +374,7 @@ public class XMLOutputter implements Cloneable {
    *
    * @param list <code>List</code> to format.
    */
+  @SuppressWarnings("unchecked")
   public String outputString(List list) {
     StringWriter out = new StringWriter();
     try {
