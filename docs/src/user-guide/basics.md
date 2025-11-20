@@ -258,11 +258,11 @@ Here are some example module files for different types of modules:
 
 ### Product type
 
-The **product type** describes the target platform and the type of the project at the same time. Below is the list of 
+The **product type** describes the target platform and the type of the module at the same time. Below is the list of 
 supported product types:
 
-- `lib` - a reusable Kotlin Multiplatform library which can be used as a dependency by other modules in the Amper project
-- `jvm/lib` - a reusable JVM library which can be used as a dependency by other modules in the Amper project
+- `lib` - a reusable Kotlin Multiplatform library which can be used as a dependency by other modules in the project
+- `jvm/lib` - a reusable JVM library which can be used as a dependency by other modules in the project
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 application
 - `linux/app` - a native Linux application
