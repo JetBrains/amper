@@ -33,7 +33,6 @@ jobs:
           "mkdocs-material[imaging]" \
           mkdocs-macros-plugin \
           mkdocs-git-revision-date-localized-plugin \
-          mkdocs-git-committers-plugin-2 \
           mike
 
       - name: Configure git
@@ -72,7 +71,6 @@ jobs:
         env:
           MKDOCS_GIT_BRANCH: ${{ github.ref_name }}
           MKDOCS_GIT_EDIT_URL: edit/${{ github.ref_name }}/docs/src/
-          MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN: ${{ secrets.MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN}}
         run: |
           version_id="${{ steps.meta.outputs.version_id }}"
           version_title="${{ steps.meta.outputs.version_title }}"

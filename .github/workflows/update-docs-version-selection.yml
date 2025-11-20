@@ -30,7 +30,6 @@ jobs:
           "mkdocs-material[imaging]" \
           mkdocs-macros-plugin \
           mkdocs-git-revision-date-localized-plugin \
-          mkdocs-git-committers-plugin-2 \
           mike
 
       - name: Configure git
