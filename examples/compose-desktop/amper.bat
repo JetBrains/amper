@@ -17,9 +17,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.9.0-dev-3453
+set amper_version=0.9.0-dev-3464
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=e1d1022c00629e89de5b856e032598ce668905e0c1c20cea8a7598c1f8748d96
+set amper_sha256=784a81bfbcc5fdc021af6478cdade5d81c1ad7412057dd7a7ef242635a0197df
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -113,6 +113,9 @@ finally { ^
     $lock.ReleaseMutex(); ^
 }
 
+rem We reset the PSModulePath in case this batch script was called from PowerShell Core
+rem See https://github.com/PowerShell/PowerShell/issues/18108#issuecomment-2269703022
+set PSModulePath=
 set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 "%powershell%" -NonInteractive -NoProfile -NoLogo -Command %download_and_extract_ps1%
 if errorlevel 1 exit /b 1
@@ -132,7 +135,7 @@ call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "
 if errorlevel 1 goto fail
 
 REM !! DO NOT REMOVE !!
-REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      exit /b %ERRORLEVEL%
+REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                   exit /b %ERRORLEVEL%
 REM
 REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
 REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
