@@ -65,6 +65,7 @@ import com.intellij.tools.build.bazel.org.jdom.Content;
  * @version $Revision: 1.6 $, $Date: 2007/11/10 05:29:00 $
  */
 public abstract class AbstractFilter<T extends Content> implements Filter<T> {
+  @SuppressWarnings("unchecked")
   public static <T extends Content> com.intellij.tools.build.bazel.org.jdom.filter2.Filter<T> toFilter2(final Filter<T> filter) {
     return new com.intellij.tools.build.bazel.org.jdom.filter2.AbstractFilter<T>() {
       @Override
