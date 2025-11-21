@@ -54,8 +54,9 @@ Useful commands:
 
 - `amper init` to create a new Amper project
 - `amper build` to compile and link all code in the project
+- `amper run` to run your application
 - `amper test` to run tests in the project
-- `amper run` to run your application 
+- `amper show (modules|settings|dependencies|tasks)` to introspect the project's configuration
 - `amper clean` to remove the project's build output and caches
 
 !!! example "Try it out!"
