@@ -1,4 +1,4 @@
-# Lombok
+# :intellij-lombok: Lombok
 
 [Project Lombok](https://projectlombok.org/) is a Java library that generates getters, setters, builders, 
 and other boilerplate code from annotations.
