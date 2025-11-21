@@ -43,6 +43,11 @@ You will need to have Docker installed. Make sure you checked the `Need Docker s
 > Then use the `mkdocs serve` command from this package instead of the `./mkdocs` script (check the command inside the
 > script to see which arguments we use).
 
+### Warnings and live reload
+
+We use the strict mode by default, so any warning (such as broken links/anchors) will prevent the docs from being built.
+If you need to see the docs anyway before fixing the warnings, use `./mkdocs --no-strict`.
+
 ### Adding pages
 
 To add a new page:
