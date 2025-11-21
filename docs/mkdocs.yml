@@ -156,6 +156,9 @@ extra:
   version:
     provider: mike # enables the version selector
 
+# Fails the docs build if there are any warnings (this avoids publishing a site with broken links)
+strict: true
+
 validation:
   absolute_links: relative_to_docs
   anchors: warn
