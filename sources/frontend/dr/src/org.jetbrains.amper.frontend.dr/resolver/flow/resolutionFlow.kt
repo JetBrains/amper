@@ -177,7 +177,6 @@ private fun String.toRepository() = RepositoriesModulePart.Repository(this, this
 private val defaultRepositories = listOf(
     "https://repo1.maven.org/maven2",
     "https://maven.google.com/",
-    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
 )
 
 private data class ContextKey(

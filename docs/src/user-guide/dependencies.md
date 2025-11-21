@@ -299,7 +299,6 @@ This section describes the default repositories and how to configure more.
 |-----------------------------|----------------------------------------------------------|
 | Maven Central               | `https://repo1.maven.org/maven2`                         |
 | Google                      | `https://maven.google.com`                               |
-| Compose Multiplatform (dev) | `https://maven.pkg.jetbrains.space/public/p/compose/dev` |
 
 ### Adding repositories
 

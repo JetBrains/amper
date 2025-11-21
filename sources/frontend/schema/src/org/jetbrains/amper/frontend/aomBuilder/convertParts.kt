@@ -24,7 +24,6 @@ import kotlin.reflect.KProperty0
 private val defaultMavenRepositories = listOf(
     "https://repo1.maven.org/maven2",
     "https://maven.google.com",
-    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
 )
 
 // FIXME Need to get rid of this `ModulePart` convention and 
