@@ -1,0 +1,3664 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling.">
+      
+      
+        <meta name="author" content="JetBrains Amper team">
+      
+      
+        <link rel="canonical" href="https://amper.org/dev/reference/module/">
+      
+      
+        <link rel="prev" href="../project/">
+      
+      
+        <link rel="next" href="../../faq/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/amper-icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>module.yaml - Amper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2022c5.5%200%2010-4.5%2010-10S17.5%202%2012%202%202%206.5%202%2012s4.5%2010%2010%2010M11%207h2v2h-2zm3%2010h-4v-2h1v-2h-1v-2h3v4h1z%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="module.yaml - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/reference/module.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/dev/reference/module/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="module.yaml - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/reference/module.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-file-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../../images/amper-icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Amper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              module.yaml
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JetBrains/amper
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../project/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Releases ↗
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../../images/amper-icon.svg" alt="logo">
+
+    </a>
+    Amper
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JetBrains/amper
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/ide-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Amper CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../user-guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/dependencies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/multiplatform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiplatform modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Built-in technologies
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Built-in technologies
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/android/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Android
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compose Multiplatform
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/ios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin Serialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/ktor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ktor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/lombok/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lombok
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/spring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring Boot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced topics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced topics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/java-annotation-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java annotation processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/ksp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin Symbol Processing (KSP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/kotlin-compiler-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin compiler plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/maven-like-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maven-like layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/yaml-primer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix: YAML primer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    project.yaml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    module.yaml
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    module.yaml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aliases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apply
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies-and-test-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dependencies and test-dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugininfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pluginInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#product" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        product
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-and-test-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings and test-settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings and test-settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.android">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroidparcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android.parcelize
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroidsigning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android.signing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingscompose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.java
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.java">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsjavaannotationprocessing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.java.annotationProcessing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.junit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.jvm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsjvmtest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm.test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.kotlin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlinallopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin.allOpen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlinnoarg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin.noArg
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsktor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.ktor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingslombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.lombok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsnative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.native
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsspringboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.springBoot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases ↗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aliases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apply
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies-and-test-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dependencies and test-dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugininfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pluginInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#product" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        product
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-and-test-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings and test-settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings and test-settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.android">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroidparcelize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android.parcelize
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsandroidsigning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.android.signing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingscompose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.java
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.java">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsjavaannotationprocessing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.java.annotationProcessing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.junit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsjvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.jvm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsjvmtest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm.test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="settings.kotlin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlinallopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin.allOpen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingskotlinnoarg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.kotlin.noArg
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsktor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.ktor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingslombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.lombok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsnative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.native
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settingsspringboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.springBoot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/reference/module.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="module-file-reference">Module file reference<a class="headerlink" href="#module-file-reference" title="Permanent link">&para;</a></h1>
+<h2 id="aliases"><code>aliases</code><a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h2>
+<p>An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
+have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as <code>@platform</code> qualifiers in the settings.</p>
+<p>Read more about <a href="../../user-guide/multiplatform/#aliases">aliases</a>.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create an alias to share code between JVM and Android platforms.  </span>
+<span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">aliases</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jvmAndAndroid</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># Dependencies for JVM and Android platforms:</span>
+<span class="nt">dependencies@jvmAndAndroid</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<h2 id="apply"><code>apply</code><a class="headerlink" href="#apply" title="Permanent link">&para;</a></h2>
+<p>The <code>apply</code> section lists the templates applied to the module.
+Read more in <a href="../../user-guide/templates/">Module templates</a> section.</p>
+<p>Use <code>- ./&lt;relative path&gt;</code> or <code>- ../&lt;relative path&gt;</code> notation, where the <code>&lt;relative path&gt;</code> points at a template file.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Apply a `common.module-template.yaml` template to the module</span>
+<span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">apply</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../common.module-template.yaml</span>
+</code></pre></div>
+<h2 id="dependencies-and-test-dependencies"><code>dependencies</code> and <code>test-dependencies</code><a class="headerlink" href="#dependencies-and-test-dependencies" title="Permanent link">&para;</a></h2>
+<p>The <code>dependencies</code> section defines the list of modules and libraries necessary to build the module.
+Certain dependencies can also be exported as part of the module API.
+Read more in the <a href="../../user-guide/dependencies/">Dependencies</a> section.</p>
+<p>The <code>test-dependencies</code> section defines the dependencies necessary to build and run tests of the module.
+Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
+<p>Supported dependency types:</p>
+<table>
+<thead>
+<tr>
+<th>Notation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>- ./&lt;relative path&gt;</code><br/><code>- ../&lt;relative path&gt;</code></td>
+<td>Dependency on <a href="../../user-guide/dependencies/#module-dependencies">another module</a> in the codebase.</td>
+</tr>
+<tr>
+<td><code>- &lt;group ID&gt;:&lt;artifact ID&gt;:&lt;version&gt;</code></td>
+<td>Dependency on <a href="../../user-guide/dependencies/#external-maven-dependencies">a Kotlin or Java library</a> in a Maven repository.</td>
+</tr>
+<tr>
+<td><code>- $&lt;catalog.key&gt;</code></td>
+<td>Dependency from <a href="../../user-guide/dependencies/#library-catalogs">a dependency catalog</a>.</td>
+</tr>
+<tr>
+<td><code>- bom: &lt;group ID&gt;:&lt;artifact ID&gt;:&lt;version&gt;</code></td>
+<td>Dependency on <a href="../../user-guide/dependencies/#using-a-maven-bom">a <abbr title="Bill of materials">BOM</abbr></a>.</td>
+</tr>
+<tr>
+<td><code>- bom: $&lt;catalog.key&gt;</code></td>
+<td>Dependency on <a href="../../user-guide/dependencies/#library-catalogs">a <abbr title="Bill of materials">BOM</abbr> from a dependency catalog</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Each dependency (except <abbr title="Bill of materials">BOM</abbr>) has the following attributes:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>exported: boolean</code></td>
+<td>Whether a dependency should be <a href="../../user-guide/dependencies/#transitivity-and-scope">visible as a part of a published API</a>.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>scope: enum</code></td>
+<td>When the dependency should be used. Read more about the <a href="../../user-guide/dependencies/#transitivity-and-scope">dependency scopes</a>.</td>
+<td><code>all</code></td>
+</tr>
+</tbody>
+</table>
+<p>Available scopes:</p>
+<table>
+<thead>
+<tr>
+<th>Scopes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>all</code></td>
+<td>The dependency is available during compilation and runtime.</td>
+</tr>
+<tr>
+<td><code>compile-only</code></td>
+<td>The dependency is only available during compilation. This is a 'provided' dependency in Maven terminology.</td>
+</tr>
+<tr>
+<td><code>runtime-only</code></td>
+<td>The dependency is not available during compilation, but available during testing and running.</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Short form for the dependency attributes</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span><span class="w">                   </span><span class="c1"># Kotlin or Java dependency </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../common-types</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span><span class="w">                        </span><span class="c1"># Dependency on another module in the codebase </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$compose.foundation</span><span class="w">                              </span><span class="c1"># Dependency from the &#39;compose&#39; catalog</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-bom:2.2.0</span><span class="w">                      </span><span class="c1"># Importing BOM </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-serialization-kotlinx-json</span><span class="w">          </span><span class="c1"># Kotlin or Java dependency with a version resolved from BOM</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Full form for the dependency attributes</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">../common-types</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+</code></pre></div>
+<p>The <code>dependencies</code> section can also be <a href="../../user-guide/multiplatform/#platform-qualifier">qualified with a platform</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Dependencies used to build the common part of the product</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.2.0</span>
+
+<span class="c1"># Dependencies used to build the JVM part of the product</span>
+<span class="nt">dependencies@jvm</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-java:2.2.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+</code></pre></div>
+<h2 id="layout"><code>layout</code><a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
+<p>The <code>layout</code> defines the module file structure. Valid values:</p>
+<ul>
+<li><code>amper</code>: place your files in <code>src</code>, <code>test</code>, and <code>resources</code> directories </li>
+<li><code>maven-like</code>: just like Maven (<code>src/main/kotlin</code>, <code>src/main/java</code>, <code>src/test/kotlin</code>, <code>src/main/resources</code>)</li>
+</ul>
+<p>The default value is <code>amper</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">The <code>maven-like</code> layout is only supported in modules with <code>jvm/app</code> or <code>jvm/lib</code> product type.</p>
+</div>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">maven-like</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># ...</span>
+</code></pre></div>
+<h2 id="plugininfo"><code>pluginInfo</code><a class="headerlink" href="#plugininfo" title="Permanent link">&para;</a></h2>
+<p>The <code>pluginInfo</code> section is only available if the <code>product.type</code> is <code>jvm/amper-plugin</code>.
+It configures plugin-specific build settings.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id: string</code></td>
+<td>The ID that is used to refer to the plugin in the configuration files.</td>
+<td>Module name</td>
+</tr>
+<tr>
+<td><code>description: string</code></td>
+<td>The plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.</td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><code>settingsClass: string</code></td>
+<td>The fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory.</td>
+<td><code>null</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="product"><code>product</code><a class="headerlink" href="#product" title="Permanent link">&para;</a></h2>
+<p>The <code>product</code> section defines what should be produced out of the module.
+Read more about the <a href="../../user-guide/basics/#product-type">product types</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type: enum</code></td>
+<td>What type of product to generate.</td>
+</tr>
+<tr>
+<td><code>platform: enum list</code></td>
+<td>What platforms to generate the product for.</td>
+</tr>
+</tbody>
+</table>
+<p>Supported product types and platforms:</p>
+<table>
+<thead>
+<tr>
+<th>Product Type</th>
+<th>Description</th>
+<th>Platforms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lib</code></td>
+<td>A reusable multiplatform library that other modules can depend on.</td>
+<td>any (the list must be specified explicitly)</td>
+</tr>
+<tr>
+<td><code>jvm/lib</code></td>
+<td>A JVM library that other modules can depend on.</td>
+<td><code>jvm</code></td>
+</tr>
+<tr>
+<td><code>jvm/app</code></td>
+<td>A JVM console or desktop application.</td>
+<td><code>jvm</code></td>
+</tr>
+<tr>
+<td><code>linux/app</code></td>
+<td>A native Linux application.</td>
+<td><code>linuxX86</code>, <code>linuxArm64</code></td>
+</tr>
+<tr>
+<td><code>windows/app</code></td>
+<td>A native Windows application.</td>
+<td><code>mingwX64</code></td>
+</tr>
+<tr>
+<td><code>macos/app</code></td>
+<td>A native macOS application.</td>
+<td><code>macosX64</code>, <code>macosArm64</code></td>
+</tr>
+<tr>
+<td><code>android/app</code></td>
+<td>An Android VM application.</td>
+<td><code>android</code></td>
+</tr>
+<tr>
+<td><code>ios/app</code></td>
+<td>An iOS application.</td>
+<td>device: <code>iosArm64</code>, simulators: <code>iosX64</code>, <code>iosSimulatorArm64</code></td>
+</tr>
+<tr>
+<td><code>js/app</code></td>
+<td>A JavaScript application.</td>
+<td><code>js</code></td>
+</tr>
+<tr>
+<td><code>wasmJs/app</code></td>
+<td>A Wasm (JS) application.</td>
+<td><code>wasmJs</code></td>
+</tr>
+<tr>
+<td><code>wasmWasi/app</code></td>
+<td>A Wasm (WASI) application.</td>
+<td><code>wasmWasi</code></td>
+</tr>
+</tbody>
+</table>
+<p>Check the list of all <a href="https://kotlinlang.org/docs/native-target-support.html">Kotlin Multiplatform targets</a> and the
+level of their support.</p>
+<p>Examples:</p>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="c1"># Defaults to all supported platforms for the corresponding target</span>
+<span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">macos/app</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Full form, explicitly specified platforms</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">macos/app</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">macosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macosArm64</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Multiplatform Library for JVM and Android platforms</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h2 id="repositories"><code>repositories</code><a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
+<p>The <code>repositories</code> section defines the list of repositories used to look up and download the module dependencies.
+Read more about the <a href="../../user-guide/dependencies/#managing-maven-repositories">dependency repositories</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url: string</code></td>
+<td>The url of the repository.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>id: string</code></td>
+<td>The ID of the repository, used for to reference it.</td>
+<td>repository url</td>
+</tr>
+<tr>
+<td><code>credentials: object</code></td>
+<td>Credentials for the authenticated repositories.</td>
+<td>empty</td>
+</tr>
+</tbody>
+</table>
+<p>Read more on the <a href="../../user-guide/dependencies/#managing-maven-repositories">repository configuration</a>
+Credentials support username/password authentication and have the following attributes:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file: path</code></td>
+<td>A relative path to a file with the credentials. Currently, only <code>*.property</code> files are supported.</td>
+</tr>
+<tr>
+<td><code>usernameKey: string</code></td>
+<td>A key in the file that holds the username.</td>
+</tr>
+<tr>
+<td><code>passwordKey: string</code></td>
+<td>A key in the file that holds the password.</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Full form</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Specifying credentials</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://my.private.repository/</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./local.properties</span>
+<span class="w">      </span><span class="nt">usernameKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.username</span>
+<span class="w">      </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.private.repository.password</span><span class="w">  </span>
+</code></pre></div>
+<h2 id="settings-and-test-settings"><code>settings</code> and <code>test-settings</code><a class="headerlink" href="#settings-and-test-settings" title="Permanent link">&para;</a></h2>
+<p>The <code>settings</code> section configures the toolchains used in the build process.</p>
+<p>The <code>test-settings</code> section controls building and running the module tests.
+Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
+<h3 id="settingsandroid"><code>settings.android</code><a class="headerlink" href="#settingsandroid" title="Permanent link">&para;</a></h3>
+<p><code>settings.android</code> configures the Android toolchain and platform.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>applicationId: string</code></td>
+<td>The ID for the application on a device and in the Google Play Store. <a href="https://developer.android.com/build/configure-app-module#set-namespace">Read more</a>.</td>
+<td>(namespace)</td>
+</tr>
+<tr>
+<td><code>namespace: string</code></td>
+<td>A Kotlin or Java package name for the generated <code>R</code> and <code>BuildConfig</code> classes. <a href="https://developer.android.com/build/configure-app-module#set-namespace">Read more</a>.</td>
+<td>org.example.namespace</td>
+</tr>
+<tr>
+<td><code>compileSdk: int</code></td>
+<td>The API level to compile the code. The code can use only the Android APIs up to that API level. <a href="https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()">Read more</a>.</td>
+<td>36</td>
+</tr>
+<tr>
+<td><code>targetSdk: int</code></td>
+<td>The target API level for the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
+<td>(compileSdk)</td>
+</tr>
+<tr>
+<td><code>minSdk: int</code></td>
+<td>Minimum API level needed to run the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>maxSdk: int</code></td>
+<td>Maximum API level on which the application can run. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>signing: object</code></td>
+<td>Android signing settings. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>versionCode: int</code></td>
+<td>Version code. <a href="https://developer.android.com/studio/publish/versioning">Read more</a>.</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>versionName: string</code></td>
+<td>Version name. <a href="https://developer.android.com/studio/publish/versioning">Read more</a>.</td>
+<td>unspecified</td>
+</tr>
+<tr>
+<td><code>parcelize: object \| string</code></td>
+<td>Configure <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a>.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="settingsandroidparcelize"><code>settings.android.parcelize</code><a class="headerlink" href="#settingsandroidparcelize" title="Permanent link">&para;</a></h4>
+<p><code>settings.android.parcelize</code> configures <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a> for the Android
+platform in the module. The value can be the simple <code>enabled</code> string, or an object with the following attributes:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Whether to enable <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a>. When enabled, an implementation of the <code>Parcelable</code> interface is automatically generated for classes annotated with <code>@Parcelize</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>additionalAnnotations: string list</code></td>
+<td>The full-qualified names of additional annotations that should be considered as <code>@Parcelize</code>. This is useful if you need to annotate classes in common code shared between different platforms, where the real <code>@Parcelize</code> annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it.</td>
+<td>(empty)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="c1"># Enables Parcelize to process @Parcelize-annotated classes</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Custom annotation</span><pre><span></span><code><span class="c1"># Configures Parcelize to process a custom @com.example.MyCommonParcelize annotation</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">parcelize</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">additionalAnnotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.MyCommonParcelize</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h4 id="settingsandroidsigning"><code>settings.android.signing</code><a class="headerlink" href="#settingsandroidsigning" title="Permanent link">&para;</a></h4>
+<p><code>settings.android.signing</code> configures signing of Android apps <a href="https://developer.android.com/studio/publish/app-signing">Read more</a></p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Whether signing enabled or not. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>propertiesFile: path</code></td>
+<td>Location of properties file. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
+<td>./keystore.properties</td>
+</tr>
+</tbody>
+</table>
+<h3 id="settingscompose"><code>settings.compose</code><a class="headerlink" href="#settingscompose" title="Permanent link">&para;</a></h3>
+<p><code>settings.compose</code> configures the <a href="https://www.jetbrains.com/lp/compose-multiplatform/">Compose Multiplatform</a>
+framework. Read more about <a href="../../user-guide/builtin-tech/compose-multiplatform/">Compose configuration</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable Compose runtime, dependencies and the compiler plugins.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>The Compose plugin version to use.</td>
+<td><code>1.8.2</code></td>
+</tr>
+<tr>
+<td><code>resources: object</code></td>
+<td>Compose Resources settings.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>experimental: object</code></td>
+<td>Experimental Compose settings.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>settings.compose.resources</code> configures Compose Resources settings.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packageName: string</code></td>
+<td>A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact.</td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td><code>exposedAccessors: boolean</code></td>
+<td>Whether the generated resources accessors should be exposed to other modules (public) or internal.</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>settings.compose.experimental</code> configures experimental Compose features.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hotReload: object</code></td>
+<td>Experimental Compose hot-reload settings.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>settings.compose.experimental.hotReload</code> configures experimental hot reload (JVM only).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version: string</code></td>
+<td>The Compose Hot Reload toolchain version to use.</td>
+<td><code>1.0.0-rc01</code></td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><span class="filename">Short form</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Full form</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.6.10</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Full form with resources configuration</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compose</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.6.10</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">packageName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.myapp.resources&quot;</span>
+<span class="w">      </span><span class="nt">exposedAccessors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="settingsjava"><code>settings.java</code><a class="headerlink" href="#settingsjava" title="Permanent link">&para;</a></h3>
+<p><code>settings.java</code> configures the Java language and the compiler.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>annotationProcessing: object</code></td>
+<td>Java annotation processing settings</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>freeCompilerArgs: string list</code></td>
+<td>Pass any compiler option directly to the Java compiler</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>compileIncrementally: boolean</code></td>
+<td>Enables incremental compilation for Java sources</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="settingsjavaannotationprocessing"><code>settings.java.annotationProcessing</code><a class="headerlink" href="#settingsjavaannotationprocessing" title="Permanent link">&para;</a></h4>
+<p><code>settings.java.annotationProcessing</code> configures Java annotation processing.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>processors: list</code></td>
+<td>The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>processorOptions: map</code></td>
+<td>Options to pass to annotation processors</td>
+<td>(empty)</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">java</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.mapstruct:mapstruct-processor:1.6.3</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Passing processor options</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">java</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotationProcessing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$libs.auto.service</span><span class="w"> </span><span class="c1"># using catalog reference</span>
+<span class="w">      </span><span class="nt">processorOptions</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="settingsjunit"><code>settings.junit</code><a class="headerlink" href="#settingsjunit" title="Permanent link">&para;</a></h3>
+<p><code>settings.junit</code> configures the JUnit test runner on the JVM and Android platforms. Read more
+about <a href="../../user-guide/testing/">testing support</a>.</p>
+<p>By default, JUnit 5 is used.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>junit-5</code></td>
+<td>JUnit 5 dependencies and the test runner are configured (default).</td>
+</tr>
+<tr>
+<td><code>junit-4</code></td>
+<td>JUnit 4 dependencies and the test runner are configured.</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>JUnit is not automatically configured.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="settingsjvm"><code>settings.jvm</code><a class="headerlink" href="#settingsjvm" title="Permanent link">&para;</a></h3>
+<p><code>settings.jvm</code> configures the JVM platform-specific settings.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>release: enum</code></td>
+<td>The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>mainClass: string</code></td>
+<td>(Only for <code>jvm/app</code> <a href="../../user-guide/basics/#product-type">product type</a>) The fully-qualified name of the class used to run the application.</td>
+<td><a href="../../user-guide/basics/#jvm">auto-detected</a></td>
+</tr>
+<tr>
+<td><code>storeParameterNames: boolean</code></td>
+<td>Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>runtimeClasspathMode: enum</code></td>
+<td>How the runtime classpath is constructed: <code>jars</code> (default) builds local module dependencies as jars; <code>classes</code> uses compiled classes for local modules on the runtime classpath.</td>
+<td><code>jars</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="settingsjvmtest"><code>settings.jvm.test</code><a class="headerlink" href="#settingsjvmtest" title="Permanent link">&para;</a></h4>
+<p><code>settings.jvm.test</code> configures the test settings on the JVM and Android platforms.
+Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>junitPlatformVersion: string</code></td>
+<td>The JUnit platform version used to run tests.</td>
+</tr>
+<tr>
+<td><code>systemProperties: map</code></td>
+<td>JVM system properties for the test process.</td>
+</tr>
+<tr>
+<td><code>freeJvmArgs: string list</code></td>
+<td>Free JVM arguments for the test process.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="settingskotlin"><code>settings.kotlin</code><a class="headerlink" href="#settingskotlin" title="Permanent link">&para;</a></h3>
+<p><code>settings.kotlin</code> configures the Kotlin language and the compiler.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>languageVersion: enum</code></td>
+<td>Provide source compatibility with the specified version of Kotlin.</td>
+<td>2.1</td>
+</tr>
+<tr>
+<td><code>apiVersion: enum</code></td>
+<td>Allow using declarations only from the specified version of Kotlin bundled libraries.</td>
+<td>(languageVersion)</td>
+</tr>
+<tr>
+<td><code>allWarningsAsErrors: boolean</code></td>
+<td>Turn any warnings into a compilation error.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>suppressWarnings: boolean</code></td>
+<td>Suppress the compiler from displaying warnings during compilation.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>verbose: boolean</code></td>
+<td>Enable verbose logging output which includes details of the compilation process.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>progressiveMode: boolean</code></td>
+<td>Enable the <a href="https://kotlinlang.org/docs/compiler-reference.html#progressive">progressive mode for the compiler</a>.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>optIns: enum list</code></td>
+<td>Enable usages of API that <a href="https://kotlinlang.org/docs/opt-in-requirements.html">requires opt-in</a> with a requirement annotation with the given fully qualified name.</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>freeCompilerArgs: string list</code></td>
+<td>Pass any <a href="https://kotlinlang.org/docs/compiler-reference.html#compiler-options">compiler option</a> directly.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>debug: boolean</code></td>
+<td>(Only for <a href="https://kotlinlang.org/docs/native-target-support.html">native targets</a>) Enable emitting debug information.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>serialization: object \| enum</code></td>
+<td>Configure <a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin serialization</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>allOpen: object</code></td>
+<td>Configure the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>noArg: object</code></td>
+<td>Configure the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>serialization</code> attribute is an object with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable the <code>@Serializable</code> annotation processing, and add the core serialization library. When enabled, a built-in catalog for kotlinx.serialization format dependencies is provided.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>format: enum</code></td>
+<td>A shortcut for <code>enabled: true</code> and adding the given serialization format dependency. For instance, <code>json</code> adds the JSON format in addition to enabling serialization.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>The version to use for the core serialization library and the serialization formats.</td>
+<td><code>1.9.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>You can also use a short form and directly specify <code>serialization: enabled</code> or <code>serialization: json</code>.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Set Kotlin language version and opt-ins</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">    </span><span class="nt">optIns</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">kotlin.io.path.ExperimentalPathApi</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable Kotlin Serialization with the JSON format</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable Kotlin Serialization with the JSON format and a specific version </span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9.0</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable Kotlin Serialization with multiple formats</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable Kotlin Serialization with multiple formats and a specific version </span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9.0</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
+</code></pre></div>
+<h4 id="settingskotlinallopen"><code>settings.kotlin.allOpen</code><a class="headerlink" href="#settingskotlinallopen" title="Permanent link">&para;</a></h4>
+<p><code>settings.kotlin.allOpen</code> configures the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>,
+which makes classes annotated with specific annotations open automatically without the explicit <code>open</code> keyword.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable the Kotlin all-open compiler plugin</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>annotations: string list</code></td>
+<td>List of annotations that trigger open class/method generation</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>presets: enum list</code></td>
+<td>Predefined sets of annotations for common frameworks (available presets: <code>spring</code>, <code>micronaut</code>, and <code>quarkus</code>)</td>
+<td>(empty)</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><span class="filename">All-open with custom annotations</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.MyOpen</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">com.example.MyFramework.Open</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">All-open with Spring preset</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allOpen</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">spring</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h4 id="settingskotlinnoarg"><code>settings.kotlin.noArg</code><a class="headerlink" href="#settingskotlinnoarg" title="Permanent link">&para;</a></h4>
+<p><code>settings.kotlin.noArg</code> configures the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>,
+which generates no-arg constructors for classes with specific annotations.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable the Kotlin no-arg compiler plugin</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>annotations: string list</code></td>
+<td>List of annotations that trigger no-arg constructor generation</td>
+<td>(empty)</td>
+</tr>
+<tr>
+<td><code>invokeInitializers: boolean</code></td>
+<td>Whether to call initializers in the synthesized constructor</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>presets: enum list</code></td>
+<td>Predefined sets of annotations (currently only <code>jpa</code> preset for JPA entity annotations)</td>
+<td>(empty)</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight"><span class="filename">No-arg with JPA preset</span><pre><span></span><code><span class="c1"># Enable no-arg for JPA entities</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jpa</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">No-arg with custom annotations</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">noArg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">com.example.NoArg</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">invokeInitializers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="settingsktor"><code>settings.ktor</code><a class="headerlink" href="#settingsktor" title="Permanent link">&para;</a></h3>
+<p><code>settings.ktor</code> configures the Ktor.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable Ktor</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>Ktor version</td>
+<td><code>3.2.3</code></td>
+</tr>
+<tr>
+<td><code>applyBom: boolean</code></td>
+<td>Whether to apply the Ktor <abbr title="Bill of materials">BOM</abbr></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ktor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.3.2</span><span class="w"> </span><span class="c1"># version customization</span>
+</code></pre></div>
+<h3 id="settingslombok"><code>settings.lombok</code><a class="headerlink" href="#settingslombok" title="Permanent link">&para;</a></h3>
+<p><code>settings.lombok</code> configures Lombok.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable Lombok</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>Lombok version for runtime and annotation processor</td>
+<td><code>1.18.38</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lombok</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="settingsnative"><code>settings.native</code><a class="headerlink" href="#settingsnative" title="Permanent link">&para;</a></h3>
+<p><code>settings.native</code> configures settings specific to native applications.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>entryPoint: string</code></td>
+<td>The fully-qualified name of the application's entry point function</td>
+<td><code>null</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Configure native settings for the module</span>
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">native</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">entryPoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.example.MainKt.main</span>
+</code></pre></div>
+<h3 id="settingsspringboot"><code>settings.springBoot</code><a class="headerlink" href="#settingsspringboot" title="Permanent link">&para;</a></h3>
+<p><code>settings.springBoot</code> configures the Spring Boot framework (JVM platform only).</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled: boolean</code></td>
+<td>Enable Spring Boot</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>version: string</code></td>
+<td>Spring Boot version</td>
+<td><code>3.5.5</code></td>
+</tr>
+<tr>
+<td><code>applyBom: boolean</code></td>
+<td>Whether to apply the Spring Boot <abbr title="Bill of materials">BOM</abbr></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">springBoot</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.1.0</span><span class="w"> </span><span class="c1"># version customization</span>
+</code></pre></div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:35:06 UTC">November 20, 2025</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../project/" class="md-footer__link md-footer__link--prev" aria-label="Previous: project.yaml">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                project.yaml
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../faq/" class="md-footer__link md-footer__link--next" aria-label="Next: FAQ">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                FAQ
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
