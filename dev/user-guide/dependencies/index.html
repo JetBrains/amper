@@ -956,6 +956,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Managing Maven repositories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2148,6 +2187,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Managing Maven repositories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2432,19 +2510,53 @@ example:
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$my-catalog.db-engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span><span class="w"> </span>
 </code></pre></div>
 <h2 id="managing-maven-repositories">Managing Maven repositories<a class="headerlink" href="#managing-maven-repositories" title="Permanent link">&para;</a></h2>
-<p>By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options:</p>
+<p>Amper needs to fetch Maven dependencies from a Maven repository to use them in your project.
+This section describes the default repositories and how to configure more.</p>
+<h3 id="default-repositories">Default repositories<a class="headerlink" href="#default-repositories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maven Central</td>
+<td><code>https://repo1.maven.org/maven2</code></td>
+</tr>
+<tr>
+<td>Google</td>
+<td><code>https://maven.google.com</code></td>
+</tr>
+<tr>
+<td>Compose Multiplatform (dev)</td>
+<td><code>https://maven.pkg.jetbrains.space/public/p/compose/dev</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="adding-repositories">Adding repositories<a class="headerlink" href="#adding-repositories" title="Permanent link">&para;</a></h3>
+<p>To add more repositories on top of the default ones, add a <code>repositories</code> list to your <code>module.yaml</code> file:</p>
 <div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://dl.google.com/dl/android/maven2/</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.spring.io/ui/native/release</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://dl.google.com/dl/android/maven2/</span><span class="w"> </span><span class="c1">#(2)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jitpack</span><span class="w"> </span><span class="c1">#(3)!</span>
 <span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://jitpack.io</span>
 </code></pre></div>
-<p>For private repositories, you can configure credentials this way:</p>
+<ol>
+<li>When using just a string, it is used as both the <code>url</code> and <code>id</code> of the repository.</li>
+<li>When only the <code>url</code> is set, the <code>id</code> defaults to the URL. This is equivalent to just using the URL string without the <code>url:</code> key.</li>
+<li>You can use a custom <code>id</code> that is different from the URL by specifying the <code>id:</code> key explicitly.</li>
+</ol>
+<h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
+<p>Private Maven repositories require authentication.
+Amper only supports username/password authentication via a <code>.properties</code> file at the moment.
+You can configure it this way:</p>
 <div class="grid">
 <div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">repositories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://repo.company.com</span>
 <span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../local.properties</span><span class="w"> </span><span class="c1"># (1)!</span>
+<span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../local.properties</span><span class="w"> </span><span class="c1">#(1)!</span>
 <span class="w">      </span><span class="nt">usernameKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.username</span>
 <span class="w">      </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.password</span>
 </code></pre></div>
@@ -2454,10 +2566,6 @@ example:
 <div class="highlight"><span class="filename">local.properties</span><pre><span></span><code><span class="na">my.username</span><span class="o">=</span><span class="s">joffrey.bion</span>
 <span class="na">my.password</span><span class="o">=</span><span class="s">YouWishYouKnewIt</span>
 </code></pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently only <code>*.properties</code> files with credentials are supported.</p>
 </div>
 <h2 id="using-a-maven-bom">Using a Maven <abbr title="Bill of materials">BOM</abbr><a class="headerlink" href="#using-a-maven-bom" title="Permanent link">&para;</a></h2>
 <p>To import a <abbr title="Bill of materials">BOM</abbr>, specify its coordinates prefixed by <code>bom:</code></p>
@@ -2521,7 +2629,7 @@ declare a <abbr title="Bill of materials">BOM</abbr> that provides a version for
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 15:32:08 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 22, 2025 01:26:29 UTC">November 22, 2025</span>
   </span>
 
     
