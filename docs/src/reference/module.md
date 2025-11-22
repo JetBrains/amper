@@ -197,15 +197,14 @@ product:
 ## `repositories`
 
 The `repositories` section defines the list of repositories used to look up and download the module dependencies.
-Read more about the [dependency repositories](../user-guide/dependencies.md#managing-maven-repositories).
+Read more about [Managing Maven repositories](../user-guide/dependencies.md#managing-maven-repositories).
 
-| Attribute             | Description                                         | Default        | 
-|-----------------------|-----------------------------------------------------|----------------| 
-| `url: string`         | The url of the repository.                          |                |
-| `id: string`          | The ID of the repository, used for to reference it. | repository url |
-| `credentials: object` | Credentials for the authenticated repositories.     | empty          |
+| Attribute             | Description                                     | Default        | 
+|-----------------------|-------------------------------------------------|----------------| 
+| `url: string`         | The URL of the repository.                      |                |
+| `id: string`          | The ID of the repository, used to reference it. | repository url |
+| `credentials: object` | Credentials for the authenticated repositories. | empty          |
 
-Read more on the [repository configuration](../user-guide/dependencies.md#managing-maven-repositories)
 Credentials support username/password authentication and have the following attributes:
 
 | Attribute             | Description                                                                                       |
@@ -218,9 +217,11 @@ Examples:
 
 ```yaml title="Short form"
 repositories:
-  - https://repo.spring.io/ui/native/release
+  - https://repo.spring.io/ui/native/release #(1)!
   - https://jitpack.io
 ```
+
+1. When using just a string, it is used as both the `url` and `id` of the repository
 
 ```yaml title="Full form"
 repositories:
@@ -236,6 +237,11 @@ repositories:
       file: ./local.properties
       usernameKey: my.private.repository.username
       passwordKey: my.private.repository.password  
+```
+
+```yaml title="Using the local Maven repository"
+repositories:
+  - mavenLocal # special URL that points to ~/.m2/repository
 ```
 
 ## `settings` and `test-settings`

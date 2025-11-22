@@ -290,24 +290,45 @@ dependencies:
 
 ## Managing Maven repositories
 
-By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options:
+Amper needs to fetch Maven dependencies from a Maven repository to use them in your project.
+This section describes the default repositories and how to configure more.
+
+### Default repositories
+
+| Name                        | URL                                                      |
+|-----------------------------|----------------------------------------------------------|
+| Maven Central               | `https://repo1.maven.org/maven2`                         |
+| Google                      | `https://maven.google.com`                               |
+| Compose Multiplatform (dev) | `https://maven.pkg.jetbrains.space/public/p/compose/dev` |
+
+### Adding repositories
+
+To add more repositories on top of the default ones, add a `repositories` list to your `module.yaml` file:
 
 ```yaml title="module.yaml"
 repositories:
-  - https://repo.spring.io/ui/native/release
-  - url: https://dl.google.com/dl/android/maven2/
-  - id: jitpack
+  - https://repo.spring.io/ui/native/release #(1)!
+  - url: https://dl.google.com/dl/android/maven2/ #(2)!
+  - id: jitpack #(3)!
     url: https://jitpack.io
 ```
 
-For private repositories, you can configure credentials this way:
+1. When using just a string, it is used as both the `url` and `id` of the repository.
+2. When only the `url` is set, the `id` defaults to the URL. This is equivalent to just using the URL string without the `url:` key.
+3. You can use a custom `id` that is different from the URL by specifying the `id:` key explicitly.
+
+### Authentication
+
+Private Maven repositories require authentication.
+Amper only supports username/password authentication via a `.properties` file at the moment.
+You can configure it this way:
 
 <div class="grid" markdown>
 ```yaml title="module.yaml"
 repositories:
   - url: https://repo.company.com
     credentials:
-      file: ../local.properties # (1)!
+      file: ../local.properties #(1)!
       usernameKey: my.username
       passwordKey: my.password
 ```
@@ -319,10 +340,6 @@ my.username=joffrey.bion
 my.password=YouWishYouKnewIt
 ```
 </div>
-
-!!! note
-
-    Currently only `*.properties` files with credentials are supported.
 
 ## Using a Maven BOM
 
