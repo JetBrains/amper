@@ -254,6 +254,14 @@ class NativeSettings : SchemaNode() {
     // TODO other options from NativeApplicationPart
     @SchemaDoc("The fully-qualified name of the application's entry point function")
     var entryPoint by nullableValue<String>()
+
+    @SchemaDoc("C/Objective-C interop settings for native targets")
+    val cinterop: CinteropSettings by nested()
+}
+
+class CinteropSettings : SchemaNode() {
+    @SchemaDoc("A list of .def files for cinterop generation.")
+    var defs: List<String> by value(emptyList())
 }
 
 class KtorSettings: SchemaNode() {
