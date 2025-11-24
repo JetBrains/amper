@@ -52,7 +52,7 @@ Then such a plugin is present in the `modules` list, but not included in the `pl
 ??? note "Similar to `apply false` in Gradle..."
     Amper's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
     recommended approach in Gradle. There one lists plugins at the project level with the `apply false` clause and
-    then just enables them where needed.
+    then enables them where needed.
 
 ## Enabling plugins
 
