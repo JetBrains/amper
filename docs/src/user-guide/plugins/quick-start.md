@@ -47,7 +47,7 @@ plugins: #(5)!
 
 1.    Regular module, e.g., `jvm/app`
 2.    Our plugin is also a normal module and needs to be listed here
-3.    Regular `jvm/lib` module, that contains, e.g., generic utilities useful for most modules in the project
+3.    Regular module, e.g., `jvm/lib` that contains generic utilities useful for most modules in the project
 4.    There may be other project modules
 5.    This is a block where we list our plugin dependencies to [make available](topics/structure.md#making-plugins-available-in-the-project) in the project.
 
