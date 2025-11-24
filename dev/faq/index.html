@@ -329,6 +329,28 @@
     
     
       <li class="md-tabs__item">
+        <a href="../cli/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../reference/project/" class="md-tabs__link">
           
   
@@ -473,8 +495,6 @@
       
         
       
-        
-      
     
     
     
@@ -572,34 +592,6 @@
     
   
     Tutorial
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../getting-started/cli/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Amper CLI
   
 
     
@@ -1586,6 +1578,8 @@
     
       
         
+          
+        
       
         
       
@@ -1605,7 +1599,109 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <div class="md-nav__link md-nav__container">
+            <a href="../cli/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/provisioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wrapper & provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1623,8 +1719,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2511,7 +2607,7 @@ improving the developer experience and the IDE support in an already exising pow
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <h3 id="what-are-the-requirements-to-use-amper">What are the requirements to use Amper?<a class="headerlink" href="#what-are-the-requirements-to-use-amper" title="Permanent link">&para;</a></h3>
 <p>The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
-build iOS applications. See the <a href="../getting-started/cli/">CLI instructions</a>.</p>
+build iOS applications. See the <a href="../cli/">CLI instructions</a>.</p>
 <p>We recommend using the latest <a href="https://www.jetbrains.com/idea/nextversion/">IntelliJ IDEA EAP</a> to make the most out of
 Amper. Our focus on the tooling and UX really pays off in IntelliJ IDEA. To learn about the required and optional 
 plugins in IntelliJ IDEA, see the <a href="../getting-started/ide-setup/">IDE setup instructions</a>.</p>
@@ -2525,7 +2621,7 @@ plugins in IntelliJ IDEA, see the <a href="../getting-started/ide-setup/">IDE se
 <p>Kick-start your project using one of the <a href="https://github.com/JetBrains/amper/tree/main/examples">examples</a></p>
 </li>
 <li>
-<p>Download the Amper script by following the <a href="../getting-started/cli/">CLI instructions</a>, and generate a project 
+<p>Download the Amper script by following the <a href="../cli/">CLI instructions</a>, and generate a project 
   from a template using the <code>./amper init</code> command.</p>
 </li>
 </ul>
@@ -2580,7 +2676,7 @@ Please submit your requests and sugg estions in the
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 14:25:14 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 10:14:30 UTC">November 24, 2025</span>
   </span>
 
     

@@ -12,31 +12,31 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/">
+        <link rel="canonical" href="https://amper.org/dev/cli/provisioning/">
       
       
-        <link rel="prev" href="../ios/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../ktor/">
+        <link rel="next" href="../../reference/project/">
       
       
         
       
       
-      <link rel="icon" href="../../../images/amper-icon.svg">
+      <link rel="icon" href="../../images/amper-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Kotlin Serialization - Amper</title>
+        <title>Wrapper & provisioning - Amper</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -61,9 +61,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,17 +71,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Kotlin Serialization - Amper" />
+<meta property="og:title" content="Wrapper & provisioning - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlin-serialization.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/cli/provisioning.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/" />
+<meta property="og:url" content="https://amper.org/dev/cli/provisioning/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Kotlin Serialization - Amper" />
+<meta property="twitter:title" content="Wrapper & provisioning - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlin-serialization.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/cli/provisioning.png" />
 </head>
   
   
@@ -101,7 +101,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#kotlin-serialization" class="md-skip">
+        <a href="#wrapper-script-provisioning" class="md-skip">
           Skip to content
         </a>
       
@@ -119,9 +119,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../../images/amper-icon.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -138,7 +138,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kotlin Serialization
+              Wrapper & provisioning
             
           </span>
         </div>
@@ -266,7 +266,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -287,7 +287,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../getting-started/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -305,13 +305,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
           
   
   
@@ -329,11 +327,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../cli/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -355,7 +355,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../reference/project/" class="md-tabs__link">
+        <a href="../../reference/project/" class="md-tabs__link">
           
   
   
@@ -375,7 +375,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../faq/" class="md-tabs__link">
+      <a href="../../faq/" class="md-tabs__link">
         
   
   
@@ -429,9 +429,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../../images/amper-icon.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     Amper
@@ -458,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -512,7 +512,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../getting-started/" class="md-nav__link ">
+            <a href="../../getting-started/" class="md-nav__link ">
               
   
   
@@ -556,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../getting-started/ide-setup/" class="md-nav__link">
+      <a href="../../getting-started/ide-setup/" class="md-nav__link">
         
   
   
@@ -584,7 +584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../getting-started/tutorial/" class="md-nav__link">
+      <a href="../../getting-started/tutorial/" class="md-nav__link">
         
   
   
@@ -616,8 +616,6 @@
       
   
   
-    
-  
   
   
     
@@ -649,21 +647,20 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../user-guide/" class="md-nav__link ">
               
   
   
@@ -681,13 +678,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -707,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../basics/" class="md-nav__link">
+      <a href="../../user-guide/basics/" class="md-nav__link">
         
   
   
@@ -735,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dependencies/" class="md-nav__link">
+      <a href="../../user-guide/dependencies/" class="md-nav__link">
         
   
   
@@ -763,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multiplatform/" class="md-nav__link">
+      <a href="../../user-guide/multiplatform/" class="md-nav__link">
         
   
   
@@ -791,7 +788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../testing/" class="md-nav__link">
+      <a href="../../user-guide/testing/" class="md-nav__link">
         
   
   
@@ -819,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../templates/" class="md-nav__link">
+      <a href="../../user-guide/templates/" class="md-nav__link">
         
   
   
@@ -844,10 +841,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -872,11 +867,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
         
           
           <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
@@ -897,7 +894,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -915,7 +912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../android/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/android/" class="md-nav__link">
         
   
   
@@ -943,7 +940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../compose-multiplatform/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
         
   
   
@@ -971,7 +968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ios/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/ios/" class="md-nav__link">
         
   
   
@@ -996,37 +993,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Kotlin Serialization
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
         
   
   
@@ -1042,37 +1012,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#more-control-over-serialization-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        More control over serialization formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1085,7 +1024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ktor/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/ktor/" class="md-nav__link">
         
   
   
@@ -1113,7 +1052,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lombok/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/lombok/" class="md-nav__link">
         
   
   
@@ -1141,7 +1080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../spring/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/spring/" class="md-nav__link">
         
   
   
@@ -1243,7 +1182,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/overview/" class="md-nav__link">
+      <a href="../../plugins/overview/" class="md-nav__link">
         
   
   
@@ -1271,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/quick-start/" class="md-nav__link">
+      <a href="../../plugins/quick-start/" class="md-nav__link">
         
   
   
@@ -1299,7 +1238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/topics/structure/" class="md-nav__link">
+      <a href="../../plugins/topics/structure/" class="md-nav__link">
         
   
   
@@ -1327,7 +1266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/topics/configuration/" class="md-nav__link">
+      <a href="../../plugins/topics/configuration/" class="md-nav__link">
         
   
   
@@ -1355,7 +1294,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/topics/references/" class="md-nav__link">
+      <a href="../../plugins/topics/references/" class="md-nav__link">
         
   
   
@@ -1383,7 +1322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plugins/topics/tasks/" class="md-nav__link">
+      <a href="../../plugins/topics/tasks/" class="md-nav__link">
         
   
   
@@ -1481,7 +1420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/java-annotation-processing/" class="md-nav__link">
+      <a href="../../user-guide/advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1509,7 +1448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/ksp/" class="md-nav__link">
+      <a href="../../user-guide/advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1537,7 +1476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../../user-guide/advanced/kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1565,7 +1504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/maven-like-layout/" class="md-nav__link">
+      <a href="../../user-guide/advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1601,7 +1540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../yaml-primer/" class="md-nav__link">
+      <a href="../../user-guide/yaml-primer/" class="md-nav__link">
         
   
   
@@ -1633,6 +1572,8 @@
       
   
   
+    
+  
   
   
     
@@ -1648,20 +1589,21 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../cli/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1679,13 +1621,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1702,10 +1644,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../cli/provisioning/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wrapper & provisioning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1721,6 +1690,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-the-wrapper-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's the wrapper script?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bootstrap-cache-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bootstrap cache location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disabling-the-welcome-banner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabling the welcome banner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncharted-customization-territories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uncharted customization territories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Uncharted customization territories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customizing-ampers-own-jvm-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing Amper's own JVM options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-jre-used-to-run-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the JRE used to run Amper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-amper-distribution-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the Amper distribution URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1798,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/project/" class="md-nav__link">
+      <a href="../../reference/project/" class="md-nav__link">
         
   
   
@@ -1826,7 +1909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/module/" class="md-nav__link">
+      <a href="../../reference/module/" class="md-nav__link">
         
   
   
@@ -1861,7 +1944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../faq/" class="md-nav__link">
+      <a href="../../faq/" class="md-nav__link">
         
   
   
@@ -1935,13 +2018,96 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#more-control-over-serialization-formats" class="md-nav__link">
+  <a href="#whats-the-wrapper-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        More control over serialization formats
+        What's the wrapper script?
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bootstrap-cache-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bootstrap cache location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disabling-the-welcome-banner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabling the welcome banner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncharted-customization-territories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uncharted customization territories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Uncharted customization territories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customizing-ampers-own-jvm-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing Amper's own JVM options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-jre-used-to-run-amper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the JRE used to run Amper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-amper-distribution-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the Amper distribution URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1962,7 +2128,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/builtin-tech/kotlin-serialization.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/cli/provisioning.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1970,75 +2136,88 @@
   
 
 
-<h1 id="kotlin-serialization">Kotlin Serialization<a class="headerlink" href="#kotlin-serialization" title="Permanent link">&para;</a></h1>
-<p><a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin Serialization</a> is the official multiplatform and multi-format
-serialization library for Kotlin.</p>
-<p>If you need to (de)serialize Kotlin classes to/from JSON, you can enable Kotlin Serialization it in its simplest form:
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w">  </span><span class="c1"># JSON or other format</span>
+<h1 id="wrapper-script-provisioning">Wrapper script &amp; provisioning<a class="headerlink" href="#wrapper-script-provisioning" title="Permanent link">&para;</a></h1>
+<p>Part of Amper's philosophy is to avoid the hassle of setting up toolchains, including the JDK and Amper itself.</p>
+<p>The recommended way to use Amper is to check the Amper wrapper script into your project's root folder, so that anyone 
+cloning your project can just run <code>./amper build</code> and start working right away — that's it.
+No installation needed, no matter their OS.</p>
+<h2 id="whats-the-wrapper-script">What's the wrapper script?<a class="headerlink" href="#whats-the-wrapper-script" title="Permanent link">&para;</a></h2>
+<p>The <strong>Amper wrapper script</strong> is a small file (<code>amper</code> or <code>amper.bat</code>) that downloads and runs the actual Amper CLI 
+application<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, and serves as an entry point for all Amper commands.</p>
+<p>Of course, the Amper CLI application is only downloaded once (per version) and subsequent calls to the wrapper 
+immediately delegate to it.</p>
+<h2 id="concurrency">Concurrency<a class="headerlink" href="#concurrency" title="Permanent link">&para;</a></h2>
+<p>The provisioning mechanism and all relevant behaviors in Amper are designed to be safe to use concurrently.
+This means you can run as many Amper commands as you want in parallel, and they won't disturb each other.</p>
+<h2 id="bootstrap-cache-location">Bootstrap cache location<a class="headerlink" href="#bootstrap-cache-location" title="Permanent link">&para;</a></h2>
+<p>By default, when downloading the Amper distribution, the wrapper script places it in a cache directory that is suitable
+for the current OS:</p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Cache directory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg></span> macOS</td>
+<td><code>$HOME/Library/Caches/JetBrains/Amper</code></td>
+</tr>
+<tr>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.62 8.35c-.42.28-1.75 1.04-1.95 1.19-.39.31-.75.29-1.14-.01-.2-.16-1.53-.92-1.95-1.19-.48-.31-.45-.7.08-.92 1.64-.69 3.28-.64 4.91.03.49.21.51.6.05.9m7.22 7.28c-.93-2.09-2.2-3.99-3.84-5.66a4.3 4.3 0 0 1-1.06-1.88c-.1-.33-.17-.67-.24-1.01-.2-.88-.29-1.78-.7-2.61-.73-1.58-2-2.4-3.84-2.47-1.81.05-3.16.81-3.95 2.4-.21.43-.36.88-.46 1.34-.17.76-.32 1.55-.5 2.32-.15.65-.45 1.21-.96 1.71-1.61 1.57-2.9 3.37-3.88 5.35-.14.29-.28.58-.37.88-.19.66.29 1.12.99.96.44-.09.88-.18 1.3-.31.41-.15.57-.05.67.35.65 2.15 2.07 3.66 4.24 4.5 4.12 1.56 8.93-.66 9.97-4.58.07-.27.17-.37.47-.27.46.14.93.24 1.4.35.49.09.85-.16.92-.64.03-.26-.06-.49-.16-.73"/></svg></span> Linux</td>
+<td><code>$HOME/.cache/JetBrains/Amper</code><sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></td>
+</tr>
+<tr>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 12V6.75l6-1.32v6.48zm17-9v8.75l-10 .15V5.21zM3 13l6 .09v6.81l-6-1.15zm17 .25V22l-10-1.91V13.1z"/></svg></span> Windows</td>
+<td><code>%LOCALAPPDATA%\JetBrains\Amper</code></td>
+</tr>
+</tbody>
+</table>
+<p>This location can be customized by setting the <code>AMPER_BOOTSTRAP_CACHE_DIR</code> environment variable.</p>
+<h2 id="disabling-the-welcome-banner">Disabling the welcome banner<a class="headerlink" href="#disabling-the-welcome-banner" title="Permanent link">&para;</a></h2>
+<p>When the wrapper script downloads a distribution for the first time, it displays a welcome message to the user.
+This might be too much output if you're running Amper in a CI environment, and provisioning the distribution on every
+build.</p>
+<p>You can disable the welcome banner by setting the <code>AMPER_NO_WELCOME_BANNER</code> environment variable to a non-empty value.
+For instance, <code>AMPER_NO_WELCOME_BANNER=1</code>.</p>
+<h2 id="uncharted-customization-territories">Uncharted customization territories<a class="headerlink" href="#uncharted-customization-territories" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title">Use at your own risk</p>
+<p>While Amper currently is a JVM application, this may change in the future and all the functionality below will break
+without notice (for instance, we could publish Amper as a GraalVM native image).</p>
+<p>Moreover, using these customization features is generally not recommended and may break Amper in unexpected ways, 
+including the Amper update mechanism.</p>
+</div>
+<h3 id="customizing-ampers-own-jvm-options">Customizing Amper's own JVM options<a class="headerlink" href="#customizing-ampers-own-jvm-options" title="Permanent link">&para;</a></h3>
+<p>To add JVM options to the JVM running Amper, use the <code>AMPER_JAVA_OPTIONS</code> environment variable.</p>
+<h3 id="customizing-the-jre-used-to-run-amper">Customizing the JRE used to run Amper<a class="headerlink" href="#customizing-the-jre-used-to-run-amper" title="Permanent link">&para;</a></h3>
+<p>The Amper runtime is not provisioned if the <code>AMPER_JAVA_HOME</code> environment variable is already provided.
+Customizing this variable prevents the auto-provisioning of a JRE by Amper, but it puts the responsibility on you
+to provide a valid JRE. The requirements for the JRE are subject to change without notice and are not documented at the
+moment.</p>
+<p>You can look inside the wrapper scripts to see which JRE is provisioned.</p>
+<h3 id="customizing-the-amper-distribution-url">Customizing the Amper distribution URL<a class="headerlink" href="#customizing-the-amper-distribution-url" title="Permanent link">&para;</a></h3>
+<p>The Amper distribution is downloaded from a Maven repository by fetching the following URL:
+<div class="highlight"><pre><span></span><code>$AMPER_DOWNLOAD_ROOT/org/jetbrains/amper/amper-cli/$amper_version/amper-cli-$amper_version-dist.tgz
 </code></pre></div>
-This snippet configures the compiler to process <code>@Serializable</code> classes, and adds dependencies on the serialization
-runtime and JSON format libraries.</p>
-<p>You can also customize the version of the Kotlin Serialization libraries using the full form of the configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
-</code></pre></div>
-<h2 id="more-control-over-serialization-formats">More control over serialization formats<a class="headerlink" href="#more-control-over-serialization-formats" title="Permanent link">&para;</a></h2>
-<p>If you don't need serialization format dependencies or if you need more control over them, you can use the following:
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w"> </span><span class="c1"># configures the compiler and serialization runtime library</span>
-</code></pre></div>
-This snippet on its own only configures the compiler and the serialization runtime library, but doesn't add any format
-dependency. However, it adds a built-in catalog with official serialization formats libraries, which you can use in
-your <code>dependencies</code> section. This is useful in multiple cases:</p>
-<ul>
-<li>
-<p>if you need a format dependency only in tests:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">test-dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
-</code></pre></div></p>
+By default, <code>$AMPER_DOWNLOAD_ROOT</code> is <code>https://packages.jetbrains.team/maven/p/amper/amper</code>.
+Changing this variable allows you to use your own Maven repository to host the Amper distribution.</p>
+<p>This is, again, not recommended — please use with care.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>The Amper CLI is, at the moment, a JVM application. The Amper distribution is therefore a bunch of JAR files, and
+  they need a Java Runtime Environment (JRE) to run. This is an implementation detail and may change in the future,
+  so you should not rely on it.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
-<li>
-<p>if you need to customize the scope of the format dependencies:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
-</code></pre></div></p>
+<li id="fn:2">
+<p>The XDG convention is not supported at the moment for the bootstrap cache. 
+  It is, however, respected for the regular Amper cache.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
-<li>
-<p>if you need to expose format dependencies transitively:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>if you need multiple formats:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
-</code></pre></div></p>
-</li>
-</ul>
+</ol>
+</div>
 
 
 
@@ -2059,7 +2238,7 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 10:14:30 UTC">November 24, 2025</span>
   </span>
 
     
@@ -2095,7 +2274,7 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../ios/" class="md-footer__link md-footer__link--prev" aria-label="Previous: iOS">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Amper CLI">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2105,20 +2284,20 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                iOS
+                Amper CLI
               </div>
             </div>
           </a>
         
         
           
-          <a href="../ktor/" class="md-footer__link md-footer__link--next" aria-label="Next: Ktor">
+          <a href="../../reference/project/" class="md-footer__link md-footer__link--next" aria-label="Next: project.yaml">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Ktor
+                project.yaml
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2159,10 +2338,10 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
