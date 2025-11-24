@@ -2,12 +2,13 @@
 
 ## `modules`
 
-The `modules` section lists all the modules in the project, except the root module.
-If a `module.yaml` is present at the root of the project, the root module is implicitly included and doesn't need to be
-listed.
+The `modules` section defines which modules are part of this Amper project.
 
-Each element in the list must be the path to a module directory, relative to the project root.
-A module directory must contain a `module.yaml` file.
+Each list element must be the path to a module directory[^1], relative to the project root. 
+If a `module.yaml` is present in the project root, that root module is always included implicitly and doesn’t need to 
+be listed.
+
+[^1]: That is, a directory that directly contains a `module.yaml`
 
 Example:
 
@@ -18,17 +19,8 @@ modules:
   - ./libs/lib1
 ```
 
-You can also use [Glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) to include multiple module
-directories at the same time.
-Only directories that contain a `module.yaml` file will be considered when matching a glob pattern.
-
-- `*` matches zero or more characters of a path name component without crossing directory boundaries
-- `?` matches exactly one character of a path name component
-- `[abc]` matches exactly one character of the given set (here `a`, `b`, or `c`). A dash (`-`) can be used to match a range, such as `[a-z]`.
-
-Using `**` to recursively match directories at multiple depth levels is not supported.
-
-Example:
+You can also use [glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) to include multiple module
+directories at once. Only directories that contain a `module.yaml` file are taken into account:
 
 ```yaml
 # include all direct subfolders in the `plugins` dir that contain `module.yaml` files:
@@ -36,10 +28,19 @@ modules:
   - ./plugins/*
 ```
 
+Globs may contain the following special characters:
+
+- `*` matches zero or more characters of a path name component without crossing directory boundaries
+- `?` matches exactly one character of a path name component
+- `[abc]` matches exactly one character of the given set (here `a`, `b`, or `c`). A dash (`-`) can be used to match a range, such as `[a-z]`.
+
+!!! failure "Using `**` to recursively match directories at multiple depth levels is not supported."
+
 ## `plugins`
 
-The `plugins` section lists all the plugins that are available in the project.
-It is a list of plugin _dependencies_ to make *available* in the project modules.
+The `plugins` section lists plugin dependencies that should be made available to project modules.
+Listing a plugin here does not enable it by itself; it only makes it available so that modules can opt in (by enabling 
+the plugin).
 
 Example:
 ```yaml
@@ -49,11 +50,17 @@ plugins:
 ```
 
 !!! info
-    Currently, only dependencies on **local** plugin modules are supported here,
-    as there are no published Amper plugins, and it's not possible to publish them yet.
-    So, the elements of this list use the same format as [module dependencies](../user-guide/dependencies.md#module-dependencies).
+    Currently, only dependencies on **local** plugin modules are supported here (Amper doesn't support publishing 
+    plugins yet, ).
+    Entries use the same notation as [module dependencies](../user-guide/dependencies.md#module-dependencies).
 
-Listing the plugins here does not *enable* them in any module.
-Each plugin from this list can then be **enabled and configured** on a per-module basis.
+To enable and configure a plugin for a specific module, use the `plugins` block in that module:
+
+```yaml title="app/module.yaml"
+plugins:
+  my-plugin:
+    enabled: true
+    # plugin-specific settings here
+```
 
 Learn more about the [plugin structure](../plugins/topics/structure.md).

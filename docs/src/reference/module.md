@@ -5,7 +5,7 @@
 An alias can be used to share code, dependencies, and/or settings between a group of platforms that doesn't already 
 have a name (an exclusive common ancestor) in the default hierarchy. Aliases can be used as `@platform` qualifiers in the settings.
 
-Read more about [aliases](../user-guide/multiplatform.md#aliases).
+Read more in the [Multiplatform](../user-guide/multiplatform.md#aliases) section.
 
 Example:
 
@@ -26,7 +26,7 @@ dependencies@jvmAndAndroid:
 ## `apply`
 
 The `apply` section lists the templates applied to the module.
-Read more in [Module templates](../user-guide/templates.md) section.
+Read more in the [Module templates](../user-guide/templates.md) section.
 
 Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
 
