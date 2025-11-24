@@ -63,4 +63,4 @@ plugins:
     # plugin-specific settings here
 ```
 
-Learn more about the [plugin structure](../plugins/topics/structure.md).
+Learn more about the [plugin structure](../user-guide/plugins/topics/structure.md).
