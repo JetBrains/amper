@@ -88,8 +88,7 @@ fun generateSources(
     val outputFile = generatedSourceDir / "properties.kt"
 
     if (!propertiesFile.isRegularFile()) {//(2)!
-        println("No input")
-        return
+        error("The file $propertiesFile does not exist")
     }
     println("Generating sources")//(3)!
 
