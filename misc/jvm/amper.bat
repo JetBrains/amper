@@ -17,9 +17,9 @@
 setlocal
 
 @rem The version of the Amper distribution to provision and use
-set amper_version=0.9.0-dev-3475
+set amper_version=0.10.0-dev-3485
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=ff5262f925b97f4caed91ea0d8324959bdfd8c090bfd8e645ce3fdfa22172331
+set amper_sha256=7424521fb5fb7d20f32b46561a24e053ac632e93094b8f3f88eb703a465a1da3
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
 if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
@@ -135,7 +135,7 @@ call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "
 if errorlevel 1 goto fail
 
 REM !! DO NOT REMOVE !!
-REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                   exit /b %ERRORLEVEL%
+REM There is a command at the end of this line:                                                                                                                                                                                                                                                                                                                  exit /b %ERRORLEVEL%
 REM
 REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
 REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
