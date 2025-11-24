@@ -7,9 +7,13 @@ package org.jetbrains.amper.plugins
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlBufferedReader
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
+import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
@@ -24,7 +28,9 @@ import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.types.maven.Configuration
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
+import org.jetbrains.amper.frontend.types.maven.ParameterValue
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -81,8 +87,38 @@ private suspend fun downloadPluginAndDirectDependencies(
         .singleOrNull()
 }
 
-private val xml = XML {
-    defaultPolicy { ignoreUnknownChildren() }
+@OptIn(ExperimentalXmlUtilApi::class)
+private val xml: XML = XML {
+    defaultPolicy {
+        unknownChildHandler = UnknownChildHandler { reader, a, xmlDesc, c, d ->
+            // Do not recover anything, except `ParameterValue`.
+            if (xmlDesc.serialDescriptor != Configuration.serializer().descriptor) return@UnknownChildHandler emptyList()
+            // We need to use `peek()` function.
+            if (reader !is XmlBufferedReader) return@UnknownChildHandler emptyList()
+
+            @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
+            val replacingReader = object : XmlReader by reader {
+                override val localName: String get() = ParameterValue::class.simpleName!!
+            }
+            val result = buildList {
+                while (replacingReader.eventType == EventType.START_ELEMENT) {
+                    this += xml.decodeFromReader<ParameterValue>(replacingReader).copy(parameterName = reader.localName)
+                    // We need to read next tag to read next potential element if there is the next element.
+                    // 2 cases here - either `</configuration>` or the next parameter.
+                    //
+                    // Also, we can't just use `nextTag()`, because serializer expects the 
+                    // closing </configuration> tag to be unread yet.
+                    do {
+                        if (reader.peek()?.eventType == EventType.END_ELEMENT) break
+                        replacingReader.next()
+                    } while(reader.eventType.isIgnorable)
+                }
+            }
+
+            // Return data for the recovery.
+            listOf(XML.ParsedData(0, result))
+        }
+    }
 }
 
 /**

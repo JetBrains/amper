@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.types.maven
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
@@ -40,6 +41,7 @@ data class Dependencies(val dependencies: List<Dependency>) : List<Dependency> b
 data class Mojo(
     @XmlElement override val goal: String,
     @XmlElement override val phase: String?,
+    @XmlElement override val requiresDependencyResolution: String?,
     @XmlElement val description: String,
     @XmlElement val requiresDirectInvocation: Boolean,
     @XmlElement val requiresProject: Boolean,
@@ -53,7 +55,20 @@ data class Mojo(
     @XmlElement val executionStrategy: String,
     @XmlElement val threadSafe: Boolean,
     @XmlElement val parameters: Parameters,
+    @XmlElement val configuration: Configuration,
 ) : AmperMavenPluginMojo
+
+@Serializable
+@XmlSerialName("configuration")
+data class Configuration(val parameterValues: List<ParameterValue>) : List<ParameterValue> by parameterValues
+
+@Serializable
+data class ParameterValue(
+    val implementation: String? = null,
+    @XmlSerialName("default-value") val defaultValue: String? = null,
+    // This is set by the custom XML reader, since the default one does not support dynamic tags.
+    @Transient val parameterName: String = "",
+)
 
 @Serializable
 @XmlSerialName("parameters")

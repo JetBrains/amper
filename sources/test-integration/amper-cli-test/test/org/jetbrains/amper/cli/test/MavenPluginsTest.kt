@@ -8,10 +8,18 @@ import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
+import java.nio.file.Path
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
+import kotlin.io.path.readText
 import kotlin.test.Test
+import kotlin.test.assertContains
 
 class MavenPluginsTest : AmperCliTestBase() {
     @Test
@@ -88,7 +96,32 @@ class MavenPluginsTest : AmperCliTestBase() {
             "test"
         ).assertStdoutContains("Hello from the proto test! Request value is 47")
     }
+    
+    @Test
+    fun `checkstyle plugin performs a report`() = runSlowTest {
+        val result = runTask(
+            projectWithMavenPath = "checkstyle-plugin",
+            taskName = "maven-checkstyle-plugin.checkstyle",
+        )
+        
+        val checkstyleTaskOutput = result.buildOutputRoot / "tasks/_app_maven-checkstyle-plugin.checkstyle"
+        assertExists(checkstyleTaskOutput / "checkstyle.html")
+        
+        val checkstyleResult = checkstyleTaskOutput / "checkstyle-result.xml"
+        assertExists(checkstyleResult)
+        
+        val checkstyleResultText = checkstyleResult.readText()
+        assertContains(checkstyleResultText, "checkstyle-plugin/app/src/Foo.java")
+        assertContains(checkstyleResultText, "File does not end with a newline.")
+        assertContains(checkstyleResultText, "Missing package-info.java file.")
+    }
 
+    private fun assertExists(path: Path) = assertTrue(path.exists()) { 
+        val existingParent = generateSequence(path) { it.parent }.first { it.exists() }
+        "Expected \"$path\" was not found. The first existing parent is: \"${path.parent}\"." +
+                "\nIts children are: ${existingParent.listDirectoryEntries().joinToString { "\"${it.name}\"" }}."
+    }
+    
     /**
      * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.
      */
@@ -104,7 +137,7 @@ class MavenPluginsTest : AmperCliTestBase() {
     private suspend fun runTask(
         projectWithMavenPath: String,
         taskName: String,
-        expectedExitCode: Int,
+        expectedExitCode: Int = 0,
     ) = runCli(
         projectRoot = testProject("extensibility-maven/$projectWithMavenPath"),
         "task", ":app:$taskName",

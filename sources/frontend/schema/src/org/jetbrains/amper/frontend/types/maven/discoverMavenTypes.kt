@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.pluginSettingsTypeKey
 import org.jetbrains.amper.frontend.types.withNullability
+import java.io.File
 
 data class MavenDeclarationKey(val artifactId: String, val mojoImplementation: String) : DeclarationKey
 
@@ -27,24 +28,33 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(pluginXm
 
 internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: MavenPluginXml) = apply {
     plugin.mojos.forEach { mojo ->
-        val properties = mojo.parameters.filter { it.editable }.mapNotNull { it ->
-            val isNullable = !it.required
-            val type = when (it.type) {
-                "boolean" -> SchemaType.BooleanType(isNullable)
-                "int" -> SchemaType.IntType(isNullable)
-                "java.lang.String" -> StringType(isNullable)
-                "java.lang.String[]" -> SchemaType.ListType(StringType(), isNullable)
-                "java.io.File" -> SchemaType.PathType(isNullable)
-                "java.io.File[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable)
-                "java.util.Map" -> SchemaType.MapType(StringType(), StringType(), isNullable)
-                "java.util.List" -> SchemaType.ListType(StringType(), isNullable)
+        val properties = mojo.parameters.filter { it.editable }.mapNotNull { parameter ->
+            val isNullable = !parameter.required
+            val (type, defaultValue) = when (parameter.type) {
+                "boolean" -> SchemaType.BooleanType(isNullable) to false
+                "int" -> SchemaType.IntType(isNullable) to 0
+                "java.lang.String" -> StringType(isNullable) to ""
+                "java.lang.String[]" -> SchemaType.ListType(StringType(), isNullable) to emptyArray<String>()
+                "java.io.File" -> SchemaType.PathType(isNullable) to File(".")
+                "java.io.File[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable) to emptyArray<File>()
+                "java.util.Map" -> SchemaType.MapType(
+                    StringType(),
+                    StringType(),
+                    isNullable
+                ) to emptyMap<String, String>()
+                "java.util.List" -> SchemaType.ListType(StringType(), isNullable) to emptyList<String>()
                 else -> return@mapNotNull null
             }
+            val propertyConfig = mojo.configuration.parameterValues.singleOrNull { it.parameterName == parameter.name }
+            val finalDefault = if (isNullable) Default.Static(null)
+            else if (propertyConfig?.defaultValue != null) Default.Static(defaultValue)
+            else null
+            
             SchemaObjectDeclaration.Property(
-                name = it.name,
+                name = parameter.name,
                 type = type,
-                documentation = it.description,
-                default = if (isNullable) Default.Static(null) else null,
+                documentation = parameter.description,
+                default = finalDefault,
                 origin = SchemaOrigin.MavenPlugin,
             )
         }
@@ -80,7 +90,8 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
 /**
  * ID string of a Maven mojo that is applied as an Amper plugin.
  */
-fun amperMavenPluginId(plugin: AmperMavenPluginDescription, mojo: AmperMavenPluginMojo): String = "${plugin.artifactId}.${mojo.goal}"
+fun amperMavenPluginId(plugin: AmperMavenPluginDescription, mojo: AmperMavenPluginMojo): String =
+    "${plugin.artifactId}.${mojo.goal}"
 
 private class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,

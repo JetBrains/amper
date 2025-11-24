@@ -38,7 +38,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
     KnownMavenPhase.entries.forEach { phase ->
         taskBuilder.tasks.registerTask(
             task = phase.createTask(),
-            dependsOn = phase.dependsOn.map { it.taskName },
+            dependsOn = listOfNotNull(phase.dependsOn?.taskName),
         )
     }
 
@@ -127,11 +127,11 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
 
         // Register mojo execution tasks and link them to the phases.
         mojoTasks.forEach { mojoTask ->
-            // Skip mojos without known phases for now.
-            val phase = KnownMavenPhase.entries.singleOrNull { it.name == mojoTask.mojo.phase } ?: return@forEach
             taskBuilder.tasks.registerTask(mojoTask)
+            // Set the verify phase as default, so it will set up basic knowledge about the project for maven.
+            val phase = KnownMavenPhase.entries.singleOrNull { it.name == mojoTask.mojo.phase } ?: KnownMavenPhase.verify
             taskBuilder.tasks.registerDependency(phase.taskName, mojoTask.taskName)
-            phase.dependsOn.forEach { taskBuilder.tasks.registerDependency(mojoTask.taskName, it.taskName) }
+            phase.dependsOn?.let { taskBuilder.tasks.registerDependency(mojoTask.taskName, it.taskName) }
         }
     }
 }

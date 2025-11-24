@@ -21,4 +21,5 @@ interface AmperMavenPluginDescription {
 interface AmperMavenPluginMojo {
     val goal: String
     val phase: String?
+    val requiresDependencyResolution: String?
 }
