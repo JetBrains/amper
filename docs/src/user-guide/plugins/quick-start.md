@@ -175,7 +175,32 @@ plugins:
 1.    `#!yaml <plugin-id>: enabled` is a shorthand; </br>
       `#!yaml <plugin-id>: { enabled: true }` is the full form
 
-If we now run the build, we'll see that our generated `com.example.Config` object is present and is visible in the IDE, 
+If we now run the build, it will fail with an error from our `generateSources` task:
+```
+ERROR: Task ':app:generate@build-config' failed: java.lang.IllegalStateException: The file /path/to/project/app/config.properties does not exist
+        at com.example.GenerateSourcesKt.generateSources(generateSources.kt:19)
+```
+
+That's because we haven't created the `config.properties` file yet, and the code of the task checks for that.
+Let's fix it and create the file. As declared in the `plugin.yaml` above, the file is expected in 
+`${module.rootDir}/config.properties`:
+
+```yaml hl_lines="4" title="build-config/plugin.yaml"
+tasks:
+  generate:
+    action: !com.example.generateSources
+      propertiesFile: ${module.rootDir}/config.properties
+      generatedSourceDir: ${taskOutputDir}
+      # ...the rest is omitted for brevity
+```
+
+In our case, it is `<root>/app/config.properties`. Let's create it with the following content: 
+
+```properties
+APP_NAME=My Cool App
+```
+
+If we run the build again, we'll see that our generated `com.example.Config` object is present and is visible in the IDE, 
 and `"Generating sources"` is being logged to the console.
 
 Now let's explore what else we can enhance about our plugin:
