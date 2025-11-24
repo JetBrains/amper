@@ -1898,34 +1898,35 @@
 
 <h1 id="project-file-reference">Project file reference<a class="headerlink" href="#project-file-reference" title="Permanent link">&para;</a></h1>
 <h2 id="modules"><code>modules</code><a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
-<p>The <code>modules</code> section lists all the modules in the project, except the root module.
-If a <code>module.yaml</code> is present at the root of the project, the root module is implicitly included and doesn't need to be
-listed.</p>
-<p>Each element in the list must be the path to a module directory, relative to the project root.
-A module directory must contain a <code>module.yaml</code> file.</p>
+<p>The <code>modules</code> section defines which modules are part of this Amper project.</p>
+<p>Each list element must be the path to a module directory<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, relative to the project root. 
+If a <code>module.yaml</code> is present in the project root, that root module is always included implicitly and doesn’t need to 
+be listed.</p>
 <p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># include the `app` and `lib1` modules explicitly:</span>
 <span class="nt">modules</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./app</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib1</span>
 </code></pre></div>
-<p>You can also use <a href="https://en.wikipedia.org/wiki/Glob_(programming)">Glob patterns</a> to include multiple module
-directories at the same time.
-Only directories that contain a <code>module.yaml</code> file will be considered when matching a glob pattern.</p>
+<p>You can also use <a href="https://en.wikipedia.org/wiki/Glob_(programming)">glob patterns</a> to include multiple module
+directories at once. Only directories that contain a <code>module.yaml</code> file are taken into account:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># include all direct subfolders in the `plugins` dir that contain `module.yaml` files:</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./plugins/*</span>
+</code></pre></div>
+<p>Globs may contain the following special characters:</p>
 <ul>
 <li><code>*</code> matches zero or more characters of a path name component without crossing directory boundaries</li>
 <li><code>?</code> matches exactly one character of a path name component</li>
 <li><code>[abc]</code> matches exactly one character of the given set (here <code>a</code>, <code>b</code>, or <code>c</code>). A dash (<code>-</code>) can be used to match a range, such as <code>[a-z]</code>.</li>
 </ul>
-<p>Using <code>**</code> to recursively match directories at multiple depth levels is not supported.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># include all direct subfolders in the `plugins` dir that contain `module.yaml` files:</span>
-<span class="nt">modules</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./plugins/*</span>
-</code></pre></div>
+<div class="admonition failure">
+<p class="admonition-title">Using <code>**</code> to recursively match directories at multiple depth levels is not supported.</p>
+</div>
 <h2 id="plugins"><code>plugins</code><a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h2>
-<p>The <code>plugins</code> section lists all the plugins that are available in the project.
-It is a list of plugin <em>dependencies</em> to make <em>available</em> in the project modules.</p>
+<p>The <code>plugins</code> section lists plugin dependencies that should be made available to project modules.
+Listing a plugin here does not enable it by itself; it only makes it available so that modules can opt in (by enabling 
+the plugin).</p>
 <p>Example:
 <div class="highlight"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./my-plugin</span>
@@ -1933,13 +1934,25 @@ It is a list of plugin <em>dependencies</em> to make <em>available</em> in the p
 </code></pre></div></p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>Currently, only dependencies on <strong>local</strong> plugin modules are supported here,
-as there are no published Amper plugins, and it's not possible to publish them yet.
-So, the elements of this list use the same format as <a href="../../user-guide/dependencies/#module-dependencies">module dependencies</a>.</p>
+<p>Currently, only dependencies on <strong>local</strong> plugin modules are supported here (Amper doesn't support publishing 
+plugins yet, ).
+Entries use the same notation as <a href="../../user-guide/dependencies/#module-dependencies">module dependencies</a>.</p>
 </div>
-<p>Listing the plugins here does not <em>enable</em> them in any module.
-Each plugin from this list can then be <strong>enabled and configured</strong> on a per-module basis.</p>
+<p>To enable and configure a plugin for a specific module, use the <code>plugins</code> block in that module:</p>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">my-plugin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="c1"># plugin-specific settings here</span>
+</code></pre></div>
 <p>Learn more about the <a href="../../plugins/topics/structure/">plugin structure</a>.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>That is, a directory that directly contains a <code>module.yaml</code>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
@@ -1960,7 +1973,7 @@ Each plugin from this list can then be <strong>enabled and configured</strong> o
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:35:06 UTC">November 20, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 00:04:26 UTC">November 24, 2025</span>
   </span>
 
     
