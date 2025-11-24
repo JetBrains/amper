@@ -1,0 +1,2897 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling.">
+      
+      
+        <meta name="author" content="JetBrains Amper team">
+      
+      
+        <link rel="canonical" href="https://amper.org/0.9/user-guide/basics/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../dependencies/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/amper-icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Basic concepts - Amper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2022c5.5%200%2010-4.5%2010-10S17.5%202%2012%202%202%206.5%202%2012s4.5%2010%2010%2010M11%207h2v2h-2zm3%2010h-4v-2h1v-2h-1v-2h3v4h1z%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Basic concepts - Amper" />
+<meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="og:image" content="https://amper.org/0.9/assets/images/social/user-guide/basics.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://amper.org/0.9/user-guide/basics/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Basic concepts - Amper" />
+<meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
+<meta property="twitter:image" content="https://amper.org/0.9/assets/images/social/user-guide/basics.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#basic-concepts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../../images/amper-icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Amper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Basic concepts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JetBrains/amper
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/project/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Releases ↗
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+      
+  <img src="../../images/amper-icon.svg" alt="logo">
+
+    </a>
+    Amper
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JetBrains/amper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JetBrains/amper
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/ide-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic concepts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#project-and-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project and modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-module-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-module project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-module-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-module project
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module file anatomy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module file anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Product type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring entry points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring entry points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiplatform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiplatform modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Built-in technologies
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Built-in technologies
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/android/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Android
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/compose-multiplatform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compose Multiplatform
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/ios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/kotlin-serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin Serialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/ktor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ktor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/lombok/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lombok
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../builtin-tech/spring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spring Boot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plugins
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/topics/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced topics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced topics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/java-annotation-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java annotation processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/ksp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin Symbol Processing (KSP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/kotlin-compiler-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin compiler plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/maven-like-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maven-like layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../yaml-primer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix: YAML primer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../cli/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/provisioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wrapper & provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    project.yaml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/module/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    module.yaml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JetBrains/amper/releases" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases ↗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#project-and-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project and modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-module-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-module project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-module-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-module project
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module file anatomy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module file anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Product type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring entry points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring entry points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/JetBrains/amper/edit/release/0.9/docs/src/user-guide/basics.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="basic-concepts">Basic concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">&para;</a></h1>
+<h2 id="project-and-modules">Project and modules<a class="headerlink" href="#project-and-modules" title="Permanent link">&para;</a></h2>
+<p>An Amper <strong>project</strong> is defined by a <code>project.yaml</code> file. This file contains the list of modules and the project-wide
+configuration. The folder with the <code>project.yaml</code> file is the project root. Modules can only be located under the 
+project root (at any depth). If there is only one module in the project, the <code>project.yaml</code> file is not required.</p>
+<p>An Amper <strong>module</strong> is a directory with a <code>module.yaml</code> configuration file, and optionally sources and resources.
+A <em>module configuration file</em> describes <em>what</em> to produce: e.g. a reusable library or a platform-specific application.
+Each module describes a single product. Several modules can't share the same sources or resources, but they can depend 
+on each other.
+<em>How</em> to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.</p>
+<div class="admonition question">
+<p class="admonition-title">If you are not familiar with YAML, see <a href="../yaml-primer/">our brief YAML primer</a>.</p>
+</div>
+<h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
+<h3 id="single-module-project">Single-module project<a class="headerlink" href="#single-module-project" title="Permanent link">&para;</a></h3>
+<p>A single-module Amper project doesn't need a <code>project.yaml</code> file.
+Just create a single valid module, and it is also a valid project<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>:</p>
+<div class="highlight"><span class="filename">Single-module project layout</span><pre><span></span><code>my-project/<span class="w"> </span><span class="c1">#(1)!</span>
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
+╰─<span class="w"> </span>module.yaml
+</code></pre></div>
+<ol>
+<li>This is the project root but also the root of the only module in the project.</li>
+</ol>
+<p>See the <a href="#module-layout">Module layout</a> section for more details about the module structure itself. </p>
+<h3 id="multi-module-project">Multi-module project<a class="headerlink" href="#multi-module-project" title="Permanent link">&para;</a></h3>
+<p>If there are multiple modules, the <code>project.yaml</code> file specifies the list of modules:</p>
+<div class="grid">
+<div class="annotate">
+<div class="highlight"><span class="filename">Multi-module project layout</span><pre><span></span><code>├─<span class="w"> </span>app/
+│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>...
+│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+├─<span class="w"> </span>libs/<span class="w"> </span><span class="c1">#(1)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>lib1/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>myLib1.kt
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+│<span class="w">  </span>╰─<span class="w"> </span>lib2/
+│<span class="w">     </span>├─<span class="w"> </span>src/
+│<span class="w">     </span>│<span class="w">  </span>╰─<span class="w"> </span>myLib2.kt
+│<span class="w">     </span>╰─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>project.yaml
+</code></pre></div>
+</div>
+<ol>
+<li>This hierarchy is arbitrary, it can be organized however you like. The structure is understood by Amper based on 
+     the list of module paths in <code>project.yaml</code> — there is no convention for multi-module projects.</li>
+</ol>
+<div class="annotate">
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./app</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib1</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib2</span>
+</code></pre></div>
+
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./libs/lib2</span>
+</code></pre></div>
+</div>
+<ol>
+<li>It is also possible to use globs to list multiple modules at once (e.g., <code>./libs/*</code>), although we encourage 
+     listing them explicitly. See details in the <a href="../../reference/project/#modules">project file reference</a>.</li>
+</ol>
+</div>
+<p>See the <a href="#module-layout">Module layout</a> section for more details about what goes inside each module directory.</p>
+<details class="note">
+<summary>Multi-module project with root module</summary>
+<p>It is also possible to have a root module even if there are multiple modules in the project, although this is 
+generally discouraged.</p>
+<div class="highlight"><pre><span></span><code>├─<span class="w"> </span>lib/
+│<span class="w">  </span>├─<span class="w"> </span>src/
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>util.kt
+│<span class="w">  </span>╰─<span class="w"> </span>module.yaml
+├─<span class="w"> </span>src/<span class="w">  </span><span class="c1"># src of the root module</span>
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>...
+├─<span class="w"> </span>module.yaml<span class="w">  </span><span class="c1"># the module file of the root module</span>
+╰─<span class="w"> </span>project.yaml
+</code></pre></div>
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span><span class="w">  </span><span class="c1"># The root module is included implicitly</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./lib</span>
+</code></pre></div>
+</details>
+<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
+<p>Here are typical module structures at a glance:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="jvm_1" name="__tabbed_1" type="radio" /><input id="kotlin-multiplatform" name="__tabbed_1" type="radio" /><input id="android-app" name="__tabbed_1" type="radio" /><input id="ios-app" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="jvm_1"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" stroke="#C77D55"/>
+</svg>
+</span> JVM</label><label for="kotlin-multiplatform"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> Kotlin Multiplatform</label><label for="android-app"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" width="152" height="89" viewBox="0 0 152 89" fill="none"><g clip-path="url(#a)"><path fill="#34A853" d="M151.025 85.224q-.071-.464-.147-.92a75.665 75.665 0 0 0-7.546-22.597 76.5 76.5 0 0 0-5.511-8.995 76 76 0 0 0-8.322-9.808 76.034 76.034 0 0 0-13.398-10.626q.042-.074.085-.148 2.286-3.948 4.572-7.897l4.47-7.712a3946 3946 0 0 0 3.208-5.54q.38-.658.604-1.355a6.97 6.97 0 0 0-.652-5.702 6.9 6.9 0 0 0-2.406-2.398 7 7 0 0 0-2.954-.95 7 7 0 0 0-2.376.206 6.93 6.93 0 0 0-4.22 3.227q-1.606 2.77-3.208 5.54l-4.47 7.712c-1.523 2.634-3.05 5.263-4.573 7.897q-.25.43-.5.865c-.232-.092-.46-.184-.692-.272-8.398-3.205-17.511-4.958-27.036-4.958q-.39-.001-.78.004A75.7 75.7 0 0 0 50.977 25q-1.317.46-2.608.968-.234-.404-.467-.806-2.286-3.95-4.573-7.897l-4.47-7.713a4385 4385 0 0 1-3.208-5.54A6.93 6.93 0 0 0 29.055.58a6.9 6.9 0 0 0-2.954.95 6.92 6.92 0 0 0-3.157 4.185 6.96 6.96 0 0 0 .703 5.27l3.208 5.54 4.47 7.713c1.523 2.634 3.05 5.263 4.573 7.897.01.022.025.044.036.066a76.3 76.3 0 0 0-13.527 10.711 76.5 76.5 0 0 0-8.322 9.808 75.4 75.4 0 0 0-5.51 8.995 75.7 75.7 0 0 0-7.546 22.597 76.038 76.038 0 0 0-.581 4.247h151a77 77 0 0 0-.434-3.327z"/><path fill="#202124" d="M115.225 67.663c3.022-2.012 3.461-6.668.981-10.4-2.48-3.73-6.939-5.123-9.96-3.11-3.021 2.012-3.46 6.668-.98 10.4 2.479 3.73 6.938 5.123 9.959 3.11M46.762 64.564c2.48-3.73 2.04-8.387-.98-10.4-3.022-2.012-7.481-.619-9.96 3.112s-2.041 8.387.98 10.4 7.48.62 9.96-3.112"/></g><defs><clipPath id="a"><path fill="#fff" d="M.459.555h151v88h-151z"/></clipPath></defs></svg></span> Android app</label><label for="ios-app"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg></span> iOS app</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>resources/<span class="w"> </span><span class="c1"># (1)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>logback.xml<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>Util.java<span class="w"> </span><span class="c1"># (3)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.java<span class="w"> </span><span class="c1"># (4)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>UtilTest.kt
+├─<span class="w"> </span>testResources/
+│<span class="w">  </span>╰─<span class="w"> </span>logback-test.xml<span class="w"> </span><span class="c1"># (5)!</span>
+╰─<span class="w"> </span>module.yaml
+</code></pre></div>
+<ol>
+<li>Resources placed here are copied into the resulting jar.</li>
+<li>This is just an example resource and can be omitted.</li>
+<li>You can mix Kotlin and Java source files in a single module, all in the <code>src</code> folder.</li>
+<li>You can test Java code with Kotlin tests or Kotlin code with Java tests.</li>
+<li>This is just an example resource and can be omitted.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Maven compatibility layout for JVM-only modules</p>
+<p>If you're migrating from Maven, you can also configure the <a href="../advanced/maven-like-layout/">Maven-like layout</a></p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>resources/<span class="w">       </span><span class="c1"># common resources, used in all targets</span>
+├─<span class="w"> </span>resources@ios/<span class="w">   </span><span class="c1"># resources that are only available to the iOS code</span>
+├─<span class="w"> </span>resources@jvm/<span class="w">   </span><span class="c1"># resources that are only available to the JVM code</span>
+├─<span class="w"> </span>src/<span class="w">             </span><span class="c1"># common code, compiled for all targets</span>
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (1)!</span>
+├─<span class="w"> </span>src@native/<span class="w">      </span><span class="c1"># code to be compiled for all native targets</span>
+├─<span class="w"> </span>src@apple/<span class="w">       </span><span class="c1"># code to be compiled for all Apple targets</span>
+├─<span class="w"> </span>src@ios/<span class="w">         </span><span class="c1"># code to be compiled only for iOS targets</span>
+│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>src@jvm/<span class="w">         </span><span class="c1"># code to be compiled only for JVM targets</span>
+│<span class="w">  </span>├─<span class="w"> </span>util.kt
+│<span class="w">  </span>╰─<span class="w"> </span>MyClass.java<span class="w"> </span><span class="c1"># (3)!</span>
+├─<span class="w"> </span>test/<span class="w">            </span><span class="c1"># common tests, compiled for all targets</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt<span class="w">   </span>
+├─<span class="w"> </span>test@ios/<span class="w">        </span><span class="c1"># tests that are only run on iOS simulator</span>
+│<span class="w">  </span>╰─<span class="w"> </span>SomeIosTest.kt
+├─<span class="w"> </span>test@jvm/<span class="w">        </span><span class="c1"># tests that are only run on JVM</span>
+│<span class="w">  </span>╰─<span class="w"> </span>SomeJvmTest.kt
+├─<span class="w"> </span>testResources/<span class="w">       </span><span class="c1"># common test resources, used in all targets</span>
+├─<span class="w"> </span>testResources@ios/<span class="w">   </span><span class="c1"># test resources that are only available to the iOS code</span>
+├─<span class="w"> </span>testResources@jvm/<span class="w">   </span><span class="c1"># test resources that are only available to the JVM code</span>
+╰─<span class="w"> </span>module.yaml
+</code></pre></div>
+<ol>
+<li>This file may define <code>expect</code> declarations to be implemented differently on different platforms.</li>
+<li>This file defines the <code>actual</code> implementations corresponding to the <code>expect</code> declarations from <code>src</code>.</li>
+<li>It's ok to have Java sources in JVM-only source directories.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../multiplatform/">Multiplatform modules</a> section.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-android-app/
+├─<span class="w"> </span>assets/<span class="w"> </span><span class="c1"># (1)!</span>
+├─<span class="w"> </span>res/<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>drawable/
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>graphic.png
+│<span class="w">  </span>├─<span class="w"> </span>layout/
+│<span class="w">  </span>│<span class="w">  </span>├─<span class="w"> </span>main.xml
+│<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>info.xml
+│<span class="w">  </span>╰─<span class="w"> </span>...
+├─<span class="w"> </span>resources/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>AndroidManifest.xml<span class="w"> </span><span class="c1"># (3)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainActivity.kt<span class="w"> </span><span class="c1"># (4)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
+├─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>proguard-rules.pro<span class="w"> </span><span class="c1"># (5)!</span>
+</code></pre></div>
+<ol>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li>The manifest file of your application.</li>
+<li>An activity (screen) of your application.</li>
+<li>Optional configuration for R8 code shrinking and obfuscation. See <a href="../builtin-tech/android/#code-shrinking">code shrinking</a>.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../builtin-tech/android/">Android</a> section.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>my-ios-app/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>KotlinCode.kt<span class="w"> </span><span class="c1"># (1)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>EntryPoint.swift<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>Info.plist
+├─<span class="w"> </span>module.yaml
+╰─<span class="w"> </span>module.xcodeproj<span class="w"> </span><span class="c1"># (3)!</span>
+</code></pre></div>
+<ol>
+<li>Kotlin code is optional. Everything could come from dependencies.</li>
+<li>The entrypoint of iOS apps must be a <code>@main</code> struct in a Swift file.
+   <a href="../builtin-tech/ios/#application-entry-point">Read more</a></li>
+<li>An Xcode project is required but it can be automatically generated by Amper the first time.
+   <a href="../builtin-tech/ios/#xcode-project">Read more</a></li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Read more in the dedicated <a href="../builtin-tech/ios/">iOS</a> section.</p>
+</div>
+</div>
+</div>
+</div>
+<p>All sources and resources are optional: <strong>only the <code>module.yaml</code> file is required.</strong>
+For example, your module could get all its code from dependencies and have no <code>src</code> folder.</p>
+<p>Sources and resources can't be defined as part of multiple modules — they must belong to a single module, which other 
+modules can depend on. This ensures that the IDE always knows how to analyze and refactor the code, as it always has a 
+single well-defined set of settings and dependencies.</p>
+<h2 id="module-file-anatomy">Module file anatomy<a class="headerlink" href="#module-file-anatomy" title="Permanent link">&para;</a></h2>
+<p>A <code>module.yaml</code> file has several main sections: <code>product</code>, <code>dependencies</code> and <code>settings</code>.</p>
+<p>A module can produce a single product, such as a reusable library or an application.
+Read more on the <a href="#product-type">supported product types</a> below.</p>
+<p>Here are some example module files for different types of modules:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="jvm-application" name="__tabbed_2" type="radio" /><input id="kmp-library" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="jvm-application"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" stroke="#C77D55"/>
+</svg>
+</span> JVM application</label><label for="kmp-library"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> <abbr title="Kotlin Multiplatform">KMP</abbr> library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span><span class="w"> </span><span class="c1">#(1)!</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-java:2.3.0</span><span class="w"> </span><span class="c1">#(2)!</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span><span class="c1">#(3)!</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.2.21</span><span class="w"> </span><span class="c1">#(4)!</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1">#(5)!</span>
+</code></pre></div>
+<ol>
+<li>This short form is equivalent to:
+   <div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nt">product</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+</code></pre></div>
+   The <code>jvm/app</code> product type means that the module produces a JVM application.</li>
+<li>The <code>dependencies</code> section contains the list of dependencies for this module. 
+   Here <code>io.ktor:ktor-client-core:2.3.0</code> are the 
+   <a href="https://maven.apache.org/pom.html#Maven_Coordinates">Maven coordinates <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a> of 
+   the Ktor client library (with Java engine).
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.</li>
+<li>The <code>settings</code> section contains the configuration of different toolchains. </li>
+<li>An example setting: the Kotlin compiler version used for this module.</li>
+<li>An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span><span class="w"> </span><span class="c1">#(1)!</span>
+<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1">#(2)!</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-core:2.3.0</span><span class="w"> </span><span class="c1">#(3)!</span>
+
+<span class="nt">dependencies@android</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-android:2.3.0</span><span class="w"> </span><span class="c1">#(4)!</span>
+
+<span class="nt">dependencies@ios</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-darwin:2.3.0</span><span class="w"> </span><span class="c1">#(5)!</span>
+
+<span class="nt">settings</span><span class="p">:</span><span class="w"> </span><span class="c1">#(6)!</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.2.21</span><span class="w"> </span><span class="c1">#(7)!</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1">#(8)!</span>
+
+<span class="nt">settings@ios</span><span class="p">:</span><span class="w"> </span><span class="c1">#(9)!</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allWarningsAsErrors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"> </span><span class="c1">#(10)!</span>
+</code></pre></div>
+<ol>
+<li>The <code>lib</code> product type means that the module produces a <span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> Kotlin Multiplatform 
+   library.</li>
+<li>The <code>platforms</code> list contains the platforms that this module is built for.</li>
+<li>The <code>dependencies</code> section contains the list of common dependencies for this module. 
+   Here <code>io.ktor:ktor-client-core:2.3.0</code> are the 
+   <a href="https://maven.apache.org/pom.html#Maven_Coordinates">Maven coordinates <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.3 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32zM80 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg></span></a> of 
+   the Ktor client core library.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>dependencies@android</code> section contains the list of dependencies that are only used when building the module 
+   for the Android target. 
+   Here the <code>io.ktor:ktor-client-android:2.3.0</code> will not be present when building the module for the iOS targets.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>dependencies@ios</code> section contains the list of dependencies that are only used when building the module 
+   for the iOS target. 
+   Here the <code>io.ktor:ktor-client-darwin:2.3.0</code> will not be present when building the module for the Android target.
+   Read more about dependencies in general in the <a href="../dependencies/">Dependencies</a> section.
+   Read more about multiplatform dependencies in the <a href="../multiplatform/#multiplatform-dependencies">Multiplatform dependencies</a> section.</li>
+<li>The <code>settings</code> section contains the configuration of different toolchains for common code, and also serves as 
+   default for platform-specific code.. </li>
+<li>An example setting: the Kotlin compiler version used for this module.</li>
+<li>An example setting: a compiler setting to consider warnings as errors and fail the build on any warning.</li>
+<li>The <code>settings@ios</code> section contains the configuration of different toolchains for iOS-specific compilation.</li>
+<li>This setting overrides the one that we set in the <code>settings</code> section.
+    Read more about this in the <a href="../multiplatform/#multiplatform-settings">settings propagation</a> section.</li>
+</ol>
+</div>
+</div>
+</div>
+<h3 id="product-type">Product type<a class="headerlink" href="#product-type" title="Permanent link">&para;</a></h3>
+<p>The <strong>product type</strong> describes the target platform and the type of the module at the same time. Below is the list of 
+supported product types:</p>
+<ul>
+<li><code>lib</code> - a reusable Kotlin Multiplatform library which can be used as a dependency by other modules in the project</li>
+<li><code>jvm/lib</code> - a reusable JVM library which can be used as a dependency by other modules in the project</li>
+<li><code>jvm/app</code> - a JVM console or desktop application</li>
+<li><code>windows/app</code> - a mingw64 application</li>
+<li><code>linux/app</code> - a native Linux application</li>
+<li><code>macos/app</code> - a native macOS application</li>
+<li><code>android/app</code> - an <a href="../builtin-tech/android/">Android</a> application</li>
+<li><code>ios/app</code> - an <a href="../builtin-tech/ios/">iOS</a> application</li>
+</ul>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<p>The <code>dependencies</code> section contains the list of dependencies for this module.
+They can be external maven libraries, other modules in the project, and more.</p>
+<p>Please see the <a href="../dependencies/">Dependencies</a> section for more details.</p>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<p>The <code>settings</code> section contains toolchains settings.
+A <em>toolchain</em> is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (linter, code generator).</p>
+<p>All toolchain settings are specified in dedicated groups in the <code>settings</code> section:
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
+<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31</span>
+</code></pre></div></p>
+<p>Check out the <a href="../../reference/module/#settings-and-test-settings">Reference</a> page for the full list of supported settings.</p>
+<p>See the <a href="../multiplatform/">multiplatform section</a> for more details about how multiple settings sections interact in
+multiplatform modules.</p>
+<h4 id="configuring-entry-points">Configuring entry points<a class="headerlink" href="#configuring-entry-points" title="Permanent link">&para;</a></h4>
+<h5 id="jvm">JVM<a class="headerlink" href="#jvm" title="Permanent link">&para;</a></h5>
+<p>By default, the entry point of JVM applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
+(case-insensitive) in the <code>src</code> folder.</p>
+<p>This can be overridden by specifying a main class explicitly in the module settings:
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jvm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mainClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.example.myapp.MyMainKt</span>
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In Kotlin, unlike Java, the <code>main</code> function doesn't have to be declared in a class, and is usually at the top level
+of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
+top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
+the name and turning the <code>.kt</code> extension into a <code>Kt</code> suffix.</p>
+<p>For example, the top-level declarations of <code>myMain.kt</code> will be in a class named <code>MyMainKt</code>.</p>
+</div>
+<h5 id="native">Native<a class="headerlink" href="#native" title="Permanent link">&para;</a></h5>
+<p>By default, the entry point of Kotlin native applications (the <code>main</code> function) is expected to be in a <code>main.kt</code> file
+(case-insensitive) in the <code>src</code> folder.</p>
+<p>This can be overridden by specifying the fully qualified name of the <code>main</code> function explicitly in the module settings:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux/app</span>
+
+<span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">native</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">entryPoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.example.myapp.main</span>
+</code></pre></div>
+<h5 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h5>
+<p>Android apps have their own way to configure the entry point, see the 
+<a href="../builtin-tech/android/#entry-point">dedicated Android section</a>.</p>
+<h5 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h5>
+<p>iOS apps have their own way to configure the entry point, see the
+<a href="../builtin-tech/ios/#application-entry-point">dedicated iOS section</a>.</p>
+<h2 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h2>
+<p>Amper provides a <code>package</code> command to build a project for distribution.</p>
+<p>For <code>jvm/app</code> modules it produces executable jars which follow 
+<a href="https://docs.spring.io/spring-boot/specification/executable-jar/index.html">The Executable Jar Format</a>.
+The executable JAR format, while commonly associated with Spring applications, is a universal packaging solution
+suitable for any JVM application. This format provides a convenient, runnable self-contained deployment unit that
+includes all necessary dependencies, but unlike the "fat jar" approach, it doesn't suffer from the problems of handling
+duplicate files.</p>
+<p>For <code>android/app</code> modules, see the dedicated <a href="../builtin-tech/android/#packaging">Android packaging</a> section.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>As long as it is not included in a <code>project.yaml</code> higher in the directory tree.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2025 23:22:09 UTC">November 20, 2025</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: User guide">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                User guide
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../dependencies/" class="md-footer__link md-footer__link--next" aria-label="Next: Dependencies">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Dependencies
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
