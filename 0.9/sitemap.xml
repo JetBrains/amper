@@ -29,30 +29,6 @@
          <lastmod>2025-11-24</lastmod>
     </url>
     <url>
-         <loc>https://amper.org/0.9/plugins/overview/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/0.9/plugins/quick-start/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/0.9/plugins/topics/configuration/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/0.9/plugins/topics/references/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/0.9/plugins/topics/structure/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
-         <loc>https://amper.org/0.9/plugins/topics/tasks/</loc>
-         <lastmod>2025-11-24</lastmod>
-    </url>
-    <url>
          <loc>https://amper.org/0.9/reference/module/</loc>
          <lastmod>2025-11-24</lastmod>
     </url>
@@ -130,6 +106,30 @@
     </url>
     <url>
          <loc>https://amper.org/0.9/user-guide/builtin-tech/spring/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/overview/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/quick-start/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/topics/configuration/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/topics/references/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/topics/structure/</loc>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/0.9/user-guide/plugins/topics/tasks/</loc>
          <lastmod>2025-11-24</lastmod>
     </url>
 </urlset>
