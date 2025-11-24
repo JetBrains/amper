@@ -5,16 +5,15 @@ This section provides details on how to configure tasks and plugin settings, how
 !!! question "YAML?"
     Amper currently uses "Amper-flavored" YAML as the configuration language.
     YAML is flexible, and it allowed us to move fast with prototyping solutions, plugins included.
-    However, we are aware of YAML's shortcomings 
-    and are exploring the possibility of replacing YAML with a custom language tailored for our needs in the future.  
+    However, we are aware of YAML's shortcomings and are exploring the possibility of replacing YAML with a custom 
+    language tailored for our needs in the future.  
 
 ## Configurable types
 
-Amper configuration only works with configurable types.
-**Configurable types** are types, values for which can be
+**Configurable types** are types that Amper allows in plugin and task configurations.
+Their values are set in YAML configurations, and used in Kotlin _task actions_.
 
-1. provided in our YAML configs
-2. denoted on the Kotlin side to be used in _task actions_
+The following table lists the configurable types and their Kotlin and YAML representations:
 
 | Amper type               | Kotlin type                         | YAML structure                         |
 |--------------------------|-------------------------------------|----------------------------------------|
