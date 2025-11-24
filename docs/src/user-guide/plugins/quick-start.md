@@ -286,7 +286,7 @@ pluginInfo:
 
 !!! tip
     It is good practice to provide reasonable defaults for *all* the plugin settings if possible,
-    so the user still can use the plugin right away by simply having written, e.g., `build-config: enabled`.
+    so the user still can use the plugin right away by simply having written `build-config: enabled`.
 
 This way, we can now configure our plugin in the app's `module.yaml`:
 ```yaml hl_lines="3-6" title="app/module.yaml"
