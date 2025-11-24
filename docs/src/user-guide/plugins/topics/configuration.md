@@ -185,7 +185,7 @@ This ability to express the exact type is not yet well-designed in Amper and gen
 
 So for the built‑in `Dependency { Local, Maven }` variant type Amper infers the type based on the `@DependencyNotation` string contents:
 
-- if the dependency string starts with the `.` it is a local dependency 
+- if the dependency string starts with the `.` then it is a local dependency 
 - otherwise it is a Maven dependency
 
 #### Task action types
