@@ -371,6 +371,9 @@ In our case the type of `pluginSettings` would be `com.example.Settings` which w
 So, e.g., when the plugin is applied to the `app` module in our example when we refer to the `${pluginSettings.propertiesFileName}` in `plugin.yaml`,
 we would get the `"konfig"` value the user specified in their `plugins.build-config.propertiesFileName` in `app/module.yaml`
 
+!!! tip
+    Remember to rename the file `config.properties` to `konfig.properties`.
+
 ### Adding another task
 
 As planned, let's now add another task to the plugin that simply reads the already generated sources and prints them to stdout.
