@@ -40,7 +40,7 @@ There are also built‑in [variant types](#variant-types), but the mechanism is 
 ## Configurable interfaces
 
 A configurable interface is a public Kotlin interface annotated with the `@Configurable` annotation.
-Restrictions apply to this interface:
+The following restrictions apply to this interface:
 
 - methods, superinterfaces, generics are not allowed
 - it may only have immutable non-extension (`#!kotlin val`) properties of the _configurable types_.
@@ -139,10 +139,10 @@ Task parameters use the regular default value syntax:
 | `object T`                     | not supported (instantiated implicitly, see the note)|
 
 !!! note
-    Properties of `@Configurable` interface types can't have explicit defaults specified.
-    However, all objects are instantiated by default using their default values and the values
-    provided at the configuration (YAML) side. If some required (with no default at all) values remain
-    unconfigured, then the error is issued and the configuration is rejected.
+    Properties of `@Configurable` interface types can't have explicit default values.
+    However, all objects are instantiated using their default values combined with the values
+    provided on the configuration (YAML) side. If any required properties (those with no default value) remain
+    unconfigured, an error is reported and the configuration is rejected.
 
 ## Advanced
 
