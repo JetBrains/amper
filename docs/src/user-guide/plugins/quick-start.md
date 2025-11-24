@@ -318,6 +318,8 @@ fun generateSources(
   additionalConfig: Map<String, String>, //(1)!
 ) {
   // ...
+  // don't forget to process properties passed via the additionalConfig parameter
+  // ...  
 }
 ```
 
