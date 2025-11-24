@@ -1,7 +1,7 @@
 # Plugin structure
 
 Plugin is a normal Amper module with the `jvm/amper-plugin` product type.
-It has a normal `module.yaml` build file, with an additional [`pluginInfo` section](../../reference/module.md#plugininfo) available.
+It has a normal `module.yaml` build file, with an additional [`pluginInfo` section](../../../reference/module.md#plugininfo) available.
 
 In addition, a plugin has a `plugin.yaml` file, where [tasks](tasks.md) are registered and configured.
 
@@ -33,7 +33,7 @@ Amper plugins are module-level plugins – they are enabled and applied per modu
 There is no such concept as a project-wide plugin in Amper.
 
 To make a plugin available in the project,
-the dependency on it must be listed under the [`plugins`section](../../reference/project.md#plugins) of the `project.yaml` file:
+the dependency on it must be listed under the [`plugins`section](../../../reference/project.md#plugins) of the `project.yaml` file:
 ```yaml
 modules:
   - ...
@@ -78,6 +78,6 @@ Plugins can be enabled and [configured](configuration.md#plugin-settings) like t
 
 !!! tip
     If many modules use the same plugin, potentially even using some common settings for it,
-    then it may make sense to use a dedicated [module template](../../user-guide/templates.md)
+    then it may make sense to use a dedicated [module template](../../templates.md)
     that enables and configures the plugin.
 
