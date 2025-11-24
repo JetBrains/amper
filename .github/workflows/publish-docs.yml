@@ -5,8 +5,8 @@ on:
     branches:
       - main
       - 'release/*'
-    paths:
-      - 'docs/**'
+#    paths:
+#      - 'docs/**'
   create:
     branches:
       - 'release/*' # the push trigger is not enough because of the docs/** filter
