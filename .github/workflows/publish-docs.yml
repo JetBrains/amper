@@ -7,6 +7,9 @@ on:
       - 'release/*'
     paths:
       - 'docs/**'
+  create:
+    branches:
+      - 'release/*' # the push trigger is not enough because of the docs/** filter
 
 permissions:
   contents: write # allow pushing commits to gh-pages
