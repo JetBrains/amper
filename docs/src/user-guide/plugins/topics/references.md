@@ -5,7 +5,7 @@ Throughout the documentation this syntax is referred to as **Amper references** 
 Currently, its usage is limited to plugin configuration files (`plugin.yaml`).
 
 !!! info
-    Standard YAML anchors (`&`) and aliases (`*`) are not supported in Amper and Amper references are used instead.
+    Standard YAML anchors (`&`) and aliases (`*`) are not supported in Amper.
 
 ## Syntax
 
