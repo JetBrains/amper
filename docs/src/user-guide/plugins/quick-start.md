@@ -68,7 +68,7 @@ But it doesn't contain anything useful yet.
 
 Let's start implementing our plugin by writing a [task action](topics/tasks.md#task-action-definition)
 that would do the source generation based on the contents of the properties file.
-For now, we'll do the code formatting by hand:
+
 ```kotlin title="build-config/src/generateSources.kt"
 package com.example
 
