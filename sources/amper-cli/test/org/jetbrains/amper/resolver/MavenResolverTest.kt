@@ -12,6 +12,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.junit.jupiter.api.assertThrows
@@ -37,7 +38,7 @@ class MavenResolverTest {
 
     @Test
     fun simpleResolve() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         val result = runBlocking {
             resolver.resolve(
@@ -46,7 +47,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -64,7 +65,7 @@ class MavenResolverTest {
 
     @Test
     fun ignoresProvidedDependencies() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
         val result = runBlocking {
@@ -74,7 +75,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -85,7 +86,7 @@ class MavenResolverTest {
 
     @Test
     fun nativeTarget() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         val result = runBlocking {
             resolver.resolve(
@@ -94,7 +95,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MINGW_X64,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted().joinToString("\n")
         assertEquals(
@@ -109,7 +110,7 @@ class MavenResolverTest {
 
     @Test
     fun respectsRuntimeScope() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
@@ -119,7 +120,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -146,7 +147,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolveSingleCoordinates() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         val t = assertThrows<UserReadableError> {
             runBlocking {
@@ -175,7 +176,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolvePlatformSupportWasNotFound() = runTest(timeout = Duration.INFINITE ) {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         // kotlinx-datetime:0.2.1 is available for macos_x64
         val macosX64 = resolver.resolve(
@@ -184,7 +185,7 @@ class MavenResolverTest {
             scope = ResolutionScope.COMPILE,
             platform = ResolutionPlatform.MACOS_X64,
             resolveSourceMoniker = "test",
-        ).paths
+        ).root.dependencyPaths()
         assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
             message = "kotlinx-datetime-macosx64-0.2.1.klib must be found in resolve result: ${macosX64.toList()}")
 
@@ -196,7 +197,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MACOS_ARM64,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         assertEquals(
             """
@@ -211,7 +212,7 @@ class MavenResolverTest {
 
     @Test
     fun unableToResolveGradleToolingApiInCompileScope() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
@@ -224,7 +225,7 @@ class MavenResolverTest {
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
-            ).paths
+            ).root.dependencyPaths()
         }
         val relative = result.map { it.relativeTo(amperCacheRoot).joinToString("/") }.sorted()
         assertEquals(
@@ -238,7 +239,7 @@ class MavenResolverTest {
 
     @Test
     fun negativeResolveMultipleCoordinates() {
-        val resolver = MavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
+        val resolver = CliReportingMavenResolver(AmperUserCacheRoot(amperCacheRoot), incrementalCache)
 
         val t = assertThrows<UserReadableError> {
             runBlocking {

@@ -11,9 +11,9 @@ import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.Maven
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
+import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 
@@ -25,7 +25,7 @@ class ToolingArtifactsDownloader(
     private val incrementalCache: IncrementalCache,
 ) {
 
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     suspend fun downloadHotReloadAgent(hotReloadVersion: String): List<Path> =
         downloadToolingArtifacts(

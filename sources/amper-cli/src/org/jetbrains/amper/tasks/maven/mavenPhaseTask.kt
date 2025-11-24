@@ -16,9 +16,9 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -278,7 +278,7 @@ class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbr
     )
 
     private val mavenResolver by lazy {
-        MavenResolver(parameters.cacheRoot, parameters.incrementalCache)
+        CliReportingMavenResolver(parameters.cacheRoot, parameters.incrementalCache)
     }
 
     // Here we are converting the external dependencies graph to the flat list of maven artifacts.

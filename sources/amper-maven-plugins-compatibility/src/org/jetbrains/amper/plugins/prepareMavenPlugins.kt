@@ -11,7 +11,8 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
 import nl.adaptivity.xmlutil.serialization.XML
-import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
@@ -19,25 +20,26 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
+import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.util.AmperCliIncrementalCache
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 /**
  * Download specified maven plugins jars, extract their `plugin.xml` metadata and parse it.
  */
-internal suspend fun prepareMavenPlugins(
-    context: CliContext,
-    mavenResolver: MavenResolver = MavenResolver(
-        userCacheRoot = context.userCacheRoot,
-        incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot),
-    ),
+@UsedInIdePlugin
+suspend fun prepareMavenPlugins(
+    projectContext: AmperProjectContext,
+    cache: IncrementalCache,
+    userCacheRoot: AmperUserCacheRoot,
 ): List<MavenPluginXml> = coroutineScope prepare@{
-    context.projectContext.externalMavenPluginDependencies.map { declaration ->
+    val mavenResolver = MavenResolver(userCacheRoot, cache)
+    projectContext.externalMavenPluginDependencies.map { declaration ->
         async {
             val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, declaration) ?: return@async null
             withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") {
@@ -62,11 +64,11 @@ private suspend fun downloadPluginAndDirectDependencies(
         platform = ResolutionPlatform.JVM,
         resolveSourceMoniker = declaration.coordinates,
         resolutionDepth = ResolutionDepth.GRAPH_FULL,
-    ) {
+    ) { context ->
         val (group, module, version) = declaration.coordinates.split(":")
-        val pluginNode = MavenDependencyNodeWithContext(this, group, module, version, false)
+        val pluginNode = MavenDependencyNodeWithContext(context, group, module, version, false)
         RootDependencyNodeWithContext(
-            templateContext = this,
+            templateContext = context,
             children = listOf(pluginNode)
         )
     }

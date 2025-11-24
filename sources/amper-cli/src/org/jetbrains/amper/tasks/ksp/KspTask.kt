@@ -22,7 +22,9 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
+import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
@@ -38,8 +40,6 @@ import org.jetbrains.amper.ksp.KspNativeConfig
 import org.jetbrains.amper.ksp.KspOutputPaths
 import org.jetbrains.amper.ksp.WebBackend
 import org.jetbrains.amper.ksp.downloadKspJars
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -73,7 +73,7 @@ internal class KspTask(
     private val incrementalCache: IncrementalCache,
     private val jdkProvider: JdkProvider,
 ): ArtifactTaskBase() {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     private val leafFragment = fragments
         .filterIsInstance<LeafFragment>()
@@ -177,6 +177,10 @@ internal class KspTask(
         }.outputFiles
     }
 
+    class Result(
+        override val compileClasspath: List<Path>,
+    ) : TaskResult, AdditionalClasspathProvider
+
     private suspend fun Ksp.runKsp(
         compileLibraries: List<Path>,
         kspOutputPaths: KspOutputPaths,
@@ -248,10 +252,6 @@ internal class KspTask(
             kspOutputPaths.outputDirs
         }
     }
-
-    class Result(
-        override val compileClasspath: List<Path>,
-    ) : TaskResult, AdditionalClasspathProvider
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(KspTask::class.java)

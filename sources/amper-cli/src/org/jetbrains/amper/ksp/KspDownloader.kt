@@ -7,10 +7,10 @@ package org.jetbrains.amper.ksp
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.resolver.CachedPaths
-import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.dependency.resolution.ResolvedGraph
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 
-suspend fun MavenResolver.downloadKspJars(kspVersion: String, repositories: List<Repository>): CachedPaths = resolve(
+suspend fun CliReportingMavenResolver.downloadKspJars(kspVersion: String, repositories: List<Repository>): ResolvedGraph = resolve(
     // Copying the KSP Gradle plugin's classpath
     // https://github.com/google/ksp/blob/ee43116745ff921018bfe70344b8b21c590c2c16/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt#L137-L144
     coordinates = listOf(

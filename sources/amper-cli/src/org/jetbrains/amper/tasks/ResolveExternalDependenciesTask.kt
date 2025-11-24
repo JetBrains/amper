@@ -6,7 +6,6 @@
 
 package org.jetbrains.amper.tasks
 
-import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.setAmperModule
@@ -26,16 +25,16 @@ import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
+import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -63,7 +62,7 @@ internal data class ExternalDependenciesResolutionResult(
  * a plain list of dependencies. It reuses the same cache that [ResolveExternalDependenciesTask],
  * so that in general graph will be deserialized from the cache entry.
  */
-internal suspend fun MavenResolver.doResolveExternalDependencies(
+internal suspend fun CliReportingMavenResolver.doResolveExternalDependencies(
     module: AmperModule,
     platform: Platform,
     isTest: Boolean,
@@ -82,7 +81,7 @@ internal suspend fun MavenResolver.doResolveExternalDependencies(
     val root = RootDependencyNodeWithContext(
         rootCacheEntryKey = cacheKey.asRootCacheEntryKey(),
         children = listOfNotNull(compileModuleDependencies, runtimeModuleDependencies),
-        templateContext = emptyContext(GlobalOpenTelemetry.get())
+        templateContext = emptyContext()
     )
     val resolvedGraph = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker)
     val resolvedChildren = resolvedGraph.root.children
@@ -106,7 +105,7 @@ class ResolveExternalDependenciesTask(
 ) : Task {
 
     private val mavenResolver by lazy {
-        MavenResolver(userCacheRoot, incrementalCache)
+        CliReportingMavenResolver(userCacheRoot, incrementalCache)
     }
 
     /**

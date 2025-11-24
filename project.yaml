@@ -19,6 +19,7 @@ modules:
   - sources/amper-project-templates/amper-project-template-resources
   - sources/amper-system-info
   - sources/amper-wrapper
+  - sources/amper-maven-plugins-compatibility
   - sources/android-integration/amper-android-gradle-api
   - sources/android-integration/amper-android-gradle-plugin
   - sources/android-integration/amper-android-runner

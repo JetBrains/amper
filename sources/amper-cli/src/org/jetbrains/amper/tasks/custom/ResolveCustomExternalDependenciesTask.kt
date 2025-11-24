@@ -17,12 +17,12 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
+import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.tasks.toIncrementalCacheResult
@@ -40,7 +40,7 @@ internal class ResolveCustomExternalDependenciesTask(
     private val externalDependencies: List<String>,
     private val localDependencies: List<AmperModule>,
 ) : Task {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,

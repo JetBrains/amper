@@ -1,0 +1,16 @@
+product: jvm/lib
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../dependency-resolution
+  - ../frontend/schema
+  - ../frontend/dr
+  - $libs.xmlutil.serialization
+  - $libs.tinylog.slf4j
+  - $libs.slf4j.api
+
+settings:
+  kotlin:
+    serialization: json

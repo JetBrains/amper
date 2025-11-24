@@ -16,6 +16,7 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.UnscopedDependency
@@ -23,7 +24,6 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
@@ -37,7 +37,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
     private val incrementalCache: IncrementalCache,
     private val resolutionMonikerPrefix: String,
 ): Task {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     protected abstract fun getMavenCoordinatesToResolve(): List<UnscopedDependency>
 
@@ -79,16 +79,16 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                         ResolutionScope.RUNTIME,
                         ResolutionPlatform.JVM,
                         "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}"
-                    ) {
+                    ) { context ->
                         RootDependencyNodeWithContext(
-                            templateContext = this,
+                            templateContext = context,
                             children = externalUnscopedDependencies.map {
                                 when(it) {
                                     is UnscopedExternalMavenDependency -> {
-                                        this.parseCoordinates(it.coordinates, false)
+                                        context.parseCoordinates(it.coordinates, false)
                                     }
                                     is UnscopedExternalMavenBomDependency -> {
-                                        this.parseCoordinates(it.coordinates, true)
+                                        context.parseCoordinates(it.coordinates, true)
                                     }
                                     else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
                                 }

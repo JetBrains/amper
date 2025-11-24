@@ -32,10 +32,10 @@ import org.jetbrains.amper.dependency.resolution.filterGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.util.AmperCliIncrementalCache
 
@@ -141,7 +141,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             }
         }
 
-        val resolver = MavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
+        val resolver = CliReportingMavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
 
         val root = RootDependencyNodeWithContext(
             // If the incremental cache is on, a separate cache entry is calculated and maintained for every unique combination of parameters:
