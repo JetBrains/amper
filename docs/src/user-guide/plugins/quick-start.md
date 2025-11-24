@@ -154,9 +154,9 @@ tasks:
     action: !com.example.generateSources
       propertiesFile: ${module.rootDir}/config.properties
       generatedSourceDir: ${taskOutputDir}
-  markOutputsAs:
-    - path: ${action.generatedSourceDir}
-      kind: kotlin-sources # (1)!
+    markOutputsAs:
+      - path: ${action.generatedSourceDir}
+        kind: kotlin-sources # (1)!
 ```
 
 1.    `java-sources` and `jvm-resources` are also possible here
