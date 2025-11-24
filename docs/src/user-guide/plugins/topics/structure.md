@@ -1,7 +1,7 @@
 # Plugin structure
 
-Plugin is a normal Amper module with the `jvm/amper-plugin` product type.
-It has a normal `module.yaml` build file, with an additional [`pluginInfo` section](../../../reference/module.md#plugininfo) available.
+A plugin is a standard Amper module with the `jvm/amper-plugin` product type. 
+It has a regular `module.yaml` build file with an additional [`pluginInfo` section](../../../reference/module.md#plugininfo).
 
 In addition, a plugin has a `plugin.yaml` file, where [tasks](tasks.md) are registered and configured.
 
