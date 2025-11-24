@@ -1,11 +1,14 @@
-# Amper CLI
+# :octicons-terminal-16: Amper CLI
+
+The Amper CLI is a command-line tool to build, run, test, and package your project without an IDE.
+It is useful both locally and in CI/CD pipelines.
 
 ## Installation
 
-To use the Amper CLI, you need to download the Amper wrapper script to your project's root folder.
-The script is a small file that downloads and runs the actual Amper CLI distribution, and serves as an entry point for
-all Amper commands. It is meant to be checked into your VCS, so your team can build and run your project without any
-installation, no matter their OS.
+To use the Amper CLI, you need to download the [Amper wrapper script](provisioning.md/#whats-the-wrapper-script).
+
+It is recommended to place it in your project root and check it into your VCS, so your team can build and run your 
+project without any installation, no matter their OS.
 
 ??? success "IntelliJ IDEA can take care of this for you"
 

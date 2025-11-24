@@ -26,7 +26,7 @@ Ready to try Amper? Choose the right approach for you:
 
     ---
 
-    Use `./amper init` from the [CLI](cli.md#installation), or create a new Amper project in IntelliJ IDEA.
+    Use `./amper init` from the [CLI](../cli/index.md#installation), or create a new Amper project in IntelliJ IDEA.
 
 </div>
 

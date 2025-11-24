@@ -110,7 +110,6 @@ nav:
       - getting-started/index.md
       - 'IDE setup': getting-started/ide-setup.md
       - 'Tutorial': getting-started/tutorial.md
-      - 'Amper CLI': getting-started/cli.md
   - 'User guide':
       - user-guide/index.md
       - 'Basic concepts': user-guide/basics.md
@@ -139,6 +138,9 @@ nav:
           - 'Kotlin compiler plugins': user-guide/advanced/kotlin-compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
+  - 'CLI':
+    - cli/index.md
+    - 'Wrapper & provisioning': cli/provisioning.md
   - 'Reference':
     - 'project.yaml': reference/project.md
     - 'module.yaml': reference/module.md

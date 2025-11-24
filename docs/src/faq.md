@@ -115,7 +115,7 @@ While both projects are still experimental, it's important that you provide your
 ### What are the requirements to use Amper?
 
 The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
-build iOS applications. See the [CLI instructions](getting-started/cli.md).
+build iOS applications. See the [CLI instructions](cli/index.md).
 
 We recommend using the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) to make the most out of
 Amper. Our focus on the tooling and UX really pays off in IntelliJ IDEA. To learn about the required and optional 
@@ -129,7 +129,7 @@ You have several options:
 
 * Kick-start your project using one of the [examples]({{ examples_base_url }})
 
-* Download the Amper script by following the [CLI instructions](getting-started/cli.md), and generate a project 
+* Download the Amper script by following the [CLI instructions](cli/index.md), and generate a project 
   from a template using the `./amper init` command.
 
 ### How do I create a multi-module project in Amper?

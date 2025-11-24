@@ -153,7 +153,8 @@ feedback loop during UI development.
 
 === ":octicons-terminal-16: CLI"
 
-    To run your application with Compose Hot Reload from the command line, use the `--compose-hot-reload-mode` flag:
+    To run your application with Compose Hot Reload from the [command line](../../cli/index.md), use the
+    `--compose-hot-reload-mode` flag:
     
     ```shell
     ./amper run --compose-hot-reload-mode

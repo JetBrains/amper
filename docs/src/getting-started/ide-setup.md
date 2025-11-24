@@ -3,7 +3,7 @@
 ??? question "Do I need to use IntelliJ IDEA?"
 
     Amper is a command line tool that stands on its own, so using IntelliJ IDEA is not required.
-    If you prefer to work directly with the terminal or in another IDE, head over to the [Amper CLI](cli.md) section.
+    If you prefer to work directly with the terminal or in another IDE, check out the [Amper CLI](../cli/index.md).
 
     However, to make the most out of Amper and its toolability, we recommend using IntelliJ IDEA.
     There are tons of diagnostics and quick fixes that make your life a bliss when working with Amper.

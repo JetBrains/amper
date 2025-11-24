@@ -6,7 +6,7 @@ If you are looking for a detailed comprehensive documentation, check the [User g
 !!! tip "Before you start"
 
     Amper is designed with IDE support in mind, and much of the UX comes from the IDE.
-    While the [Amper CLI](cli.md) works well with any text editor, we recommend using 
+    While the [Amper CLI](../cli/index.md) works well with any text editor, we recommend using 
     :jetbrains-intellij-idea: IntelliJ IDEA[^1] to get the most out of Amper.
 
     That said, it is not required for this tutorial – there are no IDE-specific steps.
@@ -47,7 +47,7 @@ fun main() {
 You also need to add the Amper shell scripts to your root project folder.
 
 * If you're in IntelliJ IDEA, you can simply use the quick fix in `module.yaml` to "Configure standalone Amper".
-* If not, follow the [CLI installation instructions](./cli.md#installation) to download them.
+* If not, follow the [CLI installation instructions](./../cli/index.md#installation) to download them.
 
 Your project should now look like this:
 ``` hl_lines="3 4"
@@ -92,7 +92,7 @@ You can now build your application using `./amper build`, or run it using `./amp
 
     - [Project layout](../user-guide/basics.md#project-layout)
     - [Module file anatomy](../user-guide/basics.md#module-file-anatomy)
-    - [Using Amper from the command line](cli.md)
+    - [Using Amper from the command line](../cli/index.md)
 
 ## Step 2. Add dependencies
 
