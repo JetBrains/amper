@@ -51,6 +51,17 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the variable used in packaging is correctly resolved.
+     * In particular, netty-codec-native-quic-4.2.7.Final.pom
+     * declares <packaging>${packaging.type}</packaging>
+     */
+    @Test
+    fun `io_netty netty-codec-native-quic 4_2_7_Final`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(testInfo)
+        downloadAndAssertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that wrong artifact checksum declared in the Gradle module metadata won't cause DR error if
      * valid checksum is published as a separate file in an external repository.
      *
