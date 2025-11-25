@@ -345,7 +345,7 @@ data class Exclusion(
     val artifactId: String? = null,
 )
 
-fun Dependency.expandTemplates(project: Project): Dependency = copy(
+internal fun Dependency.expandTemplates(project: Project): Dependency = copy(
     groupId = groupId.expandTemplate(project),
     artifactId = artifactId.expandTemplate(project),
     version = version?.expandTemplate(project)?.resolveSingleVersion(),
@@ -353,7 +353,14 @@ fun Dependency.expandTemplates(project: Project): Dependency = copy(
     scope = scope?.expandTemplate(project),
 )
 
-private fun String.expandTemplate(project: Project): String {
+internal fun Project.expandTemplates(): Project = copy(
+    packaging = packaging?.expandTemplate(this),
+    artifactId = artifactId?.expandTemplate(this),
+    groupId = groupId?.expandTemplate(this),
+    version = version?.expandTemplate(this),
+)
+
+internal fun String.expandTemplate(project: Project): String {
     if (!contains("\${") || !contains("}")) {
         return this
     }

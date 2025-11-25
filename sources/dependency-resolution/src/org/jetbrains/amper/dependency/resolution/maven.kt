@@ -2019,10 +2019,12 @@ class MavenDependencyImpl internal constructor(
                     ?: return@map dep
             }
             ?.map { it.expandTemplates(project) }
-        return project.copy(
-            dependencies = dependencies?.let { Dependencies(it) },
-            dependencyManagement = dependencyManagement
-        )
+        return project
+            .expandTemplates()
+            .copy(
+                dependencies = dependencies?.let { Dependencies(it) },
+                dependencyManagement = dependencyManagement
+            )
     }
 
     /**

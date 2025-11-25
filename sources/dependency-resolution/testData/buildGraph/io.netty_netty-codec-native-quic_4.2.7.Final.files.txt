@@ -1,0 +1,9 @@
+netty-buffer-4.2.7.Final.jar
+netty-codec-base-4.2.7.Final.jar
+netty-codec-classes-quic-4.2.7.Final.jar
+netty-codec-native-quic-4.2.7.Final.jar
+netty-common-4.2.7.Final.jar
+netty-handler-4.2.7.Final.jar
+netty-resolver-4.2.7.Final.jar
+netty-transport-4.2.7.Final.jar
+netty-transport-native-unix-common-4.2.7.Final.jar
