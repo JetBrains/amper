@@ -84,12 +84,12 @@ private fun DependencyNode.correspondsToResolvedVersionOf(group: String, module:
  * it is no longer possible to say whether its actual overridden children were requested by the original version of the dependency or not)
  *
  * On the first step the given collection is filtered the following way:
- * - nodes of the given collection that are neither maven dependency, nor constraints are added to the resulting set unconditionally
- * - if the given collection contains non-overridden dependency nodes, then those are added to the resulting set,
+ * - Nodes of the given collection that are neither maven dependency nor constraints are added to the resulting set unconditionally
+ * - If the given collection contains non-overridden dependency nodes, then those are added to the resulting set,
  *   and the method is called for parents of the resulting set nodes.
- * - if all dependency nodes from the given collection are overridden,
- *   and there is a constraint that caused that (either in a given list or somewhere else in a graph),
- *   then all dependency nodes together with effective constraint are added to the resulting set,
+ * - If all dependency nodes from the given collection are overridden,
+ *   and there is a constraint that caused that (either in a given list or somewhere else in a graph).
+ *   Then all dependency nodes together with effective constraint are added to the resulting set,
  *   and the method is called for parents of the resulting set nodes.
  */
 private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: MutableSet<DependencyNode>, graph: DependencyNode, groupForInsight: String, moduleForInsight: String, resolvedVersionOnly: Boolean) {
@@ -161,10 +161,10 @@ private fun Set<DependencyNode>.addDecisiveParents(nodesWithDecisiveParents: Mut
 }
 
 /**
- * This method check that the node is reachable from the root via some path
+ * This method checks that the node is reachable from the root via some path
  * that doesn't contain the given dependency of the effective (resolved) version.
  *
- * If there is no such path, that means that the node can't affect the version of given dependency, bcause it was added
+ * If there is no such path, that means that the node can't affect the version of a given dependency because it was added
  * to the graph because of that dependency in the first place.
  *
  * Effective parents are either
@@ -209,7 +209,7 @@ private fun DependencyNode.withFilteredChildren(
 
         val children = children
             .filter { childrenFilter(it, currentNode) }
-            // Leaving he only transitive subtree (all other subtrees don't add valuable information)
+            // Leaving the only transitive subtree (all other subtrees don't add valuable information)
             .let { if (it.size > 1 && resolvedVersionOnly && this is MavenDependencyNode) it.subList(0,1) else it }
             .map { it.withFilteredChildren(cachedChildrenMap, resolvedVersionOnly, childrenFilter) }
         nodeWithFilteredChildren.children.addAll(children)
