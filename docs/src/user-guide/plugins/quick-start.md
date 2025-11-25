@@ -58,8 +58,8 @@ product: jvm/amper-plugin
 
 This is already a valid (although incomplete) Amper plugin.
 
-It has a *plugin ID* which equals the plugin module name (`build-config`) by default.
-The plugin ID is the string by which the plugin is going to be referred to throughout the project, e.g., to enable/configure it.
+It has a *plugin ID* which defaults to the plugin module name (`build-config`).
+The plugin ID is the string used to refer to the plugin throughout the project, e.g., to enable/configure it.
 
 Declaring the plugin in the `plugins` section of `project.yaml` makes it *available to the project*,
 but it is not yet *enabled in* (*applied to*) any of its modules.
