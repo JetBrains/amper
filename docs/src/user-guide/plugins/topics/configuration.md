@@ -43,9 +43,10 @@ A configurable interface is a public Kotlin interface annotated with the `@Confi
 The following restrictions apply to this interface:
 
 - methods, superinterfaces, generics are not allowed
-- it may only have immutable non-extension (`#!kotlin val`) properties of the _configurable types_.
-  Such a property may have a default getter implementation, depending on a type.
-- See the [defaults](#default-values) section. 
+- it may only have read-only non-extension (`#!kotlin val`) properties
+- all its properties must be of a _configurable type_ themselves
+- its properties may have a default getter implementation, depending on their type.
+  See the [Default values](#default-values) section. 
 
 ```kotlin title="Valid configurable declarations"
 @Configurable
@@ -139,8 +140,8 @@ Task parameters use the regular default value syntax:
 | `object T`                     | not supported (instantiated implicitly, see the note)|
 
 !!! note
-    Properties of `@Configurable` interface types can't have explicit default values.
-    However, all objects are instantiated using their default values combined with the values
+    Properties of object type can't have an explicit default value.
+    Instead, all objects are instantiated using the default values of their properties combined with the values
     provided on the configuration (YAML) side. If any required properties (those with no default value) remain
     unconfigured, an error is reported and the configuration is rejected.
 
@@ -179,14 +180,17 @@ For example, [plugin settings](#plugin-settings) have an implicit synthetic `ena
 
 ### Variant types
 
-On the Kotlin side they are modeled as a `@Configurable` `sealed` interface.
+On the Kotlin side, they are modeled as a `@Configurable` `sealed` interface.
 When a variant type is expected, there is a need to express which exact variant is being provided in the configuration.
-This ability to express the exact type is not yet well-designed in Amper and generally looks unintuitive in YAML.
+This ability to express the exact type is not yet designed in Amper and generally looks unintuitive in YAML.
 
-So for the built‑in `Dependency { Local, Maven }` variant type Amper infers the type based on the `@DependencyNotation` string contents:
+An example of variant type is the built‑in `Dependency` type, which can be a local module dependency (`Dependency.Local`)
+or an external Maven dependency (`Dependency.Maven`). Each of these subtypes has a `@DependencyNotation`-annotated property.
 
-- if the dependency string starts with the `.` then it is a local dependency 
-- otherwise it is a Maven dependency
+The discrimination between the subtypes is done based on the value of that property:
+
+- if the value starts with a `.`, it is read as a local module dependency 
+- otherwise, it is read as a Maven dependency
 
 #### Task action types
 
