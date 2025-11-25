@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.orUnspecified
@@ -150,29 +151,92 @@ class DiagnosticsTest : BaseModuleDrTest() {
         // Direct dependency on a built-in library,
         // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.foundation", "foundation",
+            buildProblems, 4,
+            "org.jetbrains.compose.foundation", "foundation",
             Path("module.yaml"), 16, 5
         )
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.material3", "material3",
+            buildProblems, 4,
+            "org.jetbrains.compose.material3", "material3",
             Path("module.yaml"), 16, 5
         )
 
         // Implicit dependency added by `compose: enabled`
         // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.runtime", "runtime",
+            buildProblems, 4,
+            "org.jetbrains.compose.runtime", "runtime",
             Path("module.yaml")
         )
 
         // Implicit dependency added by `serialization: enabled`
         // A version of the library is taken from settings:serialization:version in file template.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
+            buildProblems, 4,
+            "org.jetbrains.kotlinx", "kotlinx-serialization-core",
             Path("..") / "templates" / "template.yaml",
             5, 7
         )
     }
+
+    /**
+     * AMPER-4882 revealed that the dependency insights graph is calculated for the same coordinates as many times as
+     * coordinates are mentioned in the AOM
+     * (i.e., the number of times dependency is added to project modules multiplied by the number
+     * of resolution contexts (platform and scope)).
+     *
+     * This tests checks that the dependency insights graph is calculated the same number of times as the quantity of
+     * different coordinates with an overridden version
+     * (one coordinates with an overridden version => one dependency insights graph)
+     */
+    @Test
+    fun `dependency insights is calculated no more that once for problematic dependency`(testInfo: TestInfo) =
+        runSlowModuleDependenciesTest {
+            val aom = getTestProjectModel("multuplatform-with-overridden-versions", testDataRoot)
+
+            val projectDeps = doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
+                messagesCheck = { node ->
+                    node.messages.all { it.severity <= Severity.WARNING }
+                }
+            )
+
+            assertFiles(testInfo,projectDeps)
+
+            val diagnosticsReporter = CollectingProblemReporter()
+            collectBuildProblems(projectDeps, diagnosticsReporter, Level.Warning)
+            val buildProblems = diagnosticsReporter.problems
+
+            /**
+             * This magic number doesn't matter on its own.
+             * What matters is that all warnings are related to overridden dependencies (next check).
+             */
+            assertEquals(34, buildProblems.size)
+
+            val overriddenDependencyProblems = buildProblems.mapNotNull { it as? ModuleDependencyWithOverriddenVersion }
+            assertEquals(buildProblems.size, overriddenDependencyProblems.size)
+
+            val problematicDependencies = overriddenDependencyProblems.map { it.dependencyNode.key }.distinct()
+            assertEquals(
+                setOf(
+                    "org.jetbrains.compose.runtime:runtime"
+                ),
+                problematicDependencies.map { it.name }.toSet()
+            )
+
+            val uniqueInsights = overriddenDependencyProblems.map { it.overrideInsight }.distinct()
+            assertEquals(
+                1, uniqueInsights.size,
+                "Insights were calculated unexpected number of times, " +
+                        "while calculation of the single insight " +
+                        "for the library 'org.jetbrains.compose.runtime:runtime' is expected"
+            )
+        }
 
     // AMPER-4270
     @Test
@@ -281,13 +345,19 @@ class DiagnosticsTest : BaseModuleDrTest() {
     }
 
     private fun checkBuiltInDependencyBuildProblem(
-        buildProblems: Collection<BuildProblem>, group: String,
-        module: String, filePath: Path, versionLineNumber: Int? = null, versionColumn: Int? = null
+        buildProblems: Collection<BuildProblem>,
+        expectedProblemsCount: Int,
+        group: String, module: String,
+        filePath: Path,
+        versionLineNumber: Int? = null, versionColumn: Int? = null
     ) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
                     && it.problematicDependency.isMavenDependency(group, module)
         }
+
+        assertEquals(expected = expectedProblemsCount, actual = relevantBuildProblems.size,
+            "Unexpected number of build problems for $group:$module")
 
         relevantBuildProblems.forEach { buildProblem ->
             buildProblem as DependencyBuildProblem

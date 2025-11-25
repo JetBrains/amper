@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrReporterContext
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapLevelToSeverity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapSeverityToLevel
 import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
@@ -45,7 +46,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         node: DependencyNode,
         problemReporter: ProblemReporter,
         level: Level,
-        graphRoot: DependencyNode,
+        context: DrReporterContext,
     ) {
         val severity = level.mapLevelToSeverity()
         val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }

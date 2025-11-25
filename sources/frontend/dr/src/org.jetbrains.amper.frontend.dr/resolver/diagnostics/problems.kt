@@ -4,6 +4,7 @@
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics
 
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.TypedKeyMap
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsRegistrar.reporters
@@ -22,15 +23,15 @@ object DrDiagnosticsRegistrar {
 interface DrDiagnosticsReporter {
     /**
      * The most severe level at which diagnostics are reported by this reporter.
-     * If requested level is more severe than the level of the diagnostics reporter, then it is skipped.
+     * If the requested level is more severe than the level of the diagnostics reporter, then it is skipped.
      */
     val level: Level
 
-    fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level, graphRoot: DependencyNode)
+    fun reportBuildProblemsForNode(node: DependencyNode, problemReporter: ProblemReporter, level: Level, context: DrReporterContext)
 }
 
 /**
- * Traverse the entire dependencies graph collecting build problems for every node with the help of predefined
+ * Traverse the entire dependencies graph collecting build problems for every node with the help of a predefined
  * list of diagnostics reporters
  */
 fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter, level: Level) =
@@ -40,6 +41,7 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter
  * Traverse the entire dependencies graph collecting build problems for every node.
  */
 fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter, level: Level, diagnosticReporters: List<DrDiagnosticsReporter>){
+    val drReporterContext = DrReporterContext(graph)
     for (node in graph.distinctBfsSequence()) {
         //if (node is MavenDependencyNode) {
         //  node.dependency
@@ -55,11 +57,16 @@ fun collectBuildProblems(graph: DependencyNode, problemReporter: ProblemReporter
         //}
         diagnosticReporters.forEach { reporter ->
             if (reporter.level.atLeastAsSevereAs(level)) {
-                reporter.reportBuildProblemsForNode(node, problemReporter, level, graph)
+                reporter.reportBuildProblemsForNode(node, problemReporter, level, drReporterContext)
             }
         }
     }
 }
+
+data class DrReporterContext(
+    val graphRoot: DependencyNode,
+    val cache: TypedKeyMap = TypedKeyMap()
+)
 
 internal fun Message.mapSeverityToLevel(): Level = when (severity) {
     Severity.ERROR -> Level.Error
