@@ -5,7 +5,7 @@ It has a regular `module.yaml` build file with an additional [`pluginInfo` secti
 
 In addition, a plugin has a `plugin.yaml` file, where [tasks](tasks.md) are registered and configured.
 
-Plugin build logic is written in Kotlin in the `src` directory.
+The implementation of the tasks (the plugin's logic) is written in Kotlin in the `src` directory.
 
 ??? question "Planned: simple cases – simpler structure"
     There can be simpler cases for custom build logic for which having a full-blown plugin may be overkill.
@@ -13,10 +13,10 @@ Plugin build logic is written in Kotlin in the `src` directory.
 
     We are planning to improve UX for such cases and provide a more laconic way to express them.
 
-Plugin has an **ID**, which equals to its module name by default.
+Each plugin has an **ID**, which defaults to its module name.
 The **plugin ID** is used across the project to refer to the plugin, e.g., when enabling it or in diagnostic messages.
 
-??? info "Plugin ID can be customized"
+??? info "The plugin ID can be customized"
     For example:
     ```yaml title="build-config/module.yaml"
     pluginInfo:
@@ -25,7 +25,7 @@ The **plugin ID** is used across the project to refer to the plugin, e.g., when 
     This changes the ID from the default `build-config` to `build-konfig`.
 
     :warning: Changing the default ID makes little sense if we are not sharing the plugin between projects, which is not supported yet.
-    Currently, the ID string doesn't have well-defined format, so leaving the ID at its default is a good idea. 
+    Currently, the ID string doesn't have a well-defined format, so leaving the ID at its default is a good idea. 
 
 ## Making plugins available in the project
 
