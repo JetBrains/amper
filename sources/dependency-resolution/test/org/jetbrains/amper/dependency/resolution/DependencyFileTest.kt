@@ -487,11 +487,11 @@ class DependencyFileTest: BaseDRTest() {
 
             assertEquals(
                 setOf("commonMain", "concurrentMain"),
-                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
+                dependency.files().map { it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
 
-            val sourceSetFiles = dependency.files().associate { it.settings[KmpSourceSetName]!! to it.getPath()!! }
+            val sourceSetFiles = dependency.files().associate { it.kmpSourceSet!! to it.getPath()!! }
 
             // check sourceSet files content validity
             sourceSetFiles.forEach {
@@ -543,10 +543,10 @@ class DependencyFileTest: BaseDRTest() {
                 "concurrentMain" to commonPlatforms - ResolutionPlatform.JS,
             )
             dependency.files().forEach { file ->
-                val sourceSetName = file.settings[KmpSourceSetName]
+                val sourceSetName = file.kmpSourceSet
                 val platforms = expectedPlatforms[sourceSetName]
                 assertNotNull(platforms, "Unexpected source set: $sourceSetName")
-                assertEquals(platforms, file.settings[KmpPlatforms], "Wrong set of supported platforms for $sourceSetName")
+                assertEquals(platforms, file.kmpPlatforms, "Wrong set of supported platforms for $sourceSetName")
             }
         }
     }
@@ -637,7 +637,7 @@ class DependencyFileTest: BaseDRTest() {
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
             assertEquals(setOf("commonMain"),
-                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
+                dependency.files().map { it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
         }
