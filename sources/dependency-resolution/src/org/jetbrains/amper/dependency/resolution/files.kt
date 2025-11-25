@@ -302,8 +302,8 @@ open class DependencyFileImpl(
 ): DependencyFile {
     val settings = TypedKeyMap()
 
-    override val kmpSourceSet = settings[KmpSourceSetName]
-    override val kmpPlatforms = settings[KmpPlatforms]
+    override val kmpSourceSet get() = settings[KmpSourceSetName]
+    override val kmpPlatforms get() = settings[KmpPlatforms]
 
     @Volatile
     private var readOnlyExternalCacheDirectory: LocalRepository? = null
