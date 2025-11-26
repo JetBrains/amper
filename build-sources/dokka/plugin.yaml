@@ -1,0 +1,15 @@
+tasks:
+  run:
+    action: !org.jetbrains.amper.plugins.dokka.runDokka
+      settings: ${pluginSettings}
+      moduleName: ${module.name}
+      moduleCompileClasspath: ${module.compileClasspath}
+      runtimeClasspath:
+        - org.jetbrains.dokka:dokka-cli:2.1.0
+      builtinPluginsClasspath:
+        - org.jetbrains.dokka:dokka-base:2.1.0
+        - org.jetbrains.dokka:analysis-kotlin-descriptors:2.1.0
+        - org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0
+        - org.freemarker:freemarker:2.3.31
+      sources: ${module.kotlinJavaSources}
+      outputDir: ${taskOutputDir}

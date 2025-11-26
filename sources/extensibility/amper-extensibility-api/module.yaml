@@ -3,10 +3,13 @@ product: jvm/lib
 apply:
   - ../../common.module-template.yaml
   - ../../detekt.module-template.yaml
+  - ../../dokka.module-template.yaml
 
 plugins:
   binary-compatibility-validator:
     enabled: true
+  dokka:
+    documentedVisibilities: [ public, internal ]
 
 settings:
   publishing:

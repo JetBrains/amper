@@ -2,6 +2,7 @@ modules:
   - build-sources/amper-distribution
   - build-sources/binary-compatibility-validator
   - build-sources/detekt
+  - build-sources/dokka
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
   - build-sources/protobuf
@@ -59,6 +60,7 @@ plugins:
   - ./build-sources/amper-distribution
   - ./build-sources/binary-compatibility-validator
   - ./build-sources/detekt
+  - ./build-sources/dokka
   - ./build-sources/generate-build-properties
   - ./build-sources/generate-template-resources
   - ./build-sources/protobuf
