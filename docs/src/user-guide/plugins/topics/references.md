@@ -14,7 +14,7 @@ Inside the braces a **property path** is specified — one or more dot‑separat
 
 ### String interpolation
 
-One or more references can be embedded in YAML scalar values — **string interpolation**.
+One or more references can be embedded in YAML scalar values using **string interpolation**.
 This works for properties that expect either `string` or `path` types.
 
 - For strings: `prefix-${some.name}-suffix`
