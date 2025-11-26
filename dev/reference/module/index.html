@@ -1368,6 +1368,8 @@
       
         
       
+        
+      
     
     
     
@@ -1412,6 +1414,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/jdk-provisioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JDK provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2018,6 +2048,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#settingsjvmjdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm.jdk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#settingsjvmtest" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2406,6 +2447,17 @@
   
     <nav class="md-nav" aria-label="settings.jvm">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#settingsjvmjdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        settings.jvm.jdk
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#settingsjvmtest" class="md-nav__link">
@@ -3243,6 +3295,11 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 <td>21</td>
 </tr>
 <tr>
+<td><code>jdk: object</code></td>
+<td>Defines requirements for the JDK to use. These requirements are used to validate <code>JAVA_HOME</code> or to provision a matching JDK automatically. See details below and the <a href="../../user-guide/advanced/jdk-provisioning/">JDK provisioning</a> page.</td>
+<td>see below</td>
+</tr>
+<tr>
 <td><code>mainClass: string</code></td>
 <td>(Only for <code>jvm/app</code> <a href="../../user-guide/basics/#product-type">product type</a>) The fully-qualified name of the class used to run the application.</td>
 <td><a href="../../user-guide/basics/#jvm">auto-detected</a></td>
@@ -3259,6 +3316,72 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tr>
 </tbody>
 </table>
+<h4 id="settingsjvmjdk"><code>settings.jvm.jdk</code><a class="headerlink" href="#settingsjvmjdk" title="Permanent link">&para;</a></h4>
+<p>Configures how Amper selects or provisions a JDK for the module. If <code>JAVA_HOME</code> points to a suitable JDK, Amper can use it; otherwise it can download a matching JDK via the Foojay Discovery API and cache it. See the <a href="../../user-guide/advanced/jdk-provisioning/">JDK provisioning</a> page for a deep dive.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>int</td>
+<td>Amper default JDK major version</td>
+<td>Major JDK version to use (e.g., 8, 11, 17, 21, 25). Amper prefers the latest update in that line.</td>
+</tr>
+<tr>
+<td><code>distributions</code></td>
+<td>list<enum> or null</td>
+<td><code>null</code> (accept all distributions)</td>
+<td>Allow‑list of acceptable JDK distributions (vendors). If <code>null</code>, any known distribution is acceptable.</td>
+</tr>
+<tr>
+<td><code>selectionMode</code></td>
+<td>enum</td>
+<td><code>auto</code></td>
+<td>Strategy for choosing between <code>JAVA_HOME</code> and provisioning: <code>auto</code></td>
+</tr>
+<tr>
+<td><code>acknowledgedLicenses</code></td>
+<td>list<enum></td>
+<td><code>[]</code></td>
+<td>Distributions that require a commercial license and which you explicitly acknowledge. If you restrict <code>distributions</code> to any paid vendor, you must list it here.</td>
+</tr>
+</tbody>
+</table>
+<p>Supported values for <code>distributions</code> and <code>acknowledgedLicenses</code>:</p>
+<ul>
+<li><code>temurin</code> (Eclipse Temurin, a.k.a. Adoptium)</li>
+<li><code>zulu</code> (Azul Zulu)</li>
+<li><code>corretto</code> (Amazon Corretto)</li>
+<li><code>jetbrains</code> (JetBrains Runtime)</li>
+<li><code>oracleOpenJdk</code> (Oracle OpenJDK)</li>
+<li><code>microsoft</code> (Microsoft)</li>
+<li><code>bisheng</code> (BiSheng)</li>
+<li><code>dragonwell</code> (Alibaba Dragonwell)</li>
+<li><code>kona</code> (Tencent Kona)</li>
+<li><code>liberica</code> (BellSoft Liberica)</li>
+<li><code>openLogic</code> (Perforce OpenLogic)</li>
+<li><code>sapMachine</code> (SapMachine)</li>
+<li><code>semeru</code> (IBM Semeru Open Edition)</li>
+<li><code>oracle</code> (Oracle JDK; requires license)</li>
+<li><code>zuluPrime</code> (Azul Zulu Prime; requires license)</li>
+<li><code>semeruCertified</code> (IBM Semeru Certified; requires license)</li>
+</ul>
+<p>Values for <code>selectionMode</code>:</p>
+<ul>
+<li><code>auto</code> (default) — use <code>JAVA_HOME</code> if it matches the criteria; otherwise provision a JDK.</li>
+<li><code>alwaysProvision</code> — ignore <code>JAVA_HOME</code> and always provision a matching JDK (download or reuse cached one).</li>
+<li><code>javaHome</code> — require <code>JAVA_HOME</code> to match the criteria; fail if it does not. Provisioning is disabled.</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">See examples in the <a href="../../user-guide/advanced/jdk-provisioning/#examples">JDK provisioning section</a>.</p>
+</div>
 <h4 id="settingsjvmtest"><code>settings.jvm.test</code><a class="headerlink" href="#settingsjvmtest" title="Permanent link">&para;</a></h4>
 <p><code>settings.jvm.test</code> configures the test settings on the JVM and Android platforms.
 Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
@@ -3655,7 +3778,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 00:04:26 UTC">November 24, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 16, 2025 14:17:11 UTC">October 16, 2025</span>
   </span>
 
     
