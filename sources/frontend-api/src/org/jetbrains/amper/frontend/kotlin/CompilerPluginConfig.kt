@@ -140,7 +140,7 @@ data class LombokCompilerPluginConfig(val kotlinVersion: String) : CompilerPlugi
     override val id = "org.jetbrains.kotlin.lombok"
     override val options = emptyList<Option>()
     override val mavenCoordinates = CompilerPluginConfig.MavenCoordinates(
-        groupId = "org.jetbrains.kotlin",
+        groupId = KOTLIN_GROUP_ID,
         artifactId = "kotlin-lombok-compiler-plugin-embeddable",
         version = kotlinVersion,
     )
