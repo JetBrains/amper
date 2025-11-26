@@ -2262,12 +2262,13 @@ This restriction may be lifted in the future.</p>
 <p>There are also built‑in <a href="#variant-types">variant types</a>, but the mechanism is not yet allowed in user code.</p>
 <h2 id="configurable-interfaces">Configurable interfaces<a class="headerlink" href="#configurable-interfaces" title="Permanent link">&para;</a></h2>
 <p>A configurable interface is a public Kotlin interface annotated with the <code>@Configurable</code> annotation.
-Restrictions apply to this interface:</p>
+The following restrictions apply to this interface:</p>
 <ul>
 <li>methods, superinterfaces, generics are not allowed</li>
-<li>it may only have immutable non-extension (<code class="highlight"><span class="kd">val</span></code>) properties of the <em>configurable types</em>.
-  Such a property may have a default getter implementation, depending on a type.</li>
-<li>See the <a href="#default-values">defaults</a> section. </li>
+<li>it may only have read-only non-extension (<code class="highlight"><span class="kd">val</span></code>) properties</li>
+<li>all its properties must be of a <em>configurable type</em> themselves</li>
+<li>its properties may have a default getter implementation, depending on their type.
+  See the <a href="#default-values">Default values</a> section. </li>
 </ul>
 <div class="highlight"><span class="filename">Valid configurable declarations</span><pre><span></span><code><span class="nd">@Configurable</span>
 <span class="kd">interface</span><span class="w"> </span><span class="nc">MySettings</span><span class="w"> </span><span class="p">{</span>
@@ -2376,10 +2377,10 @@ Otherwise, the <code>name</code> of the entry is used in the configuration. </p>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Properties of <code>@Configurable</code> interface types can't have explicit defaults specified.
-However, all objects are instantiated by default using their default values and the values
-provided at the configuration (YAML) side. If some required (with no default at all) values remain
-unconfigured, then the error is issued and the configuration is rejected.</p>
+<p>Properties of object type can't have an explicit default value.
+Instead, all objects are instantiated using the default values of their properties combined with the values
+provided on the configuration (YAML) side. If any required properties (those with no default value) remain
+unconfigured, an error is reported and the configuration is rejected.</p>
 </div>
 <h2 id="advanced">Advanced<a class="headerlink" href="#advanced" title="Permanent link">&para;</a></h2>
 <div class="admonition info">
@@ -2410,13 +2411,15 @@ required.</p>
 Then, instead of the <code>true</code> keyword, one needs to write the property name itself, e.g., <code>enabled</code>.
 For example, <a href="#plugin-settings">plugin settings</a> have an implicit synthetic <code>enabled</code> property which is a shorthand.</p>
 <h3 id="variant-types">Variant types<a class="headerlink" href="#variant-types" title="Permanent link">&para;</a></h3>
-<p>On the Kotlin side they are modeled as a <code>@Configurable</code> <code>sealed</code> interface.
+<p>On the Kotlin side, they are modeled as a <code>@Configurable</code> <code>sealed</code> interface.
 When a variant type is expected, there is a need to express which exact variant is being provided in the configuration.
-This ability to express the exact type is not yet well-designed in Amper and generally looks unintuitive in YAML.</p>
-<p>So for the built‑in <code>Dependency { Local, Maven }</code> variant type Amper infers the type based on the <code>@DependencyNotation</code> string contents:</p>
+This ability to express the exact type is not yet designed in Amper and generally looks unintuitive in YAML.</p>
+<p>An example of variant type is the built‑in <code>Dependency</code> type, which can be a local module dependency (<code>Dependency.Local</code>)
+or an external Maven dependency (<code>Dependency.Maven</code>). Each of these subtypes has a <code>@DependencyNotation</code>-annotated property.</p>
+<p>The discrimination between the subtypes is done based on the value of that property:</p>
 <ul>
-<li>if the dependency string starts with the <code>.</code> it is a local dependency </li>
-<li>otherwise it is a Maven dependency</li>
+<li>if the value starts with a <code>.</code>, it is read as a local module dependency </li>
+<li>otherwise, it is read as a Maven dependency</li>
 </ul>
 <h4 id="task-action-types">Task action types<a class="headerlink" href="#task-action-types" title="Permanent link">&para;</a></h4>
 <p>Technically, task's <code>action</code> property also has a variant type.
@@ -2444,7 +2447,7 @@ And in this case an <strong>explicit YAML type tag</strong> is required to commu
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 10:20:48 UTC">November 24, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 25, 2025 16:57:31 UTC">November 25, 2025</span>
   </span>
 
     
