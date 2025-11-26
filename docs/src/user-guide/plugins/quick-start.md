@@ -5,15 +5,14 @@
 Here we are going to learn how to write a toy build plugin in Amper
 that exposes some *external* build‑time data to the application by generating sources.
 
-Our plugin would be able to parse a `.properties` file and generate Kotlin properties out of it.
+Our plugin should be able to parse a `.properties` file and generate Kotlin properties out of it.
 Later we may implement additional features.
+We will name our plugin `build-config`.
 
 ### Basic example
 
-We will name our plugin `build-config`.
-We are going to add it to our existing project.
+Let's start with the following project structure:
 
-Let's take a look at the whole project structure we aim for in advance:
 <!-- We use python here just to enable annotations -->
 ```python
 <root>/
@@ -21,7 +20,6 @@ Let's take a look at the whole project structure we aim for in advance:
 │  ╰─ module.yaml
 ├─ build-config/
 │  ├─ src/
-│  │  ╰─ **.kt
 │  ├─ module.yaml
 │  ╰─ plugin.yaml
 ├─ utils/
@@ -32,7 +30,7 @@ Let's take a look at the whole project structure we aim for in advance:
 
 1.    Other project modules
 
-The `project.yaml` would look like this then:
+The `project.yaml` looks like this:
 ```yaml title="project.yaml"
 modules:
   - app   #(1)!
@@ -50,7 +48,7 @@ plugins: #(5)!
 4.    There may be other project modules
 5.    This is a block where we list our plugin dependencies to [make available](topics/structure.md#making-plugins-available-in-the-project) in the project.
 
-And the `build-config/module.yaml` would look like:
+And the `build-config/module.yaml` looks like this:
 ```yaml title="build-config/module.yaml"
 product: jvm/amper-plugin
 ```
