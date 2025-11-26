@@ -360,9 +360,9 @@ tasks:
         ${module.rootDir}/${pluginSettings.propertiesFileName}.properties
       additionalConfig: ${pluginSettings.additionalConfig}
       generatedSourceDir: ${taskOutputDir}
-  markOutputsAs:
-    - path: ${action.generatedSourceDir}
-      kind: kotlin-sources
+    markOutputsAs:
+      - path: ${action.generatedSourceDir}
+        kind: kotlin-sources
 ```
 
 `pluginSettings` is a global reference-only property that contains the configured plugin settings for each module the plugin is applied to.
