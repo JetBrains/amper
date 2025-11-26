@@ -5,8 +5,7 @@
 Here we are going to learn how to write a toy build plugin in Amper
 that exposes some *external* build‑time data to the application by generating sources.
 
-Let's define what we want from our plugin for starters.
-The plugin would be able to parse a `.properties` file and generate Kotlin properties out of it.
+Our plugin would be able to parse a `.properties` file and generate Kotlin properties out of it.
 Later we may implement additional features.
 
 ### Basic example
