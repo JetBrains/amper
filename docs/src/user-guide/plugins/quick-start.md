@@ -84,19 +84,24 @@ fun generateSources(
     @Input propertiesFile: Path,
     @Output generatedSourceDir: Path,
 ) {
-    generatedSourceDir.deleteRecursively() //(1)!
+    // clean the old state if any is present from the previous invocation
+    generatedSourceDir.deleteRecursively() 
+    
     val outputFile = generatedSourceDir / "properties.kt"
 
-    if (!propertiesFile.isRegularFile()) {//(2)!
-        error("The file $propertiesFile does not exist")
+    if (!propertiesFile.isRegularFile()) {
+        error("The file $propertiesFile does not exist")//(1)!
     }
-    println("Generating sources")//(3)!
+    println("Generating sources")//(2)!
 
     val properties = propertiesFile.bufferedReader().use { reader ->  
         Properties().apply { load(reader) }  
-    }.toMap()  
+    }.toMap()
 
-    outputFile.createParentDirectories()//(4)!
+    // need to ensure the output directory structure exists: 
+    // Amper doesn't pre-create it for us
+    outputFile.createParentDirectories() 
+    
     val code = buildString {
         appendLine("package com.example.generated")
         appendLine("public object Config {")
@@ -109,10 +114,8 @@ fun generateSources(
 }
 ```
 
-1.    Clean the old state if any is present from the previous invocation
-2.    Input file may not exist at all, need to check that
-3.    Simple [logging](topics/tasks.md#logging) (structured logging support comes later)
-4.    Need to ensure the output directory structure exists: Amper doesn't pre-create it for us
+1. Throwing an exception causes the task to fail
+2. Simple [logging](topics/tasks.md#logging) (structured logging support comes later)
 
 The code can be written in any Kotlin file in any package – there's no convention here.
 `@TaskAction` is a marker for a top-level Kotlin function that can be registered as a task.
