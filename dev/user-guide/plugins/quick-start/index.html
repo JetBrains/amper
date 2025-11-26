@@ -2133,7 +2133,7 @@ We are going to add it to our existing project.</p>
 <ol>
 <li>Regular module, e.g., <code>jvm/app</code></li>
 <li>Our plugin is also a normal module and needs to be listed here</li>
-<li>Regular <code>jvm/lib</code> module, that contains, e.g., generic utilities useful for most modules in the project</li>
+<li>Regular module, e.g., <code>jvm/lib</code> that contains generic utilities useful for most modules in the project</li>
 <li>There may be other project modules</li>
 <li>This is a block where we list our plugin dependencies to <a href="../topics/structure/#making-plugins-available-in-the-project">make available</a> in the project.</li>
 </ol>
@@ -2141,15 +2141,14 @@ We are going to add it to our existing project.</p>
 <div class="highlight"><span class="filename">build-config/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/amper-plugin</span>
 </code></pre></div></p>
 <p>This is already a valid (although incomplete) Amper plugin.</p>
-<p>It has a <em>plugin ID</em> which equals the plugin module name (<code>build-config</code>) by default.
-The plugin ID is the string by which the plugin is going to be referred to throughout the project, e.g., to enable/configure it.</p>
+<p>It has a <em>plugin ID</em> which defaults to the plugin module name (<code>build-config</code>).
+The plugin ID is the string used to refer to the plugin throughout the project, e.g., to enable/configure it.</p>
 <p>Declaring the plugin in the <code>plugins</code> section of <code>project.yaml</code> makes it <em>available to the project</em>,
 but it is not yet <em>enabled in</em> (<em>applied to</em>) any of its modules.
 Learn more about it <a href="../topics/structure/#making-plugins-available-in-the-project">here</a>.
 But it doesn't contain anything useful yet.</p>
 <p>Let's start implementing our plugin by writing a <a href="../topics/tasks/#task-action-definition">task action</a>
-that would do the source generation based on the contents of the properties file.
-For now, we'll do the code formatting by hand:
+that would do the source generation based on the contents of the properties file.</p>
 <div class="highlight"><span class="filename">build-config/src/generateSources.kt</span><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.example</span>
 
 <span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.amper.plugins.*</span>
@@ -2187,7 +2186,7 @@ For now, we'll do the code formatting by hand:
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">outputFile</span><span class="p">.</span><span class="na">writeText</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
 <span class="p">}</span>
-</code></pre></div></p>
+</code></pre></div>
 <ol>
 <li>Clean the old state if any is present from the previous invocation</li>
 <li>Input file may not exist at all, need to check that</li>
@@ -2352,7 +2351,7 @@ In our case, it's <code>com.example.Settings</code>:
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>It is good practice to provide reasonable defaults for <em>all</em> the plugin settings if possible,
-so the user still can use the plugin right away by simply having written, e.g., <code>build-config: enabled</code>.</p>
+so the user still can use the plugin right away by simply having written <code>build-config: enabled</code>.</p>
 </div>
 <p>This way, we can now configure our plugin in the app's <code>module.yaml</code>:
 <div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
@@ -2444,7 +2443,7 @@ This is done because tasks without outputs are almost always introduced for side
 <p>Now we've added the <code>print</code> task, we'd like to use it.
 Unlike the <code>generate</code> task, it doesn't declare any outputs that are contributed back to the build, so it won't be executed automatically when build/test/run is invoked.
 So, to <a href="../topics/tasks/#run-a-task">run</a> a task manually, one must use the following CLI command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>./amper<span class="w"> </span>task<span class="w"> </span>:app:print@build-config
+<div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>task<span class="w"> </span>:app:print@build-config
 </code></pre></div>
 <p>That's it for this tutorial!
 You can study some specific topics about Amper plugins and/or go try to write one yourself.</p>
@@ -2490,7 +2489,7 @@ Feel free to take a look!</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 24, 2025 18:45:09 UTC">November 24, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 25, 2025 16:55:55 UTC">November 25, 2025</span>
   </span>
 
     

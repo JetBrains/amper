@@ -1993,27 +1993,27 @@
 
 
 <h1 id="plugin-structure">Plugin structure<a class="headerlink" href="#plugin-structure" title="Permanent link">&para;</a></h1>
-<p>Plugin is a normal Amper module with the <code>jvm/amper-plugin</code> product type.
-It has a normal <code>module.yaml</code> build file, with an additional <a href="../../../../reference/module/#plugininfo"><code>pluginInfo</code> section</a> available.</p>
+<p>A plugin is a standard Amper module with the <code>jvm/amper-plugin</code> product type. 
+It has a regular <code>module.yaml</code> build file with an additional <a href="../../../../reference/module/#plugininfo"><code>pluginInfo</code> section</a>.</p>
 <p>In addition, a plugin has a <code>plugin.yaml</code> file, where <a href="../tasks/">tasks</a> are registered and configured.</p>
-<p>Plugin build logic is written in Kotlin in the <code>src</code> directory.</p>
+<p>The implementation of the tasks (the plugin's logic) is written in Kotlin in the <code>src</code> directory.</p>
 <details class="question">
 <summary>Planned: simple cases – simpler structure</summary>
 <p>There can be simpler cases for custom build logic for which having a full-blown plugin may be overkill.
 For example, a single ad-hoc task action that is only needed in one module.</p>
 <p>We are planning to improve UX for such cases and provide a more laconic way to express them.</p>
 </details>
-<p>Plugin has an <strong>ID</strong>, which equals to its module name by default.
+<p>Each plugin has an <strong>ID</strong>, which defaults to its module name.
 The <strong>plugin ID</strong> is used across the project to refer to the plugin, e.g., when enabling it or in diagnostic messages.</p>
 <details class="info">
-<summary>Plugin ID can be customized</summary>
+<summary>The plugin ID can be customized</summary>
 <p>For example:
 <div class="highlight"><span class="filename">build-config/module.yaml</span><pre><span></span><code><span class="nt">pluginInfo</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;build-konfig&quot;</span>
 </code></pre></div>
 This changes the ID from the default <code>build-config</code> to <code>build-konfig</code>.</p>
 <p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> Changing the default ID makes little sense if we are not sharing the plugin between projects, which is not supported yet.
-Currently, the ID string doesn't have well-defined format, so leaving the ID at its default is a good idea. </p>
+Currently, the ID string doesn't have a well-defined format, so leaving the ID at its default is a good idea. </p>
 </details>
 <h2 id="making-plugins-available-in-the-project">Making plugins available in the project<a class="headerlink" href="#making-plugins-available-in-the-project" title="Permanent link">&para;</a></h2>
 <p>Amper plugins are module-level plugins – they are enabled and applied per module.
@@ -2035,7 +2035,7 @@ Then such a plugin is present in the <code>modules</code> list, but not included
 <summary>Similar to <code>apply false</code> in Gradle...</summary>
 <p>Amper's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
 recommended approach in Gradle. There one lists plugins at the project level with the <code>apply false</code> clause and
-then just enables them where needed.</p>
+then enables them where needed.</p>
 </details>
 <h2 id="enabling-plugins">Enabling plugins<a class="headerlink" href="#enabling-plugins" title="Permanent link">&para;</a></h2>
 <p>Plugins can be enabled and <a href="../configuration/#plugin-settings">configured</a> like this:</p>
@@ -2083,7 +2083,7 @@ that enables and configures the plugin.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 8, 2025 19:36:05 UTC">November 8, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 25, 2025 16:51:36 UTC">November 25, 2025</span>
   </span>
 
     
