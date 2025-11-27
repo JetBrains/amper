@@ -155,20 +155,22 @@ private class PrintStreamWithUnlockedAutoFlush(
 
     // region override potentially flushing methods
 
+    @Suppress("KotlinArrayToString") // false positive?
     override fun print(s: CharArray) = super.print(s).also { if ('\n' in s) flush() }
     override fun print(s: String?) = super.print(s).also { if (s != null && '\n' in s) flush() }
     override fun print(obj: Any?) = print(obj.toString())
 
     override fun println() = super.println().also { flush() }
-    override fun println(x: Boolean) = super.println(x).also { flush() }
-    override fun println(x: Char) = super.println(x).also { flush() }
-    override fun println(x: Int) = super.println(x).also { flush() }
-    override fun println(x: Long) = super.println(x).also { flush() }
-    override fun println(x: Float) = super.println(x).also { flush() }
-    override fun println(x: Double) = super.println(x).also { flush() }
-    override fun println(x: CharArray) = super.println(x).also { flush() }
-    override fun println(x: String?) = super.println(x).also { flush() }
-    override fun println(x: Any?) = super.println(x).also { flush() }
+    override fun println(x: Boolean) = super.print(x).also { println() }
+    override fun println(x: Char) = super.print(x).also { println() }
+    override fun println(x: Int) = super.print(x).also { println() }
+    override fun println(x: Long) = super.print(x).also { println() }
+    override fun println(x: Float) = super.print(x).also { println() }
+    override fun println(x: Double) = super.print(x).also { println() }
+    @Suppress("KotlinArrayToString") // false positive?
+    override fun println(x: CharArray) = super.print(x).also { println() }
+    override fun println(x: String?) = super.print(x).also { println() }
+    override fun println(x: Any?) = super.print(x).also { println() }
 
     override fun format(format: String, vararg args: Any?) = apply { print(String.format(format, *args)) }
     override fun format(l: Locale, format: String, vararg args: Any?) = apply { print(String.format(l, format, *args)) }
