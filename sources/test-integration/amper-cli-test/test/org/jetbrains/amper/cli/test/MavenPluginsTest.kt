@@ -9,6 +9,8 @@ import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import kotlin.test.Test
 
 class MavenPluginsTest : AmperCliTestBase() {
@@ -69,12 +71,17 @@ class MavenPluginsTest : AmperCliTestBase() {
     @Test
     fun `compilation and running with protobuf generated sources`() = runSlowTest {
         runCli(
-            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"), 
+            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"),
             "run"
         ).assertStdoutContains("Hello from the proto test! Request value is 42")
     }
 
     @Test
+    @DisabledOnOs(
+        OS.WINDOWS,
+        disabledReason = "Need to support long executable paths or shorten them for Win: " +
+                "https://youtrack.jetbrains.com/issue/AMPER-4913/Long-executable-path-on-Win-leads-to-failure"
+    )
     fun `compilation and testing with protobuf generated sources`() = runSlowTest {
         runCli(
             projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"),
