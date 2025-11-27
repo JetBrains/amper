@@ -10,7 +10,3 @@ dependencies:
   - ../frontend/dr
   - $libs.xmlutil.serialization
   - $libs.slf4j.api
-
-settings:
-  kotlin:
-    serialization: enabled
