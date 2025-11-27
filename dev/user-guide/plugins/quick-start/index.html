@@ -2126,20 +2126,19 @@
 <h2 id="how-to-write-a-plugin">How to write a plugin<a class="headerlink" href="#how-to-write-a-plugin" title="Permanent link">&para;</a></h2>
 <p>Here we are going to learn how to write a toy build plugin in Amper
 that exposes some <em>external</em> build‑time data to the application by generating sources.</p>
-<p>Let's define what we want from our plugin for starters.
-The plugin would be able to parse a <code>.properties</code> file and generate Kotlin properties out of it.
-Later we may implement additional features.</p>
+<p>Our plugin should be able to parse a <code>.properties</code> file and generate Kotlin properties out of it.
+Later we may implement additional features.
+We will name our plugin <code>build-config</code>.</p>
+<p>The sources of the plugin are available in the <a href="https://github.com/JetBrains/amper-plugins-tutorial">amper-plugins-tutorial</a>
+repository on GitHub. You can clone it, checkout the initial revision, and follow the Git log to see the changes made step by step.</p>
 <h3 id="basic-example">Basic example<a class="headerlink" href="#basic-example" title="Permanent link">&para;</a></h3>
-<p>We will name our plugin <code>build-config</code>.
-We are going to add it to our existing project.</p>
-<p>Let's take a look at the whole project structure we aim for in advance:</p>
+<p>Let's start with the following project structure:</p>
 <!-- We use python here just to enable annotations -->
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
 <span class="err">├─</span> <span class="n">app</span><span class="o">/</span>
 <span class="err">│</span>  <span class="err">╰─</span> <span class="n">module</span><span class="o">.</span><span class="n">yaml</span>
 <span class="err">├─</span> <span class="n">build</span><span class="o">-</span><span class="n">config</span><span class="o">/</span>
 <span class="err">│</span>  <span class="err">├─</span> <span class="n">src</span><span class="o">/</span>
-<span class="err">│</span>  <span class="err">│</span>  <span class="err">╰─</span> <span class="o">**.</span><span class="n">kt</span>
 <span class="err">│</span>  <span class="err">├─</span> <span class="n">module</span><span class="o">.</span><span class="n">yaml</span>
 <span class="err">│</span>  <span class="err">╰─</span> <span class="n">plugin</span><span class="o">.</span><span class="n">yaml</span>
 <span class="err">├─</span> <span class="n">utils</span><span class="o">/</span>
@@ -2150,7 +2149,7 @@ We are going to add it to our existing project.</p>
 <ol>
 <li>Other project modules</li>
 </ol>
-<p>The <code>project.yaml</code> would look like this then:
+<p>The <code>project.yaml</code> looks like this:
 <div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="w">   </span><span class="c1">#(1)!</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build-config</span><span class="w"> </span><span class="c1">#(2)!</span>
@@ -2167,7 +2166,7 @@ We are going to add it to our existing project.</p>
 <li>There may be other project modules</li>
 <li>This is a block where we list our plugin dependencies to <a href="../topics/structure/#making-plugins-available-in-the-project">make available</a> in the project.</li>
 </ol>
-<p>And the <code>build-config/module.yaml</code> would look like:
+<p>And the <code>build-config/module.yaml</code> looks like this:
 <div class="highlight"><span class="filename">build-config/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/amper-plugin</span>
 </code></pre></div></p>
 <p>This is already a valid (although incomplete) Amper plugin.</p>
@@ -2540,7 +2539,7 @@ Feel free to take a look!</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 26, 2025 14:19:42 UTC">November 26, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 26, 2025 15:38:04 UTC">November 26, 2025</span>
   </span>
 
     
