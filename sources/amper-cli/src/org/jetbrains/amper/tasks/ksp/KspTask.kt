@@ -177,10 +177,6 @@ internal class KspTask(
         }.outputFiles
     }
 
-    class Result(
-        override val compileClasspath: List<Path>,
-    ) : TaskResult, AdditionalClasspathProvider
-
     private suspend fun Ksp.runKsp(
         compileLibraries: List<Path>,
         kspOutputPaths: KspOutputPaths,
@@ -252,6 +248,10 @@ internal class KspTask(
             kspOutputPaths.outputDirs
         }
     }
+
+    class Result(
+        override val compileClasspath: List<Path>,
+    ) : TaskResult, AdditionalClasspathProvider
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(KspTask::class.java)

@@ -24,7 +24,9 @@ class CliReportingMavenResolver(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun processProblems(buildProblems: List<BuildProblem>, span: Span, resolveSourceMoniker: String) {
+    override fun processProblems(buildProblems: List<BuildProblem>, resolveSourceMoniker: String) {
+        val span = Span.current()
+        
         for (buildProblem in buildProblems) {
             when (buildProblem.level) {
                 Level.WeakWarning -> logger.info(buildProblem.message)

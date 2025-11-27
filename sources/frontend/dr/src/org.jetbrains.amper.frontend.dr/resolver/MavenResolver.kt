@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.dr.resolver
 
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.OpenTelemetry
-import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
@@ -111,11 +110,11 @@ open class MavenResolver(
                 .also {
                     // We are referencing the same root, but after [resolveDependencies] was called, so it is filled now.
                     val reporter = CollectingProblemReporter().also { collectBuildProblems(root, it, Level.Warning) }
-                    processProblems(reporter.problems, span, resolveSourceMoniker)
+                    processProblems(reporter.problems, resolveSourceMoniker)
                 }
         }
 
-    protected open fun processProblems(buildProblems: List<BuildProblem>, span: Span, resolveSourceMoniker: String) =
+    protected open fun processProblems(buildProblems: List<BuildProblem>, resolveSourceMoniker: String) =
         Unit
 }
 
