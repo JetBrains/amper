@@ -6,6 +6,7 @@ package org.jetbrains.amper.test
 
 import com.intellij.execution.CommandLineUtil
 import com.intellij.execution.Platform
+import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
@@ -283,7 +284,7 @@ data class AmperCliResult(
 
     val infoLogsPath = logsDir?.resolve("info.log")
     val debugLogsPath = logsDir?.resolve("debug.log")
-    val tracesPath = logsDir?.resolve("opentelemetry_traces.jsonl")
+    val tracesPath = logsDir?.resolve("telemetry")
 
     val infoLogs by lazy {
         infoLogsPath?.readLogs() ?: fail("The logs dir doesn't exist, cannot get info logs")
@@ -294,9 +295,14 @@ data class AmperCliResult(
     }
 
     val telemetrySpans by lazy {
-        val tracesFile = tracesPath ?: fail("The logs dir doesn't exist, cannot get OpenTelemetry traces")
-        assertTrue(tracesFile.exists(), "OpenTelemetry traces file not found at $tracesFile")
-        Json.decodeOtlpTraces(tracesFile.readLines())
+        val tracesDir = tracesPath ?: fail("The telemetry logs dir doesn't exist, cannot get OpenTelemetry traces")
+        assertTrue(tracesDir.exists(), "OpenTelemetry traces directory not found at $tracesDir")
+        val spans = mutableListOf<SpanData>()
+        for (tracesFile in tracesDir.listDirectoryEntries()) {
+            assertTrue(tracesFile.isRegularFile(), "Expected a file in $tracesDir, but found a directory: $tracesFile")
+            spans.addAll(Json.decodeOtlpTraces(tracesFile.readLines()))
+        }
+        spans
     }
 }
 

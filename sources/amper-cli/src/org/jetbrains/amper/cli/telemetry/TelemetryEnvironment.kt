@@ -60,7 +60,7 @@ object TelemetryEnvironment {
     }
 
     fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
-        moveSpansFile(newPath = amperBuildLogsRoot.path.createDirectories() / "opentelemetry_traces.jsonl")
+        moveSpansFile(newPath = amperBuildLogsRoot.telemetryPath.createDirectories() / "amper_cli_traces.jsonl")
     }
 
     private fun userLevelTracesPath(userCacheRoot: AmperUserCacheRoot): Path {

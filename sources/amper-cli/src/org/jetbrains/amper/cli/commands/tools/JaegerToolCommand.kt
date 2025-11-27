@@ -23,6 +23,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.commands.AmperSubcommand
 import org.jetbrains.amper.cli.userReadableError
@@ -42,9 +43,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.walk
 
 internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
@@ -143,9 +144,17 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
         }
 
         if (logsRootDir.exists()) {
-            logsRootDir.walk()
-                .filter { it.isRegularFile() && it.name.endsWith("opentelemetry_traces.jsonl") }
-                .toList()
+            buildList {
+                for (folder in logsRootDir.listDirectoryEntries()) {
+                    val telemetryFolder = AmperBuildLogsRoot(folder).telemetryPath
+                    if (telemetryFolder.exists()) {
+                        addAll(telemetryFolder
+                            .listDirectoryEntries()
+                            .filter { it.isRegularFile() && it.name.endsWith(".jsonl") }
+                        )
+                    }
+                }
+            }
         } else {
             emptyList()
         }

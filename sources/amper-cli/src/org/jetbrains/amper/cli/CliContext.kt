@@ -126,6 +126,8 @@ data class AmperBuildLogsRoot(val path: Path) {
             "Build logs root is not an absolute path: $path"
         }
     }
+
+    val telemetryPath = path / "telemetry"
 }
 
 data class AmperProjectTempRoot(val path: Path) {
