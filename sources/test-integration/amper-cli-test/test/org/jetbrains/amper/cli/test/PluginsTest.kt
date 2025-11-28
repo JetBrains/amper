@@ -520,6 +520,7 @@ class PluginsTest : AmperCliTestBase() {
                 "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
                 "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
                 "${pluginYaml}:4:5: No value for required property 'int'.",
+                "${pluginYaml}:4:5: No value for required property 'classpath.dependencies'.",
             )
             assertWarnings(
                 "${pluginYaml}:16:11: Maven classifiers are currently not supported",

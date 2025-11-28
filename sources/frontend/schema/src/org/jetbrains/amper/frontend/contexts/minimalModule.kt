@@ -72,6 +72,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
                 valuePath: List<String>,
+                relativeValuePath: List<String>,
             ) {
                 when (valuePath) {
                     listOf("product") -> collectingReporter.reportBundleError(
@@ -83,7 +84,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
                     )
-                    else -> super.onMissingRequiredPropertyValue(trace, valuePath)
+                    else -> super.onMissingRequiredPropertyValue(trace, valuePath, relativeValuePath)
                 }
             }
         }
