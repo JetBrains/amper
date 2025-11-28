@@ -49,4 +49,4 @@ settings:
   jvm:
     release: 21
   java:
-    compileIncrementally: true
+    compileIncrementally: false # Disabled because of AMPER-4868
