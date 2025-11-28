@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
+import org.jetbrains.amper.frontend.plugins.ModuleDataForPlugin
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
@@ -41,9 +42,7 @@ import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
-import org.jetbrains.amper.frontend.types.ModuleDataForPluginDeclaration
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
-import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
@@ -112,44 +111,41 @@ internal class PluginTreeReader(
                 projectContext.getTaskOutputRoot(taskNameFor(module.module, name))
             }.orEmpty()
 
-        val moduleConfigurationDeclaration =
-            types.getDeclaration(ModuleDataForPluginDeclaration) as SchemaObjectDeclaration
-
         // Build a tree with computed "reference-only" values.
         val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
             `object`<PluginYamlRoot> {
                 if (pluginData.pluginSettingsSchemaName != null) {
                     PluginYamlRoot.PLUGIN_SETTINGS setTo pluginConfiguration
                 }
-                PluginYamlRoot.MODULE setTo `object`(moduleConfigurationDeclaration.toType()) {
-                    ModuleDataForPluginDeclaration.NAME setTo scalar(module.module.userReadableName)
-                    ModuleDataForPluginDeclaration.ROOT_DIR setTo scalar(moduleRootDir)
+                PluginYamlRoot::module setTo `object`<ModuleDataForPlugin> {
+                    ModuleDataForPlugin::name setTo scalar(module.module.userReadableName)
+                    ModuleDataForPlugin::rootDir setTo scalar(moduleRootDir)
                     val selfDependency = `object`<ShadowDependencyLocal> {
                         ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
                     }
-                    ModuleDataForPluginDeclaration.SELF setTo selfDependency
-                    ModuleDataForPluginDeclaration.RUNTIME_CLASSPATH setTo `object`<ShadowClasspath> {
+                    ModuleDataForPlugin::self setTo selfDependency
+                    ModuleDataForPlugin::runtimeClasspath setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList { add(selfDependency) }
                     }.appendDefaultValues()
-                    ModuleDataForPluginDeclaration.COMPILE_CLASSPATH setTo `object`<ShadowClasspath> {
+                    ModuleDataForPlugin::compileClasspath setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList { add(selfDependency) }
                         ShadowClasspath::scope setTo scalar(ShadowResolutionScope.Compile)
                     }.appendDefaultValues()
-                    ModuleDataForPluginDeclaration.KOTLIN_JAVA_SOURCES setTo `object`<ShadowModuleSources> {
+                    ModuleDataForPlugin::kotlinJavaSources setTo `object`<ShadowModuleSources> {
                         ShadowModuleSources::from setTo selfDependency
                     }.appendDefaultValues()
-                    ModuleDataForPluginDeclaration.RESOURCES setTo `object`<ShadowModuleSources> {
+                    ModuleDataForPlugin::resources setTo `object`<ShadowModuleSources> {
                         ShadowModuleSources::from setTo selfDependency
                         ShadowModuleSources::kind setTo scalar(ShadowSourcesKind.Resources)
                     }.appendDefaultValues()
-                    ModuleDataForPluginDeclaration.JAR setTo `object`<ShadowCompilationArtifact> {
+                    ModuleDataForPlugin::jar setTo `object`<ShadowCompilationArtifact> {
                         ShadowCompilationArtifact::from setTo selfDependency
                     }.appendDefaultValues()
                 }
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {
                         taskName setTo `object`<Task> {
-                            Task.TASK_OUTPUT_DIR setTo scalar(taskBuildRoot)
+                            Task::taskOutputDir setTo scalar(taskBuildRoot)
                         }
                     }
                 }

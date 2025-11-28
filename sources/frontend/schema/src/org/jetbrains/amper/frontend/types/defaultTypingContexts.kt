@@ -55,38 +55,9 @@ fun PluginYamlTypingContext(
     pluginData: PluginData,
 ): SchemaTypingContext = object : ExtensibleBuiltInTypingContext(parent, listOf(PluginYamlRoot::class)) {
     override fun discoverTypes() {
-        addCustomProperty(
-            Task::class.builtInKey,
-            CustomPropertyDescriptor(
-                propertyName = Task.TASK_OUTPUT_DIR,
-                propertyType = SchemaType.PathType,
-                documentation = "Dedicated task directory under the build root",
-                origin = SchemaOrigin.Builtin,
-                canBeReferenced = true,
-                isUserSettable = false,
-            )
-        )
-
         val pluginSettingsDeclarationKey = pluginData.pluginSettingsSchemaName?.let { pluginSettingsName ->
             pluginData.id / pluginSettingsName
         }
-        val moduleReferenceDeclaration = ModuleDataForPluginDeclaration(
-            classpathType = { getDeclaration<ShadowClasspath>().toType() },
-            localDependencyType = { getDeclaration<ShadowDependencyLocal>().toType() },
-            compilationArtifactType = { getDeclaration<ShadowCompilationArtifact>().toType() },
-            moduleSourcesType = { getDeclaration<ShadowModuleSources>().toType() },
-        ).also { registeredDeclarations[ModuleDataForPluginDeclaration] = it }
-
-        addCustomProperty(
-            PluginYamlRoot::class.builtInKey,
-            CustomPropertyDescriptor(
-                propertyName = PluginYamlRoot.MODULE,
-                propertyType = moduleReferenceDeclaration.toType(),
-                documentation = "Data from the module the plugin is applied to",
-                origin = SchemaOrigin.Builtin,
-                isUserSettable = false,
-            ),
-        )
 
         if (pluginSettingsDeclarationKey != null) {
             addCustomProperty(

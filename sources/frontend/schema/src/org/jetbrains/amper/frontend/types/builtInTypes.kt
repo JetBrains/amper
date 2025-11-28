@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.api.PathMark
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
+import org.jetbrains.amper.frontend.api.ReadOnly
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
@@ -224,6 +225,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         inputOutputMark = prop.findAnnotation<PathMark>()?.type,
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>(),
                         canBeReferenced = prop.hasAnnotation<CanBeReferenced>(),
+                        isUserSettable = !prop.hasAnnotation<ReadOnly>(),
                         origin = SchemaOrigin.Builtin,
                     )
                 }
