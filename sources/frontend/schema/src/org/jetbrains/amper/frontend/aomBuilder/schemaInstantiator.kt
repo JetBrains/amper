@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
+import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.ErrorValue
@@ -73,6 +74,12 @@ internal fun BuildCtx.createSchemaNode(
 private object ValueCreationErrorToken
 
 /**
+ * A property path in a tree with associated value traces.
+ * Example: `["settings" to <trace-1>, "kotlin" to <trace-2>, "version" to <trace-2>]`
+ */
+private typealias ValuePath = List<Pair<String, Trace>>
+
+/**
  * Creates a value of the given [type] from the given tree [value].
  *
  * If the value cannot be created because it is missing or incomplete, this function returns a special
@@ -84,7 +91,7 @@ context(missingPropertiesHandler: MissingPropertiesHandler)
 private fun createNode(
     type: SchemaType,
     value: TreeValue<*>,
-    valuePath: List<String>,
+    valuePath: ValuePath,
 ): Any? {
     when (value) {
         is ErrorValue,
@@ -116,22 +123,22 @@ private fun createNode(
 }
 
 context(_: MissingPropertiesHandler)
-private fun createListNode(value: ListValue<*>, type: SchemaType.ListType, valuePath: List<String>): List<Any?> =
+private fun createListNode(value: ListValue<*>, type: SchemaType.ListType, valuePath: ValuePath): List<Any?> =
     value.children
-        .map { createNode(type.elementType, it, valuePath + "[]") }
+        .map { createNode(type.elementType, it, valuePath + ("[]" to it.trace)) }
         .filter { it !== ValueCreationErrorToken }
 
 context(_: MissingPropertiesHandler)
-private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: List<String>): Map<Any, Any?> =
+private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: ValuePath): Map<Any, Any?> =
     value.children
         .associate {
             val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.kTrace) else it.key
-            key to createNode(type.valueType, it.value, valuePath + it.key)
+            key to createNode(type.valueType, it.value, valuePath + (it.key to it.value.trace))
         }
         .filterValues { it !== ValueCreationErrorToken }
 
 context(missingPropertiesHandler: MissingPropertiesHandler)
-private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valuePath: List<String>): Any {
+private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valuePath: ValuePath): Any {
     val declaration = type.declaration
     val newInstance = declaration.createInstance()
     @OptIn(InternalTraceSetter::class)
@@ -144,15 +151,20 @@ private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valueP
     // we track this but don't return early, so we can report everything
     var hasMissingRequiredProps = false
     for (property in declaration.properties) {
-        val propertyValuePath = valuePath + property.name
+        val propertyValuePath = valuePath + (property.name to value.trace)
         val mapLikePropertyValue = value.refinedChildren[property.name]
         propertyCheckDefaultIntegrity(property, mapLikePropertyValue)
         if (mapLikePropertyValue == null) {
             // Property is not mentioned at all
             if (property.isValueRequired()) {
+                // Find the last non-default trace in the path - that's the *base* trace for our missing value
+                val baseTraceIndex = propertyValuePath.indexOfLast { (_, trace) -> !trace.isDefault }
+                val baseTrace = propertyValuePath[baseTraceIndex].second
+
                 missingPropertiesHandler.onMissingRequiredPropertyValue(
-                    trace = value.trace,
-                    valuePath = propertyValuePath,
+                    trace = baseTrace,
+                    valuePath = propertyValuePath.map { (name, _) -> name },
+                    relativeValuePath = propertyValuePath.drop(baseTraceIndex).map { (name, _) -> name },
                 )
                 hasMissingRequiredProps = true
             }
@@ -186,13 +198,18 @@ interface MissingPropertiesHandler {
     /**
      * Called when a value is missing for a "required" property.
      *
-     * @param trace a trace of the outermost yet present construct.
-     * @param valuePath a path for which the value is missing.
+     * @param trace a trace of the outermost explicitly present (non-default) construct.
+     * @param valuePath a path (from the document root) for which the value is missing.
      *   E.g., `["product", "type"]` or `["repositories", "[]", "url"]"`
+     * @param relativeValuePath a path relative to the construct with the [trace].
+     *   E.g., when the [valuePath] is `["tasks", "myTask", "action", "classpath", "dependencies"]`,
+     *   and the [trace] points to the `"action"` object,
+     *   then the `relativeValuePath` is `["classpath", "dependencies"]`.
      */
     fun onMissingRequiredPropertyValue(
         trace: Trace,
         valuePath: List<String>,
+        relativeValuePath: List<String>,
     )
 
     /**
@@ -202,11 +219,12 @@ interface MissingPropertiesHandler {
         override fun onMissingRequiredPropertyValue(
             trace: Trace,
             valuePath: List<String>,
+            relativeValuePath: List<String>,
         ) {
             problemReporter.reportBundleError(
                 source = trace.asBuildProblemSource(),
                 messageKey = "validation.missing.value",
-                valuePath.last(),
+                relativeValuePath.joinToString("."),
             )
         }
     }
