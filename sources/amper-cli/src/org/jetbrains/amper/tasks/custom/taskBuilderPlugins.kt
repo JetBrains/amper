@@ -56,16 +56,18 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 tasks.registerTask(
                     task,
                     dependsOn = buildList {
-                        classpathRequest.localDependencies.forEach { module ->
-                            add(CommonTaskType.Jar.getTaskName(module, Platform.JVM))
-                            module.getModuleDependencies(
-                                isTest = false,
-                                platform = Platform.JVM,
-                                dependencyReason = resolutionScope,
-                                userCacheRoot = context.userCacheRoot,
-                                incrementalCache = incrementalCache,
-                            ).forEach {
-                                add(CommonTaskType.Jar.getTaskName(it, Platform.JVM))
+                        if (resolutionScope != ResolutionScope.COMPILE) {
+                            classpathRequest.localDependencies.forEach { module ->
+                                add(CommonTaskType.Jar.getTaskName(module, Platform.JVM))
+                                module.getModuleDependencies(
+                                    isTest = false,
+                                    platform = Platform.JVM,
+                                    dependencyReason = resolutionScope,
+                                    userCacheRoot = context.userCacheRoot,
+                                    incrementalCache = incrementalCache,
+                                ).forEach {
+                                    add(CommonTaskType.Jar.getTaskName(it, Platform.JVM))
+                                }
                             }
                         }
 

@@ -18,6 +18,8 @@ enum class ResolutionScope {
     /**
      * `compile` maven-like dependency scope.
      * Includes the dependencies that must be present in the compilation classpath.
+     *
+     * Does not include the module compilation results for [local dependencies][Dependency.Local].
      */
     @EnumValue("compile")
     Compile,

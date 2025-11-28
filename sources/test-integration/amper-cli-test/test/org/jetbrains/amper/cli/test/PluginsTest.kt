@@ -89,7 +89,7 @@ class PluginsTest : AmperCliTestBase() {
             classpath compile.dependencies = [{modulePath: $projectRoot/app}]
             classpath compile.dependencies[0] = {modulePath: $projectRoot/app}
             classpath compile.dependencies[0].modulePath = $projectRoot/app
-            classpath compile.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath compile.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             compilation result: {from: {modulePath: $projectRoot/app}}
             compilation result path: $buildDir/tasks/_app_jarJvm/app-jvm.jar
         """.trimIndent().replace('/', File.separatorChar))

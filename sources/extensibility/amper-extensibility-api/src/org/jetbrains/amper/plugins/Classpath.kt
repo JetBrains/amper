@@ -10,6 +10,11 @@ import java.nio.file.Path
  * Use to get a resolved JVM classpath for the list of [dependencies].
  *
  * The resulting classpath can be obtained via [resolvedFiles] property.
+ *
+ * To conveniently get the classpath of the *current module* the plugin is applied to,
+ * you can reference the provided values:
+ * - `${module.runtimeClasspath}`
+ * - `${module.compileClasspath}`
  */
 @Configurable
 interface Classpath {

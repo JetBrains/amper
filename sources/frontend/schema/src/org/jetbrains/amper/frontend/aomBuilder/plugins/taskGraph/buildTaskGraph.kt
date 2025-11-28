@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
+import org.jetbrains.amper.frontend.plugins.generated.ShadowResolutionScope
 import org.jetbrains.amper.frontend.plugins.generated.ShadowSourcesKind
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.problems.reporting.Level
@@ -64,6 +65,10 @@ internal fun buildTaskGraph(
         }
 
         for (request in task.requestedClasspaths) {
+            if (request.node.scope == ShadowResolutionScope.Compile) {
+                // Skip compile scope classpath requests, they do not require compilation
+                continue
+            }
             for (module in request.localDependencies) {
                 var trace = request.node.dependencies
                     .first { it is ShadowDependencyLocal && it.modulePath == module.source.moduleDir }.trace
