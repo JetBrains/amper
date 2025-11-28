@@ -129,6 +129,21 @@ class KotlinxRpcSettings : SchemaNode() {
     val annotationTypeSafetyEnabled by value(true)
 }
 
+class ThirdPartyCompilerPlugin : SchemaNode() {
+    @SchemaDoc("The ID of this compiler plugin, used to pass options. " +
+            "It is defined by the `pluginId` property in the `CommandLineProcessor` implementation of the plugin. " +
+            "If the plugin is also implemented as a Gradle plugin, its ID can also be found in " +
+            "`getCompilerPluginId()` in the corresponding `KotlinCompilerPluginSupportPlugin` subclass.")
+    val id by value<String>()
+
+    @SchemaDoc("The compiler plugin dependency, in the form of `groupId:artifactId:version` Maven coordinates, or " +
+            "a catalog reference.")
+    val dependency by value<UnscopedExternalDependency>() // only external maven dependencies are supported, not modules
+
+    @SchemaDoc("The options to pass to this compiler plugin, as a key-value map.")
+    val options by value<Map<TraceableString, TraceableString>>(emptyMap())
+}
+
 class KotlinSettings : SchemaNode() {
 
     @PlatformAgnostic
@@ -218,4 +233,8 @@ class KotlinSettings : SchemaNode() {
     @PlatformAgnostic
     @SchemaDoc("Configure the [kotlinx.rpc compiler plugin](https://kotlin.github.io/kotlinx-rpc/)")
     val rpc: KotlinxRpcSettings by nested()
+
+    @PlatformAgnostic
+    @SchemaDoc("Configure third party plugins for the Kotlin compiler. Note: IDE support might be limited.")
+    val compilerPlugins by value<List<ThirdPartyCompilerPlugin>>(emptyList())
 }

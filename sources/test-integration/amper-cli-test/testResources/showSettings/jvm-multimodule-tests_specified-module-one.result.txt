@@ -39,6 +39,7 @@ settings@jvm:
       presets: null  # default
     allWarningsAsErrors: false  # default
     apiVersion: null  # default, from ${languageVersion}
+    compilerPlugins: []  # default
     freeCompilerArgs: null  # default
     ksp:
       processorOptions: {}  # default

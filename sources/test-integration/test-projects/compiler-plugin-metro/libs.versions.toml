@@ -1,0 +1,22 @@
+[versions]
+
+ktor = "3.4.0"
+metro = "0.10.4"
+okhttp = "5.3.2"
+okio = "3.16.4"
+
+[libraries]
+
+clikt = "com.github.ajalt.clikt:clikt:5.1.0"
+kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.7.1"
+ktor-client = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-engine-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+metro-compilerPlugin = { module = "dev.zacsweers.metro:compiler", version.ref = "metro" }
+metro-runtime = { module = "dev.zacsweers.metro:runtime", version.ref = "metro" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+picnic = "com.jakewharton.picnic:picnic:0.7.0"
+slf4jNop = "org.slf4j:slf4j-nop:2.0.17"

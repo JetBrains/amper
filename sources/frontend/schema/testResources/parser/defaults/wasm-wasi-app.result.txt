@@ -96,6 +96,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {
@@ -265,6 +267,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {
@@ -432,6 +436,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {
@@ -602,6 +608,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {

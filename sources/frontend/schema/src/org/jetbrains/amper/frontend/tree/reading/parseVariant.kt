@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.schema.UnscopedBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedCatalogBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedDependency
+import org.jetbrains.amper.frontend.schema.UnscopedExternalDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
@@ -75,10 +76,17 @@ internal fun parseVariant(
         } else {
             when (peekValueAsKey(value)?.firstOrNull()) {
                 '.' -> parseObject(value, type.leafType(UnscopedModuleDependency::class))
-                '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
-                else -> parseObject(value, type.leafType(UnscopedExternalMavenDependency::class))
+                else -> parseVariant(value, type.subVariantType(UnscopedExternalDependency::class))
             }
         }
+    }
+    UnscopedExternalDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
+        '.' -> {
+            reportParsing(value, "unexpected.local.module")
+            null
+        }
+        '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
+        else -> parseObject(value, type.leafType(UnscopedExternalMavenDependency::class))
     }
     UnscopedBomDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> {

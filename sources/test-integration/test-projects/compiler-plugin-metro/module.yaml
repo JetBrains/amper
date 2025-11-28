@@ -1,0 +1,26 @@
+product: jvm/app
+
+dependencies:
+  - $libs.clikt
+  - $libs.kotlinx.datetime
+  - $libs.ktor.client.auth
+  - $libs.ktor.client.contentNegotiation
+  - $libs.ktor.client.engine.okhttp
+  - $libs.ktor.serialization.json
+  - $libs.metro.runtime
+  - $libs.okhttp
+  - $libs.okio
+  - $libs.picnic
+  - $libs.slf4jNop
+
+settings:
+  kotlin:
+    serialization: enabled
+    # Note: if Compose was used, we would also need to order this plugin before Compose with this freeCompilerArg:
+    # -Xcompiler-plugin-order=dev.zacsweers.metro.compiler>androidx.compose.compiler.plugins.kotlin
+    # See
+    compilerPlugins:
+      # The ID of any compiler plugin can be found in the "CommandLineProcessor" implementation:
+      # https://github.com/ZacSweers/metro/blob/2a0d82558d923548d3a70dbb57c6109d3e5691a0/compiler/src/main/kotlin/dev/zacsweers/metro/compiler/MetroCommandLineProcessor.kt#L12
+      - id: dev.zacsweers.metro.compiler
+        dependency: $libs.metro.compilerPlugin
