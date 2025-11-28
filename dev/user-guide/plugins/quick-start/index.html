@@ -2192,19 +2192,24 @@ that would do the source generation based on the contents of the properties file
 <span class="w">    </span><span class="nd">@Input</span><span class="w"> </span><span class="n">propertiesFile</span><span class="p">:</span><span class="w"> </span><span class="n">Path</span><span class="p">,</span>
 <span class="w">    </span><span class="nd">@Output</span><span class="w"> </span><span class="n">generatedSourceDir</span><span class="p">:</span><span class="w"> </span><span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">generatedSourceDir</span><span class="p">.</span><span class="na">deleteRecursively</span><span class="p">()</span><span class="w"> </span><span class="c1">//(1)!</span>
+<span class="w">    </span><span class="c1">// clean the old state if any is present from the previous invocation</span>
+<span class="w">    </span><span class="n">generatedSourceDir</span><span class="p">.</span><span class="na">deleteRecursively</span><span class="p">()</span><span class="w"> </span>
+
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">outputFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generatedSourceDir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">&quot;properties.kt&quot;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">propertiesFile</span><span class="p">.</span><span class="na">isRegularFile</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="c1">//(2)!</span>
-<span class="w">        </span><span class="n">error</span><span class="p">(</span><span class="s">&quot;The file </span><span class="si">$</span><span class="n">propertiesFile</span><span class="s"> does not exist&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">propertiesFile</span><span class="p">.</span><span class="na">isRegularFile</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">error</span><span class="p">(</span><span class="s">&quot;The file </span><span class="si">$</span><span class="n">propertiesFile</span><span class="s"> does not exist&quot;</span><span class="p">)</span><span class="c1">//(1)!</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Generating sources&quot;</span><span class="p">)</span><span class="c1">//(3)!</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Generating sources&quot;</span><span class="p">)</span><span class="c1">//(2)!</span>
 
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">propertiesFile</span><span class="p">.</span><span class="na">bufferedReader</span><span class="p">().</span><span class="na">use</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">  </span>
 <span class="w">        </span><span class="n">Properties</span><span class="p">().</span><span class="na">apply</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">load</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">  </span>
-<span class="w">    </span><span class="p">}.</span><span class="na">toMap</span><span class="p">()</span><span class="w">  </span>
+<span class="w">    </span><span class="p">}.</span><span class="na">toMap</span><span class="p">()</span>
 
-<span class="w">    </span><span class="n">outputFile</span><span class="p">.</span><span class="na">createParentDirectories</span><span class="p">()</span><span class="c1">//(4)!</span>
+<span class="w">    </span><span class="c1">// need to ensure the output directory structure exists: </span>
+<span class="w">    </span><span class="c1">// Amper doesn&#39;t pre-create it for us</span>
+<span class="w">    </span><span class="n">outputFile</span><span class="p">.</span><span class="na">createParentDirectories</span><span class="p">()</span><span class="w"> </span>
+
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buildString</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">appendLine</span><span class="p">(</span><span class="s">&quot;package com.example.generated&quot;</span><span class="p">)</span>
 <span class="w">        </span><span class="n">appendLine</span><span class="p">(</span><span class="s">&quot;public object Config {&quot;</span><span class="p">)</span>
@@ -2217,10 +2222,8 @@ that would do the source generation based on the contents of the properties file
 <span class="p">}</span>
 </code></pre></div>
 <ol>
-<li>Clean the old state if any is present from the previous invocation</li>
-<li>Input file may not exist at all, need to check that</li>
+<li>Throwing an exception causes the task to fail</li>
 <li>Simple <a href="../topics/tasks/#logging">logging</a> (structured logging support comes later)</li>
-<li>Need to ensure the output directory structure exists: Amper doesn't pre-create it for us</li>
 </ol>
 <p>The code can be written in any Kotlin file in any package – there's no convention here.
 <code>@TaskAction</code> is a marker for a top-level Kotlin function that can be registered as a task.
@@ -2539,7 +2542,7 @@ Feel free to take a look!</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 26, 2025 15:38:04 UTC">November 26, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 26, 2025 10:52:30 UTC">November 26, 2025</span>
   </span>
 
     
