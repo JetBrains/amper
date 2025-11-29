@@ -11,6 +11,5 @@ dependencies:
   - ../frontend/plain/amper-psi
   - ../libraries/telemetry
   - $libs.intellij.platform.util
-  - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl

@@ -69,7 +69,6 @@ intellij-platform-coreImpl = { module = "com.jetbrains.intellij.platform:core-im
 intellij-platform-ideCore = { module = "com.jetbrains.intellij.platform:ide-core", version.ref = "intellij-platform" }
 intellij-platform-util = { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
 intellij-platform-utilEx = { module = "com.jetbrains.intellij.platform:util-ex", version.ref = "intellij-platform" }
-intellij-platform-utilJdom = { module = "com.jetbrains.intellij.platform:util-jdom", version.ref = "intellij-platform" }
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 junit-engine-jupiter = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
