@@ -311,7 +311,6 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
         this
             .children
             .filterIsInstance<DirectFragmentDependencyNodeHolderWithContext>()
-            .filter { it.dependencyNode is MavenDependencyNode }
             .forEach { directMavenDependency ->
                 val node = directMavenDependency.dependencyNode as MavenDependencyNode
 

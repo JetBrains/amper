@@ -424,7 +424,6 @@ class PluginsTest : AmperCliTestBase() {
         val projectRoot = result.projectRoot
         val pluginYamlForInvalidInputs = projectRoot / "tasks-with-invalid-inputs" / "plugin.yaml"
         val pluginYamlForLoops = projectRoot / "tasks-with-loops" / "plugin.yaml"
-        val buildDir = tempRoot / "build"
         val sep = File.separatorChar
         result.assertErrors(
             """

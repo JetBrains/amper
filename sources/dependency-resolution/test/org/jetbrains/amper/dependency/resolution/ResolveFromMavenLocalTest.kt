@@ -324,7 +324,7 @@ class ResolveFromMavenLocalTest : BaseDRTest() {
             verifyMessages = verifyMessages
         )
 
-        if (customMavenLocalRepository is MavenLocalRepository && repositories.contains(MavenLocal)) {
+        if (repositories.contains(MavenLocal)) {
             // Artifact resolved from mavenLocal is not copied to DR local cache
             assertFalse(
                 cache.localRepository.repository.resolve(mavenCoordinates.urlPath)
