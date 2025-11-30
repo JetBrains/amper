@@ -514,7 +514,8 @@ Now you can build and run both apps using the corresponding IntelliJ IDEA run co
 
     After the first build, the Xcode project will appear beside the `module.yaml` in the `ios-app` module. 
     It can be checked into the VCS and customized (e.g. _Team_ (`DEVELOPMENT_TEAM`) setting).
-    See [iOS Support](../user-guide/builtin-tech/ios.md) to learn more about the Xcode ↔ Amper interoperability.
+    See the [iOS application](../user-guide/product-types/ios-app.md) section to learn more about the Xcode ↔ Amper 
+    interoperability.
 
 !!! example "Example: [Compose Multiplatform]({{ examples_base_url }}/compose-multiplatform)"
 

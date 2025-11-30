@@ -1,4 +1,4 @@
-# :android-head-flat: Android
+# :android-head-flat: Android application
 
 Use the `android/app` product type in a module to build an Android application.
 

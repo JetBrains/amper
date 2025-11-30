@@ -117,10 +117,18 @@ nav:
       - 'Multiplatform modules': user-guide/multiplatform.md
       - 'Testing': user-guide/testing.md
       - 'Templates': user-guide/templates.md
+      - 'Product types':
+          - user-guide/product-types/index.md
+          - 'Android application': user-guide/product-types/android-app.md
+          - 'iOS application': user-guide/product-types/ios-app.md
+          - 'JVM application': user-guide/product-types/jvm-app.md
+          - 'JVM library': user-guide/product-types/jvm-lib.md
+          - 'Kotlin Multiplatform library': user-guide/product-types/kmp-lib.md
+          - 'Kotlin/JS application': user-guide/product-types/js-app.md
+          - 'Kotlin/Native application': user-guide/product-types/native-app.md
+          - 'Kotlin/Wasm application': user-guide/product-types/wasm-app.md
       - 'Built-in technologies':
-          - 'Android': user-guide/builtin-tech/android.md
           - 'Compose Multiplatform': user-guide/builtin-tech/compose-multiplatform.md
-          - 'iOS': user-guide/builtin-tech/ios.md
           - 'Kotlin Serialization': user-guide/builtin-tech/kotlin-serialization.md
           - 'Ktor': user-guide/builtin-tech/ktor.md
           - 'Lombok': user-guide/builtin-tech/lombok.md
