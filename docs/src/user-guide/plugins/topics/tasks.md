@@ -214,7 +214,7 @@ It has two properties: `modifier: string` and `isTest: boolean`.
 The `modifier` string has the same semantics as the suffix one can put after the `@` in the `module.yaml` configuration or
 in the names of `src` directories. For example, having:
 ```yaml
-markOutputAs:
+markOutputsAs:
   - path: ${action.generatedSourceDir}
     kind: kotlin-sources
     fragment:
