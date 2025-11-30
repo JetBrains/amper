@@ -22,4 +22,4 @@ my-android-app/
 2. `assets` and `res` are standard Android resource directories. See the [official Android docs](https://developer.android.com/guide/topics/resources/providing-resources).
 3. The manifest file of your application.
 4. An activity (screen) of your application.
-5. Optional configuration for R8 code shrinking and obfuscation. See [code shrinking](/user-guide/builtin-tech/android.md#code-shrinking).
+5. Optional configuration for R8 code shrinking and obfuscation. See [code shrinking](/user-guide/product-types/android-app.md#code-shrinking).

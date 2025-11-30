@@ -121,7 +121,7 @@ The Kotlinx Serialization compiler plugin is covered in the more general
 
 ## Parcelize
 
-The Parcelize compiler plugin is covered in the [Android](../builtin-tech/android.md) section.
+The Parcelize compiler plugin is covered in the [Android](../product-types/android-app.md) section.
 
 ## Lombok
 

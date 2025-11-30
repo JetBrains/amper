@@ -1,4 +1,4 @@
-# :simple-apple: iOS
+# :simple-apple: iOS application
 
 Use the `ios/app` product type in a module to build an iOS application.
 
@@ -6,13 +6,37 @@ Use the `ios/app` product type in a module to build an iOS application.
 
     Make sure to install the 
     [:jetbrains-kotlin-multiplatform: Kotlin Multiplatform plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform)
-    to get proper support for Kotlin Native and iOS integration features.
+    to get proper support for Kotlin/Native and iOS.
 
 ## Module layout
 
 Here is an overview of the module layout for an iOS application:
 
 --8<-- "includes/module-layouts/ios-app.md"
+
+## Entry point
+
+For iOS applications, the entry point is expected to be a `@main` struct in any Swift file in the `src` folder.
+
+<div class="grid" markdown>
+``` hl_lines="2"
+├─ src/
+│  ├─ main.swift
+│  ╰─ ...
+├─ module.yaml
+╰─ module.xcodeproj
+```
+
+```swift title="src/main.swift"
+...
+@main
+struct iosApp: App {
+   ...
+}
+```
+</div>
+
+This is not customizable at the moment.
 
 ## Xcode Project
 
@@ -55,29 +79,6 @@ So the iOS app module layout looks like this:
 !!! tip
 
     The Xcode project can be built normally from the Xcode IDE, if needed.
-
-## Application entry point
-
-For iOS applications, the entry point is expected to be a `@main` struct in any Swift file in the `src` folder.
-
-```
-├─ src/
-│  ├─ main.swift
-│  ╰─ ...
-├─ module.yaml
-╰─ module.xcodeproj
-```
-
-src/main.swift:
-```swift
-...
-@main
-struct iosApp: App {
-   ...
-}
-```
-
-This is not customizable at the moment.
 
 ## Swift support
 

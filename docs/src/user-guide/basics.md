@@ -1,9 +1,12 @@
 # Basic concepts
 
+If you have never used Amper before, this is the best place to start. In this section, we will learn about the basic
+entities in Amper, the general project layout, and how configuration files look.
+
 ## Project and modules
 
 An Amper **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
-configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the 
+configuration. The folder with the `project.yaml` file is the **project root**. Modules can only be located under the 
 project root (at any depth). If there is only one module in the project, the `project.yaml` file is not required.
 
 An Amper **module** is a directory with a `module.yaml` configuration file, and optionally sources and resources.
@@ -11,8 +14,6 @@ A *module configuration file* describes _what_ to produce: e.g. a reusable libra
 Each module describes a single product. Several modules can't share the same sources or resources, but they can depend 
 on each other.
 _How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.
-
-!!! question "If you are not familiar with YAML, see [our brief YAML primer](yaml-primer.md)."
 
 ## Project layout
 
@@ -115,26 +116,7 @@ Here are typical module structures at a glance:
 
 === ":intellij-java: JVM"
 
-    ```shell
-    my-module/
-    ├─ resources/ # (1)!
-    │  ╰─ logback.xml # (2)!
-    ├─ src/
-    │  ├─ main.kt
-    │  ╰─ Util.java # (3)!
-    ├─ test/
-    │  ╰─ MainTest.java # (4)!
-    │  ╰─ UtilTest.kt
-    ├─ testResources/
-    │  ╰─ logback-test.xml # (5)!
-    ╰─ module.yaml
-    ```
-
-    1. Resources placed here are copied into the resulting jar.
-    2. This is just an example resource and can be omitted.
-    3. You can mix Kotlin and Java source files in a single module, all in the `src` folder.
-    4. You can test Java code with Kotlin tests or Kotlin code with Java tests.
-    5. This is just an example resource and can be omitted.
+    --8<-- "includes/module-layouts/jvm-app.md"
 
     !!! note "Maven compatibility layout for JVM-only modules"
     
@@ -150,13 +132,13 @@ Here are typical module structures at a glance:
 
     --8<-- "includes/module-layouts/android-app.md"
 
-    !!! info "Read more in the dedicated [Android](builtin-tech/android.md) section."
+    !!! info "Read more in the dedicated [Android](product-types/android-app.md) section."
 
 === ":simple-apple: iOS app"
 
     --8<-- "includes/module-layouts/ios-app.md"
 
-    !!! info "Read more in the dedicated [iOS](builtin-tech/ios.md) section."
+    !!! info "Read more in the dedicated [iOS](product-types/ios-app.md) section."
 
 All sources and resources are optional: **only the `module.yaml` file is required.**
 For example, your module could get all its code from dependencies and have no `src` folder.
@@ -168,6 +150,8 @@ single well-defined set of settings and dependencies.
 ## Module file anatomy
 
 A `module.yaml` file has several main sections: `product`, `dependencies` and `settings`.
+
+!!! question "If you are not familiar with YAML, see [our brief YAML primer](yaml-primer.md)."
 
 A module can produce a single product, such as a reusable library or an application.
 Read more on the [supported product types](#product-type) below.
@@ -193,7 +177,8 @@ Here are some example module files for different types of modules:
         product:
           type: jvm/app
        ```
-       The `jvm/app` product type means that the module produces a JVM application.
+       The `jvm/app` product type means that the module produces a [JVM application](product-types/jvm-app.md).
+       Read more about other product types in the [Product types](product-types/index.md) section.
     2. The `dependencies` section contains the list of dependencies for this module. 
        Here `io.ktor:ktor-client-core:2.3.0` are the 
        [Maven coordinates :fontawesome-solid-external-link:](https://maven.apache.org/pom.html#Maven_Coordinates) of 
@@ -229,8 +214,9 @@ Here are some example module files for different types of modules:
         allWarningsAsErrors: false #(10)!
     ```
 
-    1. The `lib` product type means that the module produces a :jetbrains-kotlin-multiplatform: Kotlin Multiplatform 
-       library.
+    1. The `lib` product type means that the module produces a [:jetbrains-kotlin-multiplatform: Kotlin Multiplatform 
+       library](product-types/kmp-lib.md).
+       Read more about other product types in the [Product types](product-types/index.md) section.
     2. The `platforms` list contains the platforms that this module is built for.
     3. The `dependencies` section contains the list of common dependencies for this module. 
        Here `io.ktor:ktor-client-core:2.3.0` are the 
@@ -258,24 +244,19 @@ Here are some example module files for different types of modules:
 
 ### Product type
 
-The **product type** describes the target platform and the type of the module at the same time. Below is the list of 
-supported product types:
+The **product type** describes what is created when building the module: a JVM application (`jvm/app`), Android 
+application (`android/app`), Kotlin Multiplatform library (`lib`), etc.
+It actually tells us both the target platform and the type of the module at the same time.
 
-- `lib` - a reusable Kotlin Multiplatform library which can be used as a dependency by other modules in the project
-- `jvm/lib` - a reusable JVM library which can be used as a dependency by other modules in the project
-- `jvm/app` - a JVM console or desktop application
-- `windows/app` - a mingw64 application
-- `linux/app` - a native Linux application
-- `macos/app` - a native macOS application
-- `android/app` - an [Android](builtin-tech/android.md) application
-- `ios/app` - an [iOS](builtin-tech/ios.md) application
+All modules generally work the same way, but each product type may add its own set of rules and capabilities.
+Check out the [Product types](product-types/index.md) section and subsections to see details about each of them.
 
 ### Dependencies
 
 The `dependencies` section contains the list of dependencies for this module.
 They can be external maven libraries, other modules in the project, and more.
 
-Please see the [Dependencies](dependencies.md) section for more details.
+See the [Dependencies](dependencies.md) section for more details.
 
 ### Settings
 
@@ -293,69 +274,5 @@ settings:
 
 Check out the [Reference](../reference/module.md#settings-and-test-settings) page for the full list of supported settings.
 
-See the [multiplatform section](multiplatform.md) for more details about how multiple settings sections interact in
-multiplatform modules.
-
-#### Configuring entry points
-
-##### JVM
-
-By default, the entry point of JVM applications (the `main` function) is expected to be in a `main.kt` file
-(case-insensitive) in the `src` folder.
-
-This can be overridden by specifying a main class explicitly in the module settings:
-```yaml
-product: jvm/app
-
-settings:
-  jvm:
-    mainClass: org.example.myapp.MyMainKt
-```
-
-!!! note
-
-    In Kotlin, unlike Java, the `main` function doesn't have to be declared in a class, and is usually at the top level
-    of the file. However, the JVM still expects a main class when running any application. Kotlin always compiles 
-    top-level declarations to a class, and the name of that class is derived from the name of the file by capitalizing 
-    the name and turning the `.kt` extension into a `Kt` suffix.
-    
-    For example, the top-level declarations of `myMain.kt` will be in a class named `MyMainKt`.
-
-##### Native
-
-By default, the entry point of Kotlin native applications (the `main` function) is expected to be in a `main.kt` file
-(case-insensitive) in the `src` folder.
-
-This can be overridden by specifying the fully qualified name of the `main` function explicitly in the module settings:
-
-```yaml
-product: linux/app
-
-settings:
-  native:
-    entryPoint: org.example.myapp.main
-```
-
-##### Android
-
-Android apps have their own way to configure the entry point, see the 
-[dedicated Android section](builtin-tech/android.md#entry-point).
-
-##### iOS
-
-iOS apps have their own way to configure the entry point, see the
-[dedicated iOS section](builtin-tech/ios.md#application-entry-point).
-
-## Packaging
-
-Amper provides a `package` command to build a project for distribution.
-
-For `jvm/app` modules it produces executable jars which follow 
-[The Executable Jar Format](https://docs.spring.io/spring-boot/specification/executable-jar/index.html).
-The executable JAR format, while commonly associated with Spring applications, is a universal packaging solution
-suitable for any JVM application. This format provides a convenient, runnable self-contained deployment unit that
-includes all necessary dependencies, but unlike the "fat jar" approach, it doesn't suffer from the problems of handling
-duplicate files.
-
-For `android/app` modules, see the dedicated [Android packaging](builtin-tech/android.md#packaging) section.
-
+See the [Multiplatform modules](multiplatform.md) section for more details about how multiple settings sections 
+interact in multiplatform modules.

@@ -376,4 +376,4 @@ but this is not the case yet.
 At the moment, Kotlin code is first compiled into a single framework per `ios/app` module,
 and then Swift is compiled using the Xcode toolchain with a dependency on that framework.
 This means that Swift code can reference Kotlin declarations, but Kotlin cannot reference Swift declarations.
-See more in the dedicated [Swift support](builtin-tech/ios.md#swift-support) section.
+See more in the dedicated [Swift support](product-types/ios-app.md#swift-support) section.
