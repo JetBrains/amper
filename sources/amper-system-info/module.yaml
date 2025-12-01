@@ -4,10 +4,6 @@ apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml
 
-dependencies:
-  - $libs.jna
-  - $libs.jna.platform
-
 settings:
   publishing:
     enabled: true
