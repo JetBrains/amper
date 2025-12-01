@@ -19,4 +19,4 @@ dependencies:
   - $libs.jna.platform
 
 test-dependencies:
-  - uk.org.webcompere:system-stubs-jupiter:2.1.7
+  - $libs.system.stubs.jupiter
