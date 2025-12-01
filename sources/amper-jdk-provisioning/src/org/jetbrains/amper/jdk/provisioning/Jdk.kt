@@ -42,4 +42,6 @@ class Jdk(
 
         error("No $executableName executables were found under $homeDir")
     }
+
+    override fun toString(): String = "JDK $version (${distribution?.name ?: "unknown distribution"}) from $source"
 }

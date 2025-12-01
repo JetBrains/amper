@@ -9,9 +9,11 @@ dependencies:
   - ../core
   - ../frontend-api: exported
   - ../libraries/foojay-kotlin-client
+  - ../libraries/telemetry
   - $libs.junit.jupiter.params
   - $libs.ktor.client.core
   - $libs.ktor.client.logging
+  - $libs.opentelemetry.ktor3
 
 test-dependencies:
   - ../test-base

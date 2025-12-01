@@ -8,6 +8,11 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.cache.storage.FileStorage
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.HttpRequestData
+import io.ktor.http.HttpHeaders
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.api.instrumenter.SpanNameExtractor
+import io.opentelemetry.instrumentation.ktor.v3_0.KtorClientTelemetry
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.UsedVersions
@@ -19,6 +24,7 @@ import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.div
@@ -36,6 +42,7 @@ internal val jdkProviderLogger: Logger = LoggerFactory.getLogger(JdkProvider::cl
 
 class JdkProvider(
     private val userCacheRoot: AmperUserCacheRoot,
+    private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
 ) : AutoCloseable {
     private val discoApiClient = DiscoApiClient {
         install(UserAgent) {
@@ -54,9 +61,20 @@ class JdkProvider(
             val cacheFile = userCacheRoot.path / "jdk-discovery-cache"
             publicStorage(FileStorage(cacheFile.toFile()))
         }
+
+        install(KtorClientTelemetry) {
+            setOpenTelemetry(openTelemetry)
+            spanNameExtractor {
+                SpanNameExtractor<HttpRequestData> { request ->
+                    request.method.value + " " + request.url.encodedPath.removePrefix("/disco/v3.0")
+                }
+            }
+            capturedRequestHeaders(HttpHeaders.CacheControl, HttpHeaders.IfModifiedSince, HttpHeaders.IfUnmodifiedSince)
+            capturedResponseHeaders(HttpHeaders.CacheControl, HttpHeaders.ETag, HttpHeaders.LastModified, HttpHeaders.Expires)
+        }
     }
 
-    private val javaHomeInfoProvider = JavaHomeInfoProvider()
+    private val javaHomeInfoProvider = JavaHomeInfoProvider(openTelemetry)
 
     /**
      * Finds or provisions a JDK matching the given [jdkSettings].
@@ -96,13 +114,9 @@ class JdkProvider(
                     .info("`JAVA_HOME` was found but doesn't match the JDK selection criteria: " +
                             "${unusableJavaHomeResult.reason}. Amper will provision a suitable JDK instead.")
             }
-            discoApiClient.provisionJdk(
-                userCacheRoot = userCacheRoot,
-                criteria = criteria,
-                unusableJavaHomeResult = unusableJavaHomeResult,
-            )
+            provisionJdk(criteria = criteria, unusableJavaHomeResult = unusableJavaHomeResult)
         }
-        JdkSelectionMode.alwaysProvision -> provisionJdk(criteria)
+        JdkSelectionMode.alwaysProvision -> provisionJdk(criteria, unusableJavaHomeResult = null)
         JdkSelectionMode.javaHome -> findJdkFromJavaHome(criteria) {
             val message = when (it) {
                 is UnusableJavaHomeResult.UnsetOrEmpty -> ProvisioningBundle.message("java.home.unusable.not.set")
@@ -121,33 +135,48 @@ class JdkProvider(
      * It directly searches via the Foojay Disco API.
      */
     suspend fun provisionJdk(criteria: JdkProvisioningCriteria = JdkProvisioningCriteria()): JdkResult =
+        provisionJdk(criteria, unusableJavaHomeResult = null)
+
+    private suspend fun provisionJdk(
+        criteria: JdkProvisioningCriteria,
+        unusableJavaHomeResult: UnusableJavaHomeResult?,
+    ): JdkResult = openTelemetry.tracer.spanBuilder("Provision JDK").use {
         discoApiClient.provisionJdk(
             userCacheRoot = userCacheRoot,
             criteria = criteria,
-            unusableJavaHomeResult = null,
+            unusableJavaHomeResult = unusableJavaHomeResult,
         )
+    }
 
     context(invalidJavaHomeReporter: ProblemReporter)
     private suspend fun findJdkFromJavaHome(
         jdkProvisioningCriteria: JdkProvisioningCriteria,
         fallback: suspend (UnusableJavaHomeResult) -> JdkResult,
-    ): JdkResult =
-        when (val info = javaHomeInfoProvider.getOrRead()) {
-            is JavaHomeInfo.Valid -> when (val match = info.releaseInfo.match(jdkProvisioningCriteria)) {
-                is MatchResult.Match -> JdkResult.FoundInJavaHome(
-                    jdk = Jdk(
-                        homeDir = info.path,
-                        version = info.releaseInfo.javaVersion,
-                        distribution = info.releaseInfo.detectedDistribution,
-                        source = "JAVA_HOME",
-                    )
+    ): JdkResult = when (val info = javaHomeInfoProvider.getOrRead()) {
+        is JavaHomeInfo.Valid -> when (val match = matchJavaHomeJdk(info, jdkProvisioningCriteria)) {
+            is MatchResult.Match -> JdkResult.FoundInJavaHome(
+                jdk = Jdk(
+                    homeDir = info.path,
+                    version = info.releaseInfo.javaVersion,
+                    distribution = info.releaseInfo.detectedDistribution,
+                    source = "JAVA_HOME",
                 )
-                is MatchResult.Mismatch -> fallback(UnusableJavaHomeResult.Mismatch(match.reason))
-                is MatchResult.Unknown -> fallback(UnusableJavaHomeResult.Mismatch("Cannot check whether JAVA_HOME matches the JDK selection criteria: ${match.error}"))
-            }
-            is JavaHomeInfo.Invalid -> fallback(UnusableJavaHomeResult.Invalid)
-            is JavaHomeInfo.UnsetOrEmpty -> fallback(UnusableJavaHomeResult.UnsetOrEmpty)
+            )
+            is MatchResult.Mismatch -> fallback(UnusableJavaHomeResult.Mismatch(match.reason))
+            is MatchResult.Unknown -> fallback(UnusableJavaHomeResult.Mismatch("Cannot check whether JAVA_HOME matches the JDK selection criteria: ${match.error}"))
         }
+        is JavaHomeInfo.Invalid -> fallback(UnusableJavaHomeResult.Invalid)
+        is JavaHomeInfo.UnsetOrEmpty -> fallback(UnusableJavaHomeResult.UnsetOrEmpty)
+    }
+
+    private suspend fun matchJavaHomeJdk(
+        info: JavaHomeInfo.Valid,
+        jdkProvisioningCriteria: JdkProvisioningCriteria,
+    ): MatchResult = openTelemetry.tracer.spanBuilder("Check JAVA_HOME suitability").use { span ->
+        info.releaseInfo.match(jdkProvisioningCriteria).also { result ->
+            span.setAttribute("result", result.toString())
+        }
+    }
 
     override fun close() {
         discoApiClient.close()

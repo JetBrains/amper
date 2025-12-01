@@ -29,6 +29,7 @@ maven = "3.9.9"
 maven-resolver = "1.9.22"
 mordant = "3.0.1"
 opentelemetry = "1.50.0"
+opentelemetry-ktor = "2.18.1-alpha"
 slf4j = "2.0.16"
 snakeyaml = "2.2"
 stacktrace-decoroutinator = "2.4.8"
@@ -120,6 +121,7 @@ mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant"
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-exporterLoggingOtlp = { module = "io.opentelemetry:opentelemetry-exporter-logging-otlp", version.ref = "opentelemetry" }
 opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
+opentelemetry-ktor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "opentelemetry-ktor" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
 org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }

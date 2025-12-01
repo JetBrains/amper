@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
+import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -56,7 +57,10 @@ class CliContext(
      * A service that provisions JDKs on-demand. A single instance is used for the whole Amper execution, so we ensure
      * that invalid `JAVA_HOME` errors are only reported once. We can also benefit from the session-specific cache.
      */
-    val jdkProvider: JdkProvider by lazy { JdkProvider(userCacheRoot) }
+    val jdkProvider: JdkProvider by lazy {
+        // by the time we get here, GlobalOpenTelemetry should be set
+        JdkProvider(userCacheRoot, GlobalOpenTelemetry.get())
+    }
 
     companion object {
         /**

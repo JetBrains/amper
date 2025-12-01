@@ -4,11 +4,14 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.StatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.telemetry.use
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -20,8 +23,9 @@ import kotlin.io.path.isDirectory
  * The information is cached for further invocations in a thread-safe way.
  */
 // this is NOT a Kotlin `object` because some consumers may need to reset the cache by creating a new instance
-internal class JavaHomeInfoProvider {
-
+internal class JavaHomeInfoProvider(
+    private val openTelemetry: OpenTelemetry,
+) {
     private val mutex = Mutex()
     private var javaHomeInfo: JavaHomeInfo? = null
 
@@ -32,12 +36,56 @@ internal class JavaHomeInfoProvider {
      * instance of [JavaHomeInfoProvider].
      */
     context(problemReporter: ProblemReporter)
-    suspend fun getOrRead(): JavaHomeInfo = javaHomeInfo ?: mutex.withLock {
-        javaHomeInfo ?: withContext(Dispatchers.IO) {
-            readJavaHomeInfo().also {
-                javaHomeInfo = it
+    suspend fun getOrRead(): JavaHomeInfo = openTelemetry.tracer.spanBuilder("Get JAVA_HOME info").use { span ->
+        readJavaHomeInfoOrGetCached().also { javaHomeResult ->
+            span.setAttribute("result", javaHomeResult.javaClass.simpleName)
+            if (javaHomeResult is JavaHomeInfo.Invalid) {
+                span.setStatus(StatusCode.ERROR, "JAVA_HOME is invalid: ${System.getenv("JAVA_HOME")}")
             }
         }
+    }
+
+    context(problemReporter: ProblemReporter)
+    private suspend fun readJavaHomeInfoOrGetCached(): JavaHomeInfo =
+        javaHomeInfo ?: mutex.withLock {
+            javaHomeInfo ?: withContext(Dispatchers.IO) {
+                readJavaHomeInfo().also { javaHomeResult ->
+                    javaHomeInfo = javaHomeResult
+                }
+            }
+        }
+
+    context(problemReporter: ProblemReporter)
+    private suspend fun readJavaHomeInfo(): JavaHomeInfo {
+        val javaHomeEnv = System.getenv("JAVA_HOME")?.takeIf { it.isNotBlank() } ?: return JavaHomeInfo.UnsetOrEmpty
+        val javaHomePath = try {
+            Path(javaHomeEnv)
+        } catch (e: InvalidPathException) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.path", e.message))
+            return JavaHomeInfo.Invalid
+        }
+        if (!javaHomePath.exists()) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.nonexistent.path", javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        if (!javaHomePath.isDirectory()) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.not.directory", javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        val releaseFile = javaHomePath.resolve("release")
+        if (!releaseFile.exists()) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.no.release.file", javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        val releaseInfo = try {
+            openTelemetry.tracer.spanBuilder("Read JDK release file").use {
+                releaseFile.readReleaseInfo()
+            }
+        } catch (e: InvalidReleaseInfoException) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.release.file", e.message))
+            return JavaHomeInfo.Invalid
+        }
+        return JavaHomeInfo.Valid(javaHomePath, releaseInfo)
     }
 }
 
@@ -62,35 +110,4 @@ internal sealed interface JavaHomeInfo {
      * The exact errors are reported via the [ProblemReporter].
      */
     data object Invalid : JavaHomeInfo
-}
-
-context(problemReporter: ProblemReporter)
-private fun readJavaHomeInfo(): JavaHomeInfo {
-    val javaHomeEnv = System.getenv("JAVA_HOME")?.takeIf { it.isNotBlank() } ?: return JavaHomeInfo.UnsetOrEmpty
-    val javaHomePath = try {
-        Path(javaHomeEnv)
-    } catch (e: InvalidPathException) {
-        problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.path", e.message))
-        return JavaHomeInfo.Invalid
-    }
-    if (!javaHomePath.exists()) {
-        problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.nonexistent.path", javaHomeEnv))
-        return JavaHomeInfo.Invalid
-    }
-    if (!javaHomePath.isDirectory()) {
-        problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.not.directory", javaHomeEnv))
-        return JavaHomeInfo.Invalid
-    }
-    val releaseFile = javaHomePath.resolve("release")
-    if (!releaseFile.exists()) {
-        problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.no.release.file", javaHomeEnv))
-        return JavaHomeInfo.Invalid
-    }
-    val releaseInfo = try {
-        releaseFile.readReleaseInfo()
-    } catch (e: InvalidReleaseInfoException) {
-        problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.release.file", e.message))
-        return JavaHomeInfo.Invalid
-    }
-    return JavaHomeInfo.Valid(javaHomePath, releaseInfo)
 }
