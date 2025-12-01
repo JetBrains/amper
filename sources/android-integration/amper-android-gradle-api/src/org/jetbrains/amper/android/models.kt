@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import java.io.File
 import java.nio.file.Path
 
-
 @Serializable
 data class ResolvedDependency(
     val group: String,

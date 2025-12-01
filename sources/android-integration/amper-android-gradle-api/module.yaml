@@ -8,6 +8,6 @@ dependencies:
 
 settings:
   kotlin:
-    serialization: json
+    serialization: enabled
   publishing:
     enabled: true
