@@ -60,7 +60,7 @@ fun runAndroidBuild(
             val lazyArtifacts = buildList {
                 for (target in buildRequest.targets) {
                     val androidProject = androidProjects[target] ?: continue
-                    androidProject.lazyArtifacts(connection, buildRequest, jdkDir, debug).also { addAll(it) }
+                    addAll(androidProject.lazyArtifacts(connection, buildRequest, jdkDir, debug))
                     when(buildRequest.phase) {
                         AndroidBuildRequest.Phase.Test -> { /* nothing to do here, just return the artifact */ }
                         else -> {
