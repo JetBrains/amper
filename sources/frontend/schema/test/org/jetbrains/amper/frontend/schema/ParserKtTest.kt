@@ -102,7 +102,7 @@ internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "pars
     fun `common library replacement`() {
         aomTest(
             "17-compose-desktop-replacement",
-            TestSystemInfo(SystemInfo.Os(OsFamily.MacOs, "X", Arch.X64))
+            TestSystemInfo(SystemInfo.Os(OsFamily.MacOs, Arch.X64))
         )
     }
 
@@ -110,7 +110,7 @@ internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "pars
     fun `jvm library replacement`() {
         aomTest(
             "18-compose-desktop-jvm-replacement",
-            TestSystemInfo(SystemInfo.Os(OsFamily.Linux, "3.14", Arch.Arm64))
+            TestSystemInfo(SystemInfo.Os(OsFamily.Linux, Arch.Arm64))
         )
     }
 

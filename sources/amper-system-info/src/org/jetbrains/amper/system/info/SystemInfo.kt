@@ -53,29 +53,12 @@ interface SystemInfo {
 
     data class Os(
         val family: OsFamily,
-        val version: String,
         val arch: Arch,
     ) {
         val familyArch get() = "${family.value.lowercase()}-${arch.value.lowercase()}"
     }
 
-    fun detect(): Os {
-        val osName = System.getProperty("os.name")
-        var version = System.getProperty("os.version").lowercase()
-
-        if (osName.startsWith("Windows") && osName.matches("Windows \\d+".toRegex())) {
-            // for whatever reason, JRE reports "Windows 11" as a name and "10.0" as a version on Windows 11
-            try {
-                val version2 = osName.substring("Windows".length + 1) + ".0"
-                if (version2.toFloat() > version.toFloat()) {
-                    version = version2
-                }
-            } catch (ignored: NumberFormatException) {
-            }
-        }
-
-        return Os(OsFamily.current, version, Arch.current)
-    }
+    fun detect(): Os = Os(OsFamily.current, Arch.current)
 }
 
 object DefaultSystemInfo : SystemInfo
