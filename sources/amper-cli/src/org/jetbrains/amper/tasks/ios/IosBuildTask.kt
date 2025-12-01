@@ -15,8 +15,6 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -29,6 +27,8 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -45,7 +45,6 @@ import kotlin.io.path.getPosixFilePermissions
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 import kotlin.io.path.setPosixFilePermissions
-
 
 class IosBuildTask(
     override val platform: Platform,

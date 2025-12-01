@@ -17,6 +17,7 @@ modules:
   - sources/amper-problem-reporting
   - sources/amper-project-templates
   - sources/amper-project-templates/amper-project-template-resources
+  - sources/amper-system-info
   - sources/amper-wrapper
   - sources/android-integration/amper-android-gradle-api
   - sources/android-integration/amper-android-gradle-plugin

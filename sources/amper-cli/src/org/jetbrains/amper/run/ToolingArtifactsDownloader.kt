@@ -6,7 +6,6 @@ package org.jetbrains.amper.run
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository
@@ -15,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.toIncrementalCacheResult
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import java.nio.file.Path
 
 val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")

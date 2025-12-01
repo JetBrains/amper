@@ -19,9 +19,10 @@ dependencies:
   - $kotlin.test.junit5
   - $libs.jna
   - $libs.jna.platform
-  - ../amper-jdk-provisioning
   - ../amper-build-info
+  - ../amper-jdk-provisioning
   - ../amper-problem-reporting
+  - ../amper-system-info
   - ../core
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API

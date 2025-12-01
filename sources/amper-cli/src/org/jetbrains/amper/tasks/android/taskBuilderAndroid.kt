@@ -8,14 +8,14 @@ import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.SystemImageTags.GOOGLE_APIS_TAG
 import com.android.sdklib.devices.Abi
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType

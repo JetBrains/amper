@@ -1,13 +1,13 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.util
 
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 
 object PlatformUtil {
     // Which platforms we may execute on current system

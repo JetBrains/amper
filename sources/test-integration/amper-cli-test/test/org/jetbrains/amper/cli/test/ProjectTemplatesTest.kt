@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
-import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly

@@ -29,14 +29,14 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path

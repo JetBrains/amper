@@ -12,6 +12,7 @@ dependencies:
   - ../amper-jdk-provisioning
   - ../amper-maven-publish
   - ../amper-project-templates
+  - ../amper-system-info
   - ../amper-wrapper
   - ../core
   - ../core-intellij

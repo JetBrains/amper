@@ -5,8 +5,8 @@
 package org.jetbrains.amper.android
 
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import java.nio.file.Path
 import kotlin.io.path.Path
 

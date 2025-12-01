@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.test
 
-import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension

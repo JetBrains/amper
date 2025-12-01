@@ -4,12 +4,12 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.helpers.FrontendTestCaseBase
 import org.jetbrains.amper.frontend.helpers.TestSystemInfo
 import org.jetbrains.amper.frontend.helpers.aomTest
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Ignore

@@ -4,6 +4,7 @@ apply:
   - ../../common.module-template.yaml
 
 test-dependencies:
+  - ../../amper-system-info
   - ../../core
   - ../../libraries/telemetry
   - ../../test-base

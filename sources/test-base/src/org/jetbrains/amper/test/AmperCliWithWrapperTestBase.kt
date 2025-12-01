@@ -9,10 +9,10 @@ import com.intellij.execution.Platform
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.logs.readLogs
 import org.jetbrains.amper.test.otlp.serialization.decodeOtlpTraces
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener

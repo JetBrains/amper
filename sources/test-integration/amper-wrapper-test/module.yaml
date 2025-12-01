@@ -5,6 +5,7 @@ apply:
 
 test-dependencies:
   - ../../amper-jdk-provisioning
+  - ../../amper-system-info
   - ../../core
   - ../../test-base
 

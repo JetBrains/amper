@@ -6,8 +6,6 @@ package org.jetbrains.amper.frontend.catalogs
 
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.InMemoryVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
@@ -20,6 +18,8 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)

@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.test
 
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
+import org.jetbrains.amper.system.info.DefaultSystemInfo
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories

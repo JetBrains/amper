@@ -8,8 +8,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
 import java.nio.file.Path
 
 const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"

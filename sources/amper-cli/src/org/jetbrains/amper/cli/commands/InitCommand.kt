@@ -13,7 +13,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.interactiveSelectList
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.templates.AmperProjectTemplate
 import org.jetbrains.amper.templates.AmperProjectTemplates
 import org.jetbrains.amper.templates.TemplateFile
