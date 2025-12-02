@@ -65,9 +65,7 @@ class AmperInitTest : AmperCliTestBase() {
         assertTrue(bashWrapper.readText().count { it == '\r' } == 0,
             "Unix wrapper must not have \\r in line separators: $bashWrapper")
 
-        if (OsFamily.current.isUnix) {
-            assertTrue("Unix wrapper must be executable: $bashWrapper") { bashWrapper.isExecutable() }
-        }
+        assertTrue("Unix wrapper must be executable: $bashWrapper") { bashWrapper.isExecutable() }
 
         assertFileContentEquals(LocalAmperPublication.wrapperSh, bashWrapper)
         assertFileContentEquals(LocalAmperPublication.wrapperBat, batWrapper)

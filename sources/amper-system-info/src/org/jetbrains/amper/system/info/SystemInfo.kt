@@ -25,8 +25,6 @@ enum class OsFamily(val value: String) {
         }
     }
 
-    val isUnix by lazy { this != Windows }
-
     val isLinux by lazy { this == Linux }
 
     val isMac by lazy { this == MacOs }
