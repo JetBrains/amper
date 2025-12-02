@@ -44,8 +44,6 @@ fun runDokka(
                 ),
                 displayName = moduleName,
                 classpath = moduleCompileClasspath.resolvedFiles
-                    // FIXME: AMPER-4910 Do not include compilation result into `compile` `Classpath` for modules
-                    .filterNot { it.endsWith("${moduleName}-jvm.jar") }
                     .map { it.pathString },
                 sourceRoots = sources.sourceDirectories.map { it.pathString },
                 jdkVersion = 25, // TODO: Allow passing when module data can be referenced.
