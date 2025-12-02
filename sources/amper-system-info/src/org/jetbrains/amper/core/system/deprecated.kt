@@ -4,17 +4,20 @@
 
 package org.jetbrains.amper.core.system
 
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
+import kotlin.DeprecationLevel
 
 @Deprecated(
     message = "Moved to org.jetbrains.amper.system.info",
-    replaceWith = ReplaceWith("OsFamily", imports = ["org.jetbrains.amper.system.info.OsFamily"])
+    replaceWith = ReplaceWith("OsFamily", imports = ["org.jetbrains.amper.system.info.OsFamily"]),
+    level = DeprecationLevel.ERROR,
 )
 typealias OSFamily = OsFamily
 
 @Deprecated(
-    message = "Moved to org.jetbrains.amper.system.info",
-    replaceWith = ReplaceWith("DefaultSystemInfo", imports = ["org.jetbrains.amper.system.info.DefaultSystemInfo"])
+    message = "Replaced by org.jetbrains.amper.system.info.SystemInfo.CurrentHost",
+    replaceWith = ReplaceWith("SystemInfo.CurrentHost", imports = ["org.jetbrains.amper.system.info.SystemInfo"]),
+    level = DeprecationLevel.ERROR,
 )
-typealias DefaultSystemInfo = DefaultSystemInfo
+typealias DefaultSystemInfo = SystemInfo.CurrentHost

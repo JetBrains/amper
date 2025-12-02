@@ -23,7 +23,7 @@ internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransforme
 
     private val dependencyType = buildCtx.types.getType<ExternalMavenDependency>()
     private val coordinatesPName = ExternalMavenDependency::coordinates.name
-    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.detect().familyArch}:"
+    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.familyArch}:"
 
     private fun String.doReplace() = this
         .replace("org.jetbrains.compose.desktop:desktop:", replacement)

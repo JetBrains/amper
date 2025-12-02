@@ -6,13 +6,12 @@ package org.jetbrains.amper.frontend.helpers
 
 import org.jetbrains.amper.frontend.aomBuilder.doReadProjectModel
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.test.assertNotNull
 
 fun FrontendTestCaseBase.aomTest(
     caseName: String,
-    systemInfo: SystemInfo = DefaultSystemInfo,
+    systemInfo: SystemInfo = SystemInfo.CurrentHost,
     expectedError: String? = null,
     printDefaults: Boolean = false,
     adjustCtx: TestProjectContext.() -> Unit = {},

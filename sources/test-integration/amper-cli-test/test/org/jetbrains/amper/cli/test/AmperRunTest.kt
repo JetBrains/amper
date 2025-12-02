@@ -11,8 +11,8 @@ import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.system.info.Arch
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 import org.jetbrains.amper.test.LinuxOnly
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.WindowsOnly
@@ -195,7 +195,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     @Test
     fun `native run uses current working dir by default`() = runSlowTest {
         val projectRoot = testProject("cli-run-print-workingdir")
-        val platform = currentNativePlatformName()
+        val platform = SystemInfo.CurrentHost.nativePlatformName()
         val result = runCli(projectRoot, "run", "--platform=$platform")
         result.assertStdoutContains("workingDir=${result.projectRoot}")
     }
@@ -203,27 +203,24 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     @Test
     fun `native run uses specified --working-dir`() = runSlowTest {
         val projectRoot = testProject("cli-run-print-workingdir")
-        val platform = currentNativePlatformName()
+        val platform = SystemInfo.CurrentHost.nativePlatformName()
         val currentHome = System.getProperty("user.home")
         val result = runCli(projectRoot, "run", "--platform=$platform", "--working-dir=$currentHome")
         result.assertStdoutContains("workingDir=$currentHome")
     }
 
-    private fun currentNativePlatformName(): String {
-        val systemInfo = DefaultSystemInfo.detect()
-        return when (systemInfo.family) {
-            OsFamily.FreeBSD,
-            OsFamily.Solaris,
-            OsFamily.Linux -> when (systemInfo.arch) {
-                Arch.X64 -> "linuxX64"
-                Arch.Arm64 -> "linuxArm64"
-            }
-            OsFamily.MacOs -> when (systemInfo.arch) {
-                Arch.X64 -> "macosX64"
-                Arch.Arm64 -> "macosArm64"
-            }
-            OsFamily.Windows -> "mingwX64"
+    private fun SystemInfo.nativePlatformName(): String = when (family) {
+        OsFamily.FreeBSD,
+        OsFamily.Solaris,
+        OsFamily.Linux -> when (arch) {
+            Arch.X64 -> "linuxX64"
+            Arch.Arm64 -> "linuxArm64"
         }
+        OsFamily.MacOs -> when (arch) {
+            Arch.X64 -> "macosX64"
+            Arch.Arm64 -> "macosArm64"
+        }
+        OsFamily.Windows -> "mingwX64"
     }
 
     @Test

@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.system.info
 
-enum class OsFamily(val value: String) {
+enum class OsFamily(internal val value: String) {
     Windows("windows"),
     Linux("linux"),
     MacOs("macos"),
@@ -20,7 +20,7 @@ enum class OsFamily(val value: String) {
                 osName.startsWith("Windows") -> Windows
                 osName.startsWith("Solaris") || osName.startsWith("SunOS") -> Solaris
                 osName.startsWith("FreeBSD") -> FreeBSD
-                else -> error("Could not determine OS family")
+                else -> error("Could not determine OS family from os.name '$osName'")
             }
         }
     }
@@ -32,7 +32,7 @@ enum class OsFamily(val value: String) {
     val isWindows by lazy { this == Windows }
 }
 
-enum class Arch(val value: String) {
+enum class Arch(internal val value: String) {
     X64("x64"),
     Arm64("arm64");
 
@@ -49,14 +49,25 @@ enum class Arch(val value: String) {
 
 interface SystemInfo {
 
-    data class Os(
-        val family: OsFamily,
-        val arch: Arch,
-    ) {
-        val familyArch get() = "${family.value.lowercase()}-${arch.value.lowercase()}"
+    /**
+     * The family of this operating system (Windows, Linux, macOS, etc.).
+     */
+    val family: OsFamily
+
+    /**
+     * The hardware architecture of this system.
+     */
+    val arch: Arch
+
+    /**
+     * A string combining the [family] and [arch] values, e.g. "linux-x64".
+     */
+    // TODO this is actually specific to how Compose artifacts are defined, and should be moved accordingly
+    val familyArch: String
+        get() = "${family.value.lowercase()}-${arch.value.lowercase()}"
+
+    object CurrentHost : SystemInfo {
+        override val family: OsFamily by lazy { OsFamily.current }
+        override val arch: Arch by lazy { Arch.current }
     }
-
-    fun detect(): Os = Os(OsFamily.current, Arch.current)
 }
-
-object DefaultSystemInfo : SystemInfo

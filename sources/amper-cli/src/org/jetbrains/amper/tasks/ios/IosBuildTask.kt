@@ -28,7 +28,6 @@ import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.system.info.Arch
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -145,7 +144,7 @@ class IosBuildTask(
     }
 
     private suspend fun prepareLogParsingUtility(): Path {
-        val archString = when(DefaultSystemInfo.detect().arch) {
+        val archString = when(Arch.current) {
             Arch.X64 -> "x86_64"
             Arch.Arm64 -> "arm64"
         }

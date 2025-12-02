@@ -14,7 +14,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.toIncrementalCacheResult
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 
 val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")
@@ -41,7 +41,7 @@ class ToolingArtifactsDownloader(
     ): List<Path> = downloadToolingArtifacts(
         listOf(
             "org.jetbrains.compose.hot-reload:hot-reload-devtools:$hotReloadVersion",
-            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion",
+            "org.jetbrains.compose.desktop:desktop-jvm-${SystemInfo.CurrentHost.familyArch}:$composeVersion",
         ),
         buildList {
             addAll(listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY))
@@ -49,7 +49,7 @@ class ToolingArtifactsDownloader(
     )
 
     suspend fun downloadComposeDesktop(composeVersion: String): List<Path> = downloadToolingArtifacts(
-        listOf("org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion"),
+        listOf("org.jetbrains.compose.desktop:desktop-jvm-${SystemInfo.CurrentHost.familyArch}:$composeVersion"),
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 

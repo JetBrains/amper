@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.reflect.KProperty0
 
@@ -64,7 +63,7 @@ private class BuiltInCatalog(
     ktorVersion: TraceableVersion?,
     springBootVersion: TraceableVersion?,
     composeHotReloadVersion: TraceableVersion,
-    private val systemInfo: SystemInfo = DefaultSystemInfo,
+    private val systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ) : InMemoryVersionCatalog {
 
     override val entries: Map<String, TraceableString> = buildMap {
@@ -92,7 +91,7 @@ private class BuiltInCatalog(
             put("compose.desktop.common", library("org.jetbrains.compose.desktop:desktop", composeVersion))
             put("compose.desktop.components.animatedImage", library("org.jetbrains.compose.components:components-animatedimage", composeVersion))
             put("compose.desktop.components.splitPane", library("org.jetbrains.compose.components:components-splitpane", composeVersion))
-            put("compose.desktop.currentOs", library("org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}", composeVersion))
+            put("compose.desktop.currentOs", library("org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.familyArch}", composeVersion))
             put("compose.desktop.linux_arm64", library("org.jetbrains.compose.desktop:desktop-jvm-linux-arm64", composeVersion))
             put("compose.desktop.linux_x64", library("org.jetbrains.compose.desktop:desktop-jvm-linux-x64", composeVersion))
             put("compose.desktop.macos_arm64", library("org.jetbrains.compose.desktop:desktop-jvm-macos-arm64", composeVersion))

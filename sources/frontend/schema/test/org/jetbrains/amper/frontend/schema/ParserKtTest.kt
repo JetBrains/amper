@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.helpers.TestSystemInfo
 import org.jetbrains.amper.frontend.helpers.aomTest
 import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.system.info.OsFamily
-import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Ignore
@@ -102,7 +101,7 @@ internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "pars
     fun `common library replacement`() {
         aomTest(
             "17-compose-desktop-replacement",
-            TestSystemInfo(SystemInfo.Os(OsFamily.MacOs, Arch.X64))
+            TestSystemInfo(OsFamily.MacOs, Arch.X64)
         )
     }
 
@@ -110,7 +109,7 @@ internal class ParserKtTest : FrontendTestCaseBase(Path("testResources") / "pars
     fun `jvm library replacement`() {
         aomTest(
             "18-compose-desktop-jvm-replacement",
-            TestSystemInfo(SystemInfo.Os(OsFamily.Linux, Arch.Arm64))
+            TestSystemInfo(OsFamily.Linux, Arch.Arm64)
         )
     }
 

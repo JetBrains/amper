@@ -25,7 +25,6 @@ import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.processes.startLongLivedProcess
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
@@ -231,7 +230,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     }
 
     private suspend fun runAmperVersionFirstRun(batWrapper: Path, bashWrapper: Path): Int {
-        val command = when (DefaultSystemInfo.detect().family) {
+        val command = when (OsFamily.current) {
             OsFamily.Windows -> if (runningWrapper.extension == "bat") {
                 listOf(batWrapper.absolutePathString(), "--version")
             } else {

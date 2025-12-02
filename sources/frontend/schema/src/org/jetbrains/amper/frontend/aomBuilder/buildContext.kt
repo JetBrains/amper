@@ -22,7 +22,6 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 
@@ -31,7 +30,7 @@ internal data class BuildCtx(
     val problemReporter: ProblemReporter,
     val treeMerger: TreeMerger = TreeMerger(),
     val types: SchemaTypingContext = SchemaTypingContext(),
-    val systemInfo: SystemInfo = DefaultSystemInfo,
+    val systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ) {
     val moduleAType = types.getDeclaration<Module>()
     val templateAType = types.getDeclaration<Template>()

@@ -56,7 +56,6 @@ import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.caching
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 import kotlin.io.path.absolute
@@ -90,7 +89,7 @@ context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
     mavenPluginXmls: List<MavenPluginXml>,
-    systemInfo: SystemInfo = DefaultSystemInfo,
+    systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ): Model = with(
     BuildCtx(
         pathResolver = frontendPathResolver,

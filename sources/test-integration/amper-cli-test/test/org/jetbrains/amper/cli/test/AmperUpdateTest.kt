@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.processes.ProcessInput
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
@@ -172,7 +172,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should still be there")
 
         // On Windows, the bat script sometimes cannot be changed in-place, so we have to wait for the late replacement
-        if (DefaultSystemInfo.detect().family.isWindows) {
+        if (OsFamily.current.isWindows) {
             awaitWrapperVersionsMatchIn(projectDir)
         }
         return UpdateResult(

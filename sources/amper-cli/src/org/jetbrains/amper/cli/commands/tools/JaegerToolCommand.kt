@@ -35,8 +35,8 @@ import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.system.info.Arch
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 import java.net.Socket
 import java.nio.file.Files
 import java.nio.file.Path
@@ -73,7 +73,7 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
     override suspend fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot
 
-        val os = DefaultSystemInfo.detect()
+        val os = SystemInfo.CurrentHost
         val osString = when (os.family) {
             OsFamily.Windows -> "windows"
             OsFamily.Linux -> "linux"

@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.system.info.Arch
-import org.jetbrains.amper.system.info.DefaultSystemInfo
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -468,7 +467,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
     val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: return
-    val abi = if (DefaultSystemInfo.detect().arch == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
+    val abi = if (Arch.current == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "system-images;android-$versionNumber;${GOOGLE_APIS_TAG.id};$abi",

@@ -15,7 +15,7 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
 import org.jetbrains.amper.system.info.Arch
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
@@ -34,8 +34,8 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.time.Duration.Companion.seconds
 
-private val binExtension = if (DefaultSystemInfo.detect().family.isWindows) ".exe" else ""
-private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) ".bat" else ""
+private val binExtension = if (OsFamily.current.isWindows) ".exe" else ""
+private val scriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
 
 /**
  * A Kotlin API for Android SDK tools.
@@ -146,7 +146,7 @@ class AndroidTools(
         name: String,
         apiLevel: Int = 35,
         variant: String = "default",
-        arch: String = DefaultSystemInfo.detect().arch.toEmulatorArch(),
+        arch: String = Arch.current.toEmulatorArch(),
     ) {
         // Note: this modifies .knownPackages, which might be important for caching
         avdmanager(

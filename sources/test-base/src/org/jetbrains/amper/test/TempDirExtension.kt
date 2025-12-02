@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.test
 
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
@@ -41,7 +41,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                 // Selectively unlock specific files (from Android build) only as an exceptional case
                 // It's important to prioritize detecting these issues rather than silently ignoring them
                 // Any ignoring should be an explicit decision
-                if (DefaultSystemInfo.detect().family.isWindows) {
+                if (OsFamily.current.isWindows) {
                     // There is little we can do about the Gradle daemon still holding some files after delegated
                     // Android builds (we already use internal APIs to try to close it). Since the daemon doesn't want
                     // to stop, we find the remaining files from the delegated Gradle build and unlock them by hand.

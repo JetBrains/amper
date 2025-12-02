@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jdk.provisioning.orThrow
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import java.nio.file.Path
@@ -54,7 +54,7 @@ internal object AndroidToolsInstaller {
         "build-tools;35.0.0",
         "build-tools;36.0.0",
         // to create AVDs automatically in mobile-tests
-        "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
+        "system-images;android-35;default;${Arch.current.toEmulatorArch()}",
     )
 
     suspend fun install(androidSdkHome: Path, androidUserHomeParent: Path, androidSetupCacheDir: Path): AndroidTools {
@@ -101,7 +101,7 @@ internal object AndroidToolsInstaller {
     }
 
     private suspend fun downloadCommandLineToolsZip(androidSetupCacheDir: Path): Path {
-        val commandLineToolsFilename = when (DefaultSystemInfo.detect().family) {
+        val commandLineToolsFilename = when (OsFamily.current) {
             OsFamily.Linux,
             OsFamily.FreeBSD,
             OsFamily.Solaris -> "commandlinetools-linux-11076708_latest.zip"

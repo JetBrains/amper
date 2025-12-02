@@ -5,7 +5,8 @@
 package org.jetbrains.amper.test
 
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder
-import org.jetbrains.amper.system.info.DefaultSystemInfo
+import org.jetbrains.amper.system.info.SystemInfo
+import org.jetbrains.amper.test.Dirs.persistentCaches
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -62,7 +63,7 @@ object Dirs {
         val dir = if (TeamCityHelper.isUnderTeamCity) {
             // We add the OS + arch to avoid problems in case the cache is shared between different types of machines.
             // Example: the incremental cache contains paths in Windows style on Windows, and unix style on other OSes.
-            TeamCityHelper.persistentCacheDirectory / "amper build" / DefaultSystemInfo.detect().familyArch
+            TeamCityHelper.persistentCacheDirectory / "amper build" / SystemInfo.CurrentHost.familyArch
         } else {
             amperBuildOutputRoot / "shared test caches"
         }
