@@ -82,10 +82,7 @@ fun runDokka(
     )
 
     // FIXME: AMPER-4912 Runtime API: Process launching facility for tasks
-    val process = ProcessBuilder(commandLine)
-        .redirectOutput(ProcessBuilder.Redirect.PIPE)
-        .redirectError(ProcessBuilder.Redirect.PIPE)
-        .start()
+    val process = ProcessBuilder(commandLine).start()
     val capture = listOf(
         thread { process.inputStream.copyTo(System.out) },
         thread { process.errorStream.copyTo(System.err) },

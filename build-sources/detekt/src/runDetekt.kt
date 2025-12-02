@@ -9,6 +9,7 @@ import org.jetbrains.amper.plugins.Output
 import org.jetbrains.amper.plugins.TaskAction
 import java.io.File
 import java.nio.file.Path
+import kotlin.concurrent.thread
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
@@ -105,20 +106,21 @@ private fun runDetekt(
         addAll(args)
     }
 
-    // FIXME: Introduce a process launching facility (shared with other plugins)
+    // FIXME: AMPER-4912 Introduce a process launching facility (shared with other plugins)
     val process = ProcessBuilder(commandLine)
         // detekt doesn't work well on our JRE - it uses deprecated JVM features; discard these messages.
         // TODO: update to detect 2.0.0 when it is released
         .redirectError(ProcessBuilder.Redirect.DISCARD)
-        .apply {
-            if (reportDiagnostics) {
-                redirectOutput(ProcessBuilder.Redirect.PIPE)
-            }
-        }
+        .redirectOutput(if (reportDiagnostics) ProcessBuilder.Redirect.PIPE else ProcessBuilder.Redirect.DISCARD)
         .start()
+    val capture = if (reportDiagnostics) {
+        thread { process.inputStream.copyTo(System.out) }
+    } else null
 
     val exitCode = process
         .waitFor()
+
+    capture?.join()
 
     if (reportDiagnostics) {
         process.inputStream.copyTo(System.err)
