@@ -99,9 +99,12 @@ class IncrementalCache(
             // Prevent parallel execution of this 'id' from this or other processes,
             // tracked by a lock on the state file
             withLock(key, stateFile) { stateFileChannel ->
-                val (cachedState, cacheCheckTime) = measureTimedValue {
-                    getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)
+                val (cachedState, cacheCheckTime) = tracer.spanBuilder("inc: get-cached-state").use {
+                    measureTimedValue {
+                        getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)
+                    }
                 }
+
                 if (cachedState != null && !cachedState.outdated && !forceRecalculation) {
                     logger.debug("[inc] up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
                     logger.debug("[inc] '$key' is up-to-date")
@@ -122,15 +125,19 @@ class IncrementalCache(
 
                 logger.debug("[inc] finished '$key' in $buildTime")
 
-                val state = recordState(inputValues, inputFiles, result)
-                stateFileChannel.writeState(state)
+                tracer.spanBuilder("inc: write-state").use {
+                    val state = recordState(inputValues, inputFiles, result)
+                    stateFileChannel.writeState(state)
+                }
 
                 val oldState = cachedState?.state?.outputFilesState ?: mapOf()
-                val newState = readFileStates(
-                    paths = result.outputFiles,
-                    excludedFiles = result.excludedOutputFiles,
-                    failOnMissing = false,
-                )
+                val newState = tracer.spanBuilder("inc: read-new-file-states").use {
+                    readFileStates(
+                        paths = result.outputFiles,
+                        excludedFiles = result.excludedOutputFiles,
+                        failOnMissing = false,
+                    )
+                }
 
                 val changes = oldState compare newState
 
