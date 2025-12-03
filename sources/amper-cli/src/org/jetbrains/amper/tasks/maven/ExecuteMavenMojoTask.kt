@@ -38,6 +38,7 @@ import org.codehaus.plexus.util.ReaderFactory
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder
 import org.eclipse.aether.RepositorySystemSession
 import org.eclipse.aether.repository.RemoteRepository
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
@@ -191,9 +192,9 @@ class ExecuteMavenMojoTask(
     ) {
         // First, set appropriate class realms for descriptors (in other words, setup classloaders).
         val pluginDescriptor = mojoExecution.mojoDescriptor.pluginDescriptor
-        if (pluginDescriptor.classRealm == null) 
+        if (pluginDescriptor.classRealm == null)
             plexus.mavenPluginManager.setupPluginRealm(pluginDescriptor, session, null, null, null)
-        
+
         // Then we can access `implementationClass`, to check if it is a report mojo.
         if (MavenReport::class.java.isAssignableFrom(mojoExecution.mojoDescriptor.implementationClass))
             plexus.doReport(session, mojoExecution, repoSession, remoteRepositories)
@@ -269,13 +270,17 @@ class ExecuteMavenMojoTask(
             project.properties.forEach { this[it.key.toString()] = it.value }
         }
 
-        return try {
-            val skinArtifact = siteTool.getSkinArtifactFromRepository(
+        val skinArtifact = try {
+            siteTool.getSkinArtifactFromRepository(
                 /* repoSession = */ repoSession,
                 /* remoteProjectRepositories = */ remoteRepositories,
                 /* skin = */ siteModel.skin
             )
+        } catch (_: SiteToolException) {
+            userReadableError("Failed to retrieve skin artifact from repository for maven goal: ${mojo.goal}")
+        }
 
+        return try {
             siteRenderer.createContextForSkin(
                 /* skin = */ skinArtifact,
                 /* attributes = */ templateProperties,
@@ -283,10 +288,8 @@ class ExecuteMavenMojoTask(
                 /* defaultTitle = */ project.name,
                 /* locale = */ locale
             )
-        } catch (e: SiteToolException) {
-            throw MojoExecutionException("Failed to retrieve skin artifact from repository", e)
-        } catch (e: RendererException) {
-            throw MojoExecutionException("Failed to create context for skin", e)
+        } catch (_: RendererException) {
+            userReadableError("Failed to create context for skin for maven goal: ${mojo.goal}")
         }.apply {
             rootDirectory = project.basedir
 

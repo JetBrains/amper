@@ -37,6 +37,8 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
                 "java.lang.String[]" -> SchemaType.ListType(StringType(), isNullable) to emptyArray<String>()
                 "java.io.File" -> SchemaType.PathType(isNullable) to File(".")
                 "java.io.File[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable) to emptyArray<File>()
+                "java.nio.Path" -> SchemaType.PathType(isNullable) to File(".")
+                "java.nio.Path[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable) to emptyArray<File>()
                 "java.util.Map" -> SchemaType.MapType(
                     StringType(),
                     StringType(),

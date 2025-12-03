@@ -90,7 +90,7 @@ private suspend fun downloadPluginAndDirectDependencies(
 @OptIn(ExperimentalXmlUtilApi::class)
 private val xml: XML = XML {
     defaultPolicy {
-        unknownChildHandler = UnknownChildHandler { reader, a, xmlDesc, c, d ->
+        unknownChildHandler = UnknownChildHandler { reader, _, xmlDesc, _, _ ->
             // Do not recover anything, except `ParameterValue`.
             if (xmlDesc.serialDescriptor != Configuration.serializer().descriptor) return@UnknownChildHandler emptyList()
             // We need to use `peek()` function.
