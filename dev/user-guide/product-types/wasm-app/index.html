@@ -12,13 +12,13 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/advanced/maven-like-layout/">
+        <link rel="canonical" href="https://amper.org/dev/user-guide/product-types/wasm-app/">
       
       
-        <link rel="prev" href="../kotlin-compiler-plugins/">
+        <link rel="prev" href="../native-app/">
       
       
-        <link rel="next" href="../../yaml-primer/">
+        <link rel="next" href="../../builtin-tech/compose-multiplatform/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Maven-like layout - Amper</title>
+        <title>Kotlin/Wasm application - Amper</title>
       
     
     
@@ -71,17 +71,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Maven-like layout - Amper" />
+<meta property="og:title" content="Kotlin/Wasm application - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/maven-like-layout.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/wasm-app.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/advanced/maven-like-layout/" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/product-types/wasm-app/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Maven-like layout - Amper" />
+<meta property="twitter:title" content="Kotlin/Wasm application - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/maven-like-layout.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/wasm-app.png" />
 </head>
   
   
@@ -101,7 +101,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#maven-like-module-layout" class="md-skip">
+        <a href="#kotlinwasm-application" class="md-skip">
           Skip to content
         </a>
       
@@ -138,7 +138,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Maven-like layout
+              Kotlin/Wasm application
             
           </span>
         </div>
@@ -846,6 +846,8 @@
                 
   
   
+    
+  
   
   
     
@@ -878,17 +880,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../product-types/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -912,7 +912,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -932,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/android-app/" class="md-nav__link">
+      <a href="../android-app/" class="md-nav__link">
         
   
   
@@ -960,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/ios-app/" class="md-nav__link">
+      <a href="../ios-app/" class="md-nav__link">
         
   
   
@@ -988,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/jvm-app/" class="md-nav__link">
+      <a href="../jvm-app/" class="md-nav__link">
         
   
   
@@ -1016,7 +1016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/jvm-lib/" class="md-nav__link">
+      <a href="../jvm-lib/" class="md-nav__link">
         
   
   
@@ -1044,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/kmp-lib/" class="md-nav__link">
+      <a href="../kmp-lib/" class="md-nav__link">
         
   
   
@@ -1072,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/js-app/" class="md-nav__link">
+      <a href="../js-app/" class="md-nav__link">
         
   
   
@@ -1100,7 +1100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/native-app/" class="md-nav__link">
+      <a href="../native-app/" class="md-nav__link">
         
   
   
@@ -1125,10 +1125,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../product-types/wasm-app/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlin/Wasm application
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1144,6 +1171,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry point
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-your-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running your application
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1615,10 +1706,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1639,11 +1728,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
         
           
           <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
@@ -1664,7 +1755,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1682,7 +1773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../jdk-provisioning/" class="md-nav__link">
+      <a href="../../advanced/jdk-provisioning/" class="md-nav__link">
         
   
   
@@ -1710,7 +1801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../java-annotation-processing/" class="md-nav__link">
+      <a href="../../advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1738,7 +1829,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ksp/" class="md-nav__link">
+      <a href="../../advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1766,7 +1857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../../advanced/kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1791,19 +1882,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1819,7 +1901,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -2167,6 +2248,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry point
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-your-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running your application
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2182,7 +2315,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/advanced/maven-like-layout.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/product-types/wasm-app.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2190,41 +2323,87 @@
   
 
 
-<h1 id="maven-like-module-layout">Maven-like module layout<a class="headerlink" href="#maven-like-module-layout" title="Permanent link">&para;</a></h1>
-<p>Amper is opinionated about where to put your sources, resources, and tests (see the 
-<a href="../../basics/#project-layout">standard project layout</a>).</p>
-<p>When transitioning from other tools, it would be tedious to move all (re)source files around in addition to converting
-the build configuration files. To smoothen the transition, Amper provides an alternative layout that is compatible with
-Maven and Gradle. The layout conforms to the
-<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code>module/
-├── module.yaml
-└── src/
-    ├── main/
-    │   ├── java/
-    │   │   └── Main.java
-    │   ├── kotlin/
-    │   │   └── func.kt
-    │   └── resources/
-    │       └── input.txt
-    └── test/
-        ├── java/
-        │   └── JavaTest.java
-        ├── kotlin/
-        │   └── KotlinTest.kt
-        └── resources/
-            └── test-input.txt
-</code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There is no difference between <code>java/</code> and <code>kotlin/</code> folders, Amper will look for java and kotlin sources in both
-folders. It is only necessary for the sake of transitioning simplicity.</p>
+<h1 id="kotlinwasm-application"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.745 0v.129a2.752 2.752 0 1 1-5.504 0V0H0v24h24V0zm-3.291 21.431-1.169-5.783h-.02l-1.264 5.783H7.39l-1.824-8.497h1.59l1.088 5.783h.02l1.311-5.783h1.487l1.177 5.854h.02l1.242-5.854h1.561l-2.027 8.497zm8.755 0-.542-1.891h-2.861l-.417 1.891h-1.59l2.056-8.497h2.509l2.5 8.497zm-2.397-6.403-.694 3.118h2.159l-.796-3.118z"/></svg></span> Kotlin/Wasm application<a class="headerlink" href="#kotlinwasm-application" title="Permanent link">&para;</a></h1>
+<p>Use the <code>wasmJs/app</code> or <code>wasmWasi/app</code> product type in a module to build a WebAssembly application using the 
+<a href="https://kotlinlang.org/docs/wasm-overview.html">Kotlin/Wasm</a> technology.
+These applications can be run in browsers or Node.js.</p>
+<div class="admonition warning">
+<p class="admonition-title">Incomplete preview</p>
+<p>The support for this product type is currently in an incomplete preview state.</p>
+<p>For example, running a WebAssembly application is not supported out of the box at the moment like other application 
+types, and needs some manual work (see the <a href="#running-your-application">Running your application</a>).</p>
+<p>We're eager to hear more about your use cases and how we can improve this experience!
+Please let us know in a <a href="https://youtrack.jetbrains.com/issues/AMPER"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="a" x1="-.102411" x2="64.0532" y1="32.0002" y2="32.0002" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB43FF"/>
+      <stop offset=".97" stop-color="#FB406D"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#a)" d="M1.30634 51.2446c-.09688-.0713-.12875-.2019-.07625-.31L8.86571 35.209.058214 24.6908c-.08875-.1056-.074375-.2637.031875-.3518L25.7788 2.93209C30.3495-.877908 36.967-.985408 41.6626 2.67147c4.6937 3.65687 6.1937 10.08813 3.5969 15.43623l-2.7994 5.7669c1.0919-.3663 2.1725-.6994 3.2412-.9988l12.6738-3.6406c.1381-.04.2819.045.3131.1856l5.3056 23.585c.0325.1457-.0662.2882-.215.3069-1.6818.2119-10.8575 1.53-22.2812 6.3294-12.9431 5.4362-21.4844 13.1625-22.6944 14.2925-.0894.0837-.2206.0869-.3187.0144L1.30634 51.2446Z"/>
+  <path fill="#000" d="M52 12H12v40h40V12Z"/>
+  <path fill="#fff" d="m21.4666 26.3709-5.4881-9.3787h3.1513l3.3981 5.9919.3969.8575.3968-.8682 3.3119-5.9812h3.0975l-5.4025 9.3575v5.6487h-2.8619v-5.6275Z"/>
+  <path fill="#fff" d="M33 43.9984H17v3h16v-3Z"/>
+  <path fill="#fff" d="M42.3248 16.9922H30.2879l-.0006 2.6369h4.5662v12.3693h2.9263V19.6291h4.545v-2.6369Z"/>
+</svg>
+</span> YouTrack</a> issue, or in
+our <a href="https://kotlinlang.slack.com/archives/C062WG3A7T8"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2zm2-8a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2zm8 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 2 2 0 0 1 2 2zm-2 8a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2z"/></svg></span> Slack channel</a>.</p>
 </div>
-<p>Choosing the file layout is possible per module.</p>
-<p>To enable the maven-like module layout, add the following to the <code>module.yaml</code> file:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">maven-like</span>
+<div class="admonition tip">
+<p class="admonition-title">Using IntelliJ IDEA?</p>
+<p>Make sure to install the 
+<a href="https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 22.5629V0.0835311L22.4794 22.5629H0ZM0 25.4372V48H0.0572568L22.6201 25.4372H0ZM25.9906 22.0094L48 0H3.98128L25.9906 22.0094ZM26.0193 26.1028L4.1221 48H47.9164L26.0193 26.1028Z" fill="url(#paint0_radial_4088_319)"/>
+<defs>
+<radialGradient id="paint0_radial_4088_319" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(43.5 4.5) rotate(135) scale(61.5183)">
+<stop stop-color="#37BCFD"/>
+<stop offset="0.580197" stop-color="#7F52FF"/>
+<stop offset="1" stop-color="#C711E1"/>
+</radialGradient>
+</defs>
+</svg>
+</span> Kotlin Multiplatform plugin</a>
+to get proper support for Kotlin/Wasm.</p>
+</div>
+<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
+<p>Here is an overview of the module layout for a Kotlin/Wasm application:</p>
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>main.kt
+│<span class="w">  </span>╰─<span class="w"> </span>Util.kt
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>UtilTest.kt
+╰─<span class="w"> </span>module.yaml
 </code></pre></div>
+<h2 id="entry-point">Entry point<a class="headerlink" href="#entry-point" title="Permanent link">&para;</a></h2>
+<p>The entry point of a Kotlin/Wasm application is a top-level <code>main</code> function in the <code>src</code> folder.</p>
+<p>Multiple <code>main</code> functions are not supported. If you have multiple main functions, the one chosen by the compiler as 
+an entry point is unspecified.</p>
+<h2 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h2>
+<p>Using the <code>build</code> command compiles your code to WebAssembly (<code>.wasm</code> file) and generate a JavaScript wrapper file 
+(<code>.mjs</code>) to load it.</p>
+<p>These files are produced in the <code>build/tasks/_&lt;module-name&gt;_linkWasmJs</code> (for <code>wasm-js/app</code>) or
+<code>build/tasks/_&lt;module-name&gt;_linkWasmWasi</code> (for <code>wasm-wasi/app</code>) folder at the moment, but this is subject to change.</p>
+<p>There is no extra packaging facilities at the moment, and the <code>package</code> command is not supported for this product type.</p>
+<h2 id="running-your-application">Running your application<a class="headerlink" href="#running-your-application" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Kotlin/Wasm applications cannot be run directly by Amper at the moment.</p>
+</div>
+<p>To run your application, you need to:</p>
+<ol>
+<li>Install a JavaScript runtime that supports WebAssembly (e.g., Node.js, D8, a browser, ...).</li>
+<li>Build your module with <code>./amper build</code></li>
+<li>Using your JS runtime, run the <code>.mjs</code> wrapper file that calls the <code>.wasm</code> code produced by your module.
+   See the <a href="#packaging">Packaging</a> section above to know where this file is located.</li>
+</ol>
 
 
 
@@ -2245,7 +2424,7 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 30, 2025 01:24:25 UTC">November 30, 2025</span>
   </span>
 
     
@@ -2281,7 +2460,7 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../kotlin-compiler-plugins/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kotlin compiler plugins">
+          <a href="../native-app/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kotlin/Native application">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2291,20 +2470,20 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Kotlin compiler plugins
+                Kotlin/Native application
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../yaml-primer/" class="md-footer__link md-footer__link--next" aria-label="Next: Appendix: YAML primer">
+          <a href="../../builtin-tech/compose-multiplatform/" class="md-footer__link md-footer__link--next" aria-label="Next: Compose Multiplatform">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Appendix: YAML primer
+                Compose Multiplatform
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -12,13 +12,13 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/advanced/maven-like-layout/">
+        <link rel="canonical" href="https://amper.org/dev/user-guide/product-types/jvm-lib/">
       
       
-        <link rel="prev" href="../kotlin-compiler-plugins/">
+        <link rel="prev" href="../jvm-app/">
       
       
-        <link rel="next" href="../../yaml-primer/">
+        <link rel="next" href="../kmp-lib/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Maven-like layout - Amper</title>
+        <title>JVM library - Amper</title>
       
     
     
@@ -71,17 +71,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Maven-like layout - Amper" />
+<meta property="og:title" content="JVM library - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/maven-like-layout.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/jvm-lib.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/advanced/maven-like-layout/" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/product-types/jvm-lib/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Maven-like layout - Amper" />
+<meta property="twitter:title" content="JVM library - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/maven-like-layout.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/jvm-lib.png" />
 </head>
   
   
@@ -101,7 +101,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#maven-like-module-layout" class="md-skip">
+        <a href="#jvm-library" class="md-skip">
           Skip to content
         </a>
       
@@ -138,7 +138,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Maven-like layout
+              JVM library
             
           </span>
         </div>
@@ -846,6 +846,8 @@
                 
   
   
+    
+  
   
   
     
@@ -878,17 +880,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../product-types/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -912,7 +912,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -932,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/android-app/" class="md-nav__link">
+      <a href="../android-app/" class="md-nav__link">
         
   
   
@@ -960,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/ios-app/" class="md-nav__link">
+      <a href="../ios-app/" class="md-nav__link">
         
   
   
@@ -988,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/jvm-app/" class="md-nav__link">
+      <a href="../jvm-app/" class="md-nav__link">
         
   
   
@@ -1013,10 +1013,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../product-types/jvm-lib/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JVM library
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1032,6 +1059,37 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1044,7 +1102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/kmp-lib/" class="md-nav__link">
+      <a href="../kmp-lib/" class="md-nav__link">
         
   
   
@@ -1072,7 +1130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/js-app/" class="md-nav__link">
+      <a href="../js-app/" class="md-nav__link">
         
   
   
@@ -1100,7 +1158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/native-app/" class="md-nav__link">
+      <a href="../native-app/" class="md-nav__link">
         
   
   
@@ -1128,7 +1186,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/wasm-app/" class="md-nav__link">
+      <a href="../wasm-app/" class="md-nav__link">
         
   
   
@@ -1615,10 +1673,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1639,11 +1695,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
         
           
           <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
@@ -1664,7 +1722,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1682,7 +1740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../jdk-provisioning/" class="md-nav__link">
+      <a href="../../advanced/jdk-provisioning/" class="md-nav__link">
         
   
   
@@ -1710,7 +1768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../java-annotation-processing/" class="md-nav__link">
+      <a href="../../advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1738,7 +1796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ksp/" class="md-nav__link">
+      <a href="../../advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1766,7 +1824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../../advanced/kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1791,19 +1849,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1819,7 +1868,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -2167,6 +2215,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2182,7 +2249,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/advanced/maven-like-layout.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/product-types/jvm-lib.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2190,41 +2257,42 @@
   
 
 
-<h1 id="maven-like-module-layout">Maven-like module layout<a class="headerlink" href="#maven-like-module-layout" title="Permanent link">&para;</a></h1>
-<p>Amper is opinionated about where to put your sources, resources, and tests (see the 
-<a href="../../basics/#project-layout">standard project layout</a>).</p>
-<p>When transitioning from other tools, it would be tedious to move all (re)source files around in addition to converting
-the build configuration files. To smoothen the transition, Amper provides an alternative layout that is compatible with
-Maven and Gradle. The layout conforms to the
-<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code>module/
-├── module.yaml
-└── src/
-    ├── main/
-    │   ├── java/
-    │   │   └── Main.java
-    │   ├── kotlin/
-    │   │   └── func.kt
-    │   └── resources/
-    │       └── input.txt
-    └── test/
-        ├── java/
-        │   └── JavaTest.java
-        ├── kotlin/
-        │   └── KotlinTest.kt
-        └── resources/
-            └── test-input.txt
+<h1 id="jvm-library"><span class="twemoji"><!--
+  - Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="13" width="12" height="1" rx="0.5" fill="#C77D55"/>
+<path d="M2.5 3C2.5 2.72386 2.72386 2.5 3 2.5H12C12.2761 2.5 12.5 2.72386 12.5 3V8C12.5 9.933 10.933 11.5 9 11.5H6C4.067 11.5 2.5 9.933 2.5 8V3Z" fill="none" stroke="#C77D55"/>
+<path d="M12.5 2.5H14.5C14.7761 2.5 15 2.72386 15 3V4.18121C15 4.78125 14.6424 5.32356 14.0909 5.55993L12.5 6.24173V2.5Z" fill="none" stroke="#C77D55"/>
+</svg>
+</span> JVM library<a class="headerlink" href="#jvm-library" title="Permanent link">&para;</a></h1>
+<p>Use the <code>jvm/lib</code> product type in a module to build a JVM library.</p>
+<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
+<p>Here is an overview of the module layout for a JVM library:</p>
+<div class="highlight"><pre><span></span><code>my-module/
+├─<span class="w"> </span>resources/<span class="w"> </span><span class="c1"># (1)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>logback.xml<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>src/
+│<span class="w">  </span>├─<span class="w"> </span>lib.kt
+│<span class="w">  </span>╰─<span class="w"> </span>Util.java<span class="w"> </span><span class="c1"># (3)!</span>
+├─<span class="w"> </span>test/
+│<span class="w">  </span>╰─<span class="w"> </span>LibTest.java<span class="w"> </span><span class="c1"># (4)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>UtilTest.kt
+├─<span class="w"> </span>testResources/
+│<span class="w">  </span>╰─<span class="w"> </span>logback-test.xml<span class="w"> </span><span class="c1"># (5)!</span>
+╰─<span class="w"> </span>module.yaml
 </code></pre></div>
+<ol>
+<li>Resources placed here are copied into the resulting JAR.</li>
+<li>This is just an example resource and can be omitted.</li>
+<li>You can mix Kotlin and Java source files in a single module, all in the <code>src</code> folder.</li>
+<li>You can test Java code with Kotlin tests or Kotlin code with Java tests.</li>
+<li>This is just an example resource and can be omitted.</li>
+</ol>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There is no difference between <code>java/</code> and <code>kotlin/</code> folders, Amper will look for java and kotlin sources in both
-folders. It is only necessary for the sake of transitioning simplicity.</p>
+<p class="admonition-title">Maven compatibility layout for JVM-only modules</p>
+<p>If you're migrating from Maven, you can also configure the <a href="../../advanced/maven-like-layout/">Maven-like layout</a></p>
 </div>
-<p>Choosing the file layout is possible per module.</p>
-<p>To enable the maven-like module layout, add the following to the <code>module.yaml</code> file:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">maven-like</span>
-</code></pre></div>
 
 
 
@@ -2245,7 +2313,7 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 9, 2025 00:45:11 UTC">November 9, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 30, 2025 01:24:25 UTC">November 30, 2025</span>
   </span>
 
     
@@ -2281,7 +2349,7 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../kotlin-compiler-plugins/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kotlin compiler plugins">
+          <a href="../jvm-app/" class="md-footer__link md-footer__link--prev" aria-label="Previous: JVM application">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2291,20 +2359,20 @@ folders. It is only necessary for the sake of transitioning simplicity.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Kotlin compiler plugins
+                JVM application
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../yaml-primer/" class="md-footer__link md-footer__link--next" aria-label="Next: Appendix: YAML primer">
+          <a href="../kmp-lib/" class="md-footer__link md-footer__link--next" aria-label="Next: Kotlin Multiplatform library">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Appendix: YAML primer
+                Kotlin Multiplatform library
               </div>
             </div>
             <div class="md-footer__button md-icon">

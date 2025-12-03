@@ -12,13 +12,13 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/multiplatform/">
+        <link rel="canonical" href="https://amper.org/dev/user-guide/product-types/">
       
       
-        <link rel="prev" href="../dependencies/">
+        <link rel="prev" href="../templates/">
       
       
-        <link rel="next" href="../testing/">
+        <link rel="next" href="android-app/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Multiplatform modules - Amper</title>
+        <title>Product types - Amper</title>
       
     
     
@@ -71,17 +71,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Multiplatform modules - Amper" />
+<meta property="og:title" content="Product types - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/multiplatform.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/index.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/multiplatform/" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/product-types/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Multiplatform modules - Amper" />
+<meta property="twitter:title" content="Product types - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/multiplatform.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/product-types/index.png" />
 </head>
   
   
@@ -101,7 +101,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#multiplatform-modules" class="md-skip">
+        <a href="#product-types" class="md-skip">
           Skip to content
         </a>
       
@@ -138,7 +138,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Multiplatform modules
+              Product types
             
           </span>
         </div>
@@ -762,37 +762,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Multiplatform modules
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../multiplatform/" class="md-nav__link">
         
   
   
@@ -808,153 +781,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#supported-platforms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported platforms
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#choosing-target-platforms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Choosing target platforms
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#platform-qualifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Platform qualifier
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module layout
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Module layout">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#source-dirs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Source dirs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Resources
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aliases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiplatform-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiplatform-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependencysettings-propagation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependency/Settings propagation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interoperability-between-languages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interoperability between languages
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1020,6 +846,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1052,17 +880,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../product-types/" class="md-nav__link ">
+            <a href="./" class="md-nav__link md-nav__link--active">
               
   
   
@@ -1080,13 +906,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+              <label class="md-nav__link md-nav__link--active" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1106,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/android-app/" class="md-nav__link">
+      <a href="android-app/" class="md-nav__link">
         
   
   
@@ -1134,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/ios-app/" class="md-nav__link">
+      <a href="ios-app/" class="md-nav__link">
         
   
   
@@ -1162,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/jvm-app/" class="md-nav__link">
+      <a href="jvm-app/" class="md-nav__link">
         
   
   
@@ -1190,7 +1016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/jvm-lib/" class="md-nav__link">
+      <a href="jvm-lib/" class="md-nav__link">
         
   
   
@@ -1218,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/kmp-lib/" class="md-nav__link">
+      <a href="kmp-lib/" class="md-nav__link">
         
   
   
@@ -1246,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/js-app/" class="md-nav__link">
+      <a href="js-app/" class="md-nav__link">
         
   
   
@@ -1274,7 +1100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/native-app/" class="md-nav__link">
+      <a href="native-app/" class="md-nav__link">
         
   
   
@@ -1302,7 +1128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../product-types/wasm-app/" class="md-nav__link">
+      <a href="wasm-app/" class="md-nav__link">
         
   
   
@@ -2331,141 +2157,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#supported-platforms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported platforms
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#choosing-target-platforms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Choosing target platforms
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#platform-qualifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Platform qualifier
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module layout
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Module layout">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#source-dirs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Source dirs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Resources
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aliases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiplatform-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiplatform-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependencysettings-propagation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependency/Settings propagation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interoperability-between-languages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interoperability between languages
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2481,7 +2172,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/multiplatform.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/product-types/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2489,339 +2180,69 @@
   
 
 
-<h1 id="multiplatform-modules">Multiplatform modules<a class="headerlink" href="#multiplatform-modules" title="Permanent link">&para;</a></h1>
-<p>Amper was built from the start with <a href="https://kotlinlang.org/docs/multiplatform/kmp-overview.html">Kotlin Multiplatform</a>
-in mind. Kotlin Multiplatform is a technology that allows building a single module for different target platforms.</p>
-<h2 id="supported-platforms">Supported platforms<a class="headerlink" href="#supported-platforms" title="Permanent link">&para;</a></h2>
-<p>In the diagram below, you'll find all supported platforms.
-Some target platforms belong to the same <em>family</em> and share some common APIs.</p>
-<p>The following diagram shows the hierarchy between all platform families (intermediate nodes) and platforms (leaf nodes):</p>
-<div class="highlight"><span class="filename">Defaut platforms hierarchy</span><pre><span></span><code>common
- ├─ jvm
- ├─ android
- ├─ web
- │   ├─ js
- │   ╰─ wasmJs
- ├─ wasmWasi
- ╰─ native
-     ├─ linux
-     │   ├─ linuxX64
-     │   ╰─ linuxArm64
-     ├─ mingw
-     │   ╰─ mingwX64
-     ├─ apple
-     │   ├─ macos
-     │   │   ├─ macosX64
-     │   │   ╰─ macosArm64
-     │   ├─ ios
-     │   │   ├─ iosArm64
-     │   │   ├─ iosSimulatorArm64
-     │   │   ╰─ iosX64
-     │   ├─ watchos
-     │   │   ├─ watchosArm32
-     │   │   ├─ watchosArm64
-     │   │   ├─ watchosDeviceArm64
-     │   │   ╰─ watchosSimulatorArm64
-     │   ╰─ tvos
-     │       ├─ tvosArm64
-     │       ├─ tvosSimulatorArm64
-     │       ╰─ tvosX64
-     ╰─ androidNative
-         ├─ androidNativeArm32
-         ├─ androidNativeArm64
-         ├─ androidNativeX64
-         ╰─ androidNativeX86
-</code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">The platforms listed here are not all equally supported or tested.</p>
-</div>
-<h2 id="choosing-target-platforms">Choosing target platforms<a class="headerlink" href="#choosing-target-platforms" title="Permanent link">&para;</a></h2>
-<p>Not all multiplatform modules support all target platforms. Most modules define a limited subset of the target
-platforms. To do so, use the <code>product.platforms</code> list:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
-</code></pre></div>
-<details class="note">
-<summary>No platform family shortcuts here</summary>
-<p>The <code>product.platforms</code> list may only contain <em>platform</em> names, not <em>platform family</em> names.
-This is to ensure the stability of the platforms list when Kotlin is bumped to a higher version.
-Using family shortcuts could change the list of platforms in a very subtle and implicit way.</p>
-</details>
-<h2 id="platform-qualifier">Platform qualifier<a class="headerlink" href="#platform-qualifier" title="Permanent link">&para;</a></h2>
-<p>In multiplatform modules, some source directories and sections in the configuration files can be platform-specific.
-Amper defines a special suffix, called the <code>@platform</code> qualifier, to mark such platform-specific things.</p>
-<p>What follows the <code>@</code> sign is the name of a <em>platform</em> or <em>platform family</em>. The available platforms and platform 
-families are described in the <a href="#supported-platforms">Platforms hierarchy</a> section.</p>
-<p>We'll see in the next sections how these directories and settings interact.</p>
-<h2 id="module-layout">Module layout<a class="headerlink" href="#module-layout" title="Permanent link">&para;</a></h2>
-<p>Here is an overview of what the layout of a multiplatform module looks like when <code>jvm</code>, <code>iosArm64</code>, <code>iosSimulatorArm64</code>,
-and <code>iosX64</code> platforms are enabled:</p>
-<div class="highlight"><pre><span></span><code>my-module/
-├─<span class="w"> </span>resources/<span class="w">       </span><span class="c1"># common resources, used in all targets</span>
-├─<span class="w"> </span>resources@ios/<span class="w">   </span><span class="c1"># resources that are only available to the iOS code</span>
-├─<span class="w"> </span>resources@jvm/<span class="w">   </span><span class="c1"># resources that are only available to the JVM code</span>
-├─<span class="w"> </span>src/<span class="w">             </span><span class="c1"># common code, compiled for all targets</span>
-│<span class="w">  </span>├─<span class="w"> </span>main.kt
-│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (1)!</span>
-├─<span class="w"> </span>src@native/<span class="w">      </span><span class="c1"># code to be compiled for all native targets</span>
-├─<span class="w"> </span>src@apple/<span class="w">       </span><span class="c1"># code to be compiled for all Apple targets</span>
-├─<span class="w"> </span>src@ios/<span class="w">         </span><span class="c1"># code to be compiled only for iOS targets</span>
-│<span class="w">  </span>╰─<span class="w"> </span>util.kt<span class="w"> </span><span class="c1"># (2)!</span>
-├─<span class="w"> </span>src@jvm/<span class="w">         </span><span class="c1"># code to be compiled only for JVM targets</span>
-│<span class="w">  </span>├─<span class="w"> </span>util.kt
-│<span class="w">  </span>╰─<span class="w"> </span>MyClass.java<span class="w"> </span><span class="c1"># (3)!</span>
-├─<span class="w"> </span>test/<span class="w">            </span><span class="c1"># common tests, compiled for all targets</span>
-│<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt<span class="w">   </span>
-├─<span class="w"> </span>test@ios/<span class="w">        </span><span class="c1"># tests that are only run on iOS simulator</span>
-│<span class="w">  </span>╰─<span class="w"> </span>SomeIosTest.kt
-├─<span class="w"> </span>test@jvm/<span class="w">        </span><span class="c1"># tests that are only run on JVM</span>
-│<span class="w">  </span>╰─<span class="w"> </span>SomeJvmTest.kt
-├─<span class="w"> </span>testResources/<span class="w">       </span><span class="c1"># common test resources, used in all targets</span>
-├─<span class="w"> </span>testResources@ios/<span class="w">   </span><span class="c1"># test resources that are only available to the iOS code</span>
-├─<span class="w"> </span>testResources@jvm/<span class="w">   </span><span class="c1"># test resources that are only available to the JVM code</span>
-╰─<span class="w"> </span>module.yaml
-</code></pre></div>
-<ol>
-<li>This file may define <code>expect</code> declarations to be implemented differently on different platforms.</li>
-<li>This file defines the <code>actual</code> implementations corresponding to the <code>expect</code> declarations from <code>src</code>.</li>
-<li>It's ok to have Java sources in JVM-only source directories.</li>
-</ol>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some other @platform directories were omitted for brevity.</p>
-</div>
-<p>We'll explain what's going on here in the following sections.</p>
-<h3 id="source-dirs">Source dirs<a class="headerlink" href="#source-dirs" title="Permanent link">&para;</a></h3>
-<p>Based on the <a href="#supported-platforms">platforms hierarchy</a>, more common code is visible from more platform-specific code, 
-but not vice versa:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-├─ src@native/            # sees declarations from src
-├─ src@apple/             # sees declarations from src + src@native
-├─ src@ios/               # sees declarations from src + src@native + src@apple
-├─ src@iosArm64/          # sees declarations from src + src@native + src@apple + src@ios
-├─ src@iosSimulatorArm64/ # sees declarations from src + src@native + src@apple + src@ios
-├─ src@jvm/               # sees declarations from src
-╰─ module.yaml
-</code></pre></div>
-<p>You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
-code placed in <code>src@ios</code> is shared between <code>iosArm64</code> and <code>iosSimulatorArm64</code>, for instance.</p>
-<p>For <a href="https://kotlinlang.org/docs/multiplatform-connect-to-apis.html">Kotlin Multiplatform expect/actual declarations</a>,
-put your <code>expected</code> declarations into the <code>src/</code> folder, and <code>actual</code> declarations into the corresponding
-<code>src@&lt;platform&gt;/</code> folders.</p>
-<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
-<p>The final artifact for each platform gets its resources from <code>resources</code> and all <code>resources@platform</code> directories that
-correspond to this platform of its parent families:</p>
-<div class="highlight"><pre><span></span><code>├─ resources/          # these resources are copied into the Android and JVM artifact
-├─ resources@android/  # these resources are copied into the Android artifact
-╰─ resources@jvm/      # these resources are copied into the JVM artifact
-</code></pre></div>
-<p>If different resource directories contain a resource with the same name, the more common resource is overwritten by the 
-more specific ones.
-That is <code>resources/foo.txt</code> will be overwritten by <code>resources@android/foo.txt</code>.</p>
-<h2 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h2>
-<p>If the <a href="#supported-platforms">default hierarchy</a> is not enough, you can define new groups of platforms by giving them 
-an alias.
-You can then use the alias in places where <code>@platform</code> suffixes usually appear to share code, settings, or dependencies:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
-
-<span class="nt">aliases</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jvmAndAndroid</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># defines a custom alias for this group of platforms</span>
-
-<span class="c1"># these dependencies will be visible in jvm and android code</span>
-<span class="nt">dependencies@jvmAndAndroid</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
-
-<span class="c1"># these dependencies will be visible in jvm code only</span>
-<span class="nt">dependencies@jvm</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.lighthousegames:logging:1.3.0</span>
-
-<span class="c1"># these settings will affect both jvm and android code, and the shared code placed in src@jvmAndAndroid</span>
-<span class="nt">settings@jvmAndAndroid</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">-jvm-default=no-compatibility</span><span class="w"> </span><span class="p p-Indicator">]</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>├─ src/
-├─ src@jvmAndAndroid/ # sees declarations from src/
-├─ src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/
-╰─ src@android/       # sees declarations from src/ and src@jvmAndAndroid/
-</code></pre></div>
-<h2 id="multiplatform-dependencies">Multiplatform dependencies<a class="headerlink" href="#multiplatform-dependencies" title="Permanent link">&para;</a></h2>
-<p>When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.</p>
-<p>Example:
-To add the <a href="https://github.com/DiamondEdge1/KmLogging">KmLogging library</a> to a multiplatform module, simply write</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging:2.1.0</span>
-</code></pre></div>
-<p>The effective dependency lists are:</p>
-<p><div class="highlight"><pre><span></span><code><span class="nt">dependencies@android</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging:2.1.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging-android:2.1.0</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging:2.1.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging-iosarm64:2.1.0</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies@jvm</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging:2.1.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.diamondedge:logging-jvm:2.1.0</span>
-</code></pre></div></p>
-<p>For the explicitly specified dependencies in the <code>@platform</code>-sections the general 
-<a href="#dependencysettings-propagation">propagation rules</a> apply. That is, for the given configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
-<span class="nt">dependencies@ios</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
-<span class="nt">dependencies@iosArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../baz</span>
-</code></pre></div>
-<p>The effective dependency lists are:</p>
-<p><div class="highlight"><pre><span></span><code><span class="nt">dependencies@android</span><span class="p">:</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosSimulatorArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">dependencies@iosArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../foo</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../bar</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">../baz</span>
-</code></pre></div></p>
-<h2 id="multiplatform-settings">Multiplatform settings<a class="headerlink" href="#multiplatform-settings" title="Permanent link">&para;</a></h2>
-<p>All toolchain settings, even platform-specific can be placed in the <code>settings:</code> section:
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
-
-<span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># Kotlin toolchain settings that are used for both platforms</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
-
-<span class="w">  </span><span class="c1"># Android-specific settings are used only when building for android</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
-</code></pre></div></p>
-<p>There are situations when you need to override certain settings for a specific platform only.
-You can use <code>@platform</code>-qualifier.</p>
-<p>Note that certain platform names match the toolchain names, e.g. Android:</p>
-<ul>
-<li><code>settings@android</code> qualifier specifies settings for all Android target platforms</li>
-<li><code>settings.android</code> is an Android toolchain settings</li>
-</ul>
-<p>This could lead to confusion in cases like:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
-
-<span class="nt">settings@android</span><span class="p">:</span><span class="w">    </span><span class="c1"># settings to be used for Android target platform</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">           </span><span class="c1"># Android toolchain settings</span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">        </span><span class="c1"># Kotlin toolchain settings</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
-</code></pre></div>
-<p>Luckily, there should rarely be a need for such a configuration.
-We also plan to address this by linting with conversion to a more readable form:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android/app</span>
-
-<span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">           </span><span class="c1"># Android toolchain settings</span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">        </span><span class="c1"># Kotlin toolchain settings</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
-</code></pre></div>
-<p>For settings with the <code>@platform</code>-qualifiers, the <a href="#dependencysettings-propagation">propagation rules</a> apply.
-E.g., for the given configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
-
-<span class="nt">settings</span><span class="p">:</span><span class="w">           </span><span class="c1"># common toolchain settings</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">           </span><span class="c1"># Kotlin toolchain</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">              </span><span class="c1"># Android toolchain</span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span>
-
-<span class="nt">settings@android</span><span class="p">:</span><span class="w">   </span><span class="c1"># specialization for Android platform</span>
-<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w">  </span><span class="c1"># Compose toolchain</span>
-
-<span class="nt">settings@ios</span><span class="p">:</span><span class="w">       </span><span class="c1"># specialization for all iOS platforms</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span><span class="w">           </span><span class="c1"># Kotlin toolchain</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">y</span><span class="p p-Indicator">]</span>
-
-<span class="nt">settings@iosArm64</span><span class="p">:</span><span class="w">  </span><span class="c1"># specialization for iOS arm64 platform </span>
-<span class="w">  </span><span class="nt">ios</span><span class="p">:</span><span class="w">              </span><span class="c1"># iOS toolchain</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">z</span><span class="p p-Indicator">]</span>
-</code></pre></div>
-<p>The effective settings are:</p>
-<p><div class="highlight"><pre><span></span><code><span class="nt">settings@android</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.8</span><span class="w">   </span><span class="c1"># from settings:</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># from settings:</span>
-<span class="w">  </span><span class="nt">compose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w">         </span><span class="c1"># from settings@android:</span>
-<span class="w">  </span><span class="nt">android</span><span class="p">:</span><span class="w">                </span>
-<span class="w">    </span><span class="nt">compileSdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">33</span><span class="w">         </span><span class="c1"># from settings@android:</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">settings@iosArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w">      </span><span class="c1"># from settings@ios:</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">y</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># merged from settings: and settings@ios:</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">settings@iosSimulatorArm64</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">languageVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.9</span><span class="w">      </span><span class="c1"># from settings@ios:</span>
-<span class="w">    </span><span class="nt">freeCompilerArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">x</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">y</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">z</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># merged from settings: and settings@ios: and settings@iosArm64:</span>
-</code></pre></div></p>
-<h2 id="dependencysettings-propagation">Dependency/Settings propagation<a class="headerlink" href="#dependencysettings-propagation" title="Permanent link">&para;</a></h2>
-<p>Common <code>dependencies:</code> and <code>settings:</code> are automatically propagated to the platform families and platforms in
-<code>@platform</code>-sections, using the following rules:</p>
-<ul>
-<li>Scalar values (strings, numbers etc.) are overridden by more specialized <code>@platform</code>-sections.</li>
-<li>Mappings and lists are appended.</li>
-</ul>
-<p>Think of the rules like adding merging Java/Kotlin Maps.</p>
-<h2 id="interoperability-between-languages">Interoperability between languages<a class="headerlink" href="#interoperability-between-languages" title="Permanent link">&para;</a></h2>
-<p>Kotlin Multiplatform implies smooth interoperability with platform languages, APIs, and frameworks.
-There are three distinct scenarios where such interoperability is needed:</p>
-<ul>
-<li>Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM (later CocoaPods on iOS too).</li>
-<li>Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's
-  tooling; such as jars on JVM, frameworks on iOS (maybe later .so on linux).</li>
-<li>Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like
-  JVM, Objective-C, and Swift.</li>
-</ul>
-<p>Joint compilation is already supported for Java and Kotlin, with 2-way interoperability: Java code can reference Kotlin
-declarations, and vice versa.
-So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:</p>
-<div class="highlight"><pre><span></span><code>├─ src/
-│  ├─ main.kt
-├─ src@jvm/
-│  ├─ KotlinCode.kt
-│  ├─ JavaCode.java
-├─ src@android/
-│  ├─ KotlinCode.kt
-│  ├─ JavaCode.java
-├─ src@ios/
-│  ╰─ ...
-╰─ module.yaml
-</code></pre></div>
-<p>In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,
-but this is not the case yet.
-At the moment, Kotlin code is first compiled into a single framework per <code>ios/app</code> module,
-and then Swift is compiled using the Xcode toolchain with a dependency on that framework.
-This means that Swift code can reference Kotlin declarations, but Kotlin cannot reference Swift declarations.
-See more in the dedicated <a href="../product-types/ios-app/#swift-support">Swift support</a> section.</p>
+<h1 id="product-types">Product types<a class="headerlink" href="#product-types" title="Permanent link">&para;</a></h1>
+<p>Each module has a product type defined by the <code>product</code> field in <code>module.yaml</code>, indicating what is created when building
+this module.</p>
+<p>This section contains subsections describing the specific aspects of each product type.
+Here is the list of supported product types:</p>
+<table>
+<thead>
+<tr>
+<th>Product type(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="jvm-lib/"><code>jvm/lib</code></a></td>
+<td>A JVM library</td>
+</tr>
+<tr>
+<td><a href="jvm-app/"><code>jvm/app</code></a></td>
+<td>A JVM console or desktop application</td>
+</tr>
+<tr>
+<td><a href="kmp-lib/"><code>lib</code></a></td>
+<td>A Kotlin Multiplatform library</td>
+</tr>
+<tr>
+<td><a href="native-app/"><code>windows/app</code></a></td>
+<td>A Kotlin/Native mingw-w64 application</td>
+</tr>
+<tr>
+<td><a href="native-app/"><code>linux/app</code></a></td>
+<td>A Kotlin/Native Linux application</td>
+</tr>
+<tr>
+<td><a href="native-app/"><code>macos/app</code></a></td>
+<td>A Kotlin/Native macOS application</td>
+</tr>
+<tr>
+<td><a href="android-app/"><code>android/app</code></a></td>
+<td>An Android application</td>
+</tr>
+<tr>
+<td><a href="ios-app/"><code>ios/app</code></a></td>
+<td>An iOS application</td>
+</tr>
+<tr>
+<td><a href="js-app/"><code>js/app</code></a></td>
+<td>A JavaScript application using the Kotlin/JS technology</td>
+</tr>
+<tr>
+<td><a href="wasm-app/"><code>wasmJs/app</code></a></td>
+<td>A WebAssembly application with browser APIs</td>
+</tr>
+<tr>
+<td><a href="wasm-app/"><code>wasmWasi/app</code></a></td>
+<td>A WebAssembly application with WASI APIs</td>
+</tr>
+<tr>
+<td><a href="../plugins/topics/structure/"><code>jvm/amper-plugin</code></a></td>
+<td>An <a href="../plugins/overview/">Amper plugin</a>, to extend the Amper build with custom functionality</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -2878,7 +2299,7 @@ See more in the dedicated <a href="../product-types/ios-app/#swift-support">Swif
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../dependencies/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Dependencies">
+          <a href="../templates/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Templates">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2888,20 +2309,20 @@ See more in the dedicated <a href="../product-types/ios-app/#swift-support">Swif
                 Previous
               </span>
               <div class="md-ellipsis">
-                Dependencies
+                Templates
               </div>
             </div>
           </a>
         
         
           
-          <a href="../testing/" class="md-footer__link md-footer__link--next" aria-label="Next: Testing">
+          <a href="android-app/" class="md-footer__link md-footer__link--next" aria-label="Next: Android application">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Testing
+                Android application
               </div>
             </div>
             <div class="md-footer__button md-icon">
