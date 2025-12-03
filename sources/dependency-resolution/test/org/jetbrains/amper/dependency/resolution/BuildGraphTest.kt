@@ -51,6 +51,24 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the variable (unresolved) declared in the active profile of a transitive dependency doesn't prevent
+     * resolving dependencies.
+     * In particular, javax.ws.rs-api-2.1.1.pom declares the property 'packaging.type'
+     * in a profile and uses it in the main section
+     * of the POM file (which means active profile should be identified and applied)
+     * <packaging>${packaging.type}</packaging>
+     */
+    @Test
+    fun `javax_ws_rs javax_ws_rs-api 2_1_1`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+        )
+
+        downloadAndAssertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that the variable used in packaging is correctly resolved.
      * In particular, netty-codec-native-quic-4.2.7.Final.pom
      * declares <packaging>${packaging.type}</packaging>

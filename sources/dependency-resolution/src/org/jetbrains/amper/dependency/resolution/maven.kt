@@ -743,9 +743,11 @@ class MavenDependencyImpl internal constructor(
                                 }
                             }
                         }
-                    packaging?.takeIf { it != "pom" }?.let {
+                    packaging?.takeIf { it != "pom" }?.let { packagingTypeFromPom ->
                         val nameWithoutExtension = getNameWithoutExtension(dependency)
-                        val extension = if (it == "bundle" || it.endsWith("-plugin")) "jar" else it
+
+                        val extension = resolveArtifactExtension(packagingTypeFromPom)
+
                         add(getDependencyFile(dependency, nameWithoutExtension, extension))
                         if (extension == "jar" && withSources) {
                             add(getAutoAddedSourcesDependencyFile())
@@ -2166,6 +2168,33 @@ class MavenDependencyImpl internal constructor(
 
     private fun DependencyFileImpl.isSourcesDependencyFile(): Boolean =
         !files(withSources = false).map { it.fileName }.contains(this.fileName)
+
+    private fun resolveArtifactExtension(packagingTypeFromPom: String): String {
+        val packagingType = when {
+            // a not-substituted packaging type might be a result of referencing property
+            // declared in the not yes supported active Maven profiles
+            packagingTypeFromPom.contains("$") -> "jar"
+
+            // Dependency packaging type (and further extension) is resolved from the corresponging pom.xml
+            else -> packagingTypeFromPom // by default get packaging type from pom (Maven uses "jar" by default)
+        }
+        val extension = if (packagingType == "jar" || packagingType in packageTypeWithJavaExtension || packagingType.endsWith("-plugin"))
+            "jar"
+        else
+            packagingType
+
+        return extension
+    }
+
+    companion object {
+        /**
+         * The list includes well-known Maven packaging types that are represented with the artifact with jar extension
+         * See default package types mapping https://maven.apache.org/ref/3.9.11/maven-core/artifact-handlers.html
+         * Additionally, "bundle" is added here
+         */
+        private val packageTypeWithJavaExtension =
+            setOf("test-jar", "ejb", "ejb-client", "maven-plugin", "bundle")
+    }
 }
 
 /**
