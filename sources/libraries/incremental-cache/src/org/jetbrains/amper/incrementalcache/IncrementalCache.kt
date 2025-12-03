@@ -11,7 +11,6 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.amper.concurrency.withReentrantLock
-import org.jetbrains.amper.filechannels.readText
 import org.jetbrains.amper.incrementalcache.IncrementalCache.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
@@ -24,7 +23,6 @@ import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -127,9 +125,6 @@ class IncrementalCache(
                 val state = recordState(inputValues, inputFiles, result)
                 stateFileChannel.writeState(state)
 
-                // TODO remove this check later or hide under debug/assert mode
-                ensureStateFileIsConsistent(stateFile, stateFileChannel, inputValues, inputFiles, result)
-
                 val oldState = cachedState?.state?.outputFilesState ?: mapOf()
                 val newState = readFileStates(
                     paths = result.outputFiles,
@@ -175,47 +170,6 @@ class IncrementalCache(
         excludedOutputFiles = result.excludedOutputFiles.map { it.pathString }.toSet(),
         expirationTime = result.expirationTime
     )
-
-    private fun ensureStateFileIsConsistent(
-        stateFile: Path,
-        stateFileChannel: FileChannel,
-        configuration: Map<String, String>,
-        inputs: List<Path>,
-        result: ExecutionResult,
-    ) {
-        try {
-            val r = getCachedState(stateFile, stateFileChannel, configuration, inputs)
-                ?.state
-                ?.let { ExecutionResult(it.outputFiles.map { Path(it) }, it.outputValues) }
-                ?: run {
-                    stateFileChannel.position(0)
-                    val stateText = stateFileChannel.readText()
-                    error("Not up-to-date after successfully writing a state file: $stateFile\n" +
-                         "--- BEGIN $stateFile\n" +
-                         stateText.ensureEndsWith("\n") +
-                         "--- END $stateFile")
-                }
-
-            if (r.outputFiles != result.outputFiles) {
-                error(
-                    "Output files list mismatch: $stateFile:\n" +
-                            "1: ${r.outputFiles}\n" +
-                            "2: ${result.outputFiles}"
-                )
-            }
-
-            if (r.outputValues != result.outputValues) {
-                error(
-                    "Output values mismatch: $stateFile:\n" +
-                            "1: ${r.outputValues.map { "${it.key}=${it.value}" }.sorted()}\n" +
-                            "2: ${result.outputValues.map { "${it.key}=${it.value}" }.sorted()}"
-                )
-            }
-        } catch (t: Throwable) {
-            stateFile.deleteIfExists()
-            throw t
-        }
-    }
 
     private data class CachedState(val state: State, val outdated: Boolean)
 
