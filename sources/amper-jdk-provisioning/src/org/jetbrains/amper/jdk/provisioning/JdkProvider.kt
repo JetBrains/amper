@@ -5,14 +5,13 @@
 package org.jetbrains.amper.jdk.provisioning
 
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.cache.HttpCache
-import io.ktor.client.plugins.cache.storage.FileStorage
 import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.HttpRequestData
-import io.ktor.http.HttpHeaders
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.instrumentation.api.instrumenter.SpanNameExtractor
 import io.opentelemetry.instrumentation.ktor.v3_0.KtorClientTelemetry
+import org.jetbrains.amper.concurrency.AsyncConcurrentMap
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.UsedVersions
@@ -27,7 +26,6 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.io.path.div
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 data class JdkProvisioningCriteria(
@@ -57,11 +55,6 @@ class JdkProvider(
             }
         }
 
-        install(HttpCache) {
-            val cacheFile = userCacheRoot.path / "jdk-discovery-cache"
-            publicStorage(FileStorage(cacheFile.toFile()))
-        }
-
         install(KtorClientTelemetry) {
             setOpenTelemetry(openTelemetry)
             spanNameExtractor {
@@ -75,6 +68,8 @@ class JdkProvider(
     }
 
     private val javaHomeInfoProvider = JavaHomeInfoProvider(openTelemetry)
+
+    private val provisioningCache = AsyncConcurrentMap<JdkProvisioningCriteria, JdkResult>()
 
     /**
      * Finds or provisions a JDK matching the given [jdkSettings].
@@ -140,12 +135,20 @@ class JdkProvider(
     private suspend fun provisionJdk(
         criteria: JdkProvisioningCriteria,
         unusableJavaHomeResult: UnusableJavaHomeResult?,
-    ): JdkResult = openTelemetry.tracer.spanBuilder("Provision JDK").use {
-        discoApiClient.provisionJdk(
-            userCacheRoot = userCacheRoot,
-            criteria = criteria,
-            unusableJavaHomeResult = unusableJavaHomeResult,
-        )
+    ): JdkResult = openTelemetry.tracer.spanBuilder("Get provisioned JDK").use { span ->
+        span.setAttribute("from-cache", true)
+        provisioningCache.computeIfAbsent(criteria) {
+            span.setAttribute("from-cache", false)
+            openTelemetry.tracer.spanBuilder("Provision JDK").use {
+                discoApiClient.provisionJdk(
+                    userCacheRoot = userCacheRoot,
+                    criteria = criteria,
+                    unusableJavaHomeResult = unusableJavaHomeResult,
+                )
+            }
+        }.also {
+            span.setAttribute("result", it.toString())
+        }
     }
 
     context(invalidJavaHomeReporter: ProblemReporter)

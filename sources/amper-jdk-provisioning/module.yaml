@@ -8,6 +8,7 @@ dependencies:
   - ../amper-problem-reporting: exported
   - ../core
   - ../frontend-api: exported
+  - ../libraries/concurrency
   - ../libraries/foojay-kotlin-client
   - ../libraries/telemetry
   - $libs.junit.jupiter.params
