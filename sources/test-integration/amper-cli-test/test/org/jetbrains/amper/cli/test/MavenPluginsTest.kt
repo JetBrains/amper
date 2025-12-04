@@ -26,7 +26,7 @@ class MavenPluginsTest : AmperCliTestBase() {
     @Test
     fun `surefire plugin test goal exists as task`() = runSlowTest {
         runCli(
-            projectRoot = testProject("extensibility-maven/surefire-plugin"),
+            projectDir = testProject("extensibility-maven/surefire-plugin"),
             "show", "tasks",
             copyToTempDir = true,
         ).assertStdoutContains("maven-surefire-plugin.test")
@@ -36,7 +36,7 @@ class MavenPluginsTest : AmperCliTestBase() {
     fun `no maven tasks appear on the task list if no maven plugins are specified`() = runSlowTest {
         runCli(
             // Just some project with java source code.
-            projectRoot = testProject("java-kotlin-mixed"),
+            projectDir = testProject("java-kotlin-mixed"),
             "show", "tasks",
             copyToTempDir = true,
         ).assertStdoutDoesNotContain("maven")
@@ -76,7 +76,7 @@ class MavenPluginsTest : AmperCliTestBase() {
         )
 
         result.assertStdoutContains("Hello from surefire execution")
-        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        val mavenBuildDir = result.buildDir / "maven-target"
         assertExists(mavenBuildDir / "jacoco.exec")
         assertExists(mavenBuildDir / "reports" / "jacoco" / "index.html")
     }
@@ -89,7 +89,7 @@ class MavenPluginsTest : AmperCliTestBase() {
         )
 
         result.assertStdoutContains("Hello from Amper test")
-        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        val mavenBuildDir = result.buildDir / "maven-target"
         assertExists(mavenBuildDir / "jacoco.exec")
         assertExists(mavenBuildDir / "reports" / "jacoco" / "index.html")
     }
@@ -112,7 +112,7 @@ class MavenPluginsTest : AmperCliTestBase() {
     )
     fun `compilation and running with protobuf generated sources`() = runSlowTest {
         runCli(
-            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"),
+            projectDir = testProject("extensibility-maven/protobuf-maven-plugin"),
             "run"
         ).assertStdoutContains("Hello from the proto test! Request value is 42")
     }
@@ -125,7 +125,7 @@ class MavenPluginsTest : AmperCliTestBase() {
     )
     fun `compilation and testing with protobuf generated sources`() = runSlowTest {
         runCli(
-            projectRoot = testProject("extensibility-maven/protobuf-maven-plugin"),
+            projectDir = testProject("extensibility-maven/protobuf-maven-plugin"),
             "test"
         ).assertStdoutContains("Hello from the proto test! Request value is 47")
     }
@@ -138,7 +138,7 @@ class MavenPluginsTest : AmperCliTestBase() {
             taskName = "maven-checkstyle-plugin.checkstyle",
         )
 
-        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        val mavenBuildDir = result.buildDir / "maven-target"
         assertExists(mavenBuildDir / "reports" / "checkstyle.html")
 
         val checkstyleResult = mavenBuildDir / "checkstyle-result.xml"
@@ -159,7 +159,7 @@ class MavenPluginsTest : AmperCliTestBase() {
             taskName = "maven-checkstyle-plugin.checkstyle",
         )
 
-        val checkstyleResult = result.buildOutputRoot / "maven-target" / "checkstyle-result.xml"
+        val checkstyleResult = result.buildDir / "maven-target" / "checkstyle-result.xml"
         assertExists(checkstyleResult)
         val checkstyleResultText = checkstyleResult.readText()
         val pathToJavaFile = emptyPath / testProject / "app" / "src" / "dummy.txt"
@@ -217,7 +217,7 @@ class MavenPluginsTest : AmperCliTestBase() {
         taskName: String,
         expectedExitCode: Int = 0,
     ) = runCli(
-        projectRoot = testProject("extensibility-maven/$projectWithMavenPath"),
+        projectDir = testProject("extensibility-maven/$projectWithMavenPath"),
         "task", ":app:$taskName",
         copyToTempDir = true,
         expectedExitCode = expectedExitCode,

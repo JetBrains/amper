@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -73,7 +73,7 @@ class ProjectFileTest : AmperCliTestBase() {
     @Test
     fun `project file with path errors`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("project-file-with-errors"),
+            projectDir = testProject("project-file-with-errors"),
             "show", "tasks",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -104,10 +104,8 @@ class ProjectFileTest : AmperCliTestBase() {
     fun `invalid project root`() = runSlowTest {
         val explicitRoot = testProject("invalid-project-root")
         val r = runCli(
-            projectRoot = explicitRoot,
-            "--root",
-            explicitRoot.pathString,
-            "show", "tasks",
+            projectDir = explicitRoot,
+            "show", "tasks", "--project-dir=${explicitRoot.pathString}",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )

@@ -23,7 +23,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `single plugin - contributes source file when enabled`() = runSlowTest {
         val r1 = runCli(
-            projectRoot = testProject("extensibility/single-local-plugin"),
+            projectDir = testProject("extensibility/single-local-plugin"),
             "show", "tasks",
             copyToTempDir = true,
         )
@@ -37,7 +37,7 @@ class PluginsTest : AmperCliTestBase() {
         }
 
         val r2 = runCli(
-            projectRoot = r1.projectRoot,
+            projectDir = r1.projectDir,
             "run", "-m", "app1",
         )
 
@@ -48,13 +48,13 @@ class PluginsTest : AmperCliTestBase() {
     fun `distribution plugin`() = runSlowTest {
         val taskName = ":app:build@distribution-plugin"
         val r1 = runCli(
-            projectRoot = testProject("extensibility/distribution"),
+            projectDir = testProject("extensibility/distribution"),
             "task", taskName,
             copyToTempDir = true,
         )
 
         val buildDir = tempRoot / "build"
-        val projectRoot = r1.projectRoot
+        val projectDir = r1.projectDir
 
         // We expect Kotlin 2.2.10 specifically in the 'from-catalog' and 'compile' classpaths because the 'app' module
         // overrides settings.kotlin.version.
@@ -66,17 +66,17 @@ class PluginsTest : AmperCliTestBase() {
             taskName = taskName,
             output = """
             Hello from distribution
-            classpath base.dependencies = [{modulePath: $projectRoot/app}]
-            classpath base.dependencies[0] = {modulePath: $projectRoot/app}
-            classpath base.dependencies[0].modulePath = $projectRoot/app
+            classpath base.dependencies = [{modulePath: $projectDir/app}]
+            classpath base.dependencies[0] = {modulePath: $projectDir/app}
+            classpath base.dependencies[0].modulePath = $projectDir/app
             classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
-            classpath core.dependencies = [{modulePath: $projectRoot/core}]
-            classpath core.dependencies[0] = {modulePath: $projectRoot/core}
-            classpath core.dependencies[0].modulePath = $projectRoot/core
+            classpath core.dependencies = [{modulePath: $projectDir/core}]
+            classpath core.dependencies[0] = {modulePath: $projectDir/core}
+            classpath core.dependencies[0].modulePath = $projectDir/core
             classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
-            classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
-            classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
-            classpath lib.dependencies[0].modulePath = $projectRoot/lib
+            classpath lib.dependencies = [{modulePath: $projectDir/lib}]
+            classpath lib.dependencies[0] = {modulePath: $projectDir/lib}
+            classpath lib.dependencies[0].modulePath = $projectDir/lib
             classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
@@ -86,11 +86,11 @@ class PluginsTest : AmperCliTestBase() {
             classpath from-catalog.dependencies[0] = {coordinates: org.jetbrains.kotlin:kotlin-reflect:2.2.10}
             classpath from-catalog.dependencies[0].coordinates = org.jetbrains.kotlin:kotlin-reflect:2.2.10
             classpath from-catalog.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-reflect/2.2.10/kotlin-reflect-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
-            classpath compile.dependencies = [{modulePath: $projectRoot/app}]
-            classpath compile.dependencies[0] = {modulePath: $projectRoot/app}
-            classpath compile.dependencies[0].modulePath = $projectRoot/app
+            classpath compile.dependencies = [{modulePath: $projectDir/app}]
+            classpath compile.dependencies[0] = {modulePath: $projectDir/app}
+            classpath compile.dependencies[0].modulePath = $projectDir/app
             classpath compile.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
-            compilation result: {from: {modulePath: $projectRoot/app}}
+            compilation result: {from: {modulePath: $projectDir/app}}
             compilation result path: $buildDir/tasks/_app_jarJvm/app-jvm.jar
         """.trimIndent().replace('/', File.separatorChar))
     }
@@ -98,72 +98,72 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `sources injection test`() = runSlowTest {
         val r1 = runCli(
-            projectRoot = testProject("extensibility/sources"),
+            projectDir = testProject("extensibility/sources"),
             "task", ":app1:consume@consume-sources-plugin",
             copyToTempDir = true,
         )
 
-        val projectRoot = r1.projectRoot
+        val projectDir = r1.projectDir
         val buildDir = tempRoot / "build"
         r1.assertCustomTaskStdoutContains(
             taskName = ":app1:consume@consume-sources-plugin",
             output = """
             Consuming sources: 1
-            Got source path: ${projectRoot / "app1" / "src"} - [main.kt]
+            Got source path: ${projectDir / "app1" / "src"} - [main.kt]
         """.trimIndent())
 
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectDir,
             "task", ":app2:consume@consume-sources-plugin",
         ).assertCustomTaskStdoutContains(
             taskName = ":app2:consume@consume-sources-plugin",
             output = """
             Consuming sources: 4
-            Got source path: ${projectRoot / "app2" / "src"} - [main.kt]
+            Got source path: ${projectDir / "app2" / "src"} - [main.kt]
             Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "kotlin"} - [kspGenerated.kt]
             Got source path: ${buildDir / "generated" / "app2" / "main" / "src" / "ksp" / "java"} - []
             Got source path: ${buildDir / "tasks" / "_app2_produceSources@produce-sources-plugin" / "kotlin"} - [generated.kt]
         """.trimIndent())
 
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectDir,
             "task", ":app3:consume@consume-sources-plugin",
         ).assertCustomTaskStdoutContains(
             taskName = ":app3:consume@consume-sources-plugin",
             output = """
             Consuming sources: 3
-            Got source path: ${projectRoot / "app3" / "resources"} - [hello]
+            Got source path: ${projectDir / "app3" / "resources"} - [hello]
             Got source path: ${buildDir / "generated" / "app3" / "main" / "resources" / "ksp" } - [com.example.amper.app.Greeter]
             Got source path: ${buildDir / "tasks" / "_app3_produceSources@produce-sources-plugin" / "resources"} - [generated.properties]
         """.trimIndent())
 
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectDir,
             "task", ":kmp-lib:consume@consume-sources-plugin",
         ).assertCustomTaskStdoutContains(
             taskName = ":kmp-lib:consume@consume-sources-plugin",
             output = """
             Consuming sources: 2
-            Got source path: ${projectRoot / "kmp-lib" / "src"} - null
-            Got source path: ${projectRoot / "kmp-lib" / "src@jvm"} - null
+            Got source path: ${projectDir / "kmp-lib" / "src"} - null
+            Got source path: ${projectDir / "kmp-lib" / "src@jvm"} - null
         """.trimIndent())
 
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectDir,
             "task", ":kmp-lib2:consume@consume-sources-plugin",
         ).assertCustomTaskStdoutContains(
             taskName = ":kmp-lib2:consume@consume-sources-plugin",
             output = """
             Consuming sources: 2
-            Got source path: ${projectRoot / "kmp-lib2" / "resources"} - null
-            Got source path: ${projectRoot / "kmp-lib2" / "resources@jvm"} - null
+            Got source path: ${projectDir / "kmp-lib2" / "resources"} - null
+            Got source path: ${projectDir / "kmp-lib2" / "resources@jvm"} - null
         """.trimIndent())
     }
 
     @Test
     fun `execution avoidance - enabled by default, disabled for no-outputs tasks`() = runSlowTest {
         val r1 = runCli(
-            projectRoot = testProject("extensibility/single-local-plugin"),
+            projectDir = testProject("extensibility/single-local-plugin"),
             "task", ":app1:print-generated-sources@build-konfig",
             copyToTempDir = true,
         )
@@ -178,7 +178,7 @@ class PluginsTest : AmperCliTestBase() {
             println("test: run print sources #$it")
 
             val r2 = runCli(
-                projectRoot = r1.projectRoot,
+                projectDir = r1.projectDir,
                 "task", ":app1:print-generated-sources@build-konfig"
             )
 
@@ -192,7 +192,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `execution avoidance - disabled when explicitly opted-out`() = runSlowTest {
         val r1 = runCli(
-            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            projectDir = testProject("extensibility/multiple-local-plugins"),
             "show", "tasks",
             copyToTempDir = true,
         )
@@ -200,7 +200,7 @@ class PluginsTest : AmperCliTestBase() {
         repeat(3) {
             println("test: run print sources #$it")
             val r2 = runCli(
-                projectRoot = r1.projectRoot,
+                projectDir = r1.projectDir,
                 "task", ":app:print-generated-sources@build-konfig",
             )
 
@@ -214,7 +214,7 @@ class PluginsTest : AmperCliTestBase() {
     fun `inferTaskDependency disabled`() = runSlowTest {
         // 1. check fails at first because the baseline is outdated.
         val r1 = runCli(
-            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            projectDir = testProject("extensibility/multiple-local-plugins"),
             "task", ":app:checkBaseline@build-konfig",
             copyToTempDir = true,
             assertEmptyStdErr = false,
@@ -224,7 +224,7 @@ class PluginsTest : AmperCliTestBase() {
 
         // 1.1 check again - fails because failures are not cached
         runCli(
-            projectRoot = r1.projectRoot,
+            projectDir = r1.projectDir,
             "task", ":app:checkBaseline@build-konfig",
             assertEmptyStdErr = false,
             expectedExitCode = 1,
@@ -232,13 +232,13 @@ class PluginsTest : AmperCliTestBase() {
 
         // 2. Update the baseline
         runCli(
-            projectRoot = r1.projectRoot,
+            projectDir = r1.projectDir,
             "task", ":app:generate-konfig@build-konfig",
         )
 
         // 3. Check again - doesn't fail
         runCli(
-            projectRoot = r1.projectRoot,
+            projectDir = r1.projectDir,
             "task", ":app:checkBaseline@build-konfig",
         ).assertStdoutContains("Baseline check successful!")
     }
@@ -246,7 +246,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `crash inside a task is correctly reported`() = runSlowTest {
         val r1 = runCli(
-            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            projectDir = testProject("extensibility/multiple-local-plugins"),
             "task", ":app:crash@hello",
             copyToTempDir = true,
             expectedExitCode = 1,
@@ -270,7 +270,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `single plugin - no effect when no enabled`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("extensibility/single-local-plugin"),
+            projectDir = testProject("extensibility/single-local-plugin"),
             "build", "-m", "app2",
             copyToTempDir = true,
             expectedExitCode = 1,
@@ -279,7 +279,7 @@ class PluginsTest : AmperCliTestBase() {
 
         r.assertStderrContains("Unresolved reference 'Konfig'")
 
-        val app3 = r.projectRoot / "app3" / "module.yaml"
+        val app3 = r.projectDir / "app3" / "module.yaml"
         r.assertStdoutContains("""
             Plugin `build-konfig` is not enabled, but has some explicit configuration.
             ╰─ Values explicitly set at:
@@ -291,11 +291,11 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `two plugins - enabled`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("extensibility/multiple-local-plugins"),
+            projectDir = testProject("extensibility/multiple-local-plugins"),
             "task", ":app:say@hello",
             copyToTempDir = true,
         )
-        val slash = r.projectRoot.fileSystem.separator
+        val slash = r.projectDir.fileSystem.separator
 
         with(r) {
             assertStdoutContains("Hello!")
@@ -304,7 +304,7 @@ class PluginsTest : AmperCliTestBase() {
         }
 
         val r2 = runCli(
-            projectRoot = r.projectRoot,
+            projectDir = r.projectDir,
             "task", ":build-konfig-plugin:say@hello",
         )
 
@@ -315,7 +315,7 @@ class PluginsTest : AmperCliTestBase() {
         }
 
         val r3 = runCli(
-            projectRoot = r.projectRoot,
+            projectDir = r.projectDir,
             "task", ":hello-plugin:say@hello",
         )
 
@@ -326,12 +326,12 @@ class PluginsTest : AmperCliTestBase() {
         }
 
         runCli(
-            projectRoot = r.projectRoot,
+            projectDir = r.projectDir,
             "run", "-m", "app",
         )
 
         assertContains(
-            charSequence = (r.projectRoot / "app" / "konfig.properties").readText().normalizeLineSeparators(),
+            charSequence = (r.projectDir / "app" / "konfig.properties").readText().normalizeLineSeparators(),
             other = """
                 ID=chair-red-dog
                 VERSION=1.0
@@ -342,7 +342,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `invalid plugins`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("extensibility/invalid-plugins"),
+            projectDir = testProject("extensibility/invalid-plugins"),
             "show", "tasks",
             copyToTempDir = true,
             assertEmptyStdErr = false,
@@ -354,12 +354,12 @@ class PluginsTest : AmperCliTestBase() {
                 """
                 Plugin id must be unique across the project
                 ╰─ There are multiple plugins with the id `hello`:
-                   ├─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
-                   ├─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
-                   ╰─ ${projectRoot / "hello"}
+                   ├─ ${projectDir / "plugin-a" / "module.yaml"}:4:7
+                   ├─ ${projectDir / "plugin-b" / "module.yaml"}:4:7
+                   ╰─ ${projectDir / "hello"}
                 """.trimIndent(),
-                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:10: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
-                "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
+                "${projectDir / "not-a-plugin" / "module.yaml"}:1:10: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
+                "${projectDir / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
             )
             assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello]...")
         }
@@ -368,7 +368,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `missing plugins`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("extensibility/missing-plugins"),
+            projectDir = testProject("extensibility/missing-plugins"),
             "show", "tasks",
             copyToTempDir = true,
             assertEmptyStdErr = false,
@@ -377,8 +377,8 @@ class PluginsTest : AmperCliTestBase() {
 
         with(result) {
             assertErrors(
-                "${projectRoot / "project.yaml"}:6:5: Plugin module `existing-but-not-included` is not included in the project `modules` list",
-                "${projectRoot / "project.yaml"}:7:5: Plugin module `non-existing` is not found",
+                "${projectDir / "project.yaml"}:6:5: Plugin module `existing-but-not-included` is not included in the project `modules` list",
+                "${projectDir / "project.yaml"}:7:5: Plugin module `non-existing` is not found",
             )
             assertStdoutDoesNotContain("Processing local plugin schema for")
         }
@@ -387,7 +387,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `incomplete plugins`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("extensibility/incomplete-plugins"),
+            projectDir = testProject("extensibility/incomplete-plugins"),
             "show", "tasks",
             copyToTempDir = true,
             assertEmptyStdErr = false,
@@ -396,18 +396,18 @@ class PluginsTest : AmperCliTestBase() {
 
         with(result) {
             assertWarnings(
-                "${projectRoot / "empty-plugin" / "module.yaml" }:2:3: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
-                "${projectRoot / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
+                "${projectDir / "empty-plugin" / "module.yaml" }:2:3: `plugin.yaml` file is missing in the plugins module directory, so it will have no effect when applied",
+                "${projectDir / "no-tasks-plugin" / "plugin.yaml"}: Plugin doesn't register any tasks, so it will have no effect when applied",
             )
             assertErrors(
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:5:16: Unexpected custom YAML type tag",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:5:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:22: Unexpected custom YAML type tag",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:10:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:13: Missing task action function specifier. Add the `!<fully-qualified-task-action-function-name>` YAML type tag to the mapping. Available task action functions: <none>",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:5:16: Unexpected custom YAML type tag",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:5:3: Expected a value",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:6:22: Unexpected custom YAML type tag",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:6:3: Expected a value",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:10:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
+                "${projectDir / "invalid-plugin-yaml" / "plugin.yaml"}:4:13: Missing task action function specifier. Add the `!<fully-qualified-task-action-function-name>` YAML type tag to the mapping. Available task action functions: <none>",
             )
         }
     }
@@ -415,20 +415,20 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `invalid task graph`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("extensibility/invalid-task-graph"),
+            projectDir = testProject("extensibility/invalid-task-graph"),
             "show", "tasks",
             copyToTempDir = true,
             assertEmptyStdErr = false,
             expectedExitCode = 1,
         )
 
-        val projectRoot = result.projectRoot
-        val pluginYamlForInvalidInputs = projectRoot / "tasks-with-invalid-inputs" / "plugin.yaml"
-        val pluginYamlForLoops = projectRoot / "tasks-with-loops" / "plugin.yaml"
+        val projectDir = result.projectDir
+        val pluginYamlForInvalidInputs = projectDir / "tasks-with-invalid-inputs" / "plugin.yaml"
+        val pluginYamlForLoops = projectDir / "tasks-with-loops" / "plugin.yaml"
         val sep = File.separatorChar
         result.assertErrors(
             """
-            Output path `${projectRoot / "app" / "foo" / "bar"}` is declared to be produced by multiple tasks: task `withSameOutputA` in module `app` from plugin `tasks-with-invalid-inputs`, task `withSameOutputB` in module `app` from plugin `tasks-with-invalid-inputs`
+            Output path `${projectDir / "app" / "foo" / "bar"}` is declared to be produced by multiple tasks: task `withSameOutputA` in module `app` from plugin `tasks-with-invalid-inputs`, task `withSameOutputB` in module `app` from plugin `tasks-with-invalid-inputs`
             ╰─ The output path is specified at:
                ├─ $pluginYamlForInvalidInputs:22:16
                ╰─ $pluginYamlForInvalidInputs:26:16
@@ -499,14 +499,14 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `invalid references`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("extensibility/invalid-references"),
+            projectDir = testProject("extensibility/invalid-references"),
             "show", "tasks",
             copyToTempDir = true,
             assertEmptyStdErr = false,
             expectedExitCode = 1,
         )
         with(result) {
-            val pluginYaml = projectRoot / "plugin1" / "plugin.yaml"
+            val pluginYaml = projectDir / "plugin1" / "plugin.yaml"
             assertErrors(
                 "${pluginYaml}:19:5: Cannot assign to property `taskOutputDir` - it is a built-in property available for reference only",
                 "${pluginYaml}:18:11: Expected `Dependency.Maven ( maven-coordinates | maven-coordinates: {..} )`, but got `sequence []`",
@@ -531,7 +531,7 @@ class PluginsTest : AmperCliTestBase() {
     @Test
     fun `consistent classloader`() = runSlowTest {
         runCli(
-            projectRoot = testProject("extensibility/consistent-classloader"),
+            projectDir = testProject("extensibility/consistent-classloader"),
             "task", ":app:test@plugin",
             copyToTempDir = true,
         ).assertStdoutContains("Everything is in order")
@@ -539,10 +539,10 @@ class PluginsTest : AmperCliTestBase() {
 
     @Test
     fun `module settings reference`() {
-        val projectRoot = testProject("extensibility/settings-reference")
+        val projectDir = testProject("extensibility/settings-reference")
         runSlowTest {
             runCli(
-                projectRoot = projectRoot,
+                projectDir = projectDir,
                 "task", ":app:check-settings@plugin",
             ).assertCustomTaskStdoutContains(
                 taskName = ":app:check-settings@plugin",
@@ -560,7 +560,7 @@ class PluginsTest : AmperCliTestBase() {
             )
 
             runCli(
-                projectRoot = projectRoot,
+                projectDir = projectDir,
                 "task", ":app-default:check-settings@plugin",
             ).assertCustomTaskStdoutContains(
                 taskName = ":app-default:check-settings@plugin",
@@ -581,10 +581,10 @@ class PluginsTest : AmperCliTestBase() {
 
     @Test
     fun `plugin invalid references`() = runSlowTest {
-        val projectRoot = testProject("extensibility/settings-invalid-reference")
-        val pluginYaml = projectRoot.resolve("plugin-invalid-references/plugin.yaml")
+        val projectDir = testProject("extensibility/settings-invalid-reference")
+        val pluginYaml = projectDir.resolve("plugin-invalid-references/plugin.yaml")
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectDir,
             "show", "tasks",
             assertEmptyStdErr = false,
             expectedExitCode = 1,

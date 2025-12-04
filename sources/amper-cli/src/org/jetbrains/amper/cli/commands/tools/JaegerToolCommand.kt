@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands.tools
@@ -138,7 +138,10 @@ internal class JaegerToolCommand : AmperSubcommand(name = "jaeger") {
 
     private suspend fun findTraceFiles(): List<Path> = coroutineScope {
         val logsRootDir = try {
-            createCliProjectContext().projectLogsRoot.path
+            createCliProjectContext(
+                explicitProjectDir = null, // not customizable in this command, this is just best-effort
+                explicitBuildDir = null, // not customizable in this command, this is just best-effort
+            ).projectLogsRoot.path
         } catch (_: UserReadableError) {
             return@coroutineScope emptyList()
         }

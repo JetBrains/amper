@@ -74,7 +74,7 @@ class CommonizerTaskTest: AmperCliTestBase() {
         konanDataDir.createDirectories()
 
         val runResult = runCli(
-            projectRoot = testProject("commonizer/$projectName"),
+            projectDir = testProject("commonizer/$projectName"),
             "task", "commonizeNativeDistribution",
             environment = mapOf("KONAN_DATA_DIR" to konanDataDir.toString())
         )

@@ -28,7 +28,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "build")
 
-        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmArtifact" / "lombokjvm" / "java-output" / "Person.class"
+        val classFilePath = buildResult.buildDir / "artifacts" / "CompiledJvmArtifact" / "lombokjvm" / "java-output" / "Person.class"
         assertTrue(classFilePath.exists(), "Generated Person class file not found")
 
         val result = runCli(projectRoot, "run")
@@ -42,7 +42,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
         val projectRoot = testProject("mapstruct")
         val buildResult = runCli(projectRoot, "build")
 
-        val generatedJavaFile = buildResult.buildOutputRoot / "generated" / "mapstruct" / "main" / "src" / "apt" / "java" / "UserMapperImpl.java"
+        val generatedJavaFile = buildResult.buildDir / "generated" / "mapstruct" / "main" / "src" / "apt" / "java" / "UserMapperImpl.java"
         assertTrue(generatedJavaFile.exists(), "Generated UserMapperImpl.java source file not found")
 
         val result = runCli(projectRoot, "run")
@@ -123,13 +123,13 @@ class AnnotationProcessingTest : AmperCliTestBase() {
         val buildResult = runCli(projectRoot, "build")
 
         val generatedFileRelativePath = Path("generated") / "mapstruct" / "main" / "src" / "apt" / "java" / "UserMapperImpl.java"
-        val generatedJavaFile = buildResult.buildOutputRoot / generatedFileRelativePath
+        val generatedJavaFile = buildResult.buildDir / generatedFileRelativePath
         assertTrue(generatedJavaFile.exists(), "Generated UserMapperImpl.java source file not found")
 
         generatedJavaFile.deleteExisting()
 
         val buildResult2 = runCli(projectRoot, "build")
-        val generatedJavaFile2 = buildResult2.buildOutputRoot / generatedFileRelativePath
+        val generatedJavaFile2 = buildResult2.buildDir / generatedFileRelativePath
         assertTrue(generatedJavaFile2.exists(), "Generated UserMapperImpl.java source file was not regenerated")
     }
 
@@ -156,6 +156,6 @@ class AnnotationProcessingTest : AmperCliTestBase() {
                 "META-INF" /
                 "spring-configuration-metadata.json"
 
-        assertTrue((result.buildOutputRoot / springConfigurationMetadataPath).exists())
+        assertTrue((result.buildDir / springConfigurationMetadataPath).exists())
     }
 }

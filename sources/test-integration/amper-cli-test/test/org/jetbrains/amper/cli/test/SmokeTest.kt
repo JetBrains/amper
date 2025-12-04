@@ -32,7 +32,7 @@ class SmokeTest : AmperCliTestBase() {
     @Test
     fun `graceful failure on unknown task name`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-kotlin-test-smoke"),
+            projectDir = testProject("jvm-kotlin-test-smoke"),
             "task", "unknown",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -48,7 +48,7 @@ class SmokeTest : AmperCliTestBase() {
     @Test
     fun `graceful failure on unknown task name with suggestions`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-kotlin-test-smoke"),
+            projectDir = testProject("jvm-kotlin-test-smoke"),
             "task", "compile",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -72,10 +72,10 @@ class SmokeTest : AmperCliTestBase() {
     @Test
     fun `jvm-default-compiler-settings`() = runSlowTest {
         val projectRoot = testProject("jvm-default-compiler-settings")
-        val tasksResult = runCli(projectRoot = projectRoot, "show", "tasks")
+        val tasksResult = runCli(projectDir = projectRoot, "show", "tasks")
         tasksResult.assertHasTasks(jvmAppTasks + jvmTestTasks)
 
-        val runResult = runCli(projectRoot = projectRoot, "run")
+        val runResult = runCli(projectDir = projectRoot, "run")
         // testing some default compiler arguments
         runResult.readTelemetrySpans().assertKotlinJvmCompilationSpan {
             doesNotHaveCompilerArgument("-language-version")
@@ -88,10 +88,10 @@ class SmokeTest : AmperCliTestBase() {
     @Test
     fun `jvm-explicit-compiler-settings`() = runSlowTest {
         val projectRoot = testProject("jvm-explicit-compiler-settings")
-        val tasksResult = runCli(projectRoot = projectRoot, "show", "tasks")
+        val tasksResult = runCli(projectDir = projectRoot, "show", "tasks")
         tasksResult.assertHasTasks(jvmAppTasks + jvmTestTasks)
 
-        val runResult = runCli(projectRoot = projectRoot, "run")
+        val runResult = runCli(projectDir = projectRoot, "run")
         with(runResult.readTelemetrySpans()) {
             assertKotlinJvmCompilationSpan {
                 hasCompilerArgument("-language-version=2.2")
@@ -113,18 +113,18 @@ class SmokeTest : AmperCliTestBase() {
     @Test
     fun `multi-module`() = runSlowTest {
         val projectRoot = testProject("multi-module")
-        val tasksResult = runCli(projectRoot = projectRoot, "show", "tasks")
+        val tasksResult = runCli(projectDir = projectRoot, "show", "tasks")
         tasksResult.assertHasTasks(jvmAppTasks, module = "app")
         tasksResult.assertHasTasks(jvmBaseTasks + jvmTestTasks, module = "shared")
 
-        val runResult = runCli(projectRoot = projectRoot, "run")
+        val runResult = runCli(projectDir = projectRoot, "run")
         with(runResult.readTelemetrySpans()) {
             kotlinJvmCompilationSpans.withAmperModule("app").assertSingle()
             kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
         }
         runResult.assertStdoutContains("Hello, World!")
 
-        val testResult = runCli(projectRoot = projectRoot, "test")
+        val testResult = runCli(projectDir = projectRoot, "test")
         testResult.assertStdoutContains("Test run finished after")
     }
 }
@@ -138,7 +138,7 @@ private fun AmperCliResult.assertHasTasks(expectedTasks: Iterable<String>, modul
         .filter { it.trim().startsWith("task :") }
         .map { it.trim().removePrefix("task ").substringBefore(" -> ") }
     expectedTasks.forEach { task ->
-        val expected = ":${module ?: projectRoot.name}:$task"
+        val expected = ":${module ?: projectDir.name}:$task"
         assertTrue("Task named '$expected' should be present, but found only:\n" + taskNames.joinToString("\n")) {
             taskNames.contains(expected)
         }

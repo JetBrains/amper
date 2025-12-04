@@ -31,14 +31,14 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Test
     fun `jvm-kotlin-test-smoke test`() = runSlowTest {
         val projectRoot = testProject("jvm-kotlin-test-smoke")
-        val result = runCli(projectRoot = projectRoot, "test")
+        val result = runCli(projectDir = projectRoot, "test")
 
         // not captured by default...
         result.assertStdoutContains("Hello from test method, JavaString")
         result.assertStdoutContains("[         1 tests successful      ]")
         result.assertStdoutContains("[         0 tests failed          ]")
 
-        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-jupiter.xml")
+        val xmlReport = result.buildDir.resolve("reports/jvm-kotlin-test-smoke/jvm/TEST-junit-jupiter.xml")
             .readText()
         assertContains(xmlReport, "<testcase name=\"smoke()\" classname=\"apkg.ATest\"")
     }
@@ -46,7 +46,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Test
     fun `jvm-failed-test`() = runSlowTest {
         val projectRoot = testProject("jvm-failed-test")
-        val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false, expectedExitCode = 1)
+        val result = runCli(projectDir = projectRoot, "test", assertEmptyStdErr = false, expectedExitCode = 1)
         result.assertStderrContains("ERROR: JVM tests failed for module 'jvm-failed-test' with exit code 1 (see errors above)")
         result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'stringComparisonFailure', methodParameterTypes = '']")
         result.assertStdoutContains("MethodSource [className = 'FailedTest', methodName = 'booleanFailure', methodParameterTypes = '']")
@@ -59,7 +59,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
         // for example it'll automatically fail if you run your tests with TestNG, but specified JUnit in settings
         // see `native test no tests`
         val result = runCli(
-            projectRoot = testProject("jvm-kotlin-test-no-tests"),
+            projectDir = testProject("jvm-kotlin-test-no-tests"),
             "test",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -70,13 +70,13 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Test
     fun `run tests only from test fragment`() = runSlowTest {
         val projectContext = testProject("jvm-test-classpath")
-        val result = runCli(projectRoot = projectContext, "test")
+        val result = runCli(projectDir = projectContext, "test")
 
         // asserts that ATest.smoke is run, but SrcTest.smoke isn't
         result.assertStdoutContains("[         1 tests successful      ]")
         result.assertStdoutContains("[         0 tests failed          ]")
 
-        val xmlReport = result.buildOutputRoot.resolve("reports/jvm-test-classpath/jvm/TEST-junit-jupiter.xml")
+        val xmlReport = result.buildDir.resolve("reports/jvm-test-classpath/jvm/TEST-junit-jupiter.xml")
             .readText()
         assertContains(xmlReport, "<testcase name=\"smoke()\" classname=\"apkg.ATest\"")
     }
@@ -84,7 +84,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Test
     fun `successfully run shutdown hooks`() = runSlowTest {
         val projectContext = testProject("jvm-test-shutdown-hook")
-        val result = runCli(projectRoot = projectContext, "test")
+        val result = runCli(projectDir = projectContext, "test")
 
         // asserts that ATest.smoke is run, but SrcTest.smoke isn't
         result.assertStdoutContains("[         1 tests successful      ]")
@@ -94,7 +94,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
 
     @Test
     fun `test fragment dependencies`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("jvm-test-fragment-dependencies"), "test")
+        val result = runCli(projectDir = testProject("jvm-test-fragment-dependencies"), "test")
         result.assertStdoutContains("FromExternalDependencies:OneTwo FromProject:MyUtil")
     }
 
@@ -111,7 +111,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
 
         // should fail without the system prop
         runCli(
-            projectRoot = testProject,
+            projectDir = testProject,
             "test",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -119,7 +119,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
 
         // should fail with an incorrect value for the system prop
         runCli(
-            projectRoot = testProject,
+            projectDir = testProject,
             "test",
             "--jvm-args=-Dmy.system.prop=WRONG",
             expectedExitCode = 1,
@@ -129,7 +129,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
 
     @Test
     fun `jvm test custom engine`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("jvm-test-custom-engine"), "test")
+        val result = runCli(projectDir = testProject("jvm-test-custom-engine"), "test")
 
         // tests are discovered
         result.assertStdoutContains("my-test-1")
@@ -141,7 +141,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     fun `missing platform to test`() = runSlowTest {
         val projectContext = testProject("jvm-kotlin-test-no-tests")
         val result = runCli(
-            projectRoot = projectContext,
+            projectDir = projectContext,
             "test", "--platform=iosSimulatorArm64",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -154,7 +154,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     fun `unsupported platform to test`() = runSlowTest {
         val projectContext = testProject("simple-multiplatform-cli")
         val result = runCli(
-            projectRoot = projectContext,
+            projectDir = projectContext,
             "test", "--platform=mingwX64",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -177,7 +177,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
 
         val projectContext = testProject("native-test-no-tests")
         val result = runCli(
-            projectRoot = projectContext,
+            projectDir = projectContext,
             "test",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -189,14 +189,14 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @WindowsOnly
     @Ignore("AMPER-475")
     fun `native test app test`() = runSlowTest {
-        runCli(projectRoot = testProject("native-test-app-test"), "test")
+        runCli(projectDir = testProject("native-test-app-test"), "test")
         // TODO assert that some test was actually run
     }
 
     @Test
     fun `should warn on no test sources (jvm)`() = runSlowTest {
         // Testing a module should not fail if there are no test sources at all but warn about it
-        val result = runCli(projectRoot = testProject("jvm-kotlin-test-no-test-sources"), "test")
+        val result = runCli(projectDir = testProject("jvm-kotlin-test-no-test-sources"), "test")
         result.assertLogStartsWith(
             "No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'",
             Level.WARN
@@ -208,7 +208,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Ignore("AMPER-476")
     fun `should warn on no test sources (native)`() = runSlowTest {
         // Testing a module should not fail if there are no test sources at all but warn about it
-        val result = runCli(projectRoot = testProject("native-test-no-test-sources"), "test", "--platform=mingwX64")
+        val result = runCli(projectDir = testProject("native-test-no-test-sources"), "test", "--platform=mingwX64")
         result.assertLogStartsWith(
             "No test classes, skipping test execution for module 'native-test-no-test-sources'",
             Level.WARN
@@ -219,7 +219,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @WindowsOnly
     fun `simple multiplatform cli lib test on windows`() = runSlowTest {
         val projectContext = testProject("simple-multiplatform-cli")
-        val result = runCli(projectRoot = projectContext, "test", "--include-module=shared", "--platform=mingwX64")
+        val result = runCli(projectDir = projectContext, "test", "--include-module=shared", "--platform=mingwX64")
 
         result.assertStdoutContains("[       OK ] WorldTest.doTest")
         result.assertStdoutContains("[  PASSED  ] 1 tests")
@@ -229,7 +229,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @MacOnly
     fun `simple multiplatform cli lib test on mac`() = runSlowTest {
         val projectContext = testProject("simple-multiplatform-cli")
-        val result = runCli(projectRoot = projectContext, "test", "--include-module=shared", "--platform=macosArm64")
+        val result = runCli(projectDir = projectContext, "test", "--include-module=shared", "--platform=macosArm64")
 
         result.assertStdoutContains("[       OK ] WorldTest.doTest")
         result.assertStdoutContains("[  PASSED  ] 1 tests")
@@ -239,7 +239,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @MacOnly
     fun `simple multiplatform cli app test on mac`() = runSlowTest {
         val projectContext = testProject("simple-multiplatform-cli")
-        val result = runCli(projectRoot = projectContext, "test", "--include-module=macos-cli")
+        val result = runCli(projectDir = projectContext, "test", "--include-module=macos-cli")
 
         result.assertStdoutContains("[       OK ] WorldTestFromMacOsCli.doTest")
         result.assertStdoutContains("[  PASSED  ] 1 tests")
@@ -248,7 +248,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
     @Test
     fun `ktor-kodein test`() = runSlowTest {
         val projectContext = testProject("ktor-kodein")
-        val result = runCli(projectRoot = projectContext, "test")
+        val result = runCli(projectDir = projectContext, "test")
 
         result.assertStdoutContains("Started KodeinSimpleApplicationTest")
         result.assertStdoutContains("Passed testProvideFakeRandom")
@@ -261,7 +261,7 @@ class AmperTestBasicTest : AmperCliTestBase() {
         val projectRoot = testProject("spring-boot-kotlin")
 
         // TODO: attach mockito as agent explicitly
-        val result = runCli(projectRoot = projectRoot, "test", assertEmptyStdErr = false)
+        val result = runCli(projectDir = projectRoot, "test", assertEmptyStdErr = false)
 
         result.assertStdoutContains("Started DemoApplicationTests")
         result.assertStdoutContains("Passed contextLoads")

@@ -31,7 +31,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     @Test
     fun `pretty CLI output format should be used by default`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-failed-test"),
+            projectDir = testProject("jvm-failed-test"),
             "test",
             assertEmptyStdErr = false,
             expectedExitCode = 1,
@@ -78,7 +78,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `test failure should print expected and actual values in teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("jvm-failed-test"),
+                projectDir = testProject("jvm-failed-test"),
                 "test",
                 "--format=teamcity",
                 assertEmptyStdErr = false,
@@ -125,7 +125,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 4 tests should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("multiplatform-tests"),
+                projectDir = testProject("multiplatform-tests"),
                 "test", "-m", "jvm-cli", "--format=teamcity", "--include-classes=com.example.jvmcli.OrderedTestSuite",
                 assertEmptyStdErr = false,
             )
@@ -227,7 +227,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `output should be printed only once in TC format`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("multiplatform-tests"),
+                projectDir = testProject("multiplatform-tests"),
                 "test", "-m", "jvm-cli", "--format=teamcity", "--include-classes=com.example.jvmcli.MyClass1Test",
                 assertEmptyStdErr = false,
             )
@@ -239,7 +239,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 5 tests with params should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("jvm-tests-with-params"),
+                projectDir = testProject("jvm-tests-with-params"),
                 "test", "--format=teamcity",
                 assertEmptyStdErr = false,
             )
@@ -285,7 +285,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 5 dynamic tests should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("jvm-dynamic-tests"),
+                projectDir = testProject("jvm-dynamic-tests"),
                 "test", "--format=teamcity",
                 assertEmptyStdErr = false,
             )
@@ -332,7 +332,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 5 assumptions should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("jvm-aborted-tests"),
+                projectDir = testProject("jvm-aborted-tests"),
                 "test", "--format=teamcity",
                 assertEmptyStdErr = false,
             )
@@ -367,7 +367,7 @@ class AmperTestFormatTest : AmperCliTestBase() {
     fun `junit 5 ignore should print teamcity service messages`() {
         runSlowTest {
             val r = runCli(
-                projectRoot = testProject("jvm-ignored-tests"),
+                projectDir = testProject("jvm-ignored-tests"),
                 "test", "--format=teamcity",
                 assertEmptyStdErr = false,
             )

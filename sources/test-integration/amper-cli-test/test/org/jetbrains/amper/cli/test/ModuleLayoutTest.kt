@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -15,13 +15,13 @@ class ModuleLayoutTest : AmperCliTestBase() {
 
     @Test
     fun `maven-like module layout`() = runSlowTest {
-        runCli(projectRoot = testProject("maven-like-module-layout"), "test")
+        runCli(projectDir = testProject("maven-like-module-layout"), "test")
     }
 
     @Test
     fun `wrong module layout`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("wrong-module-layout"),
+            projectDir = testProject("wrong-module-layout"),
             "run",
             expectedExitCode = 1,
             assertEmptyStdErr = false
@@ -32,7 +32,7 @@ class ModuleLayoutTest : AmperCliTestBase() {
     @Test
     fun `module-layout inconsistent`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("module-layout-inconsistent"),
+            projectDir = testProject("module-layout-inconsistent"),
             "run",
             expectedExitCode = 1,
             assertEmptyStdErr = false
@@ -43,6 +43,6 @@ class ModuleLayoutTest : AmperCliTestBase() {
 
     @Test
     fun `maven-like layout from template`() = runSlowTest {
-        runCli(projectRoot = testProject("maven-like-layout-in-template"), "test")
+        runCli(projectDir = testProject("maven-like-layout-in-template"), "test")
     }
 }

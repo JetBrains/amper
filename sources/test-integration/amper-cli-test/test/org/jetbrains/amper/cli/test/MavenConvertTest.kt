@@ -28,9 +28,9 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
-        assertTrue((buildResult.projectRoot / "project.yaml").readText().isBlank())
-        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").readText().isBlank())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/app
@@ -56,10 +56,10 @@ class MavenConvertTest : AmperCliTestBase() {
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
         )
 
-        val converted = testProject(buildResult.projectRoot.pathString)
+        val converted = testProject(buildResult.projectDir.pathString)
 
         runCli(
             converted,
@@ -75,12 +75,12 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val firstRun = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        val moduleYaml = firstRun.projectRoot / "module.yaml"
+        val moduleYaml = firstRun.projectDir / "module.yaml"
         assertTrue(moduleYaml.exists())
 
         moduleYaml.writeText("CHANGED")
 
-        runCli(firstRun.projectRoot, "tool", "convert-project", "--overwrite-existing")
+        runCli(firstRun.projectDir, "tool", "convert-project", "--overwrite-existing")
 
         assertTrue(moduleYaml.exists())
         assertNotEquals("CHANGED", moduleYaml.readText())
@@ -93,7 +93,7 @@ class MavenConvertTest : AmperCliTestBase() {
         val firstRun = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
         val secondRun = runCli(
-            firstRun.projectRoot,
+            firstRun.projectDir,
             "tool", "convert-project",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -108,8 +108,8 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
-        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/app
@@ -144,10 +144,10 @@ class MavenConvertTest : AmperCliTestBase() {
               - org.springframework.boot:spring-boot-starter-test:4.0.0
               - org.jetbrains.kotlin:kotlin-test-junit5:2.2.21
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
         )
 
-        val converted = testProject(buildResult.projectRoot.pathString)
+        val converted = testProject(buildResult.projectDir.pathString)
 
         runCli(
             converted,
@@ -163,7 +163,7 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
         assertEquals("""
             mavenPlugins:
               - org.apache.maven.plugins:maven-enforcer-plugin:3.6.2
@@ -174,8 +174,8 @@ class MavenConvertTest : AmperCliTestBase() {
               - io.github.git-commit-id:git-commit-id-maven-plugin:9.0.2
               - org.cyclonedx:cyclonedx-maven-plugin:2.9.1
 
-        """.trimIndent(), (buildResult.projectRoot / "project.yaml").readText())
-        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+        """.trimIndent(), (buildResult.projectDir / "project.yaml").readText())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/app
@@ -290,7 +290,7 @@ class MavenConvertTest : AmperCliTestBase() {
               - org.testcontainers:testcontainers-junit-jupiter:2.0.3
               - org.testcontainers:testcontainers-mysql:2.0.3
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
         )
 
         // TODO: until we fix AMPER-5023 PlexusConfiguration type isn't supported
@@ -310,8 +310,8 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
-        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/app
@@ -343,10 +343,10 @@ class MavenConvertTest : AmperCliTestBase() {
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
         )
 
-        val converted = testProject(buildResult.projectRoot.pathString)
+        val converted = testProject(buildResult.projectDir.pathString)
 
         val testsResult = runCli(
             converted,
@@ -364,16 +364,16 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
         assertEquals(
             """
             modules:
               - lib
               - app
 
-        """.trimIndent(), (buildResult.projectRoot / "project.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "project.yaml").readText()
         )
-        assertTrue((buildResult.projectRoot / "app" / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "app" / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/lib
@@ -397,9 +397,9 @@ class MavenConvertTest : AmperCliTestBase() {
             test-dependencies:
               - org.junit.jupiter:junit-jupiter:5.12.2
 
-        """.trimIndent(), (buildResult.projectRoot / "app" / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "app" / "module.yaml").readText()
         )
-        assertTrue((buildResult.projectRoot / "lib" / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "lib" / "module.yaml").exists())
         assertEquals(
             """
             product: jvm/lib
@@ -419,12 +419,12 @@ class MavenConvertTest : AmperCliTestBase() {
             dependencies:
               - bom: org.springframework.boot:spring-boot-starter-parent:3.5.6
 
-        """.trimIndent(), (buildResult.projectRoot / "lib" / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "lib" / "module.yaml").readText()
         )
 
-        assertTrue((buildResult.projectRoot / "module.yaml").notExists())
+        assertTrue((buildResult.projectDir / "module.yaml").notExists())
 
-        val converted = testProject(buildResult.projectRoot.pathString)
+        val converted = testProject(buildResult.projectDir.pathString)
 
         runCli(converted, "test")
     }
@@ -446,12 +446,12 @@ class MavenConvertTest : AmperCliTestBase() {
 
     @Test
     fun `surefire-plugin`() = runSlowTest {
-        val projectRoot = testProject("maven-convert/surefire-plugin")
+        val projectDir = testProject("maven-convert/surefire-plugin")
 
-        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+        val buildResult = runCli(projectDir, "tool", "convert-project", copyToTempDir = true)
 
-        assertTrue((buildResult.projectRoot / "project.yaml").exists())
-        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
 
         assertEquals(
             """
@@ -495,10 +495,10 @@ class MavenConvertTest : AmperCliTestBase() {
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
         )
 
-        val converted = testProject(buildResult.projectRoot.pathString)
+        val converted = testProject(buildResult.projectDir.pathString)
 
         runCli(converted, "test")
     }
@@ -509,7 +509,7 @@ class MavenConvertTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
-        val pomPath = buildResult.projectRoot / "pom.xml"
+        val pomPath = buildResult.projectDir / "pom.xml"
         assertEquals("""
             product: jvm/app
 
@@ -567,6 +567,6 @@ class MavenConvertTest : AmperCliTestBase() {
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0
 
-        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText())
+        """.trimIndent(), (buildResult.projectDir / "module.yaml").readText())
     }
 }

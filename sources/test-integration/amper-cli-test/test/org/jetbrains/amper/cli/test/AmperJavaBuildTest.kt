@@ -51,7 +51,7 @@ class AmperJavaBuildTest : AmperCliTestBase() {
     }
 
     private fun AmperCliResult.getClassFilesFromTheTaskOutput(moduleName: String): List<String> {
-        val buildOutput = buildOutputRoot /  "artifacts" / "CompiledJvmArtifact" / "${moduleName}jvm"
+        val buildOutput = buildDir /  "artifacts" / "CompiledJvmArtifact" / "${moduleName}jvm"
         val result = mutableListOf<String>()
         for (outputFolder in listOf("java-output", "kotlin-output", "resources-output")) {
             val folder = buildOutput / outputFolder
@@ -199,7 +199,7 @@ class AmperJavaBuildTest : AmperCliTestBase() {
     }
 
     private suspend fun runWithJic(projectRoot: Path, moduleName: String): AmperCliResult {
-        val result = runCli(projectRoot = projectRoot, "run", "-m", moduleName)
+        val result = runCli(projectDir = projectRoot, "run", "-m", moduleName)
         result.assertJavaIncrementalCompilationState(compileJavaIncrementally = true, moduleName)
         return result
     }
@@ -210,7 +210,7 @@ class AmperJavaBuildTest : AmperCliTestBase() {
         assertEmptyStdErr: Boolean = true,
         ): AmperCliResult =
         runCli(
-            projectRoot = projectRoot,
+            projectDir = projectRoot,
             "build",
             expectedExitCode = expectedExitCode,
             assertEmptyStdErr = assertEmptyStdErr

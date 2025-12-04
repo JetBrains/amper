@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -24,35 +24,35 @@ class ShowSettingsCommandTest : AmperCliTestBase() {
     
     @Test
     fun `show settings command prints settings for single module`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("java-kotlin-mixed"), "show", "settings")
+        val r = runCli(projectDir = testProject("java-kotlin-mixed"), "show", "settings")
 
         r.checkGold("single-module")
     }
 
     @Test
     fun `show settings command prints settings for specified module`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "--module", "one")
+        val r = runCli(projectDir = testProject("jvm-multimodule-tests"), "show", "settings", "--module", "one")
 
         r.checkGold("jvm-multimodule-tests_specified-module-one")
     }
 
     @Test
     fun `show settings command prints settings for specified modules`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "-m", "one", "-m", "two")
+        val r = runCli(projectDir = testProject("jvm-multimodule-tests"), "show", "settings", "-m", "one", "-m", "two")
 
         r.checkGold("jvm-multimodule-tests_specified-modules-one-and-two")
     }
 
     @Test
     fun `show settings command prints settings for all modules - jvm only`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("jvm-multimodule-tests"), "show", "settings", "--all-modules")
+        val r = runCli(projectDir = testProject("jvm-multimodule-tests"), "show", "settings", "--all-modules")
 
         r.checkGold("jvm-multimodule-tests_all-modules")
     }
 
     @Test
     fun `show settings command prints settings for all modules - multiplatform`() = runSlowTest {
-        val r = runCli(projectRoot = testProject("compose-multiplatform-room"), "show", "settings", "--all-modules")
+        val r = runCli(projectDir = testProject("compose-multiplatform-room"), "show", "settings", "--all-modules")
         
         r.checkGold("compose-multiplatform-room_all-modules")
     }
@@ -60,7 +60,7 @@ class ShowSettingsCommandTest : AmperCliTestBase() {
     @Test
     fun `show settings command fails if no module selected in non-interactive mode`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-multimodule-tests"),
+            projectDir = testProject("jvm-multimodule-tests"),
             "show", "settings",
             expectedExitCode = 1,
             assertEmptyStdErr = false,

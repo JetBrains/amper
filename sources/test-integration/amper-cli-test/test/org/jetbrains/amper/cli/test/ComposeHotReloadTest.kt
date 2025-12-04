@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.cli.test
 
@@ -25,10 +25,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload run wires agent env vars and properties for jvm-app`() = runSlowTest {
-        val projectRoot = testProject("compose-hot-reload")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-hot-reload"),
             "run",
             "--compose-hot-reload-mode",
             assertEmptyStdErr = false,
@@ -39,10 +37,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload run wires agent env vars and properties for multiplatform-lib`() = runSlowTest {
-        val projectRoot = testProject("compose-hot-reload-lib")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-hot-reload-lib"),
             "run",
             "-m",
             "compose-hot-reload-lib",
@@ -57,10 +53,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload run wires agent env vars and properties for for jvm-lib`() = runSlowTest {
-        val projectRoot = testProject("compose-hot-reload-jvm-lib")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-hot-reload-jvm-lib"),
             "run",
             "-m",
             "compose-hot-reload-jvm-lib",
@@ -75,10 +69,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload on non-compose jvm app should fail`() = runSlowTest {
-        val projectRoot = testProject("jvm-run-print-systemprop")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("jvm-run-print-systemprop"),
             "run",
             "--compose-hot-reload-mode",
             expectedExitCode = 1,
@@ -90,10 +82,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload on android app should fail`() = runSlowTest {
-        val projectRoot = testProject("compose-resources-demo")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-resources-demo"),
             "run",
             "-m", "app-android",
             "--compose-hot-reload-mode",
@@ -106,10 +96,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload with platform android in multi-module should fail`() = runSlowTest {
-        val projectRoot = testProject("compose-resources-demo")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-resources-demo"),
             "run",
             "--platform=android",
             "--compose-hot-reload-mode",
@@ -122,10 +110,8 @@ class ComposeHotReloadTest : AmperCliTestBase() {
 
     @Test
     fun `compose hot reload without module in multi-module picks desktop jvm app`() = runSlowTest {
-        val projectRoot = testProject("compose-resources-demo")
-
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = testProject("compose-resources-demo"),
             "run",
             "--compose-hot-reload-mode",
             assertEmptyStdErr = false,

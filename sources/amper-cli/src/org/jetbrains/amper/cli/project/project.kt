@@ -28,22 +28,22 @@ import kotlin.io.path.div
 import kotlin.io.path.pathString
 
 /**
- * Creates the [AmperProjectContext] of the current project based on the given [explicitProjectRoot], of finds one
+ * Creates the [AmperProjectContext] of the current project based on the given [explicitProjectDir], of finds one
  * by starting at the current directory
  */
-internal suspend fun findProjectContext(explicitProjectRoot: Path?, explicitBuildRoot: Path?): AmperProjectContext? =
+internal suspend fun findProjectContext(explicitProjectDir: Path?, explicitBuildDir: Path?): AmperProjectContext? =
     spanBuilder("Find Amper project context").use {
         with(CliProblemReporter) {
-            val context = if (explicitProjectRoot != null) {
-                StandaloneAmperProjectContext.create(explicitProjectRoot.absolute(), explicitBuildRoot?.absolute())
+            val context = if (explicitProjectDir != null) {
+                StandaloneAmperProjectContext.create(explicitProjectDir.absolute(), explicitBuildDir?.absolute())
                     ?: userReadableError(
-                        "The given path '$explicitProjectRoot' is not a valid Amper project root directory. " +
+                        "The given path '$explicitProjectDir' is not a valid Amper project root directory. " +
                                 "Make sure you have a project file or a module file at the root of your Amper project."
                     )
             } else {
                 StandaloneAmperProjectContext.find(
                     start = Path(System.getProperty("user.dir")),
-                    buildDir = explicitBuildRoot?.absolute(),
+                    buildDir = explicitBuildDir?.absolute(),
                 )
             }
             if (wereProblemsReported()) {

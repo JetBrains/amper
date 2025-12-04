@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -9,7 +9,10 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.interactiveSelectList
 import org.jetbrains.amper.cli.userReadableError
@@ -25,6 +28,13 @@ import kotlin.io.path.exists
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 
+    private val targetDir by option(
+        "--target-dir",
+        help = "The directory to create the project in (defaults to the current directory)",
+    )
+        .path(canBeFile = false, mustExist = false, mustBeWritable = true)
+        .default(Path(System.getProperty("user.dir")))
+
     private val template by argument(help = "The name of a project template (leave blank to select interactively from a list)")
         .choice(AmperProjectTemplates.availableTemplates.associateBy { it.id })
         .optional()
@@ -32,12 +42,11 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     override fun help(context: Context): String = "Initialize a new Amper project based on a template"
 
     override suspend fun run() {
-        val targetRootDir = commonOptions.explicitProjectRoot ?: Path(System.getProperty("user.dir"))
         val selectedTemplate = template ?: promptForTemplate()
-        terminal.println("Extracting template ${terminal.theme.info(selectedTemplate.id)} to $targetRootDir…")
+        terminal.println("Extracting template ${terminal.theme.info(selectedTemplate.id)} to ${targetDir}…")
 
-        selectedTemplate.extractTo(outputDir = targetRootDir)
-        val wrappersGenerated = generateWrapperScripts(targetRootDir)
+        selectedTemplate.extractTo(outputDir = targetDir)
+        val wrappersGenerated = generateWrapperScripts(targetDir)
 
         printSuccessfulCommandConclusion("Project successfully generated")
 

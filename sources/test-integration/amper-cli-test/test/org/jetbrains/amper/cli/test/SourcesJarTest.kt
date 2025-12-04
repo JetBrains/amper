@@ -40,7 +40,7 @@ class SourcesJarTest : AmperCliTestBase() {
     fun `simple multiplatform cli sources jars`(platform: Platform) = runSlowTest {
         val projectRoot = testProject("simple-multiplatform-cli")
         val taskName = ":shared:sourcesJar${platform.schemaValue.replaceFirstChar { it.titlecase() }}"
-        val result = runCli(projectRoot = projectRoot, "task", taskName)
+        val result = runCli(projectDir = projectRoot, "task", taskName)
 
         assertJarFileEntries(
             jarPath = result.getTaskOutputPath(taskName) / "shared-${platform.schemaValue.lowercase()}-sources.jar",

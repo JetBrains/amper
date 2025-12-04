@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -43,7 +43,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `simple tests debug`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "task", ":simple:testAndroidDebug",
             configureAndroidHome = true,
         )
@@ -53,7 +53,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `simple tests release`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "task", ":simple:testAndroidRelease",
             configureAndroidHome = true,
         )
@@ -64,7 +64,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `apk contains dependencies`() = runSlowTest {
         val taskName = ":simple:buildAndroidDebug"
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "task", taskName,
             configureAndroidHome = true,
         )
@@ -76,7 +76,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `appcompat compiles successfully and contains dependencies`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
         val result = runCli(
-            projectRoot = testProject("android/appcompat"),
+            projectDir = testProject("android/appcompat"),
             "task",
             taskName,
             configureAndroidHome = true,
@@ -89,7 +89,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runSlowTest {
         val taskName = ":appcompat:buildAndroidDebug"
         val result = runCli(
-            projectRoot = testProject("android/appcompat"),
+            projectDir = testProject("android/appcompat"),
             "task",
             taskName,
             configureAndroidHome = true,
@@ -105,7 +105,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `should fail when license is not accepted`() = runSlowTest {
         val androidSdkHome = (Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() }
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "build",
             configureAndroidHome = false,
             environment = mapOf("ANDROID_HOME" to androidSdkHome.absolutePathString()),
@@ -137,7 +137,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `bundle without signing enabled has no signature`() = runSlowTest {
         val taskName = ":simple:bundleAndroid"
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "task",
             taskName,
             configureAndroidHome = true,
@@ -150,7 +150,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `bundle with signing enabled and properties file has signature`() = runSlowTest {
         val taskName = ":signed:bundleAndroid"
         val result = runCli(
-            projectRoot = testProject("android/signed"),
+            projectDir = testProject("android/signed"),
             "task",
             taskName,
             configureAndroidHome = true,
@@ -162,7 +162,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `task graph is correct for downloading and installing android sdk components`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/simple"),
+            projectDir = testProject("android/simple"),
             "show", "tasks",
             configureAndroidHome = true,
         )
@@ -205,7 +205,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     fun `package command produce aab bundle`() = runSlowTest {
         val taskName = ":signed:bundleAndroid"
         val result = runCli(
-            projectRoot = testProject("android/signed"),
+            projectDir = testProject("android/signed"),
             "package",
             configureAndroidHome = true,
         )
@@ -216,7 +216,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `mockable jar unit tests`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/mockable-jar"), 
+            projectDir = testProject("android/mockable-jar"),
             "test",
             configureAndroidHome = true,
         )
@@ -226,7 +226,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `mockable jar unit tests in multi-module setup`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/multi-module-mockable-jar"),
+            projectDir = testProject("android/multi-module-mockable-jar"),
             "test",
             configureAndroidHome = true,
         )
@@ -236,7 +236,7 @@ class AndroidExampleProjectsTest : AmperCliTestBase() {
     @Test
     fun `robolectric unit tests`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("android/robolectric"),
+            projectDir = testProject("android/robolectric"),
             "test",
             configureAndroidHome = true,
         )

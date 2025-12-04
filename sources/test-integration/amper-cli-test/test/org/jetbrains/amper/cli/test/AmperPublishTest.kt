@@ -44,7 +44,7 @@ class AmperPublishTest : AmperCliTestBase() {
         val groupDir = mavenLocalForTest.resolve("amper/test/jvm-publish")
 
         runCli(
-            projectRoot = testProject("jvm-publish"),
+            projectDir = testProject("jvm-publish"),
             "publish", "mavenLocal",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -132,7 +132,7 @@ class AmperPublishTest : AmperCliTestBase() {
         val groupDir = mavenLocalForTest.resolve("amper/test/jvm-publish-multimodule")
 
         runCli(
-            projectRoot = testProject("jvm-publish-multimodule"),
+            projectDir = testProject("jvm-publish-multimodule"),
             "publish", "mavenLocal", "--modules=main-lib",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -196,14 +196,14 @@ class AmperPublishTest : AmperCliTestBase() {
 
         // Publish 'main-lib' from project 'jvm-publish-multimodule' to mavenLocal
         runCli(
-            projectRoot = testProject("jvm-publish-multimodule"),
+            projectDir = testProject("jvm-publish-multimodule"),
             "publish", "mavenLocal", "--modules=main-lib",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
 
         // Consume 'main-lib' from mavenLocal in project `jvm-consume-mavenLocal`
         runCli(
-            projectRoot = testProject("jvm-consume-mavenLocal"),
+            projectDir = testProject("jvm-consume-mavenLocal"),
             "task", ":jvm-consume-mavenLocal:resolveDependenciesJvm",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -243,7 +243,7 @@ class AmperPublishTest : AmperCliTestBase() {
 
         // Publish 'main-lib' from project 'jvm-publish-multimodule' to mavenLocal
         val result = runCli(
-            projectRoot = publishedProject,
+            projectDir = publishedProject,
             "publish", "mavenLocal", "--modules=main-lib",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -251,7 +251,7 @@ class AmperPublishTest : AmperCliTestBase() {
 
         // Consume 'main-lib' from mavenLocal in project `jvm-consume-mavenLocal`
         runCli(
-            projectRoot = consumerProject,
+            projectDir = consumerProject,
             "task", ":jvm-consume-mavenLocal:resolveDependenciesJvm",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -259,13 +259,13 @@ class AmperPublishTest : AmperCliTestBase() {
         // Second publication of the same library (it updates maven-metadata-local.xml,
         // but publish artifact from previous run where it was built and cached)
         runCli(
-            projectRoot = publishedProject,
+            projectDir = publishedProject,
             "publish", "mavenLocal", "--modules=main-lib",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
         // 'main-lib' is resolved from mavenLocal again
         runCli(
-            projectRoot = consumerProject,
+            projectDir = consumerProject,
             "task", ":jvm-consume-mavenLocal:resolveDependenciesJvm",
             amperJvmArgs = listOf(mavenRepoLocalJvmArg(mavenLocalForTest)),
         )
@@ -455,7 +455,7 @@ class AmperPublishTest : AmperCliTestBase() {
 
     private suspend fun publishJvmProject(version: String, repoUrl: String) {
         runCli(
-            projectRoot = testProject("jvm-publish"),
+            projectDir = testProject("jvm-publish"),
             "publish", "repoId",
             copyToTempDir = true,
             modifyTempProjectBeforeRun = { root ->

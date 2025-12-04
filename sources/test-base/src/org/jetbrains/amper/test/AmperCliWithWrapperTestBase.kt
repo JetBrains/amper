@@ -174,11 +174,11 @@ abstract class AmperCliWithWrapperTestBase {
             )
         }
 
-        val buildOutputRoot = workingDir / findBuildDirRelativePath(args)
+        val buildDir = workingDir / findBuildDirRelativePath(args, environment)
         val amperResult = AmperCliResult(
-            projectRoot = workingDir,
-            buildOutputRoot = buildOutputRoot,
-            logsDir = logsDirForExecution(buildOutputRoot, amperWrapperPid = result.pid),
+            projectDir = workingDir,
+            buildDir = buildDir,
+            logsDir = logsDirForExecution(buildDir, amperWrapperPid = result.pid),
             pid = result.pid,
             exitCode = result.exitCode,
             stdout = result.stdout,
@@ -221,12 +221,16 @@ abstract class AmperCliWithWrapperTestBase {
         return amperResult
     }
 
-    private fun findBuildDirRelativePath(args: List<String>): Path {
-        val buildOutputArgIndex = args.indexOf("--build-output")
+    private fun findBuildDirRelativePath(args: List<String>, env: Map<String, String>): Path {
+        val buildOutputEnv = env["AMPER_BUILD_DIR"]
+        if (!buildOutputEnv.isNullOrBlank()) {
+            return Path(buildOutputEnv)
+        }
+        val buildOutputArgIndex = args.indexOf("--build-dir")
         if (buildOutputArgIndex in 0..<args.lastIndex) {
             return Path(args[buildOutputArgIndex + 1])
         }
-        val buildOutputArg = args.find { it.startsWith("--build-output=") }
+        val buildOutputArg = args.find { it.startsWith("--build-dir=") }
         if (buildOutputArg != null) {
             return Path(buildOutputArg.substringAfter("="))
         }
@@ -287,8 +291,8 @@ sealed class JavaHomeMode {
 }
 
 data class AmperCliResult(
-    val projectRoot: Path,
-    val buildOutputRoot: Path,
+    val projectDir: Path,
+    val buildDir: Path,
     /**
      * The directory where the logs of this run are written, or `null` if it doesn't exist (most likely, the command
      * didn't write logs).

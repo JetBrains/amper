@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -25,7 +25,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `--module cannot be used with --all-modules`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--all-modules",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -36,7 +36,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm - single module default platforms`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root",
         )
 
@@ -46,7 +46,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm - multiple modules default platforms`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module=root", "--module=cli",
         )
 
@@ -56,7 +56,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm - all modules default platforms`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--all-modules",
         )
 
@@ -66,7 +66,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with --include-tests`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--include-tests",
         )
 
@@ -76,7 +76,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with --scope=compile`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--scope=compile",
         )
 
@@ -86,7 +86,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with --scope=runtime`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--scope=runtime",
         )
 
@@ -96,7 +96,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with group common`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--platform-group=common",
         )
 
@@ -106,7 +106,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with inexistent platform`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--platform-group=notaplatform",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -123,7 +123,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with platform typo (single choice)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--platform-group=commno",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -140,7 +140,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for jvm module with undeclared platform`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-exported-dependencies"),
+            projectDir = testProject("jvm-exported-dependencies"),
             "show", "dependencies", "--module", "root", "--platform-group=ios",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -151,7 +151,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module - default`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies",
         )
 
@@ -161,7 +161,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with --include-tests`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--include-tests",
         )
 
@@ -171,7 +171,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with group common`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=common",
         )
 
@@ -181,7 +181,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with group native`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=native",
         )
 
@@ -191,7 +191,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with group jvm`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=jvm",
         )
 
@@ -201,7 +201,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with group from alias`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=jvmAndAndroid",
         )
 
@@ -211,7 +211,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with inexistent platform`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=notaplatform",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -226,7 +226,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with platform typo ios64 (multi choice)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=ios64",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -241,7 +241,7 @@ class ShowDependenciesCommandTest : AmperCliTestBase() {
     @Test
     fun `show dependencies for multiplatform module with platform typo nadroive (multi choice)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-lib-with-alias"),
+            projectDir = testProject("multiplatform-lib-with-alias"),
             "show", "dependencies", "--platform-group=nadroive",
             expectedExitCode = 1,
             assertEmptyStdErr = false,

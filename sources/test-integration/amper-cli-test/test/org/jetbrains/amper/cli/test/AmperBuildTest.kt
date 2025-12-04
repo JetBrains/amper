@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -52,7 +52,7 @@ class AmperBuildTest : AmperCliTestBase() {
     @Test
     fun `build command produces a jar for jvm in kmp project`() = runSlowTest {
         val result = runCli(
-            projectRoot = testProject("multiplatform-input"),
+            projectDir = testProject("multiplatform-input"),
             "build", "-p", "jvm",
         )
 
@@ -96,7 +96,7 @@ class AmperBuildTest : AmperCliTestBase() {
     @Test
     fun `failed kotlinc compilation message`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multi-module-failed-kotlinc-compilation"),
+            projectDir = testProject("multi-module-failed-kotlinc-compilation"),
             "build",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
@@ -104,7 +104,7 @@ class AmperBuildTest : AmperCliTestBase() {
 
         val lastLines = r.stderr.lines().filter { it.isNotBlank() }.takeLast(2)
 
-        val file = r.projectRoot.resolve("shared/src/World.kt").toUri()
+        val file = r.projectDir.resolve("shared/src/World.kt").toUri()
 
         assertEquals("""
             ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
@@ -115,24 +115,24 @@ class AmperBuildTest : AmperCliTestBase() {
     @Test
     fun `simple multiplatform cli should compile windows on any platform`() = runSlowTest {
         val projectContext = testProject("simple-multiplatform-cli")
-        val result = runCli(projectRoot = projectContext, "build", "--platform=mingwX64")
+        val result = runCli(projectDir = projectContext, "build", "--platform=mingwX64")
 
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
-            result.buildOutputRoot.walk().any { it.name == "windows-cli.exe" }
+            result.buildDir.walk().any { it.name == "windows-cli.exe" }
         }
     }
 
     @Test
     fun `failed dependency resolution message`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multi-module-failed-resolve"),
+            projectDir = testProject("multi-module-failed-resolve"),
             "build",
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
 
         val actualStderr = r.stderr.lines().filter { it.isNotBlank() }.joinToString("\n")
-        val sharedModule = r.projectRoot.resolve("shared/module.yaml")
+        val sharedModule = r.projectDir.resolve("shared/module.yaml")
 
         // Prepend \n manually, since trimIndent will remove it.
         val sharedErrorPart = "\n" + """
@@ -175,7 +175,7 @@ class AmperBuildTest : AmperCliTestBase() {
         val projectRoot = testProject("jvm-resources")
 
         val result1 = runCli(
-            projectRoot = projectRoot,
+            projectDir = projectRoot,
             "build", "-v", "debug",
         )
 
@@ -184,7 +184,7 @@ class AmperBuildTest : AmperCliTestBase() {
         )
 
         val result2 = runCli(
-            projectRoot = projectRoot,
+            projectDir = projectRoot,
             "build",
         )
 
@@ -196,7 +196,7 @@ class AmperBuildTest : AmperCliTestBase() {
     @Test
     fun `native linker options are respected`() = runSlowTest {
         val projectRoot = testProject("native-linker-options")
-        val result = runCli(projectRoot = projectRoot, "build")
+        val result = runCli(projectDir = projectRoot, "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
             hasCompilerArgument("-linker-option=-Wl,--as-needed")
@@ -211,7 +211,7 @@ class AmperBuildTest : AmperCliTestBase() {
         compileJavaIncrementally: Boolean,
     ): AmperCliResult {
         val result = runCli(
-            projectRoot = projectRoot,
+            projectDir = projectRoot,
             *args,
             amperJvmArgs = listOf("-Dorg.jetbrains.amper.jic=${compileJavaIncrementally}"),
         )

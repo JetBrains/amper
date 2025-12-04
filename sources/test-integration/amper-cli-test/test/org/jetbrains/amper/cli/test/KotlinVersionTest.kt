@@ -24,7 +24,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `run kotlin hello world with compiler version 2_1_10`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.1.10"), "run")
+        val result = runCli(projectDir = testProject("kotlin-helloworld-custom-version-2.1.10"), "run")
 
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
@@ -37,7 +37,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `run kotlin hello world with compiler version 2_2_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.2.0"), "run")
+        val result = runCli(projectDir = testProject("kotlin-helloworld-custom-version-2.2.0"), "run")
 
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
@@ -50,7 +50,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `run kotlin hello world with compiler version 2_2_10`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("kotlin-helloworld-custom-version-2.2.10"), "run")
+        val result = runCli(projectDir = testProject("kotlin-helloworld-custom-version-2.2.10"), "run")
 
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
@@ -62,7 +62,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `run jvm with language version 2_1`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("jvm-language-version-2.1"), "run")
+        val result = runCli(projectDir = testProject("jvm-language-version-2.1"), "run")
 
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
@@ -74,7 +74,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `run jvm with language version 2_2`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("jvm-language-version-2.2"), "run")
+        val result = runCli(projectDir = testProject("jvm-language-version-2.2"), "run")
 
         result.assertStdoutContains("Hello, world!")
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
@@ -87,7 +87,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `build native with language version 2_1`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.1"), "build")
+        val result = runCli(projectDir = testProject("native-language-version-2.1"), "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
             hasCompilerArgument("-language-version=2.1")
@@ -96,7 +96,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `build native with language version 2_2`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.2"), "build")
+        val result = runCli(projectDir = testProject("native-language-version-2.2"), "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
             hasCompilerArgument("-language-version=2.2")
@@ -106,7 +106,7 @@ class KotlinVersionTest : AmperCliTestBase() {
     @Test
     @WindowsOnly
     fun `run native with language version 2_1`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.1"), "run")
+        val result = runCli(projectDir = testProject("native-language-version-2.1"), "run")
 
         result.assertStdoutContains("Hello, native!")
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
@@ -119,7 +119,7 @@ class KotlinVersionTest : AmperCliTestBase() {
     @Test
     @WindowsOnly
     fun `run native with language version 2_2`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.2"), "run")
+        val result = runCli(projectDir = testProject("native-language-version-2.2"), "run")
 
         result.assertStdoutContains("Hello, native!")
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
@@ -131,7 +131,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `build multiplatform with language version 2_1`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("multiplatform-language-version-2.1"), "build")
+        val result = runCli(projectDir = testProject("multiplatform-language-version-2.1"), "build")
 
         result.withTelemetrySpans {
             assertEachKotlinJvmCompilationSpan {
@@ -145,7 +145,7 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     fun `build multiplatform with language version 2_2`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("multiplatform-language-version-2.2"), "build")
+        val result = runCli(projectDir = testProject("multiplatform-language-version-2.2"), "build")
 
         result.withTelemetrySpans {
             assertEachKotlinJvmCompilationSpan {

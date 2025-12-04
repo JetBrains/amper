@@ -17,6 +17,7 @@ import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import kotlin.io.path.createDirectories
 
 internal abstract class AmperSubcommand(name: String) : SuspendingCliktCommand(name = name) {
@@ -33,16 +34,19 @@ internal abstract class AmperSubcommand(name: String) : SuspendingCliktCommand(n
     /**
      * Creates a [CliContext] representing the current Amper project and CLI environment.
      */
-    protected suspend fun createCliProjectContext() = spanBuilder("Create CLI context").use {
+    protected suspend fun createCliProjectContext(
+        explicitProjectDir: Path?,
+        explicitBuildDir: Path?,
+    ) = spanBuilder("Create CLI context").use {
         require(commandName.isNotBlank()) { "commandName should not be blank" }
 
         val projectContext = findProjectContext(
-            explicitProjectRoot = commonOptions.explicitProjectRoot,
-            explicitBuildRoot = commonOptions.explicitBuildOutputRoot,
+            explicitProjectDir = explicitProjectDir,
+            explicitBuildDir = explicitBuildDir,
         ) ?: userReadableError(
             "No Amper project found in the current directory or above. " +
                     "Make sure you have a project file or a module file at the root of your Amper project, " +
-                    "or specify --root explicitly to run tasks for a project located elsewhere."
+                    "or specify `--project-dir` explicitly to run tasks for a project located elsewhere."
         )
 
         CliContext(

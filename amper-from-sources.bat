@@ -171,6 +171,8 @@ if errorlevel 1 goto fail
 
 REM ********** Launch Amper from unpacked dist **********
 
+set AMPER_BUILD_DIR=build-from-sources
+
 rem TODO generate the argfile in the unpacked distribution just like in the zipped distribution and use it here
 "%AMPER_JAVA_HOME%\bin\java.exe" ^
   "-ea" ^
@@ -184,6 +186,5 @@ rem TODO generate the argfile in the unpacked distribution just like in the zipp
   %AMPER_JAVA_OPTIONS% ^
   -cp "%~dp0build\tasks\_amper-cli_buildUnpacked@amper-distribution\dist\lib\*" ^
   org.jetbrains.amper.cli.MainKt ^
-  --build-output="build-from-sources" ^
   %*
 exit /B %ERRORLEVEL%

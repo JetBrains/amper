@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -23,7 +23,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -36,7 +36,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single with parentheses (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -49,7 +49,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -63,7 +63,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single with parentheses (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -77,7 +77,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single with 0 params (jvm-tests-with-params)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-tests-with-params"),
+            projectDir = testProject("jvm-tests-with-params"),
             "test",
             "--include-test=com.example.testswithparams.OverloadsTest.test()",
         )
@@ -88,7 +88,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single with 1 param (jvm-tests-with-params)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-tests-with-params"),
+            projectDir = testProject("jvm-tests-with-params"),
             "test",
             "--include-test=com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)",
         )
@@ -99,7 +99,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test single with 2 params (jvm-tests-with-params)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-tests-with-params"),
+            projectDir = testProject("jvm-tests-with-params"),
             "test",
             "--include-test=com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo,org.junit.jupiter.api.TestReporter)",
         )
@@ -110,7 +110,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `run all parameterized tests (jvm-tests-with-params)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("jvm-tests-with-params"),
+            projectDir = testProject("jvm-tests-with-params"),
             "test",
         )
         r.assertJUnitTestCount(expected = 3)
@@ -122,7 +122,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include test multiple (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -137,7 +137,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include class exact single (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -152,7 +152,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include class exact single (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -166,7 +166,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include class exact multiple (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -185,7 +185,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include exact test and include exact class (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -202,7 +202,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include class pattern (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -220,7 +220,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include class pattern (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -235,7 +235,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `exclude class exact single (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -257,7 +257,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include pattern and exclude exact (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -273,7 +273,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include pattern and exclude exact (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -292,7 +292,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include exact and exclude class (jvm-cli)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -306,7 +306,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include pattern across multiple modules`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "jvm-cli",
@@ -329,7 +329,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include exact nested class (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -343,7 +343,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include nested class pattern (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -358,7 +358,7 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `include exact nested class method (shared)`() = runSlowTest {
         val r = runCli(
-            projectRoot = testProject("multiplatform-tests"),
+            projectDir = testProject("multiplatform-tests"),
             "test",
             "-m",
             "shared",
@@ -372,14 +372,14 @@ class AmperTestFiltersTest : AmperCliTestBase() {
     @Test
     fun `jvm exclude test module`() = runSlowTest {
         val projectRoot = testProject("jvm-multimodule-tests")
-        val result = runCli(projectRoot = projectRoot, "test")
+        val result = runCli(projectDir = projectRoot, "test")
 
         // all tests run
         result.assertStdoutContains("Hello from test 1")
         result.assertStdoutContains("Hello from test 2")
 
         // tests from module 1 aren't run
-        val result2 = runCli(projectRoot = projectRoot, "test", "--exclude-module=one")
+        val result2 = runCli(projectDir = projectRoot, "test", "--exclude-module=one")
         result2.assertStdoutDoesNotContain("Hello from test 1")
         result2.assertStdoutContains("Hello from test 2")
     }

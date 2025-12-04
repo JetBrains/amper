@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
@@ -22,6 +23,7 @@ import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.pathString
+import kotlin.io.path.useLines
 
 abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     @RegisterExtension
@@ -66,7 +68,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
     }
 
     protected suspend fun runCli(
-        projectRoot: Path,
+        projectDir: Path,
         vararg args: String,
         expectedExitCode: Int? = 0,
         assertEmptyStdErr: Boolean = true,
@@ -74,33 +76,42 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         modifyTempProjectBeforeRun: (tempProjectDir: Path) -> Unit = {},
         stdin: ProcessInput = ProcessInput.Empty,
         amperJvmArgs: List<String> = emptyList(),
-        customAmperScriptPath: Path? = tempWrappersDir.resolve(scriptNameForCurrentOs),
+        customAmperScriptPath: Path = tempWrappersDir.resolve(scriptNameForCurrentOs),
         amperJavaHomeMode: JavaHomeMode = JavaHomeMode.ForceUnset,
         configureAndroidHome: Boolean = false,
         environment: Map<String, String> = emptyMap(),
     ): AmperCliResult {
-        println("Running Amper CLI with '${args.toList()}' on $projectRoot")
+        println("Running Amper CLI with '${args.toList()}' on $projectDir")
 
-        val effectiveProjectRoot = if (copyToTempDir) {
-            val tempProjectDir = copyProjectToTempDir(projectRoot)
+        val effectiveProjectDir = if (copyToTempDir) {
+            val tempProjectDir = copyProjectToTempDir(projectDir)
             modifyTempProjectBeforeRun(tempProjectDir)
             tempProjectDir
         } else {
-            projectRoot
+            projectDir
         }
 
         val buildOutputRoot = tempRoot.resolve("build")
 
-        val result = runAmper(
-            workingDir = effectiveProjectRoot,
-            args = buildList {
+        val amperVersion = findAmperVersion(customAmperScriptPath)
+        val useNewArgs = amperVersion.knowsAboutNewRootAndBuildArgs()
+        val effectiveArgs = buildList {
+            if (!useNewArgs) {
                 add("--build-output=$buildOutputRoot")
-                add("--shared-caches-root=${Dirs.userCacheRoot}")
-                addAll(args)
-            },
+            }
+            add("--shared-caches-root=${Dirs.userCacheRoot.absolutePathString()}")
+            addAll(args)
+        }
+
+        val result = runAmper(
+            workingDir = effectiveProjectDir,
+            args = effectiveArgs,
             environment = buildMap {
                 if (configureAndroidHome) {
                     putAll(AndroidTools.getOrInstallForTests().environment())
+                }
+                if (useNewArgs) {
+                    put("AMPER_BUILD_DIR", buildOutputRoot.pathString)
                 }
                 put("AMPER_NO_GRADLE_DAEMON", "1")
                 putAll(environment)
@@ -115,7 +126,7 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         )
 
         testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
-        testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectRoot.pathString)
+        testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectDir.pathString)
         testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
         val logsDir = result.logsDir
         if (logsDir != null) {
@@ -123,6 +134,27 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         }
 
         return result
+    }
+
+    private fun ComparableVersion.knowsAboutNewRootAndBuildArgs(): Boolean {
+        // We want our dev versions to be considered less than release versions (0.10.0-dev-123 < 0.10.0).
+        // ComparableVersion hardcodes the known modifiers (alpha, beta, etc.), so the best we can do is consider dev
+        // versions alpha (we don't use alpha anyway in Amper, so this is an acceptable workaround).
+        val adjustedVersion = ComparableVersion(canonical.replace("-dev-", "-alpha-"))
+
+        // happens to work fine with 1.0-SNAPSHOT too :D
+        return adjustedVersion >= ComparableVersion("0.10.0-dev-3701")
+    }
+
+    private fun findAmperVersion(customAmperScriptPath: Path): ComparableVersion {
+        val versionLine = customAmperScriptPath.useLines { lines ->
+            lines.firstOrNull { "amper_version=" in it }
+                ?: error(
+                    "Version line not found in $customAmperScriptPath. First few lines:\n" +
+                            lines.take(20).joinToString("\n")
+                )
+        }
+        return ComparableVersion(versionLine.substringAfter("amper_version=").trim())
     }
 
     protected suspend fun runXcodebuild(

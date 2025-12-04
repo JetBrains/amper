@@ -16,7 +16,7 @@ class CompilerPluginsTest : AmperCliTestBase() {
     @Test
     fun koin() = runSlowTest {
         val projectRoot = testProject("compiler-plugin-koin")
-        val result = runCli(projectRoot = projectRoot, "run")
+        val result = runCli(projectDir = projectRoot, "run")
         result.assertStdoutContains("Hello 'Alice' (alice@example.com)!")
     }
 
@@ -25,13 +25,13 @@ class CompilerPluginsTest : AmperCliTestBase() {
         val projectRoot = testProject("compiler-plugin-koin")
         // need -XX:+EnableDynamicAgentLoading to remove the bytebuddy warning and have empty stderr
         // need -Xshare:off to remove the warning about class data sharing not being usable (caused by the agent AFAIU)
-        runCli(projectRoot = projectRoot, "test", "--jvm-args=-XX:+EnableDynamicAgentLoading", "--jvm-args=-Xshare:off")
+        runCli(projectDir = projectRoot, "test", "--jvm-args=-XX:+EnableDynamicAgentLoading", "--jvm-args=-Xshare:off")
     }
 
     @Test
     fun metro() = runSlowTest {
         val projectRoot = testProject("compiler-plugin-metro")
-        val result = runCli(projectRoot = projectRoot, "run")
+        val result = runCli(projectDir = projectRoot, "run")
         result.assertStdoutContains("Hourly forecast")
     }
 }

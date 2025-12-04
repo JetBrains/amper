@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test.utils
@@ -22,7 +22,7 @@ fun runSlowTest(testBody: suspend TestScope.() -> Unit): TestResult = runTest(ti
 // FIXME this should never be needed, because task output paths should be internal.
 //  User-visible artifacts should be placed in user-visible directories (use some convention).
 internal fun AmperCliResult.getTaskOutputPath(taskName: String): Path =
-    buildOutputRoot / "tasks" / taskName.replace(':', '_')
+    buildDir / "tasks" / taskName.replace(':', '_')
 
 /**
  * Asserts that the Java compilation was executed in the expected incremental/non-incremental mode.

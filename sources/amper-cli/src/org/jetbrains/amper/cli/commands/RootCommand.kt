@@ -14,6 +14,7 @@ import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.deprecated
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
@@ -78,6 +79,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     private val root by option(help = "Amper project root")
         .path(mustExist = true, canBeFile = false, canBeDir = true)
+        .deprecated("WARN: `--root` is deprecated. Use `--project-dir` after the Amper command instead")
 
     private val consoleLogLevel by option(
         "--log-level",
@@ -106,6 +108,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         "--build-output",
         help = "Root directory for build outputs. By default, this is the `build` directory under the project root."
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
+        .deprecated("WARN: `--build-output` is deprecated. Use `--build-dir` after the Amper command instead")
 
     private val debuggingOptions by DebuggingOptions()
 

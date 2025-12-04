@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -13,7 +13,7 @@ class AmperBootstrapTest : AmperCliTestBase() {
 
     @Test
     fun `amper can build itself`() = runTest(timeout = 30.minutes) {
-        runCli(projectRoot = Dirs.amperCheckoutRoot, "build")
+        runCli(projectDir = Dirs.amperCheckoutRoot, "build")
     }
 
     @Test
@@ -22,7 +22,7 @@ class AmperBootstrapTest : AmperCliTestBase() {
         // We cannot run all tests because that would amount to running the whole test suite twice.
         // All other tests will be covered anyway in the build of the MR that bumps Amper in Amper.
         runCli(
-            projectRoot = Dirs.amperCheckoutRoot,
+            projectDir = Dirs.amperCheckoutRoot,
             "test",
             "-m",
             "schema",

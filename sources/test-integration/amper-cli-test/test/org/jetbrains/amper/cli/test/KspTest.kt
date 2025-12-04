@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -335,7 +335,7 @@ class KspTest: AmperCliTestBase() {
     }
 
     private fun AmperCliResult.generatedFilesDir(module: String, fragment: String): Path =
-        buildOutputRoot / "generated" / module / fragment
+        buildDir / "generated" / module / fragment
 }
 
 private fun Path.assertContentEquals(expectedContents: String) {
