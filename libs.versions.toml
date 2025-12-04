@@ -117,7 +117,7 @@ maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "ma
 maven-core = { module = "org.apache.maven:maven-core", version.ref = "maven" }
 maven-resolver-connectorBasic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "maven-resolver" }
 maven-resolver-transportHttp = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "maven-resolver" }
-maven-reporting = "org.apache.maven.reporting:maven-reporting-impl:3.2.0"
+maven-reporting = "org.apache.maven.reporting:maven-reporting-impl:4.0.0"
 maven-plugin-annotations = "org.apache.maven.plugin-tools:maven-plugin-annotations:3.15.2"
 maven-site-plugin = "org.apache.maven.plugins:maven-site-plugin:3.21.0"
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }

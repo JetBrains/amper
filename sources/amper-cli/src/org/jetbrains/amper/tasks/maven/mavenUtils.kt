@@ -5,9 +5,18 @@
 package org.jetbrains.amper.tasks.maven
 
 import org.apache.maven.artifact.handler.DefaultArtifactHandler
+import org.apache.maven.bridge.MavenRepositorySystem
+import org.apache.maven.classrealm.ClassRealmManager
+import org.apache.maven.doxia.siterenderer.SiteRenderer
+import org.apache.maven.doxia.tools.SiteTool
 import org.apache.maven.execution.MavenExecutionRequest
+import org.apache.maven.lifecycle.internal.LifecycleExecutionPlanCalculator
 import org.apache.maven.model.Resource
+import org.apache.maven.plugin.BuildPluginManager
+import org.apache.maven.plugin.MavenPluginManager
 import org.apache.maven.project.MavenProject
+import org.apache.maven.session.scope.internal.SessionScope
+import org.codehaus.plexus.PlexusContainer
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.tasks.rootFragment
 import java.nio.file.Path
@@ -32,6 +41,16 @@ internal class MockedMavenProject(other: MavenProject) : MavenProject(other) {
         path?.let { _newTestSourceRoots.add(it) }
     }
 }
+
+// Various maven services.
+internal val PlexusContainer.mavenPluginManager: MavenPluginManager get() = lookup(MavenPluginManager::class.java)
+internal val PlexusContainer.buildPluginManager get() = lookup(BuildPluginManager::class.java)
+internal val PlexusContainer.siteTool get() = lookup(SiteTool::class.java)
+internal val PlexusContainer.siteRenderer get() = lookup(SiteRenderer::class.java)
+internal val PlexusContainer.sessionScope get() = lookup(SessionScope::class.java)
+internal val PlexusContainer.repoSystem get() = lookup(MavenRepositorySystem::class.java)
+internal val PlexusContainer.lifecycleExecutionPlanCalculator get() = lookup(LifecycleExecutionPlanCalculator::class.java)
+internal val PlexusContainer.classRealmManager get() = lookup(ClassRealmManager::class.java)
 
 // --- Maven project model changing utilities ---
 fun MavenProject.addCompileSourceRoots(paths: List<Path>) =

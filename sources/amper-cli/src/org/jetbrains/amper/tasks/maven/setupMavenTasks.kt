@@ -82,6 +82,15 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         //  amper classes? Should classes be shared between different maven mojos/plugins?
         //  Even instances of plexus beans that are discovered on the classpath?
         val container = createPlexusContainer(KnownMavenPhase::class.java.classLoader)
+        
+        // Adjust the Maven API class loader (that is used as a "parent" for plugin classloaders) 
+        // so that classes that are already on the Amper classpath won't be loaded twice for 
+        // plugins that depend on these classes.
+        container.classRealmManager.mavenApiRealm.apply {
+            importFrom(container.containerRealm, "org.apache.maven.doxia")
+            importFrom(container.containerRealm, "org.apache.maven.reporting")
+            importFrom(container.containerRealm, "org.apache.velocity")
+        }
 
         val moduleMavenProject = MockedMavenProject()
 

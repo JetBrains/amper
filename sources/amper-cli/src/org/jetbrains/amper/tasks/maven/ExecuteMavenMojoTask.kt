@@ -8,22 +8,17 @@ import com.github.ajalt.mordant.terminal.Terminal
 import io.ktor.utils.io.charsets.*
 import org.apache.maven.RepositoryUtils
 import org.apache.maven.artifact.repository.ArtifactRepository
-import org.apache.maven.bridge.MavenRepositorySystem
 import org.apache.maven.doxia.site.SiteModel
 import org.apache.maven.doxia.siterenderer.DocumentRenderingContext
 import org.apache.maven.doxia.siterenderer.RendererException
-import org.apache.maven.doxia.siterenderer.SiteRenderer
 import org.apache.maven.doxia.siterenderer.SiteRenderingContext
 import org.apache.maven.doxia.siterenderer.SiteRenderingContext.SiteDirectory
 import org.apache.maven.doxia.tools.SiteTool
 import org.apache.maven.doxia.tools.SiteToolException
 import org.apache.maven.execution.DefaultMavenExecutionResult
 import org.apache.maven.execution.MavenSession
-import org.apache.maven.lifecycle.internal.LifecycleExecutionPlanCalculator
 import org.apache.maven.model.Plugin
 import org.apache.maven.plugin.AbstractMojo
-import org.apache.maven.plugin.BuildPluginManager
-import org.apache.maven.plugin.MavenPluginManager
 import org.apache.maven.plugin.Mojo
 import org.apache.maven.plugin.MojoExecution
 import org.apache.maven.plugin.MojoExecutionException
@@ -66,14 +61,6 @@ import kotlin.io.path.exists
 typealias MavenPlugin = Plugin
 typealias MojoDesc = AmperMavenPluginMojo
 
-internal val PlexusContainer.mavenPluginManager: MavenPluginManager get() = lookup(MavenPluginManager::class.java)
-internal val PlexusContainer.buildPluginManager get() = lookup(BuildPluginManager::class.java)
-internal val PlexusContainer.siteTool get() = lookup(SiteTool::class.java)
-internal val PlexusContainer.siteRenderer get() = lookup(SiteRenderer::class.java)
-internal val PlexusContainer.sessionScope get() = lookup(SessionScope::class.java)
-internal val PlexusContainer.repoSystem get() = lookup(MavenRepositorySystem::class.java)
-internal val PlexusContainer.lifecycleExecutionPlanCalculator get() = lookup(LifecycleExecutionPlanCalculator::class.java)
-
 class ExecuteMavenMojoTask(
     override val taskName: TaskName,
     val module: AmperModule,
@@ -86,7 +73,6 @@ class ExecuteMavenMojoTask(
     val configString: String,
 ) : Task {
     private val pluginCoordinates = "${mavenPlugin.groupId}:${mavenPlugin.artifactId}:${mavenPlugin.version}"
-    private val goalCoordinates = "$pluginCoordinates:${mojo.goal}"
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -123,10 +109,6 @@ class ExecuteMavenMojoTask(
 
             // Get all collected configurations from the embryo.
             projectEmbryo.configureProject(this)
-
-            // Otherwise, imports for plugins will be looked through the default maven-api
-            // classloader and that will lead to the clashes.
-            classRealm = plexus.containerRealm
 
             // Set artifact repositories that are usually being set within the model building listener.
             remoteArtifactRepositories = request.remoteRepositories
