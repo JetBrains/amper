@@ -84,7 +84,7 @@ class IncrementalCache(
         inputFiles: List<Path>,
         forceRecalculation: Boolean = false,
         block: suspend () -> ExecutionResult,
-    ): IncrementalExecutionResult = tracer.spanBuilder("inc $key")
+    ): IncrementalExecutionResult = tracer.spanBuilder("inc: run: $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
         .use { span ->
@@ -99,15 +99,12 @@ class IncrementalCache(
             // Prevent parallel execution of this 'id' from this or other processes,
             // tracked by a lock on the state file
             withLock(key, stateFile) { stateFileChannel ->
-                val (cachedState, cacheCheckTime) = tracer.spanBuilder("inc: get-cached-state").use {
-                    measureTimedValue {
-                        getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)
-                    }
+                val cachedState = tracer.spanBuilder("inc: get-cached-state").use {
+                    getCachedState(stateFile, stateFileChannel, inputValues, inputFiles)
                 }
 
                 if (cachedState != null && !cachedState.outdated && !forceRecalculation) {
-                    logger.debug("[inc] up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
-                    logger.debug("[inc] '$key' is up-to-date")
+                    logger.debug("[inc] '$key' is up-to-date according to state file at '{}'", stateFile)
                     span.setAttribute("status", "up-to-date")
                     val existingResult =
                         ExecutionResult(cachedState.state.outputFiles.map { Path(it) }, cachedState.state.outputValues)
@@ -119,11 +116,11 @@ class IncrementalCache(
                     logger.debug("[inc] building '$key'")
                 }
 
-                val (result, buildTime) = measureTimedValue { block() }
+                val result = tracer.spanBuilder("inc: execute").use {
+                    block()
+                }
 
                 addResultToSpan(span, result)
-
-                logger.debug("[inc] finished '$key' in $buildTime")
 
                 tracer.spanBuilder("inc: write-state").use {
                     val state = recordState(inputValues, inputFiles, result)
