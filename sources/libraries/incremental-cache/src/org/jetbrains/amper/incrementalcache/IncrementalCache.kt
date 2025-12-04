@@ -26,7 +26,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.pathString
 import kotlin.time.Clock
 import kotlin.time.Instant
-import kotlin.time.measureTimedValue
 
 class IncrementalCache(
     /**
@@ -108,7 +107,7 @@ class IncrementalCache(
                     span.setAttribute("status", "up-to-date")
                     val existingResult =
                         ExecutionResult(cachedState.state.outputFiles.map { Path(it) }, cachedState.state.outputValues)
-                    addResultToSpan(span, existingResult)
+                    span.addResult(existingResult)
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
                 } else {
                     span.setAttribute("status", "requires-building")
@@ -120,7 +119,7 @@ class IncrementalCache(
                     block()
                 }
 
-                addResultToSpan(span, result)
+                span.addResult(result)
 
                 tracer.spanBuilder("inc: write-state").use {
                     val state = recordState(inputValues, inputFiles, result)
@@ -150,9 +149,9 @@ class IncrementalCache(
         .toHexString()
         .take(10)
 
-    private fun addResultToSpan(span: Span, result: ExecutionResult) {
-        span.setListAttribute("output-files", result.outputFiles.map { it.pathString }.sorted())
-        span.setMapAttribute("output-values", result.outputValues)
+    private fun Span.addResult(result: ExecutionResult) {
+        setListAttribute("output-files", result.outputFiles.map { it.pathString }.sorted())
+        setMapAttribute("output-values", result.outputValues)
     }
 
     private fun recordState(
