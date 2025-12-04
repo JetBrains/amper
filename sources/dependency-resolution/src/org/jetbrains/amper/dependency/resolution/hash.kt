@@ -51,8 +51,8 @@ data class HashAlgorithm(val name: String) {
         private fun String.algNumber() = this.replace(regex = "\\D".toRegex(), replacement = "").toInt()
         private fun String.variants(): List<String> {
             val algName = this.algName().lowercase()
-            val angNumber = this.algNumber()
-            return listOf("$algName$angNumber", "$algName-$angNumber")
+            val algNumber = this.algNumber()
+            return listOf("$algName$algNumber", "$algName-$algNumber")
                 .let { it + it.map { it.uppercase() } }
         }
     }
