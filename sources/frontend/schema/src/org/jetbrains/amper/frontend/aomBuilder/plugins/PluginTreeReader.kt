@@ -33,14 +33,13 @@ import org.jetbrains.amper.frontend.tree.ErrorValue
 import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.mergeTreesNotNull
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.scalarValue
-import org.jetbrains.amper.frontend.tree.single
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -71,13 +70,11 @@ internal class PluginTreeReader(
             parseContexts = false,
         )
 
-        val withDefaults = treeMerger.mergeTrees(tree)
-            .appendDefaultValues()
-        treeRefiner.refineTree(withDefaults, EmptyContexts) as MapLikeValue<Refined>
+        treeRefiner.refineTree(tree.appendDefaultValues(), EmptyContexts) as MapLikeValue<Refined>
     }
 
     init {
-        val tasks = pluginTree["tasks"].singleOrNull()?.value as? MapLikeValue<*>
+        val tasks = pluginTree[PluginYamlRoot::tasks] as? MapLikeValue<*>
         if (tasks == null || tasks.children.isEmpty()) {
             buildCtx.problemReporter.reportBundleError(
                 source = tasks?.asBuildProblemSource() as? PsiBuildProblemSource
@@ -93,10 +90,9 @@ internal class PluginTreeReader(
         module: ModuleBuildCtx,
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir
-        val pluginConfiguration = module.pluginsTree
-            .single(pluginData.id.value)?.value as? Refined
+        val pluginConfiguration = module.pluginsTree[pluginData.id.value] as? Refined
 
-        val enabled = pluginConfiguration?.single("enabled")?.value?.scalarValue<Boolean>()
+        val enabled = pluginConfiguration?.get("enabled")?.scalarValue<Boolean>()
         if (enabled != true) {
             if (pluginConfiguration != null) {
                 reportExplicitValuesWhenDisabled(pluginConfiguration)
@@ -104,7 +100,7 @@ internal class PluginTreeReader(
             return null
         }
 
-        val taskDirs = (pluginTree.asMapLikeAndGet("tasks") as? Refined)
+        val taskDirs = (pluginTree[PluginYamlRoot::tasks] as? Refined)
             ?.refinedChildren
             ?.filterValues { it.value !is ErrorValue }
             ?.mapValues { (name, _) ->
@@ -152,7 +148,7 @@ internal class PluginTreeReader(
             }
         }
 
-        val mergedTree = treeMerger.mergeTrees(listOfNotNull(pluginTree, referenceValuesTree))
+        val mergedTree = mergeTreesNotNull(pluginTree, referenceValuesTree)
             .substituteCatalogDependencies(pluginModule.usedCatalog)
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
         val resolvedTree = refinedTree.resolveReferences()
@@ -176,9 +172,5 @@ internal class PluginTreeReader(
                 level = Level.Warning,
             )
         }
-    }
-
-    private fun TreeValue<Refined>.asMapLikeAndGet(property: String): TreeValue<Refined>? {
-        return (this as? Refined)?.single(property)?.value
     }
 }

@@ -20,38 +20,36 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
-import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.asMapLike
+import org.jetbrains.amper.frontend.tree.mergeTreesNotNull
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun Merged.configureSpringBootDefaults(moduleCtxModule: Module) =
-    if (moduleCtxModule.settings.springBoot.enabled) {
+internal fun MapLikeValue<*>.configureSpringBootDefaults(springBootSettings: SpringBootSettings) =
+    if (springBootSettings.enabled) {
         val springBootEnabledDefault = TransformedValueTrace(
             description = "because Spring Boot is enabled",
-            sourceValue = moduleCtxModule.settings.springBoot::enabled.schemaDelegate,
+            sourceValue = springBootSettings::enabled.schemaDelegate,
         )
 
         val springBootApplyBomDefault = TransformedValueTrace(
             description = "because applyBom=true",
-            sourceValue = moduleCtxModule.settings.springBoot::applyBom.schemaDelegate,
+            sourceValue = springBootSettings::applyBom.schemaDelegate,
         )
-        val applyBom = moduleCtxModule.settings.springBoot.applyBom
-        val springBootVersion = moduleCtxModule.settings.springBoot.version
-        buildCtx
-            .treeMerger
-            .mergeTrees(
-                listOfNotNull(
-                    asMapLike,
-                    buildCtx.springBootDefaultsTree(
-                        applyBom,
-                        springBootVersion,
-                        springBootEnabledDefault,
-                        springBootApplyBomDefault,
-                    ),
-                )
-            )
+        val applyBom = springBootSettings.applyBom
+        val springBootVersion = springBootSettings.version
+        mergeTreesNotNull(
+            asMapLike,
+            buildCtx.springBootDefaultsTree(
+                applyBom,
+                springBootVersion,
+                springBootEnabledDefault,
+                springBootApplyBomDefault,
+            ),
+        )
     } else {
         this
     }

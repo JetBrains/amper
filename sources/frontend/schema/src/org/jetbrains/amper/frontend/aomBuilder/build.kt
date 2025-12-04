@@ -26,8 +26,7 @@ import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
-import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
-import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
+import org.jetbrains.amper.frontend.diagnostics.treeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
@@ -45,10 +44,13 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.Refined
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
@@ -149,40 +151,40 @@ internal fun BuildCtx.readModuleMergedTree(
     //       for module building and minimal module building.
     val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx, templatesCache)
 
-    // Perform diagnostics for owned trees.
-    OwnedTreeDiagnostics.forEach { diagnostic ->
-        ownedTrees.forEach { diagnostic.analyze(root = it, minimalModule.module, problemReporter) }
-    }
-
     val modulePsiDir = pathResolver.toPsiDirectory(moduleFile.parent) ?: error("A module file necessarily has a parent")
-    // Merge owned trees (see [TreeMerger]) and preprocess them.
-    val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
+
+    val preProcessedTree = mergeTrees(ownedTrees)
         .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
         .appendDefaultValues()
 
-    // Choose catalogs.
     // TODO This should be done without refining somehow?
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
-    val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
-        .resolveReferences()
-    val commonModule = createSchemaNode<Module>(commonTree)
-        ?: return null
-    val effectiveCatalog = commonModule.settings.builtInCatalog() + projectVersionsCatalog
 
+    // Create a common "preview" of module settings to finish dependent/reactive configuration.
+    val preProcessedCommonSettings: Settings = run {
+        val preProcessedCommonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
+            .resolveReferences()
+        createSchemaNode(preProcessedCommonTree[Module::settings]!!) ?: return null
+    }
+    val effectiveCatalog = preProcessedCommonSettings.builtInCatalog() + projectVersionsCatalog
+
+    // Finish preparing the tree with the dependent/reactive configuration.
     val processedTree = preProcessedTree
         .substituteCatalogDependencies(effectiveCatalog)
-        .substituteComposeOsSpecific()
-        .configureSpringBootDefaults(commonModule)
-        .configureLombokDefaults(commonModule)
+        .substituteComposeOsSpecific()  // must be after catalog substitution
+        .configureSpringBootDefaults(preProcessedCommonSettings.springBoot)
+        .configureLombokDefaults(preProcessedCommonSettings.lombok)
 
-    // plugins configuration is platform-agnostic, it's safe to refine it here
-    val pluginsTree = refiner.refineTree(
-        tree = processedTree[Module::plugins].first().value as MapLikeValue<*>,
-        selectedContexts = setOf(moduleCtx),
-    )
+    // Create a common `Module` schema node needed later for `AmperModule` configuration.
+    val processedCommonTree = refiner.refineTree(processedTree, setOf(moduleCtx))
+        .resolveReferences()
+    val commonModule = createSchemaNode<Module>(processedCommonTree)
+        ?: return null
 
-    // Perform diagnostics for the merged tree.
-    MergedTreeDiagnostics(refiner).forEach { diagnostic ->
+    // safe: `plugins` has a default
+    val pluginsTree = processedCommonTree[Module::plugins] as Refined
+
+    treeDiagnostics(refiner).forEach { diagnostic ->
         diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
     }
 

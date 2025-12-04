@@ -227,7 +227,7 @@ settings@jvm+android:
     apiVersion: null  # default, from ${languageVersion}
     freeCompilerArgs: null  # default
     ksp:
-      processorOptions: {}  # module.yaml
+      processorOptions: {}  # default
       processors:
         - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # module.yaml
       version: 2.3.0  # default

@@ -108,10 +108,15 @@ class RefineRequest(
                         }
                         is MapLikeValue<*> -> {
                             val firstChildren = (first as? MapLikeValue<*>)?.children.orEmpty()
+                            val trace = second.trace.let { trace ->
+                                if (trace.isDefault) {
+                                    trace // Defaults with higher priority just replace each other without a trace
+                                } else trace.withPrecedingValue(first)
+                            }
                             Refined(
                                 refinedChildren = (firstChildren + second.children).refineProperties(),
                                 type = second.type,
-                                trace = second.trace.withPrecedingValue(first),
+                                trace = trace,
                                 contexts = second.contexts,
                             )
                         }

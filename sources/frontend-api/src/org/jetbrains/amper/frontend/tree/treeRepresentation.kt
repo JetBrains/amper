@@ -89,7 +89,7 @@ data class ReferenceValue<out TS : TreeState>(
     override fun withContexts(contexts: Contexts) = copy(contexts = contexts)
 }
 
-data class StringInterpolationValue<TS : TreeState>(
+data class StringInterpolationValue<out TS : TreeState>(
     val parts: List<Part>,
     val type: SchemaType.StringInterpolatableType,
     override val trace: Trace,
@@ -191,4 +191,6 @@ inline val <TS : TreeState> List<Property<TreeValue<TS>>>.values get() = map { i
 operator fun <TS : TreeState> MapLikeValue<TS>.get(key: String) = children.filter { it.key == key }
 operator fun <TS : TreeState> List<MapLikeValue<TS>>.get(key: String) = flatMap { it[key] }
 operator fun <TS : TreeState> MapLikeValue<TS>.get(prop: KProperty1<*, *>) = this[prop.name]
-fun Refined.single(key: String) = refinedChildren[key]
+
+operator fun TreeValue<Refined>?.get(property: KProperty1<*, *>) = this[property.name]
+operator fun TreeValue<Refined>?.get(property: String) = (this as? Refined)?.refinedChildren[property]?.value

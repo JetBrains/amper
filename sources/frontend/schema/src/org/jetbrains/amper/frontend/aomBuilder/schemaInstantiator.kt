@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.NullValue
 import org.jetbrains.amper.frontend.tree.ReferenceValue
 import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.RefinedTree
 import org.jetbrains.amper.frontend.tree.ScalarValue
 import org.jetbrains.amper.frontend.tree.StringInterpolationValue
 import org.jetbrains.amper.frontend.tree.TreeValue
@@ -40,7 +39,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
 internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
-    node: RefinedTree,
+    node: TreeValue<Refined>,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
 ): T? = createSchemaNode(types.getType<T>(), node, missingPropertiesHandler) as T?
 

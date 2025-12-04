@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.contexts.DefaultContext
@@ -12,8 +11,7 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.stdlib.collections.IdentityHashSet
 
-context(buildCtx: BuildCtx)
-internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
+internal fun MapLikeValue<*>.appendDefaultValues(): MapLikeValue<*> {
     /*
       "root for defaults" is a MapLike<*> value with a type (object value), that is:
         a) the tree root
@@ -94,8 +92,7 @@ internal fun MapLikeValue<*>.appendDefaultValues(): Merged {
     val appender = DefaultsAppender(
         rootsForDefaults = rootsForDefaults,
     )
-    val withDefaults = appender.transform(this)!! as MapLikeValue<*>
-    return buildCtx.treeMerger.mergeTrees(listOf(withDefaults))
+    return appender.transform(this)!! as MapLikeValue<*>
 }
 
 

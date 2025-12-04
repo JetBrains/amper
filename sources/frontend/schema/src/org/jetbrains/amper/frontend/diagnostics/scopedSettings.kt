@@ -20,7 +20,7 @@ import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.OwnedTree
+import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.frontend.tree.visitMapLikeValues
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -33,10 +33,10 @@ import org.jetbrains.amper.stdlib.collections.joinToString
  */
 private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
-object IncorrectSettingsLocation : OwnedTreeDiagnostic {
+object IncorrectSettingsLocation : TreeDiagnostic {
     override val diagnosticId: BuildProblemId = "settings.incorrect.section"
 
-    override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
+    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitMapLikeValues { tree ->
             tree.children.forEach { PropertyCheck(problemReporter, minimalModule, prop = it).doCheck() }
         }

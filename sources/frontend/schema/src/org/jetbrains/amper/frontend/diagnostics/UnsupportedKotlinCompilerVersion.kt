@@ -14,20 +14,20 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
 import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeValue
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
-object KotlinCompilerVersionDiagnosticsFactory : MergedTreeDiagnostic {
+object KotlinCompilerVersionDiagnosticsFactory : TreeDiagnostic {
 
     private val MinimumSupportedKotlinVersion = ComparableVersion("2.1.10")
 
     // TODO remove this entire property everywhere, it's unused
     override val diagnosticId: BuildProblemId = "kotlin.compiler.version.diagnostics"
 
-    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace>() // somehow the computed properties lead to duplicate reports
         root.visitScalarProperties<KotlinSettings, String>(KotlinSettings::version) { prop, value ->
             val versionTrace = prop.value.trace

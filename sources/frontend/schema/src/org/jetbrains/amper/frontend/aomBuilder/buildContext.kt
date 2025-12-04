@@ -15,9 +15,8 @@ import org.jetbrains.amper.frontend.diagnostics.UnresolvedTemplate
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.MapLikeValue
 import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.TreeMerger
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -28,7 +27,6 @@ import java.nio.file.Path
 internal data class BuildCtx(
     val pathResolver: FrontendPathResolver,
     val problemReporter: ProblemReporter,
-    val treeMerger: TreeMerger = TreeMerger(),
     val types: SchemaTypingContext = SchemaTypingContext(),
     val systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ) {
@@ -42,7 +40,7 @@ internal data class BuildCtx(
 
 internal data class ModuleBuildCtx(
     val moduleFile: VirtualFile,
-    val mergedTree: Merged,
+    val mergedTree: MapLikeValue<*>,
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
     val buildCtx: BuildCtx,

@@ -25,10 +25,10 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Merged
 import org.jetbrains.amper.frontend.tree.NotChanged
 import org.jetbrains.amper.frontend.tree.Removed
 import org.jetbrains.amper.frontend.tree.TransformResult
+import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.tree.copy
@@ -37,13 +37,13 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
 context(buildCtx: BuildCtx)
-internal fun Merged.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? Merged ?: this
+internal fun MapLikeValue<*>.substituteCatalogDependencies(catalog: VersionCatalog) =
+    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? MapLikeValue<*> ?: this
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
     private val buildCtx: BuildCtx,
-) : TreeTransformer<Merged>() {
+) : TreeTransformer<TreeState>() {
     inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
@@ -53,7 +53,7 @@ internal class CatalogVersionsSubstitutor(
         getType<ShadowDependencyCatalog>() to getType<ShadowDependencyMaven>(),
     )
 
-    override fun visitMapValue(value: MapLikeValue<Merged>): TransformResult<MapLikeValue<Merged>> {
+    override fun visitMapValue(value: MapLikeValue<*>): TransformResult<MapLikeValue<*>> {
         // Here we don't know what kind of node we are visiting, so we have to use `super`.
         val substituted = substitutionTypes[value.type] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.

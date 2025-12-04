@@ -188,7 +188,7 @@ private class TreeReferencesResolver(
         val firstElement = referencePath.first()
         val reversedPath = currentPath.asReversed()
 
-        val resolutionRoot = reversedPath.find { it[firstElement].isNotEmpty() } ?: run {
+        val resolutionRoot = reversedPath.find { it[firstElement] != null } ?: run {
             reporter.reportBundleError(
                 origin.trace.asBuildProblemSource(), "validation.reference.resolution.root.not.found",
                 arguments = arrayOf(firstElement),

@@ -7,12 +7,21 @@
       "IOS_ARM64"
     ]
   },
+  "layout" : "AMPER",
   "aliases" : {
     "jvmAndAndroid" : [
       "JVM",
       "ANDROID"
     ]
   },
+  "dependencies(android)" : [
+    {
+      "coordinates(jvmAndAndroid)" : "org.jetbrains.compose.runtime:runtime:1.4.1(jvmAndAndroid)"
+    },
+    {
+      "coordinates(android)" : "androidx.compose.animation:animation-graphics:1.4.3(android)"
+    }
+  ],
   "settings" : {
     "android" : {
       "compileSdk" : "VERSION_33",
@@ -28,6 +37,7 @@
     "jvm" : {
       "mainClass" : "MainKt"
     },
+    "junit" : "NONE",
     "kotlin" : {
       "apiVersion" : "1.8",
       "languageVersion" : "1.8",
@@ -45,17 +55,18 @@
       ]
     },
     "ios" : {
+      "teamId" : "iosTeam",
       "framework" : {
         "basename" : "iosBasename",
         "isStatic" : "true"
-      },
-      "teamId" : "iosTeam"
+      }
     },
     "publishing" : {
       "group" : "org.jetbrains.amper.frontend.without-fragments.yaml",
       "version" : "42-SNAPSHOT"
     },
     "kover" : {
+      "enabled" : "true",
       "html" : {
         "title" : "koverHtmlReportTitle",
         "onCheck" : "true",
@@ -65,33 +76,22 @@
       "xml" : {
         "onCheck" : "false",
         "reportFile" : "coverage.xml"
-      },
-      "enabled" : "true"
+      }
     },
     "native" : {
       "entryPoint" : "entrypoint-native"
-    },
-    "junit" : "NONE"
-  },
-  "layout" : "AMPER",
-  "dependencies(android)" : [
-    {
-      "coordinates(jvmAndAndroid)" : "org.jetbrains.compose.runtime:runtime:1.4.1(jvmAndAndroid)"
-    },
-    {
-      "coordinates(android)" : "androidx.compose.animation:animation-graphics:1.4.3(android)"
     }
-  ],
+  },
   "repositories" : [
     {
+      "id" : "scratch",
+      "url" : "https://packages.jetbrains.team/maven/p/amper/amper",
+      "publish" : "true",
       "credentials" : {
         "file" : "local.properties",
         "usernameKey" : "tName",
         "passwordKey" : "tPass"
-      },
-      "id" : "scratch",
-      "url" : "https://packages.jetbrains.team/maven/p/amper/amper",
-      "publish" : "true"
+      }
     },
     {
       "url" : "https://packages.jetbrains.team/maven/p/deft/deft"
