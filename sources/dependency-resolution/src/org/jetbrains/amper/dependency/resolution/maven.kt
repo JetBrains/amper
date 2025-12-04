@@ -1533,13 +1533,13 @@ class MavenDependencyImpl internal constructor(
         val sha1 = context.spanBuilder("toDependencyFile -> getExpectedHash")
             .setAttribute("fileName", kmpMetadataFile.fileName)
             .use {
-                kmpMetadataFile.getExpectedHash("sha1", context.settings)
+                kmpMetadataFile.getExpectedHash(getSha1Algorithm(), context.settings)
             }
             ?: kmpMetadataFile.getPath()?.let { path ->
                 context.spanBuilder("toDependencyFile -> computeHash")
                     .setAttribute("fileName", kmpMetadataFile.fileName)
                     .use {
-                        computeHash(path, "sha1").hash
+                        computeHash(path, getSha1Algorithm()).hash
                     }
             }
             ?: run {

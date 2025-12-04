@@ -31,11 +31,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadChecksums
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToDownloadFile
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
-import org.jetbrains.amper.dependency.resolution.files.Hash
-import org.jetbrains.amper.dependency.resolution.files.Hasher
-import org.jetbrains.amper.dependency.resolution.files.SimpleHash
 import org.jetbrains.amper.dependency.resolution.files.Writer
-import org.jetbrains.amper.dependency.resolution.files.computeHash
 import org.jetbrains.amper.dependency.resolution.files.deleteIfExistsWithLogging
 import org.jetbrains.amper.dependency.resolution.files.produceResultWithDoubleLock
 import org.jetbrains.amper.dependency.resolution.files.produceResultWithTempFile
@@ -233,10 +229,10 @@ internal fun getDependencyFile(dependency: MavenDependencyImpl, file: File, isDo
         isDocumentation = isDocumentation
     )
 
-private fun DependencyFileImpl.getHashDependencyFile(algorithm: String) = getDependencyFile(
+private fun DependencyFileImpl.getHashDependencyFile(algorithm: HashAlgorithm) = getDependencyFile(
     dependency,
     nameWithoutExtension,
-    "$extension.$algorithm"
+    "$extension.${algorithm.name}"
 )
 
 fun getDependencyFile(
@@ -591,8 +587,8 @@ open class DependencyFileImpl(
                     ?.let {
                         // Move a file to the target location on successful copying
                         storeToTargetLocation(temp, expectedHash, cache, null, diagnosticsReporter) {
-                            expectedHash.takeIf { it.algorithm == "sha1" }?.hash
-                                ?: computeHash(externalRepositoryPath, "sha1").hash
+                            expectedHash.takeIf { it.algorithm.name == "sha1" }?.hash
+                                ?: computeHash(externalRepositoryPath, getSha1Algorithm()).hash
                         }
                     }
             }
@@ -633,7 +629,7 @@ open class DependencyFileImpl(
     private suspend fun DependencyFile.isDownloadedValidHash() =
         isDownloaded() && isChecksum() && readText().sanitize() != null
 
-    fun DependencyFile.isChecksum() = hashAlgorithms.any { extension.endsWith(".$it", true) }
+    fun DependencyFile.isChecksum() = hashAlgorithms.any { extension.endsWith(".${it.name}", true) }
 
     internal suspend fun download(
         repositories: List<Repository>,
@@ -701,7 +697,7 @@ open class DependencyFileImpl(
     ): Path? {
         for (repository in repositories) {
             val hasher = expectedHash?.let { Hasher(it.algorithm) }
-            val sha1Hasher = hasher?.takeIf { it.algorithm == "sha1" } ?: Hasher("sha1")
+            val sha1Hasher = hasher?.takeIf { it.algorithm.name == "sha1" } ?: Hasher(getSha1Algorithm())
             val hashers = buildList {
                 hasher?.let { add(it) }                     // for calculation of the given hash on download
                 if (hasher !== sha1Hasher) add(sha1Hasher)  // for calculation of `sha1` hash on download additionally
@@ -882,7 +878,7 @@ open class DependencyFileImpl(
 
     private fun Hash.isWellKnownBrokenHashIn(repository: String): Boolean {
         if (repository == "https://plugins.gradle.org/m2/") {
-            return algorithm == "sha512" || algorithm == "sha256"
+            return algorithm.name == "sha512" || algorithm.name == "sha256"
         }
 
         return false
@@ -903,7 +899,7 @@ open class DependencyFileImpl(
      * uses them for verification.
      * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
-    internal suspend fun getExpectedHash(algorithm: String, settings: Settings, searchInMetadata: Boolean = true): String? =
+    internal suspend fun getExpectedHash(algorithm: HashAlgorithm, settings: Settings, searchInMetadata: Boolean = true): String? =
         LocalStorageHashSource.getExpectedHash(this, algorithm, settings, searchInMetadata)
 
     /**
@@ -911,7 +907,7 @@ open class DependencyFileImpl(
      * Returns <code>null</code> if the hash was not found.
      */
     internal suspend fun downloadHash(
-        algorithm: String,
+        algorithm: HashAlgorithm,
         repositories: List<MavenRepository>,
         progress: Progress,
         cache: Cache,
@@ -951,8 +947,8 @@ open class DependencyFileImpl(
         return null
     }
 
-    private suspend fun getHashFromGradleCacheDirectory(algorithm: String) =
-        if (getCacheDirectory() is GradleLocalRepository && algorithm == "sha1") {
+    private suspend fun getHashFromGradleCacheDirectory(algorithm: HashAlgorithm) =
+        if (getCacheDirectory() is GradleLocalRepository && algorithm.name == "sha1") {
             getPath()?.parent?.name?.fixOldGradleHash(40)
         } else {
             null
@@ -1050,7 +1046,7 @@ open class DependencyFileImpl(
                                                         dependency.module,
                                                         dependency.version
                                                     )
-                                                } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                                                } else if (extension.substringAfterLast(".") !in hashAlgorithms.map{ it.name }) {
                                                     // Reports downloaded dependency to INFO (visible to user by default)
                                                     logger.info("Downloaded $url")
                                                 }
@@ -1121,7 +1117,7 @@ open class DependencyFileImpl(
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings) =
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings) =
                 settings.spanBuilder("getHashFromGradleCacheDirectory").use { artifact.getHashFromGradleCacheDirectory(algorithm) }
                     ?: settings.spanBuilder("getDependencyFile").use {
                         artifact.getHashDependencyFile(algorithm)
@@ -1131,9 +1127,9 @@ open class DependencyFileImpl(
                             ?.sanitize()
         },
         MetadataInfo {
-            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings) =
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings) =
                 with(artifact) {
-                    when (algorithm) {
+                    when (algorithm.name) {
                         "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
                         "sha256" -> fileFromVariant(dependency, fileName)?.sha256?.fixOldGradleHash(64)
                         "sha1" -> fileFromVariant(dependency, fileName)?.sha1?.fixOldGradleHash(40)
@@ -1143,7 +1139,7 @@ open class DependencyFileImpl(
                 }
         };
 
-        protected abstract suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings): String?
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings): String?
 
         private suspend fun getExpectedHash(artifact: DependencyFileImpl, settings: Settings): Hash? {
             for (hashAlgorithm in hashAlgorithms) {
@@ -1156,7 +1152,7 @@ open class DependencyFileImpl(
         }
 
         companion object {
-            suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: String, settings: Settings, searchInMetadata: Boolean) =
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings, searchInMetadata: Boolean) =
                 settings.spanBuilder(" File.getExpectedHash").use {
                     File.getExpectedHash(artifact, algorithm, settings)
                 }
@@ -1247,11 +1243,11 @@ class SnapshotDependencyFileImpl(
 
     private suspend fun getVersionFilePath() = mavenMetadata.getPath()?.parent?.resolve("$extension.version")
 
-    private suspend fun getChecksumFilePath(algorithm: String): Path? {
+    private suspend fun getChecksumFilePath(algorithm: HashAlgorithm): Path? {
         val fileName =
             if (isChecksum()) this.fileName.substringBeforeLast(".") // pom.<checksum> -> pom
             else this.fileName
-        return getPath()?.parent?.resolve("$fileName.$algorithm") // pom -> pom.<algorithm>
+        return getPath()?.parent?.resolve("$fileName.${algorithm.name}") // pom -> pom.<algorithm>
     }
 
     @Volatile
@@ -1491,12 +1487,6 @@ internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.mo
 
 private fun fileFromVariant(dependency: MavenDependencyImpl, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
-
-internal suspend fun Path.computeHash(): Collection<Hash> = computeHash(this) { createHashers() }
-
-private val hashAlgorithms = listOf("sha512", "sha256", "sha1", "md5")
-
-private fun createHashers() = hashAlgorithms.map { Hasher(it) }
 
 //// Ktor-based implementation of asynchronous reading from the ByteReadChannel and writing
 //// the received data to provided [writers]

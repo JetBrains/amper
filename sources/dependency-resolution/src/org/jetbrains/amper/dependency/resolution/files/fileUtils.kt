@@ -7,6 +7,7 @@ package org.jetbrains.amper.dependency.resolution.files
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.withRetry
+import org.jetbrains.amper.dependency.resolution.Hasher
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -15,7 +16,6 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.security.MessageDigest
 import kotlin.io.path.readText
 
 private val logger = LoggerFactory.getLogger("dr/fileUtils.kt")
@@ -23,28 +23,6 @@ private val logger = LoggerFactory.getLogger("dr/fileUtils.kt")
 internal fun interface Writer {
     fun write(data: ByteBuffer)
 }
-
-internal class Hasher(algorithm: String): Hash {
-    private val digest = MessageDigest.getInstance(algorithm)
-    override val algorithm: String = digest.algorithm
-    val writer: Writer = Writer(digest::update)
-    @OptIn(ExperimentalStdlibApi::class)
-    override val hash: String by lazy { digest.digest().toHexString() }
-    override fun toString() = "$algorithm: $hash"
-}
-
-interface Hash {
-    val algorithm: String
-    val hash: String
-}
-
-data class SimpleHash (
-    override val hash: String,
-    override val algorithm: String,
-): Hash
-
-internal suspend fun computeHash(path: Path, algorithm: String): Hasher =
-    computeHash(path) { listOf(Hasher(algorithm)) }.single()
 
 internal suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> =
     fileChannelReadOperationWithRetry(
