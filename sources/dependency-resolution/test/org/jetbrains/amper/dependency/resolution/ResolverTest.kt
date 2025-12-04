@@ -57,7 +57,6 @@ class ResolverTest: BaseDRTest() {
             listOf(
                 "apiguardian-api-1.1.0.jar",
                 "junit-jupiter-api-5.7.2.jar",
-                "junit-jupiter-params-5.7.2-all.jar",
                 "junit-jupiter-params-5.7.2.jar",
                 "junit-platform-commons-1.7.2.jar",
                 "opentest4j-1.2.0.jar",

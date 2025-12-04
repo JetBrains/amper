@@ -13,7 +13,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.amper.dependency.resolution.LocalM2RepositoryFinder.findPath
+import org.jetbrains.amper.dependency.resolution.attributes.Attribute
+import org.jetbrains.amper.dependency.resolution.attributes.AttributeValue
 import org.jetbrains.amper.dependency.resolution.attributes.Category
+import org.jetbrains.amper.dependency.resolution.attributes.DependencyBundling
+import org.jetbrains.amper.dependency.resolution.attributes.DependencyBundling.External
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinNativeTarget
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinPlatformType
 import org.jetbrains.amper.dependency.resolution.attributes.KotlinWasmTarget
@@ -927,6 +931,38 @@ class MavenDependencyImpl internal constructor(
         }
     }
 
+    /**
+     * It is intended to be called as the last resort in case several variants are still in play.
+     * If all those variants have the same attribute and a single variant has the attribute with a preferred value,
+     * then such a variant is selected.
+     * Otherwise, the original variants list is returned.
+     */
+    private fun List<Variant>.filterMultipleVariantsByAttributePreferredValue(): List<Variant> {
+        return if (this.withoutDocumentationAndMetadata.size > 1) {
+            filterMultipleVariantsByAttribute(attribute = DependencyBundling, preferredValue = External)
+        } else {
+            this
+        }
+    }
+
+    private inline fun <reified T : AttributeValue> List<Variant>.filterMultipleVariantsByAttribute(
+        attribute: Attribute<T>, preferredValue: T
+    ): List<Variant> {
+        if (this.withoutDocumentationAndMetadata.all { v -> v.getAttributeValue(attribute) != null }) {
+            // All variants contain dependency bundling, so we could try resolving the best match
+            this.filter { v ->
+                v.hasNoAttribute(attribute)
+                        || v.getAttributeValue(attribute) == preferredValue
+            }.let {
+                if (it.withoutDocumentationAndMetadata.size == 1) {
+                    return it
+                }
+            }
+        }
+
+        return this
+    }
+
     private suspend fun resolveUsingMetadata(
         context: Context,
         level: ResolutionLevel,
@@ -1743,6 +1779,13 @@ class MavenDependencyImpl internal constructor(
             .filterWithFallbackScope(settings.scope)
             .filterMultipleVariantsByUnusedAttributes()
             .filterWellKnowSpecialLibraries(this.group, this.module)
+            .let {
+                // If there are duplicates still.
+                // We try to choose the best match by well-known attributes (not checked before)
+                // that have a kind of "preferred" value.
+                // This is intended to be the last step of variants resolution
+                it.filterMultipleVariantsByAttributePreferredValue()
+            }
 
         return validVariants
     }

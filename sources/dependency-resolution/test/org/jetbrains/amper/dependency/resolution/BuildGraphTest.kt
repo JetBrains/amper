@@ -1457,7 +1457,7 @@ class BuildGraphTest : BaseDRTest() {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            verifyMessages = false, // todo (AB) : It should be replaced, resolution warning should be fixed
+            verifyMessages = true,
             expected = """
                 root
                 ╰─── org.junit.jupiter:junit-jupiter-params:5.7.2
@@ -1477,7 +1477,6 @@ class BuildGraphTest : BaseDRTest() {
             listOf(
                 "apiguardian-api-1.1.0.jar",
                 "junit-jupiter-api-5.7.2.jar",
-                "junit-jupiter-params-5.7.2-all.jar",
                 "junit-jupiter-params-5.7.2.jar",
                 "junit-platform-commons-1.7.2.jar",
                 "opentest4j-1.2.0.jar",
