@@ -14,6 +14,7 @@ docs_dir: src
 
 theme:
   name: material
+  custom_dir: overrides
   logo: images/amper-icon.svg
   favicon: images/amper-icon.svg
   icon:
@@ -103,6 +104,7 @@ markdown_extensions:
 watch:
   - .icons
   - includes
+  - overrides
 
 nav:
   - 'Home': index.md
