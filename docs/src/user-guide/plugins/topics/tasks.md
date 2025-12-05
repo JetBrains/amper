@@ -313,21 +313,21 @@ To do that we can refer to the `${module.jar}` which has the `org.jetbrains.ampe
 
 !!! example
     === "copyJar.kt"
-    ```kotlin
-    @TaskAction
-    fun copyJar(jar: CompilationArtifact) {
-        jar.artifact.copyTo(...)
-    }
-    ```
+        ```kotlin
+        @TaskAction
+        fun copyJar(jar: CompilationArtifact) {
+            jar.artifact.copyTo(...)
+        }
+        ```
     === "plugin.yaml"
-    ```yaml
-    tasks:
-      copy:
-        action: !copyJar
-          jar: ${module.jar} #(1)!
-    ```
-    
-    1.    A convenience value for the `#!yaml { from: ${module.self} }`
+        ```yaml
+        tasks:
+          copy:
+            action: !copyJar
+              jar: ${module.jar} #(1)!
+        ```
+        
+        1.    A convenience value for the `#!yaml { from: ${module.self} }`
 
 
 ## Run a task
