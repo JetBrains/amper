@@ -173,8 +173,8 @@ This is also what you see in tasks output and what you pass to the task command 
 
 !!! info
     The plugin ID is part of the internal task name.
-    By default, it is the plugin module name, unless overridden in `pluginInfo.id`. 
-    See the [quick start guide](../quick-start.md#basic-example) for examples of running tasks and customizing the plugin ID.
+    By default, it is the plugin module name, unless overridden in `pluginInfo.id`
+    (read more [here](structure.md#plugin-structure)).
 
 The internal name of a task should not ideally be exposed and used externally. We are working on making it so. 
 
