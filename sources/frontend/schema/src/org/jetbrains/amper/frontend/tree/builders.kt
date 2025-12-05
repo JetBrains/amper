@@ -72,17 +72,17 @@ class SyntheticBuilder(
         ListValue(mutableListOf<TreeValue<*>>().apply(block), type, trace, contexts)
 
     fun scalar(value: Enum<*>, trace: Trace = this.trace) =
-        ScalarValue<Owned>(value, types.getType(value.declaringJavaClass.kotlin.createType()) as SchemaType.EnumType, trace, contexts)
+        ScalarValue(value, types.getType(value.declaringJavaClass.kotlin.createType()) as SchemaType.EnumType, trace, contexts)
 
     fun scalar(value: Path, trace: Trace = this.trace) =
-        ScalarValue<Owned>(value, SchemaType.PathType, trace, contexts)
+        ScalarValue(value, SchemaType.PathType, trace, contexts)
 
     fun scalar(value: Boolean, trace: Trace = this.trace) =
-        ScalarValue<Owned>(value, SchemaType.BooleanType, trace, contexts)
+        ScalarValue(value, SchemaType.BooleanType, trace, contexts)
 
     fun scalar(value: String, trace: Trace = this.trace) =
-        ScalarValue<Owned>(value, SchemaType.StringType, trace, contexts)
+        ScalarValue(value, SchemaType.StringType, trace, contexts)
 
     fun scalar(value: TraceableString, trace: Trace = this.trace) =
-        ScalarValue<Owned>(value, SchemaType.TraceableStringType, trace, contexts)
+        ScalarValue(value, SchemaType.TraceableStringType, trace, contexts)
 }

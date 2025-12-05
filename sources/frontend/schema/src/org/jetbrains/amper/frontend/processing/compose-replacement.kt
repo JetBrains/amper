@@ -31,7 +31,7 @@ internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransforme
 
     override fun visitMapValue(value: MapLikeValue<*>) =
         if (value.type != dependencyType) super.visitMapValue(value)
-        else value.copy<ScalarValue<*>> { key, pValue, old ->
+        else value.copy<ScalarValue> { key, pValue, old ->
             pValue.value.asSafely<String>()
                 .takeIf { key == coordinatesPName }
                 ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }

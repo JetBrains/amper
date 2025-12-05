@@ -16,7 +16,7 @@ import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarValue<*>? = when (type) {
+internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarValue? = when (type) {
     is SchemaType.BooleanType -> when(val boolean = scalar.textValue.toBooleanStrictOrNull()) {
         null -> {
             reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
@@ -52,7 +52,7 @@ internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType):
 
 
 context(_: Contexts, config: ParsingConfig, _: ProblemReporter)
-private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): ScalarValue<*>? {
+private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): ScalarValue? {
     var path = try {
         Path(scalar.textValue)
     } catch (e: InvalidPathException) {
@@ -70,7 +70,7 @@ internal fun parseEnum(
     scalar: YamlValue.Scalar,
     type: SchemaType.EnumType,
     additionalSuggestedValues: List<String> = emptyList(),
-): ScalarValue<*>? {
+): ScalarValue? {
     val textValue = scalar.textValue
     val entry = type.declaration.getEntryBySchemaValue(textValue)
     if (entry == null) {

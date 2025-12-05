@@ -103,8 +103,8 @@ private fun createNode(
     }
 
     return when (type) {
-        is SchemaType.ScalarType if (value is ScalarValue<*>) -> value.value
-        is SchemaType.ListType if (value is ListValue<*>) -> createListNode(value, type, valuePath)
+        is SchemaType.ScalarType if (value is ScalarValue) -> value.value
+        is SchemaType.ListType if (value is ListValue) -> createListNode(value, type, valuePath)
         is SchemaType.MapType if (value is Refined) -> createMapNode(value, type, valuePath)
         is SchemaType.ObjectType if (value is Refined) -> createObjectNode(value, type, valuePath)
         is SchemaType.VariantType if (value is Refined) -> {
@@ -113,7 +113,7 @@ private fun createNode(
             }
             createNode(value.type, value, valuePath)
         }
-        else if (type.isMarkedNullable && value is NullValue<*>) -> null
+        else if (type.isMarkedNullable && value is NullValue) -> null
         else -> {
             // If crashes, it's not caused by an invalid user input, but rather by a bug in tree post-processing.
             error("Type error: expected a `$type`, got: `$value`")

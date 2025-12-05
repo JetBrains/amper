@@ -58,7 +58,6 @@ class RefineRequest(
      * Creates a copy out of the subtree of the initial tree, selected by [selectedContexts]
      * with merged nodes.
      */
-    @Suppress("UNCHECKED_CAST")
     fun refine(node: TreeValue<*>): TreeValue<Refined> {
         return when (node) {
             is ListValue -> ListValue(
@@ -73,8 +72,7 @@ class RefineRequest(
                 trace = node.trace,
                 contexts = node.contexts,
             )
-            is ScalarOrReference -> node as TreeValue<Refined>
-            is ErrorValue -> node
+            is LeafTreeValue -> node
         }
     }
 
@@ -91,11 +89,11 @@ class RefineRequest(
                             trace // Defaults with higher priority just replace each other without a trace
                         } else trace.withPrecedingValue(first)
                     }
-                    val newValue = when (second) {
+                    when (second) {
                         is NullValue -> second.copy(trace = newTrace)
                         is ScalarValue -> second.copy(trace = newTrace)
                         is ReferenceValue -> second.copy(trace = newTrace)
-                        is StringInterpolationValue<*> -> second.copy(trace = newTrace)
+                        is StringInterpolationValue -> second.copy(trace = newTrace)
                         is ErrorValue -> if (first is ErrorValue) ErrorValue(trace = newTrace) else refine(first)
                         is ListValue<*> -> {
                             val firstChildren = (first as? ListValue<*>)?.children.orEmpty()
@@ -121,8 +119,6 @@ class RefineRequest(
                             )
                         }
                     }
-                    @Suppress("UNCHECKED_CAST")
-                    newValue as TreeValue<Refined>
                 }
             }
 

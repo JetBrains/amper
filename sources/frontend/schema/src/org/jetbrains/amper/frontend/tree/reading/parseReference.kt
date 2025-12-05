@@ -57,7 +57,7 @@ internal fun parseReferenceOrInterpolation(
             reportParsing(scalar, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
             return null
         }
-        StringInterpolationValue<TreeState>(
+        StringInterpolationValue(
             parts = parts,
             trace = scalar.asTrace(),
             contexts = contexts,
@@ -67,7 +67,7 @@ internal fun parseReferenceOrInterpolation(
         val reference = checkNotNull(parts.first() as StringInterpolationValue.Part.Reference) {
             "Should not be called unless 'containsReferenceSyntax' is true"
         }
-        ReferenceValue<TreeState>(
+        ReferenceValue(
             referencedPath = reference.referencePath,
             trace = scalar.asTrace(),
             contexts = contexts,

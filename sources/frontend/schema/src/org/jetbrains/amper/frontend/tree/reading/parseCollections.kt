@@ -93,7 +93,7 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseScalarKey(
     key: YamlValue,
     type: SchemaType.ScalarType,
-): ScalarValue<*>? {
+): ScalarValue? {
     key.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {
             reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)

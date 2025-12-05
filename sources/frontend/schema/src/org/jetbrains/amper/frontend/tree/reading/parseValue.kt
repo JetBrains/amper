@@ -41,7 +41,7 @@ internal fun parseValue(
             }
             return null // null means invalid in this function, not the null value
         }
-        return NullValue<TreeState>(value.asTrace(), explicitContexts)
+        return NullValue(value.asTrace(), explicitContexts)
     }
     value.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {

@@ -49,7 +49,9 @@ fun TreeValue<*>.jsonDump(
                 it.doJsonDump(newIdent, sb)
             }
 
-            is ScalarOrReference -> {
+            is ErrorValue -> append("")
+
+            is LeafTreeValue -> {
                 val value = when (this@doJsonDump) {
                     is ScalarValue -> value
                     else -> null
@@ -59,8 +61,6 @@ fun TreeValue<*>.jsonDump(
                 if (asNormalizedPath != null) append("\"$asNormalizedPath${contextStr()}\"")
                 else append("\"$value${contextStr()}\"")
             }
-
-            is ErrorValue -> append("")
         }
     }
 

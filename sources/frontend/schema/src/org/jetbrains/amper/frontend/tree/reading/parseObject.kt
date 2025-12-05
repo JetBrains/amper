@@ -148,7 +148,7 @@ private fun parseObjectFromScalarShorthand(
     scalar: YamlValue.Scalar,
     type: SchemaType.ObjectType,
 ): Owned? {
-    fun parseScalarShorthandValue(): Pair<SchemaObjectDeclaration.Property, ScalarValue<*>?>? {
+    fun parseScalarShorthandValue(): Pair<SchemaObjectDeclaration.Property, ScalarValue?>? {
         val boolean = type.declaration.getBooleanShorthand()
         val secondary = type.declaration.getSecondaryShorthand()
 

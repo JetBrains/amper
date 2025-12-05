@@ -7,10 +7,10 @@ package org.jetbrains.amper.frontend.tree
 private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>): R = when (value) {
     is ListValue<TS> -> visitListValue(value)
     is MapLikeValue<TS> -> visitMapValue(value)
-    is ScalarValue<TS> -> visitScalarValue(value)
-    is NullValue<TS> -> visitNullValue(value)
-    is ReferenceValue<TS> -> visitReferenceValue(value)
-    is StringInterpolationValue<TS> -> visitStringInterpolationValue(value)
+    is ScalarValue -> visitScalarValue(value)
+    is NullValue -> visitNullValue(value)
+    is ReferenceValue -> visitReferenceValue(value)
+    is StringInterpolationValue -> visitStringInterpolationValue(value)
     is ErrorValue -> visitNoValue(value)
 }
 
@@ -19,11 +19,11 @@ private fun <R, TS : TreeState> TreeVisitor<R, TS>.accept(value: TreeValue<TS>):
  */
 interface TreeVisitor<R, TS : TreeState> {
     fun visitValue(value: TreeValue<TS>): R = accept(value)
-    fun visitNullValue(value: NullValue<TS>): R
-    fun visitScalarValue(value: ScalarValue<TS>): R
+    fun visitNullValue(value: NullValue): R
+    fun visitScalarValue(value: ScalarValue): R
     fun visitNoValue(value: ErrorValue): R
-    fun visitReferenceValue(value: ReferenceValue<TS>): R
-    fun visitStringInterpolationValue(value: StringInterpolationValue<TS>): R
+    fun visitReferenceValue(value: ReferenceValue): R
+    fun visitStringInterpolationValue(value: StringInterpolationValue): R
     fun visitListValue(value: ListValue<TS>): R
     fun visitMapValue(value: MapLikeValue<TS>): R
 }
@@ -48,10 +48,10 @@ abstract class RecurringTreeVisitor<R, TS : TreeState> : TreeVisitor<R, TS> {
  */
 abstract class RecurringTreeVisitorUnit<TS : TreeState> : RecurringTreeVisitor<Unit, TS>() {
     override fun aggregate(value: TreeValue<TS>, childResults: List<Unit>) = Unit
-    override fun visitScalarValue(value: ScalarValue<TS>) = Unit
-    override fun visitNullValue(value: NullValue<TS>) = Unit
-    override fun visitReferenceValue(value: ReferenceValue<TS>) = Unit
-    override fun visitStringInterpolationValue(value: StringInterpolationValue<TS>) = Unit
+    override fun visitScalarValue(value: ScalarValue) = Unit
+    override fun visitNullValue(value: NullValue) = Unit
+    override fun visitReferenceValue(value: ReferenceValue) = Unit
+    override fun visitStringInterpolationValue(value: StringInterpolationValue) = Unit
     override fun visitNoValue(value: ErrorValue) = Unit
 }
 
@@ -60,9 +60,9 @@ abstract class RecurringTreeVisitorUnit<TS : TreeState> : RecurringTreeVisitor<U
  */
 fun <TS : TreeState> TreeValue<TS>.visitValues(block: (TreeValue<TS>) -> Unit) =
     object : RecurringTreeVisitorUnit<TS>() {
-        override fun visitNullValue(value: NullValue<TS>) = block(value)
-        override fun visitScalarValue(value: ScalarValue<TS>) = block(value)
-        override fun visitReferenceValue(value: ReferenceValue<TS>) = block(value)
+        override fun visitNullValue(value: NullValue) = block(value)
+        override fun visitScalarValue(value: ScalarValue) = block(value)
+        override fun visitReferenceValue(value: ReferenceValue) = block(value)
         override fun visitListValue(value: ListValue<TS>) = block(value).also { super.visitListValue(value) }
         override fun visitMapValue(value: MapLikeValue<TS>) = block(value).also { super.visitMapValue(value) }
     }.visitValue(this)
@@ -108,10 +108,10 @@ abstract class TreeTransformer<TS : TreeState> : TreeVisitor<TransformResult<Tre
         }
 
     override fun visitNoValue(value: ErrorValue): TransformResult<TreeValue<TS>> = NotChanged
-    override fun visitNullValue(value: NullValue<TS>): TransformResult<TreeValue<TS>> = NotChanged
-    override fun visitScalarValue(value: ScalarValue<TS>): TransformResult<TreeValue<TS>> = NotChanged
-    override fun visitReferenceValue(value: ReferenceValue<TS>): TransformResult<TreeValue<TS>> = NotChanged
-    override fun visitStringInterpolationValue(value: StringInterpolationValue<TS>): TransformResult<TreeValue<TS>> = NotChanged
+    override fun visitNullValue(value: NullValue): TransformResult<TreeValue<TS>> = NotChanged
+    override fun visitScalarValue(value: ScalarValue): TransformResult<TreeValue<TS>> = NotChanged
+    override fun visitReferenceValue(value: ReferenceValue): TransformResult<TreeValue<TS>> = NotChanged
+    override fun visitStringInterpolationValue(value: StringInterpolationValue): TransformResult<TreeValue<TS>> = NotChanged
 
     override fun visitListValue(value: ListValue<TS>): TransformResult<TreeValue<TS>> =
         value.children.visitAll().mapIfChanged { value.copy(children = it) }

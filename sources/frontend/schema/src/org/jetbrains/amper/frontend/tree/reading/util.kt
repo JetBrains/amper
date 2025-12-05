@@ -30,7 +30,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 context(contexts: Contexts)
 internal fun scalarValue(origin: YamlValue.Scalar, type: SchemaType.ScalarType, value: Any) =
-    ScalarValue<TreeState>(value, type, origin.asTrace(), contexts)
+    ScalarValue(value, type, origin.asTrace(), contexts)
 
 context(contexts: Contexts)
 internal fun mapLikeValue(
@@ -110,10 +110,10 @@ internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue
         is ListValue<T> -> copy(trace = trace)
         is MapLikeValue<T> -> copy(trace = trace)
         is ErrorValue -> ErrorValue(trace = trace)
-        is ReferenceValue<T> -> copy(trace = trace)
-        is StringInterpolationValue<T> -> copy(trace = trace)
-        is ScalarValue<T> -> copy(trace = trace)
-        is NullValue<T> -> copy(trace = trace)
+        is ReferenceValue -> copy(trace = trace)
+        is StringInterpolationValue -> copy(trace = trace)
+        is ScalarValue -> copy(trace = trace)
+        is NullValue -> copy(trace = trace)
     }
 }
 

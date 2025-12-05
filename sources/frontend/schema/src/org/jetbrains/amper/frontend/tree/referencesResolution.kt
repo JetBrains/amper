@@ -101,7 +101,7 @@ private class TreeReferencesResolver(
         }
     }
 
-    override fun visitReferenceValue(value: ReferenceValue<Refined>): TransformResult<TreeValue<Refined>> {
+    override fun visitReferenceValue(value: ReferenceValue): TransformResult<TreeValue<Refined>> {
         if (resolveOnly != null && value !in resolveOnly) {
             return NotChanged
         }
@@ -118,7 +118,7 @@ private class TreeReferencesResolver(
         return Changed(converted.copyWithTrace(trace))
     }
 
-    override fun visitStringInterpolationValue(value: StringInterpolationValue<Refined>): TransformResult<TreeValue<Refined>> {
+    override fun visitStringInterpolationValue(value: StringInterpolationValue): TransformResult<TreeValue<Refined>> {
         if (resolveOnly != null && value !in resolveOnly) {
             return NotChanged
         }
@@ -327,7 +327,7 @@ private fun TreeValue<Refined>.deepContainsAnyReferences(): Boolean = when(this)
     is ScalarValue, is ErrorValue, is NullValue -> false
 }
 
-private fun ReferenceValue<*>.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
+private fun ReferenceValue.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
     description = $$"$${if (trace.isDefault) "default, " else ""}from ${$${referencedPath.joinToString(".")}}",
     referenceTrace = trace,
     resolvedValue = resolvedValue,

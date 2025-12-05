@@ -29,15 +29,15 @@ import kotlin.reflect.KProperty1
  */
 inline fun <reified T : SchemaNode, reified V> TreeValue<*>.visitScalarProperties(
     vararg properties: KProperty1<T, V>,
-    noinline visitSelected: (ScalarProperty<*>, V & Any) -> Unit,
+    noinline visitSelected: (ScalarProperty, V & Any) -> Unit,
 ) {
     ObjectPropertiesVisitorRecurring(
         objectKlass = T::class,
         properties = properties.map { it.name },
     ) {
-        val pValue = it.value as? ScalarValue<*> ?: return@ObjectPropertiesVisitorRecurring
+        val pValue = it.value as? ScalarValue ?: return@ObjectPropertiesVisitorRecurring
         val value = pValue.value
-        if (value is V) visitSelected(it as ScalarProperty<*>, value)
+        if (value is V) visitSelected(it as ScalarProperty, value)
     }.visitValue(this)
 }
 
@@ -103,16 +103,16 @@ class ObjectPropertiesVisitorRecurring(
  */
 fun TreeValue<*>.collectScalarPropertiesWithOwners() = AllScalarPropertiesCollector.visitValue(this)
 
-private typealias ScalarPropertyWithOwner = Pair<MapLikeValue<*>, ScalarProperty<*>>
+private typealias ScalarPropertyWithOwner = Pair<MapLikeValue<*>, ScalarProperty>
 private typealias ScalarPropertiesWithOwner = List<ScalarPropertyWithOwner>
 
 private object AllScalarPropertiesCollector : RecurringTreeVisitor<ScalarPropertiesWithOwner, TreeState>() {
-    override fun visitNullValue(value: NullValue<*>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitScalarValue(value: ScalarValue<*>) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitNullValue(value: NullValue) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitScalarValue(value: ScalarValue) = emptyList<ScalarPropertyWithOwner>()
     override fun visitNoValue(value: ErrorValue) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitReferenceValue(value: ReferenceValue<*>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitStringInterpolationValue(value: StringInterpolationValue<*>) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitReferenceValue(value: ReferenceValue) = emptyList<ScalarPropertyWithOwner>()
+    override fun visitStringInterpolationValue(value: StringInterpolationValue) = emptyList<ScalarPropertyWithOwner>()
     override fun aggregate(value: TreeValue<*>, childResults: List<ScalarPropertiesWithOwner>) = childResults.flatten()
     override fun visitMapValue(value: MapLikeValue<*>) = super.visitMapValue(value) +
-            value.children.filter { it.value is ScalarValue }.map { value to (it as ScalarProperty<*>) }
+            value.children.filter { it.value is ScalarValue }.map { value to (it as ScalarProperty) }
 }
