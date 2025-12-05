@@ -242,6 +242,19 @@ class AndroidTools(
     }
 
     /**
+     * Uninstalls the application with the given [packageName].
+     *
+     * If [ignoreFailures] is true (the default), the exit code of the `adb uninstall` command is not checked.
+     * This is useful to avoid failing if the package is not found (already not installed).
+     */
+    suspend fun uninstall(packageName: String, ignoreFailures: Boolean = true) {
+        val result = adb("uninstall", packageName, outputListener = PrefixPrintOutputListener("adb install"))
+        if (!ignoreFailures) {
+            result.checkExitCodeIsZero()
+        }
+    }
+
+    /**
      * Installs the APK located at the given [apkPath] on the emulator using adb.
      */
     suspend fun installApk(apkPath: Path) {
