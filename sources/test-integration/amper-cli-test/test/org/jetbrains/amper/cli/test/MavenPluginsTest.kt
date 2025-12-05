@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -111,7 +112,8 @@ class MavenPluginsTest : AmperCliTestBase() {
         assertExists(checkstyleResult)
         
         val checkstyleResultText = checkstyleResult.readText()
-        assertContains(checkstyleResultText, "checkstyle-plugin/app/src/Foo.java")
+        val pathToJavaFile = "checkstyle-plugin${File.separator}app${File.separator}src${File.separator}Foo.java"
+        assertContains(checkstyleResultText, pathToJavaFile)
         assertContains(checkstyleResultText, "File does not end with a newline.")
         assertContains(checkstyleResultText, "Missing package-info.java file.")
     }
