@@ -27,7 +27,7 @@ object InstrumentedTestApp  {
     /**
      * Assembles the APK containing the instrumented tests themselves, optionally using a custom [applicationId].
      */
-    suspend fun assemble(applicationId: String? = null, testReporter: TestReporter): Path {
+    suspend fun assemble(applicationId: String? = null, testReporter: TestReporter): App {
         val testFilePath = testAppProject / "src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
         val buildFilePath = testAppProject / "build.gradle.kts"
         var originalTestFileContent: String? = null
@@ -71,6 +71,14 @@ object InstrumentedTestApp  {
             }
         }
 
-        return testAppProject / "build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        return App(
+            id = applicationId ?: "com.jetbrains.sample.app",
+            apkPath = testAppProject / "build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        )
     }
 }
+
+data class App(
+    val id: String,
+    val apkPath: Path,
+)

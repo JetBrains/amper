@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package androidUtils
@@ -40,14 +40,19 @@ open class AndroidBaseTest : TestBase() {
 
         val copiedProjectDir = copyProjectToTempDir(projectSource)
         val targetApkPath = buildApkWithAmper(copiedProjectDir, moduleName = androidAppModuleName ?: copiedProjectDir.name)
-        val testAppApkPath = InstrumentedTestApp.assemble(applicationId, testReporter)
+        val testApp = InstrumentedTestApp.assemble(applicationId, testReporter)
 
         // This dispatcher switch is not superstition. The test dispatcher skips delays by default.
         // We interact with real external processes here, so we can't skip delays when we do retries.
         withContext(Dispatchers.IO) {
             androidTools.ensureEmulatorIsRunning()
-            println("Installing test app containing instrumented tests ($testAppApkPath)")
-            androidTools.installApk(testAppApkPath)
+            println("Installing test app containing instrumented tests (${testApp.id})")
+            androidTools.uninstall("com.jetbrains.sample.app")
+            androidTools.uninstall(testApp.id)
+            if (applicationId != null) {
+                androidTools.uninstall(applicationId)
+            }
+            androidTools.installApk(testApp.apkPath)
             println("Installing target app from test project ($targetApkPath)")
             androidTools.installApk(targetApkPath)
             println("Running tests via adb...")

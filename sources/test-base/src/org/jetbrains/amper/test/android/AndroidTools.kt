@@ -248,7 +248,7 @@ class AndroidTools(
      * This is useful to avoid failing if the package is not found (already not installed).
      */
     suspend fun uninstall(packageName: String, ignoreFailures: Boolean = true) {
-        val result = adb("uninstall", packageName, outputListener = PrefixPrintOutputListener("adb install"))
+        val result = adb("uninstall", packageName, outputListener = PrefixPrintOutputListener("adb uninstall"))
         if (!ignoreFailures) {
             result.checkExitCodeIsZero()
         }
