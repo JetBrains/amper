@@ -69,7 +69,7 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
         val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }.toSet()
 
         candidates.asSequence()
-            // do not override unresolved dependencies yet until their original versiosn are resolved from BOM
+            // do not override unresolved dependencies yet until their original versions are resolved from BOM
             .filter { it.originalVersion() != null }
             .forEach {
                 when(it) {
