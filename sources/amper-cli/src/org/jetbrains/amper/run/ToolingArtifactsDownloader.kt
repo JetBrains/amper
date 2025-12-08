@@ -80,8 +80,8 @@ class ToolingArtifactsDownloader(
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,
                 repositories = repositories,
-                scope = ResolutionScope.RUNTIME,
-                platform = ResolutionPlatform.JVM,
+                scope = scope,
+                platform = platform,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
             return@execute resolved.toIncrementalCacheResult()
