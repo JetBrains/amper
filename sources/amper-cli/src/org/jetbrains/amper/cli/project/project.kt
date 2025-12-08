@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.plugins.prepareMavenPlugins
 import org.jetbrains.amper.plugins.preparePlugins
 import org.jetbrains.amper.telemetry.use
-import org.jetbrains.amper.util.AmperCliIncrementalCache
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
@@ -57,13 +56,8 @@ internal suspend fun findProjectContext(explicitProjectRoot: Path?, explicitBuil
 internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
     val pluginData = spanBuilder("Prepare plugins")
         .use { preparePlugins(context = this@preparePluginsAndReadModel) }
-    val mavenPluginsXmls = spanBuilder("Prepare Maven plugins").use { 
-        prepareMavenPlugins(
-            projectContext = projectContext,
-            cache =  AmperCliIncrementalCache(buildOutputRoot),
-            userCacheRoot = userCacheRoot,
-        ) 
-    }
+    val mavenPluginsXmls = spanBuilder("Prepare Maven plugins")
+        .use { prepareMavenPlugins(projectContext = projectContext) }
     
     val model = spanBuilder("Read model from Amper files").use {
         with(CliProblemReporter) {

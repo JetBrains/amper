@@ -8,5 +8,6 @@ dependencies:
   - ../dependency-resolution
   - ../frontend/schema
   - ../frontend/dr
+  - ../amper-build-info
   - $libs.xmlutil.serialization
   - $libs.slf4j.api
