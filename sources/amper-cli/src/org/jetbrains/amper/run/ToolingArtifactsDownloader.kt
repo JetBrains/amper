@@ -6,6 +6,7 @@ package org.jetbrains.amper.run
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository
@@ -30,8 +31,8 @@ class ToolingArtifactsDownloader(
     suspend fun downloadHotReloadAgent(hotReloadVersion: String): List<Path> =
         downloadToolingArtifacts(
             listOf(
-                "org.jetbrains.compose.hot-reload:hot-reload-agent:$hotReloadVersion",
-                "org.jetbrains.compose.hot-reload:hot-reload-runtime-jvm:$hotReloadVersion",
+                MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-agent", hotReloadVersion),
+                MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-runtime-jvm", hotReloadVersion),
             ),
         )
 
@@ -40,8 +41,8 @@ class ToolingArtifactsDownloader(
         composeVersion: String,
     ): List<Path> = downloadToolingArtifacts(
         listOf(
-            "org.jetbrains.compose.hot-reload:hot-reload-devtools:$hotReloadVersion",
-            "org.jetbrains.compose.desktop:desktop-jvm-${SystemInfo.CurrentHost.familyArch}:$composeVersion",
+            MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-devtools", hotReloadVersion),
+            MavenCoordinates("org.jetbrains.compose.desktop", "desktop-jvm-${SystemInfo.CurrentHost.familyArch}", composeVersion),
         ),
         buildList {
             addAll(listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY))
@@ -49,21 +50,31 @@ class ToolingArtifactsDownloader(
     )
 
     suspend fun downloadComposeDesktop(composeVersion: String): List<Path> = downloadToolingArtifacts(
-        listOf("org.jetbrains.compose.desktop:desktop-jvm-${SystemInfo.CurrentHost.familyArch}:$composeVersion"),
+        listOf(
+            MavenCoordinates(
+                "org.jetbrains.compose.desktop",
+                "desktop-jvm-${SystemInfo.CurrentHost.familyArch}",
+                composeVersion
+            ),
+        ),
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
-        listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}")
+        listOf(
+            MavenCoordinates("org.springframework.boot", "spring-boot-loader", UsedVersions.springBootVersion)
+        )
     ).single()
 
     private suspend fun downloadToolingArtifacts(
-        coordinates: List<String>,
+        coordinates: List<MavenCoordinates>,
         repositories: List<Repository> = listOf(MavenCentral),
-    ): List<Path> =
-        incrementalCache.execute(
-            key = "resolve-$coordinates",
-            inputValues = emptyMap(),
+    ): List<Path> {
+        val scope = ResolutionScope.RUNTIME
+        val platform = ResolutionPlatform.JVM
+        return incrementalCache.execute(
+            key = "resolve-$coordinates ($scope, $platform)",
+            inputValues = mapOf("repositories" to repositories.joinToString(",")),
             inputFiles = emptyList(),
         ) {
             val resolved = mavenResolver.resolve(
@@ -75,4 +86,5 @@ class ToolingArtifactsDownloader(
             )
             return@execute resolved.toIncrementalCacheResult()
         }.outputFiles
+    }
 }

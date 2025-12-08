@@ -25,7 +25,7 @@ import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHold
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
-import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
@@ -68,7 +68,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     internal fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolderWithContext {
-        val dependencyNode = context.toMavenDependencyNode(toMavenCoordinates(), this is BomDependency)
+        val dependencyNode = context.toMavenDependencyNode(toDrMavenCoordinates(), this is BomDependency)
 
         val node = DirectFragmentDependencyNodeHolderWithContext(
             dependencyNode,

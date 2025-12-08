@@ -79,7 +79,7 @@ class Context internal constructor(
      * Note: the caller should specify the parent node after this method is called
      */
     fun toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean = false): MavenDependencyNodeWithContext {
-        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
+        val mavenDependency = createOrReuseDependency(coordinates, isBom = isBom)
         return getOrCreateNode(mavenDependency,null)
     }
 

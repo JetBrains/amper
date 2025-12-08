@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.ksp
 
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -14,9 +15,9 @@ suspend fun CliReportingMavenResolver.downloadKspJars(kspVersion: String, reposi
     // Copying the KSP Gradle plugin's classpath
     // https://github.com/google/ksp/blob/ee43116745ff921018bfe70344b8b21c590c2c16/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt#L137-L144
     coordinates = listOf(
-        "com.google.devtools.ksp:symbol-processing-api:$kspVersion",
-        "com.google.devtools.ksp:symbol-processing-aa-embeddable:$kspVersion",
-        "com.google.devtools.ksp:symbol-processing-common-deps:$kspVersion",
+        MavenCoordinates("com.google.devtools.ksp", "symbol-processing-api", kspVersion),
+        MavenCoordinates("com.google.devtools.ksp", "symbol-processing-aa-embeddable",kspVersion),
+        MavenCoordinates("com.google.devtools.ksp", "symbol-processing-common-deps", kspVersion),
     ),
     repositories = repositories,
     scope = ResolutionScope.RUNTIME,

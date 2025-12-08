@@ -44,7 +44,7 @@ open class MavenResolver(
      * Perform resolution over a set of maven coordinates.
      */
     suspend fun resolve(
-        coordinates: List<String>,
+        coordinates: List<MavenCoordinates>,
         repositories: List<Repository>,
         scope: ResolutionScope,
         platform: ResolutionPlatform,
@@ -53,8 +53,7 @@ open class MavenResolver(
         RootDependencyNodeWithContext(
             templateContext = context,
             children = coordinates.map {
-                val (group, module, version) = it.split(":")
-                MavenDependencyNodeWithContext(context, group, module, version, false)
+                MavenDependencyNodeWithContext(context, it, false)
             },
         )
     }

@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
+import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
+import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
@@ -97,7 +99,7 @@ internal fun applyPlugins(
                         node = node,
                         localDependencies = localModules.distinct(),
                         externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
-                            .map { it.coordinates },
+                            .map { it::coordinates.traceableString().mavenCoordinates() },
                         propertyLocation = propertyLocation,
                     )
                 },

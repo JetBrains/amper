@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
@@ -263,7 +264,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = MavenCoordinates(::coordinates.traceableString()),
+        coordinates = ::coordinates.traceableString().mavenCoordinates(),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -271,29 +272,41 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = MavenCoordinates(::coordinates.traceableString()),
+        coordinates = ::coordinates.traceableString().mavenCoordinates(),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     else -> error("Unknown dependency type: ${this::class}")
 }
 
-private fun KProperty0<String>.traceableString(): TraceableString {
+fun KProperty0<String>.traceableString(): TraceableString {
     return TraceableString(get(), schemaDelegate.trace)
 }
 
-private fun MavenCoordinates(coordinates: TraceableString): MavenCoordinates {
-    val parts = coordinates.value.trim().split(":")
+fun String.mavenCoordinates(): MavenCoordinates = TraceableString(this, DefaultTrace).mavenCoordinates()
+
+/**
+* Full maven format contains 2-4 parts delimited with ":" with optional packaginType delimited by "@" at the end.
+* groupId:artifactId[:version][:classifier][@packagingType]
+*/
+fun TraceableString.mavenCoordinates(): MavenCoordinates {
+    val parts = value.trim().split(":").toMutableList()
     check(parts.size in 2..4) {
-        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $coordinates. " +
+        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $this. " +
                 "Ensure that the coordinates were properly validated in the parser."
     }
+    val packagingType = parts[parts.size - 1].substringAfterLast("@", "").ifBlank { null }
+
+    // Drop packagingType from the last part
+    parts[parts.size - 1] = parts[parts.size - 1].substringBeforeLast("@")
+
     return MavenCoordinates(
         groupId = parts[0],
         artifactId = parts[1],
         version = if (parts.size > 2) parts[2] else null,
         classifier = if (parts.size > 3) parts[3] else null,
-        trace = coordinates.trace,
+        packagingType = packagingType,
+        trace = this.trace,
     )
 }
 

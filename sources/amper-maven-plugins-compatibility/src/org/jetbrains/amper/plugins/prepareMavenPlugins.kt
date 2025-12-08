@@ -26,8 +26,11 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
+import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
+import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.types.maven.Configuration
@@ -84,8 +87,8 @@ private suspend fun downloadPluginAndDirectDependencies(
         resolveSourceMoniker = declaration.coordinates,
         resolutionDepth = ResolutionDepth.GRAPH_FULL,
     ) { context ->
-        val (group, module, version) = declaration.coordinates.split(":")
-        val pluginNode = MavenDependencyNodeWithContext(context, group, module, version, false)
+        val coordinates = declaration::coordinates.traceableString().mavenCoordinates().toDrMavenCoordinates()
+        val pluginNode = MavenDependencyNodeWithContext(context, coordinates = coordinates, isBom = false)
         RootDependencyNodeWithContext(
             templateContext = context,
             children = listOf(pluginNode)

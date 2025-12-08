@@ -6,6 +6,7 @@ package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -68,13 +69,13 @@ internal class KotlinArtifactsDownloader(
     private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
         // using incrementalCache because currently DR takes ~3s even when the artifact is already cached
         incrementalCache.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
-            val coordinates = "$groupId:$artifactId:$version"
+            val coordinates = MavenCoordinates(groupId, artifactId, version)
             val resolved = mavenResolver.resolve(
                 coordinates = listOf(coordinates),
                 repositories = listOf(MavenCentral),
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
-                resolveSourceMoniker = coordinates,
+                resolveSourceMoniker = coordinates.toString(),
             )
             return@execute resolved.toIncrementalCacheResult()
         }.outputFiles

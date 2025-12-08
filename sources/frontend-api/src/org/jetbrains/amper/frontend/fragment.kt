@@ -190,12 +190,14 @@ data class MavenCoordinates(
     val artifactId: String,
     val version: String?,
     val classifier: String? = null,
+    val packagingType: String? = null,
     override val trace: Trace,
 ) : Traceable {
     override fun toString() = buildString {
         append(groupId).append(':').append(artifactId)
         version?.let { append(':').append(it) }
         classifier?.let { append(':').append(it) }
+        packagingType?.let { append('@').append(it) }
     }
 }
 

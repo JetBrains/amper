@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.plugins
 
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -174,7 +175,7 @@ class TaskFromPluginDescription(
     class ClasspathRequest(
         val node: ShadowClasspath,
         val localDependencies: List<AmperModule>,
-        val externalDependencies: List<String>,
+        val externalDependencies: List<MavenCoordinates>,
         val propertyLocation: List<String>,
     )
 

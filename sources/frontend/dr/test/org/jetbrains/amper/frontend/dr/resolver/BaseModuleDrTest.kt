@@ -367,23 +367,6 @@ abstract class BaseModuleDrTest {
         )
     }
 
-    protected suspend fun populateLocalCacheWithDependencies(cacheRoot: Path, coordinates: List<MavenCoordinates>) {
-        val context = context(cacheBuilder = cacheBuilder(cacheRoot))
-
-        val root = RootDependencyNodeWithContext(
-            children = coordinates.map{ it.toMavenNode(context) },
-            templateContext = context
-        )
-
-        Resolver().buildGraph(root)
-        Resolver().downloadDependencies(root)
-    }
-
-    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
-        val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
-    }
-
     protected fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),

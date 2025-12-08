@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -42,7 +43,7 @@ class MavenResolverTest {
 
         val result = runBlocking {
             resolver.resolve(
-                coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
+                coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1").toMavenCoordinates(),
                 repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
@@ -70,7 +71,7 @@ class MavenResolverTest {
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
         val result = runBlocking {
             resolver.resolve(
-                coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
+                coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1").toMavenCoordinates(),
                 repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.JVM,
@@ -90,7 +91,7 @@ class MavenResolverTest {
 
         val result = runBlocking {
             resolver.resolve(
-                coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
+                coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0").toMavenCoordinates(),
                 repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MINGW_X64,
@@ -115,7 +116,7 @@ class MavenResolverTest {
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
             resolver.resolve(
-                coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
+                coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22").toMavenCoordinates(),
                 repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
@@ -152,7 +153,7 @@ class MavenResolverTest {
         val t = assertThrows<UserReadableError> {
             runBlocking {
                 resolver.resolve(
-                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
+                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999").toMavenCoordinates(),
                     repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                     scope = ResolutionScope.COMPILE,
                     platform = ResolutionPlatform.JVM,
@@ -180,7 +181,7 @@ class MavenResolverTest {
 
         // kotlinx-datetime:0.2.1 is available for macos_x64
         val macosX64 = resolver.resolve(
-            coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
+            coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1").toMavenCoordinates(),
             repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
             scope = ResolutionScope.COMPILE,
             platform = ResolutionPlatform.MACOS_X64,
@@ -192,7 +193,7 @@ class MavenResolverTest {
         // kotlinx-datetime:0.2.1 is NOT available for macos_arm64
         val t = assertThrows<UserReadableError> {
             resolver.resolve(
-                coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
+                coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1").toMavenCoordinates(),
                 repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MACOS_ARM64,
@@ -217,7 +218,7 @@ class MavenResolverTest {
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
         val result = runBlocking {
             resolver.resolve(
-                coordinates = listOf("org.gradle:gradle-tooling-api:8.4"),
+                coordinates = listOf("org.gradle:gradle-tooling-api:8.4").toMavenCoordinates(),
                 repositories = listOf(
                     MAVEN_CENTRAL_CACHE_REDIRECTOR,
                     MavenRepository("https://repo.gradle.org/gradle/libs-releases"), // TODO add to cache-redirector?
@@ -244,7 +245,7 @@ class MavenResolverTest {
         val t = assertThrows<UserReadableError> {
             runBlocking {
                 resolver.resolve(
-                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
+                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998").toMavenCoordinates(),
                     repositories = listOf(MAVEN_CENTRAL_CACHE_REDIRECTOR),
                     scope = ResolutionScope.COMPILE,
                     platform = ResolutionPlatform.JVM,
@@ -271,4 +272,9 @@ class MavenResolverTest {
             t.message
         )
     }
+
+    private fun List<String>.toMavenCoordinates() = map { it.toMavenCoordinates() }
+
+    private fun String.toMavenCoordinates() =
+        split(":").let { MavenCoordinates(it[0], it[1], it[2]) }
 }

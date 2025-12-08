@@ -29,6 +29,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
 import org.jetbrains.amper.dependency.resolution.filterGraph
+import org.jetbrains.amper.dependency.resolution.mavenCoordinatesTrimmed
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
@@ -195,7 +196,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     private fun String.resolveFilter(): MavenCoordinates {
         val parts = this.split(":")
         if (parts.size != 2) userReadableError("Option 'filter' supports maven coordinates in the format 'group:module' only.")
-        return MavenCoordinates(groupId = parts[0].trim(), artifactId = parts[1].trim(), version = null)
+        return mavenCoordinatesTrimmed(groupId = parts[0], artifactId = parts[1], version = null)
     }
 
     /**

@@ -163,7 +163,6 @@ internal class KspTask(
     private suspend fun downloadKspCli(kspVersion: String): List<Path> {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
         val kspDownloadConfiguration = mapOf(
-            "kspVersion" to kspVersion,
             "respositories" to repositories.joinToString("|"),
         )
         return incrementalCache.execute("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {

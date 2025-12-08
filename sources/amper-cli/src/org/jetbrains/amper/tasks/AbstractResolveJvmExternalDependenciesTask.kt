@@ -16,8 +16,12 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
+import org.jetbrains.amper.frontend.aomBuilder.traceableString
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.UnscopedDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
@@ -85,10 +89,10 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                             children = externalUnscopedDependencies.map {
                                 when(it) {
                                     is UnscopedExternalMavenDependency -> {
-                                        context.parseCoordinates(it.coordinates, false)
+                                        context.parseCoordinates(it::coordinates.traceableString(), false)
                                     }
                                     is UnscopedExternalMavenBomDependency -> {
-                                        context.parseCoordinates(it.coordinates, true)
+                                        context.parseCoordinates(it::coordinates.traceableString(), true)
                                     }
                                     else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
                                 }
@@ -101,12 +105,11 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
         return Result(resolvedExternalJars)
     }
 
-    private fun Context.parseCoordinates(coordinates: String, isBom: Boolean): MavenDependencyNodeWithContext {
-        val parts = coordinates.split(":")
-        val group = parts.getOrNull(0) ?: error("Missing group in coordinates: $coordinates")
-        val module = parts.getOrNull(1) ?: error("Missing module in coordinates: $coordinates")
-        val version = parts.getOrNull(2) ?: ""
-        return MavenDependencyNodeWithContext(this, group, module, version, isBom)
+    private fun Context.parseCoordinates(coordinates: TraceableString, isBom: Boolean): MavenDependencyNodeWithContext {
+        val mavenCoordinates = coordinates.mavenCoordinates().toDrMavenCoordinates()
+            // work-around for lacking of BOM support for raw maven coordinates resolution
+            .let { it.copy(version = it.version ?: "") }
+        return MavenDependencyNodeWithContext(this, mavenCoordinates, isBom)
     }
 
     class Result(val externalJars: List<Path>) : TaskResult

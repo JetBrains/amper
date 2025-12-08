@@ -71,6 +71,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
+import org.jetbrains.amper.dependency.resolution.metadata.xml.Parent
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
@@ -164,19 +165,6 @@ class MavenDependencyNodeWithContext internal constructor(
 ) : MavenDependencyNode, DependencyNodeWithContext {
 
     override val parents: Set<DependencyNode> get() = context.nodeParents
-
-    constructor(
-        templateContext: Context,
-        group: String,
-        module: String,
-        version: String?,
-        isBom: Boolean,
-        parentNodes: Set<DependencyNodeWithContext> = emptySet(),
-    ) : this(
-        templateContext,
-        templateContext.createOrReuseDependency(group, module, version, isBom),
-        parentNodes,
-    )
 
     constructor(
         templateContext: Context,
@@ -489,14 +477,6 @@ private class PropertyWithDependencyGeneric<T, V : Any>(
         return false
     }
 }
-
-internal fun Context.createOrReuseDependency(
-    group: String,
-    module: String,
-    version: String?,
-    isBom: Boolean = false
-): MavenDependencyImpl =
-    createOrReuseDependency(MavenCoordinates(group.trim(), module.trim(), version?.trim()), isBom)
 
 fun Context.createOrReuseDependency(
     coordinates: MavenCoordinates,
@@ -1218,8 +1198,15 @@ class MavenDependencyImpl internal constructor(
         context: Context,
         reportError: (reason: String) -> Unit = {},
     ): MavenDependencyImpl {
+        val coordinates = toMavenCoordinates(reportError)
+        return context.createOrReuseDependency(coordinates, isBom())
+    }
+
+    private fun Dependency.toMavenCoordinates(
+        reportError: (reason: String) -> Unit = {},
+    ): MavenCoordinates {
         val resolvedVersion = resolveVersion(reportError)
-        return context.createOrReuseDependency(group, module, resolvedVersion, isBom())
+        return mavenCoordinatesTrimmed(groupId = group, artifactId = module, version = resolvedVersion)
     }
 
     private fun Dependency.toMavenDependency(
@@ -1887,7 +1874,7 @@ class MavenDependencyImpl internal constructor(
             }.filter {
                 it.optional != true
             }.map {
-                context.createOrReuseDependency(it.groupId, it.artifactId, it.version, false)
+                context.createOrReuseDependency(it.coordinates, false)
             }.let {
                 children = it
             }
@@ -1974,7 +1961,7 @@ class MavenDependencyImpl internal constructor(
             return this
         }
         val parentNode = parent?.let {
-            context.createOrReuseDependency(it.groupId, it.artifactId, it.version, isBom = false)
+            context.createOrReuseDependency(it.coordinates, isBom = false)
         }
 
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(
@@ -2095,7 +2082,7 @@ class MavenDependencyImpl internal constructor(
         ?.map { it.expandTemplates(this) }
         ?.mapNotNull {
             if (it.scope == "import" && it.version != null) {
-                val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version, isBom = true)
+                val dependency = context.createOrReuseDependency(it.coordinates, isBom = true)
                 if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
                     val text = dependency.pom.readText()
                     val dependencyProject =
@@ -2240,6 +2227,15 @@ class MavenDependencyImpl internal constructor(
     }
 }
 
+fun mavenCoordinatesTrimmed(groupId: String, artifactId: String,version: String?, classifier: String? = null, packagingType: String? = null,) =
+        MavenCoordinates(
+            groupId = groupId.trim(),
+            artifactId = artifactId.trim(),
+            version = version?.trim(),
+            classifier = classifier?.trim(),
+            packagingType = packagingType?.trim()
+        )
+
 /**
  * Describes coordinates of a Maven artifact.
  */
@@ -2247,17 +2243,23 @@ class MavenDependencyImpl internal constructor(
 data class MavenCoordinates(
     val groupId: String,
     val artifactId: String,
-    // todo (AB) : [AMPER-4112] Support unspecified version of direct dependencies (it could be resolved from BOM later)
     val version: String?,
+    /*
+     * Represents maven packaging type (https://maven.apache.org/pom.html#packaging).
+     * It might be explicitly defined as a part of a dependency declaration.
+     */
+    val packagingType: String? = null,
     val classifier: String? = null,
 ) {
     override fun toString(): String {
-        return "$groupId:$artifactId:${version.orUnspecified()}${if (classifier != null) ":$classifier" else ""}"
+        return "$groupId:$artifactId:${version.orUnspecified()}" +
+                (if (classifier != null) ":$classifier" else "") +
+                (if (packagingType != null) "@$packagingType" else "")
     }
 }
 
 internal fun AvailableAt.toCoordinates() =
-    MavenCoordinates(group.trim(), module.trim(), version.trim())
+    mavenCoordinatesTrimmed(group, module, version)
 
 private fun Dependency.isBom(): Boolean = getAttributeValue(Category) == Category.Platform
 private fun Variant.isBom(): Boolean = getAttributeValue(Category) == Category.Platform
@@ -2351,3 +2353,9 @@ object LocalM2RepositoryFinder {
 }
 
 fun String?.orUnspecified(): String = this ?: "unspecified"
+
+private val Parent.coordinates: MavenCoordinates
+    get() = mavenCoordinatesTrimmed(groupId = groupId, artifactId = artifactId, version = version)
+
+internal val org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency.coordinates: MavenCoordinates
+    get() = mavenCoordinatesTrimmed(groupId = groupId, artifactId = artifactId, version = version, packagingType = type)

@@ -46,11 +46,14 @@ private fun <T : DependencyNode> DependencyNode.findParentsImpl(
     }
 }
 
-fun MavenDependencyBase.toMavenCoordinates() = MavenCoordinates(
-    groupId = coordinates.groupId,
-    artifactId = coordinates.artifactId,
-    version = coordinates.version,
-    classifier = coordinates.classifier,
+fun MavenDependencyBase.toDrMavenCoordinates() = coordinates.toDrMavenCoordinates()
+
+fun org.jetbrains.amper.frontend.MavenCoordinates.toDrMavenCoordinates() = MavenCoordinates(
+    groupId = groupId,
+    artifactId = artifactId,
+    version = version,
+    classifier = classifier,
+    packagingType = packagingType,
 )
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {

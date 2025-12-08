@@ -231,8 +231,7 @@ abstract class BaseDRTest {
         RootDependencyNodeWithContext(children = map { it.toMavenNode(context) }, templateContext = context)
 
     protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
-        val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
+        return MavenDependencyNodeWithContext(context, this, isBom = false)
     }
 
     protected fun String.toMavenCoordinates(): MavenCoordinates {
@@ -249,7 +248,8 @@ abstract class BaseDRTest {
         val group = parts[0]
         val module = parts[1]
         val version = if (parts.size > 2) parts[2] else null
-        return MavenDependencyNodeWithContext(context, group, module, version, isBom = isBom)
+        val coordinates = MavenCoordinates(group, module, version)
+        return MavenDependencyNodeWithContext(context, coordinates, isBom = isBom)
     }
 
     protected fun assertFiles(
