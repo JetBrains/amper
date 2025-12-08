@@ -254,23 +254,28 @@ class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolve
      * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
      */
     private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
-        val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNode> = when {
-            // Direct dependency
-            node.parents.any { it is DirectFragmentDependencyNode } -> node.parents.filterIsInstance<DirectFragmentDependencyNode>()
-            // Transitive dependency,
-            // find all direct dependencies this transitive one is referenced by and use those for BOM resolution
-            else -> node.fragmentDependencies
-        }
-
-        val boms = nodeParentsToFindBomsFrom
-            .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNode }
-            .map { node ->
-                node.children
-                    .filterIsInstance<DirectFragmentDependencyNode>()
-                    .map { it.dependencyNode }
+        val directDependencyParents = node.directDependencyParents()
+        val boms = if (directDependencyParents.isNotEmpty()) {
+            // Using BOM from the same module for resolving direct module dependencies
+            directDependencyParents
+                .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNode }
+                .map { parent ->
+                    parent.children
+                        .filterIsInstance<DirectFragmentDependencyNode>()
+                        .map { it.dependencyNode }
+                        .filterIsInstance<MavenDependencyNode>()
+                        .filter { it.isBom }
+                }.flatten()
+        } else {
+            // Raw maven dependencies case without grouping by module/fragments.
+            // Maven nodes are attached to some holders,
+            // a BOM attached to a holder might be used for resolving versions of other siblings inside this holder.
+            node.parents.map { parent ->
+                parent.children
                     .filterIsInstance<MavenDependencyNode>()
                     .filter { it.isBom }
             }.flatten()
+        }
 
         boms.forEach { bom ->
             val resolvedVersion = bom.children
@@ -284,5 +289,18 @@ class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolve
         }
 
         return null
+    }
+
+    /**
+     * @return list of [DirectFragmentDependencyNode]s that depend on this maven libary (either directly or transitevly)
+     */
+    private fun MavenDependencyNodeWithContext.directDependencyParents(): List<DirectFragmentDependencyNode> {
+        return when {
+            // Direct dependency
+            parents.any { it is DirectFragmentDependencyNode } -> parents.filterIsInstance<DirectFragmentDependencyNode>()
+            // Transitive dependency,
+            // find all direct dependencies this transitive one is referenced by and use those for BOM resolution
+            else -> fragmentDependencies
+        }
     }
 }

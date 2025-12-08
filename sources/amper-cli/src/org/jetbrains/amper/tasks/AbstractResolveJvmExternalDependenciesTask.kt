@@ -107,8 +107,6 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
 
     private fun Context.parseCoordinates(coordinates: TraceableString, isBom: Boolean): MavenDependencyNodeWithContext {
         val mavenCoordinates = coordinates.mavenCoordinates().toDrMavenCoordinates()
-            // work-around for lacking of BOM support for raw maven coordinates resolution
-            .let { it.copy(version = it.version ?: "") }
         return MavenDependencyNodeWithContext(this, mavenCoordinates, isBom)
     }
 
