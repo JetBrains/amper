@@ -24,26 +24,26 @@ import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
-import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.NotChanged
 import org.jetbrains.amper.frontend.tree.Removed
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TransformResult
-import org.jetbrains.amper.frontend.tree.TreeState
 import org.jetbrains.amper.frontend.tree.TreeTransformer
-import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
 context(buildCtx: BuildCtx)
-internal fun MapLikeValue<*>.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? MapLikeValue<*> ?: this
+internal fun MappingNode.substituteCatalogDependencies(catalog: VersionCatalog) =
+    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? MappingNode ?: this
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
     private val buildCtx: BuildCtx,
-) : TreeTransformer<TreeState>() {
+) : TreeTransformer() {
     inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
@@ -53,28 +53,33 @@ internal class CatalogVersionsSubstitutor(
         getType<ShadowDependencyCatalog>() to getType<ShadowDependencyMaven>(),
     )
 
-    override fun visitMapValue(value: MapLikeValue<*>): TransformResult<MapLikeValue<*>> {
+    override fun visitMap(node: MappingNode): TransformResult<MappingNode> {
         // Here we don't know what kind of node we are visiting, so we have to use `super`.
-        val substituted = substitutionTypes[value.type] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
+        val substituted = substitutionTypes[node.type] as? SchemaType.ObjectType ?: return super.visitMap(node)
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
-        val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
+        val catalogKeyProp = node.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
-        val catalogKeyScalar = catalogKeyProp.value.asScalar ?: return Removed
+        val catalogKeyScalar = catalogKeyProp.value as? ScalarNode ?: return Removed
         val catalogKey = catalogKeyScalar.value.asSafely<String>() ?: return Removed
         val found = with(buildCtx.problemReporter) {
             catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogKeyScalar.trace) ?: return Removed
         }
-        val newCValue = catalogKeyScalar.copy(
+        val coordinatesProperty = checkNotNull(substituted.declaration.getProperty("coordinates")) {
+            "Missing `coordinates` property in the dependency type"
+        }
+        val newCValue = ScalarNode(
             value = found.value,
+            type = coordinatesProperty.type as SchemaType.StringType,
             trace = ResolvedReferenceTrace(
                 description = "from $catalogKey",
                 referenceTrace = catalogKeyScalar.trace,
                 resolvedValue = found,
             ),
+            contexts = catalogKeyScalar.contexts,
         )
-        val newChildren = value.children - catalogKeyProp +
-                MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
-        return Changed(value.copy(children = newChildren, type = substituted))
+        val newChildren = node.children - catalogKeyProp +
+                KeyValue(catalogKeyProp.keyTrace, newCValue, coordinatesProperty)
+        return Changed(node.copy(children = newChildren, type = substituted))
     }
 }
 

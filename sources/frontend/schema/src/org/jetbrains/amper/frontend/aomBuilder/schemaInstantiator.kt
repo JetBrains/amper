@@ -13,15 +13,15 @@ import org.jetbrains.amper.frontend.api.ValueHolder
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.ErrorValue
-import org.jetbrains.amper.frontend.tree.ListValue
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NullValue
-import org.jetbrains.amper.frontend.tree.ReferenceValue
-import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.StringInterpolationValue
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.ErrorNode
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.RefinedListNode
+import org.jetbrains.amper.frontend.tree.RefinedMappingNode
+import org.jetbrains.amper.frontend.tree.RefinedTreeNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringInterpolationNode
 import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -39,7 +39,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
 internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
-    node: TreeValue<Refined>,
+    node: RefinedTreeNode,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
 ): T? = createSchemaNode(types.getType<T>(), node, missingPropertiesHandler) as T?
 
@@ -54,7 +54,7 @@ internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
  */
 internal fun BuildCtx.createSchemaNode(
     type: SchemaType,
-    node: TreeValue<*>,
+    node: RefinedTreeNode,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
 ): SchemaNode? {
     val node = context(missingPropertiesHandler) {
@@ -89,13 +89,13 @@ private typealias ValuePath = List<Pair<String, Trace>>
 context(missingPropertiesHandler: MissingPropertiesHandler)
 private fun createNode(
     type: SchemaType,
-    value: TreeValue<*>,
+    value: RefinedTreeNode,
     valuePath: ValuePath,
 ): Any? {
     when (value) {
-        is ErrorValue,
+        is ErrorNode,
             // Do not report: reported during parsing
-        is ReferenceValue, is StringInterpolationValue -> {
+        is ReferenceNode, is StringInterpolationNode -> {
             // Do not report: must be already reported during reference resolution
             return ValueCreationErrorToken
         }
@@ -103,17 +103,17 @@ private fun createNode(
     }
 
     return when (type) {
-        is SchemaType.ScalarType if (value is ScalarValue) -> value.value
-        is SchemaType.ListType if (value is ListValue) -> createListNode(value, type, valuePath)
-        is SchemaType.MapType if (value is Refined) -> createMapNode(value, type, valuePath)
-        is SchemaType.ObjectType if (value is Refined) -> createObjectNode(value, type, valuePath)
-        is SchemaType.VariantType if (value is Refined) -> {
+        is SchemaType.ScalarType if (value is ScalarNode) -> value.value
+        is SchemaType.ListType if (value is RefinedListNode) -> createListNode(value, type, valuePath)
+        is SchemaType.MapType if (value is RefinedMappingNode) -> createMapNode(value, type, valuePath)
+        is SchemaType.ObjectType if (value is RefinedMappingNode) -> createObjectNode(value, type, valuePath)
+        is SchemaType.VariantType if (value is RefinedMappingNode) -> {
             check(value.declaration in type.declaration.variants) {
                 "Type error: ${value.type} not among ${type.declaration.variants}"
             }
             createNode(value.type, value, valuePath)
         }
-        else if (type.isMarkedNullable && value is NullValue) -> null
+        else if (type.isMarkedNullable && value is NullLiteralNode) -> null
         else -> {
             // If crashes, it's not caused by an invalid user input, but rather by a bug in tree post-processing.
             error("Type error: expected a `$type`, got: `$value`")
@@ -122,22 +122,22 @@ private fun createNode(
 }
 
 context(_: MissingPropertiesHandler)
-private fun createListNode(value: ListValue<*>, type: SchemaType.ListType, valuePath: ValuePath): List<Any?> =
+private fun createListNode(value: RefinedListNode, type: SchemaType.ListType, valuePath: ValuePath): List<Any?> =
     value.children
         .map { createNode(type.elementType, it, valuePath + ("[]" to it.trace)) }
         .filter { it !== ValueCreationErrorToken }
 
 context(_: MissingPropertiesHandler)
-private fun createMapNode(value: Refined, type: SchemaType.MapType, valuePath: ValuePath): Map<Any, Any?> =
+private fun createMapNode(value: RefinedMappingNode, type: SchemaType.MapType, valuePath: ValuePath): Map<Any, Any?> =
     value.children
         .associate {
-            val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.kTrace) else it.key
+            val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.keyTrace) else it.key
             key to createNode(type.valueType, it.value, valuePath + (it.key to it.value.trace))
         }
         .filterValues { it !== ValueCreationErrorToken }
 
 context(missingPropertiesHandler: MissingPropertiesHandler)
-private fun createObjectNode(value: Refined, type: SchemaType.ObjectType, valuePath: ValuePath): Any {
+private fun createObjectNode(value: RefinedMappingNode, type: SchemaType.ObjectType, valuePath: ValuePath): Any {
     val declaration = type.declaration
     val newInstance = declaration.createInstance()
     @OptIn(InternalTraceSetter::class)
@@ -231,7 +231,7 @@ interface MissingPropertiesHandler {
 
 private fun propertyCheckDefaultIntegrity(
     pType: SchemaObjectDeclaration.Property,
-    pValue: MapLikeValue.Property<*>?,
+    pValue: KeyValue?,
 ) {
     val hasTraceableDefault = pType.default != null && pType.default !is Default.TransformedDependent<*, *>
     check(!hasTraceableDefault || pValue != null) {
@@ -244,9 +244,9 @@ private fun propertyCheckDefaultIntegrity(
 
 private fun propertyCheckTypeLevelIntegrity(
     declaration: SchemaObjectDeclaration,
-    pValue: MapLikeValue.Property<*>,
+    pValue: KeyValue,
 ) {
-    val typeProperty = checkNotNull(pValue.pType) {
+    val typeProperty = checkNotNull(pValue.propertyDeclaration) {
         "Property `${pValue.key}` is present on the tree value level, " +
                 "but no corresponding property is defined in $declaration. " +
                 "In case of extensible/synthetic declarations, " +

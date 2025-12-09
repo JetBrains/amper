@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
 import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -27,7 +27,7 @@ object KotlinCompilerVersionDiagnosticsFactory : TreeDiagnostic {
     // TODO remove this entire property everywhere, it's unused
     override val diagnosticId: BuildProblemId = "kotlin.compiler.version.diagnostics"
 
-    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace>() // somehow the computed properties lead to duplicate reports
         root.visitScalarProperties<KotlinSettings, String>(KotlinSettings::version) { prop, value ->
             val versionTrace = prop.value.trace

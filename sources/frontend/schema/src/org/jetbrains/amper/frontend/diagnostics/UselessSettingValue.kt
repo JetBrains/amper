@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesW
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -35,7 +35,7 @@ class UselessSettingValue(
     }
     override val diagnosticId = DiagnosticId
 
-    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         // TODO There an optimization can be made.
         //  Here we can group by not by key name, but by key path.
         val groupedScalars = root.collectScalarPropertiesWithOwners().groupBy { it.second.key }.map { (_, it) -> it }

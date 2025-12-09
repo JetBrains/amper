@@ -46,8 +46,8 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Refined
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
@@ -140,7 +140,7 @@ context(problemReporter: ProblemReporter)
 internal fun BuildCtx.readModuleMergedTree(
     moduleFile: VirtualFile,
     projectVersionsCatalog: VersionCatalog?,
-    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
+    templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
 ): ModuleBuildCtx? {
     val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().asTrace())
 
@@ -183,7 +183,7 @@ internal fun BuildCtx.readModuleMergedTree(
         ?: return null
 
     // safe: `plugins` has a default
-    val pluginsTree = processedCommonTree[Module::plugins] as Refined
+    val pluginsTree = processedCommonTree[Module::plugins] as RefinedMappingNode
 
     treeDiagnostics(refiner).forEach { diagnostic ->
         diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
@@ -204,8 +204,8 @@ internal fun BuildCtx.readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,
-    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
-): List<MapLikeValue<*>> {
+    templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
+): List<MappingNode> {
     val moduleTree = readTree(mPath, moduleAType, moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         templatesCache.getOrPut(it) {

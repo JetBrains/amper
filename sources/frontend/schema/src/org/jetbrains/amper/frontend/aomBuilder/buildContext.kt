@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.diagnostics.UnresolvedTemplate
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Refined
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -40,11 +40,11 @@ internal data class BuildCtx(
 
 internal data class ModuleBuildCtx(
     val moduleFile: VirtualFile,
-    val mergedTree: MapLikeValue<*>,
+    val mergedTree: MappingNode,
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
     val buildCtx: BuildCtx,
-    val pluginsTree: Refined,
+    val pluginsTree: RefinedMappingNode,
 
     /**
      * Module which has settings that do not contain any platform, test, etc. contexts.

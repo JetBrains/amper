@@ -5,10 +5,9 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.contexts.Contexts
-import org.jetbrains.amper.frontend.tree.ReferenceValue
-import org.jetbrains.amper.frontend.tree.StringInterpolationValue
-import org.jetbrains.amper.frontend.tree.TreeState
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.StringInterpolationNode
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -18,8 +17,8 @@ context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseReferenceOrInterpolation(
     scalar: YamlValue.Scalar,
     type: SchemaType,
-): TreeValue<*>? {
-    val parts = mutableListOf<StringInterpolationValue.Part>()
+): TreeNode? {
+    val parts = mutableListOf<StringInterpolationNode.Part>()
     splitIntoParts(
         scalar.textValue,
         onMatch = { match ->
@@ -43,10 +42,10 @@ internal fun parseReferenceOrInterpolation(
             if (referencePath.any { it.isEmpty() }) {
                 reportParsing(scalar, "validation.reference.empty.element")
             }
-            parts.add(StringInterpolationValue.Part.Reference(referencePath))
+            parts.add(StringInterpolationNode.Part.Reference(referencePath))
         },
         onText = { text ->
-            parts.add(StringInterpolationValue.Part.Text(text))
+            parts.add(StringInterpolationNode.Part.Text(text))
         },
     )
     require(parts.isNotEmpty())
@@ -57,17 +56,17 @@ internal fun parseReferenceOrInterpolation(
             reportParsing(scalar, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
             return null
         }
-        StringInterpolationValue(
+        StringInterpolationNode(
             parts = parts,
             trace = scalar.asTrace(),
             contexts = contexts,
             type = type,
         )
     } else {
-        val reference = checkNotNull(parts.first() as StringInterpolationValue.Part.Reference) {
+        val reference = checkNotNull(parts.first() as StringInterpolationNode.Part.Reference) {
             "Should not be called unless 'containsReferenceSyntax' is true"
         }
-        ReferenceValue(
+        ReferenceNode(
             referencedPath = reference.referencePath,
             trace = scalar.asTrace(),
             contexts = contexts,

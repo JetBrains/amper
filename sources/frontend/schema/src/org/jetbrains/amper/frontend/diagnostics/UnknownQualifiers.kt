@@ -11,8 +11,8 @@ import org.jetbrains.amper.frontend.contexts.PlatformCtx
 import org.jetbrains.amper.frontend.diagnostics.helpers.extractKeyElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.visitValues
+import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.visitNodes
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -23,10 +23,10 @@ object UnknownQualifiers : TreeDiagnostic {
 
     private val knownPlatforms = Platform.values.map { it.schemaValue }
 
-    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val knownAliases = minimalModule.aliases?.keys.orEmpty()
         val knownModifiers = knownAliases + knownPlatforms
-        root.visitValues { value ->
+        root.visitNodes { value ->
             value.contexts
                 .filterIsInstance<PlatformCtx>().filter { it.trace != null }
                 .filter { it.value !in knownModifiers }

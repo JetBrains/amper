@@ -5,23 +5,13 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.ErrorValue
-import org.jetbrains.amper.frontend.tree.ListValue
-import org.jetbrains.amper.frontend.tree.MapLikeChildren
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NullValue
-import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.ReferenceValue
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.StringInterpolationValue
-import org.jetbrains.amper.frontend.tree.TreeState
-import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.copy
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -30,14 +20,14 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 context(contexts: Contexts)
 internal fun scalarValue(origin: YamlValue.Scalar, type: SchemaType.ScalarType, value: Any) =
-    ScalarValue(value, type, origin.asTrace(), contexts)
+    ScalarNode(value, type, origin.asTrace(), contexts)
 
 context(contexts: Contexts)
 internal fun mapLikeValue(
     origin: YamlValue,
     type: SchemaType.MapLikeType,
-    children: MapLikeChildren<TreeState>,
-) = Owned(
+    children: List<KeyValue>,
+) = MappingNode(
     children = children,
     type = type,
     trace = origin.asTrace(),
@@ -102,18 +92,6 @@ internal fun PsiElement.allChildren(): Sequence<PsiElement> = sequence {
     while (current != null) {
         yield(current)
         current = current.nextSibling
-    }
-}
-
-internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue<T> {
-    return when (this) {
-        is ListValue<T> -> copy(trace = trace)
-        is MapLikeValue<T> -> copy(trace = trace)
-        is ErrorValue -> ErrorValue(trace = trace)
-        is ReferenceValue -> copy(trace = trace)
-        is StringInterpolationValue -> copy(trace = trace)
-        is ScalarValue -> copy(trace = trace)
-        is NullValue -> copy(trace = trace)
     }
 }
 

@@ -22,13 +22,12 @@ import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.asMapLike
-import org.jetbrains.amper.frontend.tree.mergeTreesNotNull
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun MapLikeValue<*>.configureSpringBootDefaults(springBootSettings: SpringBootSettings) =
+internal fun MappingNode.configureSpringBootDefaults(springBootSettings: SpringBootSettings) =
     if (springBootSettings.enabled) {
         val springBootEnabledDefault = TransformedValueTrace(
             description = "because Spring Boot is enabled",
@@ -41,8 +40,8 @@ internal fun MapLikeValue<*>.configureSpringBootDefaults(springBootSettings: Spr
         )
         val applyBom = springBootSettings.applyBom
         val springBootVersion = springBootSettings.version
-        mergeTreesNotNull(
-            asMapLike,
+        mergeTrees(
+            this,
             buildCtx.springBootDefaultsTree(
                 applyBom,
                 springBootVersion,

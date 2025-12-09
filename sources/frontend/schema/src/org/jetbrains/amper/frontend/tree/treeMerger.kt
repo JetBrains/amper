@@ -15,17 +15,22 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
  *
  * @see mergeTrees
  */
-fun mergeTreesNotNull(vararg trees: MapLikeValue<*>?) = mergeTrees(trees.filterNotNull())
+fun mergeTreesNotNull(vararg trees: MappingNode?) = mergeTrees(trees.filterNotNull())
 
 /**
- * Merges (joins) all given [MapLikeValue]s into a single value.
- * The [trace][TreeValue.trace] is merged by adding each tree's trace as a preceding value.
+ * Merges all the trees from the argument list.
+ */
+fun mergeTrees(vararg trees: MappingNode) = mergeTrees(trees.toList())
+
+/**
+ * Merges (joins) all given [MappingNode]s into a single value.
+ * The [trace][MappingNode.trace] is merged by adding each tree's trace as a preceding value.
  *
  * NOTE: The resulting tree node will have no contexts.
  *
  * @param trees input trees to merge. Must not be empty.
  */
-fun mergeTrees(trees: List<MapLikeValue<*>>): MapLikeValue<*> {
+fun mergeTrees(trees: List<MappingNode>): MappingNode {
     require(trees.isNotEmpty()) { "Cannot merge empty list of trees" }
     if (trees.size == 1) return trees.single()
 
@@ -33,7 +38,7 @@ fun mergeTrees(trees: List<MapLikeValue<*>>): MapLikeValue<*> {
     val trace = trees.fold(DefaultTrace as Trace) { acc, tree ->
         if (acc.isDefault) tree.trace else acc.withPrecedingValue(tree)
     }
-    return Owned(
+    return MappingNode(
         children = allChildren,
         // TODO Maybe check that we are merging (or within same hierarchy) types?
         type = trees.first().type,

@@ -6,21 +6,22 @@ package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
-import org.jetbrains.amper.frontend.tree.ErrorValue
-import org.jetbrains.amper.frontend.tree.ListValue
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.ErrorNode
+import org.jetbrains.amper.frontend.tree.ListNode
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.copyWithTrace
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 context(contexts: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseList(value: YamlValue.Sequence, type: SchemaType.ListType): ListValue<*> {
-    return ListValue(
+internal fun parseList(value: YamlValue.Sequence, type: SchemaType.ListType): ListNode {
+    return ListNode(
         children = value.items.mapNotNull { value ->
-            parseValue(value, type.elementType)
+            parseNode(value, type.elementType)
         },
         type = type,
         trace = value.asTrace(),
@@ -29,7 +30,7 @@ internal fun parseList(value: YamlValue.Sequence, type: SchemaType.ListType): Li
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseMap(value: YamlValue.Mapping, type: SchemaType.MapType): Owned {
+internal fun parseMap(value: YamlValue.Mapping, type: SchemaType.MapType): MappingNode {
     val children = value.keyValues.mapNotNull { keyValue: YamlKeyValue ->
         parseKeyValueForMap(keyValue, type)
     }
@@ -50,8 +51,8 @@ internal fun parseMap(value: YamlValue.Mapping, type: SchemaType.MapType): Owned
  * yields: `{ key1: value1, key2: value2 }`
  */
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseMapFromSequence(value: YamlValue.Sequence, type: SchemaType.MapType): Owned {
-    fun parseSingleKeyValue(value: YamlValue): MapLikeValue.Property<*>? {
+internal fun parseMapFromSequence(value: YamlValue.Sequence, type: SchemaType.MapType): MappingNode {
+    fun parseSingleKeyValue(value: YamlValue): KeyValue? {
         if (value !is YamlValue.Mapping) {
             reportParsing(value, "validation.types.expected.key.value")
             return null
@@ -78,14 +79,13 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseKeyValueForMap(
     keyValue: YamlKeyValue,
     mapType: SchemaType.MapType,
-): MapLikeValue.Property<*>? {
+): KeyValue? {
     val keyScalar = parseScalarKey(keyValue.key, SchemaType.StringType)
         ?: return null
-    return MapLikeValue.Property(
+    return KeyValue(
         key = keyScalar.value as String,
-        kTrace = keyValue.key.asTrace(),
-        value = parseValueFromKeyValue(keyValue, mapType.valueType, explicitContexts = EmptyContexts),
-        pType = null,
+        keyTrace = keyValue.key.asTrace(),
+        value = parseNodeFromKeyValue(keyValue, mapType.valueType, explicitContexts = EmptyContexts),
     )
 }
 
@@ -93,7 +93,7 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseScalarKey(
     key: YamlValue,
     type: SchemaType.ScalarType,
-): ScalarValue? {
+): ScalarNode? {
     key.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {
             reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
@@ -120,13 +120,13 @@ internal fun parseScalarKey(
 }
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseValueFromKeyValue(
+internal fun parseNodeFromKeyValue(
     keyValue: YamlKeyValue,
     type: SchemaType,
     explicitContexts: Contexts,
-): TreeValue<*> {
+): TreeNode {
     val trace = keyValue.asTrace()
-    return parseValue(keyValue.value, type, explicitContexts)
-        ?.copyWithTrace(trace) // Replace the trace to also capture the key
-        ?: ErrorValue(trace)
+    return parseNode(keyValue.value, type, explicitContexts)
+        ?.copyWithTrace(trace = trace) // Replace the trace to also capture the key
+        ?: ErrorNode(trace)
 }

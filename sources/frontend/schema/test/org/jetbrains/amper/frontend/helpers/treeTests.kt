@@ -11,7 +11,7 @@ import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.mergeTrees
@@ -89,7 +89,7 @@ fun FrontendTestCaseBase.diagnoseModuleRead(
 
 /**
  * Test run that:
- * 1. Reads [TreeValue] with [treeBuilder].
+ * 1. Reads [TreeNode] with [treeBuilder].
  * 2. Checks that there are no diagnostics reported afterward.
  * 3. Compares tree dump with `[base]/[caseName][expectPostfix]` file contents.
  */
@@ -98,7 +98,7 @@ internal open class TreeTestRun(
     testCase: FrontendTestCaseBase,
     protected val types: SchemaTypingContext,
     override val expectPostfix: String,
-    protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
+    protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeNode,
     protected val dumpPathContexts: Boolean = false,
 ) : FrontendTest(caseName, testCase) {
 
@@ -110,7 +110,7 @@ internal open class TreeTestRun(
         pathResolver = pathResolver,
     )
 
-    protected fun doReadTree(inputPath: Path): TreeValue<*> {
+    protected fun doReadTree(inputPath: Path): TreeNode {
         val inputVirtual = buildCtx.pathResolver.loadVirtualFile(inputPath)
         val readTree = buildCtx.treeBuilder(inputVirtual)
         assertNotNull(readTree)
@@ -126,7 +126,7 @@ internal open class TreeTestRun(
 
 /**
  * Test run that:
- * 1. Reads [TreeValue] with [treeBuilder].
+ * 1. Reads [TreeNode] with [treeBuilder].
  * 2. Marks the PSI text with diagnostics.
  * 3. Compares the result with input.
  */
@@ -134,7 +134,7 @@ internal open class DiagnosticsTreeTestRun(
     caseName: String,
     testCase: FrontendTestCaseBase,
     types: SchemaTypingContext,
-    treeBuilder: BuildCtx.(VirtualFile) -> TreeValue<*>,
+    treeBuilder: BuildCtx.(VirtualFile) -> TreeNode,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, testCase, types, "", treeBuilder, dumpPathContexts) {
 
@@ -152,13 +152,13 @@ internal open class DiagnosticsTreeTestRun(
 }
 
 // Helper function to just read the module.
-internal val readModule: BuildCtx.(VirtualFile) -> TreeValue<*> = { readTree(it, moduleAType) }
+internal val readModule: BuildCtx.(VirtualFile) -> TreeNode = { readTree(it, moduleAType) }
 
 // Helper function read the module and refine it with selected contexts.
 internal fun readAndRefineModule(
     contexts: Contexts,
     withDefaults: Boolean = false,
-): BuildCtx.(VirtualFile) -> TreeValue<*> = {
+): BuildCtx.(VirtualFile) -> TreeNode = {
     val minimalModule = tryReadMinimalModule(it)!!
     var tree = readTree(it, moduleAType)
     tree = if (withDefaults) tree.appendDefaultValues() else tree
@@ -167,7 +167,7 @@ internal fun readAndRefineModule(
 }
 
 // Helper function read the module with templates and refine it with selected contexts.
-internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeValue<*> =
+internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeNode =
     {
         val minimalModule = tryReadMinimalModule(it)!!
         val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))

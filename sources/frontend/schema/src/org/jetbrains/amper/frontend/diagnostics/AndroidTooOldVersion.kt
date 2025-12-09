@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -33,7 +33,7 @@ object AndroidTooOldVersionFactory : TreeDiagnostic {
 
     override val diagnosticId: BuildProblemId = "too.old.android.version"
 
-    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<PsiElement>() // somehow the computed properties lead to duplicate reports
         root.visitScalarProperties<AndroidSettings, AndroidVersion?>(
             AndroidSettings::compileSdk,

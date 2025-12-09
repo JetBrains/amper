@@ -14,13 +14,12 @@ import org.jetbrains.amper.frontend.schema.LombokSettings
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.asMapLike
-import org.jetbrains.amper.frontend.tree.mergeTreesNotNull
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 
 context(buildCtx: BuildCtx)
-internal fun MapLikeValue<*>.configureLombokDefaults(lombokSettings: LombokSettings): MapLikeValue<*> {
+internal fun MappingNode.configureLombokDefaults(lombokSettings: LombokSettings): MappingNode {
     return if (lombokSettings.enabled) {
         val lombokDefault = TransformedValueTrace(
             description = "because Lombok is enabled",
@@ -31,7 +30,7 @@ internal fun MapLikeValue<*>.configureLombokDefaults(lombokSettings: LombokSetti
             lombokVersion = lombokSettings.version,
             versionTrace = lombokSettings::version.schemaDelegate.trace,
         )
-        mergeTreesNotNull(asMapLike, elements)
+        mergeTrees(this, elements)
     } else {
         this
     }

@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
-import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
@@ -16,7 +16,7 @@ import java.nio.file.InvalidPathException
 import kotlin.io.path.Path
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
-internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarValue? = when (type) {
+internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarNode? = when (type) {
     is SchemaType.BooleanType -> when(val boolean = scalar.textValue.toBooleanStrictOrNull()) {
         null -> {
             reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
@@ -52,7 +52,7 @@ internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType):
 
 
 context(_: Contexts, config: ParsingConfig, _: ProblemReporter)
-private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): ScalarValue? {
+private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): ScalarNode? {
     var path = try {
         Path(scalar.textValue)
     } catch (e: InvalidPathException) {
@@ -70,7 +70,7 @@ internal fun parseEnum(
     scalar: YamlValue.Scalar,
     type: SchemaType.EnumType,
     additionalSuggestedValues: List<String> = emptyList(),
-): ScalarValue? {
+): ScalarNode? {
     val textValue = scalar.textValue
     val entry = type.declaration.getEntryBySchemaValue(textValue)
     if (entry == null) {

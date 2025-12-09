@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -19,7 +19,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 interface TreeDiagnostic {
     val diagnosticId: BuildProblemId
 
-    fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter): Unit?
+    fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter): Unit?
 }
 
 /**

@@ -10,27 +10,27 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 
 
 @UsedInIdePlugin
-fun <TS : TreeState> TreeValue<TS>.lookupValueBy(psiElement: PsiElement) =
-    TreePsiLookupVisitor<TS>(psiElement).visitValue(this)
+fun TreeNode.lookupValueBy(psiElement: PsiElement) =
+    TreePsiLookupVisitor(psiElement).visit(this)
 
 /**
- * Finds a [TreeValue] element that is most specific for given [lookup].
+ * Finds a [TreeNode] element that is most specific for given [lookup].
  */
 // TODO This is a pretty trivial implementation and possibly can be improved.
-class TreePsiLookupVisitor<TS : TreeState>(
+class TreePsiLookupVisitor(
     private val lookup: PsiElement,
-) : RecurringTreeVisitor<TreeValue<TS>?, TS>() {
+) : RecurringTreeVisitor<TreeNode?>() {
 
-    override fun aggregate(value: TreeValue<TS>, childResults: List<TreeValue<TS>?>) =
-        childResults.firstNotNullOfOrNull { it } ?: value.checkSelf()
+    override fun aggregate(node: TreeNode, childResults: List<TreeNode?>) =
+        childResults.firstNotNullOfOrNull { it } ?: node.checkSelf()
 
-    override fun visitNullValue(value: NullValue) = value.checkSelf()
-    override fun visitScalarValue(value: ScalarValue) = value.checkSelf()
-    override fun visitReferenceValue(value: ReferenceValue) = value.checkSelf()
-    override fun visitStringInterpolationValue(value: StringInterpolationValue) = value.checkSelf()
+    override fun visitNull(node: NullLiteralNode) = node.checkSelf()
+    override fun visitScalar(node: ScalarNode) = node.checkSelf()
+    override fun visitReference(node: ReferenceNode) = node.checkSelf()
+    override fun visitStringInterpolation(node: StringInterpolationNode) = node.checkSelf()
 
-    override fun visitNoValue(value: ErrorValue) = null
+    override fun visitError(node: ErrorNode) = null
 
-    private fun TreeValue<TS>.checkSelf() = if (trace.extractPsiElementOrNull()?.contains(lookup) == true) this else null
+    private fun TreeNode.checkSelf() = if (trace.extractPsiElementOrNull()?.contains(lookup) == true) this else null
     private operator fun PsiElement.contains(element: PsiElement) = textRange.contains(element.textRange)
 }

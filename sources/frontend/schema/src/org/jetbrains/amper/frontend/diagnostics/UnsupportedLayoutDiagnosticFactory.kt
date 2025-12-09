@@ -13,7 +13,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -29,7 +29,7 @@ object UnsupportedLayoutDiagnosticFactory: TreeDiagnostic {
     override val diagnosticId: BuildProblemId = "module.layout.unsupported"
 
     override fun analyze(
-        root: TreeValue<*>,
+        root: TreeNode,
         minimalModule: MinimalModule,
         problemReporter: ProblemReporter,
     ) {

@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.reading.copyWithTrace
 import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
@@ -30,7 +29,6 @@ import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
-import org.jetbrains.amper.stdlib.collections.IdentityHashSet
 import org.jetbrains.amper.stdlib.collections.joinToString
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
@@ -38,15 +36,15 @@ import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 /**
- * Resolves [ReferenceValue]s and [StringInterpolationValue]s in the tree and returns the substituted result.
+ * Resolves [ReferenceNode]s and [StringInterpolationNode]s in the tree and returns the substituted result.
  * The returned value may still contain unresolved references,
  * but they all are guaranteed to have been reported as errors.
  */
 context(buildCtx: BuildCtx)
-internal fun Refined.resolveReferences(): Refined {
+internal fun RefinedMappingNode.resolveReferences(): RefinedMappingNode {
     val reporter = CollectingProblemReporter()
 
-    var value: Refined = this
+    var value: RefinedMappingNode = this
     var resolver: TreeReferencesResolver? = null
     do {
         if (resolver != null && resolver.deferred.isEmpty()) {
@@ -55,14 +53,12 @@ internal fun Refined.resolveReferences(): Refined {
         }
         resolver = TreeReferencesResolver(
             reporter = reporter,
-            resolveOnly = resolver?.deferred?.let { IdentityHashSet(it) }
+            resolveOnly = resolver?.deferred?.let { HashSet(it) }
         )
-        when (val transformed = resolver.visitValue(value)) {
-            is Changed<*> -> {
-                value = transformed.value as Refined
-            }
-            NotChanged -> break  // No more changes made - stop the resolution process
-            Removed -> error("Not reached")
+        value = resolver.visitMap(value)
+        if (!resolver.anyResolutionDone) {
+            // No more changes made - stop the resolution process
+            break
         }
     } while (true)
 
@@ -88,78 +84,81 @@ internal fun Refined.resolveReferences(): Refined {
 
 private class TreeReferencesResolver(
     private val reporter: ProblemReporter,
-    private val resolveOnly: Set<TreeValue<*>>? = null,
-) : TreeTransformer<Refined>() {
-    val deferred = mutableListOf<TreeValue<*>>()
+    private val resolveOnly: Set<RefinedTreeNode>? = null,
+) : RefinedTreeTransformer() {
+    val deferred = mutableListOf<RefinedTreeNode>()
+    var anyResolutionDone = false
 
-    private val currentPath = mutableListOf<MapLikeValue<Refined>>()
+    private val currentPath = mutableListOf<RefinedMappingNode>()
 
-    override fun visitMapValue(value: MapLikeValue<Refined>): TransformResult<MapLikeValue<Refined>> {
-        currentPath.add(value)
-        return super.visitMapValue(value).also {
+    override fun visitMap(node: RefinedMappingNode): RefinedMappingNode {
+        currentPath.add(node)
+        return super.visitMap(node).also {
             currentPath.removeLast()
         }
     }
 
-    override fun visitReferenceValue(value: ReferenceValue): TransformResult<TreeValue<Refined>> {
-        if (resolveOnly != null && value !in resolveOnly) {
-            return NotChanged
+    override fun visitReference(node: ReferenceNode): RefinedTreeNode {
+        if (resolveOnly != null && node !in resolveOnly) {
+            return node
         }
 
-        val resolved = resolve(value, value.referencedPath) ?: return NotChanged
-        val trace = value.resolvedTrace(resolved)
-        val converted = resolved.cast(targetType = value.type, trace = trace) ?: run {
+        val resolved = resolve(node, node.referencedPath) ?: return node
+        val trace = node.resolvedTrace(resolved)
+        val converted = resolved.cast(targetType = node.type, trace = trace) ?: run {
             reporter.reportBundleError(
-                value.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
-                renderTypeOf(resolved), value.type.render(includeSyntax = false)
+                node.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
+                renderTypeOf(resolved), node.type.render(includeSyntax = false)
             )
-            return NotChanged
+            return node
         }
-        return Changed(converted.copyWithTrace(trace))
+
+        anyResolutionDone = true
+        return converted.copyWithTrace(trace = trace)
     }
 
-    override fun visitStringInterpolationValue(value: StringInterpolationValue): TransformResult<TreeValue<Refined>> {
-        if (resolveOnly != null && value !in resolveOnly) {
-            return NotChanged
+    override fun visitStringInterpolation(node: StringInterpolationNode): RefinedTreeNode {
+        if (resolveOnly != null && node !in resolveOnly) {
+            return node
         }
 
         val allResolvedValues = mutableListOf<Traceable>()
-        val interpolated = value.parts.map { part ->
+        val interpolated = node.parts.map { part ->
             when (part) {
-                is StringInterpolationValue.Part.Reference -> {
-                    val resolved = resolve(value, part.referencePath) ?: return NotChanged
+                is StringInterpolationNode.Part.Reference -> {
+                    val resolved = resolve(node, part.referencePath) ?: return node
                     val converted = resolved.cast(SchemaType.StringType) ?: run {
                         reporter.reportBundleError(
-                            value.trace.asBuildProblemSource(), "validation.reference.unexpected.type.interpolation",
+                            node.trace.asBuildProblemSource(), "validation.reference.unexpected.type.interpolation",
                             renderTypeOf(resolved),
                         )
-                        return NotChanged
+                        return node
                     }
                     allResolvedValues += converted
-                    (converted as ScalarValue).value.toString()
+                    (converted as ScalarNode).value.toString()
                 }
-                is StringInterpolationValue.Part.Text -> part.text
+                is StringInterpolationNode.Part.Text -> part.text
             }
         }.joinToString("")
 
         val trace = TransformedValueTrace(
-            description = "string interpolation: ${value.parts.joinToString("") {
+            description = "string interpolation: ${node.parts.joinToString("") {
                 when(it) {
-                    is StringInterpolationValue.Part.Reference -> $$"${$${it.referencePath.joinToString(".")}}"
-                    is StringInterpolationValue.Part.Text -> it.text
+                    is StringInterpolationNode.Part.Reference -> $$"${$${it.referencePath.joinToString(".")}}"
+                    is StringInterpolationNode.Part.Text -> it.text
                 }
             }}",
-            definitionTrace = value.trace,
+            definitionTrace = node.trace,
             // TODO: Support multi-source traces
             // first() is safe because of StringInterpolationValue contract.
             sourceValue = allResolvedValues.first(),
         )
-        val typedInterpolated = when (val type = value.type) {
+        val typedInterpolated = when (val type = node.type) {
             is SchemaType.PathType -> try {
                 Path(interpolated).normalize().wrapTraceable(type, trace)
             } catch (e: InvalidPathException) {
                 reporter.reportBundleError(trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
-                return NotChanged
+                return node
             }
             is SchemaType.StringType -> {
                 when (type.semantics) {
@@ -178,13 +177,15 @@ private class TreeReferencesResolver(
                 interpolated.wrapTraceable(type, trace)
             }
         }
-        return Changed(ScalarValue(typedInterpolated, value.type, trace, value.contexts))
+
+        anyResolutionDone = true
+        return ScalarNode(typedInterpolated, node.type, trace, node.contexts)
     }
 
     private fun resolve(
-        origin: TreeValue<Refined>,
+        origin: RefinedTreeNode,
         referencePath: List<String>,
-    ): TreeValue<Refined>? {
+    ): RefinedTreeNode? {
         val firstElement = referencePath.first()
         val reversedPath = currentPath.asReversed()
 
@@ -196,10 +197,10 @@ private class TreeReferencesResolver(
             return null
         }
 
-        val resolved = referencePath.foldIndexed(resolutionRoot as TreeValue<Refined>?) { i, value, refPart ->
-            check(value is Refined)
+        val resolved = referencePath.foldIndexed(resolutionRoot as RefinedTreeNode) { i, value, refPart ->
+            check(value is RefinedMappingNode)
             val valueProperty = value.refinedChildren[refPart]
-            val propertyDeclaration = valueProperty?.pType
+            val propertyDeclaration = valueProperty?.propertyDeclaration
             val newValue = valueProperty?.value
 
             if (newValue == null) {
@@ -209,7 +210,7 @@ private class TreeReferencesResolver(
                 )
                 return null
             }
-            if (i != referencePath.lastIndex && newValue !is Refined) {
+            if (i != referencePath.lastIndex && newValue !is RefinedMappingNode) {
                 reporter.reportBundleError(
                     origin.trace.asBuildProblemSource(),
                     "validation.reference.resolution.not.a.mapping", refPart
@@ -230,7 +231,7 @@ private class TreeReferencesResolver(
             newValue
         }
 
-        if (resolved != null && resolved.deepContainsAnyReferences()) {
+        if (resolved.deepContainsAnyReferences()) {
             // Skip for now, going to be resolved in the next pass.
             deferred += origin
             return null
@@ -251,30 +252,30 @@ private class TreeReferencesResolver(
  * - String <- Path, Enum, Int
  * - Path <- String
  */
-private fun <TS : TreeState> TreeValue<TS>.cast(
+private fun RefinedTreeNode.cast(
     targetType: SchemaType,
     trace: Trace = this.trace,
-): TreeValue<TS>? {
-    if (targetType.isMarkedNullable && this is NullValue)
+): RefinedTreeNode? {
+    if (targetType.isMarkedNullable && this is NullLiteralNode)
         return this
 
     return when (targetType) {
-        is SchemaType.EnumType if this is ScalarValue -> when (val type = type) {
+        is SchemaType.EnumType if this is ScalarNode -> when (val type = type) {
             is SchemaType.EnumType if type.declaration == targetType.declaration -> {
                 // Conversion is possible between `isTraceableWrapped = true/false`
-                copy(value = value.unwrapTraceable().wrapTraceable(type, trace))
+                copyWithValue(value = value.unwrapTraceable().wrapTraceable(type, trace))
             }
             else -> null
         }
-        is SchemaType.PathType if this is ScalarValue -> copy(
+        is SchemaType.PathType if this is ScalarNode -> copyWithValue(
             value = when (val value = value.unwrapTraceable()) {
                 is String -> Path(value)
                 is Path -> value
                 else -> return null
             }.wrapTraceable(targetType, trace)
         )
-        is SchemaType.StringType if this is ScalarValue
-                && type.stringSemantics() assignableTo targetType.semantics -> copy(
+        is SchemaType.StringType if this is ScalarNode
+                && type.stringSemantics() assignableTo targetType.semantics -> copyWithValue(
             value = when (val value = value.unwrapTraceable()) {
                 is String -> value // also goes for external enums
                 is SchemaEnum -> value.schemaValue
@@ -283,18 +284,18 @@ private fun <TS : TreeState> TreeValue<TS>.cast(
                 else -> return null
             }.wrapTraceable(targetType, trace)
         )
-        is SchemaType.BooleanType if this is ScalarValue && this.value is Boolean -> this
-        is SchemaType.IntType if this is ScalarValue && this.value is Int -> this
-        is SchemaType.ObjectType if this is MapLikeValue && declaration == targetType.declaration -> this
-        is SchemaType.VariantType if this is MapLikeValue && declaration in targetType.declaration.variants -> this
-        is SchemaType.ListType if this is ListValue -> copy(
+        is SchemaType.BooleanType if this is ScalarNode && this.value is Boolean -> this
+        is SchemaType.IntType if this is ScalarNode && this.value is Int -> this
+        is SchemaType.ObjectType if this is RefinedMappingNode && declaration == targetType.declaration -> this
+        is SchemaType.VariantType if this is RefinedMappingNode && declaration in targetType.declaration.variants -> this
+        is SchemaType.ListType if this is RefinedListNode -> copy(
             children = children.map {
                 it.cast(targetType.elementType) ?: return null
             }
         )
-        is SchemaType.MapType if this is MapLikeValue && type is SchemaType.MapType -> copy (
-            children = children.map { property ->
-                property.copy(newValue = property.value.cast(targetType.valueType) ?: return null)
+        is SchemaType.MapType if this is RefinedMappingNode && type is SchemaType.MapType -> copy (
+            refinedChildren = refinedChildren.mapValues { (_, property) ->
+                property.copyWithValue(value = property.value.cast(targetType.valueType) ?: return null)
             }
         )
         else -> null
@@ -311,23 +312,23 @@ private infix fun SchemaType.StringType.Semantics?.assignableTo(other: SchemaTyp
             || this == other
 }
 
-private fun renderTypeOf(value: TreeValue<*>): String = when(value) {
-    is NullValue -> "null"
-    is ListValue -> value.type.withNullability(false).render(includeSyntax = false)
-    is MapLikeValue -> value.type.withNullability(false).render(includeSyntax = false)
-    is ScalarValue -> value.type.withNullability(false).render(includeSyntax = false)
-    is ErrorValue -> "<no value>" // FIXME: Are no values legal here? Investigate
-    is ReferenceValue, is StringInterpolationValue -> error("Not reached: must be resolved first")
+private fun renderTypeOf(value: TreeNode): String = when(value) {
+    is NullLiteralNode -> "null"
+    is ListNode -> value.type.withNullability(false).render(includeSyntax = false)
+    is MappingNode -> value.type.withNullability(false).render(includeSyntax = false)
+    is ScalarNode -> value.type.withNullability(false).render(includeSyntax = false)
+    is ErrorNode -> "<no value>" // FIXME: Are no values legal here? Investigate
+    is ReferenceNode, is StringInterpolationNode -> error("Not reached: must be resolved first")
 }
 
-private fun TreeValue<Refined>.deepContainsAnyReferences(): Boolean = when(this) {
-    is ListValue -> children.any { it.deepContainsAnyReferences() }
-    is MapLikeValue -> children.any { it.value.deepContainsAnyReferences() }
-    is ReferenceValue, is StringInterpolationValue -> true
-    is ScalarValue, is ErrorValue, is NullValue -> false
+private fun RefinedTreeNode.deepContainsAnyReferences(): Boolean = when(this) {
+    is RefinedListNode -> children.any { it.deepContainsAnyReferences() }
+    is RefinedMappingNode -> children.any { it.value.deepContainsAnyReferences() }
+    is ReferenceNode, is StringInterpolationNode -> true
+    is ScalarNode, is ErrorNode, is NullLiteralNode -> false
 }
 
-private fun ReferenceValue.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
+private fun ReferenceNode.resolvedTrace(resolvedValue: Traceable) = ResolvedReferenceTrace(
     description = $$"$${if (trace.isDefault) "default, " else ""}from ${$${referencedPath.joinToString(".")}}",
     referenceTrace = trace,
     resolvedValue = resolvedValue,

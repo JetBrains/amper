@@ -7,9 +7,8 @@ package org.jetbrains.amper.frontend.tree.reading
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
-import org.jetbrains.amper.frontend.tree.NullValue
-import org.jetbrains.amper.frontend.tree.TreeState
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -17,20 +16,20 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.yaml.psi.YAMLAnchor
 
 /**
- * Parses the given [value] value into a [TreeValue] according to the expected [type].
+ * Parses the given [value] value into a [TreeNode] according to the expected [type].
  *
- * If the value in the PSI cannot be parsed into a valid [TreeValue] for the expected [type], an error is reported via
+ * If the value in the PSI cannot be parsed into a valid [TreeNode] for the expected [type], an error is reported via
  * the given [ProblemReporter] and null is returned.
  *
  * When there's a new physical value to be parsed, this function should be called, instead of more narrow functions
  * like [parseScalar], because they do not handle the whole context (aliases, type tags, nullability, etc.).
  */
 context(inheritedContexts: Contexts, config: ParsingConfig, reporter: ProblemReporter)
-internal fun parseValue(
+internal fun parseNode(
     value: YamlValue,
     type: SchemaType,
     explicitContexts: Contexts = EmptyContexts,
-): TreeValue<*>? {
+): TreeNode? {
     // Unquoted `null` string is treated as the `null` keyword, not a string
     if (value is YamlValue.Scalar && value.isLiteral && value.textValue == "null") {
         if (!type.isMarkedNullable) {
@@ -41,7 +40,7 @@ internal fun parseValue(
             }
             return null // null means invalid in this function, not the null value
         }
-        return NullValue(value.asTrace(), explicitContexts)
+        return NullLiteralNode(value.asTrace(), explicitContexts)
     }
     value.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {

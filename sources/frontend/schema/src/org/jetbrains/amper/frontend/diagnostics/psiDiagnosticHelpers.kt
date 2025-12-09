@@ -9,13 +9,13 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readModuleMergedTree
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 @UsedInIdePlugin
 data class MergedTreeHolder(
-    val mergedTree: MapLikeValue<*>,
+    val mergedTree: MappingNode,
     val refiner: TreeRefiner,
 )
 

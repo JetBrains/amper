@@ -4,37 +4,29 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.TreeState
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.NotChanged
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TreeTransformer
-import org.jetbrains.amper.frontend.tree.copy
-import org.jetbrains.amper.frontend.types.getType
+import org.jetbrains.amper.frontend.tree.copyWithValue
+import org.jetbrains.amper.frontend.types.SchemaType
 
 context(buildCtx: BuildCtx)
-internal fun MapLikeValue<*>.substituteComposeOsSpecific() =
-    ComposeOsSpecificSubstitutor(buildCtx).transform(this) as? MapLikeValue<*> ?: this
+internal fun MappingNode.substituteComposeOsSpecific() =
+    ComposeOsSpecificSubstitutor(buildCtx).transform(this) as? MappingNode ?: this
 
-internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransformer<TreeState>() {
-
-    private val dependencyType = buildCtx.types.getType<ExternalMavenDependency>()
-    private val coordinatesPName = ExternalMavenDependency::coordinates.name
+internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransformer() {
     private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.familyArch}:"
 
     private fun String.doReplace() = this
         .replace("org.jetbrains.compose.desktop:desktop:", replacement)
         .replace("org.jetbrains.compose.desktop:desktop-jvm:", replacement)
 
-    override fun visitMapValue(value: MapLikeValue<*>) =
-        if (value.type != dependencyType) super.visitMapValue(value)
-        else value.copy<ScalarValue> { key, pValue, old ->
-            pValue.value.asSafely<String>()
-                .takeIf { key == coordinatesPName }
-                ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }
-                .let { listOf(it ?: old) }
-        }.let(::Changed)
+    override fun visitScalar(node: ScalarNode) = when (val type = node.type) {
+        is SchemaType.StringType if type.semantics == SchemaType.StringType.Semantics.MavenCoordinates ->
+            Changed(node.copyWithValue(value = (node.value as String).doReplace()))
+        else -> NotChanged
+    }
 }

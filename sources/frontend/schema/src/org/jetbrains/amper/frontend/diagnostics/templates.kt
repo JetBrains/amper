@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitListProperties
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -22,7 +22,7 @@ object TemplateNameWithoutPostfix : TreeDiagnostic {
 
     override val diagnosticId: BuildProblemId = "template.name.without.postfix"
 
-    override fun analyze(root: TreeValue<*>, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitListProperties(Module::apply) { _, templatesRaw ->
             templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
                 if (template?.exists() == true &&
