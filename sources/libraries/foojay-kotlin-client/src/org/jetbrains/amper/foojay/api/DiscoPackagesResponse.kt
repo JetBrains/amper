@@ -16,7 +16,8 @@ import org.jetbrains.amper.foojay.serialization.LenientBooleanSerializer
 
 @Serializable
 internal data class DiscoPackagesResponse(
-    val result: List<DiscoPackage> = emptyList(),
+    // null items are not expected, but it happened before: https://github.com/foojayio/discoapi/issues/132
+    val result: List<DiscoPackage?> = emptyList(),
     val message: String? = null,
 )
 

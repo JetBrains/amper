@@ -131,7 +131,8 @@ class DiscoApiClient(configureClient: HttpClientConfig<*>.() -> Unit = {}) : Aut
                 }
             }
         }
-        return response.body<DiscoPackagesResponse>().result
+        // null items are not expected, but it happened before: https://github.com/foojayio/discoapi/issues/132
+        return response.body<DiscoPackagesResponse>().result.filterNotNull()
     }
 
     suspend fun getPackageDetails(packageId: PackageId): DiscoPackageDetails? =
