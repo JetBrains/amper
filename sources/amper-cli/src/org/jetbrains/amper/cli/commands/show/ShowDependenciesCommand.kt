@@ -38,7 +38,6 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.buildDependenciesGraph
-import org.jetbrains.amper.util.AmperCliIncrementalCache
 
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
 
@@ -118,8 +117,6 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         val mavenCoordinates = filter?.resolveFilter()
 
-        val incrementalCache = AmperCliIncrementalCache(cliContext.buildOutputRoot)
-
         val variantsToResolve = buildList {
             platformSetsToResolveFor.forEach { platforms ->
                 listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
@@ -130,11 +127,11 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                             return@forEach // compile and runtime dependencies are the same for native single-platform contexts
                         add(
                             module.buildDependenciesGraph(
-                                isTests,
-                                platforms,
-                                scope,
-                                commonOptions.sharedCachesRoot,
-                                incrementalCache
+                                isTest = isTests,
+                                platforms = platforms,
+                                dependencyReason = scope,
+                                userCacheRoot = commonOptions.sharedCachesRoot,
+                                incrementalCache = cliContext.incrementalCache
                             )
                         )
                     }
@@ -142,7 +139,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             }
         }
 
-        val resolver = CliReportingMavenResolver(commonOptions.sharedCachesRoot, incrementalCache)
+        val resolver = CliReportingMavenResolver(commonOptions.sharedCachesRoot, cliContext.incrementalCache)
 
         val root = RootDependencyNodeWithContext(
             // If the incremental cache is on, a separate cache entry is calculated and maintained for every unique combination of parameters:
@@ -155,7 +152,11 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
                     includeTests
             )).asRootCacheEntryKey(),
             children = variantsToResolve,
-            templateContext = emptyContext(commonOptions.sharedCachesRoot, GlobalOpenTelemetry.get(), incrementalCache)
+            templateContext = emptyContext(
+                userCacheRoot = commonOptions.sharedCachesRoot,
+                openTelemetry = GlobalOpenTelemetry.get(),
+                incrementalCache = cliContext.incrementalCache
+            )
         )
 
         val resolvedGraph = resolver.resolve(

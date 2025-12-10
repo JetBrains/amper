@@ -32,7 +32,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     module = module,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                 )
             )
 
@@ -75,7 +75,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(kspTaskName),
                     taskName = kspTaskName,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     tempRoot = context.projectTempRoot,
                     jdkProvider = context.jdkProvider,
                 ),
@@ -92,7 +92,13 @@ fun ProjectTasksBuilder.setupKspTasks() {
                         // test compilation depends on main classes
                         add(compilationTaskNameFor(module, platform, isTest = false, buildType = BuildType.Debug))
                     }
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache).forEach {
+                    module.getModuleDependencies(
+                        isTest = isTest,
+                        platform = platform,
+                        dependencyReason = ResolutionScope.COMPILE,
+                        userCacheRoot = context.userCacheRoot,
+                        incrementalCache = context.incrementalCache
+                    ).forEach {
                         add(compilationTaskNameFor(it, platform, isTest = false,  buildType = BuildType.Debug))
 
                         // TODO add transitive 'exported' dependencies from module deps

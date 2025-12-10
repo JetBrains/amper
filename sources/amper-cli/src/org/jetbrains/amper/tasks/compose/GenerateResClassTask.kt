@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCommonResClassPath
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.compose.resources.generateResClass
@@ -19,11 +20,12 @@ import kotlin.io.path.createDirectory
 class GenerateResClassTask(
     rootFragment: Fragment,
     buildOutputRoot: AmperBuildOutputRoot,
+    incrementalCache: IncrementalCache,
     packageName: String,
     makeAccessorsPublic: Boolean,
     packagingDir: String,
     shouldGenerateCode: Boolean,
-) : PureArtifactTaskBase(buildOutputRoot) {
+) : PureArtifactTaskBase(buildOutputRoot, incrementalCache) {
     private val packageName by extraInput(packageName)
     private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
     private val packagingDir by extraInput(packagingDir)

@@ -26,7 +26,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         task = CommonizeNativeDistributionTask(
             model = model,
             userCacheRoot = context.userCacheRoot,
-            incrementalCache = incrementalCache,
+            incrementalCache = context.incrementalCache,
             tempRoot = context.projectTempRoot,
             jdkProvider = context.jdkProvider,
         )
@@ -44,7 +44,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileKLibTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
@@ -67,7 +67,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(linkTaskName),
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         taskName = linkTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
@@ -82,7 +82,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                                     platform = platform,
                                     dependencyReason = ResolutionScope.COMPILE,
                                     userCacheRoot = context.userCacheRoot,
-                                    incrementalCache = incrementalCache
+                                    incrementalCache = context.incrementalCache
                                 ).forEach { dependsOn ->
                                     add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType))
                                 }

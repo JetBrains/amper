@@ -15,7 +15,6 @@ import org.jetbrains.amper.tasks.EmptyTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
-import org.jetbrains.amper.util.AmperCliIncrementalCache
 import java.io.File
 import java.io.Serializable
 import java.nio.file.Path
@@ -28,15 +27,15 @@ import kotlin.reflect.KProperty
 
 /**
  * "Pure" artifact-based task. Such a task features the following traits:
- * - automatically cacheable based on input/output artifacts and extra inputs (using [AmperCliIncrementalCache] internally)
- * = automatically cleans its output before the action
+ * - automatically cacheable based on input/output artifacts and extra inputs using the given [incrementalCache]
+ * - automatically cleans its output before the action
  *
  * If one doesn't want the restrictions imposed by this class, subclass the [ArtifactTaskBase] instead.
  */
 abstract class PureArtifactTaskBase(
     buildOutputRoot: AmperBuildOutputRoot,
+    private val incrementalCache: IncrementalCache,
 ) : ArtifactTaskBase(), Serializable {
-    private val incrementalCache = AmperCliIncrementalCache(buildOutputRoot)
     private val extraInputs = mutableMapOf<String, String>()
     private lateinit var inputPaths: List<Path>
 

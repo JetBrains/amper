@@ -7,6 +7,7 @@ package org.jetbrains.amper.resolver
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.AmperVersion
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
@@ -15,7 +16,6 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -34,7 +34,10 @@ class MavenResolverTest {
     lateinit var amperCacheRoot: Path
 
     val incrementalCache: IncrementalCache by lazy {
-        AmperCliIncrementalCache(AmperBuildOutputRoot(amperCacheRoot))
+        IncrementalCache(
+            stateRoot = AmperBuildOutputRoot(amperCacheRoot).path.resolve("incremental.state"),
+            codeVersion = AmperVersion.codeIdentifier,
+        )
     }
 
     @Test

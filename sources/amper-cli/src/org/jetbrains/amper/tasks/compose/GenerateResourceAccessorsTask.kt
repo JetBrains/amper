@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedAccessorsPath
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
@@ -20,11 +21,12 @@ import kotlin.io.path.exists
  */
 class GenerateResourceAccessorsTask(
     buildOutputRoot: AmperBuildOutputRoot,
+    incrementalCache: IncrementalCache,
     fragment: Fragment,
     packageName: String,
     packagingDir: String,
     makeAccessorsPublic: Boolean,
-) : PureArtifactTaskBase(buildOutputRoot) {
+) : PureArtifactTaskBase(buildOutputRoot, incrementalCache) {
     private val packageName by extraInput(packageName)
     private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
     private val packagingDir by extraInput(packagingDir)

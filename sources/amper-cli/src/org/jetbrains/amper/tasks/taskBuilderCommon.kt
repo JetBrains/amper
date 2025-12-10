@@ -39,23 +39,28 @@ fun ProjectTasksBuilder.setupCommonTasks() {
         .alsoTests()
         .withEach {
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
-            val fragmentsCompileModuleDependencies =
-                module.buildDependenciesGraph(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache)
+            val fragmentsCompileModuleDependencies = module.buildDependenciesGraph(
+                isTest = isTest,
+                platform = platform,
+                dependencyReason = ResolutionScope.COMPILE,
+                userCacheRoot = context.userCacheRoot,
+                incrementalCache = context.incrementalCache,
+            )
             val fragmentsRuntimeModuleDependencies = when {
                 platform.isDescendantOf(Platform.NATIVE) -> null  // The native world doesn't distinguish compile/runtime classpath
                 else -> module.buildDependenciesGraph(
-                    isTest,
-                    platform,
-                    ResolutionScope.RUNTIME,
-                    context.userCacheRoot,
-                    incrementalCache
+                    isTest = isTest,
+                    platform = platform,
+                    dependencyReason = ResolutionScope.RUNTIME,
+                    userCacheRoot = context.userCacheRoot,
+                    incrementalCache = context.incrementalCache,
                 )
             }
             tasks.registerTask(
                 ResolveExternalDependenciesTask(
                     module = module,
                     userCacheRoot = context.userCacheRoot,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     platform = platform,
                     isTest = isTest,
                     // for test code, we resolve dependencies on union of test and prod dependencies
@@ -76,7 +81,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 fragment = it,
                 userCacheRoot = context.userCacheRoot,
                 taskOutputRoot = context.getTaskOutputPath(taskName),
-                incrementalCache = incrementalCache,
+                incrementalCache = context.incrementalCache,
                 tempRoot = context.projectTempRoot,
                 jdkProvider = context.jdkProvider,
             )
@@ -108,7 +113,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     module = module,
                     platform = platform,
                     taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                 )
             )
         }

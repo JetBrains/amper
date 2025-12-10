@@ -64,7 +64,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                                     platform = Platform.JVM,
                                     dependencyReason = resolutionScope,
                                     userCacheRoot = context.userCacheRoot,
-                                    incrementalCache = incrementalCache,
+                                    incrementalCache = context.incrementalCache,
                                 ).forEach {
                                     add(CommonTaskType.Jar.getTaskName(it, Platform.JVM))
                                 }
@@ -75,7 +75,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                         tasks.registerTask(ResolveCustomExternalDependenciesTask(
                             taskName = resolveExternalTaskName,
                             module = module,
-                            incrementalCache = incrementalCache,
+                            incrementalCache = context.incrementalCache,
                             userCacheRoot = context.userCacheRoot,
                             resolutionScope = resolutionScope,
                             localDependencies = classpathRequest.localDependencies,
@@ -92,7 +92,7 @@ fun ProjectTasksBuilder.setupTasksFromPlugins() {
                 description = taskDescription,
                 buildOutputRoot = context.buildOutputRoot,
                 terminal = context.terminal,
-                incrementalCache = incrementalCache,
+                incrementalCache = context.incrementalCache,
             )
             tasks.registerTask(
                 task, dependsOn = buildList {

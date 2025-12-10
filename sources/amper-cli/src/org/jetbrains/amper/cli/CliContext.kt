@@ -10,6 +10,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
 import org.jetbrains.amper.util.nowInDefaultTimezone
@@ -51,6 +52,18 @@ class CliContext(
         val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
         val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}_$commandName")
         AmperBuildLogsRoot(currentLogsPath.createDirectories())
+    }
+
+    /**
+     * The incremental cache for the current project.
+     */
+    val incrementalCache: IncrementalCache by lazy {
+        IncrementalCache(
+            stateRoot = buildOutputRoot.path.resolve("incremental.state"),
+            codeVersion = AmperVersion.codeIdentifier,
+            // by the time we get here, GlobalOpenTelemetry should be set
+            openTelemetry = GlobalOpenTelemetry.get(),
+        )
     }
 
     /**

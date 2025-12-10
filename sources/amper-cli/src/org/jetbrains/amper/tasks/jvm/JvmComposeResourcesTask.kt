@@ -9,6 +9,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.Selectors
@@ -28,7 +29,8 @@ class JvmComposeResourcesTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
     private val buildOutputRoot: AmperBuildOutputRoot,
-) : PureArtifactTaskBase(buildOutputRoot) {
+    incrementalCache: IncrementalCache,
+) : PureArtifactTaskBase(buildOutputRoot, incrementalCache) {
     private val preparedResources by Selectors.fromFragment(
         type = PreparedComposeResourcesDirArtifact::class,
         fragment = fragment,

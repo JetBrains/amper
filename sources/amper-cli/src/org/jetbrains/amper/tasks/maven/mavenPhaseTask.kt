@@ -82,7 +82,7 @@ enum class KnownMavenPhase(
             taskName = taskName,
             module = moduleCtx.module,
             isTest = isTest,
-            incrementalCache = moduleCtx.incrementalCache,
+            incrementalCache = taskBuilder.context.incrementalCache,
             cacheRoot = taskBuilder.context.userCacheRoot,
         )
     )
