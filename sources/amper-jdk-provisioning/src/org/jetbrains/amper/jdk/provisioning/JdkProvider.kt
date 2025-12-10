@@ -103,7 +103,8 @@ class JdkProvider(
     ): JdkResult = when (selectionMode) {
         JdkSelectionMode.auto -> findJdkFromJavaHome(criteria) { unusableJavaHomeResult ->
             when (unusableJavaHomeResult) {
-                is UnusableJavaHomeResult.UnsetOrEmpty -> Unit // nothing to say here
+                is UnusableJavaHomeResult.UnsetOrEmpty ->
+                    jdkProviderLogger.debug("JAVA_HOME is not set (or empty). Amper will provision a JDK instead.")
                 is UnusableJavaHomeResult.Invalid -> Unit // already reported via messages (once and for all)
                 is UnusableJavaHomeResult.Mismatch -> jdkProviderLogger
                     .info("`JAVA_HOME` was found but doesn't match the JDK selection criteria: " +
