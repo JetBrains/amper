@@ -4,6 +4,9 @@ apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml
 
+dependencies:
+  - ../../libraries/serialization-extended
+
 settings:
   kotlin:
     serialization: enabled

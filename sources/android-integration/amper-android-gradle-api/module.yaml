@@ -5,6 +5,7 @@ apply:
 
 dependencies:
   - ../../frontend-api
+  - ../../libraries/serialization-extended
 
 settings:
   kotlin:

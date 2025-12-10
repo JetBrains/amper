@@ -49,6 +49,7 @@ modules:
   - sources/libraries/foojay-kotlin-client
   - sources/libraries/incremental-cache
   - sources/libraries/nio-filechannels
+  - sources/libraries/serialization-extended
   - sources/libraries/stdlib-extended
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext

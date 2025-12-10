@@ -1,0 +1,11 @@
+product: jvm/lib
+
+apply:
+  - ../../common.module-template.yaml
+  - ../../used-in-idea.module-template.yaml
+
+settings:
+  kotlin:
+    # Just for the core library. This is not ideal, but we don't have a way to get a kotlinx-serialization-core
+    # catalog entry that respects the serialization version from the settings.
+    serialization: enabled

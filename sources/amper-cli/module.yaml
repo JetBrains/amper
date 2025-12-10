@@ -24,6 +24,7 @@ dependencies:
   - ../libraries/compose-resources
   - ../libraries/concurrency
   - ../libraries/incremental-cache
+  - ../libraries/serialization-extended
   - ../libraries/stdlib-extended
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext

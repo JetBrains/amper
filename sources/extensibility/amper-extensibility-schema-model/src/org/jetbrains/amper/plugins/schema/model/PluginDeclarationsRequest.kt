@@ -5,6 +5,7 @@
 package org.jetbrains.amper.plugins.schema.model
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.serialization.paths.SerializablePath
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 import kotlin.io.path.Path
@@ -16,8 +17,8 @@ import kotlin.io.path.Path
 @Serializable
 data class PluginDeclarationsRequest(
     val requests: List<Request>,
-    val jdkPath: PathAsString,
-    val librariesPaths: List<PathAsString>,
+    val jdkPath: SerializablePath,
+    val librariesPaths: List<SerializablePath>,
 ) {
     @Serializable
     data class Request(
@@ -29,7 +30,7 @@ data class PluginDeclarationsRequest(
         /**
          * The directory with the sources to analyze.
          */
-        val sourceDir: PathAsString,
+        val sourceDir: SerializablePath,
 
         /**
          * The optional schema name for the plugin schema extension class for module.

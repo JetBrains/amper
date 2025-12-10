@@ -5,9 +5,10 @@
 package org.jetbrains.amper.plugins.schema.model
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.serialization.paths.SerializablePath
 
 @Serializable
 data class SourceLocation(
-    val path: PathAsString,
+    val path: SerializablePath,
     val textRange: @Serializable(with = RangeSerializer::class) IntRange,
 )
