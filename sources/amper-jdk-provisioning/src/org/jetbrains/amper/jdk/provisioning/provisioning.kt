@@ -195,7 +195,6 @@ private fun JvmDistribution.toDiscoApiDistro(): Distribution = when (this) {
     JvmDistribution.SapMachine -> Distribution.SAP_MACHINE
     JvmDistribution.IbmSemeru -> Distribution.SEMERU
     JvmDistribution.IbmSemeruCertified -> Distribution.SEMERU_CERTIFIED
-    JvmDistribution.AzulZuluPrime -> Distribution.ZULU_PRIME
 }
 
 private fun Distribution.toJvmDistribution(): JvmDistribution = when (this) {
@@ -214,5 +213,4 @@ private fun Distribution.toJvmDistribution(): JvmDistribution = when (this) {
     Distribution.SAP_MACHINE -> JvmDistribution.SapMachine
     Distribution.SEMERU -> JvmDistribution.IbmSemeru
     Distribution.SEMERU_CERTIFIED -> JvmDistribution.IbmSemeruCertified
-    Distribution.ZULU_PRIME -> JvmDistribution.AzulZuluPrime
 }

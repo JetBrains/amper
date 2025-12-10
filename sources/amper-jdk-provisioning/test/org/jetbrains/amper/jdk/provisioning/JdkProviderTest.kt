@@ -62,7 +62,7 @@ class JdkProviderTest {
                     if (distribution.requiresLicense) {
                         add(distribution)
                     }
-                }
+                },
             )
         )
     }
@@ -73,7 +73,6 @@ class JdkProviderTest {
      */
     private fun JvmDistribution.isLinuxOnly(): Boolean = this in setOf(
         JvmDistribution.Bisheng, // only Linux, see https://www.openeuler.org/en/other/projects/bishengjdk/
-        JvmDistribution.AzulZuluPrime, // only Linux, see https://www.azul.com/downloads/?version=java-21-lts&package=jdk#prime
         JvmDistribution.IbmSemeruCertified, // only Linux, AIZ, z/OS, see https://developer.ibm.com/languages/java/semeru-runtimes/downloads/
     )
 

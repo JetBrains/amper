@@ -68,13 +68,6 @@ internal data class ReleaseInfo(
     val implementor: String? = properties["IMPLEMENTOR"]
 
     /**
-     * An optional vendor-specific version string. It can have prefixes and arbitrary numbers.
-     *
-     * Examples: `Corretto-21.0.1.12.1` (Amazon), `Zing25.09.0.0+3` (Azul Zulu Prime), `25.0.0.0` (IBM)
-     */
-    internal val implementorVersion: String? = properties["IMPLEMENTOR_VERSION"]
-
-    /**
      * An optional URL to the repository hosting the JDK sources.
      */
     internal val sourceRepo: String? = properties["SOURCE_REPO"]
@@ -97,11 +90,7 @@ internal data class ReleaseInfo(
         return when {
             lci.startsWith("alibaba") -> JvmDistribution.AlibabaDragonwell
             lci.startsWith("amazon") -> JvmDistribution.AmazonCorretto
-            lci.startsWith("azul") -> if (implementorVersion?.startsWith("Zing", ignoreCase = true) == true) {
-                JvmDistribution.AzulZuluPrime
-            } else {
-                JvmDistribution.AzulZulu
-            }
+            lci.startsWith("azul") -> JvmDistribution.AzulZulu
             lci.startsWith("bellsoft") -> JvmDistribution.BellSoftLiberica
             lci.startsWith("bisheng") -> JvmDistribution.Bisheng
             lci.startsWith("eclipse") -> JvmDistribution.EclipseTemurin

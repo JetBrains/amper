@@ -210,10 +210,6 @@ enum class JvmDistribution(
     @SchemaDoc("The [Oracle](https://www.oracle.com/java/technologies/downloads/) distribution. Check the Oracle website for licensing considerations.")
     Oracle(schemaValue = "oracle", requiresLicense = true),
 
-    @Misnomers("zing")
-    @SchemaDoc("The [Azul Zulu Prime](https://www.azul.com/downloads/?package=jdk#zulu) distribution. Check the Azul website for licensing considerations.")
-    AzulZuluPrime(schemaValue = "zuluPrime", requiresLicense = true),
-
     @Misnomers("openj9", "ibm")
     @SchemaDoc("The [IBM Semeru Runtime™ Certified Edition](https://www.ibm.com/support/pages/semeru-runtimes-getting-started) distribution, based on the Eclipse OpenJ9 JVM. Check the IBM website for licensing considerations.")
     IbmSemeruCertified(schemaValue = "semeruCertified", requiresLicense = true),

@@ -45,6 +45,4 @@ enum class Distribution(val apiValue: String) {
     TEMURIN(apiValue = "temurin"),
     @SerialName("zulu")
     ZULU(apiValue = "zulu"),
-    @SerialName("zulu_prime")
-    ZULU_PRIME(apiValue = "zulu_prime"),
 }
