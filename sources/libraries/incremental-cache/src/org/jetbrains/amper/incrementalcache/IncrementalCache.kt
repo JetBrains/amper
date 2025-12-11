@@ -23,6 +23,7 @@ import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -74,7 +75,7 @@ class IncrementalCache(
      *
      * The given [block] is always executed under double-locking based on the given [key], which means that 2 calls with
      * the same [key] cannot be executed at the same time by multiple threads or multiple processes.
-     * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
+     * If one call needs to re-run [block] because the cache is invalid, later calls with the same ID will suspend
      * until the first call completes and then resume and use the cache immediately (if possible).
      */
     suspend fun execute(
@@ -82,7 +83,22 @@ class IncrementalCache(
         inputValues: Map<String, String>,
         inputFiles: List<Path>,
         forceRecalculation: Boolean = false,
-        block: suspend () -> ExecutionResult,
+        /**
+         * If computation of this cache entry
+         * is executed inside the execution block of another cache entry calculation (i.e., this cache is a nested one),
+         * then the instance of [DynamicInputsTracker] corresponding to the upstream cache should be passed here.
+         * All dynamic inputs used for calculation of this (nested) cache entry will be added to the upstream tracker as well.
+         * This way, the upstream cache entry will be recalculated if any dynamic input of the nested cache was changed.
+         */
+        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
+        /**
+         * Instance of [DynamicInputsTracker] passed to the block should be used for getting values of sytem properties
+         * and environment variables that affect execution result.
+         * Also, if the execution result varies depending on the existence of some file on the file system,
+         * check whether those files exist or not, should be done with help of the given [DynamicInputsTracker] as well.
+         * This way, the cache entry will be recalculated automatically if any of these environment parameters change.
+         */
+        block: suspend (DynamicInputsTracker) -> ExecutionResult
     ): IncrementalExecutionResult = tracer.spanBuilder("inc: run: $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
@@ -106,8 +122,14 @@ class IncrementalCache(
                     logger.debug("[inc] '$key' is up-to-date according to state file at '{}'", stateFile)
                     span.setAttribute("status", "up-to-date")
                     val existingResult =
-                        ExecutionResult(cachedState.state.outputFiles.map { Path(it) }, cachedState.state.outputValues)
-                    span.addResult(existingResult)
+                        ExecutionResult(
+                            cachedState.state.outputFiles.map { Path(it) },
+                            cachedState.state.outputValues,
+                            expirationTime = cachedState.state.expirationTime
+                        )
+                    upstreamDynamicInputsTracker?.addFrom(cachedState.state.dynamicInputs)
+
+                    span.addResult(existingResult, cachedState.state.dynamicInputs)
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
                 } else {
                     span.setAttribute("status", "requires-building")
@@ -115,27 +137,35 @@ class IncrementalCache(
                     logger.debug("[inc] building '$key'")
                 }
 
+                val tracker = DynamicInputsTracker()
+
                 val result = tracer.spanBuilder("inc: execute").use {
-                    block()
+                    block(tracker)
+                }
+                val dynamicInputsState = tracker.toState().also {
+                    upstreamDynamicInputsTracker?.addFrom(it)
                 }
 
-                span.addResult(result)
+                span.addResult(result, dynamicInputsState)
 
                 tracer.spanBuilder("inc: write-state").use {
-                    val state = recordState(inputValues, inputFiles, result)
+                    val state = recordState(inputValues, inputFiles, dynamicInputsState, result)
                     stateFileChannel.writeState(state)
                 }
 
-                val oldState = cachedState?.state?.outputFilesState ?: mapOf()
-                val newState = tracer.spanBuilder("inc: read-new-file-states").use {
+                val oldOutputFilesState = cachedState?.state?.outputFilesState ?: mapOf()
+                val newOutputFilesState = tracer.spanBuilder("inc: read-new-file-states").use {
                     readFileStates(
                         paths = result.outputFiles,
                         excludedFiles = result.excludedOutputFiles,
                         failOnMissing = false,
                     )
                 }
+                val outputFilesChanges = oldOutputFilesState compare newOutputFilesState
 
-                val changes = oldState compare newState
+                val environmentContextChanges = cachedState?.state?.dynamicInputs?.changes() ?: emptyList()
+
+                val changes = outputFilesChanges + environmentContextChanges
 
                 return@withLock IncrementalExecutionResult(result, changes).also {
                     logger.debug("[inc] '$key' changes: {}", changes.joinToString { "'${it.path}' ${it.type}" })
@@ -149,14 +179,18 @@ class IncrementalCache(
         .toHexString()
         .take(10)
 
-    private fun Span.addResult(result: ExecutionResult) {
+    private fun Span.addResult(result: ExecutionResult, dynamicInputsState: DynamicInputsState) {
         setListAttribute("output-files", result.outputFiles.map { it.pathString }.sorted())
         setMapAttribute("output-values", result.outputValues)
+        setMapAttribute("dynamic-inputs-system-properties", dynamicInputsState.systemProperties)
+        setMapAttribute("dynamic-inputs-environment-variables", dynamicInputsState.environmentVariables)
+        setMapAttribute("dynamic-inputs-paths-existence", dynamicInputsState.pathsExistence)
     }
 
     private fun recordState(
         inputValues: Map<String, String>,
         inputFiles: List<Path>,
+        dynamicInputsState: DynamicInputsState,
         result: ExecutionResult,
     ): State = State(
         codeVersion = codeVersion,
@@ -171,6 +205,7 @@ class IncrementalCache(
             failOnMissing = true
         ),
         excludedOutputFiles = result.excludedOutputFiles.map { it.pathString }.toSet(),
+        dynamicInputs = dynamicInputsState,
         expirationTime = result.expirationTime
     )
 
@@ -243,6 +278,35 @@ class IncrementalCache(
             return CachedState(state = state, outdated = true)
         }
 
+        val currentDynamicInputsState = state.dynamicInputs.calculateCurrentState()
+
+        if (state.dynamicInputs.systemProperties != currentDynamicInputsState.systemProperties) {
+            logger.debug(
+                "[inc] System properties that affecteted cache calculation don't match recorded state in '$stateFile' -> rebuilding\n" +
+                        "  old: ${state.dynamicInputs.systemProperties.toSortedMap()}\n" +
+                        "  new: ${currentDynamicInputsState.systemProperties.toSortedMap()}"
+            )
+            return CachedState(state = state, outdated = true)
+        }
+
+        if (state.dynamicInputs.environmentVariables != currentDynamicInputsState.environmentVariables) {
+            logger.debug(
+                "[inc] Environment variables that affecteted cache calculation don't match recorded state in '$stateFile' -> rebuilding\n" +
+                        "  old: ${state.dynamicInputs.environmentVariables.toSortedMap()}\n" +
+                        "  new: ${currentDynamicInputsState.environmentVariables.toSortedMap()}"
+            )
+            return CachedState(state = state, outdated = true)
+        }
+
+        if (state.dynamicInputs.pathsExistence != currentDynamicInputsState.pathsExistence) {
+            logger.debug(
+                "[inc] Existence of files affecteted cache calculation don't match recorded state in '$stateFile' -> rebuilding\n" +
+                        "  old: ${state.dynamicInputs.pathsExistence.toSortedMap()}\n" +
+                        "  new: ${currentDynamicInputsState.pathsExistence.toSortedMap()}"
+            )
+            return CachedState(state = state, outdated = true)
+        }
+
         return CachedState(state = state, outdated = false)
     }
 
@@ -272,7 +336,11 @@ class IncrementalCache(
     data class IncrementalExecutionResult(
         private val executionResult: ExecutionResult,
         val changes: List<Change>,
-    ): ExecutionResult(executionResult.outputFiles, executionResult.outputValues)
+    ): ExecutionResult(
+        executionResult.outputFiles,
+        executionResult.outputValues,
+        expirationTime = executionResult.expirationTime
+    )
     
     data class Change(val path: Path, val type: ChangeType) {
         enum class ChangeType { CREATED, MODIFIED, DELETED }
@@ -288,8 +356,48 @@ class IncrementalCache(
         }    
     }
 
+    private fun DynamicInputsState.calculateCurrentState() =
+        DynamicInputsState(
+            systemProperties = systemProperties
+                .map { it.key to (System.getProperty(it.key) ?: MISSING_VALUE) }.toMap(),
+            environmentVariables = environmentVariables
+                .map { it.key to (System.getenv(it.key) ?: MISSING_VALUE) }.toMap(),
+            pathsExistence = pathsExistence
+                .map { it.key to Path(it.key).exists().toString() }.toMap()
+        )
+
+    private fun DynamicInputsState.changes(): List<Change> = buildList {
+        val currentDynamicInputsState = calculateCurrentState()
+        addAll(currentDynamicInputsState.environmentVariables compare environmentVariables)
+        addAll(currentDynamicInputsState.systemProperties compare systemProperties)
+        addAll(currentDynamicInputsState.pathsExistence compare pathsExistence)
+    }
+
+    private fun DynamicInputsTracker.toState() =
+        DynamicInputsState(
+            systemProperties = systemProperties.map { it.key to (it.value ?: MISSING_VALUE) }.toMap(),
+            environmentVariables = environmentVariables.map { it.key to (it.value ?: MISSING_VALUE) }.toMap(),
+            pathsExistence = pathsExistence.map { it.key.pathString to it.value.toString() }.toMap(),
+        )
+
+    private fun DynamicInputsTracker.addFrom(dynamicInputs: DynamicInputsState) {
+        systemProperties.putAll(
+            dynamicInputs.systemProperties.map { it.key to it.value.takeIf { it != MISSING_VALUE } }.toMap())
+        environmentVariables.putAll(
+            dynamicInputs.environmentVariables.map { it.key to it.value.takeIf { it != MISSING_VALUE } }.toMap())
+        pathsExistence.putAll(
+            dynamicInputs.pathsExistence.map{ Path(it.key) to it.value.toBoolean() }.toMap())
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(IncrementalCache::class.java)
+
+        /**
+         * Value for missing parameter stored in a [State].
+         * It might be used to indicate that a parameter was not set (system property/environment variable),
+         * or that an output file is absent.
+         */
+        internal const val MISSING_VALUE = "MISSING"
 
         private val executeOnChangedLocks = ConcurrentHashMap<String, Mutex>()
 
@@ -329,15 +437,15 @@ class IncrementalCache(
  *
  * The given [block] is always executed under double-locking based on the given [key], which means that 2 calls with
  * the same [key] cannot be executed at the same time by multiple threads or multiple processes.
- * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
+ * If one call needs to re-run [block] because the cache is invalid, later calls with the same ID will suspend
  * until the first call completes and then resume and use the cache immediately (if possible).
  */
 suspend fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
-    block: suspend () -> List<Path>,
-): List<Path> = execute(key, inputValues, inputFiles) { IncrementalCache.ExecutionResult(block()) }.outputFiles
-
-private fun String.ensureEndsWith(suffix: String) =
-    if (!endsWith(suffix)) this + suffix else this
+    upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
+    block: suspend (DynamicInputsTracker) -> List<Path>,
+): List<Path> = execute(key, inputValues, inputFiles, upstreamDynamicInputsTracker = upstreamDynamicInputsTracker) {
+    IncrementalCache.ExecutionResult(block(it))
+}.outputFiles

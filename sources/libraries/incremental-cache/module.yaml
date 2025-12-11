@@ -14,6 +14,7 @@ dependencies:
 
 test-dependencies:
   - $libs.slf4j.simple
+  - $libs.system.stubs.jupiter
 
 settings:
   kotlin:

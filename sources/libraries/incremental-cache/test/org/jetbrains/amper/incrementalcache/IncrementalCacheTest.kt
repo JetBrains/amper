@@ -6,11 +6,18 @@ package org.jetbrains.amper.incrementalcache
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
+import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -48,7 +55,7 @@ class IncrementalCacheTest {
         call()
         assertEquals(executionsCount.get(), 1)
 
-        // up-to-date, file is still MISSING
+        // up to date, the file is still MISSING
         call()
         assertEquals(executionsCount.get(), 1)
 
@@ -110,7 +117,7 @@ class IncrementalCacheTest {
         call()
         assertEquals(executionsCount.get(), 1)
 
-        // up-to-date, file is still MISSING
+        // up to date, the file is still MISSING
         call()
         assertEquals(executionsCount.get(), 1)
 
@@ -119,7 +126,7 @@ class IncrementalCacheTest {
         call()
         assertEquals(executionsCount.get(), 2)
 
-        // up-to-date
+        // up to date
         call()
         assertEquals(executionsCount.get(), 2)
     }
@@ -140,7 +147,7 @@ class IncrementalCacheTest {
         call()
         assertEquals(executionsCount.get(), 1)
 
-        // up-to-date, subdir is still MISSING
+        // up to date, subdir is still MISSING
         call()
         assertEquals(executionsCount.get(), 1)
 
@@ -149,7 +156,7 @@ class IncrementalCacheTest {
         call()
         assertEquals(executionsCount.get(), 2)
 
-        // up-to-date
+        // up to date
         call()
         assertEquals(executionsCount.get(), 2)
     }
@@ -166,7 +173,7 @@ class IncrementalCacheTest {
             assertEquals(listOf(output), result1.outputFiles)
             assertEquals("1", output.readText())
 
-            // up-to-date
+            // up to date
             val result2 = incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 output.writeText("2")
                 executionsCount.incrementAndGet()
@@ -378,7 +385,7 @@ class IncrementalCacheTest {
         call("1")
         assertEquals(executionsCount.get(), 1)
 
-        // up-to-date
+        // up to date
         call("1")
         assertEquals(executionsCount.get(), 1)
     }
@@ -405,5 +412,137 @@ class IncrementalCacheTest {
         // expired => recalculated
         call("1")
         assertEquals(executionsCount.get(), 2)
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun trackingDynamicInputsSystemProperty(systemProperties: SystemProperties) {
+        val propertyName = "my.test.output.system.property"
+
+        fun call() = runBlocking {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                executionsCount.incrementAndGet()
+                dynamicInputsTracker.readSystemProperty(propertyName)
+                IncrementalCache.ExecutionResult(emptyList())
+            }
+        }
+
+        // initial, property is missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // up to date, system property is still missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // Set system property affecting cache calculation
+        systemProperties.set("my.test.output.system.property", "someValue")
+
+        // changed, system property is defined
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // up to date, system property has not changed
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // changed, system property is updated to the new value
+        systemProperties.set("my.test.output.system.property", "newValue")
+        call()
+        assertEquals(executionsCount.get(), 3)
+
+        // up to date
+        call()
+        assertEquals(executionsCount.get(), 3)
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun trackingDynamicInputsEnvironmentVariable(environmentVariables: EnvironmentVariables) {
+        val envVar = "MY_TEST_OUTPUT_ENV_VAR"
+
+        fun call() = runBlocking {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                executionsCount.incrementAndGet()
+                dynamicInputsTracker.readEnv(envVar)
+                IncrementalCache.ExecutionResult(emptyList())
+            }
+        }
+
+        // initially, the environment variable is missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // up to date, the environment variable is still missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // Set environment variable affecting cache calculation
+        environmentVariables.set(envVar, "someValue")
+
+        // changed, the environment variable is defined
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // up to date, the environment variable has not changed
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // changed, the environment variable is updated to the new value
+        environmentVariables.set(envVar, "newValue")
+        call()
+        assertEquals(executionsCount.get(), 3)
+
+        // up to date
+        call()
+        assertEquals(executionsCount.get(), 3)
+    }
+
+    @Test
+    fun trackingDynamicInputsPaths() {
+        val file = tempDir.resolve("file-${UUID.randomUUID().toString().substring(0..8)}.txt")
+
+        fun call() = runBlocking {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                executionsCount.incrementAndGet()
+                dynamicInputsTracker.checkPathExistence(file)
+                IncrementalCache.ExecutionResult(emptyList())
+            }
+        }
+
+        // initially, the file is missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // up to date, the file is still missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // Create the file
+        file.createFile()
+
+        // changed, the file was created
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // up to date, the file is still there
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // Update the file content
+        file.writeText("newText")
+
+        // up to date, the file is updated but is still there
+        call()
+        assertEquals(executionsCount.get(), 2)
+        
+        // changed, the file is removed
+        file.deleteIfExists()
+        call()
+        assertEquals(executionsCount.get(), 3)
+
+        // up to date
+        call()
+        assertEquals(executionsCount.get(), 3)
     }
 }

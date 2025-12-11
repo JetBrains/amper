@@ -71,6 +71,13 @@ internal data class State(
      */
     val excludedOutputFiles: Set<String>,
     /**
+     * State of environment parameters that affected the cached computation.
+     * Their values are recorded and persisted on disk.
+     * The next time the computation is run, the new state of the these parameters is compared to the recorded one,
+     * and the computation is re-run if anything is changed
+     */
+    val dynamicInputs: DynamicInputsState,
+    /**
      * Date and time the cache entry is no longer valid after, and should be recalculated
      */
     @Serializable(with = InstantSerializer::class)
@@ -81,6 +88,25 @@ internal data class State(
         const val formatVersion = 5
     }
 }
+
+@Serializable
+class DynamicInputsState(
+    /**
+     * System properties that affected the cached computation.
+     */
+    @Serializable(with = SortedMapSerializer::class)
+    val systemProperties: Map<String, String> = emptyMap(),
+    /**
+     * Environment variables that affected the cached computation.
+     */
+    @Serializable(with = SortedMapSerializer::class)
+    val environmentVariables: Map<String, String> = emptyMap(),
+    /**
+     * Existence of paths that affected the cache computation.
+     */
+    @Serializable(with = SortedMapSerializer::class)
+    val pathsExistence: Map<String, String> = emptyMap(),
+)
 
 internal fun FileChannel.writeState(state: State) {
     truncate(0)
