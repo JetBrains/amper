@@ -231,16 +231,13 @@ class Resolver {
         }
     }
 
-    private suspend fun DependencyNodeWithContext.toResolvedGraph() =
-        ResolvedGraph(this, calculateGraphExpirationTime())
-
-    // todo (AB): If node was not resolved due to network error and has ERROR diagnostic assigned,
-    // todo (AB): such a node should be recalculated next time and thus providing expirationTime as NOW.
     /**
-     * Expiration time of the graph represented with this node.
+     * Calculate the expiration time of the graph represented with this node.
+     * Collect environment context used for resolution of the graph.
+     * Wrap it all into resulting [ResolvedGraph]
      *
      * Note:
-     * Among others, it is calculated based on the expiration time of the snapshot files,
+     * Among others, a graph expiration is calculated based on the expiration time of the snapshot files,
      * those times are absent in the serialized graph,
      * therefore, calculation of the expiration time of arbitrary DependencyNode is not possible
      * (nodes restored from cache don't know about expiration time).
@@ -249,8 +246,8 @@ class Resolver {
      * in that case dependency node expiration time should be started serializing and taken into account when
      * deciding whether to use the nodes restored from cache or not.
      */
-    private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
-        return try {
+    private suspend fun DependencyNodeWithContext.toResolvedGraph(): ResolvedGraph {
+        val expirationTime = try {
             distinctBfsSequence()
                 .toSet()
                 .mapNotNull { it.calculateNodeExpirationTime() }
@@ -259,8 +256,10 @@ class Resolver {
             throw e
         } catch (e: Exception) {
             logger.error("Unable to calculate expiration time of the dependency graph", e)
-            return null
+            null
         }
+
+        return ResolvedGraph(this, expirationTime)
     }
 
     private suspend fun DependencyNode.calculateNodeExpirationTime(): Instant? {
@@ -340,7 +339,7 @@ class Resolver {
             this,
             level = resolutionLevel,
             transitive = transitive,
-            unspecifiedVersionResolver = unspecifiedVersionResolver
+            unspecifiedVersionResolver = unspecifiedVersionResolver,
         )
         resolver.downloadDependencies(this, downloadSources)
     }
@@ -358,7 +357,7 @@ class Resolver {
         root: DependencyNodeWithContext,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         transitive: Boolean = true,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
     ) {
         root.context.spanBuilder("Resolver.buildGraph").use {
             val conflictResolver =
@@ -418,7 +417,7 @@ class Resolver {
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
-        transitive: Boolean
+        transitive: Boolean,
     ) {
         if (this in resolvedNodes) {
             // Register this node and its children to the conflictResolver,

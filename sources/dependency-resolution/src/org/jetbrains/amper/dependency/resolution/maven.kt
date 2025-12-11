@@ -42,12 +42,11 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutio
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.NoVariantForPlatform
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.PomWasFoundButMetadataIsMissing
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.PomWasNotFound
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.ProjectHasMoreThanTenAncestors
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToDetermineDependencyVersion
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToDetermineDependencyVersionForKotlinLibrary
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToParseMetadata
-import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnableToParsePom
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnexpectedDependencyFormat
+import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnresolvedMavenDependencyPackagingType
 import org.jetbrains.amper.dependency.resolution.diagnostics.DiagnosticReporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.MetadataResolvedWithPomErrors
@@ -58,8 +57,8 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.asMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.hasErrors
-import org.jetbrains.amper.dependency.resolution.files.computeHash
 import org.jetbrains.amper.dependency.resolution.files.produceFileWithDoubleLockAndHash
+import org.jetbrains.amper.dependency.resolution.maven.resolvePom
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
@@ -69,15 +68,9 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.KotlinProjectStructureMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
-import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
-import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
-import org.jetbrains.amper.dependency.resolution.metadata.xml.Parent
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
-import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.localRepository
-import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseSettings
-import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -758,7 +751,10 @@ class MavenDependencyImpl internal constructor(
 
     override fun toString(): String = "$group:$module:${version.orUnspecified()}"
 
-    suspend fun resolveChildren(context: Context, level: ResolutionLevel) {
+    suspend fun resolveChildren(
+        context: Context,
+        level: ResolutionLevel
+    ) {
         if (state < level.state) {
             mutex.withLock {
                 if (state < level.state) {
@@ -1022,7 +1018,7 @@ class MavenDependencyImpl internal constructor(
                                 it.dependencies(
                                     context,
                                     level,
-                                    diagnosticsReporter
+                                    diagnosticsReporter,
                                 ) + listOfNotNull(it.`available-at`?.asDependency())
                             }.map {
                                 it.toMavenDependency(context, diagnosticsReporter)
@@ -1905,31 +1901,6 @@ class MavenDependencyImpl internal constructor(
         }
     }
 
-    private suspend fun resolvePom(
-        text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter,
-    ): Project? {
-        return try {
-            parsePom(text).resolve(context, level, diagnosticsReporter)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            val message = UnableToParsePom.asMessage(
-                pom,
-                extra = DependencyResolutionBundle.message("extra.exception", e),
-                exception = e,
-            )
-            logger.warn(message.message, e)
-            diagnosticsReporter.addMessage(message)
-            return null
-        }
-    }
-
-    private fun parsePom(text: String): Project = text.sanitizePom().parsePom()
-
-    private fun String.sanitizePom(): String = let {
-        if (group == "org.codehaus.plexus" && module == "plexus") replace("&oslash;", "ø") else it
-    }
-
     private suspend fun resolveDependenciesConstraintsUsingPom(
         text: String, context: Context, level: ResolutionLevel, diagnosticsReporter: DiagnosticReporter
     ): List<MavenDependencyConstraintImpl> = resolvePom(text, context, level, diagnosticsReporter)
@@ -1943,168 +1914,6 @@ class MavenDependencyImpl internal constructor(
             context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version))
         }
     }
-
-    /**
-     * Resolves a Maven project by recursively substituting references to parent projects and templates
-     * with actual values.
-     * Additionally, dependency versions are defined using dependency management.
-     */
-    private suspend fun Project.resolve(
-        context: Context,
-        resolutionLevel: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter,
-        depth: Int = 0,
-        origin: Project = this,
-    ): Project {
-        if (depth > 10) {
-            diagnosticsReporter.addMessage(ProjectHasMoreThanTenAncestors.asMessage(origin))
-            return this
-        }
-        val parentNode = parent?.let {
-            context.createOrReuseDependency(it.coordinates, isBom = false)
-        }
-
-        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(
-                resolutionLevel,
-                context,
-                diagnosticsReporter
-            ))
-        ) {
-            val text = parentNode.pom.readText()
-            val parentProject =
-                parsePom(text).resolve(context, resolutionLevel, diagnosticsReporter, depth + 1, origin)
-            copy(
-                groupId = groupId ?: parentProject.groupId,
-                artifactId = artifactId ?: parentProject.artifactId,
-                version = version ?: parentProject.version,
-                dependencies = dependencies + parentProject.dependencies,
-                properties = properties + parentProject.properties,
-            ).let {
-                val importedDependencyManagement = it.resolveImportedDependencyManagement(
-                    context,
-                    resolutionLevel,
-                    diagnosticsReporter,
-                    depth
-                )
-                it.copy(
-                    // Dependencies declared directly in pom.xml dependencyManagement section take precedence over directly imported dependencies,
-                    // both in turn take precedence over parent dependencyManagement
-                    dependencyManagement = dependencyManagement + importedDependencyManagement + parentProject.dependencyManagement,
-                )
-            }
-        } else if (parent != null && (groupId == null || artifactId == null || version == null)) {
-            val importedDependencyManagement = resolveImportedDependencyManagement(
-                context,
-                resolutionLevel,
-                diagnosticsReporter,
-                depth
-            )
-            copy(
-                groupId = groupId ?: parent.groupId,
-                artifactId = artifactId ?: parent.artifactId,
-                version = version ?: parent.version,
-                dependencyManagement = dependencyManagement + importedDependencyManagement,
-            )
-        } else {
-            val importedDependencyManagement = resolveImportedDependencyManagement(
-                context,
-                resolutionLevel,
-                diagnosticsReporter,
-                depth
-            )
-            copy(
-                dependencyManagement = dependencyManagement + importedDependencyManagement,
-            )
-        }
-
-        val dependencyManagement = project.dependencyManagement?.copy(
-            dependencies = project.dependencyManagement.dependencies?.copy(
-                dependencies = project.dependencyManagement.dependencies.dependencies.map { it.expandTemplates(project) }
-            )
-        )
-
-        val dependencies = project.dependencies
-            ?.dependencies
-            ?.map { it.expandTemplates(project) } // expanding properties used in groupId/artifactId
-            ?.map { dep ->
-                if (dep.version != null && dep.scope != null) {
-                    return@map if (dep.version.resolveSingleVersion() != dep.version) {
-                        dep.copy(version = dep.version.resolveSingleVersion())
-                    } else dep
-                }
-                dependencyManagement
-                    ?.dependencies
-                    ?.dependencies
-                    ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
-                    ?.let { dependencyManagementEntry ->
-                        return@map dep
-                            .let {
-                                val dependencyManagementEntryVersion =
-                                    dependencyManagementEntry.version?.resolveSingleVersion()
-                                if (dep.version == null && dependencyManagementEntryVersion != null) it.copy(version = dependencyManagementEntryVersion)
-                                else it
-                            }.let {
-                                if (dep.scope == null && dependencyManagementEntry.scope != null) it.copy(scope = dependencyManagementEntry.scope)
-                                else it
-                            }
-                    }
-                    ?: return@map dep
-            }
-            ?.map { it.expandTemplates(project) }
-        return project
-            .expandTemplates()
-            .copy(
-                dependencies = dependencies?.let { Dependencies(it) },
-                dependencyManagement = dependencyManagement
-            )
-    }
-
-    /**
-     * Resolve an effective imported dependencyManagement.
-     * If several dependencies are imported, then those are merged into a single [DependencyManagement] object.
-     * The first declared import dependency takes precedence over the second one and so on.
-     *
-     * Parent poms of imported dependencies are taken into account
-     * (in a standard way of resolving dependencyManagement section)
-     * Specification tells about import scope:
-     *  "It indicates the dependency is to be replaced with the
-     *   effective list of dependencies in the specified POM's <dependencyManagement> section."
-     *  (https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope)
-     */
-    private suspend fun Project.resolveImportedDependencyManagement(
-        context: Context,
-        resolutionLevel: ResolutionLevel,
-        diagnosticsReporter: DiagnosticReporter,
-        depth: Int,
-    ): DependencyManagement? = dependencyManagement
-        ?.dependencies
-        ?.dependencies
-        ?.map { it.expandTemplates(this) }
-        ?.mapNotNull {
-            if (it.scope == "import" && it.version != null) {
-                val dependency = context.createOrReuseDependency(it.coordinates, isBom = true)
-                if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)) {
-                    val text = dependency.pom.readText()
-                    val dependencyProject =
-                        parsePom(text).resolve(context, resolutionLevel, diagnosticsReporter, depth + 1)
-                    dependencyProject.dependencyManagement
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
-        }
-        ?.takeIf { it.isNotEmpty() }
-        ?.reduce(DependencyManagement::plus)
-
-    private suspend fun DependencyFileImpl.isDownloadedOrDownload(
-        level: ResolutionLevel,
-        context: Context,
-        diagnosticsReporter: DiagnosticReporter,
-    ) =
-        isDownloadedWithVerification(level, context.settings, diagnosticsReporter)
-                || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
 
     internal val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
         get() = filterNot { it.isDocumentationOrMetadata }
@@ -2203,7 +2012,12 @@ class MavenDependencyImpl internal constructor(
         val packagingType = when {
             // a not-substituted packaging type might be a result of referencing property
             // declared in the not yes supported active Maven profiles
-            packagingTypeFromPom.contains("$") -> "jar"
+            packagingTypeFromPom.contains("$") -> "jar".also {
+                logger.warn("Packaging type of dependenency $this is not resolved: $packagingTypeFromPom, falls back to $it")
+                pom.diagnosticsReporter.addMessage(
+                    UnresolvedMavenDependencyPackagingType.asMessage(this, packagingTypeFromPom, it)
+                )
+            }
 
             // Dependency packaging type (and further extension) is resolved from the corresponging pom.xml
             else -> packagingTypeFromPom // by default get packaging type from pom (Maven uses "jar" by default)
@@ -2354,8 +2168,6 @@ object LocalM2RepositoryFinder {
 
 fun String?.orUnspecified(): String = this ?: "unspecified"
 
-private val Parent.coordinates: MavenCoordinates
-    get() = mavenCoordinatesTrimmed(groupId = groupId, artifactId = artifactId, version = version)
-
 internal val org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency.coordinates: MavenCoordinates
-    get() = mavenCoordinatesTrimmed(groupId = groupId, artifactId = artifactId, version = version, packagingType = type)
+    get() = mavenCoordinatesTrimmed(groupId = groupId, artifactId = artifactId, version = version,
+        classifier = classifier, packagingType = type)

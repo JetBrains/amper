@@ -37,7 +37,10 @@ class PomTest {
     @Test
     fun `junit-4_13_2`(testInfo: TestInfo) = doTest(testInfo) {
         it.replace("<issueManagement>.*</distributionManagement>".toRegex(), "")
-            .replace("<build>.*</profiles>".toRegex(), "")
+            // we are not interested in build part of neither project nor profiles
+            .replace("<build>.*?</build>".toRegex(), "")
+            // we are not interested in reporting part of neither project nor profiles
+            .replace("<reporting>.*?</reporting>".toRegex(), "")
     }
 
     @Test
@@ -61,12 +64,13 @@ class PomTest {
             .replace("<id>.*?</id>".toRegex(), "")
             .replace("<scm>.*</scm>".toRegex(), "")
             .replace("<issueManagement>.*</issueManagement>".toRegex(), "")
-            .replace("<distributionManagement>.*</distributionManagement>".toRegex(), "")
-            .replace("<build>.*</profiles>".toRegex(), "")
+            .replace("<distributionManagement>.*?</distributionManagement>".toRegex(), "")
+            .replace("<build>.*?</build>".toRegex(), "")
+            .replace("<reporting>.*?</reporting>".toRegex(), "")
             .replace("<organization />", "<organization></organization>")
             .replace("<email />", "<email></email>")
             .replace("<timezone>.*?</timezone>".toRegex(), "")
-            .replace("<properties>.*</properties>".toRegex(), "")
+            .replace("<properties>.*?</properties>".toRegex(), "")
             .replace(">\\s+".toRegex(), ">")
             .replace("\\s+".toRegex(), " ")
     }

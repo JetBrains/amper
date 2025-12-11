@@ -130,6 +130,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
     var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
     var verifyChecksumsLocally: Boolean = true
+    var jvmRelease: JavaVersion? = null // todo (AB) : Check that it is correctly set in all places.
 
     init {
         apply(init)
@@ -147,6 +148,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             conflictResolutionStrategies,
             dependenciesBlocklist,
             verifyChecksumsLocally,
+            jvmRelease
         )
 }
 
@@ -224,6 +226,7 @@ data class Settings(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
     val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
     val verifyChecksumsLocally: Boolean,
+    var jvmRelease: JavaVersion? = null
 ): ResolutionConfig {
     val spanBuilder: SpanBuilderSource
         get() = { openTelemetry
@@ -315,3 +318,25 @@ data object MavenLocal : Repository{
 typealias SpanBuilderSource = (String) -> SpanBuilder
 
 fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
+
+// Copy-pasted from amper-cli
+data class JavaVersion(
+    /**
+     * The integer representation of this version for the `--release` option of the Java compiler, and the
+     * `-Xjdk-release` option of the Kotlin compiler.
+     *
+     * Notes:
+     *  * The Java compiler only supports versions from 6 and above for the `--release` option.
+     *  * Despite the documentation, the Kotlin compiler supports "8" as an alias for "1.8" in `-Xjdk-release`, but the
+     *    `-jvm-target` option requires "1.8".
+     */
+    val releaseNumber: Int,
+) {
+    /**
+     * The legacy notation of this version, which uses the "1." prefix for every version before 9.
+     *
+     * Examples: 1.6, 1.7, 1.8, 9, 10, 11, 17, 21
+     */
+    val legacyNotation: String
+        get() = if (releaseNumber <= 8) "1.$releaseNumber" else releaseNumber.toString()
+}

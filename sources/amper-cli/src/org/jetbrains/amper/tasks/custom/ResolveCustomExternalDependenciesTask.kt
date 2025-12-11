@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -23,6 +24,7 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
 import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.TaskResult
@@ -54,6 +56,7 @@ internal class ResolveCustomExternalDependenciesTask(
             this.cache = getAmperFileCacheBuilder(userCacheRoot)
             this.scope = resolutionScope
             this.platforms = setOf(ResolutionPlatform.JVM)
+            this.jvmRelease = JavaVersion(module.jdkSettings.version)
         }
         val externalDependencyNodes = externalDependencies.map {
             // It's safe to split here, because, validation was already done in the frontend

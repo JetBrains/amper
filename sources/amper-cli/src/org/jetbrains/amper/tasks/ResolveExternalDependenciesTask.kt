@@ -191,13 +191,14 @@ class ResolveExternalDependenciesTask(
                         ),
                         inputFiles = emptyList()
                     ) {
-                        val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) = mavenResolver.doResolveExternalDependencies(
-                            module = module,
-                            platform = platform,
-                            isTest = isTest,
-                            compileModuleDependencies = fragmentsCompileModuleDependencies,
-                            runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
-                        )
+                        val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) =
+                            mavenResolver.doResolveExternalDependencies(
+                                module = module,
+                                platform = platform,
+                                isTest = isTest,
+                                compileModuleDependencies = fragmentsCompileModuleDependencies,
+                                runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                            )
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
                         val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()

@@ -10,6 +10,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
@@ -68,6 +69,7 @@ open class MavenResolver(
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
+        jvmRelease: JavaVersion? = null,
         rootBuilder: (Context) -> RootDependencyNodeWithContext,
     ): ResolvedGraph = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
@@ -85,6 +87,7 @@ open class MavenResolver(
                 this.platforms = setOf(platform)
                 this.openTelemetry = GlobalOpenTelemetry.get()
                 this.incrementalCache = this@MavenResolver.incrementalCache
+                this.jvmRelease = jvmRelease
             }
             resolve(rootBuilder(context), resolveSourceMoniker, resolutionDepth)
         }

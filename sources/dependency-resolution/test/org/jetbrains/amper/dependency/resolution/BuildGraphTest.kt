@@ -69,6 +69,27 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the dependencies declared in the active profile of transitive dependency
+     * (activated by activeByDefault == true) are taken into account.
+     * In particular, the pom file of the library
+     * 'com.sun.jersey.jersey-test-framework:jersey-test-framework-grizzly2:1.10'
+     * declares dependencies inside the profile called 'default' that is activated by default:
+     * <id>default</id>
+     * <activation>
+     *    <activeByDefault>true</activeByDefault>
+     *</activation>
+     */
+    @Test
+    fun `com_sun_jersey_jersey-test-framework jersey-test-framework-grizzly2 1_10`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+        )
+
+        downloadAndAssertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that the variable used in packaging is correctly resolved.
      * In particular, netty-codec-native-quic-4.2.7.Final.pom
      * declares <packaging>${packaging.type}</packaging>
@@ -615,7 +636,7 @@ class BuildGraphTest : BaseDRTest() {
 
     @Test
     fun `dev_gitlive firebase-crashlytics 2_1_0`(testInfo: TestInfo) = runDrTest {
-        val root = doTest(
+        val root = doTestByFile(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_MAVEN_GOOGLE),
             platform = setOf(

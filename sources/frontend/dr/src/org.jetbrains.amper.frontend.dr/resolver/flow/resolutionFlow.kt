@@ -7,6 +7,7 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
@@ -26,6 +27,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAn
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
@@ -146,6 +148,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.cache = fileCacheBuilder
                 this.openTelemetry = openTelemetry
                 this.incrementalCache = incrementalCache
+                this.jvmRelease = JavaVersion(jdkSettings.version)
                 fragments.firstOrNull()?.let { rootFragment ->
                     this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
                         val groupAndArtifact = it.split(":", limit = 2)

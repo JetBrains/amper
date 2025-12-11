@@ -148,6 +148,8 @@ data class Project(
     val dependencies: Dependencies? = null,
     @XmlElement(true)
     val packaging: String? = null,
+    @XmlElement(true)
+    val profiles: Profiles? = null
 )
 
 @Serializable
@@ -324,6 +326,8 @@ data class Dependency(
     @XmlElement(true)
     val type: String? = null,
     @XmlElement(true)
+    val classifier: String? = null,
+    @XmlElement(true)
     val scope: String? = null,
     @XmlElement(true)
     val exclusions: Exclusions? = null,
@@ -343,6 +347,75 @@ data class Exclusion(
     val groupId: String,
     @XmlElement(true)
     val artifactId: String? = null,
+)
+
+@Serializable
+@XmlSerialName("profiles", POM_XML_NAMESPACE)
+data class Profiles(
+    @XmlElement(true)
+    val profiles: List<Profile>? = null
+)
+
+
+@Serializable
+@XmlSerialName("profile", POM_XML_NAMESPACE)
+data class Profile(
+    @XmlElement(true)
+    val id: String? = null,
+    @XmlElement(true)
+    val activation: List<ProfileActivation>? = null,
+    @XmlElement(true)
+    val properties: Properties? = null,
+    @XmlElement(true)
+    val dependencies: Dependencies? = null,
+    @XmlElement(true)
+    val dependencyManagement: DependencyManagement? = null,
+)
+
+@Serializable
+@XmlSerialName("activation", POM_XML_NAMESPACE)
+data class ProfileActivation(
+    @XmlElement(true)
+    val activeByDefault: Boolean? = null,
+    @XmlElement(true)
+    val jdk: String? = null,
+    @XmlElement(true)
+    val os: ActivationOS? = null,
+    @XmlElement(true)
+    val property: ActivationProperty? = null,
+    @XmlElement(true)
+    val file: ActivationFile? = null,
+)
+
+@Serializable
+@XmlSerialName("property", POM_XML_NAMESPACE)
+data class ActivationProperty(
+    @XmlElement(true)
+    val name: String? = null,
+    @XmlElement(true)
+    val value: String? = null,
+)
+
+@Serializable
+@XmlSerialName("file", POM_XML_NAMESPACE)
+data class ActivationFile(
+    @XmlElement(true)
+    val missing: String? = null,
+    @XmlElement(true)
+    val exists: String? = null,
+)
+
+@Serializable
+@XmlSerialName("os", POM_XML_NAMESPACE)
+data class ActivationOS(
+    @XmlElement(true)
+    val name: String? = null,
+    @XmlElement(true)
+    val family: String? = null,
+    @XmlElement(true)
+    val arch: String? = null,
+    @XmlElement(true)
+    val version: String? = null,
 )
 
 internal fun Dependency.expandTemplates(project: Project): Dependency = copy(

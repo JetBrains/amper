@@ -1,10 +1,11 @@
 root
 ╰─── org.nd4j:nd4j-cuda-10.2-platform:1.0.0-beta6
      ├─── org.bytedeco:cuda-platform:10.2-7.6-1.5.2
+     │    ╰─── org.bytedeco:cuda:10.2-7.6-1.5.2
+     │         ╰─── org.bytedeco:javacpp:1.5.2
      ╰─── org.nd4j:nd4j-cuda-10.2:1.0.0-beta6
           ├─── org.bytedeco:javacpp:1.5.2
-          ├─── org.bytedeco:cuda:10.2-7.6-1.5.2
-          │    ╰─── org.bytedeco:javacpp:1.5.2
+          ├─── org.bytedeco:cuda:10.2-7.6-1.5.2 (*)
           ├─── org.nd4j:nd4j-api:1.0.0-beta6
           │    ├─── com.jakewharton.byteunits:byteunits:0.9.1
           │    ├─── org.apache.commons:commons-math3:3.5

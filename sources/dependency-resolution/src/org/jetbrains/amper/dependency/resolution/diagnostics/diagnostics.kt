@@ -50,6 +50,7 @@ object DependencyResolutionDiagnostics {
     val UnableToReachURL = SimpleDiagnosticDescriptor("unable.to.reach.url", Severity.ERROR)
     val UnableToResolveChecksums = SimpleDiagnosticDescriptor("unable.to.resolve.checksums", Severity.ERROR)
     val UnableToSaveDownloadedFile = SimpleDiagnosticDescriptor("unable.to.save.downloaded.file", Severity.ERROR)
+    val UnresolvedMavenDependencyPackagingType = SimpleDiagnosticDescriptor("unresolved.maven.dependency.packaging.type", Severity.WARNING)
     val UnexpectedErrorOnDownload = SimpleDiagnosticDescriptor("unexpected.error.on.download", Severity.ERROR)
     val UnexpectedDependencyFormat = SimpleDiagnosticDescriptor("unexpected.dependency.format", Severity.ERROR)
     val UnspecifiedDependencyVersion = SimpleDiagnosticDescriptor("unspecified.dependency.version", Severity.ERROR)

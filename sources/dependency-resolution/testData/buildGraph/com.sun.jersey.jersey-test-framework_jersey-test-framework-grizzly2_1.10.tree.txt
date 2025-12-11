@@ -1,0 +1,27 @@
+root
+╰─── com.sun.jersey.jersey-test-framework:jersey-test-framework-grizzly2:1.10
+     ├─── com.sun.jersey.jersey-test-framework:jersey-test-framework-core:1.10
+     │    ├─── com.sun.jersey:jersey-servlet:1.10
+     │    │    ╰─── com.sun.jersey:jersey-server:1.10
+     │    │         ├─── com.sun.jersey:jersey-core:1.10
+     │    │         ╰─── asm:asm:3.1
+     │    ├─── com.sun.jersey:jersey-client:1.10
+     │    │    ╰─── com.sun.jersey:jersey-core:1.10
+     │    ├─── javax.servlet:javax.servlet-api:3.0.1
+     │    ╰─── junit:junit:4.8.2
+     ╰─── com.sun.jersey:jersey-grizzly2-servlet:1.10
+          ├─── com.sun.jersey:jersey-servlet:1.10 (*)
+          ├─── org.glassfish.grizzly:grizzly-http-servlet:2.1.2
+          │    ├─── org.glassfish.grizzly:grizzly-framework:2.1.2
+          │    │    ╰─── org.glassfish.gmbal:gmbal-api-only:3.0.0-b023
+          │    │         ╰─── org.glassfish.external:management-api:3.0.0-b012
+          │    ╰─── org.glassfish.grizzly:grizzly-http-server:2.1.2
+          │         ├─── org.glassfish.grizzly:grizzly-http:2.1.2
+          │         │    ╰─── org.glassfish.grizzly:grizzly-framework:2.1.2 (*)
+          │         ╰─── org.glassfish.grizzly:grizzly-rcm:2.1.2
+          │              ╰─── org.glassfish.grizzly:grizzly-framework:2.1.2 (*)
+          ├─── com.sun.jersey:jersey-grizzly2:1.10
+          │    ├─── com.sun.jersey:jersey-server:1.10 (*)
+          │    ├─── org.glassfish.grizzly:grizzly-http:2.1.2 (*)
+          │    ╰─── org.glassfish.grizzly:grizzly-http-server:2.1.2 (*)
+          ╰─── org.glassfish:javax.servlet:3.1

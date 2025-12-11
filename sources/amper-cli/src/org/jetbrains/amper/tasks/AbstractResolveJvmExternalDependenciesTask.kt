@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -22,6 +23,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.UnscopedDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
@@ -82,7 +84,8 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                         repositories,
                         ResolutionScope.RUNTIME,
                         ResolutionPlatform.JVM,
-                        "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}"
+                        "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}",
+                        jvmRelease = JavaVersion(module.jdkSettings.version),
                     ) { context ->
                         RootDependencyNodeWithContext(
                             templateContext = context,

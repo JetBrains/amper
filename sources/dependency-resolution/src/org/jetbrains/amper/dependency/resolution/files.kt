@@ -1169,6 +1169,14 @@ open class DependencyFileImpl(
         }
     }
 
+    internal suspend fun isDownloadedOrDownload(
+        level: ResolutionLevel,
+        context: Context,
+        diagnosticsReporter: DiagnosticReporter,
+    ) =
+        isDownloadedWithVerification(level, context.settings, diagnosticsReporter)
+                || level == ResolutionLevel.NETWORK && download(context, diagnosticsReporter)
+
     companion object {
 
         private val checkSumRegex = "^[A-Fa-f0-9]+$".toRegex()
