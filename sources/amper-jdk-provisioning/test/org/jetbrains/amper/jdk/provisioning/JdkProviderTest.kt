@@ -234,7 +234,7 @@ class JdkProviderTest {
             operatingSystems = listOf(OperatingSystem.WINDOWS), // no BiSheng for Windows
             architectures = listOf(Architecture.X86_64), // pinned so the test output doesn't vary depending on the host
         )
-        val jdkResult = JdkProvider(AmperUserCacheRoot(Dirs.userCacheRoot)).provisionJdk(criteria)
+        val jdkResult = createTestJdkProvider().provisionJdk(criteria)
         val failureMessage = """
             Could not find any JDK that match the criteria:
               - Major version: 11
@@ -250,7 +250,7 @@ class JdkProviderTest {
      * Asserts a JDK can be provisioned, that it is a valid JDK, and that it matches the criteria used to provision it.
      */
     private suspend fun assertValidJdk(jdkProvisioningCriteria: JdkProvisioningCriteria) {
-        val jdkResult = JdkProvider(AmperUserCacheRoot(Dirs.userCacheRoot)).provisionJdk(jdkProvisioningCriteria)
+        val jdkResult = createTestJdkProvider().provisionJdk(jdkProvisioningCriteria)
         val jdk = when (jdkResult) {
             is JdkResult.Failure -> fail("JDK should be resolved successfully but failed with: ${jdkResult.message}")
             is JdkResult.Success -> jdkResult.jdk
@@ -269,4 +269,8 @@ class JdkProviderTest {
             )
         }
     }
+
+    private fun createTestJdkProvider(): JdkProvider = JdkProvider(
+        userCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot),
+    )
 }
