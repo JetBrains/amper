@@ -18,11 +18,6 @@ import org.jetbrains.amper.foojay.model.Distribution
 import org.jetbrains.amper.foojay.model.PackageType
 import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.annotations.Nls
-import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
 
 /**
  * Finds a JDK matching the given [criteria], downloads/extracts it to the cache, and returns the corresponding
@@ -143,7 +138,7 @@ private suspend fun DiscoPackage.downloadOrNull(userCacheRoot: AmperUserCacheRoo
     val jdkArchive = Downloader.downloadFileToCacheLocation(directDownloadUri, userCacheRoot)
     val extractedJdkRoot = extractFileToCacheLocation(jdkArchive, userCacheRoot)
     return Jdk(
-        homeDir = extractedJdkRoot.findHomeDir(),
+        homeDir = extractedJdkRoot.findValidJdkHomeDir(),
         version = javaVersion,
         distribution = distribution.toJvmDistribution(),
         source = directDownloadUri,

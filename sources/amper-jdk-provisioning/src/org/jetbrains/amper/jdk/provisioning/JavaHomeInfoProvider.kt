@@ -78,7 +78,7 @@ internal class JavaHomeInfoProvider(
             // deeper - not at the root. If we don't find the 'release' file in the current JAVA_HOME, it's possible
             // that the user didn't know that their real JDK home is nested, and just pointed at the root. Let's check
             // for this situation before complaining about the missing 'release'.
-            val messageId = if (javaHomePath.findHomeDir() != javaHomePath) {
+            val messageId = if (javaHomePath.findValidJdkHomeDir() != javaHomePath) {
                 "java.home.invalid.jdk.dir"
             } else {
                 "java.home.no.release.file"
