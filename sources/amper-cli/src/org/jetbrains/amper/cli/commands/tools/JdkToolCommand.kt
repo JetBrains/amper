@@ -8,13 +8,16 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import io.opentelemetry.api.GlobalOpenTelemetry
 import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.sharedIncrementalCache
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.util.DelicateAmperApi
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
@@ -39,8 +42,14 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
 
     override fun helpEpilog(context: Context): String = "Use `--` to separate `$name`'s arguments from Amper options"
 
+    @OptIn(DelicateAmperApi::class)
     override suspend fun run() {
-        val jdk = JdkProvider(commonOptions.sharedCachesRoot).use { it.getDefaultJdk() }
+        val jdkProvider = JdkProvider(
+            userCacheRoot = commonOptions.sharedCachesRoot,
+            openTelemetry = GlobalOpenTelemetry.get(),
+            incrementalCache = commonOptions.sharedCachesRoot.sharedIncrementalCache(),
+        )
+        val jdk = jdkProvider.use { it.getDefaultJdk() }
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {

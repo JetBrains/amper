@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
+import org.jetbrains.amper.util.DelicateAmperApi
 import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -71,8 +72,12 @@ class CliContext(
      * that invalid `JAVA_HOME` errors are only reported once. We can also benefit from the session-specific cache.
      */
     val jdkProvider: JdkProvider by lazy {
-        // by the time we get here, GlobalOpenTelemetry should be set
-        JdkProvider(userCacheRoot, GlobalOpenTelemetry.get())
+        JdkProvider(
+            userCacheRoot = userCacheRoot,
+            // by the time we get here, GlobalOpenTelemetry should be set
+            openTelemetry = GlobalOpenTelemetry.get(),
+            incrementalCache = incrementalCache,
+        )
     }
 
     companion object {
@@ -151,3 +156,17 @@ data class AndroidHomeRoot(val path: Path) {
         }
     }
 }
+
+/**
+ * An incremental cache shared between projects using the same Amper version.
+ *
+ * **Important:** using this incremental cache introduces a lot of directories in the Amper cache, especially when
+ * developing Amper locally. Make sure you only use it when it is impossible to use the project-specific incremental
+ * cache.
+ */
+@DelicateAmperApi
+internal fun AmperUserCacheRoot.sharedIncrementalCache(): IncrementalCache = IncrementalCache(
+    stateRoot = path / "incremental.state" / AmperVersion.codeIdentifier,
+    codeVersion = AmperVersion.codeIdentifier,
+    openTelemetry = GlobalOpenTelemetry.get(),
+)

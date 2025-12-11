@@ -60,13 +60,14 @@ internal object AndroidToolsInstaller {
     suspend fun install(androidSdkHome: Path, androidUserHomeParent: Path, androidSetupCacheDir: Path): AndroidTools {
         val commandLineToolsZip = downloadCommandLineToolsZip(androidSetupCacheDir)
 
-        val result = IncrementalCache(
+        val incrementalCache = IncrementalCache(
             stateRoot = androidSetupCacheDir / "incremental.state",
             // The cache should be invalidated when the code that downloads the tools changes.
             // We don't need the full classpath hash here, because it would change each time we change a test.
             // This constant string is a good compromise, but we must remember to update it if we change the code.
-            codeVersion = "android-sdk-1",
-        ).execute(
+            codeVersion = "android-sdk-2",
+        )
+        val result = incrementalCache.execute(
             key = "android-sdk",
             inputValues = mapOf(
                 "androidSdkHomePath" to androidSdkHome.pathString,
@@ -80,7 +81,8 @@ internal object AndroidToolsInstaller {
             extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
             // we need a JDK to run the Java-based Android command line tools
-            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir)).use { it.provisionJdk().orThrow() }
+            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache)
+                .use { it.provisionJdk().orThrow() }
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
             IncrementalCache.ExecutionResult(

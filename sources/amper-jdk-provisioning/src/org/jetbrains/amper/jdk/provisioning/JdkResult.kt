@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -11,11 +12,13 @@ import org.jetbrains.annotations.Nls
 /**
  * The result of a JDK provisioning operation.
  */
+@Serializable
 sealed interface JdkResult {
 
     /**
      * A matching JDK is available.
      */
+    @Serializable
     sealed interface Success : JdkResult {
         /**
          * The JDK to use.
@@ -26,6 +29,7 @@ sealed interface JdkResult {
     /**
      * A matching JDK could be found locally (in `JAVA_HOME`).
      */
+    @Serializable
     data class FoundInJavaHome(
         /**
          * The JDK that was found locally.
@@ -36,6 +40,7 @@ sealed interface JdkResult {
     /**
      * A matching JDK could be provisioned (either downloaded or from cache).
      */
+    @Serializable
     data class Provisioned(
         /**
          * The provisioned JDK.
@@ -58,22 +63,26 @@ sealed interface JdkResult {
      * It may invite the user to look at previous error messages, so make sure those are available in a user-visible
      * place.
      */
+    @Serializable
     data class Failure(val message: @Nls String) : JdkResult
 }
 
 /**
  * Describes why `JAVA_HOME` cannot be used.
  */
+@Serializable
 sealed interface UnusableJavaHomeResult {
 
     /**
      * `JAVA_HOME` is not set, or is set to the empty string.
      */
+    @Serializable
     data object UnsetOrEmpty : UnusableJavaHomeResult
 
     /**
      * `JAVA_HOME` is set to a valid JDK, but this JDK doesn't match the criteria for the given [reason].
      */
+    @Serializable
     data class Mismatch(val reason: @Nls String) : UnusableJavaHomeResult
 
     /**
@@ -81,6 +90,7 @@ sealed interface UnusableJavaHomeResult {
      *
      * The exact errors are reported via the [ProblemReporter].
      */
+    @Serializable
     data object Invalid : UnusableJavaHomeResult
 }
 

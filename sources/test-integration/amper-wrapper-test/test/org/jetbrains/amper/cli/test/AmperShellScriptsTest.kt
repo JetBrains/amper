@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
 import org.jetbrains.amper.jdk.provisioning.orThrow
@@ -233,7 +234,8 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     private suspend fun provisionZulu25(): Path {
         val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
-        val jdkResult = JdkProvider(fakeUserCacheRoot).use {
+        val incrementalCache = IncrementalCache(stateRoot = tempDir, codeVersion = "1")
+        val jdkResult = JdkProvider(fakeUserCacheRoot, incrementalCache = incrementalCache).use {
             it.provisionJdk(
                 JdkProvisioningCriteria(
                     majorVersion = 25,

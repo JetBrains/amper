@@ -9,8 +9,11 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.api.instrumenter.SpanNameExtractor
 import io.opentelemetry.instrumentation.ktor.v3_0.KtorClientTelemetry
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
@@ -22,14 +25,17 @@ import org.jetbrains.amper.foojay.model.OperatingSystem
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.telemetry.setAttribute
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
+@Serializable
 data class JdkProvisioningCriteria(
     val majorVersion: Int = UsedVersions.defaultJdkVersion,
     val distributions: List<JvmDistribution>? = null,
@@ -43,6 +49,7 @@ internal val jdkProviderLogger: Logger = LoggerFactory.getLogger(JdkProvider::cl
 class JdkProvider(
     private val userCacheRoot: AmperUserCacheRoot,
     private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
+    private val incrementalCache: IncrementalCache,
 ) : AutoCloseable {
     private val discoApiClient = DiscoApiClient {
         install(UserAgent) {
@@ -159,18 +166,59 @@ class JdkProvider(
         criteria: JdkProvisioningCriteria,
         unusableJavaHomeResult: UnusableJavaHomeResult?,
     ): JdkResult = openTelemetry.tracer.spanBuilder("Get provisioned JDK").use { span ->
-        span.setAttribute("from-cache", true)
+        span.setAttribute("from-memory-cache", true)
         provisioningCache.computeIfAbsent(criteria) {
-            span.setAttribute("from-cache", false)
-            openTelemetry.tracer.spanBuilder("Provision JDK").use {
+            span.setAttribute("from-memory-cache", false)
+            getFromPersistentCacheOrProvision(criteria, unusableJavaHomeResult, provisioningSpan = span)
+        }.also {
+            span.setAttribute("result", it.toString())
+        }
+    }
+
+    private suspend fun getFromPersistentCacheOrProvision(
+        criteria: JdkProvisioningCriteria,
+        unusableJavaHomeResult: UnusableJavaHomeResult?,
+        provisioningSpan: Span, // we don't use Span.current() because it would be the incremental cache span
+    ): JdkResult {
+        provisioningSpan.setAttribute("from-persistent-cache", true)
+        // We need to put the whole criteria as a key, because small differences could exist between modules.
+        // If we wanted to use only the major version and distributions as key, 2 modules could have the same key
+        // and yet have a different list of acknowledged licenses, which wiykd ruin caching on every build.
+        val cacheKey = openTelemetry.tracer.spanBuilder("Computing cache key").use {
+            "jdk-provisioning_${Json.encodeToString<JdkProvisioningCriteria>(criteria)}" // will be sanitized by IC
+        }
+        val cacheResult = incrementalCache.execute(
+            key = cacheKey,
+            inputValues = emptyMap(),
+            inputFiles = emptyList(),
+        ) {
+            provisioningSpan.setAttribute("from-persistent-cache", false)
+            val result = openTelemetry.tracer.spanBuilder("Provision JDK").use {
                 discoApiClient.provisionJdk(
                     userCacheRoot = userCacheRoot,
                     criteria = criteria,
                     unusableJavaHomeResult = unusableJavaHomeResult,
                 )
             }
-        }.also {
-            span.setAttribute("result", it.toString())
+            val outputFiles = when (result) {
+                is JdkResult.Success -> listOf(result.jdk.homeDir)
+                is JdkResult.Failure -> emptyList()
+            }
+            val serializedResult = openTelemetry.tracer.spanBuilder("Serialize JDK result for cache").use {
+                Json.encodeToString(result)
+            }
+            IncrementalCache.ExecutionResult(
+                outputFiles = outputFiles,
+                outputValues = mapOf("jdkResult" to serializedResult),
+                // We don't cache failures persistently, otherwise we can never recover from them.
+                // We cache successful results indefinitely for maximum reproducibility. We could argue that we
+                // should get patch versions ASAP, but it's better that the user controls when that happens (not in
+                // the middle of a git bisect) - they can do `./amper clean` to clean the cache.
+                expirationTime = if (result is JdkResult.Failure) Clock.System.now() else null,
+            )
+        }
+        return openTelemetry.tracer.spanBuilder("Deserialize cached JDK result").use {
+            Json.decodeFromString<JdkResult>(cacheResult.outputValues.getValue("jdkResult"))
         }
     }
 

@@ -9,9 +9,13 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.foojay.model.Architecture
 import org.jetbrains.amper.foojay.model.OperatingSystem
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
+import org.jetbrains.amper.test.TempDirExtension
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -21,6 +25,9 @@ import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
 class JdkProviderTest {
+
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
 
     @Test
     fun provisionJdk_21() = runTest(timeout = 10.minutes) {
@@ -272,5 +279,9 @@ class JdkProviderTest {
 
     private fun createTestJdkProvider(): JdkProvider = JdkProvider(
         userCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot),
+        incrementalCache = IncrementalCache(
+            stateRoot = tempDirExtension.path / "jdk-provisioning-cache",
+            codeVersion = "1", // doesn't matter, the cache is new in every test
+        ),
     )
 }

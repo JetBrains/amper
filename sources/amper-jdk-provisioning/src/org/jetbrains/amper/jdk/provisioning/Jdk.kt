@@ -4,15 +4,18 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.serialization.paths.SerializablePath
 import java.nio.file.Path
 import kotlin.io.path.exists
 
+@Serializable
 class Jdk(
     /**
      * The root directory of this JDK installation (which could be used as JAVA_HOME).
      */
-    val homeDir: Path,
+    val homeDir: SerializablePath,
     /**
      * The full version number, including major/minor/path, but also potential extra numbers.
      */

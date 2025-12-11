@@ -5,11 +5,14 @@ apply:
   - ../used-in-idea.module-template.yaml # the IDE needs to provision JDKs to set them in the workspace model
 
 dependencies:
+  - ../amper-build-info
   - ../amper-problem-reporting: exported
   - ../core
   - ../frontend-api: exported
   - ../libraries/concurrency
   - ../libraries/foojay-kotlin-client
+  - ../libraries/incremental-cache: exported
+  - ../libraries/serialization-extended
   - ../libraries/telemetry
   - $libs.junit.jupiter.params
   - $libs.ktor.client.core
@@ -19,3 +22,7 @@ dependencies:
 test-dependencies:
   - ../test-base
   - $libs.kotlinx.coroutines.debug
+
+settings:
+  kotlin:
+    serialization: json
