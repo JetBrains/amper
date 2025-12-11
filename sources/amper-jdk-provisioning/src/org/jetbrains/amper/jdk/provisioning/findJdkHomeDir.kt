@@ -12,10 +12,13 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.walk
 
 /**
- * Finds a valid JDK home directory in this directory.
+ * Finds a valid JDK home directory in the directory denoted by this [Path].
  *
  * A valid JDK home is a directory that contains the Java compiler at `bin/javac` (or `bin/javac.exe`).
  * It also _usually_ contains a `release` file, but this is not guaranteed (all JDK 9+ should, some JDK 8 don't).
+ *
+ * If multiple valid JDK homes are found under this [Path], the ones with a `release` file are preferred, then the ones
+ * under `Contents/Home`, then any other valid JDK. Among those categories, the exact choice is unspecified.
  *
  * JDK archives don't necessarily contain a valid JDK home at their root. They often have additional nested directories,
  * especially on macOS. Here are some examples:
@@ -71,18 +74,27 @@ import kotlin.io.path.walk
  * ```
  */
 internal fun Path.findValidJdkHomeDir(): Path {
+    require(isDirectory()) { "$this is not a directory, cannot search for a JDK home" }
+
+    var homeWithJavacBinary: Path? = null
     walk(PathWalkOption.BREADTH_FIRST, PathWalkOption.INCLUDE_DIRECTORIES)
         .filter { it.isDirectory() }
-        .forEach {
-            if (it.containsJdkBinaries()) {
-                return it
+        .forEach { dir ->
+            if ((dir / "release").exists() && dir.containsJdkBinaries()) {
+                return dir
             }
-            val contentsHome = it / "Contents/Home"
-            if (contentsHome.isDirectory()) {
-                return contentsHome
+            val contentsHomeDir = dir / "Contents/Home"
+            if (contentsHomeDir.isDirectory() && contentsHomeDir.containsJdkBinaries()) {
+                return contentsHomeDir
+            }
+            if (dir.containsJdkBinaries()) {
+                homeWithJavacBinary = dir
             }
         }
-    error("Couldn't find JDK home in $this")
+    if (homeWithJavacBinary != null) {
+        return homeWithJavacBinary
+    }
+    error("Couldn't find a valid JDK home in $this")
 }
 
 private fun Path.containsJdkBinaries(): Boolean = resolve("bin/javac").exists() || resolve("bin/javac.exe").exists()
