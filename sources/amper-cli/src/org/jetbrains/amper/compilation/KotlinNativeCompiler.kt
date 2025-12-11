@@ -9,7 +9,6 @@ import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
 import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
@@ -27,21 +26,6 @@ import java.net.URLEncoder
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
-
-@UsedInIdePlugin
-@Deprecated(
-    message = "Provide a JdkProvider instance instead, to properly scope errors",
-    replaceWith = ReplaceWith(
-        expression = "JdkProvider(userCacheRoot).use { downloadNativeCompiler(kotlinVersion, userCacheRoot, it) }",
-        imports = ["org.jetbrains.amper.jdk.provisioning.JdkProvider"],
-    ),
-)
-suspend fun downloadNativeCompiler(
-    kotlinVersion: String,
-    userCacheRoot: AmperUserCacheRoot
-): KotlinNativeCompiler = JdkProvider(userCacheRoot).use {
-    downloadNativeCompiler(kotlinVersion, userCacheRoot, it)
-}
 
 suspend fun downloadNativeCompiler(
     kotlinVersion: String,
