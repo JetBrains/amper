@@ -53,8 +53,6 @@ jobs:
           mike retitle "$tag_major_minor" "$tag_full_version"
 
           # The new tag may have become the new latest version (if it hasn't, this is harmless anyway)
-          echo "Update the default documentation version to $latest_major_minor"
-          mike set-default "$latest_major_minor"
           echo "Update the 'latest' alias to point to $latest_major_minor"
           mike alias "$latest_major_minor" latest --update-aliases
 
