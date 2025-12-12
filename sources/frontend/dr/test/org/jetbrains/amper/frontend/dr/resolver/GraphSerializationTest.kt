@@ -183,9 +183,10 @@ class GraphSerializationTest: BaseModuleDrTest() {
             .sortedBy { it.first.graphEntryName + it.second.graphEntryName }
             .joinToString(System.lineSeparator())
 
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.parents.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for dependency graph parents")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.parents.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for dependency graph parents")
+        withActualDump(goldenFile) {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
@@ -214,9 +215,11 @@ class GraphSerializationTest: BaseModuleDrTest() {
         }
         val actual = allOverriddenBy.joinToString(System.lineSeparator())
 
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.overriddenBy.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for dependency graph overriddenBy entries")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.overriddenBy.txt")
+
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for dependency graph overriddenBy entries")
+        withActualDump(goldenFile) {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
@@ -240,9 +243,9 @@ class GraphSerializationTest: BaseModuleDrTest() {
             .map { "${it.value}:  ${it.key.graphEntryName} (${(it.key as? MavenDependencyNode)?.dependency?.resolutionConfig?.platforms?.joinToString(",") { it.pretty } }"}
             .joinToString(System.lineSeparator())
 
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.indexes.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for serialized dependency graph indexes")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware("${testInfo.testMethod.get().name.replace(" ", "_")}.indexes.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for serialized dependency graph indexes")
+        withActualDump(goldenFile) {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = actual.lines(),
@@ -255,9 +258,9 @@ class GraphSerializationTest: BaseModuleDrTest() {
      * This check is not applied since indexes of dependencies in serialized graph JSON are not stable from one execution to another.
      */
     private fun assertSerializedGraphByGoldenFile(testInfo: TestInfo, encoded: String) {
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.graph.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for serialized dependency graph")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware("${testInfo.testMethod.get().name.replace(" ", "_")}.graph.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for serialized dependency graph")
+        withActualDump(goldenFile) {
             assertEqualsWithDiff(
                 expected = expected.lines(),
                 actual = encoded.lines(),

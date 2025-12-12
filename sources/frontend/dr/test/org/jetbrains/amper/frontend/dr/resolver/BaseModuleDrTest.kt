@@ -29,6 +29,7 @@ import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.golden.goldenFileOsAware
 import org.jetbrains.amper.test.runTestRespectingDelays
 import org.junit.jupiter.api.TestInfo
 import org.opentest4j.AssertionFailedError
@@ -36,7 +37,6 @@ import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -68,9 +68,10 @@ abstract class BaseModuleDrTest {
         fragment: String? = null,
         messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for resolved tree")
-        return withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for resolved tree")
+        return withActualDump(goldenFile) {
             doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
         }
     }
@@ -163,9 +164,10 @@ abstract class BaseModuleDrTest {
         checkExistence: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for files")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for files")
+        withActualDump(goldenFile) {
             assertFiles(expected.trim().lines(), root, withSources, checkExistence, checkAutoAddedDocumentation)
         }
     }
@@ -196,8 +198,7 @@ abstract class BaseModuleDrTest {
             }
     }
 
-    protected fun getGoldenFileText(fileName: String, fileDescription: String): String {
-        val goldenFile = testGoldenFilesRoot / fileName
+    protected fun getGoldenFileText(goldenFile: Path, fileDescription: String): String {
         if (!goldenFile.exists()) fail("$fileDescription $goldenFile doesn't exist")
         return goldenFile
             .readText()
@@ -205,6 +206,9 @@ abstract class BaseModuleDrTest {
             .replace("#composeDefaultVersion", DefaultVersions.compose)
             .trim()
     }
+
+    protected fun goldenFileOsAware(goldenFileBaseName: String) =
+        testGoldenFilesRoot.goldenFileOsAware(goldenFileBaseName)
 
     companion object {
         /**

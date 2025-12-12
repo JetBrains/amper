@@ -14,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.golden.goldenFileOsAware
 import org.jetbrains.amper.test.runTestRespectingDelays
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.fail
@@ -25,7 +26,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -62,10 +62,9 @@ abstract class BaseDRTest {
         testInfo: TestInfo,
         root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
-        @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode {
-        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        val goldenFile = goldenFileOsAware("${testInfo.nameToGoldenFile()}.tree.txt")
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
@@ -131,7 +130,7 @@ abstract class BaseDRTest {
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
     ): DependencyNodeHolderWithContext {
-        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        val goldenFile = goldenFileOsAware("${testInfo.nameToGoldenFile()}.tree.txt")
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) { goldenFile.createFile() }
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
@@ -149,6 +148,9 @@ abstract class BaseDRTest {
             )
         }
     }
+
+    protected fun goldenFileOsAware(goldenFileBaseName: String) =
+        testDataPath.goldenFileOsAware(goldenFileBaseName)
 
     private inline fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
         return try {
@@ -204,8 +206,8 @@ abstract class BaseDRTest {
         this.platforms = platform
         this.repositories = repositories
         this.cache = cacheBuilder
-        this.openTelemetry = openTelemetry
         this.incrementalCache = null // no cache in DR tests
+        this.openTelemetry = openTelemetry
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
@@ -293,7 +295,7 @@ abstract class BaseDRTest {
         checkExistence: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true,
     ) {
-        val fileList = testDataPath / "${testInfo.nameToGoldenFile()}.files.txt"
+        val fileList = goldenFileOsAware("${testInfo.nameToGoldenFile()}.files.txt")
         if (!fileList.exists()) { fileList.createFile() }
         val expected = fileList.readText().trim().lines()
         withActualDump(fileList) {

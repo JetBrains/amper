@@ -374,18 +374,21 @@ class DependencyInsightsTest : BaseModuleDrTest() {
     }
 
     private fun assertInsightByFile(group: String, module: String, graph: DependencyNode, insightFile: String) {
-        val expectedResolved = getGoldenFileText("$insightFile.insight.resolved.txt", fileDescription = "Golden file with insight for resolved version only")
-        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.resolved.txt")) {
+        val goldenFileResolvedInsights = goldenFileOsAware("$insightFile.insight.resolved.txt")
+        val expectedResolved = getGoldenFileText(goldenFileResolvedInsights, fileDescription = "Golden file with insight for resolved version only")
+        withActualDump(expectedResultPath = goldenFileResolvedInsights) {
             assertInsight(group, module, graph, expectedResolved, resolvedVersionOnly = true)
         }
 
-        val expectedFull = getGoldenFileText("$insightFile.insight.full.txt", fileDescription = "Golden file with full insight")
-        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.full.txt")) {
+        val goldenFileFull = goldenFileOsAware("$insightFile.insight.full.txt")
+        val expectedFull = getGoldenFileText(goldenFileFull, fileDescription = "Golden file with full insight")
+        withActualDump(expectedResultPath = goldenFileFull) {
             assertInsight(group, module, graph, expectedFull, resolvedVersionOnly = false)
         }
 
-        val expectedGraph = getGoldenFileText("$insightFile.insight.originalGraph.txt", fileDescription = "Golden file with full dependency graph")
-        withActualDump(expectedResultPath = testGoldenFilesRoot.resolve("$insightFile.insight.originalGraph.txt")) {
+        val goldenFileOriginalGraph = goldenFileOsAware("$insightFile.insight.originalGraph.txt")
+        val expectedGraph = getGoldenFileText(goldenFileOriginalGraph, fileDescription = "Golden file with full dependency graph")
+        withActualDump(expectedResultPath = goldenFileOriginalGraph) {
             assertEquals(expectedGraph, graph, null)
         }
     }

@@ -1,0 +1,426 @@
+root
+╰─── org.summerboot:jexpress:2.6.0
+     ├─── commons-cli:commons-cli:1.9.0
+     ├─── commons-io:commons-io:2.20.0
+     ├─── org.apache.commons:commons-lang3:3.18.0
+     ├─── org.apache.commons:commons-text:1.14.0
+     │    ╰─── org.apache.commons:commons-lang3:3.18.0
+     ├─── org.reflections:reflections:0.10.2
+     │    ├─── org.javassist:javassist:3.28.0-GA
+     │    ├─── com.google.code.findbugs:jsr305:3.0.2
+     │    ╰─── org.slf4j:slf4j-api:1.7.32 -> 2.0.17
+     ├─── org.apache.logging.log4j:log4j-api:2.25.1
+     │    ├─── org.jspecify:jspecify:1.0.0
+     │    ├─── biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0
+     │    │    ├─── org.osgi:org.osgi.resource:1.0.0
+     │    │    ╰─── org.osgi:org.osgi.service.serviceloader:1.0.0
+     │    ├─── com.google.errorprone:error_prone_annotations:2.38.0
+     │    ├─── org.osgi:org.osgi.annotation.bundle:2.0.0
+     │    │    ╰─── org.osgi:org.osgi.annotation.versioning:1.1.2
+     │    ├─── org.osgi:org.osgi.annotation.versioning:1.1.2
+     │    ╰─── com.github.spotbugs:spotbugs-annotations:4.8.6
+     │         ╰─── com.google.code.findbugs:jsr305:3.0.2
+     ├─── org.apache.logging.log4j:log4j-core:2.25.1
+     │    ├─── org.apache.logging.log4j:log4j-api:2.25.1 (*)
+     │    ├─── org.jspecify:jspecify:1.0.0
+     │    ├─── biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0 (*)
+     │    ├─── com.google.errorprone:error_prone_annotations:2.38.0
+     │    ├─── org.osgi:org.osgi.annotation.bundle:2.0.0 (*)
+     │    ├─── org.osgi:org.osgi.annotation.versioning:1.1.2
+     │    ╰─── com.github.spotbugs:spotbugs-annotations:4.8.6 (*)
+     ├─── com.lmax:disruptor:4.0.0
+     ├─── com.sun.mail:jakarta.mail:2.0.2
+     │    ╰─── com.sun.activation:jakarta.activation:2.0.1
+     ├─── com.sun.activation:jakarta.activation:2.0.1
+     ├─── org.bouncycastle:bcpkix-jdk18on:1.81
+     │    ╰─── org.bouncycastle:bcutil-jdk18on:1.81
+     │         ╰─── org.bouncycastle:bcprov-jdk18on:1.81
+     ├─── io.jsonwebtoken:jjwt-api:0.12.6
+     ├─── io.jsonwebtoken:jjwt-impl:0.12.6
+     │    ╰─── io.jsonwebtoken:jjwt-api:0.12.6
+     ├─── io.jsonwebtoken:jjwt-jackson:0.12.6
+     │    ├─── io.jsonwebtoken:jjwt-api:0.12.6
+     │    ╰─── com.fasterxml.jackson.core:jackson-databind:2.12.7.1 -> 2.19.2
+     │         ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2
+     │         │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     │         ├─── com.fasterxml.jackson.core:jackson-core:2.19.2
+     │         │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     │         ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── io.netty:netty-all:4.2.3.Final
+     │    ├─── io.netty:netty-buffer:4.2.3.Final
+     │    │    ╰─── io.netty:netty-common:4.2.3.Final
+     │    ├─── io.netty:netty-codec-base:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport:4.2.3.Final
+     │    │         ├─── io.netty:netty-common:4.2.3.Final
+     │    │         ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │         ╰─── io.netty:netty-resolver:4.2.3.Final
+     │    │              ╰─── io.netty:netty-common:4.2.3.Final
+     │    ├─── io.netty:netty-codec:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-compression:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-protobuf:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    │    ├─── com.google.protobuf:protobuf-java:3.25.5 -> 4.31.1
+     │    │    │    ╰─── com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-5
+     │    │    ╰─── io.netty:netty-codec-marshalling:4.2.3.Final
+     │    │         ├─── io.netty:netty-common:4.2.3.Final
+     │    │         ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │         ╰─── org.jboss.marshalling:jboss-marshalling:2.2.3.Final
+     │    ├─── io.netty:netty-codec-dns:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-haproxy:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-compression:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-http:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-compression:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-handler:4.2.3.Final
+     │    │         ├─── io.netty:netty-common:4.2.3.Final
+     │    │         ├─── io.netty:netty-resolver:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-transport-native-unix-common:4.2.3.Final
+     │    │         │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │         │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │         │    ╰─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │         ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-http2:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-handler:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-http:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-http3:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-http:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-compression:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-handler:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-resolver:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-classes-quic:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    │    ╰─── io.netty:netty-handler:4.2.3.Final (*)
+     │    │    ╰─── org.bouncycastle:bcprov-jdk18on:1.80 -> 1.81
+     │    ├─── org.jctools:jctools-core:4.0.5
+     │    ├─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ├─── org.bouncycastle:bcprov-jdk18on:1.80 -> 1.81
+     │    ├─── io.netty:netty-codec-memcache:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-mqtt:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-redis:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-smtp:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-socks:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-stomp:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-xml:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ╰─── com.fasterxml:aalto-xml:1.3.3
+     │    │         ╰─── org.codehaus.woodstox:stax2-api:4.2.2
+     │    ├─── io.netty:netty-codec-protobuf:4.2.3.Final (*)
+     │    ├─── io.netty:netty-codec-marshalling:4.2.3.Final (*)
+     │    ├─── io.netty:netty-common:4.2.3.Final
+     │    ├─── io.netty:netty-handler:4.2.3.Final (*)
+     │    ├─── io.netty:netty-handler-proxy:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-socks:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec-http:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-handler:4.2.3.Final (*)
+     │    ├─── io.netty:netty-handler-ssl-ocsp:4.2.3.Final
+     │    │    ├─── io.netty:netty-codec-http:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-resolver-dns:4.2.3.Final
+     │    │         ├─── io.netty:netty-common:4.2.3.Final
+     │    │         ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-resolver:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-codec-base:4.2.3.Final (*)
+     │    │         ├─── io.netty:netty-codec-dns:4.2.3.Final (*)
+     │    │         ╰─── io.netty:netty-handler:4.2.3.Final (*)
+     │    ├─── io.netty:netty-resolver:4.2.3.Final (*)
+     │    ├─── io.netty:netty-resolver-dns:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport-rxtx:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── org.rxtx:rxtx:2.1.7
+     │    ├─── io.netty:netty-transport-sctp:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-codec:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport-udt:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── com.barchart.udt:barchart-udt-bundle:2.3.0
+     │    ├─── io.netty:netty-transport-classes-epoll:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport-classes-kqueue:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ├─── io.netty:netty-resolver-dns-classes-macos:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-resolver-dns:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport-classes-io_uring:4.2.3.Final
+     │    │    ├─── io.netty:netty-common:4.2.3.Final
+     │    │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    │    ╰─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ╰─── io.netty:netty-codec-classes-quic:4.2.3.Final (*)
+     ├─── io.netty:netty-transport-native-epoll:4.2.3.Final
+     │    ├─── io.netty:netty-common:4.2.3.Final
+     │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport-native-unix-common:4.2.3.Final (*)
+     │    ╰─── io.netty:netty-transport-classes-epoll:4.2.3.Final (*)
+     ├─── io.netty:netty-transport-native-kqueue:4.2.3.Final
+     │    ├─── io.netty:netty-common:4.2.3.Final
+     │    ├─── io.netty:netty-buffer:4.2.3.Final (*)
+     │    ├─── io.netty:netty-transport:4.2.3.Final (*)
+     │    ╰─── io.netty:netty-transport-classes-kqueue:4.2.3.Final (*)
+     ├─── io.netty:netty-tcnative-boringssl-static:2.0.72.Final
+     │    ╰─── io.netty:netty-tcnative-classes:2.0.72.Final
+     ├─── io.netty:netty-tcnative-classes:2.0.72.Final
+     ├─── com.google.protobuf:protobuf-java:4.31.1
+     ├─── io.grpc:grpc-protobuf:1.74.0
+     │    ├─── io.grpc:grpc-api:1.74.0
+     │    │    ├─── com.google.code.findbugs:jsr305:3.0.2
+     │    │    ╰─── com.google.errorprone:error_prone_annotations:2.30.0 -> 2.38.0
+     │    ├─── com.google.code.findbugs:jsr305:3.0.2
+     │    ├─── com.google.protobuf:protobuf-java:3.25.5 -> 4.31.1
+     │    ╰─── com.google.api.grpc:proto-google-common-protos:2.51.0
+     │         ╰─── com.google.protobuf:protobuf-java:3.25.5 -> 4.31.1
+     ├─── com.google.guava:guava:33.4.8-jre
+     │    ├─── com.google.guava:failureaccess:1.0.3
+     │    ├─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+     │    ├─── org.jspecify:jspecify:1.0.0
+     │    ├─── com.google.errorprone:error_prone_annotations:2.36.0 -> 2.38.0
+     │    ╰─── com.google.j2objc:j2objc-annotations:3.0.0
+     ├─── io.grpc:grpc-netty-shaded:1.74.0
+     │    ╰─── io.grpc:grpc-core:1.74.0
+     │         ╰─── io.grpc:grpc-api:1.74.0 (*)
+     ├─── io.grpc:grpc-stub:1.74.0
+     │    ├─── io.grpc:grpc-api:1.74.0 (*)
+     │    ├─── org.codehaus.mojo:animal-sniffer-annotations:1.24
+     │    ╰─── com.google.guava:guava:33.3.1-android -> 33.4.8-jre (*)
+     ├─── io.swagger.core.v3:swagger-annotations:2.2.35
+     ├─── org.apache.tika:tika-core:3.2.1
+     │    ├─── org.slf4j:slf4j-api:2.0.17
+     │    ╰─── commons-io:commons-io:2.19.0 -> 2.20.0
+     ├─── jakarta.ws.rs:jakarta.ws.rs-api:4.0.0
+     ├─── jakarta.annotation:jakarta.annotation-api:3.0.0
+     ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2 (*)
+     ├─── com.fasterxml.jackson.core:jackson-core:2.19.2 (*)
+     ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     ├─── com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2
+     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2 (*)
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.2
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.19.2 (*)
+     │    ├─── com.fasterxml.jackson.core:jackson-databind:2.19.2 (*)
+     │    ├─── org.codehaus.woodstox:stax2-api:4.2.2
+     │    ├─── com.fasterxml.woodstox:woodstox-core:7.1.1
+     │    │    ╰─── org.codehaus.woodstox:stax2-api:4.2.2
+     │    ╰─── com.fasterxml.jackson:jackson-bom:2.19.2
+     ├─── jakarta.el:jakarta.el-api:6.0.1
+     ├─── org.apache.tomcat.embed:tomcat-embed-el:11.0.9
+     ├─── org.hibernate.validator:hibernate-validator:9.0.1.Final
+     │    ├─── jakarta.validation:jakarta.validation-api:3.1.1
+     │    ├─── org.jboss.logging:jboss-logging:3.6.1.Final
+     │    ╰─── com.fasterxml:classmate:1.7.0
+     ├─── com.google.inject:guice:7.0.0
+     │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+     │    ├─── aopalliance:aopalliance:1.0
+     │    ╰─── com.google.guava:guava:31.0.1-jre -> 33.4.8-jre (*)
+     ├─── org.hibernate.orm:hibernate-core:7.0.9.Final
+     │    ├─── jakarta.persistence:jakarta.persistence-api:3.2.0
+     │    ╰─── jakarta.transaction:jakarta.transaction-api:2.0.1
+     ├─── org.hibernate.orm:hibernate-hikaricp:7.0.9.Final
+     ├─── com.zaxxer:HikariCP:7.0.0
+     │    ╰─── org.slf4j:slf4j-api:2.0.17
+     ├─── org.quartz-scheduler:quartz:2.5.0
+     ├─── org.quartz-scheduler:quartz-jobs:2.5.0
+     ├─── org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5
+     ├─── org.freemarker:freemarker:2.3.34
+     ├─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     ├─── com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10
+     │    ├─── org.apache.pdfbox:pdfbox:2.0.24
+     │    │    ├─── org.apache.pdfbox:fontbox:2.0.24
+     │    │    │    ╰─── commons-logging:commons-logging:1.2 -> 1.3.0
+     │    │    ╰─── commons-logging:commons-logging:1.2 -> 1.3.0
+     │    ├─── org.apache.pdfbox:xmpbox:2.0.24
+     │    │    ╰─── commons-logging:commons-logging:1.2 -> 1.3.0
+     │    ├─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     │    ╰─── de.rototor.pdfbox:graphics2d:0.32
+     │         ╰─── org.apache.pdfbox:pdfbox:2.0.24 (*)
+     ├─── com.openhtmltopdf:openhtmltopdf-java2d:1.0.10
+     │    ╰─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     ├─── com.openhtmltopdf:openhtmltopdf-rtl-support:1.0.10
+     │    ├─── com.ibm.icu:icu4j:59.1
+     │    ╰─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     ├─── com.openhtmltopdf:openhtmltopdf-slf4j:1.0.10
+     │    ╰─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     ├─── com.openhtmltopdf:openhtmltopdf-svg-support:1.0.10
+     │    ├─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     │    ├─── org.apache.xmlgraphics:batik-transcoder:1.14 -> 1.19
+     │    │    ├─── org.apache.xmlgraphics:batik-anim:1.19
+     │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19
+     │    │    │    │    │    ├─── org.apache.xmlgraphics:batik-constants:1.19
+     │    │    │    │    │    │    ╰─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    │    ├─── org.apache.xmlgraphics:batik-i18n:1.19
+     │    │    │    │    │    │    ╰─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    │    ╰─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ╰─── org.apache.xmlgraphics:xmlgraphics-commons:2.11
+     │    │    │    │         ├─── commons-io:commons-io:2.17.0 -> 2.20.0
+     │    │    │    │         ╰─── commons-logging:commons-logging:1.3.0
+     │    │    │    ├─── org.apache.xmlgraphics:batik-css:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:xmlgraphics-commons:2.11 (*)
+     │    │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    │    ├─── org.apache.xmlgraphics:batik-dom:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-css:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-ext:1.19
+     │    │    │    │    │    ╰─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-xml:1.19
+     │    │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    │    ╰─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    │    ├─── xml-apis:xml-apis:1.4.01
+     │    │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    │    ├─── org.apache.xmlgraphics:batik-ext:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-parser:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-xml:1.19 (*)
+     │    │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    ├─── org.apache.xmlgraphics:batik-svg-dom:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-css:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-dom:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-ext:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-parser:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-bridge:1.19
+     │    │    │    ├─── org.apache.xmlgraphics:batik-anim:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-css:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-dom:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-gvt:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ╰─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-parser:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-script:1.19
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-anim:1.19 (*)
+     │    │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    │    ╰─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    ├─── org.apache.xmlgraphics:batik-svg-dom:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-xml:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:xmlgraphics-commons:2.11 (*)
+     │    │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    │    ├─── org.apache.xmlgraphics:batik-dom:1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-gvt:1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    ├─── org.apache.xmlgraphics:batik-svggen:1.19
+     │    │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.19 (*)
+     │    │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.19
+     │    │    │    ╰─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-util:1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-xml:1.19 (*)
+     │    │    ╰─── xml-apis:xml-apis-ext:1.3.04
+     │    ├─── org.apache.xmlgraphics:batik-codec:1.14
+     │    │    ├─── org.apache.xmlgraphics:batik-awt-util:1.14 -> 1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-bridge:1.14 -> 1.19 (*)
+     │    │    ├─── org.apache.xmlgraphics:batik-shared-resources:1.14 -> 1.19
+     │    │    ├─── org.apache.xmlgraphics:batik-transcoder:1.14 -> 1.19 (*)
+     │    │    ╰─── org.apache.xmlgraphics:batik-util:1.14 -> 1.19 (*)
+     │    ├─── org.apache.xmlgraphics:batik-ext:1.14 -> 1.19 (*)
+     │    ╰─── org.apache.xmlgraphics:xmlgraphics-commons:2.6 -> 2.11 (*)
+     ├─── org.apache.xmlgraphics:batik-transcoder:1.19 (*)
+     ├─── com.openhtmltopdf:openhtmltopdf-mathml-support:1.0.10
+     │    ├─── com.openhtmltopdf:openhtmltopdf-core:1.0.10
+     │    ├─── com.openhtmltopdf:openhtmltopdf-svg-support:1.0.10 (*)
+     │    ╰─── de.rototor.jeuclid:jeuclid-core:3.1.12
+     │         ├─── commons-logging:commons-logging:1.1.1 -> 1.3.0
+     │         ├─── org.apache.xmlgraphics:batik-svg-dom:1.9 -> 1.19 (*)
+     │         ├─── org.apache.xmlgraphics:batik-ext:1.9 -> 1.19 (*)
+     │         ╰─── org.apache.xmlgraphics:xmlgraphics-commons:1.3.1 -> 2.11 (*)
+     ╰─── com.veracode.annotation:VeracodeAnnotations:1.2.1
