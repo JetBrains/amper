@@ -3,4 +3,4 @@ product: jvm/lib
 settings:
   jvm:
     jdk:
-      <![Error] JUnit Platform version 6.0.1 requires at least JDK 17, but this module uses JDK 11.!>version: 11<!>
+      version: <![Error] JUnit Platform version 6.0.1 requires at least JDK 17, but this module uses JDK 11.!>11<!>

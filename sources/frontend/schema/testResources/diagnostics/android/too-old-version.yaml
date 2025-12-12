@@ -2,14 +2,14 @@ product: android/app
 
 settings:
   android:
-    <![Error] Android version 1 is too old (should be at least 21)!>minSdk: 1<!>
-    <![Error] Android version 2 is too old (should be at least 21)!>maxSdk: 2<!>
-    <![Error] Android version 3 is too old (should be at least 21)!>compileSdk: 3<!>
-    <![Error] Android version 4 is too old (should be at least 21)!>targetSdk: 4<!>
+    minSdk: <![Error] Android version 1 is too old (should be at least 21)!>1<!>
+    maxSdk: <![Error] Android version 2 is too old (should be at least 21)!>2<!>
+    compileSdk: <![Error] Android version 3 is too old (should be at least 21)!>3<!>
+    targetSdk: <![Error] Android version 4 is too old (should be at least 21)!>4<!>
 
 test-settings:
   android:
-    <![Error] Android version 20 is too old (should be at least 21)!>minSdk: 20<!>
-    <![Error] Android version 20 is too old (should be at least 21)!>maxSdk: 20<!>
+    minSdk: <![Error] Android version 20 is too old (should be at least 21)!>20<!>
+    maxSdk: <![Error] Android version 20 is too old (should be at least 21)!>20<!>
     compileSdk: 26
     targetSdk: 26

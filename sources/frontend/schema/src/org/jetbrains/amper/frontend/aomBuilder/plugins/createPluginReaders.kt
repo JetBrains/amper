@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
-import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.messages.extractKeyValuePsiElement
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -68,7 +68,7 @@ internal fun createPluginReaders(
             if (!pluginFile.isRegularFile()) {
                 buildContext.problemReporter.reportMessage(
                     PluginYamlMissing(
-                        element = product::type.extractPsiElement(),
+                        element = product::type.extractKeyValuePsiElement(),
                         expectedPluginYamlPath = pluginFile,
                     )
                 )

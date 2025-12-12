@@ -161,7 +161,7 @@ internal class PluginTreeReader(
     context(context: BuildCtx)
     private fun reportExplicitValuesWhenDisabled(pluginConfiguration: RefinedMappingNode) {
         val explicitValues = pluginConfiguration.children
-            .map { it.value }.filterNot { it.trace.isDefault }
+            .filterNot { it.trace.isDefault }
         if (explicitValues.isNotEmpty()) {
             val source = MultipleLocationsBuildProblemSource(
                 explicitValues.mapNotNull { it.asBuildProblemSource() as? FileBuildProblemSource },

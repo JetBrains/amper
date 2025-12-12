@@ -358,7 +358,7 @@ class PluginsTest : AmperCliTestBase() {
                    ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "hello"}
                 """.trimIndent(),
-                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:1: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
+                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:10: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
                 "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
             )
             assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello]...")
@@ -429,28 +429,28 @@ class PluginsTest : AmperCliTestBase() {
             """
             Output path `${projectRoot / "app" / "foo" / "bar"}` is declared to be produced by multiple tasks: task `withSameOutputA` in module `app` from plugin `tasks-with-invalid-inputs`, task `withSameOutputB` in module `app` from plugin `tasks-with-invalid-inputs`
             ╰─ The output path is specified at:
-               ╰─ $pluginYamlForInvalidInputs:22:7
-               ╰─ $pluginYamlForInvalidInputs:26:7
+               ╰─ $pluginYamlForInvalidInputs:22:16
+               ╰─ $pluginYamlForInvalidInputs:26:16
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:5:7
-               ╰─ $pluginYamlForInvalidInputs:6:7
-               ╰─ $pluginYamlForInvalidInputs:7:7
+               ╰─ $pluginYamlForInvalidInputs:5:15
+               ╰─ $pluginYamlForInvalidInputs:6:15
+               ╰─ $pluginYamlForInvalidInputs:7:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:11:7
-               ╰─ $pluginYamlForInvalidInputs:12:7
-               ╰─ $pluginYamlForInvalidInputs:13:7
+               ╰─ $pluginYamlForInvalidInputs:11:15
+               ╰─ $pluginYamlForInvalidInputs:12:15
+               ╰─ $pluginYamlForInvalidInputs:13:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-build-dir>${sep}tasks${sep}_app_withConflictingOutputs@tasks-with-invalid-inputs`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:17:7
-               ╰─ $pluginYamlForInvalidInputs:18:7
+               ╰─ $pluginYamlForInvalidInputs:17:16
+               ╰─ $pluginYamlForInvalidInputs:18:16
             """.trimIndent(),
             """
             Task dependency loop detected:
@@ -462,9 +462,9 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-root-dir>${sep}tasks-with-loops${sep}source.txt` produced by ───╮
             4. task `task3` in module `tasks-with-loops` from plugin `tasks-with-loops` (*) <─╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForLoops:10:7
-               ╰─ $pluginYamlForLoops:6:7
-               ╰─ $pluginYamlForLoops:14:7
+               ╰─ $pluginYamlForLoops:10:15
+               ╰─ $pluginYamlForLoops:6:15
+               ╰─ $pluginYamlForLoops:14:15
             """.trimIndent(),
             """
             Task dependency loop detected:
@@ -488,9 +488,9 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-build-dir>${sep}tasks${sep}_app_consumesResources@tasks-with-invalid-inputs` produced by
             4. task `consumesResources` in module `app` from plugin `tasks-with-invalid-inputs` (*) <────────────────╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForInvalidInputs:41:9
+               ╰─ $pluginYamlForInvalidInputs:41:27
                ╰─ $pluginYamlForInvalidInputs:34:9
-               ╰─ $pluginYamlForInvalidInputs:42:7
+               ╰─ $pluginYamlForInvalidInputs:42:15
             """.trimIndent()
         )
     }
@@ -513,13 +513,13 @@ class PluginsTest : AmperCliTestBase() {
                 "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
                 "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
                 "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
-                "${pluginYaml}:11:7: Referencing `module` is not allowed",
-                "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
-                "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
-                "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
-                "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
-                "${pluginYaml}:4:5: No value for required property 'int'.",
-                "${pluginYaml}:4:5: No value for required property 'classpath.dependencies'.",
+                "${pluginYaml}:11:16: Referencing `module` is not allowed",
+                "${pluginYaml}:12:16: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
+                "${pluginYaml}:6:17: The value of type `string` cannot be assigned to the type `boolean`",
+                "${pluginYaml}:9:13: The value of type `Settings` cannot be assigned to the type `path`",
+                "${pluginYaml}:7:23: The value of type `boolean` cannot be used in string interpolation",
+                "${pluginYaml}:4:13: No value for required property 'int'.",
+                "${pluginYaml}:4:13: No value for required property 'classpath.dependencies'.",
             )
             assertWarnings(
                 "${pluginYaml}:16:11: Maven classifiers are currently not supported",

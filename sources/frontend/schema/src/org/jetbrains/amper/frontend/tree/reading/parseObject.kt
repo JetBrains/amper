@@ -63,6 +63,7 @@ private fun parseObjectWithFromKeyProperty(
                 children = listOf(
                     KeyValue(
                         keyTrace = argKeyValue.key.asTrace(),
+                        trace = argKeyValue.asTrace(),
                         value = argumentValue,
                         propertyDeclaration = valueAsKeyProperty,
                     )
@@ -70,16 +71,20 @@ private fun parseObjectWithFromKeyProperty(
                 trace = argKeyValue.asTrace(),
             )
         }
-        is YamlValue.Scalar -> mapLikeValue(
-            children = listOf(
-                KeyValue(
-                    keyTrace = value.asTrace(),
-                    value = parseNode(value, argumentType) ?: return null,
-                    propertyDeclaration = valueAsKeyProperty,
-                )
-            ),
-            origin = value, type = type,
-        )
+        is YamlValue.Scalar -> {
+            val trace = value.asTrace()
+            mapLikeValue(
+                children = listOf(
+                    KeyValue(
+                        keyTrace = trace,
+                        trace = trace,
+                        value = parseNode(value, argumentType) ?: return null,
+                        propertyDeclaration = valueAsKeyProperty,
+                    )
+                ),
+                origin = value, type = type,
+            )
+        }
         else -> {
             // `renderOnlyNestedTypeSyntax` is needed to include the `(prop | prop: (...))` syntax.
             reportUnexpectedValue(value, type, renderOnlyNestedTypeSyntax = false)
@@ -129,6 +134,7 @@ private fun parseObjectFromMap(value: YamlValue.Mapping, type: SchemaType.Object
         }
         return KeyValue(
             keyTrace = key.asTrace(),
+            trace = keyValue.asTrace(),
             value = parseNodeFromKeyValue(keyValue, property.type, explicitContexts = propertyContexts),
             propertyDeclaration = property,
         )
@@ -173,10 +179,12 @@ private fun parseObjectFromScalarShorthand(
 
     val value = result ?: return null
 
+    val trace = scalar.asTrace()
     return mapLikeValue(
         children = listOf(
             KeyValue(
-                keyTrace = scalar.asTrace(),
+                keyTrace = trace,
+                trace = trace,
                 value = value,
                 propertyDeclaration = property,
             )
@@ -188,7 +196,7 @@ private fun parseObjectFromScalarShorthand(
 
 context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 private fun parseObjectFromListShorthand(
-    psi: YamlValue.Sequence,
+    sequence: YamlValue.Sequence,
     type: SchemaType.ObjectType,
 ): MappingNode? {
     val listShorthandProperty = type.declaration.getSecondaryShorthand()?.takeIf { it.type is SchemaType.ListType }
@@ -196,19 +204,21 @@ private fun parseObjectFromListShorthand(
     if (listShorthandProperty != null) {
         val propertyType = listShorthandProperty.type as SchemaType.ListType
         // At this point we are committed to read this as a shorthand, so
+        val trace = sequence.asTrace()
         return mapLikeValue(
             children = listOfNotNull(
                 KeyValue(
-                    keyTrace = psi.asTrace(),
-                    value = parseList(psi, propertyType),
+                    keyTrace = trace,
+                    trace = trace,
+                    value = parseList(sequence, propertyType),
                     propertyDeclaration = listShorthandProperty,
                 )
             ),
-            type = type, origin = psi,
+            type = type, origin = sequence,
         )
     }
     // shorthand is unsupported
-    reportUnexpectedValue(psi, type)
+    reportUnexpectedValue(sequence, type)
     return null
 }
 

@@ -128,7 +128,7 @@ private fun createDefaultProperties(declaration: SchemaObjectDeclaration): List<
         val value = property.default?.toTreeValue(
             type = property.type,
         ) ?: return@mapNotNull null
-        KeyValue(DefaultTrace, value, property)
+        KeyValue(DefaultTrace, value, property, DefaultTrace)
     }
 
 private fun Default<*>.toTreeValue(type: SchemaType): TreeNode? = when (this) {

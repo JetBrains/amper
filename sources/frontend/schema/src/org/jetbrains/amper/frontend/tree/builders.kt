@@ -38,8 +38,8 @@ class SyntheticBuilder(
             name.setTo(value)
 
         infix fun String.setTo(value: TreeNode) =
-            if (type != null) properties += KeyValue(this, trace, value, type.declaration)
-            else properties += KeyValue(this, trace, value)
+            if (type != null) properties += KeyValue(this, trace, value, type.declaration, trace)
+            else properties += KeyValue(this, trace, value, trace)
 
         @JvmName("invokeMapLike")
         inline operator fun <reified T : SchemaNode?> KProperty1<out SchemaNode, T>.invoke(noinline block: MapLikeValueBuilder.() -> Unit) =

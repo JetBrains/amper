@@ -4,13 +4,11 @@
 
 package org.jetbrains.amper.frontend.api
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
@@ -22,7 +20,8 @@ typealias ValueHolders = MutableMap<String, ValueHolder<*>>
 
 data class ValueHolder<T>(
     val value: T,
-    val trace: Trace? = null,
+    val valueTrace: Trace,
+    val keyValueTrace: Trace,
 )
 
 /**
@@ -181,11 +180,17 @@ class SchemaValueDelegate<T>(
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
 
     override val trace: Trace
-        get() = valueGetter()?.trace
+        get() = valueGetter()?.valueTrace
             ?: default?.trace
             // Not really "default" but rather "missing mandatory value".
             // It only happens for required properties (without default) that also don't have a value.
             ?: DefaultTrace
+
+    /**
+     * A trace to the whole `key: value` pair, if present.
+     */
+    val keyValueTrace: Trace
+        get() = valueGetter()?.keyValueTrace ?: DefaultTrace
 
     override fun toString(): String = "SchemaValue(property = ${property.fullyQualifiedName}, value = $value)"
 }

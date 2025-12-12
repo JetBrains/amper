@@ -78,7 +78,7 @@ internal class CatalogVersionsSubstitutor(
             contexts = catalogKeyScalar.contexts,
         )
         val newChildren = node.children - catalogKeyProp +
-                KeyValue(catalogKeyProp.keyTrace, newCValue, coordinatesProperty)
+                KeyValue(catalogKeyProp.keyTrace, newCValue, coordinatesProperty, catalogKeyProp.trace)
         return Changed(node.copy(children = newChildren, type = substituted))
     }
 }

@@ -57,7 +57,7 @@ object IncorrectSettingsLocation : TreeDiagnostic {
             if (prop.propertyDeclaration?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        trace = prop.value.trace,
+                        trace = prop.trace,
                         messageKey = "settings.unexpected.platform",
                         prop.key, // TODO use full path of the property instead
                         level = Level.Error,
@@ -75,7 +75,7 @@ object IncorrectSettingsLocation : TreeDiagnostic {
             if (platforms.leaves.intersect(effectivePlatforms).isEmpty())
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        trace = prop.value.trace,
+                        trace = prop.trace,
                         messageKey = "settings.incorrect.platforms",
                         prop.key, // TODO use full path of the property instead
                         effectivePlatforms.size,
@@ -100,7 +100,7 @@ object IncorrectSettingsLocation : TreeDiagnostic {
             val usedProductType = minimalModule.product.type
             if (!productTypes.contains(usedProductType)) problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    trace = prop.value.trace,
+                    trace = prop.trace,
                     messageKey = "settings.incorrect.product.type",
                     prop.key, // TODO use full path of the property instead
                     usedProductType,
@@ -113,7 +113,7 @@ object IncorrectSettingsLocation : TreeDiagnostic {
         private fun gradleSpecific() = prop.propertyDeclaration?.specificToGradleMessage?.let { message ->
             problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    trace = prop.value.trace,
+                    trace = prop.trace,
                     messageKey = "gradle.specific.unsupported",
                     message,
                     level = Level.Warning,

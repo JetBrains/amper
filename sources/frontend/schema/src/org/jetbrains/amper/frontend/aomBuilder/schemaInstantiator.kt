@@ -181,7 +181,11 @@ private fun createObjectNode(value: RefinedMappingNode, type: SchemaType.ObjectT
             }
             continue
         }
-        newInstance.valueHolders[property.name] = ValueHolder(node, mapLikePropertyValue.value.trace)
+        newInstance.valueHolders[property.name] = ValueHolder(
+            value = node,
+            valueTrace = mapLikePropertyValue.value.trace,
+            keyValueTrace = mapLikePropertyValue.trace,
+        )
     }
     if (hasMissingRequiredProps) {
         // We don't allow incomplete objects

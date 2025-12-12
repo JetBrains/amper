@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.keyValueAsBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
@@ -147,7 +148,7 @@ private fun ProblemReporter.reportUnsupportedPlatform(
 private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduct) {
     val isYaml = product::type.extractPsiElementOrNull()?.parent is YAMLPsiElement
     reportBundleError(
-        source = product::type.asBuildProblemSource(),
+        source = product::type.keyValueAsBuildProblemSource(),
         messageKey = if (isYaml) {
             "product.type.does.not.have.default.platforms"
         } else {

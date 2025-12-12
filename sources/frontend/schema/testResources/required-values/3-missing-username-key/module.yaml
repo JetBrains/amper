@@ -3,6 +3,6 @@ product:
 
 repositories:
   - url: https://com.example
-    <![Error] No value for required property 'passwordKey'.!>credentials:
-      file: ./some-file
+    credentials:
+      <![Error] No value for required property 'passwordKey'.!>file: ./some-file
       <![Error] Expected a value!>usernameKey:<!><!>

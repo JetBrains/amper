@@ -153,12 +153,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
         checkBuiltInDependencyBuildProblem(
             buildProblems, 4,
             "org.jetbrains.compose.foundation", "foundation",
-            Path("module.yaml"), 16, 5
+            Path("module.yaml"), 16, 14
         )
         checkBuiltInDependencyBuildProblem(
             buildProblems, 4,
             "org.jetbrains.compose.material3", "material3",
-            Path("module.yaml"), 16, 5
+            Path("module.yaml"), 16, 14
         )
 
         // Implicit dependency added by `compose: enabled`
@@ -175,7 +175,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
             buildProblems, 4,
             "org.jetbrains.kotlinx", "kotlinx-serialization-core",
             Path("..") / "templates" / "template.yaml",
-            5, 7
+            5, 16
         )
     }
 

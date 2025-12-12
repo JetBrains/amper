@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TreeNode
-import org.jetbrains.amper.frontend.tree.copyWithTrace
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -85,6 +84,7 @@ private fun parseKeyValueForMap(
     return KeyValue(
         key = keyScalar.value as String,
         keyTrace = keyValue.key.asTrace(),
+        trace = keyValue.asTrace(),
         value = parseNodeFromKeyValue(keyValue, mapType.valueType, explicitContexts = EmptyContexts),
     )
 }
@@ -125,8 +125,6 @@ internal fun parseNodeFromKeyValue(
     type: SchemaType,
     explicitContexts: Contexts,
 ): TreeNode {
-    val trace = keyValue.asTrace()
     return parseNode(keyValue.value, type, explicitContexts)
-        ?.copyWithTrace(trace = trace) // Replace the trace to also capture the key
-        ?: ErrorNode(trace)
+        ?: ErrorNode(keyValue.asTrace())
 }

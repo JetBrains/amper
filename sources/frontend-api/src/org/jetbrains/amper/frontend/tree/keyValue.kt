@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -12,7 +13,7 @@ import org.jetbrains.amper.frontend.types.SchemaType
 /**
  * A key-value pair in [MappingNode.children].
  */
-interface KeyValue : WithContexts {
+interface KeyValue : WithContexts, Traceable {
     /**
      * Key string.
      */
@@ -51,9 +52,11 @@ fun KeyValue(
     keyTrace: Trace,
     value: TreeNode,
     parentType: SchemaObjectDeclaration,
+    trace: Trace,
 ): KeyValue = KeyValueImpl(
     key, keyTrace, value,
     requireNotNull(parentType.getProperty(key)) { "No property $key found in $parentType" },
+    trace,
 )
 
 /**
@@ -63,7 +66,8 @@ fun KeyValue(
     key: String,
     keyTrace: Trace,
     value: TreeNode,
-) : KeyValue = KeyValueImpl(key, keyTrace, value, null)
+    trace: Trace,
+) : KeyValue = KeyValueImpl(key, keyTrace, value, null, trace)
 
 /**
  * Creates a [org.jetbrains.amper.frontend.tree.KeyValue] instance using the supplied [propertyDeclaration].
@@ -72,27 +76,29 @@ fun KeyValue(
     keyTrace: Trace,
     value: TreeNode,
     propertyDeclaration: SchemaObjectDeclaration.Property,
-) : KeyValue = KeyValueImpl(propertyDeclaration.name, keyTrace, value, propertyDeclaration)
+    trace: Trace,
+) : KeyValue = KeyValueImpl(propertyDeclaration.name, keyTrace, value, propertyDeclaration, trace)
 
 /**
  * Copies the key-value node as an *unrefined* node, replacing its value to the supplied [value].
  */
 fun KeyValue.copyWithValue(
     value: TreeNode,
-): KeyValue = KeyValueImpl(key, keyTrace, value, propertyDeclaration)
+): KeyValue = KeyValueImpl(key, keyTrace, value, propertyDeclaration, trace)
 
 /**
  * Copies the key-value node as a *refined* node, replacing its value to the supplied [value].
  */
 fun KeyValue.copyWithValue(
     value: RefinedTreeNode,
-) : RefinedKeyValue = RefinedKeyValueImpl(key, keyTrace, value, propertyDeclaration)
+) : RefinedKeyValue = RefinedKeyValueImpl(key, keyTrace, value, propertyDeclaration, trace)
 
 private data class KeyValueImpl(
     override val key: String,
     override val keyTrace: Trace,
     override val value: TreeNode,
     override val propertyDeclaration: SchemaObjectDeclaration.Property?,
+    override val trace: Trace,
 ) : KeyValue, WithContexts by value
 
 private data class RefinedKeyValueImpl(
@@ -100,4 +106,5 @@ private data class RefinedKeyValueImpl(
     override val keyTrace: Trace,
     override val value: RefinedTreeNode,
     override val propertyDeclaration: SchemaObjectDeclaration.Property?,
+    override val trace: Trace,
 ) : RefinedKeyValue, WithContexts by value
