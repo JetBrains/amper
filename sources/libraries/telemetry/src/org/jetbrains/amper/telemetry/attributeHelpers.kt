@@ -9,7 +9,10 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.sdk.trace.data.SpanData
 
-fun SpanBuilder.setListAttribute(key: String, list: List<String>): SpanBuilder =
+fun SpanBuilder.setAttribute(key: String, value: Int): SpanBuilder =
+    setAttribute(AttributeKey.longKey(key), value)
+
+fun SpanBuilder.setListAttribute(key: String, list: List<String>?): SpanBuilder =
     setAttribute(AttributeKey.stringArrayKey(key), list)
 
 fun Span.setListAttribute(key: String, list: List<String>): Span =

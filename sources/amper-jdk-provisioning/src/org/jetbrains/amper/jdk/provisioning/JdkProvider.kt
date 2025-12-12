@@ -23,6 +23,8 @@ import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.telemetry.setAttribute
+import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -100,27 +102,47 @@ class JdkProvider(
     suspend fun getJdk(
         criteria: JdkProvisioningCriteria = JdkProvisioningCriteria(),
         selectionMode: JdkSelectionMode,
-    ): JdkResult = when (selectionMode) {
-        JdkSelectionMode.auto -> findJdkFromJavaHome(criteria) { unusableJavaHomeResult ->
-            when (unusableJavaHomeResult) {
-                is UnusableJavaHomeResult.UnsetOrEmpty ->
-                    jdkProviderLogger.debug("JAVA_HOME is not set (or empty). Amper will provision a JDK instead.")
-                is UnusableJavaHomeResult.Invalid -> Unit // already reported via messages (once and for all)
-                is UnusableJavaHomeResult.Mismatch -> jdkProviderLogger
-                    .info("`JAVA_HOME` was found but doesn't match the JDK selection criteria: " +
-                            "${unusableJavaHomeResult.reason}. Amper will provision a suitable JDK instead.")
+    ): JdkResult = openTelemetry.tracer.spanBuilder("Get JDK ${criteria.majorVersion}")
+        .setAttribute("selection-mode", selectionMode.name)
+        .setAttribute("criteria.majorVersion", criteria.majorVersion)
+        .setListAttribute("criteria.distributions", criteria.distributions?.map { it.schemaValue })
+        .setListAttribute("criteria.os", criteria.operatingSystems.map { it.name })
+        .setListAttribute("criteria.arch", criteria.architectures.map { it.name })
+        .use { span ->
+            when (selectionMode) {
+                JdkSelectionMode.auto -> findJdkFromJavaHome(criteria) { unusableJavaHomeResult ->
+                    logProvisioningFallback(unusableJavaHomeResult)
+                    provisionJdk(criteria = criteria, unusableJavaHomeResult = unusableJavaHomeResult)
+                }
+                JdkSelectionMode.alwaysProvision -> provisionJdk(criteria, unusableJavaHomeResult = null)
+                JdkSelectionMode.javaHome -> findJdkFromJavaHome(criteria) { it.toJdkResultFailure() }
+            }.also {
+                span.setAttribute("result", it.toString())
             }
-            provisionJdk(criteria = criteria, unusableJavaHomeResult = unusableJavaHomeResult)
         }
-        JdkSelectionMode.alwaysProvision -> provisionJdk(criteria, unusableJavaHomeResult = null)
-        JdkSelectionMode.javaHome -> findJdkFromJavaHome(criteria) {
-            val message = when (it) {
-                is UnusableJavaHomeResult.UnsetOrEmpty -> ProvisioningBundle.message("java.home.unusable.not.set")
-                is UnusableJavaHomeResult.Invalid -> ProvisioningBundle.message("java.home.unusable.invalid")
-                is UnusableJavaHomeResult.Mismatch -> ProvisioningBundle.message("java.home.unusable.mismatch", it.reason)
+
+    private fun logProvisioningFallback(unusableJavaHomeResult: UnusableJavaHomeResult) {
+        when (unusableJavaHomeResult) {
+            is UnusableJavaHomeResult.UnsetOrEmpty -> {
+                // Useful when the user makes a mistake when setting JAVA_HOME (doesn't source their profile or export
+                // their variable), and want to understand what's going on.
+                jdkProviderLogger.debug("JAVA_HOME is not set (or empty). Amper will provision a JDK instead.")
             }
-            JdkResult.Failure(message)
+            is UnusableJavaHomeResult.Mismatch -> {
+                jdkProviderLogger.info("`JAVA_HOME` was found but doesn't match the JDK selection criteria: " +
+                        "${unusableJavaHomeResult.reason}. Amper will provision a suitable JDK instead.")
+            }
+            is UnusableJavaHomeResult.Invalid -> Unit // already reported via messages (once and for all)
         }
+    }
+
+    private fun UnusableJavaHomeResult.toJdkResultFailure(): JdkResult.Failure {
+        val message = when (this) {
+            is UnusableJavaHomeResult.UnsetOrEmpty -> ProvisioningBundle.message("java.home.unusable.not.set")
+            is UnusableJavaHomeResult.Invalid -> ProvisioningBundle.message("java.home.unusable.invalid")
+            is UnusableJavaHomeResult.Mismatch -> ProvisioningBundle.message("java.home.unusable.mismatch", reason)
+        }
+        return JdkResult.Failure(message)
     }
 
     /**
