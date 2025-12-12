@@ -4,8 +4,8 @@ apply:
   - ../../common.module-template.yaml
 
 test-dependencies:
-  - ../../amper-system-info
   - ../../core
+  - ../../libraries/system-info
   - ../../libraries/telemetry
   - ../../test-base
   - $libs.junit.jupiter.params

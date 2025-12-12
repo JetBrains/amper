@@ -3,10 +3,7 @@ product: jvm/lib
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml
-
-dependencies:
-  - ../../core
-  - ../../libraries/system-info
+  - ../../used-in-kotlin-notebook.module-template.yaml
 
 settings:
   publishing:

@@ -13,7 +13,6 @@ settings:
 dependencies:
   - ../../amper-build-info
   - ../../amper-problem-reporting: exported
-  - ../../amper-system-info
   - ../../android-integration/amper-android-sdk-detector
   - ../../frontend-api: exported
   - ../../extensibility/amper-extensibility-schema-model: exported
@@ -22,6 +21,7 @@ dependencies:
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
   - ../../libraries/stdlib-extended
+  - ../../libraries/system-info
   - ../../libraries/telemetry
   - ../../core-intellij
   - $libs.kotlin.reflect

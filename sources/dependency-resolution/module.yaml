@@ -13,6 +13,7 @@ apply:
 dependencies:
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
+  - ../libraries/system-info
   - ../libraries/telemetry: exported
   - ../libraries/incremental-cache: exported
   - $libs.xmlutil.serialization

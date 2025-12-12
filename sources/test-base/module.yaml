@@ -22,12 +22,12 @@ dependencies:
   - ../amper-build-info
   - ../amper-jdk-provisioning
   - ../amper-problem-reporting
-  - ../amper-system-info
   - ../core
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API
   - ../libraries/incremental-cache
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
 
 apply:

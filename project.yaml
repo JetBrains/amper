@@ -18,7 +18,6 @@ modules:
   - sources/amper-problem-reporting
   - sources/amper-project-templates
   - sources/amper-project-templates/amper-project-template-resources
-  - sources/amper-system-info
   - sources/amper-wrapper
   - sources/android-integration/amper-android-gradle-api
   - sources/android-integration/amper-android-gradle-plugin
@@ -51,6 +50,7 @@ modules:
   - sources/libraries/nio-filechannels
   - sources/libraries/serialization-extended
   - sources/libraries/stdlib-extended
+  - sources/libraries/system-info
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base

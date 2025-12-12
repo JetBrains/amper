@@ -5,10 +5,10 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
-  - ../amper-system-info
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
   - $libs.kotlinx.coroutines.core
   - $libs.apacheCommons.compress

@@ -12,7 +12,6 @@ dependencies:
   - ../amper-jdk-provisioning
   - ../amper-maven-publish
   - ../amper-project-templates
-  - ../amper-system-info
   - ../amper-wrapper
   - ../core
   - ../core-intellij
@@ -26,6 +25,7 @@ dependencies:
   - ../libraries/incremental-cache
   - ../libraries/serialization-extended
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
   - ../android-integration/amper-android-runner
