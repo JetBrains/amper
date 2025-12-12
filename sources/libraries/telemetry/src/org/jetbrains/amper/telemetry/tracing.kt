@@ -70,7 +70,7 @@ internal inline fun <T> Span.useWithoutScopeAndRecordCompletion(operation: (Span
         return operation(this)
     } catch (e: CancellationException) {
         setAttribute("cancelled", true)
-        setStatus(StatusCode.ERROR)
+        setStatus(StatusCode.UNSET)
         throw e
     } catch (e: Throwable) {
         recordException(e)
