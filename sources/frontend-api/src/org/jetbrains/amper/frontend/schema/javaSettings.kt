@@ -25,11 +25,11 @@ enum class DependencyMode(override val schemaValue: String, override val outdate
 class JavaAnnotationProcessingSettings : SchemaNode() {
 
     @SchemaDoc("The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates")
-    var processors by value<List<UnscopedDependency>>(default = emptyList())
+    val processors by value<List<UnscopedDependency>>(default = emptyList())
 
     @Misnomers("processorSettings")
     @SchemaDoc("Options to pass to annotation processors")
-    var processorOptions by value<Map<String, TraceableString>>(default = emptyMap())
+    val processorOptions by value<Map<String, TraceableString>>(default = emptyMap())
 }
 
 /**
@@ -45,11 +45,11 @@ class JavaSettings : SchemaNode() {
 
     @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any compiler option directly to the Java compiler")
-    var freeCompilerArgs by value<List<TraceableString>>(emptyList())
+    val freeCompilerArgs by value<List<TraceableString>>(emptyList())
 
     @Misnomers("compilation", "incremental")
     @SchemaDoc("Enables incremental compilation for Java sources")
-    var compileIncrementally by value(default = false)
+    val compileIncrementally by value(default = false)
 }
 
 class JvmSettings : SchemaNode() {
@@ -58,7 +58,7 @@ class JvmSettings : SchemaNode() {
     @Misnomers("provisioning")
     @SchemaDoc("Defines requirements for the JDK to use. These requirements are used to provision a JDK or validate " +
             "whether JAVA_HOME points to a suitable one.")
-    var jdk by nested<JdkSettings>()
+    val jdk by nested<JdkSettings>()
 
     @PlatformAgnostic // different fragments must not target different releases, otherwise they disagree for 'common'
     @Misnomers("source", "target", "apiVersion")
@@ -74,19 +74,19 @@ class JvmSettings : SchemaNode() {
             "checks but want to align targets, use the freeCompilerArgs on both compilers to set the JVM target.")
     // null is intentionally supported, see docs
     @KnownIntValues(25, 21, 17, 11, 8)
-    var release: Int? by dependentValue(::jdk) { jdk.version }
+    val release: Int? by dependentValue(::jdk) { jdk.version }
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)
     @StringSemantics(Semantics.JvmMainClass)
-    var mainClass by nullableValue<String>()
+    val mainClass by nullableValue<String>()
 
     @PlatformAgnostic
     @Misnomers("parameters")
     @SchemaDoc("Enables storing formal parameter names of constructors and methods in the generated class files. " +
             "These can later be accessed using reflection. Behind the scenes, this passes the '-parameters' option " +
             "to the Java compiler, and the '-java-parameters' option to the Kotlin compiler.")
-    var storeParameterNames by value(false)
+    val storeParameterNames by value(false)
 
     @SchemaDoc("JVM test-specific settings")
     val test: JvmTestSettings by nested()
@@ -95,7 +95,7 @@ class JvmSettings : SchemaNode() {
     @SchemaDoc("Specifies how runtime classpath is constructed for the application. " +
             "The default is `jars`, which means all the dependencies including local dependencies on Amper modules will " +
             "be built as jars. The `classes` mode will use classes for local modules as part of the runtime classpath.")
-    var runtimeClasspathMode by value(default = DependencyMode.JARS)
+    val runtimeClasspathMode by value(default = DependencyMode.JARS)
 }
 
 class JdkSettings : SchemaNode() {

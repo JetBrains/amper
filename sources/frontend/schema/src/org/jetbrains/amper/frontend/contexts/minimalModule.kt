@@ -38,12 +38,12 @@ import org.jetbrains.yaml.psi.YAMLPsiElement
  * Must be fully compatible with [org.jetbrains.amper.frontend.schema.Module].
  */
 class MinimalModule : SchemaNode() {
-    var product by value<ModuleProduct>()
+    val product by value<ModuleProduct>()
 
-    var aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
+    val aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
 
     @Misnomers("templates")
-    var apply by nullableValue<List<TraceablePath>>()
+    val apply by nullableValue<List<TraceablePath>>()
 }
 
 val MinimalModule.unwrapAliases get() = aliases?.mapValues { it.value.leaves }.orEmpty()

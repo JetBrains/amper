@@ -130,10 +130,10 @@ class ModuleProduct : SchemaNode() {
     @Misnomers("application", "library")
     @Shorthand
     @SchemaDoc("What type of product to generate")
-    var type by value<ProductType>()
+    val type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by dependentValue(::type) { productType ->
+    val platforms by dependentValue(::type) { productType ->
         productType.defaultPlatforms
             ?.map { platform ->
                 platform.asTraceable(

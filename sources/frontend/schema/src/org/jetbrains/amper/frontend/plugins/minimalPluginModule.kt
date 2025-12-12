@@ -28,7 +28,7 @@ import org.jetbrains.amper.problems.reporting.NoopProblemReporter
  * schema for `module.yaml` is available. This is required because the full schema depends on the plugins schema.
  */
 class MinimalPluginModule : SchemaNode() {
-    var product by value<ModuleProduct>()
+    val product by value<ModuleProduct>()
 
     val pluginInfo: MinimalPluginDeclarationSchema by nested()
 }

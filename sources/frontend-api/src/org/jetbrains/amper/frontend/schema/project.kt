@@ -21,14 +21,14 @@ class Project : SchemaNode() {
                 "For example, `./libs/*` will include the modules defined by `./libs/foo/module.yaml` and " +
                 "`./libs/bar/module.yaml` (if these module files exist)."
     )
-    var modules by value<List<TraceableString>>(default = emptyList())
+    val modules by value<List<TraceableString>>(default = emptyList())
 
     @SchemaDoc("The list of plugin dependencies to make *available* in the project modules. " +
             "Each plugin from this list can then be enabled and configured on the per-module basis using the " +
             "`plugins: { <plugin-id>: { enabled: true } }` configuration in the corresponding `module.yaml`s. " +
             "Currently, only dependencies on local plugin modules are supported here.")
-    var plugins by value<List<UnscopedModuleDependency>>(default = emptyList())
+    val plugins by value<List<UnscopedModuleDependency>>(default = emptyList())
 
     @HiddenFromCompletion
-    var mavenPlugins by value<List<UnscopedExternalMavenDependency>>(default = emptyList())
+    val mavenPlugins by value<List<UnscopedExternalMavenDependency>>(default = emptyList())
 }

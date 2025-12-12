@@ -12,11 +12,11 @@ import org.jetbrains.amper.frontend.api.TraceableString
 class JvmTestSettings : SchemaNode() {
 
     @SchemaDoc("The JUnit platform version to use to run the tests.")
-    var junitPlatformVersion by value(default = UsedVersions.junitPlatform)
+    val junitPlatformVersion by value(default = UsedVersions.junitPlatform)
 
     @SchemaDoc("Pass JVM system properties to set for the test process.")
-    var systemProperties by value<Map<TraceableString, TraceableString>>(default = emptyMap())
+    val systemProperties by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 
     @SchemaDoc("Pass any JVM command line arguments to the test process.")
-    var freeJvmArgs by value<List<String>>(default = emptyList())
+    val freeJvmArgs by value<List<String>>(default = emptyList())
 }

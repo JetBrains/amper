@@ -127,10 +127,10 @@ class FragmentDescriptor : SchemaNode() {
             "JVM-only modules, or the most common fragment in multiplatform modules, which means that the " +
             "generated files are visible transitively in all fragments of the module). " +
             "Empty string by default.")
-    var modifier by value(default = "")
+    val modifier by value(default = "")
 
     @SchemaDoc("`true` to select a test fragment, `false` by default")
-    var isTest by value(default = false)
+    val isTest by value(default = false)
 }
 
 enum class GeneratedPathKind(

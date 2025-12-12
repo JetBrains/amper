@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -158,11 +159,10 @@ class SchemaValueDelegate<T>(
     val property: KProperty<*>,
     val default: Default<T>?,
     valueHolders: ValueHolders,
-) : Traceable, ReadWriteProperty<SchemaNode, T> {
+) : Traceable, ReadOnlyProperty<SchemaNode, T> {
     // We are creating lambdas here to prevent misusage of [valueHolders] from [SchemaValueDelegate].
     @Suppress("UNCHECKED_CAST") // What we put in valueHolders is checked up front
     private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
-    private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[property.name] = it }
 
     val value: T
         get() {
@@ -179,11 +179,6 @@ class SchemaValueDelegate<T>(
         }
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
-    override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
-        if (value != null) {
-            valueSetter(ValueHolder(value, value.asSafely<Traceable>()?.trace))
-        }
-    }
 
     override val trace: Trace
         get() = valueGetter()?.trace
