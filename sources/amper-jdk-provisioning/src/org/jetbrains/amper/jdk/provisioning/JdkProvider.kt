@@ -214,7 +214,7 @@ private fun ReleaseInfo.match(criteria: JdkProvisioningCriteria): MatchResult {
         return MatchResult.Unknown(ProvisioningBundle.message("java.home.unusable.unknown.distribution", implementor, releaseFile))
     }
     if (detectedDistribution !in expectedDistributions) {
-        return MatchResult.Mismatch(ProvisioningBundle.message("java.home.unusable.criterion.mismatch.distribution", expectedDistributions.joinToString { it.schemaValue }, detectedDistribution.schemaValue))
+        return MatchResult.Mismatch(ProvisioningBundle.message("java.home.unusable.criterion.mismatch.distribution", expectedDistributions.map { it.schemaValue }, detectedDistribution.schemaValue))
     }
     if (detectedDistribution.requiresLicense && detectedDistribution !in criteria.acknowledgedLicenses) {
         return MatchResult.Mismatch(ProvisioningBundle.message("java.home.unusable.criterion.mismatch.license.non.acknowledged", detectedDistribution.schemaValue))
