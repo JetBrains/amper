@@ -1,0 +1,7 @@
+product:
+  type: linux/app
+  platforms: [ linuxX64 ]
+
+settings:
+  native:
+    entryPoint: 'org.jetbrains.amper.samples.cinterop.main'
