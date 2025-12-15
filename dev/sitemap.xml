@@ -2,166 +2,170 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://amper.org/dev/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/faq/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/cli/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/cli/provisioning/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/ide-setup/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
+    </url>
+    <url>
+         <loc>https://amper.org/dev/getting-started/migrating-from-maven/</loc>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/getting-started/tutorial/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/reference/module/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/reference/project/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/basics/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/dependencies/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/multiplatform/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/templates/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/testing/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/yaml-primer/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/java-annotation-processing/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/jdk-provisioning/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/kotlin-compiler-plugins/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/ksp/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/advanced/maven-like-layout/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/compose-multiplatform/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/ktor/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/lombok/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/builtin-tech/spring/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/overview/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/quick-start/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/topics/configuration/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/topics/references/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/topics/structure/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/plugins/topics/tasks/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/android-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/ios-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/js-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/jvm-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/jvm-lib/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/kmp-lib/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/native-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
     <url>
          <loc>https://amper.org/dev/user-guide/product-types/wasm-app/</loc>
-         <lastmod>2025-12-05</lastmod>
+         <lastmod>2025-12-15</lastmod>
     </url>
 </urlset>

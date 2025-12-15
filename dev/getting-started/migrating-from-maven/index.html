@@ -12,31 +12,31 @@
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/advanced/ksp/">
+        <link rel="canonical" href="https://amper.org/dev/getting-started/migrating-from-maven/">
       
       
-        <link rel="prev" href="../java-annotation-processing/">
+        <link rel="prev" href="../tutorial/">
       
       
-        <link rel="next" href="../kotlin-compiler-plugins/">
+        <link rel="next" href="../../user-guide/">
       
       
         
       
       
-      <link rel="icon" href="../../../images/amper-icon.svg">
+      <link rel="icon" href="../../images/amper-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Kotlin Symbol Processing (KSP) - Amper</title>
+        <title>Migrating from Maven - Amper</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -61,9 +61,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -77,17 +77,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Kotlin Symbol Processing (KSP) - Amper" />
+<meta property="og:title" content="Migrating from Maven - Amper" />
 <meta property="og:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/ksp.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/getting-started/migrating-from-maven.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/advanced/ksp/" />
+<meta property="og:url" content="https://amper.org/dev/getting-started/migrating-from-maven/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Kotlin Symbol Processing (KSP) - Amper" />
+<meta property="twitter:title" content="Migrating from Maven - Amper" />
 <meta property="twitter:description" content="An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling." />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/advanced/ksp.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/getting-started/migrating-from-maven.png" />
 </head>
   
   
@@ -107,7 +107,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#kotlin-symbol-processing-ksp" class="md-skip">
+        <a href="#migrating-from-maven" class="md-skip">
           Skip to content
         </a>
       
@@ -131,9 +131,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../../images/amper-icon.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -150,7 +150,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kotlin Symbol Processing (KSP)
+              Migrating from Maven
             
           </span>
         </div>
@@ -279,7 +279,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -296,11 +296,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../getting-started/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -318,13 +320,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
           
   
   
@@ -346,7 +346,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../cli/" class="md-tabs__link">
+        <a href="../../cli/" class="md-tabs__link">
           
   
   
@@ -368,7 +368,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../reference/project/" class="md-tabs__link">
+        <a href="../../reference/project/" class="md-tabs__link">
           
   
   
@@ -388,7 +388,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../faq/" class="md-tabs__link">
+      <a href="../../faq/" class="md-tabs__link">
         
   
   
@@ -442,9 +442,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../../images/amper-icon.svg" alt="logo">
+  <img src="../../images/amper-icon.svg" alt="logo">
 
     </a>
     Amper
@@ -471,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -495,6 +495,8 @@
       
   
   
+    
+  
   
   
     
@@ -514,20 +516,21 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../getting-started/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -545,13 +548,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -571,7 +574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../getting-started/ide-setup/" class="md-nav__link">
+      <a href="../ide-setup/" class="md-nav__link">
         
   
   
@@ -599,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../getting-started/tutorial/" class="md-nav__link">
+      <a href="../tutorial/" class="md-nav__link">
         
   
   
@@ -624,10 +627,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../getting-started/migrating-from-maven/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrating from Maven
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -643,6 +673,37 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -659,8 +720,6 @@
       
   
   
-    
-  
   
   
     
@@ -694,21 +753,20 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../user-guide/" class="md-nav__link ">
               
   
   
@@ -726,13 +784,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -752,7 +810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../basics/" class="md-nav__link">
+      <a href="../../user-guide/basics/" class="md-nav__link">
         
   
   
@@ -780,7 +838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dependencies/" class="md-nav__link">
+      <a href="../../user-guide/dependencies/" class="md-nav__link">
         
   
   
@@ -808,7 +866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multiplatform/" class="md-nav__link">
+      <a href="../../user-guide/multiplatform/" class="md-nav__link">
         
   
   
@@ -836,7 +894,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../testing/" class="md-nav__link">
+      <a href="../../user-guide/testing/" class="md-nav__link">
         
   
   
@@ -864,7 +922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../templates/" class="md-nav__link">
+      <a href="../../user-guide/templates/" class="md-nav__link">
         
   
   
@@ -931,7 +989,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../product-types/" class="md-nav__link ">
+            <a href="../../user-guide/product-types/" class="md-nav__link ">
               
   
   
@@ -975,7 +1033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/android-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/android-app/" class="md-nav__link">
         
   
   
@@ -1003,7 +1061,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/ios-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/ios-app/" class="md-nav__link">
         
   
   
@@ -1031,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/jvm-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/jvm-app/" class="md-nav__link">
         
   
   
@@ -1059,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/jvm-lib/" class="md-nav__link">
+      <a href="../../user-guide/product-types/jvm-lib/" class="md-nav__link">
         
   
   
@@ -1087,7 +1145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/kmp-lib/" class="md-nav__link">
+      <a href="../../user-guide/product-types/kmp-lib/" class="md-nav__link">
         
   
   
@@ -1115,7 +1173,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/js-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/js-app/" class="md-nav__link">
         
   
   
@@ -1143,7 +1201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/native-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/native-app/" class="md-nav__link">
         
   
   
@@ -1171,7 +1229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../product-types/wasm-app/" class="md-nav__link">
+      <a href="../../user-guide/product-types/wasm-app/" class="md-nav__link">
         
   
   
@@ -1271,7 +1329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../builtin-tech/compose-multiplatform/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/compose-multiplatform/" class="md-nav__link">
         
   
   
@@ -1299,7 +1357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../builtin-tech/kotlin-serialization/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/kotlin-serialization/" class="md-nav__link">
         
   
   
@@ -1327,7 +1385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../builtin-tech/ktor/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/ktor/" class="md-nav__link">
         
   
   
@@ -1355,7 +1413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../builtin-tech/lombok/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/lombok/" class="md-nav__link">
         
   
   
@@ -1383,7 +1441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../builtin-tech/spring/" class="md-nav__link">
+      <a href="../../user-guide/builtin-tech/spring/" class="md-nav__link">
         
   
   
@@ -1485,7 +1543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/overview/" class="md-nav__link">
+      <a href="../../user-guide/plugins/overview/" class="md-nav__link">
         
   
   
@@ -1513,7 +1571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/quick-start/" class="md-nav__link">
+      <a href="../../user-guide/plugins/quick-start/" class="md-nav__link">
         
   
   
@@ -1541,7 +1599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/topics/structure/" class="md-nav__link">
+      <a href="../../user-guide/plugins/topics/structure/" class="md-nav__link">
         
   
   
@@ -1569,7 +1627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/topics/configuration/" class="md-nav__link">
+      <a href="../../user-guide/plugins/topics/configuration/" class="md-nav__link">
         
   
   
@@ -1597,7 +1655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/topics/references/" class="md-nav__link">
+      <a href="../../user-guide/plugins/topics/references/" class="md-nav__link">
         
   
   
@@ -1625,7 +1683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/topics/tasks/" class="md-nav__link">
+      <a href="../../user-guide/plugins/topics/tasks/" class="md-nav__link">
         
   
   
@@ -1658,10 +1716,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1682,11 +1738,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
         
           
           <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
@@ -1707,7 +1765,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1725,7 +1783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../jdk-provisioning/" class="md-nav__link">
+      <a href="../../user-guide/advanced/jdk-provisioning/" class="md-nav__link">
         
   
   
@@ -1753,7 +1811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../java-annotation-processing/" class="md-nav__link">
+      <a href="../../user-guide/advanced/java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1778,37 +1836,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Kotlin Symbol Processing (KSP)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../user-guide/advanced/ksp/" class="md-nav__link">
         
   
   
@@ -1824,59 +1855,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#multiplatform-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiplatform support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#passing-options-to-ksp-processors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Passing options to KSP processors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-your-own-local-ksp-processor" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using your own local KSP processor
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1889,7 +1867,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../../user-guide/advanced/kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1917,7 +1895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../maven-like-layout/" class="md-nav__link">
+      <a href="../../user-guide/advanced/maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1953,7 +1931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../yaml-primer/" class="md-nav__link">
+      <a href="../../user-guide/yaml-primer/" class="md-nav__link">
         
   
   
@@ -2013,7 +1991,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../cli/" class="md-nav__link ">
+            <a href="../../cli/" class="md-nav__link ">
               
   
   
@@ -2057,7 +2035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../cli/provisioning/" class="md-nav__link">
+      <a href="../../cli/provisioning/" class="md-nav__link">
         
   
   
@@ -2150,7 +2128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/project/" class="md-nav__link">
+      <a href="../../reference/project/" class="md-nav__link">
         
   
   
@@ -2178,7 +2156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/module/" class="md-nav__link">
+      <a href="../../reference/module/" class="md-nav__link">
         
   
   
@@ -2213,7 +2191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../faq/" class="md-nav__link">
+      <a href="../../faq/" class="md-nav__link">
         
   
   
@@ -2287,32 +2265,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#multiplatform-support" class="md-nav__link">
+  <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multiplatform support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#passing-options-to-ksp-processors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Passing options to KSP processors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-your-own-local-ksp-processor" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using your own local KSP processor
+        Limitations
       
     </span>
   </a>
@@ -2336,7 +2292,7 @@
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/advanced/ksp.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/getting-started/migrating-from-maven.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2344,101 +2300,44 @@
   
 
 
-<h1 id="kotlin-symbol-processing-ksp">Kotlin Symbol Processing (<abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr>)<a class="headerlink" href="#kotlin-symbol-processing-ksp" title="Permanent link">&para;</a></h1>
-<p><a href="https://kotlinlang.org/docs/ksp-overview.html">Kotlin Symbol Processing</a> is a tool that allows feeding Kotlin source
-code to <em>processors</em>, which can in turn use this information to generate code, classes, or resources, for instance.
-Amper provides built-in support for <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr>.</p>
-<p>Some popular libraries also include a <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processor to enhance their capabilities, such as
-<a href="https://developer.android.com/jetpack/androidx/releases/room">Room</a> or
-<a href="https://github.com/square/moshi#codegen">Moshi</a>.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Amper works with KSP2, so any processors used must be compatible with KSP2.
-We’re expecting most processors to make this upgrade soon, as KSP1 is no longer part of <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> releases.
-However, at the moment, you might still see some gaps in support, such as issues with native targets.</p>
-</div>
-<p>To add <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processors to your module, add their maven coordinates to the <code>settings.kotlin.ksp.processors</code> list:</p>
-<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
+<h1 id="migrating-from-maven">Migrating from Maven<a class="headerlink" href="#migrating-from-maven" title="Permanent link">&para;</a></h1>
+<p>This section describes how to convert an existing Maven project to Amper.</p>
+<p>Amper provides a semi-automated tool to do the bulk of the conversion for you.
+It works on a best-effort basis, so some projects require some additional tweaks
+after the converter runs.</p>
+<p>To run the migration tool, go to the root of your Maven project:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/path/to/your/maven/project
 </code></pre></div>
-<h2 id="multiplatform-support">Multiplatform support<a class="headerlink" href="#multiplatform-support" title="Permanent link">&para;</a></h2>
-<p>In multiplatform modules, all settings from the <code>settings</code> section apply to all platforms by default, including <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> 
-processors.
-If you only want to add <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processors for a specific platform, use a <code>settings</code> block with a
-<a href="../../multiplatform/#platform-qualifier"><code>@platform</code> qualifier</a>:</p>
-<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="c1"># the Room processor will only process code that compiles to the Android platform</span>
-<span class="nt">settings@android</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
+<p>Download the <a href="../../cli/provisioning/#whats-the-wrapper-script">Amper wrapper script</a>.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="linux--macos" name="__tabbed_1" type="radio" /><input id="windows" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="linux--macos"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.62 8.35c-.42.28-1.75 1.04-1.95 1.19-.39.31-.75.29-1.14-.01-.2-.16-1.53-.92-1.95-1.19-.48-.31-.45-.7.08-.92 1.64-.69 3.28-.64 4.91.03.49.21.51.6.05.9m7.22 7.28c-.93-2.09-2.2-3.99-3.84-5.66a4.3 4.3 0 0 1-1.06-1.88c-.1-.33-.17-.67-.24-1.01-.2-.88-.29-1.78-.7-2.61-.73-1.58-2-2.4-3.84-2.47-1.81.05-3.16.81-3.95 2.4-.21.43-.36.88-.46 1.34-.17.76-.32 1.55-.5 2.32-.15.65-.45 1.21-.96 1.71-1.61 1.57-2.9 3.37-3.88 5.35-.14.29-.28.58-.37.88-.19.66.29 1.12.99.96.44-.09.88-.18 1.3-.31.41-.15.57-.05.67.35.65 2.15 2.07 3.66 4.24 4.5 4.12 1.56 8.93-.66 9.97-4.58.07-.27.17-.37.47-.27.46.14.93.24 1.4.35.49.09.85-.16.92-.64.03-.26-.06-.49-.16-.73"/></svg></span> Linux / <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg></span> macOS</label><label for="windows"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 12V6.75l6-1.32v6.48zm17-9v8.75l-10 .15V5.21zM3 13l6 .09v6.81l-6-1.15zm17 .25V22l-10-1.91V13.1z"/></svg></span> Windows</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>amper<span class="w"> </span>https://jb.gg/amper/wrapper.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>amper<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./amper<span class="w"> </span>update<span class="w"> </span>-c
 </code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Generated code is not available in common sources</p>
-<p>In multiplatform modules, <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> is called for each platform separately. This means that any code generated by <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr>
-processors will be available only for the corresponding platform. There is no way at the moment to access the 
-generated code from the common fragment (<code>src</code>) or intermediate fragments (e.g. <code>src@native</code>).</p>
-<p>This limitation comes from the Kotlin compilation model and how <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> aligns with it. Please follow 
-<a href="https://github.com/google/ksp/issues/567">the relevant <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> issue</a> for more information.</p>
 </div>
-<h2 id="passing-options-to-ksp-processors">Passing options to <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processors<a class="headerlink" href="#passing-options-to-ksp-processors" title="Permanent link">&para;</a></h2>
-<p>Some processors can be customized by passing options. You can pass these options using the <code>processorOptions</code> section:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">androidx.room:room-compiler:2.7.0-alpha12</span>
-<span class="w">      </span><span class="nt">processorOptions</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">room.schemaLocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./schema</span>
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">PowerShell</span><pre><span></span><code><span class="nb">Invoke-WebRequest</span> <span class="n">-OutFile</span> <span class="n">amper</span><span class="p">.</span><span class="n">bat</span> <span class="n">-Uri</span> <span class="n">https</span><span class="p">://</span><span class="n">jb</span><span class="p">.</span><span class="n">gg</span><span class="p">/</span><span class="n">amper</span><span class="p">/</span><span class="n">wrapper</span><span class="p">.</span><span class="n">bat</span><span class="p">;</span> <span class="p">./</span><span class="n">amper</span> <span class="n">update</span> <span class="n">-c</span>
 </code></pre></div>
-<p>Consult the documentation of the processor you want to use for more information about the available options.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Note: all options are passed to all processors by <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr>. It's the processor's responsibility to use unique option names
-to avoid clashes with other processor options.</p>
+<div class="highlight"><span class="filename">cmd.exe</span><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>amper.bat<span class="w"> </span>https://jb.gg/amper/wrapper.bat<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>call<span class="w"> </span>amper<span class="w"> </span>update<span class="w"> </span>-c
+</code></pre></div>
 </div>
-<h2 id="using-your-own-local-ksp-processor">Using your own local <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> processor<a class="headerlink" href="#using-your-own-local-ksp-processor" title="Permanent link">&para;</a></h2>
-<p>You can implement your own processor in an Amper module as a regular JVM library, and then use it to process code from
-other modules in your project.</p>
-<p>Usually, 3 modules are involved:</p>
+</div>
+</div>
+<p>and then run:
+<div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>tool<span class="w"> </span>convert-project
+</code></pre></div></p>
+<p>Path to <code>pom.xml</code> can be provided explicitly via <code>--pom</code> argument. <code>pom.xml</code> is a starting point. If it's a part 
+of the reactor, all related modules are converted.</p>
+<p>During the conversion, the tool puts Amper files into corresponding maven modules's folders. If <code>project.yaml</code> or one of
+the corresponding <code>module.yaml</code> files already exists, by default converter fails. To adjust this behavior, 
+<code>--overwrite-existing</code> flag can be used.</p>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<p>The converter doesn't support:</p>
 <ul>
-<li>The <em>processor</em> module, with the actual processor implementation</li>
-<li>The <em>annotations</em> module (optional), which contains annotations that the processor looks for in the consumer code</li>
-<li>The <em>consumer</em> module, which uses <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> with the custom processor</li>
+<li>extensions</li>
+<li>profiles</li>
+<li>Maven plugins besides <code>maven-compiler-plugin</code>, <code>kotlin-maven-plugin</code> and <code>spring-boot-maven-plugin</code></li>
 </ul>
-<p>The annotations module is a very simple JVM library module without any required dependencies (it's just here to provide
-some annotations to work with, if necessary):</p>
-<div class="highlight"><span class="filename">my-processor-annotations/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
-</code></pre></div>
-<p>The processor module is a JVM library with a <code>compile-only</code> dependency on <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> facilities, and on the custom annotations
-module:</p>
-<div class="highlight"><span class="filename">my-processor/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
-<span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="w"> </span><span class="p p-Indicator">]</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor-annotations</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">com.google.devtools.ksp:symbol-processing-api:2.0.21-1.0.25</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
-</code></pre></div>
-<p>The consumer module adds a regular dependency on the annotations module, and a reference to the processor module:</p>
-<div class="highlight"><span class="filename">my-consumer/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor-annotations</span><span class="w"> </span><span class="c1"># to be able to annotate the consumer code</span>
-
-<span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ksp</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">processors</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../my-processor</span><span class="w"> </span><span class="c1"># path to the module implementing the KSP processor</span>
-</code></pre></div>
-<p>For more information about how to write your own processor, check out
-<a href="https://kotlinlang.org/docs/ksp-quickstart.html#create-a-processor-of-your-own">the <abbr title="The Kotlin Symbol Processing tool, developed by Google">KSP</abbr> documentation</a>.</p>
 
 
 
@@ -2459,7 +2358,7 @@ module:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 10, 2025 01:00:19 UTC">November 10, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 15, 2025 11:16:01 UTC">December 15, 2025</span>
   </span>
 
     
@@ -2495,7 +2394,7 @@ module:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../java-annotation-processing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Java annotation processing">
+          <a href="../tutorial/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tutorial">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2505,20 +2404,20 @@ module:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Java annotation processing
+                Tutorial
               </div>
             </div>
           </a>
         
         
           
-          <a href="../kotlin-compiler-plugins/" class="md-footer__link md-footer__link--next" aria-label="Next: Kotlin compiler plugins">
+          <a href="../../user-guide/" class="md-footer__link md-footer__link--next" aria-label="Next: User guide">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Kotlin compiler plugins
+                User guide
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2559,10 +2458,10 @@ module:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
