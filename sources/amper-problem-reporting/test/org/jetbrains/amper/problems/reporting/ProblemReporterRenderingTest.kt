@@ -82,8 +82,8 @@ class ProblemReporterRenderingTest {
             """
             Test message
             ╰─ Encountered in:
-               ╰─ test.txt:10:15
-               ╰─ test2.txt:9:15
+               ├─ test.txt:10:15
+               ├─ test2.txt:9:15
                ╰─ test2.txt:10:15
             """.trimIndent(), renderMessage(problem)
         )

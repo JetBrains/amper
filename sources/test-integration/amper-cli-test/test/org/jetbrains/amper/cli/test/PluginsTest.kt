@@ -283,7 +283,7 @@ class PluginsTest : AmperCliTestBase() {
         r.assertStdoutContains("""
             Plugin `build-konfig` is not enabled, but has some explicit configuration.
             ╰─ Values explicitly set at:
-               ╰─ $app3:6:5
+               ├─ $app3:6:5
                ╰─ $app3:9:5
         """.trimIndent())
     }
@@ -354,8 +354,8 @@ class PluginsTest : AmperCliTestBase() {
                 """
                 Plugin id must be unique across the project
                 ╰─ There are multiple plugins with the id `hello`:
-                   ╰─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
-                   ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
+                   ├─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
+                   ├─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "hello"}
                 """.trimIndent(),
                 "${projectRoot / "not-a-plugin" / "module.yaml"}:1:10: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
@@ -429,27 +429,27 @@ class PluginsTest : AmperCliTestBase() {
             """
             Output path `${projectRoot / "app" / "foo" / "bar"}` is declared to be produced by multiple tasks: task `withSameOutputA` in module `app` from plugin `tasks-with-invalid-inputs`, task `withSameOutputB` in module `app` from plugin `tasks-with-invalid-inputs`
             ╰─ The output path is specified at:
-               ╰─ $pluginYamlForInvalidInputs:22:16
+               ├─ $pluginYamlForInvalidInputs:22:16
                ╰─ $pluginYamlForInvalidInputs:26:16
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:5:15
-               ╰─ $pluginYamlForInvalidInputs:6:15
+               ├─ $pluginYamlForInvalidInputs:5:15
+               ├─ $pluginYamlForInvalidInputs:6:15
                ╰─ $pluginYamlForInvalidInputs:7:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:11:15
-               ╰─ $pluginYamlForInvalidInputs:12:15
+               ├─ $pluginYamlForInvalidInputs:11:15
+               ├─ $pluginYamlForInvalidInputs:12:15
                ╰─ $pluginYamlForInvalidInputs:13:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-build-dir>${sep}tasks${sep}_app_withConflictingOutputs@tasks-with-invalid-inputs`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:17:16
+               ├─ $pluginYamlForInvalidInputs:17:16
                ╰─ $pluginYamlForInvalidInputs:18:16
             """.trimIndent(),
             """
@@ -462,8 +462,8 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-root-dir>${sep}tasks-with-loops${sep}source.txt` produced by ───╮
             4. task `task3` in module `tasks-with-loops` from plugin `tasks-with-loops` (*) <─╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForLoops:10:15
-               ╰─ $pluginYamlForLoops:6:15
+               ├─ $pluginYamlForLoops:10:15
+               ├─ $pluginYamlForLoops:6:15
                ╰─ $pluginYamlForLoops:14:15
             """.trimIndent(),
             """
@@ -488,8 +488,8 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-build-dir>${sep}tasks${sep}_app_consumesResources@tasks-with-invalid-inputs` produced by
             4. task `consumesResources` in module `app` from plugin `tasks-with-invalid-inputs` (*) <────────────────╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForInvalidInputs:41:27
-               ╰─ $pluginYamlForInvalidInputs:34:9
+               ├─ $pluginYamlForInvalidInputs:41:27
+               ├─ $pluginYamlForInvalidInputs:34:9
                ╰─ $pluginYamlForInvalidInputs:42:15
             """.trimIndent()
         )
