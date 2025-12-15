@@ -22,9 +22,11 @@ import kotlin.io.path.div
 internal fun ProjectTreeBuilder.contributeCompilerPlugin(reactorProjects: Set<MavenProject>) {
     for (project in reactorProjects.filterJarProjects()) {
         module(project.basedir.toPath() / "module.yaml") {
-            project.model.build.plugins
-                .filter { it.groupId == "org.apache.maven.plugins" && it.artifactId == "maven-compiler-plugin" }
-                .forEach { plugin -> contributeCompilerPlugin(plugin) }
+            val compilerPlugin = project.getEffectivePlugin(
+                "org.apache.maven.plugins",
+                "maven-compiler-plugin"
+            )
+            compilerPlugin?.let { contributeCompilerPlugin(it) }
         }
     }
 }

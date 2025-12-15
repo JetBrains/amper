@@ -42,6 +42,8 @@ class MavenConvertTest : AmperCliTestBase() {
                 name: demo
                 group: com.example
                 version: 0.0.1-SNAPSHOT
+              jvm:
+                storeParameterNames: true
               springBoot:
                 enabled: true
                 version: 4.0.0
@@ -110,33 +112,33 @@ class MavenConvertTest : AmperCliTestBase() {
         assertEquals(
             """
             product: jvm/app
-            
+
             layout: maven-like
-            
+
             settings:
               publishing:
                 enabled: true
                 name: demo
                 group: com.example
                 version: 0.0.1-SNAPSHOT
+              jvm:
+                storeParameterNames: true
+                release: 17
               kotlin:
                 version: 2.2.21
                 freeCompilerArgs:
                   - -Xjsr305=strict
                   - -Xannotation-default-target=param-property
-              jvm:
-                release: 17
-                storeParameterNames: true
               springBoot:
                 enabled: true
                 version: 4.0.0
-            
+
             dependencies:
               - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
               - org.springframework.boot:spring-boot-starter:4.0.0: exported
               - org.jetbrains.kotlin:kotlin-reflect:2.2.21: exported
               - org.jetbrains.kotlin:kotlin-stdlib:2.2.21: exported
-            
+
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0
               - org.jetbrains.kotlin:kotlin-test-junit5:2.2.21

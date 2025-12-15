@@ -4,9 +4,21 @@
 
 package org.jetbrains.amper.maven.contributor
 
+import org.apache.maven.model.Plugin
 import org.apache.maven.project.MavenProject
 
 class MavenRootNotFoundException(potentialRoots: Set<MavenProject>) :
     Exception("No root maven module found: ${potentialRoots.joinToString(", ")}")
 
 internal fun Set<MavenProject>.filterJarProjects(): Set<MavenProject> = filter { it.packaging == "jar" }.toSet()
+
+internal fun MavenProject.getEffectivePlugin(groupId: String, artifactId: String): Plugin? {
+    val explicitPlugin = model.build?.plugins?.firstOrNull {
+        it.groupId == groupId && it.artifactId == artifactId
+    }
+    if (explicitPlugin != null) return explicitPlugin
+
+    return model.build?.pluginManagement?.plugins?.firstOrNull {
+        it.groupId == groupId && it.artifactId == artifactId
+    }
+}
