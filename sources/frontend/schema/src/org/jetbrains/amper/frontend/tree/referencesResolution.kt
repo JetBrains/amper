@@ -5,15 +5,9 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TraceablePath
-import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.TraceableValue
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -31,7 +25,6 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 import org.jetbrains.amper.stdlib.collections.joinToString
 import java.nio.file.InvalidPathException
-import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
@@ -105,7 +98,7 @@ private class TreeReferencesResolver(
 
         val resolved = resolve(node, node.referencedPath) ?: return node
         val trace = node.resolvedTrace(resolved)
-        val converted = resolved.cast(targetType = node.type, trace = trace) ?: run {
+        val converted = resolved.cast(targetType = node.type) ?: run {
             reporter.reportBundleError(
                 node.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
                 renderTypeOf(resolved), node.type.render(includeSyntax = false)
@@ -135,7 +128,7 @@ private class TreeReferencesResolver(
                         return node
                     }
                     allResolvedValues += converted
-                    (converted as ScalarNode).value.toString()
+                    (converted as StringNode).value
                 }
                 is StringInterpolationNode.Part.Text -> part.text
             }
@@ -155,7 +148,7 @@ private class TreeReferencesResolver(
         )
         val typedInterpolated = when (val type = node.type) {
             is SchemaType.PathType -> try {
-                Path(interpolated).normalize().wrapTraceable(type, trace)
+                PathNode(Path(interpolated).normalize(), type, trace, node.contexts)
             } catch (e: InvalidPathException) {
                 reporter.reportBundleError(trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
                 return node
@@ -174,12 +167,12 @@ private class TreeReferencesResolver(
                     SchemaType.StringType.Semantics.PluginSettingsClass,
                     null -> {}
                 }
-                interpolated.wrapTraceable(type, trace)
+                StringNode(interpolated, type, trace, node.contexts)
             }
         }
 
         anyResolutionDone = true
-        return ScalarNode(typedInterpolated, node.type, trace, node.contexts)
+        return typedInterpolated
     }
 
     private fun resolve(
@@ -254,38 +247,27 @@ private class TreeReferencesResolver(
  */
 private fun RefinedTreeNode.cast(
     targetType: SchemaType,
-    trace: Trace = this.trace,
 ): RefinedTreeNode? {
     if (targetType.isMarkedNullable && this is NullLiteralNode)
         return this
 
     return when (targetType) {
-        is SchemaType.EnumType if this is ScalarNode -> when (val type = type) {
-            is SchemaType.EnumType if type.declaration == targetType.declaration -> {
-                // Conversion is possible between `isTraceableWrapped = true/false`
-                copyWithValue(value = value.unwrapTraceable().wrapTraceable(type, trace))
-            }
+        is SchemaType.EnumType if this is EnumNode && type.declaration == targetType.declaration -> this
+        is SchemaType.PathType -> when (this) {
+            is PathNode -> this
+            is StringNode -> PathNode(Path(value), targetType, trace, contexts)
             else -> null
         }
-        is SchemaType.PathType if this is ScalarNode -> copyWithValue(
-            value = when (val value = value.unwrapTraceable()) {
-                is String -> Path(value)
-                is Path -> value
-                else -> return null
-            }.wrapTraceable(targetType, trace)
-        )
-        is SchemaType.StringType if this is ScalarNode
-                && type.stringSemantics() assignableTo targetType.semantics -> copyWithValue(
-            value = when (val value = value.unwrapTraceable()) {
-                is String -> value // also goes for external enums
-                is SchemaEnum -> value.schemaValue
-                is Path -> value.pathString
-                is Int -> value.toString()
-                else -> return null
-            }.wrapTraceable(targetType, trace)
-        )
-        is SchemaType.BooleanType if this is ScalarNode && this.value is Boolean -> this
-        is SchemaType.IntType if this is ScalarNode && this.value is Int -> this
+        is SchemaType.StringType if this is ScalarNode &&
+                type.stringSemantics() assignableTo targetType.semantics -> when (this) {
+            is StringNode -> this
+            is PathNode -> StringNode(value.pathString, targetType, trace, contexts)
+            is IntNode -> StringNode(value.toString(), targetType, trace, contexts)
+            is EnumNode -> StringNode(entryName, targetType, trace, contexts)
+            else -> null
+        }
+        is SchemaType.BooleanType if this is BooleanNode -> this
+        is SchemaType.IntType if this is IntNode -> this
         is SchemaType.ObjectType if this is RefinedMappingNode && declaration == targetType.declaration -> this
         is SchemaType.VariantType if this is RefinedMappingNode && declaration in targetType.declaration.variants -> this
         is SchemaType.ListType if this is RefinedListNode -> copy(
@@ -333,17 +315,3 @@ private fun ReferenceNode.resolvedTrace(resolvedValue: Traceable) = ResolvedRefe
     referenceTrace = trace,
     resolvedValue = resolvedValue,
 )
-
-private fun Any.unwrapTraceable(): Any = when (this) {
-    is TraceableValue<*> -> value!!
-    else -> this
-}
-
-private fun Path.wrapTraceable(type: SchemaType.PathType, trace: Trace) =
-    if (type.isTraceableWrapped) TraceablePath(this, trace) else this
-
-private fun String.wrapTraceable(type: SchemaType.StringType, trace: Trace) =
-    if (type.isTraceableWrapped) TraceableString(this, trace) else this
-
-private fun Any.wrapTraceable(type: SchemaType.EnumType, trace: Trace) =
-    if (type.isTraceableWrapped) TraceableEnum(this as Enum<*>, trace) else this

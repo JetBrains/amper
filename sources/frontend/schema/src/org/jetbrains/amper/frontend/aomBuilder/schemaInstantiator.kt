@@ -10,24 +10,31 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueHolder
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.EnumNode
 import org.jetbrains.amper.frontend.tree.ErrorNode
+import org.jetbrains.amper.frontend.tree.IntNode
 import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.ReferenceNode
 import org.jetbrains.amper.frontend.tree.RefinedListNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.RefinedTreeNode
-import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.StringInterpolationNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.declaration
+import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import java.nio.file.Path
 
 /**
  * Instantiate the requested [T] and fill its properties from the [node].
@@ -58,7 +65,7 @@ internal fun BuildCtx.createSchemaNode(
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
 ): SchemaNode? {
     val node = context(missingPropertiesHandler) {
-        createNode(type, node, valuePath = emptyList())
+        createSchemaNode(type, node, valuePath = emptyList())
     }
     return if (node === ValueCreationErrorToken) null else node as SchemaNode
 }
@@ -68,7 +75,7 @@ internal fun BuildCtx.createSchemaNode(
  *
  * It can be checked with referential equality to test for errors. This will be replaced with a proper error union in
  * the future when Kotlin has them, but in the meantime we can avoid the boilerplate of a result class and the extra
- * instantiations thanks to the `Any?` return type of [createNode].
+ * instantiations thanks to the `Any?` return type of [createSchemaNode].
  */
 private object ValueCreationErrorToken
 
@@ -79,7 +86,7 @@ private object ValueCreationErrorToken
 private typealias ValuePath = List<Pair<String, Trace>>
 
 /**
- * Creates a value of the given [type] from the given tree [value].
+ * Creates a value of the given [type] from the given tree [node].
  *
  * If the value cannot be created because it is missing or incomplete, this function returns a special
  * [ValueCreationErrorToken]. This ensures all objects are complete and respect their contract.
@@ -87,12 +94,12 @@ private typealias ValuePath = List<Pair<String, Trace>>
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
 context(missingPropertiesHandler: MissingPropertiesHandler)
-private fun createNode(
+private fun createSchemaNode(
     type: SchemaType,
-    value: RefinedTreeNode,
+    node: RefinedTreeNode,
     valuePath: ValuePath,
 ): Any? {
-    when (value) {
+    when (node) {
         is ErrorNode,
             // Do not report: reported during parsing
         is ReferenceNode, is StringInterpolationNode -> {
@@ -103,20 +110,25 @@ private fun createNode(
     }
 
     return when (type) {
-        is SchemaType.ScalarType if (value is ScalarNode) -> value.value
-        is SchemaType.ListType if (value is RefinedListNode) -> createListNode(value, type, valuePath)
-        is SchemaType.MapType if (value is RefinedMappingNode) -> createMapNode(value, type, valuePath)
-        is SchemaType.ObjectType if (value is RefinedMappingNode) -> createObjectNode(value, type, valuePath)
-        is SchemaType.VariantType if (value is RefinedMappingNode) -> {
-            check(value.declaration in type.declaration.variants) {
-                "Type error: ${value.type} not among ${type.declaration.variants}"
+        is SchemaType.BooleanType if node is BooleanNode -> node.value
+        is SchemaType.IntType if node is IntNode -> node.value
+        is SchemaType.EnumType if node is EnumNode ->
+            node.enumConstantIfAvailable?.wrapTraceable(type, node.trace) ?: node.entryName
+        is SchemaType.StringType if node is StringNode -> node.value.wrapTraceable(type, node.trace)
+        is SchemaType.PathType if node is PathNode -> node.value.wrapTraceable(type, node.trace)
+        is SchemaType.ListType if node is RefinedListNode -> createListNode(node, type, valuePath)
+        is SchemaType.MapType if node is RefinedMappingNode -> createMapNode(node, type, valuePath)
+        is SchemaType.ObjectType if node is RefinedMappingNode -> createObjectNode(node, type, valuePath)
+        is SchemaType.VariantType if node is RefinedMappingNode -> {
+            check(node.declaration in type.declaration.variants) {
+                "Type error: ${node.type} not among ${type.declaration.variants}"
             }
-            createNode(value.type, value, valuePath)
+            createSchemaNode(node.type, node, valuePath)
         }
-        else if (type.isMarkedNullable && value is NullLiteralNode) -> null
+        else if (type.isMarkedNullable && node is NullLiteralNode) -> null
         else -> {
             // If crashes, it's not caused by an invalid user input, but rather by a bug in tree post-processing.
-            error("Type error: expected a `$type`, got: `$value`")
+            error("Type error: expected a `$type`, got: `$node`")
         }
     }
 }
@@ -124,7 +136,7 @@ private fun createNode(
 context(_: MissingPropertiesHandler)
 private fun createListNode(value: RefinedListNode, type: SchemaType.ListType, valuePath: ValuePath): List<Any?> =
     value.children
-        .map { createNode(type.elementType, it, valuePath + ("[]" to it.trace)) }
+        .map { createSchemaNode(type.elementType, it, valuePath + ("[]" to it.trace)) }
         .filter { it !== ValueCreationErrorToken }
 
 context(_: MissingPropertiesHandler)
@@ -132,26 +144,26 @@ private fun createMapNode(value: RefinedMappingNode, type: SchemaType.MapType, v
     value.children
         .associate {
             val key = if (type.keyType.isTraceableWrapped) TraceableString(it.key, it.keyTrace) else it.key
-            key to createNode(type.valueType, it.value, valuePath + (it.key to it.value.trace))
+            key to createSchemaNode(type.valueType, it.value, valuePath + (it.key to it.value.trace))
         }
         .filterValues { it !== ValueCreationErrorToken }
 
 context(missingPropertiesHandler: MissingPropertiesHandler)
-private fun createObjectNode(value: RefinedMappingNode, type: SchemaType.ObjectType, valuePath: ValuePath): Any {
+private fun createObjectNode(node: RefinedMappingNode, type: SchemaType.ObjectType, valuePath: ValuePath): Any {
     val declaration = type.declaration
     val newInstance = declaration.createInstance()
     @OptIn(InternalTraceSetter::class)
-    newInstance.trace = value.trace
+    newInstance.trace = node.trace
 
-    for (mapLikePropertyValue in value.refinedChildren.values) {
+    for (mapLikePropertyValue in node.refinedChildren.values) {
         propertyCheckTypeLevelIntegrity(declaration, mapLikePropertyValue)
     }
 
     // we track this but don't return early, so we can report everything
     var hasMissingRequiredProps = false
     for (property in declaration.properties) {
-        val propertyValuePath = valuePath + (property.name to value.trace)
-        val mapLikePropertyValue = value.refinedChildren[property.name]
+        val propertyValuePath = valuePath + (property.name to node.trace)
+        val mapLikePropertyValue = node.refinedChildren[property.name]
         propertyCheckDefaultIntegrity(property, mapLikePropertyValue)
         if (mapLikePropertyValue == null) {
             // Property is not mentioned at all
@@ -169,12 +181,12 @@ private fun createObjectNode(value: RefinedMappingNode, type: SchemaType.ObjectT
             }
             continue
         }
-        val node = createNode(
+        val schemaNode = createSchemaNode(
             type = property.type,
-            value = mapLikePropertyValue.value,
+            node = mapLikePropertyValue.value,
             valuePath = propertyValuePath,
         )
-        if (node === ValueCreationErrorToken) {
+        if (schemaNode === ValueCreationErrorToken) {
             if (property.isValueRequired()) {
                 // we don't report here because the error must have been reported when parsing the property
                 hasMissingRequiredProps = true
@@ -182,7 +194,7 @@ private fun createObjectNode(value: RefinedMappingNode, type: SchemaType.ObjectT
             continue
         }
         newInstance.valueHolders[property.name] = ValueHolder(
-            value = node,
+            value = schemaNode,
             valueTrace = mapLikePropertyValue.value.trace,
             keyValueTrace = mapLikePropertyValue.trace,
         )
@@ -264,3 +276,12 @@ private fun propertyCheckTypeLevelIntegrity(
                 "They do not match. Something went wrong!"
     }
 }
+
+private fun Enum<*>.wrapTraceable(type: SchemaType.EnumType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this
+
+private fun Path.wrapTraceable(type: SchemaType.PathType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this
+
+private fun String.wrapTraceable(type: SchemaType.StringType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this

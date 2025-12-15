@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.contexts.MinimalModule
-import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
+import org.jetbrains.amper.frontend.diagnostics.helpers.visitEnumProperties
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -35,13 +35,13 @@ object AndroidTooOldVersionFactory : TreeDiagnostic {
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<PsiElement>() // somehow the computed properties lead to duplicate reports
-        root.visitScalarProperties<AndroidSettings, AndroidVersion?>(
+        root.visitEnumProperties<AndroidSettings, AndroidVersion?>(
             AndroidSettings::compileSdk,
             AndroidSettings::minSdk,
             AndroidSettings::maxSdk,
             AndroidSettings::targetSdk,
         ) { prop, value ->
-            val versionTraceElement = prop.value.trace.extractPsiElementOrNull() ?: return@visitScalarProperties
+            val versionTraceElement = prop.value.trace.extractPsiElementOrNull() ?: return@visitEnumProperties
             if (value < MINIMAL_ANDROID_VERSION && reportedPlaces.add(versionTraceElement)) {
                 problemReporter.reportMessage(
                     AndroidTooOldVersion(

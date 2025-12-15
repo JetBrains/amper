@@ -9,21 +9,42 @@ import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
 import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
-import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import java.nio.file.Path
 
 context(contexts: Contexts)
-internal fun scalarValue(origin: YamlValue.Scalar, type: SchemaType.ScalarType, value: Any) =
-    ScalarNode(value, type, origin.asTrace(), contexts)
+internal fun booleanNode(origin: YamlValue.Scalar, type: SchemaType.BooleanType, value: Boolean) =
+    BooleanNode(value, type, origin.asTrace(), contexts)
 
 context(contexts: Contexts)
-internal fun mapLikeValue(
+internal fun stringNode(origin: YamlValue.Scalar, type: SchemaType.StringType, value: String) =
+    StringNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun intNode(origin: YamlValue.Scalar, type: SchemaType.IntType, value: Int) =
+    IntNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun enumNode(origin: YamlValue.Scalar, type: SchemaType.EnumType, value: String) =
+    EnumNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun pathNode(origin: YamlValue.Scalar, type: SchemaType.PathType, value: Path) =
+    PathNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun mappingNode(
     origin: YamlValue,
     type: SchemaType.MapLikeType,
     children: List<KeyValue>,

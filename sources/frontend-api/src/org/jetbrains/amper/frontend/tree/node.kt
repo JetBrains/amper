@@ -58,6 +58,10 @@ fun LeafTreeNode.copyWithTrace(
     is ErrorNode -> ErrorNode(trace = trace)
     is ReferenceNode -> ReferenceNode(referencedPath, type, trace, contexts)
     is StringInterpolationNode -> StringInterpolationNode(parts, type, trace, contexts)
-    is ScalarNode -> ScalarNode(value, type, trace, contexts)
     is NullLiteralNode -> NullLiteralNode(trace, contexts)
+    is BooleanNode -> BooleanNode(value, type, trace, contexts)
+    is EnumNode -> EnumNode(entryName, type, trace, contexts)
+    is IntNode -> IntNode(value, type, trace, contexts)
+    is PathNode -> PathNode(value, type, trace, contexts)
+    is StringNode -> StringNode(value, type, trace, contexts)
 }

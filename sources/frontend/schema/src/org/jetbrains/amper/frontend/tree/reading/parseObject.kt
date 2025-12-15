@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.diagnostics.UnknownProperty
 import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -73,10 +74,10 @@ private fun parseObjectWithFromKeyProperty(
         }
         is YamlValue.Scalar -> {
             val trace = value.asTrace()
-            mapLikeValue(
+            mappingNode(
                 children = listOf(
                     KeyValue(
-                        keyTrace = trace,
+                        keyTrace = value.asTrace(),
                         trace = trace,
                         value = parseNode(value, argumentType) ?: return null,
                         propertyDeclaration = valueAsKeyProperty,
@@ -140,7 +141,7 @@ private fun parseObjectFromMap(value: YamlValue.Mapping, type: SchemaType.Object
         )
     }
 
-    return mapLikeValue(
+    return mappingNode(
         children = value.keyValues.mapNotNull { keyValue ->
             parseObjectProperty(keyValue)
         },
@@ -159,7 +160,7 @@ private fun parseObjectFromScalarShorthand(
         val secondary = type.declaration.getSecondaryShorthand()
 
         if (boolean != null && scalar.textValue == boolean.name) {
-            return boolean to scalarValue(scalar, SchemaType.BooleanType, true)
+            return boolean to booleanNode(scalar, SchemaType.BooleanType, true)
         }
         return when (val type = secondary?.type) {
             is SchemaType.EnumType -> secondary to parseEnum(
@@ -180,7 +181,7 @@ private fun parseObjectFromScalarShorthand(
     val value = result ?: return null
 
     val trace = scalar.asTrace()
-    return mapLikeValue(
+    return mappingNode(
         children = listOf(
             KeyValue(
                 keyTrace = trace,
@@ -205,7 +206,7 @@ private fun parseObjectFromListShorthand(
         val propertyType = listShorthandProperty.type as SchemaType.ListType
         // At this point we are committed to read this as a shorthand, so
         val trace = sequence.asTrace()
-        return mapLikeValue(
+        return mappingNode(
             children = listOfNotNull(
                 KeyValue(
                     keyTrace = trace,
@@ -227,8 +228,8 @@ private fun parsePropertyKeyContexts(
     key: YamlValue,
 ): Pair<String, Contexts>? {
     val keyText = context(EmptyContexts) {
-        parseScalarKey(key, SchemaType.StringType) ?: return null
-    }.value as String
+        parseScalarKey(key, SchemaType.StringType) as StringNode? ?: return null
+    }.value
     if (config.supportContexts) {
         val keyWithoutContext = keyText.substringBefore('@')
         val context = if (keyWithoutContext === keyText) null else keyText.substringAfter('@')

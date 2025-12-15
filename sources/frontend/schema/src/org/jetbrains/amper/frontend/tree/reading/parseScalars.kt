@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
-import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
@@ -22,19 +21,17 @@ internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType):
             reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
-        else -> scalarValue(scalar, type, boolean)
+        else -> booleanNode(scalar, type, boolean)
     }
     is SchemaType.IntType -> when(val int = scalar.textValue.toIntOrNull()) {
         null -> {
             reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
-        else -> scalarValue(scalar, type, int)
+        else -> intNode(scalar, type, int)
     }
     is SchemaType.StringType -> {
-        val string = scalar.textValue
-        val value = if (type.isTraceableWrapped) string.asTraceable(scalar.asTrace()) else string
-        scalarValue(scalar, type, value).takeIf {
+        stringNode(scalar, type, scalar.textValue).takeIf {
             when (type.semantics) {
                 SchemaType.StringType.Semantics.JvmMainClass,
                 SchemaType.StringType.Semantics.PluginSettingsClass,
@@ -61,8 +58,7 @@ private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): Scal
     }
     path = if (path.isAbsolute) path else config.basePath.resolve(path)
     path = path.normalize()
-    val value = if (type.isTraceableWrapped) path.asTraceable(scalar.asTrace()) else path
-    return scalarValue(scalar, type, value)
+    return pathNode(scalar, type, path)
 }
 
 context(_: Contexts, _: ProblemReporter)
@@ -84,14 +80,5 @@ internal fun parseEnum(
         )
         return null
     }
-
-    // Can be Enum<*> for builtin enums, or String for user-defined enums.
-    val enumConstant = type.declaration.toEnumConstant(entry.name)
-
-    val value = if (type.isTraceableWrapped) {
-        check(enumConstant is Enum<*>) { "Not reached: only builtin enums can be wrapped into a TraceableValue" }
-        enumConstant.asTraceable(scalar.asTrace())
-    } else enumConstant
-
-    return scalarValue(scalar, type, value)
+    return enumNode(scalar, type, entry.name)
 }

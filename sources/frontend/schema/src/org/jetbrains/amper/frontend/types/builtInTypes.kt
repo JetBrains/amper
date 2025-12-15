@@ -190,7 +190,7 @@ internal abstract class BuiltInTypingContext protected constructor(
             if (enumOrderSensitive?.reverse == true) entries.asReversed() else entries
         }
 
-        override fun toEnumConstant(name: String): Any = enumConstants.first { it.name == name }
+        override fun toEnumConstant(name: String): Enum<*>? = enumConstants.first { it.name == name }
 
         override fun toString() = "enum declaration `${qualifiedName}`"
     }

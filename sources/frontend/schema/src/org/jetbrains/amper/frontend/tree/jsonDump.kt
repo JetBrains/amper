@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.tree
 
-import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import java.nio.file.Path
@@ -53,13 +52,14 @@ fun TreeNode.jsonDump(
 
             is LeafTreeNode -> {
                 val value = when (this@doJsonDump) {
-                    is ScalarNode -> value
-                    else -> null
+                    is BooleanNode -> value.toString()
+                    is EnumNode -> enumConstantIfAvailable?.toString() ?: entryName
+                    is IntNode -> value.toString()
+                    is PathNode -> value.normalizedPath()
+                    is StringNode -> value
+                    else -> "null"
                 }
-                val asPath = (value as? Path) ?: (value as? TraceablePath)?.value
-                val asNormalizedPath = asPath?.normalizedPath()
-                if (asNormalizedPath != null) append("\"$asNormalizedPath${contextStr()}\"")
-                else append("\"$value${contextStr()}\"")
+                append("\"$value${contextStr()}\"")
             }
         }
     }

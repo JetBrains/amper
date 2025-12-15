@@ -31,21 +31,12 @@ class NullLiteralNode(
 ) : LeafTreeNode
 
 /**
- * This is a scalar value tree node. E.g., string, boolean, enum or path.
+ * This is a scalar value tree node.
+ * See the sealed inheritors for type-safe access to the actual value.
  */
-// TODO: Maybe introduce scalar sub-types to avoid the `Any` type?
-class ScalarNode(
-    val value: Any,
-    val type: SchemaType.ScalarType,
-    override val trace: Trace,
-    override val contexts: Contexts,
-) : LeafTreeNode
-
-fun ScalarNode.copyWithValue(
-    value: Any,
-    trace: Trace = this.trace,
-): ScalarNode = ScalarNode(value, type, trace, contexts)
-
+sealed interface ScalarNode : LeafTreeNode {
+    val type: SchemaType.ScalarType
+}
 /**
  * This is a reference value tree node, pointing to some subtree.
  */
@@ -84,5 +75,3 @@ class StringInterpolationNode(
         data class Text(val text: String): Part
     }
 }
-
-inline fun <reified T : Any> TreeNode.scalarValue() = (this as? ScalarNode)?.value as? T

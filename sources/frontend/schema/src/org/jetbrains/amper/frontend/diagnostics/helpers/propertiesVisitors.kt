@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.diagnostics.helpers
 
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.tree.EnumNode
 import org.jetbrains.amper.frontend.tree.ErrorNode
 import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.KeyValue
@@ -15,26 +16,45 @@ import org.jetbrains.amper.frontend.tree.RecurringTreeVisitorUnit
 import org.jetbrains.amper.frontend.tree.ReferenceNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.StringInterpolationNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.declaration
+import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.types.isSameAs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /**
- * Visit all passed scalar properties within given [TreeNode].
+ * Visit all passed enum properties within given [TreeNode].
  */
-inline fun <reified T : SchemaNode, reified V> TreeNode.visitScalarProperties(
+inline fun <reified T, reified V> TreeNode.visitEnumProperties(
     vararg properties: KProperty1<T, V>,
     noinline visitSelected: (KeyValue, V & Any) -> Unit,
+) where T : SchemaNode, V : Enum<*>? {
+    ObjectPropertiesVisitorRecurring(
+        objectKlass = T::class,
+        properties = properties.map { it.name },
+    ) {
+        val node = it.value as? EnumNode ?: return@ObjectPropertiesVisitorRecurring
+        node.enumConstantIfAvailable?.let { enum ->
+            visitSelected(it, (enum as V)!!)
+        }
+    }.visit(this)
+}
+
+/**
+ * Visit all passed string properties within given [TreeNode].
+ */
+inline fun <reified T : SchemaNode> TreeNode.visitStringProperties(
+    vararg properties: KProperty1<T, String>,
+    noinline visitSelected: (KeyValue, String) -> Unit,
 ) {
     ObjectPropertiesVisitorRecurring(
         objectKlass = T::class,
         properties = properties.map { it.name },
     ) {
-        val node = it.value as? ScalarNode ?: return@ObjectPropertiesVisitorRecurring
-        val value = node.value
-        if (value is V) visitSelected(it, value)
+        val node = it.value as? StringNode ?: return@ObjectPropertiesVisitorRecurring
+        visitSelected(it, node.value)
     }.visit(this)
 }
 

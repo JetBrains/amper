@@ -4,22 +4,25 @@
 
 package org.jetbrains.amper.maven
 
-import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.BomDependency
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
 import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.tree.declaration
+import org.jetbrains.amper.frontend.tree.schemaValue
 import org.jetbrains.amper.frontend.types.SchemaType
-import java.nio.file.Path
 import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.pathString
 
 typealias Key = String
 
@@ -59,21 +62,17 @@ fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
             "Only scalar values can be collapsible"
         }
 
-        val collapsibleValue = if (collapsiblePropertyValue.type is SchemaType.EnumType) {
-            (collapsiblePropertyValue.value as SchemaEnum).schemaValue
-        } else {
-            collapsiblePropertyValue.value
-        }
-
         val theRest = children.filter { it !== collapsibleProperty }
         append(" ")
         if (declaration?.createInstance() is BomDependency) {
             append("bom: ")
         }
-        if (collapsibleValue is Path) {
-            append(collapsibleValue.invariantSeparatorsPathString)
-        } else {
-            append(collapsibleValue)
+        when (collapsiblePropertyValue) {
+            is BooleanNode -> append(collapsiblePropertyValue.value)
+            is EnumNode -> append(collapsiblePropertyValue.schemaValue)
+            is IntNode -> append(collapsiblePropertyValue.value)
+            is PathNode -> append(collapsiblePropertyValue.value.invariantSeparatorsPathString)
+            is StringNode -> append(collapsiblePropertyValue.value)
         }
 
         if (theRest.isEmpty()) {
@@ -131,20 +130,12 @@ fun ListNode.serializeToYaml(indent: Int = 0): String = buildString {
 
 fun ScalarNode.serializeToYaml(): String = buildString {
     append(" ")
-    when (type) {
-        is SchemaType.EnumType -> {
-            when(value) {
-                is TraceableEnum<*> -> append(((value as TraceableEnum<*>).value as SchemaEnum).schemaValue)
-                is SchemaEnum -> append((value as SchemaEnum).schemaValue)
-            }
-        }
-        is SchemaType.StringType -> {
-            when (value) {
-                is String -> append(YamlQuoting.quote(value as String))
-                is TraceableString -> append(YamlQuoting.quote((value as TraceableString).value))
-            }
-        }
-        else -> append(value)
+    when (this@serializeToYaml) {
+        is BooleanNode -> append(value)
+        is EnumNode -> append(schemaValue)
+        is IntNode -> append(value)
+        is PathNode -> append(value.pathString)
+        is StringNode -> append(YamlQuoting.quote(value))
     }
     appendLine()
 }

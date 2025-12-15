@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.NotChanged
 import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.copyWithValue
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -24,9 +25,9 @@ internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransforme
         .replace("org.jetbrains.compose.desktop:desktop:", replacement)
         .replace("org.jetbrains.compose.desktop:desktop-jvm:", replacement)
 
-    override fun visitScalar(node: ScalarNode) = when (val type = node.type) {
-        is SchemaType.StringType if type.semantics == SchemaType.StringType.Semantics.MavenCoordinates ->
-            Changed(node.copyWithValue(value = (node.value as String).doReplace()))
+    override fun visitScalar(node: ScalarNode) = when (node) {
+        is StringNode if node.type.semantics == SchemaType.StringType.Semantics.MavenCoordinates ->
+            Changed(node.copyWithValue(value = node.value.doReplace()))
         else -> NotChanged
     }
 }

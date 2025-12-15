@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
@@ -70,7 +69,7 @@ private fun BuildCtx.springBootDefaultsTree(
                     NoArgSettings::enabled setTo scalar(true)
                     NoArgSettings::presets { add(scalar(NoArgPreset.Jpa)) }
                 }
-                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict", springBootEnabledTrace))) }
+                KotlinSettings::freeCompilerArgs { add(traceableScalar("-Xjsr305=strict", springBootEnabledTrace)) }
             }
             if (applyBom) {
                 Settings::java {

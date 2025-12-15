@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -14,7 +13,6 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
 import java.nio.file.Path
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.createType
 
 fun <R : TreeNode> syntheticBuilder(
     types: SchemaTypingContext,
@@ -38,7 +36,10 @@ class SyntheticBuilder(
             name.setTo(value)
 
         infix fun String.setTo(value: TreeNode) =
-            if (type != null) properties += KeyValue(this, trace, value, type.declaration, trace)
+            if (type != null) {
+                // TODO: Type-check?
+                properties += KeyValue(this, trace, value, type.declaration, trace)
+            }
             else properties += KeyValue(this, trace, value, trace)
 
         @JvmName("invokeMapLike")
@@ -71,18 +72,19 @@ class SyntheticBuilder(
     fun list(type: SchemaType.ListType, block: MutableList<TreeNode>.() -> Unit) =
         ListNode(mutableListOf<TreeNode>().apply(block), type, trace, contexts)
 
-    fun scalar(value: Enum<*>, trace: Trace = this.trace) =
-        ScalarNode(value, types.getType(value.declaringJavaClass.kotlin.createType()) as SchemaType.EnumType, trace, contexts)
+    inline fun <reified E : Enum<*>> scalar(value: E, trace: Trace = this.trace) =
+        EnumNode(value.name, types.getType<E>() as SchemaType.EnumType, trace, contexts)
 
     fun scalar(value: Path, trace: Trace = this.trace) =
-        ScalarNode(value, SchemaType.PathType, trace, contexts)
+        PathNode(value, SchemaType.PathType, trace, contexts)
 
     fun scalar(value: Boolean, trace: Trace = this.trace) =
-        ScalarNode(value, SchemaType.BooleanType, trace, contexts)
+        BooleanNode(value, SchemaType.BooleanType, trace, contexts)
 
     fun scalar(value: String, trace: Trace = this.trace) =
-        ScalarNode(value, SchemaType.StringType, trace, contexts)
+        StringNode(value, SchemaType.StringType, trace, contexts)
 
-    fun scalar(value: TraceableString, trace: Trace = this.trace) =
-        ScalarNode(value, SchemaType.TraceableStringType, trace, contexts)
+    // TODO: remove this `traceable*` variation when the `isTraceableWrapped` is removed from the type-system.
+    fun traceableScalar(value: String, trace: Trace = this.trace) =
+        StringNode(value, SchemaType.TraceableStringType, trace, contexts)
 }

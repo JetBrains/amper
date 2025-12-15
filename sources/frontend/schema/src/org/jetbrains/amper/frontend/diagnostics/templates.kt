@@ -4,14 +4,13 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitListProperties
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.TreeNode
-import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.io.path.exists
@@ -24,7 +23,7 @@ object TemplateNameWithoutPostfix : TreeDiagnostic {
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitListProperties(Module::apply) { _, templatesRaw ->
-            templatesRaw.children.map { it to it.scalarValue<TraceablePath>()?.value }.forEach { (tValue, template) ->
+            templatesRaw.children.map { it to (it as? PathNode)?.value }.forEach { (tValue, template) ->
                 if (template?.exists() == true &&
                     template.extension != "amper" &&
                     !template.pathString.endsWith(".module-template.yaml")

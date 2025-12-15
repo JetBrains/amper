@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.contexts.MinimalModule
-import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
+import org.jetbrains.amper.frontend.diagnostics.helpers.visitEnumProperties
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.AmperLayout
@@ -33,9 +33,9 @@ object UnsupportedLayoutDiagnosticFactory: TreeDiagnostic {
         minimalModule: MinimalModule,
         problemReporter: ProblemReporter,
     ) {
-        root.visitScalarProperties<Module, AmperLayout>(Module::layout) { prop, layout ->
+        root.visitEnumProperties<Module, AmperLayout>(Module::layout) { prop, layout ->
             if (layout == AmperLayout.MAVEN_LIKE && minimalModule.product.type !in setOf(ProductType.JVM_APP, ProductType.JVM_LIB)) {
-                val element = prop.value.trace.extractPsiElementOrNull() ?: return@visitScalarProperties
+                val element = prop.value.trace.extractPsiElementOrNull() ?: return@visitEnumProperties
                 problemReporter.reportMessage(UnsupportedLayoutBuildProblem(element))
             }
         }

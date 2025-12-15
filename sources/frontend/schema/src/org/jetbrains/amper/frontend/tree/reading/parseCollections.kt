@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.Level
@@ -33,7 +34,7 @@ internal fun parseMap(value: YamlValue.Mapping, type: SchemaType.MapType): Mappi
     val children = value.keyValues.mapNotNull { keyValue: YamlKeyValue ->
         parseKeyValueForMap(keyValue, type)
     }
-    return mapLikeValue(
+    return mappingNode(
         children = children,
         origin = value,
         type = type,
@@ -67,7 +68,7 @@ internal fun parseMapFromSequence(value: YamlValue.Sequence, type: SchemaType.Ma
         parseSingleKeyValue(it)
     }
 
-    return mapLikeValue(
+    return mappingNode(
         origin = value,
         children = children,
         type = type,
@@ -79,10 +80,10 @@ private fun parseKeyValueForMap(
     keyValue: YamlKeyValue,
     mapType: SchemaType.MapType,
 ): KeyValue? {
-    val keyScalar = parseScalarKey(keyValue.key, SchemaType.StringType)
+    val keyScalar = parseScalarKey(keyValue.key, SchemaType.StringType) as? StringNode
         ?: return null
     return KeyValue(
-        key = keyScalar.value as String,
+        key = keyScalar.value,
         keyTrace = keyValue.key.asTrace(),
         trace = keyValue.asTrace(),
         value = parseNodeFromKeyValue(keyValue, mapType.valueType, explicitContexts = EmptyContexts),

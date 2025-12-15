@@ -11,13 +11,6 @@ import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 
 /**
- * Merges all non-null trees from the argument list.
- *
- * @see mergeTrees
- */
-fun mergeTreesNotNull(vararg trees: MappingNode?) = mergeTrees(trees.filterNotNull())
-
-/**
  * Merges all the trees from the argument list.
  */
 fun mergeTrees(vararg trees: MappingNode) = mergeTrees(trees.toList())

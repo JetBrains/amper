@@ -13,10 +13,11 @@ import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesWithOwners
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.get
-import org.jetbrains.amper.frontend.tree.scalarValue
+import org.jetbrains.amper.frontend.tree.valueEqualsTo
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -50,7 +51,7 @@ class UselessSettingValue(
                 // we can safely assume that after refinement it is exactly single.
                 val refinedProp = refined[scalarProp.key] ?: return@forEach
                 refinedProp.trace.precedingValue
-                    ?.takeIf { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
+                    ?.takeIf { (it as? ScalarNode) valueEqualsTo (refinedProp as? ScalarNode) }
                     ?.let {
                         problemReporter.reportMessage(
                             UselessSetting(refinedProp.trace, it.trace.asSafely<PsiTrace>() ?: return@forEach),

@@ -128,20 +128,22 @@ class JdkSettings : SchemaNode() {
 }
 
 @Suppress("EnumEntryName")
-enum class JdkSelectionMode {
+enum class JdkSelectionMode(
+    override val schemaValue: String,
+) : SchemaEnum {
     @SchemaDoc("This is the default. If the JAVA_HOME environment variable is set and points to a JDK that matches " +
             "the criteria, Amper uses that JDK. In any other case, Amper finds a suitable JDK matching the criteria " +
             "via the Foojay Discovery API, and downloads it (or use a cached version if it's already in the Amper " +
             "cache).")
-    auto,
+    auto("auto"),
     @SchemaDoc("Always rely on the provisioning mechanism, and ignore the JAVA_HOME environment variable. " +
             "In this mode, Amper finds a suitable JDK matching the criteria via the Foojay Discovery API, and " +
             "downloads it (or use a cached version if it's already in the Amper cache).")
-    alwaysProvision,
+    alwaysProvision("alwaysProvision"),
     @SchemaDoc("If the JAVA_HOME environment variable is set and points to a JDK that matches the criteria, Amper " +
             "uses that JDK. Otherwise, Amper fails the build. This mode effectively disables JDK provisioning, while " +
             "still ensuring that the criteria are respected.")
-    javaHome,
+    javaHome("javaHome"),
 }
 
 /**

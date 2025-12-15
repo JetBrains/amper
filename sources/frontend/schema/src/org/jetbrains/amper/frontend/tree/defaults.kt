@@ -6,9 +6,12 @@ package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import java.io.File
+import java.nio.file.Path
 
 internal fun MappingNode.appendDefaultValues(): MappingNode {
     /*
@@ -150,7 +153,29 @@ private fun Default.Static<*>.toTreeValue(type: SchemaType): TreeNode {
         check(type.isMarkedNullable) { "Null default is specified for non-nullable $type" }
         NullLiteralNode(DefaultTrace, TypeLevelDefaultContexts)
     } else when (type) {
-        is SchemaType.ScalarType -> ScalarNode(value, type, DefaultTrace, TypeLevelDefaultContexts)
+        is SchemaType.BooleanType -> BooleanNode(value as Boolean, type, DefaultTrace, TypeLevelDefaultContexts)
+        is SchemaType.EnumType -> EnumNode(
+            when (value) {
+                is Enum<*> -> value.name
+                is String -> value
+                else -> error("Invalid enum default: $value")
+            },
+            type, DefaultTrace, TypeLevelDefaultContexts,
+        )
+        is SchemaType.IntType -> IntNode(value as Int, type, DefaultTrace, TypeLevelDefaultContexts)
+        is SchemaType.PathType -> PathNode(
+            when (value) {
+                is Path -> value
+                // TODO: These `File` values come from the Maven compat layer. Try to move the conversion up a level
+                is File -> value.toPath()
+                else -> error("Invalid path default: $value")
+            }, type, DefaultTrace, TypeLevelDefaultContexts,
+        )
+        is SchemaType.StringType -> StringNode(
+            // TODO: Remove this `TraceableString` check when defaults are reworked
+            if (value is TraceableString) value.value else value as String,
+            type, DefaultTrace, TypeLevelDefaultContexts,
+        )
         is SchemaType.ListType -> {
             check(value is List<*>)
             check(value.isEmpty() || type.elementType is SchemaType.ScalarType) {

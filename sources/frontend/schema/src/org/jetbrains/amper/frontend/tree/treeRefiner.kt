@@ -90,11 +90,12 @@ private class RefineRequest(
                         } else trace.withPrecedingValue(first)
                     }
                     when (second) {
-                        is NullLiteralNode -> second.copyWithTrace(trace = newTrace)
-                        is ScalarNode -> second.copyWithTrace(trace = newTrace)
-                        is ReferenceNode -> second.copyWithTrace(trace = newTrace)
-                        is StringInterpolationNode -> second.copyWithTrace(trace = newTrace)
-                        is ErrorNode -> if (first is ErrorNode) ErrorNode(trace = newTrace) else refine(first)
+                        is ErrorNode -> {
+                            // If `first` is not an error - use it
+                            // to recover as much information for the invalid but "best-effort" tree.
+                            if (first is ErrorNode) ErrorNode(trace = newTrace) else refine(first)
+                        }
+                        is LeafTreeNode -> second.copyWithTrace(trace = newTrace)
                         is ListNode -> {
                             val firstChildren = (first as? ListNode)?.children.orEmpty()
                             RefinedListNode(

@@ -28,7 +28,7 @@ import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.NotChanged
 import org.jetbrains.amper.frontend.tree.Removed
-import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TransformResult
 import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.copy
@@ -59,15 +59,15 @@ internal class CatalogVersionsSubstitutor(
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
         val catalogKeyProp = node.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
-        val catalogKeyScalar = catalogKeyProp.value as? ScalarNode ?: return Removed
-        val catalogKey = catalogKeyScalar.value.asSafely<String>() ?: return Removed
+        val catalogKeyScalar = catalogKeyProp.value as? StringNode ?: return Removed
+        val catalogKey = catalogKeyScalar.value
         val found = with(buildCtx.problemReporter) {
             catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogKeyScalar.trace) ?: return Removed
         }
         val coordinatesProperty = checkNotNull(substituted.declaration.getProperty("coordinates")) {
             "Missing `coordinates` property in the dependency type"
         }
-        val newCValue = ScalarNode(
+        val newCValue = StringNode(
             value = found.value,
             type = coordinatesProperty.type as SchemaType.StringType,
             trace = ResolvedReferenceTrace(

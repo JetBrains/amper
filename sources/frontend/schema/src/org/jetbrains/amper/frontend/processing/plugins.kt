@@ -46,7 +46,7 @@ private fun BuildCtx.pluginIdDefaultsTree(moduleName: String, trace: Trace, idTr
     syntheticBuilder(types, trace) {
         `object`<Module> {
             Module::pluginInfo {
-                PluginDeclarationSchema::id setTo scalar(TraceableString(moduleName, idTrace), idTrace)
+                PluginDeclarationSchema::id setTo traceableScalar(moduleName, idTrace)
             }
         }
     }

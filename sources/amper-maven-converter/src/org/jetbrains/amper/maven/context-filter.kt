@@ -10,7 +10,9 @@ import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.copyWithContexts
 import org.jetbrains.amper.frontend.tree.copyWithValue
+import org.jetbrains.amper.frontend.tree.valueEqualsTo
 
 fun TreeNode.filterByContext(
     context: Context,
@@ -46,10 +48,10 @@ fun TreeNode.filterByContext(
         }
         is ScalarNode -> {
             if (contexts.contains(context)) {
-                if (against is ScalarNode && this.value == against.value) {
+                if (against is ScalarNode && this valueEqualsTo against) {
                     return null
                 }
-                return ScalarNode(value, type, trace, listOf(context))
+                return copyWithContexts(listOf(context))
             }
             null
         }
@@ -66,7 +68,7 @@ private fun listsAreEqual(a: List<TreeNode>, b: List<TreeNode>): Boolean {
 
 private fun treesAreEqual(a: TreeNode, b: TreeNode): Boolean {
     return when (a) {
-        is ScalarNode if b is ScalarNode -> a.value == b.value
+        is ScalarNode if b is ScalarNode -> a valueEqualsTo b
         is ListNode if b is ListNode -> listsAreEqual(a.children, b.children)
         is MappingNode if b is MappingNode -> {
             if (a.children.size != b.children.size) return false

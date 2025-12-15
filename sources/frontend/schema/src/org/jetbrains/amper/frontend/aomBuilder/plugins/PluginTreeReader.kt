@@ -29,17 +29,17 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowSourcesKind
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.getTaskOutputRoot
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.tree.BooleanNode
 import org.jetbrains.amper.frontend.tree.ErrorNode
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
-import org.jetbrains.amper.frontend.tree.mergeTreesNotNull
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
-import org.jetbrains.amper.frontend.tree.scalarValue
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -91,12 +91,11 @@ internal class PluginTreeReader(
     ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
         val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.pluginsTree[pluginData.id.value] as? RefinedMappingNode
+            ?: return@with null
 
-        val enabled = pluginConfiguration?.get("enabled")?.scalarValue<Boolean>()
+        val enabled = (pluginConfiguration["enabled"] as? BooleanNode)?.value
         if (enabled != true) {
-            if (pluginConfiguration != null) {
-                reportExplicitValuesWhenDisabled(pluginConfiguration)
-            }
+            reportExplicitValuesWhenDisabled(pluginConfiguration)
             return null
         }
 
@@ -148,7 +147,7 @@ internal class PluginTreeReader(
             }
         }
 
-        val mergedTree = mergeTreesNotNull(pluginTree, referenceValuesTree)
+        val mergedTree = mergeTrees(pluginTree, referenceValuesTree)
             .substituteCatalogDependencies(pluginModule.usedCatalog)
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
         val resolvedTree = refinedTree.resolveReferences()
