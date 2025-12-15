@@ -5,6 +5,7 @@ apply:
 
 dependencies:
   - $kotlin.serialization.core
+  - ../../libraries/serialization-extended
 
 settings:
   kotlin:
