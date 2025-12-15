@@ -117,6 +117,7 @@ ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 ktor-server-sse = { module = "io.ktor:ktor-server-sse", version.ref = "ktor" }
 maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "maven" }
+maven-compat = { module = "org.apache.maven:maven-compat", version.ref = "maven" }
 maven-core = { module = "org.apache.maven:maven-core", version.ref = "maven" }
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "maven-plugin-annotations" }
 maven-reporting = { module = "org.apache.maven.reporting:maven-reporting-impl", version.ref = "maven-reporting" }

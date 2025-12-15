@@ -1,0 +1,10 @@
+product: jvm/lib
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../frontend-api
+  - ../frontend/schema
+  - $libs.maven.core
+  - $libs.maven.compat: runtime-only

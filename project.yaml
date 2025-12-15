@@ -13,6 +13,7 @@ modules:
   - sources/amper-compose-hot-reload-recompiler-extension
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
+  - sources/amper-maven-converter
   - sources/amper-maven-plugins-compatibility
   - sources/amper-maven-publish
   - sources/amper-problem-reporting

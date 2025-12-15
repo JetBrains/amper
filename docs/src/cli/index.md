@@ -17,21 +17,7 @@ project without any installation, no matter their OS.
 
 Use the following command in your project directory to download the script and set up Amper:
 
-=== ":material-linux: Linux / :material-apple: macOS"
-    
-    ```shell
-    curl -fsSL -o amper https://jb.gg/amper/wrapper.sh && chmod +x amper && ./amper update -c
-    ```
-
-=== ":material-microsoft-windows: Windows"
-    
-    ```powershell title="PowerShell"
-    Invoke-WebRequest -OutFile amper.bat -Uri https://jb.gg/amper/wrapper.bat; ./amper update -c
-    ```
-    
-    ```shell title="cmd.exe"
-    curl -fsSL -o amper.bat https://jb.gg/amper/wrapper.bat && call amper update -c
-    ```
+--8<-- "includes/cli-install.md"
 
 The `./amper update -c` command following the download is not strictly necessary, but it will automatically get the 
 wrapper script for the other OS. It is good practice to check them both into your VCS so your team can build and run 
