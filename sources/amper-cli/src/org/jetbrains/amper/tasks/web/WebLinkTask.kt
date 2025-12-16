@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.jdkSettings
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.Jdk
@@ -131,7 +132,7 @@ internal abstract class WebLinkTask(
                 "task.output.root" to taskOutputRoot.path.pathString,
             ),
             inputFiles = inputs,
-        ) {
+        ) { dynamicInputsTracker ->
             cleanDirectory(taskOutputRoot.path)
 
             val artifactPath = taskOutputRoot.path
@@ -141,6 +142,7 @@ internal abstract class WebLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 librariesPaths = externalKLibs + inputs,
                 includeArtifact = includeArtifact,
+                dynamicInputsTracker = dynamicInputsTracker,
             )
 
             listOf(artifactPath)
@@ -156,12 +158,15 @@ internal abstract class WebLinkTask(
         kotlinUserSettings: KotlinUserSettings,
         librariesPaths: List<Path>,
         includeArtifact: Path?,
+        dynamicInputsTracker: DynamicInputsTracker,
     ) {
         val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
             version = kotlinUserSettings.compilerVersion,
+            dynamicInputsTracker = dynamicInputsTracker,
         )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
+            dynamicInputsTracker = dynamicInputsTracker,
         )
         val compilerArgs = kotlinCompilerArgs(
             kotlinUserSettings = kotlinUserSettings,

@@ -36,6 +36,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
 import org.jetbrains.amper.frontend.jdkSettings
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -197,7 +198,7 @@ internal class JvmCompileTask(
         val resources = fragments.map { it.resourcesPath }.map { it.toAbsolutePath() } + additionalResources.map { it.path }
         val inputFiles = sources + resources + classpath + javaAnnotationProcessorClasspath
 
-        val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) {
+        val result = incrementalCache.execute(taskName.name, inputValues, inputFiles) { dynamicInputsTracker ->
             cleanDirectory(javaAnnotationProcessorsGeneratedDir)
             if (!shouldCompileJavaIncrementally(userSettings.java, javaAnnotationProcessorClasspath)) {
                 cleanDirectory(taskOutputRoot)
@@ -231,6 +232,7 @@ internal class JvmCompileTask(
                     javaAnnotationProcessorClasspath = javaAnnotationProcessorClasspath,
                     javaAnnotationProcessorsGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                     tempRoot = tempRoot,
+                    dynamicInputsTracker = dynamicInputsTracker,
                 )
                 if (javaAnnotationProcessorsGeneratedDir.exists()) {
                     outputPaths.add(javaAnnotationProcessorsGeneratedDir)
@@ -278,6 +280,7 @@ internal class JvmCompileTask(
         javaAnnotationProcessorClasspath: List<Path>,
         tempRoot: AmperProjectTempRoot,
         javaAnnotationProcessorsGeneratedDir: Path,
+        dynamicInputsTracker: DynamicInputsTracker,
     ) {
         for (friendPath in friendPaths) {
             require(classpath.contains(friendPath)) {
@@ -302,6 +305,7 @@ internal class JvmCompileTask(
                 sourceFiles = kotlinFilesToCompile + javaFilesToCompile,
                 additionalSourceRoots = additionalSources,
                 friendPaths = friendPaths,
+                dynamicInputsTracker = dynamicInputsTracker,
             )
         }
 
@@ -326,10 +330,12 @@ internal class JvmCompileTask(
         sourceFiles: List<Path>,
         additionalSourceRoots: List<SourceRoot>,
         friendPaths: List<Path>,
+        dynamicInputsTracker: DynamicInputsTracker
     ) {
         val compilationService = CompilationService.loadMaybeCachedImpl(
             kotlinVersion = userSettings.kotlin.compilerVersion,
             downloader = kotlinArtifactsDownloader,
+            dynamicInputsTracker = dynamicInputsTracker,
         )
 
         // TODO should we allow users to choose in-process vs daemon?
@@ -344,7 +350,10 @@ internal class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger() + errorsCollector)
 
-        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(userSettings.kotlin.compilerPlugins)
+        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
+            userSettings.kotlin.compilerPlugins,
+            dynamicInputsTracker = dynamicInputsTracker,
+        )
 
         val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,

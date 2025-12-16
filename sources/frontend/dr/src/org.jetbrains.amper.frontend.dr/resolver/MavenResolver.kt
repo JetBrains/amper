@@ -19,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -49,7 +50,8 @@ open class MavenResolver(
         scope: ResolutionScope,
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
-    ): ResolvedGraph = resolveWithContext(repositories, scope, platform, resolveSourceMoniker) { context ->
+        upstreamDynamicInputsTracker: DynamicInputsTracker? = null
+    ): ResolvedGraph = resolveWithContext(repositories, scope, platform, resolveSourceMoniker, upstreamDynamicInputsTracker = upstreamDynamicInputsTracker) { context ->
         RootDependencyNodeWithContext(
             templateContext = context,
             children = coordinates.map {
@@ -68,6 +70,7 @@ open class MavenResolver(
         platform: ResolutionPlatform,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
+        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
         rootBuilder: (Context) -> RootDependencyNodeWithContext,
     ): ResolvedGraph = spanBuilder("mavenResolve")
         .setAttribute("repositories", repositories.joinToString(" "))
@@ -86,7 +89,7 @@ open class MavenResolver(
                 this.openTelemetry = GlobalOpenTelemetry.get()
                 this.incrementalCache = this@MavenResolver.incrementalCache
             }
-            resolve(rootBuilder(context), resolveSourceMoniker, resolutionDepth)
+            resolve(rootBuilder(context), resolveSourceMoniker, resolutionDepth, upstreamDynamicInputsTracker)
         }
 
     /**
@@ -96,6 +99,7 @@ open class MavenResolver(
         root: RootDependencyNodeWithContext,
         resolveSourceMoniker: String,
         resolutionDepth: ResolutionDepth = ResolutionDepth.GRAPH_FULL,
+        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
     ): ResolvedGraph = spanBuilder("mavenResolve")
         .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
         .apply {
@@ -105,7 +109,9 @@ open class MavenResolver(
             settings.platforms.singleOrNull()?.wasmTarget?.let { setAttribute("wasmTarget", it) }
         }
         .use { span ->
-            with(moduleDependenciesResolver) { root.resolveDependencies(resolutionDepth, downloadSources = false) }
+            with(moduleDependenciesResolver) {
+                root.resolveDependencies(resolutionDepth, downloadSources = false, upstreamDynamicInputsTracker = upstreamDynamicInputsTracker)
+            }
                 .also {
                     // We are referencing the same root, but after [resolveDependencies] was called, so it is filled now.
                     val reporter = CollectingProblemReporter().also { collectBuildProblems(root, it, Level.Warning) }

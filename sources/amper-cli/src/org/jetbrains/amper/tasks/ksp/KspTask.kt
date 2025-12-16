@@ -165,12 +165,13 @@ internal class KspTask(
         val kspDownloadConfiguration = mapOf(
             "respositories" to repositories.joinToString("|"),
         )
-        return incrementalCache.execute("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {
+        return incrementalCache.execute("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()
+        ) { dynamicInputsTracker ->
             spanBuilder("download-ksp-cli")
                 .setAttribute("ksp-version", kspVersion)
                 .use {
                     mavenResolver
-                        .downloadKspJars(kspVersion, repositories)
+                        .downloadKspJars(kspVersion, repositories, upstreamDynamicInputsTracker = dynamicInputsTracker)
                         .toIncrementalCacheResult()
                 }
         }.outputFiles

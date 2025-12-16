@@ -118,7 +118,7 @@ internal class NativeCompileKlibTask(
                 "task.output.root" to taskOutputRoot.path.pathString,
             ),
             inputFiles = sources + libraryPaths,
-        ) {
+        ) { dynamicInputsTracker ->
             cleanDirectory(taskOutputRoot.path)
 
             // in Kotlin >= 2.2, we need to list all source files (not just dirs)
@@ -136,6 +136,7 @@ internal class NativeCompileKlibTask(
             val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot, jdkProvider)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
                 plugins = kotlinUserSettings.compilerPlugins,
+                dynamicInputsTracker = dynamicInputsTracker,
             )
             val args = kotlinNativeCompilerArgs(
                 buildType = buildType,

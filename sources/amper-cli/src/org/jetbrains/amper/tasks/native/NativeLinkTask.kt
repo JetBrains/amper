@@ -137,7 +137,7 @@ internal class NativeLinkTask(
                 "binary.options" to Json.encodeToString(binaryOptions),
             ),
             inputFiles = inputFiles,
-        ) {
+        ) { dynamicInputsTracker ->
             cleanDirectory(taskOutputRoot.path)
 
             if (isTest) {
@@ -161,6 +161,7 @@ internal class NativeLinkTask(
             val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot, jdkProvider)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
                 plugins = kotlinUserSettings.compilerPlugins,
+                dynamicInputsTracker = dynamicInputsTracker,
             )
             val args = kotlinNativeCompilerArgs(
                 buildType = buildType,

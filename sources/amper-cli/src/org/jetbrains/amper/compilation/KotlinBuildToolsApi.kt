@@ -6,6 +6,7 @@ package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
@@ -37,9 +38,10 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
 internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
     kotlinVersion: String,
     downloader: KotlinArtifactsDownloader,
+    dynamicInputsTracker: DynamicInputsTracker,
 ): CompilationService {
     val classLoader = KotlinBuildToolsClassLoaderCache.computeIfAbsent(kotlinVersion) {
-        val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion)
+        val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion, dynamicInputsTracker)
         val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray<URL>()
         URLClassLoader("KotlinBuildToolsImplClassLoader-$kotlinVersion", urls, CompilationService::class.java.classLoader)
     }

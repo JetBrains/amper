@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -28,11 +29,13 @@ internal class KotlinArtifactsDownloader(
      * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
      * that will be used behind the scenes.
      */
-    suspend fun downloadKotlinBuildToolsImpl(version: String): Collection<Path> = downloadMavenArtifact(
-        groupId = KOTLIN_GROUP_ID,
-        artifactId = "kotlin-build-tools-impl",
-        version = version,
-    )
+    suspend fun downloadKotlinBuildToolsImpl(version: String, dynamicInputsTracker: DynamicInputsTracker): Collection<Path> =
+        downloadMavenArtifact(
+            groupId = KOTLIN_GROUP_ID,
+            artifactId = "kotlin-build-tools-impl",
+            version = version,
+            dynamicInputsTracker = dynamicInputsTracker,
+        )
 
     /**
      * Downloads the implementation of the embeddable Kotlin compiler in the given [version].
@@ -40,11 +43,13 @@ internal class KotlinArtifactsDownloader(
      * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
      * that will be used behind the scenes.
      */
-    suspend fun downloadKotlinCompilerEmbeddable(version: String): List<Path> = downloadMavenArtifact(
-        groupId = KOTLIN_GROUP_ID,
-        artifactId = "kotlin-compiler-embeddable",
-        version = version,
-    )
+    suspend fun downloadKotlinCompilerEmbeddable(version: String, dynamicInputsTracker: DynamicInputsTracker,): List<Path> =
+        downloadMavenArtifact(
+            groupId = KOTLIN_GROUP_ID,
+            artifactId = "kotlin-compiler-embeddable",
+            version = version,
+            dynamicInputsTracker = dynamicInputsTracker,
+        )
 
     /**
      * Downloads the implementation of the embeddable Kotlin commonizer in the given [version].
@@ -53,22 +58,35 @@ internal class KotlinArtifactsDownloader(
         groupId = KOTLIN_GROUP_ID,
         artifactId = "kotlin-klib-commonizer-embeddable",
         version = version,
+        null
     )
 
-    suspend fun downloadKotlinCompilerPlugin(pluginConfig: SCompilerPluginConfig): List<Path> {
+    suspend fun downloadKotlinCompilerPlugin(
+        pluginConfig: SCompilerPluginConfig,
+        dynamicInputsTracker: DynamicInputsTracker,
+    ): List<Path> {
         val artifacts = downloadMavenArtifact(
             groupId = pluginConfig.coordinates.groupId,
             artifactId = pluginConfig.coordinates.artifactId,
             version = pluginConfig.coordinates.version,
+            dynamicInputsTracker = dynamicInputsTracker,
         )
         // Some plugins have a dependency on the embeddable compiler, but we already have a compiler.
         // It must be excluded from the classpath that we pass to the compiler for the plugin.
         return artifacts.filterNot { it.name.startsWith("kotlin-compiler-embeddable") }
     }
 
-    private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
+    private suspend fun downloadMavenArtifact(
+        groupId: String, artifactId: String, version: String,
+        dynamicInputsTracker: DynamicInputsTracker?
+    ): List<Path> =
         // using incrementalCache because currently DR takes ~3s even when the artifact is already cached
-        incrementalCache.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
+        incrementalCache.execute(
+            "resolve-$groupId-$artifactId-$version",
+            emptyMap(),
+            emptyList(),
+            upstreamDynamicInputsTracker = dynamicInputsTracker,
+        ) {
             val coordinates = MavenCoordinates(groupId, artifactId, version)
             val resolved = mavenResolver.resolve(
                 coordinates = listOf(coordinates),

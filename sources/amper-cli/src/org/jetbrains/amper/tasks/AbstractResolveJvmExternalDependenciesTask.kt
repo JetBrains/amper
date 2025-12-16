@@ -67,7 +67,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
             incrementalCacheKey,
             configuration,
             emptyList(),
-        ) {
+        ) { dynamicInputsTracker ->
             spanBuilder(taskName.name)
                 .setAmperModule(module)
                 .setListAttribute("dependencies-coordinates", externalUnscopedDependencies.map {
@@ -82,7 +82,8 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                         repositories,
                         ResolutionScope.RUNTIME,
                         ResolutionPlatform.JVM,
-                        "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}"
+                        "$resolutionMonikerPrefix${module.userReadableName}-${Platform.JVM.pretty}",
+                        upstreamDynamicInputsTracker = dynamicInputsTracker,
                     ) { context ->
                         RootDependencyNodeWithContext(
                             templateContext = context,

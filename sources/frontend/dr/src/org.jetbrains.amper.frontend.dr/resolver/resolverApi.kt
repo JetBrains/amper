@@ -37,6 +37,7 @@ import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import kotlin.error
 
@@ -93,6 +94,7 @@ interface ModuleDependenciesResolver {
         resolutionLevel: ResolutionLevel = ResolutionLevel.NETWORK,
         downloadSources: Boolean = false,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
+        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
     ): ResolvedGraph
 
     suspend fun AmperModule.resolveDependencies(resolutionInput: ResolutionInput): ModuleDependencyNode
