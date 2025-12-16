@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
@@ -46,6 +47,7 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
@@ -54,6 +56,7 @@ import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -92,14 +95,7 @@ internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
     mavenPluginXmls: List<MavenPluginXml>,
     systemInfo: SystemInfo = SystemInfo.CurrentHost,
-): Model = with(
-    BuildCtx(
-        pathResolver = frontendPathResolver,
-        problemReporter = problemReporter,
-        types = SchemaTypingContext(pluginData, mavenPluginXmls),
-        systemInfo = systemInfo,
-    )
-) {
+): Model = context(frontendPathResolver, SchemaTypingContext(pluginData, mavenPluginXmls), systemInfo) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val rawModulesByFile = caching { templateCache ->
         amperModuleFiles.associateWith {
@@ -135,8 +131,8 @@ internal fun AmperProjectContext.doReadProjectModel(
     return model
 }
 
-context(problemReporter: ProblemReporter)
-internal fun BuildCtx.readModuleMergedTree(
+context(problemReporter: ProblemReporter, _: SchemaTypingContext, pathResolver: FrontendPathResolver, _: SystemInfo)
+internal fun readModuleMergedTree(
     moduleFile: VirtualFile,
     projectVersionsCatalog: VersionCatalog?,
     templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
@@ -194,22 +190,24 @@ internal fun BuildCtx.readModuleMergedTree(
         catalog = effectiveCatalog,
         moduleCtxModule = commonModule,
         pluginsTree = pluginsTree,
-        buildCtx = this,
+        pathResolver = pathResolver,
+        problemReporter = problemReporter,
     )
 }
 
-internal fun BuildCtx.readWithTemplates(
+context(_: ProblemReporter, types: SchemaTypingContext, pathResolver: FrontendPathResolver)
+internal fun readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,
     templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
 ): List<MappingNode> {
-    val moduleTree = readTree(mPath, moduleAType, moduleCtx)
+    val moduleTree = readTree(mPath, types.getDeclaration<Module>(), moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         templatesCache.getOrPut(it) {
             val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
             val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
-            readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.asTrace()))
+            readTree(templateVirtual, types.getDeclaration<Template>(), PathCtx(templateVirtual, psiFile.asTrace()))
         }
     }
 }
@@ -217,8 +215,8 @@ internal fun BuildCtx.readWithTemplates(
 /**
  * Build and resolve internal module dependencies.
  */
-context(_: ProblemReporter)
-private fun BuildCtx.buildAmperModules(
+context(_: ProblemReporter, _: SchemaTypingContext)
+private fun buildAmperModules(
     modules: List<ModuleBuildCtx>,
 ): List<ModuleBuildCtx> {
     val dir2module = modules.associate { it.moduleFile.parent.toNioPath() to it.module }

@@ -31,6 +31,7 @@ import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -45,7 +46,8 @@ import java.nio.file.Path
  *
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
-internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
+context(problemReporter: ProblemReporter, types: SchemaTypingContext)
+internal inline fun <reified T : SchemaNode> createSchemaNode(
     node: RefinedTreeNode,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),
 ): T? = createSchemaNode(types.getType<T>(), node, missingPropertiesHandler) as T?
@@ -59,7 +61,8 @@ internal inline fun <reified T : SchemaNode> BuildCtx.createSchemaNode(
  *
  * @param missingPropertiesHandler provides a hook to report/handle missing required values.
  */
-internal fun BuildCtx.createSchemaNode(
+context(problemReporter: ProblemReporter)
+internal fun createSchemaNode(
     type: SchemaType,
     node: RefinedTreeNode,
     missingPropertiesHandler: MissingPropertiesHandler = MissingPropertiesHandler.Default(problemReporter),

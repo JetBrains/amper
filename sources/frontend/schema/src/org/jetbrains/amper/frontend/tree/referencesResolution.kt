@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
@@ -33,7 +32,7 @@ import kotlin.io.path.pathString
  * The returned value may still contain unresolved references,
  * but they all are guaranteed to have been reported as errors.
  */
-context(buildCtx: BuildCtx)
+context(problemReporter: ProblemReporter)
 internal fun RefinedMappingNode.resolveReferences(): RefinedMappingNode {
     val reporter = CollectingProblemReporter()
 
@@ -55,7 +54,7 @@ internal fun RefinedMappingNode.resolveReferences(): RefinedMappingNode {
         }
     } while (true)
 
-    reporter.replayProblemsTo(buildCtx.problemReporter)
+    reporter.replayProblemsTo(problemReporter)
     if (reporter.problems.any { it.level.atLeastAsSevereAs(Level.Error) }) {
         // We do not diagnose the looped references if there were some other resolution errors.
         return value
@@ -69,7 +68,7 @@ internal fun RefinedMappingNode.resolveReferences(): RefinedMappingNode {
                 .mapNotNull { it.trace.asBuildProblemSource() as? FileBuildProblemSource }.toList(),
             groupingMessage = SchemaBundle.message("validation.reference.resolution.loops.grouping")
         )
-        buildCtx.problemReporter.reportBundleError(source, "validation.reference.resolution.loops")
+        problemReporter.reportBundleError(source, "validation.reference.resolution.loops")
     }
 
     return value

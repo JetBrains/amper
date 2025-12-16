@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins
 
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -13,14 +13,16 @@ import org.jetbrains.amper.frontend.messages.extractKeyValuePsiElement
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.io.path.div
 import kotlin.io.path.isRegularFile
 
-context(buildContext: BuildCtx)
+context(problemReporter: ProblemReporter, types: SchemaTypingContext, pathResolver: FrontendPathResolver)
 internal fun createPluginReaders(
     projectContext: AmperProjectContext,
     modules: List<ModuleBuildCtx>,
@@ -34,7 +36,7 @@ internal fun createPluginReaders(
         // Report invalid product types
         val product = pluginModule.moduleCtxModule.product
         if (product.type != ProductType.JVM_AMPER_PLUGIN) {
-            buildContext.problemReporter.reportBundleError(
+            problemReporter.reportBundleError(
                 product.asBuildProblemSource(),
                 "plugin.unexpected.product.type", ProductType.JVM_AMPER_PLUGIN.value, product.type
             )
@@ -54,7 +56,7 @@ internal fun createPluginReaders(
 
         pluginModule.moduleCtxModule.pluginInfo?.settingsClass?.let { settingsClass ->
             if (pluginData.declarations.classes.none { it.name.qualifiedName == settingsClass.value }) {
-                buildContext.problemReporter.reportBundleError(
+                problemReporter.reportBundleError(
                     source = settingsClass.asBuildProblemSource(),
                     "plugin.missing.schema.class", settingsClass,
                     problemType = BuildProblemType.UnresolvedReference,
@@ -66,7 +68,7 @@ internal fun createPluginReaders(
             val pluginModuleRoot = pluginModule.moduleFile.parent
             val pluginFile = pluginModuleRoot.toNioPath() / "plugin.yaml"
             if (!pluginFile.isRegularFile()) {
-                buildContext.problemReporter.reportMessage(
+                problemReporter.reportMessage(
                     PluginYamlMissing(
                         element = product::type.extractKeyValuePsiElement(),
                         expectedPluginYamlPath = pluginFile,
@@ -82,7 +84,9 @@ internal fun createPluginReaders(
             pluginData = pluginData,
             pluginFile = projectContext.frontendPathResolver.loadVirtualFile(pluginFile),
             pluginModule = pluginModule.module,
-            buildCtx = buildContext,
+            problemReporter = problemReporter,
+            globalTypes = types,
+            pathResolver = pathResolver,
         )
     }
 
@@ -92,7 +96,7 @@ internal fun createPluginReaders(
             sources = traceableIds.map { it.asBuildProblemSource() as FileBuildProblemSource },
             groupingMessage = SchemaBundle.message("plugin.id.duplicate.grouping", id)
         )
-        buildContext.problemReporter.reportBundleError(source, "plugin.id.duplicate")
+        problemReporter.reportBundleError(source, "plugin.id.duplicate")
     }
 
     return pluginReaders

@@ -44,9 +44,14 @@ class RenderToYamlTest {
         TraceableString("dummy", DefaultTrace),
     )
 
+    private inline fun withTypeContext(
+        types: SchemaTypingContext = SchemaTypingContext(),
+        block: context (SchemaTypingContext) () -> Unit,
+    ) = context(types, block)
+
     @Test
-    fun `product without platforms and basic settings`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `product without platforms and basic settings`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -72,8 +77,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `java annotation processors are rendered`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `java annotation processors are rendered`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -114,8 +119,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `spring boot shorthand example`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `spring boot shorthand example`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -140,8 +145,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `serialization shorthand example`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `serialization shorthand example`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -169,8 +174,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `serialization shorthand example if there are 2 shorthand values`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `serialization shorthand example if there are 2 shorthand values`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -201,8 +206,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `settings and test-settings`() {
-        val main = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `settings and test-settings`() = withTypeContext {
+        val main = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -220,7 +225,7 @@ class RenderToYamlTest {
             }
         }
 
-        val test = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace, listOf(TestCtx)) {
+        val test = syntheticBuilder(DefaultTrace, listOf(TestCtx)) {
             `object`<Module> {
                 Module::settings {
                     Settings::jvm {
@@ -251,8 +256,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `dependencies and test-dependencies`() {
-        val main = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace) {
+    fun `dependencies and test-dependencies`() = withTypeContext {
+        val main = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -277,7 +282,7 @@ class RenderToYamlTest {
             }
         }
 
-        val test = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace, listOf(TestCtx)) {
+        val test = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
             `object`<Module> {
                 Module::dependencies {
                     this += `object`<ExternalMavenDependency> {
@@ -308,9 +313,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `bom test`() {
-
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun `bom test`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -336,8 +340,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun project() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), DefaultTrace) {
+    fun project() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Project> {
                 Project::modules {
                     this += scalar("module1")
@@ -359,9 +363,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `maven plugins`() {
-        val mavenPluginXml = mavenPluginXmlFixture()
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), listOf(mavenPluginXml)), DefaultTrace) {
+    fun `maven plugins`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
+        val tree = syntheticBuilder(DefaultTrace) {
             `object`<Module> {
                 Module::product {
                     ModuleProduct::type setTo scalar(ProductType.JVM_APP)
@@ -438,8 +441,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `write the same key several times and refine`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace) {
+    fun `write the same key several times and refine`() = withTypeContext {
+        val tree = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
                 Module::dependencies {
                     add(`object`<ExternalMavenBomDependency> {
@@ -449,7 +452,7 @@ class RenderToYamlTest {
             }
         }
 
-        val enhancedTree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace) {
+        val enhancedTree = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
                 Module::dependencies {
                     add(`object`<ExternalMavenBomDependency> {
@@ -472,8 +475,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `same option same value for default and test contexts`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace) {
+    fun `same option same value for default and test contexts`() = withTypeContext {
+        val tree = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
                 Module::settings {
                     Settings::kotlin {
@@ -483,7 +486,7 @@ class RenderToYamlTest {
             }
         }
 
-        val enhancedTree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace, listOf(TestCtx)) {
+        val enhancedTree = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
             `object`<Module> {
                 Module::settings {
                     Settings::kotlin {
@@ -506,8 +509,8 @@ class RenderToYamlTest {
     }
 
     @Test
-    fun `same option same value for default and test contexts 1`() {
-        val tree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace) {
+    fun `same option same value for default and test contexts 1`() = withTypeContext {
+        val tree = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
                 Module::settings {
                     Settings::kotlin {
@@ -521,7 +524,7 @@ class RenderToYamlTest {
             }
         }
 
-        val enhancedTree = syntheticBuilder(SchemaTypingContext(emptyList(), emptyList()), dummyTransformedTrace, listOf(TestCtx)) {
+        val enhancedTree = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
             `object`<Module> {
                 Module::settings {
                     Settings::kotlin {

@@ -5,12 +5,14 @@
 package org.jetbrains.amper.frontend.helpers
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.asPsi
 import org.jetbrains.amper.frontend.aomBuilder.readWithTemplates
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
+import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.mergeTrees
@@ -18,6 +20,8 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
 import kotlin.io.path.absolute
@@ -97,21 +101,17 @@ internal open class TreeTestRun(
     testCase: FrontendTestCaseBase,
     protected val types: SchemaTypingContext,
     override val expectPostfix: String,
-    protected val treeBuilder: BuildCtx.(VirtualFile) -> TreeNode,
+    protected val treeBuilder: TreeBuilderFunction,
     protected val dumpPathContexts: Boolean = false,
 ) : FrontendTest(caseName, testCase) {
 
     protected val diagnostics get() = problemReporter.problems
 
-    protected val buildCtx = BuildCtx(
-        problemReporter = problemReporter,
-        types = types,
-        pathResolver = pathResolver,
-    )
-
     protected fun doReadTree(inputPath: Path): TreeNode {
-        val inputVirtual = buildCtx.pathResolver.loadVirtualFile(inputPath)
-        val readTree = buildCtx.treeBuilder(inputVirtual)
+        val inputVirtual = pathResolver.loadVirtualFile(inputPath)
+        val readTree = context(problemReporter, pathResolver, types) {
+            treeBuilder(inputVirtual)
+        }
         assertNotNull(readTree)
         return readTree
     }
@@ -123,6 +123,9 @@ internal open class TreeTestRun(
     }
 }
 
+internal typealias TreeBuilderFunction =
+        context(ProblemReporter, SchemaTypingContext, FrontendPathResolver) (VirtualFile) -> TreeNode
+
 /**
  * Test run that:
  * 1. Reads [TreeNode] with [treeBuilder].
@@ -133,7 +136,7 @@ internal open class DiagnosticsTreeTestRun(
     caseName: String,
     testCase: FrontendTestCaseBase,
     types: SchemaTypingContext,
-    treeBuilder: BuildCtx.(VirtualFile) -> TreeNode,
+    treeBuilder: TreeBuilderFunction,
     dumpPathContexts: Boolean = false,
 ) : TreeTestRun(caseName, testCase, types, "", treeBuilder, dumpPathContexts) {
 
@@ -143,29 +146,32 @@ internal open class DiagnosticsTreeTestRun(
         // Read tree to fill the diagnostics
         doReadTree(inputPath)
 
-        val virtualFile = buildCtx.pathResolver.loadVirtualFile(inputPath)
-        val psiFile = buildCtx.pathResolver.toPsiFile(virtualFile) ?: fail("PSI file for $inputPath not found")
+        val virtualFile = pathResolver.loadVirtualFile(inputPath)
+        val psiFile = pathResolver.toPsiFile(virtualFile) ?: fail("PSI file for $inputPath not found")
         return annotateTextWithDiagnostics(inputPath, psiFile.text, diagnostics) { it }
             .trimTrailingWhitespacesAndEmptyLines()
     }
 }
 
+context(types: SchemaTypingContext)
+private val ModuleDeclaration get() = types.getDeclaration<Module>()
+
 // Helper function to just read the module.
-internal val readModule: BuildCtx.(VirtualFile) -> TreeNode = { readTree(it, moduleAType) }
+internal val readModule: TreeBuilderFunction = { readTree(it, ModuleDeclaration) }
 
 // Helper function read the module and refine it with selected contexts.
 internal fun readAndRefineModule(
     contexts: Contexts,
     withDefaults: Boolean = false,
-): BuildCtx.(VirtualFile) -> TreeNode = {
+): TreeBuilderFunction = {
     val minimalModule = tryReadMinimalModule(it)!!
-    val tree = readTree(it, moduleAType)
+    val tree = readTree(it, ModuleDeclaration)
     tree.refineTree(contexts, minimalModule.combinedInheritance, withDefaults = withDefaults)
         .resolveReferences()
 }
 
 // Helper function read the module with templates and refine it with selected contexts.
-internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): BuildCtx.(VirtualFile) -> TreeNode =
+internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Contexts): TreeBuilderFunction =
     {
         val minimalModule = tryReadMinimalModule(it)!!
         val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))

@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.DefaultTrace
@@ -41,29 +41,31 @@ import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 internal class PluginTreeReader(
     private val projectContext: AmperProjectContext,
     val pluginModule: AmperModule,
     val pluginData: PluginData,
     pluginFile: VirtualFile,
-    buildCtx: BuildCtx,
+    globalTypes: SchemaTypingContext,
+    problemReporter: ProblemReporter,
+    pathResolver: FrontendPathResolver,
 ) {
     private val treeRefiner = TreeRefiner()
 
-    private val buildCtx = buildCtx.copy(types = PluginYamlTypingContext(buildCtx.types, pluginData))
+    private val pluginTypes = PluginYamlTypingContext(globalTypes, pluginData)
 
-    private val pluginTree: RefinedMappingNode = with(this.buildCtx) {
-        val declaration = types.getDeclaration<PluginYamlRoot>()
-
+    private val pluginTree: RefinedMappingNode = context(pluginTypes, problemReporter, pathResolver) {
         val tree = readTree(
             file = pluginFile,
-            declaration = declaration,
+            declaration = pluginTypes.getDeclaration<PluginYamlRoot>(),
             reportUnknowns = true,
             referenceParsingMode = ReferencesParsingMode.Parse,
             parseContexts = false,
@@ -75,7 +77,7 @@ internal class PluginTreeReader(
     init {
         val tasks = pluginTree[PluginYamlRoot::tasks] as? MappingNode
         if (tasks == null || tasks.children.isEmpty()) {
-            buildCtx.problemReporter.reportBundleError(
+            problemReporter.reportBundleError(
                 source = tasks?.asBuildProblemSource() as? PsiBuildProblemSource
                     // If tasks are `{}` by *default*, then we need to use the whole tree trace.
                     ?: pluginTree.asBuildProblemSource(),
@@ -85,12 +87,13 @@ internal class PluginTreeReader(
         }
     }
 
+    context(problemReporter: ProblemReporter)
     fun asAppliedTo(
         module: ModuleBuildCtx,
-    ): PluginYamlRoot? = with(this@PluginTreeReader.buildCtx) {
+    ): PluginYamlRoot? = context(problemReporter, pluginTypes) {
         val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.pluginsTree[pluginData.id.value] as? RefinedMappingNode
-            ?: return@with null
+            ?: return@context null
 
         val enabled = (pluginConfiguration["enabled"] as? BooleanNode)?.value
         if (enabled != true) {
@@ -106,7 +109,7 @@ internal class PluginTreeReader(
             }.orEmpty()
 
         // Build a tree with computed "reference-only" values.
-        val referenceValuesTree = syntheticBuilder(this@PluginTreeReader.buildCtx.types, DefaultTrace) {
+        val referenceValuesTree = syntheticBuilder(DefaultTrace) {
             `object`<PluginYamlRoot> {
                 if (pluginData.pluginSettingsSchemaName != null) {
                     PluginYamlRoot.PLUGIN_SETTINGS setTo pluginConfiguration
@@ -156,7 +159,7 @@ internal class PluginTreeReader(
     fun taskNameFor(module: AmperModule, name: String) =
         TaskName.moduleTask(module, "$name@${pluginData.id.value}")
 
-    context(context: BuildCtx)
+    context(problemReporter: ProblemReporter)
     private fun reportExplicitValuesWhenDisabled(pluginConfiguration: RefinedMappingNode) {
         val explicitValues = pluginConfiguration.children
             .filterNot { it.trace.isDefault }
@@ -165,7 +168,7 @@ internal class PluginTreeReader(
                 explicitValues.mapNotNull { it.asBuildProblemSource() as? FileBuildProblemSource },
                 groupingMessage = SchemaBundle.message("plugin.unexpected.configuration.when.disabled.grouping"),
             )
-            context.problemReporter.reportBundleError(
+            problemReporter.reportBundleError(
                 source, "plugin.unexpected.configuration.when.disabled", pluginData.id.value,
                 level = Level.Warning,
             )

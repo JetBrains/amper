@@ -13,46 +13,35 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedTemplate
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 
-internal data class BuildCtx(
-    val pathResolver: FrontendPathResolver,
-    val problemReporter: ProblemReporter,
-    val types: SchemaTypingContext = SchemaTypingContext(),
-    val systemInfo: SystemInfo = SystemInfo.CurrentHost,
-) {
-    val moduleAType = types.getDeclaration<Module>()
-    val templateAType = types.getDeclaration<Template>()
-    val projectAType = types.getDeclaration<Project>()
+context(pathResolver: FrontendPathResolver)
+internal fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
 
-    fun VirtualFile.asPsi(): PsiFile = pathResolver.toPsiFile(this) ?: error("No $this file")
-    fun Path.asVirtualOrNull() = pathResolver.loadVirtualFileOrNull(this)
-}
+context(pathResolver: FrontendPathResolver)
+internal fun Path.asVirtualOrNull() = pathResolver.loadVirtualFileOrNull(this)
 
-internal data class ModuleBuildCtx(
+internal class ModuleBuildCtx(
     val moduleFile: VirtualFile,
     val mergedTree: MappingNode,
     val refiner: TreeRefiner,
     val catalog: VersionCatalog,
-    val buildCtx: BuildCtx,
     val pluginsTree: RefinedMappingNode,
 
     /**
      * Module which has settings that do not contain any platform, test, etc. contexts.
      */
     val moduleCtxModule: Module,
+
+    pathResolver: FrontendPathResolver,
+    problemReporter: ProblemReporter,
 ) {
     val module by lazy {
-        with(buildCtx.problemReporter) {
+        context(problemReporter, pathResolver) {
             DefaultModule(
                 userReadableName = moduleFile.parent.name,
                 type = moduleCtxModule.product.type,
@@ -61,7 +50,7 @@ internal data class ModuleBuildCtx(
                 },
                 source = AmperModuleFileSource(moduleFile.toNioPath()),
                 usedCatalog = catalog,
-                usedTemplates = moduleCtxModule.apply?.mapNotNull(::readTemplateFromPath).orEmpty(),
+                usedTemplates = moduleCtxModule.apply?.mapNotNull { readTemplateFromPath(it) }.orEmpty(),
                 parts = moduleCtxModule.convertModuleParts(),
                 layout = Layout.valueOf(moduleCtxModule.layout.name),
             )
@@ -73,10 +62,11 @@ internal data class ModuleBuildCtx(
      *   diagnostic allowing to check that during the tree analysis. This diagnostic, however, should have its message
      *   customizable.
      */
+    context(problemReporter: ProblemReporter, pathResolver: FrontendPathResolver)
     private fun readTemplateFromPath(templatePath: TraceablePath): VirtualFile? {
-        val path = buildCtx.pathResolver.loadVirtualFileOrNull(templatePath.value)
+        val path = pathResolver.loadVirtualFileOrNull(templatePath.value)
         if (path == null) {
-            buildCtx.problemReporter.reportMessage(
+            problemReporter.reportMessage(
                 UnresolvedTemplate(
                     templatePath = templatePath,
                     moduleDirectory = moduleFile.parent.toNioPath(),
@@ -86,5 +76,3 @@ internal data class ModuleBuildCtx(
         return path
     }
 }
-
-internal val ModuleBuildCtx.moduleDirPath get() = moduleFile.parent.toNioPath()

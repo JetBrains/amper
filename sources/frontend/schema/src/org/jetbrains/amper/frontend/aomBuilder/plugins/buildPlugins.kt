@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph.TaskGraphBuildContext
 import org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph.buildTaskGraph
@@ -14,12 +14,14 @@ import org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph.diagnoseTaskDep
 import org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph.wireTaskDependencies
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
  * Read all `plugin.yaml` for plugins in the project. Apply parsed plugins to every module that has them enabled.
  */
-context(buildContext: BuildCtx)
+context(problemReporter: ProblemReporter, _: SchemaTypingContext, _: FrontendPathResolver)
 internal fun buildPlugins(
     pluginData: List<PluginData>,
     projectContext: AmperProjectContext,
@@ -27,30 +29,28 @@ internal fun buildPlugins(
 ) {
     val pluginReaders = createPluginReaders(projectContext, modules, pluginData)
 
-    for (moduleBuildCtx in modules) context(buildContext.problemReporter) {
+    for (moduleBuildCtx in modules) {
         applyPlugins(pluginReaders, moduleBuildCtx, modules)
     }
 
-    context(buildContext.problemReporter) {
-        val allTasksDescriptions: List<TaskFromPluginDescription> = modules.flatMap { it.module.tasksFromPlugins }
-        val context = TaskGraphBuildContext(
-            buildDir = projectContext.projectBuildDir,
-            projectRootDir = projectContext.projectRootDir.toNioPath(),
-        )
-        context(context) {
-            for (task in allTasksDescriptions) {
-                diagnoseOverlappingPaths(task)
-            }
-
-            diagnoseConflictingTasksOutputs(allTasksDescriptions)
-
-            val taskGraph = buildTaskGraph(
-                tasks = allTasksDescriptions,
-                modules = modules.map { it.module },
-            )
-
-            diagnoseTaskDependencyLoops(taskGraph)
-            wireTaskDependencies(taskGraph)
+    val allTasksDescriptions: List<TaskFromPluginDescription> = modules.flatMap { it.module.tasksFromPlugins }
+    val context = TaskGraphBuildContext(
+        buildDir = projectContext.projectBuildDir,
+        projectRootDir = projectContext.projectRootDir.toNioPath(),
+    )
+    context(context) {
+        for (task in allTasksDescriptions) {
+            diagnoseOverlappingPaths(task)
         }
+
+        diagnoseConflictingTasksOutputs(allTasksDescriptions)
+
+        val taskGraph = buildTaskGraph(
+            tasks = allTasksDescriptions,
+            modules = modules.map { it.module },
+        )
+
+        diagnoseTaskDependencyLoops(taskGraph)
+        wireTaskDependencies(taskGraph)
     }
 }

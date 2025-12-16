@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.Misnomers
@@ -25,6 +25,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -53,9 +54,10 @@ internal val defaultContextsInheritance by lazy {
 }
 
 @OptIn(NonIdealDiagnostic::class)
-internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
+context(problemReporter: ProblemReporter, types: SchemaTypingContext, pathResolver: FrontendPathResolver)
+internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
     val collectingReporter = CollectingProblemReporter()
-    val minimalModule = with(copy(problemReporter = collectingReporter)) {
+    val minimalModule = context(collectingReporter) {
         val moduleTree = readTree(
             moduleFilePath,
             declaration = types.getDeclaration<MinimalModule>(),
@@ -116,7 +118,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
 
     return MinimalModuleHolder(
         moduleFilePath = moduleFilePath,
-        buildCtx = this@tryReadMinimalModule,
+        pathResolver = pathResolver,
         // We can cast here because we know that minimal module
         // properties should be used outside any context.
         module = minimalModule,
@@ -155,8 +157,8 @@ private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduc
 
 internal class MinimalModuleHolder(
     val moduleFilePath: VirtualFile,
-    val buildCtx: BuildCtx,
     val module: MinimalModule,
+    pathResolver: FrontendPathResolver,
 ) {
     val appliedTemplates by lazy {
         module.apply?.map { it.value }.orEmpty()
@@ -170,7 +172,7 @@ internal class MinimalModuleHolder(
     val pathInheritance by lazy {
         // Order first by files and then by platforms.
         val appliedTemplates = module.apply?.map { it.value }.orEmpty()
-        val filesOrder = appliedTemplates.mapNotNull { buildCtx.pathResolver.loadVirtualFileOrNull(it) } +
+        val filesOrder = appliedTemplates.mapNotNull { pathResolver.loadVirtualFileOrNull(it) } +
                 listOf(moduleFilePath)
         PathInheritance(filesOrder)
     }

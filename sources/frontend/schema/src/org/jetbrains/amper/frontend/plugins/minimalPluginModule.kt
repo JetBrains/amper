@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.StringSemantics
@@ -19,6 +18,7 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 
@@ -55,10 +55,10 @@ fun parsePluginManifestFromModuleFile(
     frontendPathResolver: FrontendPathResolver,
     moduleFile: VirtualFile,
 ) : PluginManifest? {
-    with(BuildCtx(frontendPathResolver, NoopProblemReporter)) {
+    context(NoopProblemReporter, frontendPathResolver, SchemaTypingContext()) {
         val pluginModuleTree = readTree(
             file = moduleFile,
-            declaration = types.getDeclaration<MinimalPluginModule>(),
+            declaration = contextOf<SchemaTypingContext>().getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
             parseContexts = false,
         )

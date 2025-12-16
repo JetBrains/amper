@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.NotChanged
@@ -13,13 +12,14 @@ import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.copyWithValue
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.system.info.SystemInfo
 
-context(buildCtx: BuildCtx)
+context(systemInfo: SystemInfo)
 internal fun MappingNode.substituteComposeOsSpecific() =
-    ComposeOsSpecificSubstitutor(buildCtx).transform(this) as? MappingNode ?: this
+    ComposeOsSpecificSubstitutor(systemInfo).transform(this) as? MappingNode ?: this
 
-internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransformer() {
-    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.familyArch}:"
+internal class ComposeOsSpecificSubstitutor(systemInfo: SystemInfo) : TreeTransformer() {
+    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.familyArch}:"
 
     private fun String.doReplace() = this
         .replace("org.jetbrains.compose.desktop:desktop:", replacement)

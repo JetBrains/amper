@@ -14,8 +14,8 @@ import org.jetbrains.amper.frontend.types.getType
 import java.nio.file.Path
 import kotlin.reflect.KProperty1
 
+context(types: SchemaTypingContext)
 fun <R : TreeNode> syntheticBuilder(
-    types: SchemaTypingContext,
     trace: Trace,
     contexts: Contexts = listOf(DefaultContext.ReactivelySet),
     block: SyntheticBuilder.() -> R,

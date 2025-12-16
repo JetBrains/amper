@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.processing
 
 import com.intellij.psi.PsiDirectory
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -19,13 +18,14 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 
-context(buildCtx: BuildCtx)
+context(_: SchemaTypingContext)
 internal fun MappingNode.configurePluginDefaults(moduleDir: PsiDirectory, product: ModuleProduct): MappingNode =
     if (product.type == ProductType.JVM_AMPER_PLUGIN) {
         mergeTrees(
             this,
-            buildCtx.pluginIdDefaultsTree(
+            pluginIdDefaultsTree(
                 moduleName = moduleDir.name,
                 trace = TransformedValueTrace(
                     description = "default plugin module structure",
@@ -42,8 +42,9 @@ internal fun MappingNode.configurePluginDefaults(moduleDir: PsiDirectory, produc
         this
     }
 
-private fun BuildCtx.pluginIdDefaultsTree(moduleName: String, trace: Trace, idTrace: Trace) =
-    syntheticBuilder(types, trace) {
+context(_: SchemaTypingContext)
+private fun pluginIdDefaultsTree(moduleName: String, trace: Trace, idTrace: Trace) =
+    syntheticBuilder(trace) {
         `object`<Module> {
             Module::pluginInfo {
                 PluginDeclarationSchema::id setTo traceableScalar(moduleName, idTrace)

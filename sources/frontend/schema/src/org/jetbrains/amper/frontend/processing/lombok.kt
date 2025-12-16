@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
@@ -17,15 +16,16 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 
-context(buildCtx: BuildCtx)
+context(_: SchemaTypingContext)
 internal fun MappingNode.configureLombokDefaults(lombokSettings: LombokSettings): MappingNode {
     return if (lombokSettings.enabled) {
         val lombokDefault = TransformedValueTrace(
             description = "because Lombok is enabled",
             sourceValue = lombokSettings::enabled.schemaDelegate,
         )
-        val elements = buildCtx.lombokAnnotationProcessorDefaultsTree(
+        val elements = lombokAnnotationProcessorDefaultsTree(
             trace = lombokDefault,
             lombokVersion = lombokSettings.version,
             versionTrace = lombokSettings::version.schemaDelegate.trace,
@@ -36,8 +36,9 @@ internal fun MappingNode.configureLombokDefaults(lombokSettings: LombokSettings)
     }
 }
 
-private fun BuildCtx.lombokAnnotationProcessorDefaultsTree(trace: Trace, lombokVersion: String, versionTrace: Trace) =
-    syntheticBuilder(types, trace) {
+context(_: SchemaTypingContext)
+private fun lombokAnnotationProcessorDefaultsTree(trace: Trace, lombokVersion: String, versionTrace: Trace) =
+    syntheticBuilder(trace) {
         `object`<Module> {
             Module::settings {
                 Settings::java {

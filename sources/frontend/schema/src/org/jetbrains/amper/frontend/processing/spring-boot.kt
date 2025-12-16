@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
@@ -24,8 +23,9 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 
-context(buildCtx: BuildCtx)
+context(_: SchemaTypingContext)
 internal fun MappingNode.configureSpringBootDefaults(springBootSettings: SpringBootSettings) =
     if (springBootSettings.enabled) {
         val springBootEnabledDefault = TransformedValueTrace(
@@ -41,7 +41,7 @@ internal fun MappingNode.configureSpringBootDefaults(springBootSettings: SpringB
         val springBootVersion = springBootSettings.version
         mergeTrees(
             this,
-            buildCtx.springBootDefaultsTree(
+            springBootDefaultsTree(
                 applyBom,
                 springBootVersion,
                 springBootEnabledDefault,
@@ -52,12 +52,13 @@ internal fun MappingNode.configureSpringBootDefaults(springBootSettings: SpringB
         this
     }
 
-private fun BuildCtx.springBootDefaultsTree(
+context(_: SchemaTypingContext)
+private fun springBootDefaultsTree(
     applyBom: Boolean,
     springBootVersion: String,
     springBootEnabledTrace: Trace,
     springBootApplyBomTrace: Trace,
-) = syntheticBuilder(types, springBootEnabledTrace) {
+) = syntheticBuilder(springBootEnabledTrace) {
     `object`<Module> {
         Module::settings {
             Settings::kotlin {

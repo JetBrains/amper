@@ -8,7 +8,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.childrenOfType
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.asPsi
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Context
@@ -24,7 +25,8 @@ import org.jetbrains.yaml.psi.YAMLFile
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
-internal fun BuildCtx.readTree(
+context(_: ProblemReporter, _: FrontendPathResolver)
+internal fun readTree(
     file: VirtualFile,
     declaration: SchemaObjectDeclaration,
     vararg contexts: Context,
@@ -44,7 +46,7 @@ internal fun BuildCtx.readTree(
                         supportContexts = parseContexts,
                         referenceParsingMode = referenceParsingMode,
                     )
-                    context(config, problemReporter, rootContexts) {
+                    context(config, rootContexts) {
                         parseFile(
                             file = psiFile as YAMLFile,
                             type = declaration.toType(),

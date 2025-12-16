@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.frontend.catalogs
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -33,18 +31,20 @@ import org.jetbrains.amper.frontend.tree.TransformResult
 import org.jetbrains.amper.frontend.tree.TreeTransformer
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
-context(buildCtx: BuildCtx)
+context(types: SchemaTypingContext, problemReporter: ProblemReporter)
 internal fun MappingNode.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? MappingNode ?: this
+    CatalogVersionsSubstitutor(catalog, types, problemReporter).transform(this) as? MappingNode ?: this
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
-    private val buildCtx: BuildCtx,
+    private val types: SchemaTypingContext,
+    private val problemReporter: ProblemReporter,
 ) : TreeTransformer() {
-    inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
+    inline fun <reified T> getType() = types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
         getType<UnscopedCatalogDependency>() to getType<UnscopedExternalMavenDependency>(),
@@ -61,7 +61,7 @@ internal class CatalogVersionsSubstitutor(
         // TODO Maybe report here.
         val catalogKeyScalar = catalogKeyProp.value as? StringNode ?: return Removed
         val catalogKey = catalogKeyScalar.value
-        val found = with(buildCtx.problemReporter) {
+        val found = context(problemReporter) {
             catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogKeyScalar.trace) ?: return Removed
         }
         val coordinatesProperty = checkNotNull(substituted.declaration.getProperty("coordinates")) {

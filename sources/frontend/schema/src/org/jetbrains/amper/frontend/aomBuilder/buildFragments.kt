@@ -22,6 +22,8 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.enabled
 import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -199,7 +201,8 @@ fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path):
 fun Fragment.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot: Path): Path =
     generatedSourcesRoot(buildOutputRoot) / "apt/java"
 
-internal fun BuildCtx.createFragments(
+context(problemReporter: ProblemReporter, _: SchemaTypingContext)
+internal fun createFragments(
     seeds: Collection<FragmentSeed>,
     ctx: ModuleBuildCtx,
     resolveDependency: (Dependency) -> Notation?,
