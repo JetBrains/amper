@@ -125,10 +125,10 @@ class MavenConvertTest : AmperCliTestBase() {
                 storeParameterNames: true
                 release: 17
               kotlin:
-                version: 2.2.21
                 freeCompilerArgs:
                   - -Xjsr305=strict
                   - -Xannotation-default-target=param-property
+                version: 2.2.21
               springBoot:
                 enabled: true
                 version: 4.0.0

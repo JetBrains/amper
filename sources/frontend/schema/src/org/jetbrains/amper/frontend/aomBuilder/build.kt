@@ -49,7 +49,6 @@ import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
@@ -156,7 +155,6 @@ internal fun BuildCtx.readModuleMergedTree(
 
     val preProcessedTree = mergeTrees(ownedTrees)
         .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
-        .appendDefaultValues()
 
     // TODO This should be done without refining somehow?
     val refiner = TreeRefiner(minimalModule.combinedInheritance)

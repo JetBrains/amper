@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -21,7 +20,6 @@ internal fun readProject(
 ): Project =
     with(BuildCtx(resolver, problemReporter)) {
         val projectTree = readTree(projectFile, projectAType)
-            .appendDefaultValues()
         val noContextsTree = TreeRefiner().refineTree(projectTree, EmptyContexts)
             .resolveReferences()
         createSchemaNode<Project>(noContextsTree)

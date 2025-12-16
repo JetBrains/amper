@@ -34,7 +34,6 @@ import org.jetbrains.amper.frontend.tree.ErrorNode
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
@@ -70,7 +69,7 @@ internal class PluginTreeReader(
             parseContexts = false,
         )
 
-        treeRefiner.refineTree(tree.appendDefaultValues(), EmptyContexts)
+        treeRefiner.refineTree(tree, EmptyContexts)
     }
 
     init {
@@ -121,21 +120,21 @@ internal class PluginTreeReader(
                     ModuleDataForPlugin::self setTo selfDependency
                     ModuleDataForPlugin::runtimeClasspath setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList { add(selfDependency) }
-                    }.appendDefaultValues()
+                    }
                     ModuleDataForPlugin::compileClasspath setTo `object`<ShadowClasspath> {
                         ShadowClasspath::dependencies setToList { add(selfDependency) }
                         ShadowClasspath::scope setTo scalar(ShadowResolutionScope.Compile)
-                    }.appendDefaultValues()
+                    }
                     ModuleDataForPlugin::kotlinJavaSources setTo `object`<ShadowModuleSources> {
                         ShadowModuleSources::from setTo selfDependency
-                    }.appendDefaultValues()
+                    }
                     ModuleDataForPlugin::resources setTo `object`<ShadowModuleSources> {
                         ShadowModuleSources::from setTo selfDependency
                         ShadowModuleSources::kind setTo scalar(ShadowSourcesKind.Resources)
-                    }.appendDefaultValues()
+                    }
                     ModuleDataForPlugin::jar setTo `object`<ShadowCompilationArtifact> {
                         ShadowCompilationArtifact::from setTo selfDependency
-                    }.appendDefaultValues()
+                    }
                 }
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {

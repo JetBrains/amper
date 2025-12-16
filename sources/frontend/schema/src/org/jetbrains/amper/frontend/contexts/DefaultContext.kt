@@ -20,6 +20,12 @@ sealed class DefaultContext(
 
     /**
      * Default which is set at the type-level. Has the lowest priority.
+     *
+     * NOTE: Such values are not normally participating in context-aware
+     * [refining][org.jetbrains.amper.frontend.tree.TreeRefiner],
+     * because the refiner naturally requests them *only* when there is no other value for the property.
+     * However, theoretically, if the refined tree is merged again with some other ones and refined again,
+     * then the priority *may be used* to correctly resolve the "more explicit" value over the type-level default one.
      */
     object TypeLevel : DefaultContext(priority = 0) {
         override fun toString() = "DefaultContext.TypeLevel"

@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.tree.TreeNode
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
@@ -160,9 +159,8 @@ internal fun readAndRefineModule(
     withDefaults: Boolean = false,
 ): BuildCtx.(VirtualFile) -> TreeNode = {
     val minimalModule = tryReadMinimalModule(it)!!
-    var tree = readTree(it, moduleAType)
-    tree = if (withDefaults) tree.appendDefaultValues() else tree
-    tree.refineTree(contexts, minimalModule.combinedInheritance)
+    val tree = readTree(it, moduleAType)
+    tree.refineTree(contexts, minimalModule.combinedInheritance, withDefaults = withDefaults)
         .resolveReferences()
 }
 
@@ -172,5 +170,5 @@ internal fun readAndRefineModuleWithTemplates(contexts: (VirtualFile) -> Context
         val minimalModule = tryReadMinimalModule(it)!!
         val ownedTrees = readWithTemplates(minimalModule, it, PathCtx(it, it.asPsi().asTrace()))
         val resultTree = mergeTrees(ownedTrees)
-        resultTree.refineTree(contexts(it), minimalModule.combinedInheritance)
+        resultTree.refineTree(contexts(it), minimalModule.combinedInheritance, withDefaults = false)
     }

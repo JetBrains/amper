@@ -23,7 +23,6 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -57,15 +56,11 @@ internal val defaultContextsInheritance by lazy {
 internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
     val collectingReporter = CollectingProblemReporter()
     val minimalModule = with(copy(problemReporter = collectingReporter)) {
-        val rawModuleTree = readTree(
+        val moduleTree = readTree(
             moduleFilePath,
             declaration = types.getDeclaration<MinimalModule>(),
             reportUnknowns = false,
         )
-
-        // We need to resolve defaults for the tree.
-        val moduleTree = rawModuleTree
-            .appendDefaultValues()
 
         val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
             .resolveReferences()

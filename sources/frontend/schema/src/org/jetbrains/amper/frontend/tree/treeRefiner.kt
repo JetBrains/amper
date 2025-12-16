@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.contexts.Context
@@ -13,6 +14,7 @@ import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.contexts.asCompareResult
 import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.contexts.sameOrMoreSpecific
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -40,17 +42,19 @@ class TreeRefiner(
     fun refineTree(
         tree: MappingNode,
         selectedContexts: Contexts,
-    ): RefinedMappingNode = RefineRequest(selectedContexts, contextComparator).refine(tree) as RefinedMappingNode
+    ): RefinedMappingNode = RefineRequest(selectedContexts, true, contextComparator).refine(tree) as RefinedMappingNode
 }
 
 @TestOnly
 internal fun MappingNode.refineTree(
     selectedContexts: Contexts,
     contextComparator: ContextsInheritance<Context>,
-): RefinedMappingNode = RefineRequest(selectedContexts, contextComparator).refine(this) as RefinedMappingNode
+    withDefaults: Boolean = true,
+): RefinedMappingNode = RefineRequest(selectedContexts, withDefaults, contextComparator).refine(this) as RefinedMappingNode
 
 private class RefineRequest(
     private val selectedContexts: Contexts,
+    private val withDefaults: Boolean,
     contextComparator: ContextsInheritance<Context>,
 ) : ContextsInheritance<Context> by contextComparator {
 
@@ -67,7 +71,7 @@ private class RefineRequest(
                 trace = node.trace,
                 contexts = node.contexts,
             )
-            is MappingNode -> RefinedMappingNode(
+            is MappingNode -> refinedMappingNodeWithDefaults(
                 node.children.refineProperties(),
                 type = node.type,
                 trace = node.trace,
@@ -112,7 +116,7 @@ private class RefineRequest(
                                     trace // Defaults with higher priority just replace each other without a trace
                                 } else trace.withPrecedingValue(first)
                             }
-                            RefinedMappingNode(
+                            refinedMappingNodeWithDefaults(
                                 refinedChildren = (firstChildren + second.children).refineProperties(),
                                 type = second.type,
                                 trace = trace,
@@ -127,6 +131,36 @@ private class RefineRequest(
             val unordered = refinedProperties.associateBy { it.key }
             return mapTo(mutableSetOf()) { it.key }.associateWith { unordered[it]!! }
         }
+
+    private fun refinedMappingNodeWithDefaults(
+        refinedChildren: Map<String, RefinedKeyValue>,
+        type: SchemaType.MapLikeType,
+        trace: Trace,
+        contexts: Contexts,
+    ): RefinedMappingNode {
+        val refinedChildrenWithDefaults = if (withDefaults && type is SchemaType.ObjectType) {
+            val defaults = buildMap {
+                for (property in type.declaration.properties) {
+                    val existingValue = refinedChildren[property.name]
+                    if (existingValue == null || existingValue.value is ErrorNode) {
+                        type.declaration.getDefaultFor(property)?.let { default ->
+                            // We refine the default here because it can (in theory) contain multi-context things.
+                            put(property.name, default.copyWithValue(value = refine(default.value)))
+                        }
+                    }
+                }
+            }
+            if (defaults.isEmpty()) refinedChildren else refinedChildren + defaults
+        } else refinedChildren
+
+        // TODO: We could report missing properties here and pull this logic from the `schemaInstantiator.kt`.
+        return RefinedMappingNode(
+            refinedChildren = refinedChildrenWithDefaults,
+            type = type,
+            trace = trace,
+            contexts = contexts,
+        )
+    }
 
     /**
      * Compares two nodes by their contexts.

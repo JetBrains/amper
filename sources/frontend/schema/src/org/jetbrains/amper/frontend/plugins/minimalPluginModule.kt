@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
@@ -62,7 +61,7 @@ fun parsePluginManifestFromModuleFile(
             declaration = types.getDeclaration<MinimalPluginModule>(),
             reportUnknowns = false,
             parseContexts = false,
-        ).appendDefaultValues()
+        )
         val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
             .resolveReferences()
         val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree)

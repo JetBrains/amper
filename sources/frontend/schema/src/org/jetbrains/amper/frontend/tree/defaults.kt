@@ -13,126 +13,18 @@ import org.jetbrains.amper.frontend.types.SchemaType
 import java.io.File
 import java.nio.file.Path
 
-internal fun MappingNode.appendDefaultValues(): MappingNode {
-    /*
-      "root for defaults" is a MapLike<*> value with a type (object value), that is:
-        a) the tree root
-        b) a value of a property that had a `null` default or has no default
-           (map entries also fall into this category)
-        c) a value that has a list parent.
-       -----------------------------------
-       Examples:
-       ```kotlin
-       class Foo {
-         val bar: Bar? get() = null
-         val foo-prop get() = "foo-default"
-       }
-       class Bar {
-         val baz: Baz get() = Baz()
-         val bar-prop get() = "bar-default"
-       }
-       class Baz {
-         val baz-prop get() = "baz-default"
-         val foos: List<Foo> get() = emptyList()
-       }
-       ```
-       -----------------------------------
-       Now, imagine we have a tree:
-       ```yaml
-       foo:                                  # root - true root (a)
-         bar:                                # root - null by default, but the value present (b)
-           baz:
-             baz-prop: "baz-overridden"
-             foos:
-               - foo-prop: "foo-overridden"  # root - list parent (c)
-       ```
-       We want to append the defaults like this:
-       ```yaml
-       foo:
-         foo-prop (default): "foo-default"
-         bar:
-           bar-prop (default): "bar-default"
-           baz (default):
-             baz-prop (default): "baz-default"
-             foos (default): []
-           baz:
-             baz-prop: "baz-overridden"
-             foos:
-               - foo-prop (default): "foo-default"
-                 foo-prop: "foo-overridden"
-       ```
-       For this we only append defaults to the "roots for defaults" values.
-       Appending defaults to every object value would bloat the tree (make the tree almost complete).
-       That would still work, but we want to avoid complete trees.
-     */
-    val rootsForDefaults = hashSetOf<MappingNode>()
-    rootsForDefaults += this  // (a)
-
-    fun TreeNode.findRootsForDefaults(): Unit = when (this) {
-        is ListNode -> children.forEach { value ->
-            if (value is MappingNode && value.type is SchemaType.ObjectType) {
-                rootsForDefaults += value  // (c)
-            }
-            value.findRootsForDefaults()
-        }
-        is MappingNode -> for (child in children) {
-            child.value.findRootsForDefaults()
-            val value = child.value as? MappingNode
-            if (value?.type !is SchemaType.ObjectType) {
-                continue
-            }
-            val default = child.propertyDeclaration?.default
-            if (default == null || (default is Default.Static && default.value == null)) {
-                rootsForDefaults += value  // (b)
-            }
-        }
-        else -> Unit
-    }
-
-    findRootsForDefaults()
-
-    val appender = DefaultsAppender(
-        rootsForDefaults = rootsForDefaults,
-    )
-    return appender.transform(this)!! as MappingNode
-}
-
-
 /**
- * Visitor that is adding default values with special [DefaultTrace] trace and [TypeLevelDefaultContexts] context to the tree.
+ * Creates a default [KeyValue] for the given [property], if the property has the default value.
  */
-private class DefaultsAppender(
-    val rootsForDefaults: Set<MappingNode>,
-) : TreeTransformer() {
-    override fun visitMap(node: MappingNode): TransformResult<MappingNode> {
-        val transformResult = super.visitMap(node)
-
-        val declaration = node.declaration
-        if (declaration == null || node !in rootsForDefaults)
-            return transformResult
-
-        val transformedValue = when (transformResult) {
-            is Changed -> transformResult.value
-            NotChanged -> node
-            Removed -> error("Unexpected remove")
-        }
-
-        val defaultProperties = createDefaultProperties(declaration)
-        if (defaultProperties.isEmpty()) {
-            return transformResult
-        }
-
-        return Changed(transformedValue.copy(children = transformedValue.children + defaultProperties))
-    }
+internal fun createDefault(property: SchemaObjectDeclaration.Property): KeyValue? {
+    val value = property.default?.toTreeValue(
+        type = property.type,
+    ) ?: return null
+    return KeyValue(DefaultTrace, value, property, DefaultTrace)
 }
 
 private fun createDefaultProperties(declaration: SchemaObjectDeclaration): List<KeyValue> =
-    declaration.properties.mapNotNull { property ->
-        val value = property.default?.toTreeValue(
-            type = property.type,
-        ) ?: return@mapNotNull null
-        KeyValue(DefaultTrace, value, property, DefaultTrace)
-    }
+    declaration.properties.mapNotNull(::createDefault)
 
 private fun Default<*>.toTreeValue(type: SchemaType): TreeNode? = when (this) {
     is Default.Static -> toTreeValue(type)
