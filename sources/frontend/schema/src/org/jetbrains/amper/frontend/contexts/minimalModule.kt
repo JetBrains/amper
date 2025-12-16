@@ -24,7 +24,6 @@ import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -65,7 +64,6 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
         )
 
         val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
-            .resolveReferences()
         val delegate = object : MissingPropertiesHandler.Default(collectingReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,

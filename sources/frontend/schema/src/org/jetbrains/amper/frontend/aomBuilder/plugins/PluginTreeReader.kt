@@ -38,7 +38,6 @@ import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
@@ -71,7 +70,9 @@ internal class PluginTreeReader(
             parseContexts = false,
         )
 
-        treeRefiner.refineTree(tree, EmptyContexts)
+        // We do not resolve references here for the general plugin tree;
+        // the reference-only values are added later for each module.
+        treeRefiner.refineTree(tree, EmptyContexts, resolveReferences = false)
     }
 
     init {
@@ -152,8 +153,7 @@ internal class PluginTreeReader(
         val mergedTree = mergeTrees(pluginTree, referenceValuesTree)
             .substituteCatalogDependencies(pluginModule.usedCatalog)
         val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
-        val resolvedTree = refinedTree.resolveReferences()
-        createSchemaNode<PluginYamlRoot>(resolvedTree)
+        createSchemaNode<PluginYamlRoot>(refinedTree)
     }
 
     fun taskNameFor(module: AmperModule, name: String) =

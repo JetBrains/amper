@@ -45,7 +45,9 @@ class UselessSettingValue(
             // TODO There an optimization can be made.
             //  We may not refine for all used contexts - only for most specific ones.
             group.forEach { (owner, scalarProp) ->
-                val refined = refiner.refineTree(owner, scalarProp.value.contexts)
+                val refined = context(problemReporter) {
+                    refiner.refineTree(owner, scalarProp.value.contexts)
+                }
 
                 // Since there is at least one value assignment,
                 // we can safely assume that after refinement it is exactly single.

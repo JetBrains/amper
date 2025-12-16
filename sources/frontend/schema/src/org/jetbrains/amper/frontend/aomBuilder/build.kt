@@ -54,7 +54,6 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
@@ -158,7 +157,6 @@ internal fun readModuleMergedTree(
     // Create a common "preview" of module settings to finish dependent/reactive configuration.
     val preProcessedCommonSettings: Settings = run {
         val preProcessedCommonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
-            .resolveReferences()
         createSchemaNode(preProcessedCommonTree[Module::settings]!!) ?: return null
     }
     val effectiveCatalog = preProcessedCommonSettings.builtInCatalog() + projectVersionsCatalog
@@ -172,7 +170,6 @@ internal fun readModuleMergedTree(
 
     // Create a common `Module` schema node needed later for `AmperModule` configuration.
     val processedCommonTree = refiner.refineTree(processedTree, setOf(moduleCtx))
-        .resolveReferences()
     val commonModule = createSchemaNode<Module>(processedCommonTree)
         ?: return null
 

@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.contexts.asCompareResult
 import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.contexts.sameOrMoreSpecific
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -39,22 +40,37 @@ import org.jetbrains.annotations.TestOnly
 class TreeRefiner(
     private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
+    context(_: ProblemReporter)
     fun refineTree(
         tree: MappingNode,
         selectedContexts: Contexts,
-    ): RefinedMappingNode = RefineRequest(selectedContexts, true, contextComparator).refine(tree) as RefinedMappingNode
+        resolveReferences: Boolean = true,
+    ): RefinedMappingNode = RefineRequest(
+        selectedContexts = selectedContexts,
+        withDefaults = true,
+        resolveReferences = resolveReferences,
+        contextComparator = contextComparator,
+    ).refineMapping(tree)
 }
 
 @TestOnly
+context(_: ProblemReporter)
 internal fun MappingNode.refineTree(
     selectedContexts: Contexts,
     contextComparator: ContextsInheritance<Context>,
     withDefaults: Boolean = true,
-): RefinedMappingNode = RefineRequest(selectedContexts, withDefaults, contextComparator).refine(this) as RefinedMappingNode
+    resolveReferences: Boolean = true,
+): RefinedMappingNode = RefineRequest(
+    selectedContexts = selectedContexts,
+    withDefaults = withDefaults,
+    resolveReferences = resolveReferences,
+    contextComparator = contextComparator,
+).refineMapping(this)
 
 private class RefineRequest(
     private val selectedContexts: Contexts,
     private val withDefaults: Boolean,
+    private val resolveReferences: Boolean,
     contextComparator: ContextsInheritance<Context>,
 ) : ContextsInheritance<Context> by contextComparator {
 
@@ -62,7 +78,17 @@ private class RefineRequest(
      * Creates a copy out of the subtree of the initial tree, selected by [selectedContexts]
      * with merged nodes.
      */
-    fun refine(node: TreeNode): RefinedTreeNode {
+    context(_: ProblemReporter)
+    fun refineMapping(node: MappingNode): RefinedMappingNode {
+        var refined = refine(node) as RefinedMappingNode
+        if (resolveReferences) {
+            // TODO: Incorporate reference resolution routine tightly into refining to enable merging resolved values.
+            refined = refined.resolveReferences()
+        }
+        return refined
+    }
+
+    private fun refine(node: TreeNode): RefinedTreeNode {
         return when (node) {
             is RefinedTreeNode -> node
             is ListNode -> RefinedListNode(

@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.tree.schemaValue
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.pathString
 
@@ -29,9 +30,13 @@ typealias Key = String
 val treeRefiner = TreeRefiner()
 
 fun MappingNode.serializeToYaml(): String = buildString {
-    val refinedMain = treeRefiner.refineTree(this@serializeToYaml, listOf())
+    val refinedMain = context(NoopProblemReporter) {
+        treeRefiner.refineTree(this@serializeToYaml, listOf())
+    }
     val main = refinedMain.filterByContext(DefaultContext.ReactivelySet)
-    val refinedTest = treeRefiner.refineTree(this@serializeToYaml, listOf(TestCtx))
+    val refinedTest = context(NoopProblemReporter) {
+        treeRefiner.refineTree(this@serializeToYaml, listOf(TestCtx))
+    }
     val test = refinedTest.filterByContext(TestCtx, main)
 
     append(main?.serializeToYaml() ?: "")

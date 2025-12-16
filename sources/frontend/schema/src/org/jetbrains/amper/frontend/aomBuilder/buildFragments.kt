@@ -21,7 +21,6 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.enabled
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
@@ -218,7 +217,6 @@ internal fun createFragments(
                 platforms.map { PlatformCtx(it.pretty) } +
                 PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
-            .resolveReferences()
         val handler = object : MissingPropertiesHandler.Default(problemReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,

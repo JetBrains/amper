@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.tree.jsonDump
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -167,7 +166,6 @@ internal fun readAndRefineModule(
     val minimalModule = tryReadMinimalModule(it)!!
     val tree = readTree(it, ModuleDeclaration)
     tree.refineTree(contexts, minimalModule.combinedInheritance, withDefaults = withDefaults)
-        .resolveReferences()
 }
 
 // Helper function read the module with templates and refine it with selected contexts.
