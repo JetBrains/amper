@@ -25,7 +25,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -102,7 +101,7 @@ internal class MetadataCompileTask(
         val sourceDirs = fragment.sourceRoots.map { it.toAbsolutePath() } + additionalKotlinJavaSourceDirs.map { it.path }
         val inputFiles = sourceDirs + classpath + refinesPaths + friendPaths
 
-        incrementalCache.execute(taskName.name, inputValues, inputFiles) { dynamicInputsTracker ->
+        incrementalCache.execute(taskName.name, inputValues, inputFiles) {
             cleanDirectory(taskOutputRoot.path)
 
             val existingSourceDirs = sourceDirs.filter { it.exists() }
@@ -120,7 +119,6 @@ internal class MetadataCompileTask(
                     classpath = classpath,
                     friendPaths = friendPaths,
                     refinesPaths = refinesPaths,
-                    dynamicInputsTracker = dynamicInputsTracker,
                 )
             } else {
                 logger.debug("No sources were found for ${fragment.identificationPhrase()}, skipping compilation")
@@ -151,7 +149,6 @@ internal class MetadataCompileTask(
         classpath: List<Path>,
         friendPaths: List<Path>,
         refinesPaths: List<Path>,
-        dynamicInputsTracker: DynamicInputsTracker,
     ) {
         val kotlinSourceFiles = sourceDirectories.flatMap { it.walk() }.filter { it.extension == "kt" }.toList()
         if (kotlinSourceFiles.isEmpty()) {
@@ -160,11 +157,9 @@ internal class MetadataCompileTask(
 
         val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
             version = kotlinUserSettings.compilerVersion,
-            dynamicInputsTracker = dynamicInputsTracker,
         )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
-            dynamicInputsTracker = dynamicInputsTracker,
         )
         val compilerArgs = kotlinMetadataCompilerArgs(
             kotlinUserSettings = kotlinUserSettings,

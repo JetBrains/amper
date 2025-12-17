@@ -28,7 +28,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.jdkSettings
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -147,7 +146,7 @@ internal abstract class WebCompileKlibTask(
                 "task.output.root" to taskOutputRoot.path.pathString,
             ),
             inputFiles = sources + libraryPaths,
-        ) { dynamicInputsTracker ->
+        ) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifact = taskOutputRoot.path
@@ -170,7 +169,6 @@ internal abstract class WebCompileKlibTask(
                 additionalSourceRoots = additionalSources,
                 librariesPaths = libraryPaths,
                 friendPaths = listOfNotNull(productionCompileResult?.compiledKlib),
-                dynamicInputsTracker = dynamicInputsTracker,
             )
 
             logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
@@ -194,15 +192,12 @@ internal abstract class WebCompileKlibTask(
         additionalSourceRoots: List<SourceRoot>,
         librariesPaths: List<Path>,
         friendPaths: List<Path>,
-        dynamicInputsTracker: DynamicInputsTracker,
     ) {
         val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(
             version = kotlinUserSettings.compilerVersion,
-            dynamicInputsTracker = dynamicInputsTracker,
         )
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = kotlinUserSettings.compilerPlugins,
-            dynamicInputsTracker = dynamicInputsTracker,
         )
 
         val compilerArgs = kotlinCompilerArgs(

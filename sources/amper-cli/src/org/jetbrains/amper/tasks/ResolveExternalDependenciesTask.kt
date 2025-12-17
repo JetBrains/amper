@@ -32,7 +32,6 @@ import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
@@ -69,7 +68,6 @@ internal suspend fun CliReportingMavenResolver.doResolveExternalDependencies(
     isTest: Boolean,
     compileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
     runtimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
-    upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
 ): ExternalDependenciesResolutionResult {
     val resolveSourceMoniker = "module ${module.userReadableName}"
     val cacheKey = CacheEntryKey.CompositeCacheEntryKey(
@@ -85,16 +83,12 @@ internal suspend fun CliReportingMavenResolver.doResolveExternalDependencies(
         children = listOfNotNull(compileModuleDependencies, runtimeModuleDependencies),
         templateContext = emptyContext()
     )
-    val resolvedGraph = resolve(
-        root = root,
-        resolveSourceMoniker = resolveSourceMoniker,
-        upstreamDynamicInputsTracker = upstreamDynamicInputsTracker
-    )
+    val resolvedGraph = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker)
     val resolvedChildren = resolvedGraph.root.children
     return ExternalDependenciesResolutionResult(
         resolvedChildren.first(),
         resolvedChildren.drop(1).firstOrNull(),
-        resolvedGraph.expirationTime,
+        resolvedGraph.expirationTime
     )
 }
 
@@ -196,16 +190,14 @@ class ResolveExternalDependenciesTask(
                             "resolveWasmTarget" to (resolvedPlatform.wasmTarget ?: ""),
                         ),
                         inputFiles = emptyList()
-                    ) { dynamicInputsTracker ->
-                        val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) =
-                            mavenResolver.doResolveExternalDependencies(
-                                module = module,
-                                platform = platform,
-                                isTest = isTest,
-                                compileModuleDependencies = fragmentsCompileModuleDependencies,
-                                runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
-                                upstreamDynamicInputsTracker = dynamicInputsTracker,
-                            )
+                    ) {
+                        val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) = mavenResolver.doResolveExternalDependencies(
+                            module = module,
+                            platform = platform,
+                            isTest = isTest,
+                            compileModuleDependencies = fragmentsCompileModuleDependencies,
+                            runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                        )
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
                         val runtimeClasspath = runtimeDependenciesRootNode?.dependencyPaths() ?: emptyList()

@@ -16,7 +16,6 @@ import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
@@ -131,7 +130,6 @@ class Resolver {
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
-        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
         postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
     ): ResolvedGraph {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
@@ -164,7 +162,6 @@ class Resolver {
                             cacheInputValues,
                             forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
                             inputFiles = listOf(),
-                            upstreamDynamicInputsTracker = upstreamDynamicInputsTracker,
                         ) {
                             root.context.spanBuilder("DR.graph:resolution")
                                 .setAttribute(

@@ -30,7 +30,6 @@ import org.jetbrains.amper.dependency.resolution.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
@@ -58,8 +57,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         resolutionDepth: ResolutionDepth,
         resolutionLevel: ResolutionLevel,
         downloadSources: Boolean,
-        incrementalCacheUsage: IncrementalCacheUsage,
-        upstreamDynamicInputsTracker: DynamicInputsTracker?,
+        incrementalCacheUsage: IncrementalCacheUsage
     ): ResolvedGraph {
         return context.spanBuilder("DR.graph:resolveDependencies").use {
             when (resolutionDepth) {
@@ -81,8 +79,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         postProcessDeserializedGraph = {
                             // Merge the input graph (that has PSI references) with the deserialized one
                             it.fillNotation(this@resolveDependencies)
-                        },
-                        upstreamDynamicInputsTracker = upstreamDynamicInputsTracker
+                        }
                     )
                     resolvedGraph
                 }

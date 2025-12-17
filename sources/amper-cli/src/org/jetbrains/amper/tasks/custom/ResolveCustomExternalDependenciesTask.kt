@@ -78,13 +78,12 @@ internal class ResolveCustomExternalDependenciesTask(
                 "dependencies" to externalDependencies.joinToString("|"),
             ),
             inputFiles = emptyList()
-        ) { dynamicInputsTracker ->
+        ) {
             spanBuilder(taskName.name)
                 .setAmperModule(module)
                 .setListAttribute("dependencies-coordinates", externalDependencies.map { it.toString() })
                 .use {
-                    val resolvedGraph = mavenResolver.resolve(root, "custom external dependencies",
-                        upstreamDynamicInputsTracker = dynamicInputsTracker)
+                    val resolvedGraph = mavenResolver.resolve(root, "custom external dependencies")
                     resolvedGraph.toIncrementalCacheResult()
                 }
         }.outputFiles

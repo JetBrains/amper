@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.kotlin.CompilerPluginConfig
 import org.jetbrains.amper.frontend.kotlin.ParcelizeCompilerPluginConfig
 import org.jetbrains.amper.frontend.kotlin.compilerPluginsConfigurations
-import org.jetbrains.amper.incrementalcache.DynamicInputsTracker
 import java.nio.file.Path
 
 /**
@@ -95,13 +94,12 @@ internal data class ResolvedCompilerPlugin(
  */
 internal suspend fun KotlinArtifactsDownloader.downloadCompilerPlugins(
     plugins: List<SCompilerPluginConfig>,
-    dynamicInputsTracker: DynamicInputsTracker,
 ): List<ResolvedCompilerPlugin> = coroutineScope {
     plugins.map {
         async {
             ResolvedCompilerPlugin(
                 id = it.id,
-                classpath = downloadKotlinCompilerPlugin(it, dynamicInputsTracker),
+                classpath = downloadKotlinCompilerPlugin(it),
                 options = it.options
             )
         }

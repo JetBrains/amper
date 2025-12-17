@@ -76,14 +76,13 @@ class ToolingArtifactsDownloader(
             key = "resolve-$coordinates ($scope, $platform)",
             inputValues = mapOf("repositories" to repositories.joinToString(",")),
             inputFiles = emptyList(),
-        ) { dynamicInputsTracker ->
+        ) {
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,
                 repositories = repositories,
                 scope = scope,
                 platform = platform,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
-                upstreamDynamicInputsTracker = dynamicInputsTracker,
             )
             return@execute resolved.toIncrementalCacheResult()
         }.outputFiles
