@@ -91,7 +91,7 @@ class IncrementalCache(
          * check whether those files exist or not, should be done with help of the given [DynamicInputsTracker] as well.
          * This way, the cache entry will be recalculated automatically if any of these environment parameters change.
          */
-        block: suspend () -> ExecutionResult
+        block: suspend () -> ExecutionResult,
     ): IncrementalExecutionResult = tracer.spanBuilder("inc: run: $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
@@ -161,9 +161,9 @@ class IncrementalCache(
                 }
                 val outputFilesChanges = oldOutputFilesState compare newOutputFilesState
 
-                val environmentContextChanges = cachedState?.state?.dynamicInputs?.changes() ?: emptyList()
+                val dynamicInputsChanges = cachedState?.state?.dynamicInputs?.changes() ?: emptyList()
 
-                val changes = outputFilesChanges + environmentContextChanges
+                val changes = outputFilesChanges + dynamicInputsChanges
 
                 return@withLock IncrementalExecutionResult(result, changes).also {
                     logger.debug("[inc] '$key' changes: {}", changes.joinToString { "'${it.path}' ${it.type}" })
@@ -356,12 +356,9 @@ class IncrementalCache(
 
     private fun DynamicInputsState.calculateCurrentState() =
         DynamicInputsState(
-            systemProperties = systemProperties
-                .map { it.key to System.getProperty(it.key) }.toMap(),
-            environmentVariables = environmentVariables
-                .map { it.key to System.getenv(it.key) }.toMap(),
-            pathsExistence = pathsExistence
-                .map { it.key to Path(it.key).exists().toString() }.toMap()
+            systemProperties = systemProperties.map { it.key to System.getProperty(it.key) }.toMap(),
+            environmentVariables = environmentVariables.map { it.key to System.getenv(it.key) }.toMap(),
+            pathsExistence = pathsExistence.map { it.key to Path(it.key).exists().toString() }.toMap()
         )
 
     private fun DynamicInputsState.changes(): List<Change> = buildList {
