@@ -15,19 +15,41 @@ import kotlin.io.path.exists
  * Provides environment parameters such as system properties, environment variables, and path existence checks.
  * Actual implementation of this interface that should be used is returned by [getDynamicInputs].
  *
- * Inside execution of an incremental cache entry,
+ * Inside execution of an incremental cache entry calculation,
  * the instance returned by the function [getDynamicInputs] does track access to environments parameters
  * and includes those in the input state of the cache entry.
- * If any parameter changes, the cache entry is recalculated on later access.
+ * If any parameter changes, the cache entry is recalculated on subsequent access.
  */
 interface DynamicInputs {
+    /**
+     * Reads the system property with the specified [name].
+     * 
+     * If tracking is available in the current context, the access is tracked and recorded as dynamic input
+     * for the current cached block.
+     */
     fun readSystemProperty(name: String): String? = System.getProperty(name)
+    /**
+     * Reads the environment variable with the specified [name].
+     * 
+     * If tracking is available in the current context, the access is tracked and recorded as dynamic input
+     * for the current cached block.
+     */
     fun readEnv(name: String): String? = System.getenv(name)
+    /**
+     * Returns whether a file or directory exists at the given [path].
+     * 
+     * If tracking is available in the current context, the access is tracked and recorded as dynamic input
+     * for the current cached block.
+     */
     fun checkPathExistence(path: Path): Boolean = path.exists()
 }
 
-internal val dynamicInputsWithoutTracking = object : DynamicInputs {}
+private val dynamicInputsWithoutTracking = object : DynamicInputs {}
 
+/**
+ * Gets an instance of [DynamicInputs], which allows to track access to external values when used inside a cached block.
+ * If this is called outside a cached block, the returned instance is transparent and just returns values without tracking.
+ */
 suspend fun getDynamicInputs(): DynamicInputs =
     DynamicInputsTracker.getCurrentTracker() ?: dynamicInputsWithoutTracking
 

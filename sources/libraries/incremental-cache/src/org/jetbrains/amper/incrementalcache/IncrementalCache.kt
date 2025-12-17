@@ -85,11 +85,14 @@ class IncrementalCache(
         inputFiles: List<Path>,
         forceRecalculation: Boolean = false,
         /**
-         * Instance of [DynamicInputsTracker] passed to the block should be used for getting values of sytem properties
-         * and environment variables that affect execution result.
-         * Also, if the execution result varies depending on the existence of some file on the file system,
-         * check whether those files exist or not, should be done with help of the given [DynamicInputsTracker] as well.
-         * This way, the cache entry will be recalculated automatically if any of these environment parameters change.
+         * Calculation of cache entry.
+         * If calculation depends on environment parameters such as
+         * system properties, environment variables, or the existence of local paths
+         * which are not known in advance (and thus could not be added to input values),
+         * such environment parameters should be resolved with help of the dynamic inputs tracker provided by [getDynamicInputs].
+         * This way access to environment parameters is tracked,
+         * and cache entry will be recalculated automatically on subsequent access
+         * if any of these environment parameters changes.
          */
         block: suspend () -> ExecutionResult,
     ): IncrementalExecutionResult = tracer.spanBuilder("inc: run: $key")
@@ -116,8 +119,8 @@ class IncrementalCache(
                     span.setAttribute("status", "up-to-date")
                     val existingResult =
                         ExecutionResult(
-                            cachedState.state.outputFiles.map { Path(it) },
-                            cachedState.state.outputValues,
+                            outputFiles = cachedState.state.outputFiles.map { Path(it) },
+                            outputValues = cachedState.state.outputValues,
                             expirationTime = cachedState.state.expirationTime
                         )
                     // Adding dynamic inputs used for calculating this cache entry to the dynamic inputs of the upstream cache (if any).
