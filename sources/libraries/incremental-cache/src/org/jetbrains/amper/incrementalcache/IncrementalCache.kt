@@ -344,7 +344,7 @@ class IncrementalCache(
         enum class ChangeType { CREATED, MODIFIED, DELETED }
     }
     
-    private infix fun Map<String, String>.compare(state: Map<String, String>): List<Change> = buildList {
+    private infix fun Map<String, String?>.compare(state: Map<String, String?>): List<Change> = buildList {
         for (key in keys union state.keys) {
             when {
                 key !in this@compare -> add(Change(Path(key), ChangeType.CREATED))
@@ -357,9 +357,9 @@ class IncrementalCache(
     private fun DynamicInputsState.calculateCurrentState() =
         DynamicInputsState(
             systemProperties = systemProperties
-                .map { it.key to (System.getProperty(it.key) ?: MISSING_VALUE) }.toMap(),
+                .map { it.key to System.getProperty(it.key) }.toMap(),
             environmentVariables = environmentVariables
-                .map { it.key to (System.getenv(it.key) ?: MISSING_VALUE) }.toMap(),
+                .map { it.key to System.getenv(it.key) }.toMap(),
             pathsExistence = pathsExistence
                 .map { it.key to Path(it.key).exists().toString() }.toMap()
         )
@@ -373,29 +373,19 @@ class IncrementalCache(
 
     private fun DynamicInputsTracker.toState() =
         DynamicInputsState(
-            systemProperties = systemProperties.map { it.key to (it.value ?: MISSING_VALUE) }.toMap(),
-            environmentVariables = environmentVariables.map { it.key to (it.value ?: MISSING_VALUE) }.toMap(),
+            systemProperties = systemProperties.toMap(),
+            environmentVariables = environmentVariables.toMap(),
             pathsExistence = pathsExistence.map { it.key.pathString to it.value.toString() }.toMap(),
         )
 
     private fun DynamicInputsTracker.addFrom(dynamicInputs: DynamicInputsState) {
-        systemProperties.putAll(
-            dynamicInputs.systemProperties.map { it.key to it.value.takeIf { it != MISSING_VALUE } }.toMap())
-        environmentVariables.putAll(
-            dynamicInputs.environmentVariables.map { it.key to it.value.takeIf { it != MISSING_VALUE } }.toMap())
-        pathsExistence.putAll(
-            dynamicInputs.pathsExistence.map{ Path(it.key) to it.value.toBoolean() }.toMap())
+        systemProperties.putAll(dynamicInputs.systemProperties)
+        environmentVariables.putAll(dynamicInputs.environmentVariables)
+        pathsExistence.putAll(dynamicInputs.pathsExistence.map{ Path(it.key) to it.value.toBoolean() }.toMap())
     }
 
     companion object {
         private val logger = LoggerFactory.getLogger(IncrementalCache::class.java)
-
-        /**
-         * Value for missing parameter stored in a [State].
-         * It might be used to indicate that a parameter was not set (system property/environment variable),
-         * or that an output file is absent.
-         */
-        internal const val MISSING_VALUE = "MISSING"
 
         private val executeOnChangedLocks = ConcurrentHashMap<String, Mutex>()
 

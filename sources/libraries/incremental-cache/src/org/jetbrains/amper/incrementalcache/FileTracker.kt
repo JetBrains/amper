@@ -51,7 +51,7 @@ private class FileTracker(
         if (failOnMissing) {
             throw NoSuchFileException(file = path.toFile(), reason = "path from outputs is not found")
         } else {
-            stateByFilePath[path.pathString] = IncrementalCache.MISSING_VALUE
+            stateByFilePath[path.pathString] = "MISSING"
         }
     }
 

@@ -21,7 +21,7 @@ fun Span.setListAttribute(key: String, list: List<String>): Span =
 fun SpanBuilder.setMapAttribute(key: String, map: Map<String, String>): SpanBuilder =
     setListAttribute(key, map.map { "${it.key}=${it.value}" }.sorted())
 
-fun Span.setMapAttribute(key: String, map: Map<String, String>): Span =
+fun Span.setMapAttribute(key: String, map: Map<String, String?>): Span =
     setListAttribute(key, map.map { "${it.key}=${it.value}" }.sorted())
 
 /**
