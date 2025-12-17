@@ -9,7 +9,9 @@ package org.jetbrains.amper.incrementalcache
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.incrementalcache.IncrementalCache.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -21,6 +23,7 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -119,7 +122,8 @@ class IncrementalCache(
                             cachedState.state.outputValues,
                             expirationTime = cachedState.state.expirationTime
                         )
-                    // todo (AB) : Undate dynamic inputs of upstream cached caclulated based on this one
+                    // Adding dynamic inputs used for calculating this cache entry to the dynamic inputs of the upstream cache (if any).
+                    getCurrentDynamicInputsTracker()?.addFrom(cachedState.state.dynamicInputs)
 
                     span.addResult(existingResult, cachedState.state.dynamicInputs)
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
@@ -129,13 +133,18 @@ class IncrementalCache(
                     logger.debug("[inc] building '$key'")
                 }
 
+                // dynamic inputs tracker for registering environments parameters used for this cache entry calculation
                 val tracker = DynamicInputsTracker()
 
                 val result = tracer.spanBuilder("inc: execute").use {
-                    block(tracker)
+                    withContext(DynamicInputsTrackerContextElement(tracker)) {
+                        block(tracker)
+                    }
                 }
-                // todo (AB) : Undate dynamic inputs of upstream cached caclulated based on this one
-                val dynamicInputsState = tracker.toState()
+                val dynamicInputsState = tracker.toState().also {
+                    // Adding dynamic inputs used for calculating this cache entry to the dynamic inputs of the upstream cache (if any).
+                    getCurrentDynamicInputsTracker()?.addFrom(it)
+                }
 
                 span.addResult(result, dynamicInputsState)
 
@@ -403,6 +412,21 @@ class IncrementalCache(
                     }
             }
         }
+
+        private object DynamicInputsTrackerKey: CoroutineContext.Key<DynamicInputsTrackerContextElement>
+
+        private class DynamicInputsTrackerContextElement(
+            var dynamicInputsTracker: DynamicInputsTracker
+        ) : CoroutineContext.Key<DynamicInputsTrackerContextElement>, CoroutineContext.Element {
+            override val key: CoroutineContext.Key<*>
+                get() = DynamicInputsTrackerKey
+
+            override fun toString(): String = "DynamicInputsTrackerContextElement"
+        }
+
+        private suspend fun getCurrentDynamicInputsTracker(): DynamicInputsTracker? =
+            currentCoroutineContext()[DynamicInputsTrackerKey]?.dynamicInputsTracker
+
     }
 }
 

@@ -39,6 +39,7 @@ class IncrementalCacheTest {
         IncrementalCache(stateRoot = tempDir / "incremental.state", codeVersion = "1")
     }
     private val executionsCount = AtomicInteger(0)
+    private val nestedExecutionsCount = AtomicInteger(0)
 
     @Test
     fun trackingFile() {
@@ -544,5 +545,58 @@ class IncrementalCacheTest {
         // up to date
         call()
         assertEquals(executionsCount.get(), 3)
+    }
+
+    @Test
+    @ExtendWith(SystemStubsExtension::class)
+    fun trackingNestedDynamicInputsSystemProperty(systemProperties: SystemProperties) {
+        val propertyName = "my.test.output.system.property"
+
+        fun call() = runBlocking {
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                executionsCount.incrementAndGet()
+                IncrementalCache.ExecutionResult(emptyList())
+
+                incrementalCache.execute(key = "2", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                    nestedExecutionsCount.incrementAndGet()
+                    dynamicInputsTracker.readSystemProperty(propertyName)
+                    IncrementalCache.ExecutionResult(emptyList())
+                }
+            }
+        }
+
+        // initial, property is missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+        assertEquals(nestedExecutionsCount.get(), 1)
+
+        // up to date, system property is still missing
+        call()
+        assertEquals(executionsCount.get(), 1)
+        assertEquals(nestedExecutionsCount.get(), 1)
+
+        // Set system property affecting nested cache calculation
+        systemProperties.set("my.test.output.system.property", "someValue")
+
+        // changed, system property is defined, and this change was propagated to the state of the top-level upstream cache.
+        call()
+        assertEquals(executionsCount.get(), 2)
+        assertEquals(nestedExecutionsCount.get(), 2)
+
+        // up to date, system property has not changed
+        call()
+        assertEquals(executionsCount.get(), 2)
+        assertEquals(nestedExecutionsCount.get(), 2)
+
+        // changed, system property is updated to the new value
+        systemProperties.set("my.test.output.system.property", "newValue")
+        call()
+        assertEquals(executionsCount.get(), 3)
+        assertEquals(nestedExecutionsCount.get(), 3)
+
+        // up to date
+        call()
+        assertEquals(executionsCount.get(), 3)
+        assertEquals(nestedExecutionsCount.get(), 3)
     }
 }
