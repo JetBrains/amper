@@ -84,14 +84,6 @@ class IncrementalCache(
         inputFiles: List<Path>,
         forceRecalculation: Boolean = false,
         /**
-         * If computation of this cache entry
-         * is executed inside the execution block of another cache entry calculation (i.e., this cache is a nested one),
-         * then the instance of [DynamicInputsTracker] corresponding to the upstream cache should be passed here.
-         * All dynamic inputs used for calculation of this (nested) cache entry will be added to the upstream tracker as well.
-         * This way, the upstream cache entry will be recalculated if any dynamic input of the nested cache was changed.
-         */
-        upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
-        /**
          * Instance of [DynamicInputsTracker] passed to the block should be used for getting values of sytem properties
          * and environment variables that affect execution result.
          * Also, if the execution result varies depending on the existence of some file on the file system,
@@ -127,7 +119,7 @@ class IncrementalCache(
                             cachedState.state.outputValues,
                             expirationTime = cachedState.state.expirationTime
                         )
-                    upstreamDynamicInputsTracker?.addFrom(cachedState.state.dynamicInputs)
+                    // todo (AB) : Undate dynamic inputs of upstream cached caclulated based on this one
 
                     span.addResult(existingResult, cachedState.state.dynamicInputs)
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
@@ -142,9 +134,8 @@ class IncrementalCache(
                 val result = tracer.spanBuilder("inc: execute").use {
                     block(tracker)
                 }
-                val dynamicInputsState = tracker.toState().also {
-                    upstreamDynamicInputsTracker?.addFrom(it)
-                }
+                // todo (AB) : Undate dynamic inputs of upstream cached caclulated based on this one
+                val dynamicInputsState = tracker.toState()
 
                 span.addResult(result, dynamicInputsState)
 
@@ -444,8 +435,8 @@ suspend fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
-    upstreamDynamicInputsTracker: DynamicInputsTracker? = null,
     block: suspend (DynamicInputsTracker) -> List<Path>,
-): List<Path> = execute(key, inputValues, inputFiles, upstreamDynamicInputsTracker = upstreamDynamicInputsTracker) {
-    IncrementalCache.ExecutionResult(block(it))
-}.outputFiles
+): List<Path> =
+    execute(key, inputValues, inputFiles) {
+        IncrementalCache.ExecutionResult(block(it))
+    }.outputFiles
