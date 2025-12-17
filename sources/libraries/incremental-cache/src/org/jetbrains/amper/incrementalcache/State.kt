@@ -85,7 +85,7 @@ internal data class State(
 ) {
     companion object {
         // increment this counter if you change the state file format
-        const val formatVersion = 5
+        const val formatVersion = 6
     }
 }
 

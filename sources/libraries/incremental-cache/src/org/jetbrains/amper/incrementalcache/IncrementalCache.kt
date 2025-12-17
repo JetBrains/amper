@@ -76,7 +76,7 @@ class IncrementalCache(
      *
      * The given [block] is always executed under double-locking based on the given [key], which means that 2 calls with
      * the same [key] cannot be executed at the same time by multiple threads or multiple processes.
-     * If one call needs to re-run [block] because the cache is invalid, later calls with the same ID will suspend
+     * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
      * until the first call completes and then resume and use the cache immediately (if possible).
      */
     suspend fun execute(
