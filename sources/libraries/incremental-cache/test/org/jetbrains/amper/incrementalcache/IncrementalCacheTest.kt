@@ -421,9 +421,9 @@ class IncrementalCacheTest {
         val propertyName = "my.test.output.system.property"
 
         fun call() = runBlocking {
-            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 executionsCount.incrementAndGet()
-                dynamicInputsTracker.readSystemProperty(propertyName)
+                getDynamicInputs().readSystemProperty(propertyName)
                 IncrementalCache.ExecutionResult(emptyList())
             }
         }
@@ -463,9 +463,9 @@ class IncrementalCacheTest {
         val envVar = "MY_TEST_OUTPUT_ENV_VAR"
 
         fun call() = runBlocking {
-            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 executionsCount.incrementAndGet()
-                dynamicInputsTracker.readEnv(envVar)
+                getDynamicInputs().readEnv(envVar)
                 IncrementalCache.ExecutionResult(emptyList())
             }
         }
@@ -504,9 +504,9 @@ class IncrementalCacheTest {
         val file = tempDir.resolve("file-${UUID.randomUUID().toString().substring(0..8)}.txt")
 
         fun call() = runBlocking {
-            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 executionsCount.incrementAndGet()
-                dynamicInputsTracker.checkPathExistence(file)
+                getDynamicInputs().checkPathExistence(file)
                 IncrementalCache.ExecutionResult(emptyList())
             }
         }
@@ -553,13 +553,13 @@ class IncrementalCacheTest {
         val propertyName = "my.test.output.system.property"
 
         fun call() = runBlocking {
-            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+            incrementalCache.execute(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
                 executionsCount.incrementAndGet()
                 IncrementalCache.ExecutionResult(emptyList())
 
-                incrementalCache.execute(key = "2", inputValues = emptyMap(), inputFiles = emptyList()) { dynamicInputsTracker ->
+                incrementalCache.execute(key = "2", inputValues = emptyMap(), inputFiles = emptyList()) {
                     nestedExecutionsCount.incrementAndGet()
-                    dynamicInputsTracker.readSystemProperty(propertyName)
+                    getDynamicInputs().readSystemProperty(propertyName)
                     IncrementalCache.ExecutionResult(emptyList())
                 }
             }

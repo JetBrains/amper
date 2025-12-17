@@ -4,8 +4,32 @@
 
 package org.jetbrains.amper.incrementalcache
 
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
+import org.jetbrains.amper.incrementalcache.IncrementalCache.ExecutionResult
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.exists
+
+/**
+ * Provides environment parameters such as system properties, environment variables, and path existence checks.
+ * Actual implementation of this interface that should be used is returned by [getDynamicInputs].
+ *
+ * Inside execution of an incremental cache entry,
+ * the instance returned by the function [getDynamicInputs] does track access to environments parameters
+ * and includes those in the input state of the cache entry.
+ * If any parameter changes, the cache entry is recalculated on later access.
+ */
+interface DynamicInputs {
+    fun readSystemProperty(name: String): String? = System.getProperty(name)
+    fun readEnv(name: String): String? = System.getenv(name)
+    fun checkPathExistence(path: Path): Boolean = path.exists()
+}
+
+internal val dynamicInputsWithoutTracking = object : DynamicInputs {}
+
+suspend fun getDynamicInputs(): DynamicInputs =
+    DynamicInputsTracker.getCurrentTracker() ?: dynamicInputsWithoutTracking
 
 /**
  * An instance of this tracker is passed to the computation block called inside [IncrementalCache.execute].
@@ -15,17 +39,40 @@ import kotlin.io.path.exists
  * The next time the computation is run, the new state of these parameters is compared to the recorded state,
  * and the computation is re-run if anything is changed.
  */
-class DynamicInputsTracker {
+internal class DynamicInputsTracker: DynamicInputs {
     internal val systemProperties = mutableMapOf<String, String?>()
     internal val environmentVariables = mutableMapOf<String, String?>()
     internal val pathsExistence = mutableMapOf<Path, Boolean>()
 
-    fun readSystemProperty(name: String): String? = System.getProperty(name)
+    override fun readSystemProperty(name: String): String? = System.getProperty(name)
         .also { systemProperties[name] = it }
 
-    fun readEnv(name: String): String? = System.getenv(name)
+    override fun readEnv(name: String): String? = System.getenv(name)
         .also { environmentVariables[name] = it }
 
-    fun checkPathExistence(path: Path): Boolean = path.exists()
+    override fun checkPathExistence(path: Path): Boolean = path.exists()
         .also { pathsExistence[path] = it }
+
+    companion object {
+        internal suspend fun getCurrentTracker(): DynamicInputsTracker? =
+            currentCoroutineContext()[DynamicInputsTrackerKey]?.dynamicInputsTracker
+
+        private object DynamicInputsTrackerKey: CoroutineContext.Key<DynamicInputsTrackerContextElement>
+
+        private class DynamicInputsTrackerContextElement(
+            var dynamicInputsTracker: DynamicInputsTracker
+        ) : CoroutineContext.Key<DynamicInputsTrackerContextElement>, CoroutineContext.Element {
+            override val key: CoroutineContext.Key<*>
+                get() = DynamicInputsTrackerKey
+
+            override fun toString(): String = "DynamicInputsTrackerContextElement"
+        }
+
+        internal suspend fun withDynamicInputsTracker(
+            tracker: DynamicInputsTracker,
+            block: suspend () -> ExecutionResult,
+        ): ExecutionResult = withContext(DynamicInputsTrackerContextElement(tracker)) {
+            block()
+        }
+    }
 }

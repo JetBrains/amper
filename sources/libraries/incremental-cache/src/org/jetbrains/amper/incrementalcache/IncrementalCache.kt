@@ -9,10 +9,9 @@ package org.jetbrains.amper.incrementalcache
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.withReentrantLock
+import org.jetbrains.amper.incrementalcache.DynamicInputsTracker.Companion.withDynamicInputsTracker
 import org.jetbrains.amper.incrementalcache.IncrementalCache.Change.ChangeType
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
@@ -23,7 +22,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -93,7 +91,7 @@ class IncrementalCache(
          * check whether those files exist or not, should be done with help of the given [DynamicInputsTracker] as well.
          * This way, the cache entry will be recalculated automatically if any of these environment parameters change.
          */
-        block: suspend (DynamicInputsTracker) -> ExecutionResult
+        block: suspend () -> ExecutionResult
     ): IncrementalExecutionResult = tracer.spanBuilder("inc: run: $key")
         .setMapAttribute("inputValues", inputValues)
         .setListAttribute("inputFiles", inputFiles.map { it.pathString }.sorted())
@@ -123,7 +121,7 @@ class IncrementalCache(
                             expirationTime = cachedState.state.expirationTime
                         )
                     // Adding dynamic inputs used for calculating this cache entry to the dynamic inputs of the upstream cache (if any).
-                    getCurrentDynamicInputsTracker()?.addFrom(cachedState.state.dynamicInputs)
+                    DynamicInputsTracker.getCurrentTracker()?.addFrom(cachedState.state.dynamicInputs)
 
                     span.addResult(existingResult, cachedState.state.dynamicInputs)
                     return@withLock IncrementalExecutionResult(existingResult, listOf())
@@ -137,13 +135,13 @@ class IncrementalCache(
                 val tracker = DynamicInputsTracker()
 
                 val result = tracer.spanBuilder("inc: execute").use {
-                    withContext(DynamicInputsTrackerContextElement(tracker)) {
-                        block(tracker)
+                    withDynamicInputsTracker(tracker) {
+                        block()
                     }
                 }
                 val dynamicInputsState = tracker.toState().also {
                     // Adding dynamic inputs used for calculating this cache entry to the dynamic inputs of the upstream cache (if any).
-                    getCurrentDynamicInputsTracker()?.addFrom(it)
+                    DynamicInputsTracker.getCurrentTracker()?.addFrom(it)
                 }
 
                 span.addResult(result, dynamicInputsState)
@@ -412,21 +410,6 @@ class IncrementalCache(
                     }
             }
         }
-
-        private object DynamicInputsTrackerKey: CoroutineContext.Key<DynamicInputsTrackerContextElement>
-
-        private class DynamicInputsTrackerContextElement(
-            var dynamicInputsTracker: DynamicInputsTracker
-        ) : CoroutineContext.Key<DynamicInputsTrackerContextElement>, CoroutineContext.Element {
-            override val key: CoroutineContext.Key<*>
-                get() = DynamicInputsTrackerKey
-
-            override fun toString(): String = "DynamicInputsTrackerContextElement"
-        }
-
-        private suspend fun getCurrentDynamicInputsTracker(): DynamicInputsTracker? =
-            currentCoroutineContext()[DynamicInputsTrackerKey]?.dynamicInputsTracker
-
     }
 }
 
@@ -459,8 +442,6 @@ suspend fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
-    block: suspend (DynamicInputsTracker) -> List<Path>,
+    block: suspend () -> List<Path>,
 ): List<Path> =
-    execute(key, inputValues, inputFiles) {
-        IncrementalCache.ExecutionResult(block(it))
-    }.outputFiles
+    execute(key, inputValues, inputFiles) { IncrementalCache.ExecutionResult(block()) }.outputFiles
