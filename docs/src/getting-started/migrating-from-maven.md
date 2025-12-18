@@ -1,3 +1,6 @@
+---
+description: Let's migrate your Maven project to Amper with the help of our semi-automated converter.
+---
 # Migrating from Maven
 
 This section describes how to convert an existing Maven project to Amper.

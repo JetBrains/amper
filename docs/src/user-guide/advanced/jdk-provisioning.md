@@ -1,3 +1,9 @@
+---
+description: |
+  Our philosophy is that you should be able to run your project without manually installing anything on your machine, 
+  setting `JAVA_HOME`, or configuring anything. This is why Amper is able to provision a JDK automatically for you.
+  This page describes how this can be configured to suit your needs.
+---
 # JDK provisioning
 
 Amper needs a JDK (Java Development Kit) for various things in your project:

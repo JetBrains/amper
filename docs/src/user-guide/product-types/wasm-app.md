@@ -1,3 +1,6 @@
+---
+description: Learn how to use the wasmJs/app and wasmWasi/app product types in a module to build WebAssembly applications.
+---
 # :simple-webassembly: Kotlin/Wasm application
 
 Use the `wasmJs/app` or `wasmWasi/app` product type in a module to build a WebAssembly application using the 

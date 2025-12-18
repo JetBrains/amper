@@ -1,3 +1,6 @@
+---
+description: This page describes how tests work in Amper.
+---
 # Testing
 
 Test code is located in the `test/` folder:

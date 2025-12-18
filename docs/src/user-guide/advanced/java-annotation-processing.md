@@ -1,3 +1,6 @@
+---
+description: This page describes how to add java annotation processors to your module.
+---
 # Java annotation processing
 
 To add java annotation processors to your module, add their maven coordinates to the

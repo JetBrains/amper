@@ -1,3 +1,6 @@
+---
+description: Learn how to use the `lib` product type in a module to build a Kotlin Multiplatform library.
+---
 # :jetbrains-kotlin-multiplatform: Kotlin Multiplatform library
 
 Use the `lib` product type in a module to build a 

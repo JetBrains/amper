@@ -1,3 +1,6 @@
+---
+description: Learn everything about the structure of Amper plugin modules and how to use them in your project.
+---
 # Plugin structure
 
 A plugin is a standard Amper module with the `jvm/amper-plugin` product type. 

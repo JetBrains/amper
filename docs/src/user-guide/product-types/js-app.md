@@ -1,3 +1,8 @@
+---
+description: |
+  Learn how to use the `js/app` product type in a module to build a JavaScript application using the Kotlin/JS 
+  technology.
+---
 # :material-language-javascript: Kotlin/JS application
 
 Use the `js/app` product type in a module to build a JavaScript application using the 

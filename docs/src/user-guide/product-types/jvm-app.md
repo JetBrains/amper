@@ -1,3 +1,6 @@
+---
+description: Learn how to use the `jvm/app` product type in a module to build a JVM console or desktop application.
+---
 # :intellij-java: JVM application
 
 Use the `jvm/app` product type in a module to build a JVM console or desktop application.

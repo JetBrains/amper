@@ -1,3 +1,6 @@
+---
+description: A bird-eye view of the Amper plugins features and plans.
+---
 # Plugins in Amper
 
 !!! tip "Important"

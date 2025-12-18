@@ -1,3 +1,6 @@
+---
+description: An exhaustive reference of the project file format.
+---
 # Project file reference
 
 ## `modules`

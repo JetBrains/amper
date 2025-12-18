@@ -1,3 +1,6 @@
+---
+description: Learn how to use the `ios/app` product type in a module to build an iOS application.
+---
 # :simple-apple: iOS application
 
 Use the `ios/app` product type in a module to build an iOS application.

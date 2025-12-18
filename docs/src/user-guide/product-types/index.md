@@ -1,3 +1,8 @@
+---
+description: |
+  Learn about the different product types supported by Amper:
+  JVM, mobile, or native applications; JVM or KMP libraries, etc.
+---
 # Product types
 
 Each module has a product type defined by the `product` field in `module.yaml`, indicating what is created when building
