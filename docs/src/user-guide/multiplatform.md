@@ -1,3 +1,8 @@
+---
+description: |
+  Learn everything about Kotlin Multiplatform configuration in Amper module files: supported platforms, platform 
+  qualifiers, module layout, and more.
+---
 # Multiplatform modules
 
 Amper was built from the start with [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/kmp-overview.html)

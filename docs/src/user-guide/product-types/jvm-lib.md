@@ -1,3 +1,6 @@
+---
+description: Learn how to use the `jvm/lib` product type in a module to build a JVM library.
+---
 # :intellij-java: JVM library
 
 Use the `jvm/lib` product type in a module to build a JVM library.

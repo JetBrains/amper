@@ -1,3 +1,8 @@
+---
+description: |
+  Learn by doing with this step-by-step Amper tutorial. Create a Hello World project from scratch, and 
+  make it more and more interesting until you turn it into a complete Compose multiplatform application.
+---
 # Tutorial
 
 This tutorial gives a short introduction to Amper and shows how to create and configure a new project, step-by-step.

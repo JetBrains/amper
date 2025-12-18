@@ -1,3 +1,7 @@
+---
+description: |
+  Learn how to implement and register custom tasks in Amper plugins, and how they are executed.
+---
 # Tasks
 
 ## Task action definition

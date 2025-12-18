@@ -1,3 +1,8 @@
+---
+description: |
+  Compose Multiplatform is a declarative UI framework developed by JetBrains for sharing Kotlin UI code across multiple
+  platforms. Amper provides support for it out of the box.
+---
 # :jetbrains-compose-multiplatform: Compose Multiplatform
 
 [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/) is a declarative UI framework developed by

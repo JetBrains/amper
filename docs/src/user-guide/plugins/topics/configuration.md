@@ -1,3 +1,6 @@
+---
+description: A guide to Amper's plugin configuration system.
+---
 # Configuration
 
 This section provides details on how to configure tasks and plugin settings, how the schema works, default values and more.

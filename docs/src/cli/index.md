@@ -1,3 +1,6 @@
+---
+description: The Amper CLI is a command-line tool to build, run, test, and package your project without an IDE.
+---
 # :octicons-terminal-16: Amper CLI
 
 The Amper CLI is a command-line tool to build, run, test, and package your project without an IDE.

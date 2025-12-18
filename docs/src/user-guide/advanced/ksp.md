@@ -1,3 +1,8 @@
+---
+description: |
+  Kotlin Symbol Processing (KSP) is a tool that allows feeding Kotlin source code to processors, which can in turn use
+  this information to generate code, classes, or resources, for instance. Amper provides built-in support for KSP.
+---
 # Kotlin Symbol Processing (KSP)
 
 [Kotlin Symbol Processing](https://kotlinlang.org/docs/ksp-overview.html) is a tool that allows feeding Kotlin source

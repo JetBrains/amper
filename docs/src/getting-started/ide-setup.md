@@ -1,3 +1,6 @@
+---
+description: This page describes how to set up your IDE to work with Amper.
+---
 # IDE Setup
 
 ??? question "Do I need to use IntelliJ IDEA?"

@@ -1,3 +1,6 @@
+---
+description: An exhaustive reference of the module file format.
+---
 # Module file reference
 
 ## `aliases`

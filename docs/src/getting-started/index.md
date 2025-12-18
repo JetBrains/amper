@@ -1,3 +1,6 @@
+---
+description: "Ready to try Amper? Choose the right approach for you: examples, tutorial, user guide..."
+---
 # Getting started
 
 Ready to try Amper? Choose the right approach for you:

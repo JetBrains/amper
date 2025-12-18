@@ -1,3 +1,6 @@
+---
+description: Learn how to use Amper references in YAML for effective plugin configuration wiring.
+---
 # References
 
 Amper uses its own value‑reference system using the `${...}` syntax.

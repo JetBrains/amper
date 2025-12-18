@@ -1,3 +1,8 @@
+---
+description: |
+  Part of Amper's philosophy is to avoid the hassle of setting up toolchains, including the JDK and Amper 
+  itself. This is why we recommend checking the Amper wrapper script into your project's root folder.
+---
 # Wrapper script & provisioning
 
 Part of Amper's philosophy is to avoid the hassle of setting up toolchains, including the JDK and Amper itself.

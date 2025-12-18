@@ -1,3 +1,8 @@
+---
+description: |
+  If you have never used Amper before, this is the best place to start. In this section, we will learn about the basic
+  entities in Amper, the general project layout, and how configuration files look.
+---
 # Basic concepts
 
 If you have never used Amper before, this is the best place to start. In this section, we will learn about the basic

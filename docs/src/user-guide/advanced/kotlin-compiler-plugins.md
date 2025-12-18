@@ -1,3 +1,6 @@
+---
+description: This page describes how to add Kotlin compiler plugins to your module.
+---
 # Kotlin compiler plugins
 
 Compiler plugins are a powerful feature of Kotlin that allow you to extend the language with new features.

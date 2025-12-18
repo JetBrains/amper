@@ -1,3 +1,8 @@
+---
+description: |
+  Learn everything about dependencies in Amper: maven coordinates, scopes, library catalogs, repository configuration,
+  and more.
+---
 # Dependencies
 
 Dependencies are pieces of code (e.g., libraries or other modules) that your module depends on.
