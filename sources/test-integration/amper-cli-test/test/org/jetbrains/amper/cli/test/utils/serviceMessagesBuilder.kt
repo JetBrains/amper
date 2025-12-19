@@ -12,7 +12,6 @@ import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
-import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
 import java.util.*
 
 fun buildServiceMessages(block: ServiceMessagesBuilder.() -> Unit): List<ServiceMessage> =
@@ -43,16 +42,24 @@ class ServiceMessagesBuilder {
         flowStack.removeLast()
     }
 
-    fun suite(name: String, block: ServiceMessagesBuilder.() -> Unit = {}) {
+    fun suite(
+        name: String,
+        locationHint: String? = null,
+        block: ServiceMessagesBuilder.() -> Unit = {}
+    ) {
         val flowId = currentFlowId
-        messages.add(TestSuiteStarted(name).withFlowId(flowId))
+        messages.add(TestSuiteStartedWithLocation(name, locationHint).withFlowId(flowId))
         block()
         messages.add(TestSuiteFinished(name).withFlowId(flowId))
     }
 
-    fun suiteWithFlow(name: String, block: ServiceMessagesBuilder.() -> Unit = {}) {
+    fun suiteWithFlow(
+        name: String,
+        locationHint: String? = null,
+        block: ServiceMessagesBuilder.() -> Unit = {},
+    ) {
         flow {
-            suite(name, block)
+            suite(name, locationHint, block)
         }
     }
 
@@ -115,6 +122,20 @@ private fun ServiceMessage.withSomeTimestamp(): ServiceMessage {
     setTimestamp(Date())
     return this
 }
+
+/**
+ * Test suite started message extended with a location hint required for IntelliJ to navigate.
+ */
+private class TestSuiteStartedWithLocation(
+    suiteName: String,
+    locationHint: String?
+): MessageWithAttributes(
+    ServiceMessageTypes.TEST_SUITE_STARTED,
+    buildMap {
+        put("name", suiteName)
+        locationHint?.let { put("locationHint", it) }
+    },
+)
 
 /**
  * Represents a "flow started" message as defined in

@@ -15,7 +15,6 @@ import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
-import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
@@ -23,6 +22,7 @@ import org.junit.platform.engine.reporting.FileEntry
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.MethodSource
+import org.junit.platform.engine.support.descriptor.UriSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
@@ -109,10 +109,11 @@ class TeamCityMessagesTestExecutionListener(
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (!enabled) return
         emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
+        val locationHint = testIdentifier.toIntelliJLocationHint()
         @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
         when (testIdentifier.type) {
             TestDescriptor.Type.CONTAINER -> {
-                emit(TestSuiteStarted(testIdentifier.teamCityName).withFlowId(testIdentifier))
+                emit(TestSuiteStartedWithLocation(testIdentifier.teamCityName, locationHint).withFlowId(testIdentifier))
             }
             TestDescriptor.Type.TEST,
             TestDescriptor.Type.CONTAINER_AND_TEST -> {
@@ -121,7 +122,6 @@ class TeamCityMessagesTestExecutionListener(
                 // disable automatic stdout/stderr capture between start&stop messages
                 // (we use proper service messages to report it, so no need for guesswork)
                 val captureStdOutput = false
-                val locationHint = testIdentifier.toTeamCityLocationHint()
                 emit(TestStarted(testIdentifier.teamCityName, captureStdOutput, locationHint).withFlowId(testIdentifier))
             }
         }
@@ -287,10 +287,44 @@ private val TestIdentifier.teamCityName: String
         else -> displayName
     }
 
-// TODO find the proper format
-private fun TestIdentifier.toTeamCityLocationHint(): String? {
-    return null
+/**
+ * This format is based on the one expected by `com.intellij.execution.testframework.JavaLocator` from IntelliJ.
+ */
+private fun TestIdentifier.toIntelliJLocationHint(): String? = when (val s = source.getOrNull()) {
+    is ClassSource -> "java:suite://${s.className}"
+    is MethodSource -> buildString {
+        append("java:test://")
+        append(s.className)
+        append('/')
+        append(s.methodName)
+        if (!s.methodParameterTypes.isNullOrBlank()) {
+            append('[')
+            append(s.methodParameterTypes)
+            append(']')
+        }
+    }
+    // IntelliJ also supports file:// protocol out-of-box.
+    is UriSource -> s.uri.toString()
+    // TODO: There are also other types of sources which can be passed into the dynamic tests.
+    //  We can support them later if there is a need.
+    else -> null
 }
+
+/**
+ * Test suite started message extended with a location hint required for IntelliJ to navigate.
+ *
+ * @see toIntelliJLocationHint
+ */
+private class TestSuiteStartedWithLocation(
+    suiteName: String,
+    locationHint: String?
+): MessageWithAttributes(
+    ServiceMessageTypes.TEST_SUITE_STARTED,
+    buildMap {
+        put("name", suiteName)
+        locationHint?.let { put("locationHint", it) }
+    },
+)
 
 /**
  * Represents a test metadata message as defined in
