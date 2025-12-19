@@ -314,6 +314,42 @@ class AmperTestFormatTest : AmperCliTestBase() {
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
     }
+
+    @Test
+    fun `junit 5 ignore should print teamcity service messages`() {
+        runSlowTest {
+            val r = runCli(
+                projectRoot = testProject("jvm-ignored-tests"),
+                "test", "--format=teamcity",
+                assertEmptyStdErr = false,
+            )
+            val serviceMessages = parseTeamCityServiceMessages(r.stdout)
+            val expectedMessages = buildServiceMessages {
+                suiteWithFlow("JUnit Platform Suite")
+                suiteWithFlow("JUnit Jupiter") {
+                    suiteWithFlow("IgnoredTest", locationHint = "java:suite://IgnoredTest") {
+                        testWithFlow(
+                            name = "IgnoredTest.ignoredWithoutMessage()",
+                            locationHint = "java:test://IgnoredTest/ignoredWithoutMessage",
+                        ) {
+                            testIgnored("public final void IgnoredTest.ignoredWithoutMessage() is @Disabled")
+                        }
+                        testWithFlow(
+                            name = "IgnoredTest.ignoredWithMessage()",
+                            locationHint = "java:test://IgnoredTest/ignoredWithMessage",
+                        ) {
+                            testIgnored("Ignored for a reason")
+                        }
+                    }
+                    suiteWithFlow("IgnoredSuiteTest", locationHint = "java:suite://IgnoredSuiteTest") {
+                        testSuiteIgnored("Ignoring the suite")
+                    }
+                }
+                suiteWithFlow("JUnit Vintage")
+            }
+            assertServiceMessagesEqual(expectedMessages, serviceMessages)
+        }
+    }
 }
 
 private fun parseTeamCityServiceMessages(text: String): List<ServiceMessage> = text.lines()

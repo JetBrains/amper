@@ -128,16 +128,17 @@ class TeamCityMessagesTestExecutionListener(
         }
     }
 
+    // Skipped tests are never reported as started/finished via this listener's executionStarted/executionFinished.
+    // TeamCity also accepts testIgnored events without corresponding testStarted/testFinished.
+    // However, for IntelliJ we are better with reporting start and finish, because testStarted and testSuiteStarted
+    // hold the location hint information which can be used to navigate to the ignored test or suite.
     override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
         if (!enabled) return
-        // Skipped tests are never reported as started/finished via this listener's executionStarted/executionFinished.
-        // TeamCity also accepts testIgnored events without corresponding testStarted/testFinished, so we're good.
-        // However, we still have to report the flow start/end here to tie it to the test suite.
-        emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
+        executionStarted(testIdentifier)
         // TeamCity seems to only care about ignored tests (not ignored suites), but it might not harm to report it.
         // Therefore, no need for the distinction on the identifier type.
         emit(TestIgnored(testIdentifier.teamCityName, reason).withFlowId(testIdentifier))
-        emit(FlowFinished(testIdentifier.teamCityFlowId))
+        executionFinished(testIdentifier, TestExecutionResult.successful())
     }
 
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {

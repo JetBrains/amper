@@ -28,6 +28,8 @@ class ServiceMessagesBuilder {
         private set
     var currentTest: String? = null
         private set
+    var currentSuite: String? = null
+        private set
 
     fun build(): List<ServiceMessage> = messages.toList()
 
@@ -48,10 +50,12 @@ class ServiceMessagesBuilder {
         locationHint: String? = null,
         block: ServiceMessagesBuilder.() -> Unit = {}
     ) {
+        currentSuite = name
         val flowId = currentFlowId
         messages.add(TestSuiteStartedWithLocation(name, locationHint).withFlowId(flowId))
         block()
         messages.add(TestSuiteFinished(name).withFlowId(flowId))
+        currentSuite = null
     }
 
     fun suiteWithFlow(
@@ -114,6 +118,11 @@ class ServiceMessagesBuilder {
     fun testIgnored(message: String) {
         val testName = currentTest ?: error("Not in a test")
         messages.add(TestIgnored(testName, message).withFlowId(currentFlowId))
+    }
+
+    fun testSuiteIgnored(message: String) {
+        val suiteName = currentSuite ?: error("Not in a suite")
+        messages.add(TestIgnored(suiteName, message).withFlowId(currentFlowId))
     }
 }
 
