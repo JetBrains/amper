@@ -277,6 +277,43 @@ class AmperTestFormatTest : AmperCliTestBase() {
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
     }
+
+    @Test
+    fun `junit 5 assumptions should print teamcity service messages`() {
+        runSlowTest {
+            val r = runCli(
+                projectRoot = testProject("jvm-aborted-tests"),
+                "test", "--format=teamcity",
+                assertEmptyStdErr = false,
+            )
+            val serviceMessages = parseTeamCityServiceMessages(r.stdout)
+            val expectedMessages = buildServiceMessages {
+                suiteWithFlow("JUnit Platform Suite")
+                suiteWithFlow("JUnit Jupiter") {
+                    suiteWithFlow("AbortedTest", locationHint = "java:suite://AbortedTest") {
+                        testWithFlow(
+                            name = "AbortedTest.assumeWithoutMessage()",
+                            locationHint = "java:test://AbortedTest/assumeWithoutMessage",
+                        ) {
+                            testStdOut("running assume without message")
+                            testStdOut(NL)
+                            testIgnored("Assumption failed: assumption is not true")
+                        }
+                        testWithFlow(
+                            name = "AbortedTest.assumeWithMessage()",
+                            locationHint = "java:test://AbortedTest/assumeWithMessage",
+                        ) {
+                            testStdOut("running assume with message")
+                            testStdOut(NL)
+                            testIgnored("Assumption failed: 1 is not equal to 2 in this universe")
+                        }
+                    }
+                }
+                suiteWithFlow("JUnit Vintage")
+            }
+            assertServiceMessagesEqual(expectedMessages, serviceMessages)
+        }
+    }
 }
 
 private fun parseTeamCityServiceMessages(text: String): List<ServiceMessage> = text.lines()

@@ -27,6 +27,7 @@ import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
 import org.opentest4j.AssertionFailedError
+import org.opentest4j.TestAbortedException
 import java.io.PrintStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -179,6 +180,12 @@ class TeamCityMessagesTestExecutionListener(
                 /* exception = */ throwable,
                 /* actual = */ throwable.actual?.stringRepresentation,
                 /* expected = */ throwable.expected?.stringRepresentation
+            )
+            // Neither IntelliJ, nor TeamCity have a notion of an "aborted" test, thus the closest we can mark those
+            // is as ignored.
+            throwable is TestAbortedException -> TestIgnored(
+                /* name = */ testIdentifier.teamCityName,
+                /* ignoreComment = */ throwable.message ?: messageIfNoException
             )
             throwable != null -> TestFailed(testIdentifier.teamCityName, throwable)
             else -> TestFailed(testIdentifier.teamCityName, messageIfNoException)

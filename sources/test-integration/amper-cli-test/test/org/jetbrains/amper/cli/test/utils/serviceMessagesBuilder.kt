@@ -8,6 +8,7 @@ import jetbrains.buildServer.messages.serviceMessages.MessageWithAttributes
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessageTypes
 import jetbrains.buildServer.messages.serviceMessages.TestFinished
+import jetbrains.buildServer.messages.serviceMessages.TestIgnored
 import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
@@ -108,6 +109,11 @@ class ServiceMessagesBuilder {
         val testName = currentTest ?: error("Not in a test")
         val sm = "##teamcity[testFailed name='$testName' message='$message' details='$serializedStackTrace' actual='$actualValue' expected='$expectedValue']"
         messages.add(ServiceMessage.parse(sm)!!.withFlowId(currentFlowId))
+    }
+
+    fun testIgnored(message: String) {
+        val testName = currentTest ?: error("Not in a test")
+        messages.add(TestIgnored(testName, message).withFlowId(currentFlowId))
     }
 }
 
