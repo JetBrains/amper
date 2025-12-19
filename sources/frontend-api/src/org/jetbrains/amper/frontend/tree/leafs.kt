@@ -37,15 +37,32 @@ class NullLiteralNode(
 sealed interface ScalarNode : LeafTreeNode {
     val type: SchemaType.ScalarType
 }
+
+@RequiresOptIn("This mechanism is only intended for procedural defaults. Do not use it for anything else")
+annotation class DefaultsReferenceTransform
+
 /**
  * This is a reference value tree node, pointing to some subtree.
  */
 class ReferenceNode(
     val referencedPath: List<String>,
     val type: SchemaType,
+    val transform: Transform? = null,
     override val trace: Trace,
     override val contexts: Contexts,
 ) : LeafTreeNode {
+    class Transform @DefaultsReferenceTransform constructor(
+        /**
+         * Description for the transformed trace.
+         */
+        val description: String,
+        /**
+         * Transforms the refined node that was resolved from the [org.jetbrains.amper.frontend.tree.ReferenceNode].
+         * The result is a value with the [org.jetbrains.amper.frontend.api.Default.Static.value] semantics.
+         */
+        val function: (RefinedTreeNode) -> Any?,
+    )
+
     init {
         require(referencedPath.isNotEmpty()) { "`referencePath` can't be empty" }
     }

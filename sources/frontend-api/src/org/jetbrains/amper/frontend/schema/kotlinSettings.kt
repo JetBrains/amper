@@ -148,7 +148,7 @@ class KotlinSettings : SchemaNode() {
     @PlatformAgnostic
     @Misnomers("api-version", "sdkVersion", "sdk")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
-    val apiVersion by dependentValue(::languageVersion)
+    val apiVersion by referenceValue(::languageVersion)
 
     @Misnomers("Werror")
     @SchemaDoc("Turn any warnings into a compilation error")

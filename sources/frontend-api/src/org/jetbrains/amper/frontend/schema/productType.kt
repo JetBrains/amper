@@ -7,15 +7,20 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
+import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.userGuideUrl
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types]($userGuideUrl/product-types)")
@@ -128,21 +133,18 @@ enum class ProductType(
 @SchemaDoc("Defines what should be produced out of the module. [Read more]($userGuideUrl/product-types)")
 class ModuleProduct : SchemaNode() {
 
+    @CanBeReferenced
     @Misnomers("application", "library")
     @Shorthand
     @SchemaDoc("What type of product to generate")
     val type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    val platforms by dependentValue(::type) { productType ->
+    val platforms: List<TraceableEnum<Platform>> by referenceValue(::type, "default platform for this product type") {
+        val productType = (it as EnumNode).enumConstantIfAvailable as ProductType
         productType.defaultPlatforms
             ?.map { platform ->
-                platform.asTraceable(
-                    TransformedValueTrace(
-                        description = "default platform for product type '${productType.schemaValue}'",
-                        sourceValue = ::type.schemaDelegate,
-                    )
-                )
+                platform.asTraceable(DefaultTrace)
             }
             // Degenerate case when there are no default platforms but also platforms are not declared by the user.
             // It is reported as an error via diagnostics, so it will never reach AOM consumers, and thus it's better

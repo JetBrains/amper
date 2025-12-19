@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.KnownIntValues
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
@@ -74,7 +75,7 @@ class JvmSettings : SchemaNode() {
             "checks but want to align targets, use the freeCompilerArgs on both compilers to set the JVM target.")
     // null is intentionally supported, see docs
     @KnownIntValues(25, 21, 17, 11, 8)
-    val release: Int? by dependentValue(::jdk) { jdk.version }
+    val release: Int? by referenceValue(::jdk, JdkSettings::version)
 
     @SchemaDoc("(Only for `jvm/app` [product type]($userGuideUrl/product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)
@@ -100,6 +101,7 @@ class JvmSettings : SchemaNode() {
 
 class JdkSettings : SchemaNode() {
 
+    @CanBeReferenced
     @PlatformAgnostic
     @Misnomers("majorVersion", "major")
     @SchemaDoc("The major version of the JDK to use for this module. A JDK of this version will be found or " +

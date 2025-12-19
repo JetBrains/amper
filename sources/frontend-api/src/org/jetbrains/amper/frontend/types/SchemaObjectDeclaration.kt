@@ -63,7 +63,7 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
          * value inside. If the [default] is null itself, it means there is no default value (not even null), and thus
          * the property must be specfied explicitly (required).
          */
-        val default: Default<*>?,
+        val default: Default?,
         val isModifierAware: Boolean = false,
         /**
          * @see org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested

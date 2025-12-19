@@ -115,7 +115,7 @@ class AndroidSettings : SchemaNode() {
     @Misnomers("targetApiLevel")
     @SchemaDoc("The target API level for the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    val targetSdk by dependentValue(::compileSdk)
+    val targetSdk by referenceValue(::compileSdk)
 
     @CanBeReferenced // by targetSdk
     @Misnomers("compileApiLevel")
@@ -132,7 +132,7 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    val applicationId by dependentValue(::namespace)
+    val applicationId by referenceValue(::namespace)
 
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")

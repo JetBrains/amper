@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.KnownStringValues
@@ -17,6 +18,7 @@ import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
 import org.jetbrains.amper.frontend.userGuideUrl
 import java.nio.file.Path
 
@@ -154,8 +156,9 @@ class SerializationSettings : SchemaNode() {
             "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
             "provide the annotations and facilities for serialization, but no specific serialization format.")
     // if a format is specified, we need to enable serialization (mostly to be backwards compatible)
-    val enabled by dependentValue(::format, "enabled when 'format' is specified") { it != null }
+    val enabled: Boolean by referenceValue(::format, "enabled when specified") { it !is NullLiteralNode }
 
+    @CanBeReferenced
     @Shorthand
     @SchemaDoc("The [kotlinx.serialization format](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md) " +
             "to use, such as `json`. When set, the corresponding `kotlinx-serialization-<format>` library is " +

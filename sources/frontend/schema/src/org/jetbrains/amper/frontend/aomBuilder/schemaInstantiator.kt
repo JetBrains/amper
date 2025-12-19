@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
@@ -33,7 +32,6 @@ import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getType
-import org.jetbrains.amper.frontend.types.isValueRequired
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
 
@@ -170,18 +168,16 @@ private fun createObjectNode(node: RefinedMappingNode, type: SchemaType.ObjectTy
         propertyCheckDefaultIntegrity(property, mapLikePropertyValue)
         if (mapLikePropertyValue == null) {
             // Property is not mentioned at all
-            if (property.isValueRequired()) {
-                // Find the last non-default trace in the path - that's the *base* trace for our missing value
-                val baseTraceIndex = propertyValuePath.indexOfLast { (_, trace) -> !trace.isDefault }
-                val baseTrace = propertyValuePath[baseTraceIndex].second
+            // Find the last non-default trace in the path - that's the *base* trace for our missing value
+            val baseTraceIndex = propertyValuePath.indexOfLast { (_, trace) -> !trace.isDefault }
+            val baseTrace = propertyValuePath[baseTraceIndex].second
 
-                missingPropertiesHandler.onMissingRequiredPropertyValue(
-                    trace = baseTrace,
-                    valuePath = propertyValuePath.map { (name, _) -> name },
-                    relativeValuePath = propertyValuePath.drop(baseTraceIndex).map { (name, _) -> name },
-                )
-                hasMissingRequiredProps = true
-            }
+            missingPropertiesHandler.onMissingRequiredPropertyValue(
+                trace = baseTrace,
+                valuePath = propertyValuePath.map { (name, _) -> name },
+                relativeValuePath = propertyValuePath.drop(baseTraceIndex).map { (name, _) -> name },
+            )
+            hasMissingRequiredProps = true
             continue
         }
         val schemaNode = createSchemaNode(
@@ -190,10 +186,8 @@ private fun createObjectNode(node: RefinedMappingNode, type: SchemaType.ObjectTy
             valuePath = propertyValuePath,
         )
         if (schemaNode === ValueCreationErrorToken) {
-            if (property.isValueRequired()) {
-                // we don't report here because the error must have been reported when parsing the property
-                hasMissingRequiredProps = true
-            }
+            // we don't report here because the error must have been reported when parsing the property
+            hasMissingRequiredProps = true
             continue
         }
         newInstance.valueHolders[property.name] = ValueHolder(
@@ -249,14 +243,13 @@ interface MissingPropertiesHandler {
 }
 
 private fun propertyCheckDefaultIntegrity(
-    pType: SchemaObjectDeclaration.Property,
+    propertyDeclaration: SchemaObjectDeclaration.Property,
     pValue: KeyValue?,
 ) {
-    val hasTraceableDefault = pType.default != null && pType.default !is Default.TransformedDependent<*, *>
-    check(!hasTraceableDefault || pValue != null) {
-        "A property ${pType.name} has a traceable default ${pType.default}, " +
+    check(propertyDeclaration.default == null || pValue != null) {
+        "A property ${propertyDeclaration.name} has a default ${propertyDeclaration.default}, " +
                 "but the value is missing nevertheless. " +
-                "This is a sign that the default was not properly merged on the tree level. " +
+                "This is a sign that the default was not properly added on the tree level. " +
                 "Please check that defaults are correctly appended for this tree."
     }
 }

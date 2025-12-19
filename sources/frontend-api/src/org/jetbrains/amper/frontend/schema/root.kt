@@ -74,7 +74,7 @@ class Repository : SchemaNode() {
     val url by value<String>()
 
     @SchemaDoc("The ID of the repository, used to reference it. Defaults to the repository url")
-    val id by dependentValue(::url)
+    val id by referenceValue(::url)
 
     @SchemaDoc("Credentials to connect to this repository")
     val credentials by nullableValue<Credentials>()

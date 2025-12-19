@@ -25,7 +25,7 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         val propertyType: SchemaType,
         val documentation: String?,
         val origin: SchemaOrigin,
-        val default: Default<*>? = null,
+        val default: Default? = null,
         val canBeReferenced: Boolean = false,
         val isUserSettable: Boolean = true,
     )

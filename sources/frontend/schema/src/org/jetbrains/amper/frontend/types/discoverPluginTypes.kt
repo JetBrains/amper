@@ -163,7 +163,7 @@ private class ExternalObjectDeclaration(
         }
     }
 
-    private fun Defaults?.toInternalDefault(forType: PluginData.Type): Default<*>? {
+    private fun Defaults?.toInternalDefault(forType: PluginData.Type): Default? {
         if (this != null) {
             return Default.Static(toValue())
         }
@@ -176,7 +176,7 @@ private class ExternalObjectDeclaration(
         if (forType is PluginData.Type.ObjectType) {
             // For non-nullable objects we instantiate a nested object by default, like with `by nested()`
             // Note: the real type will be taken out of the property type, so it's not important what to put here.
-            return Default.NestedObject(ExtensionSchemaNode::class)
+            return Default.NestedObject
         }
 
         return null

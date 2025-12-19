@@ -5,15 +5,16 @@
 package org.jetbrains.amper.frontend.api
 
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.tree.DefaultsReferenceTransform
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.RefinedTreeNode
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.createInstance
 import kotlin.reflect.jvm.isAccessible
 
 typealias ValueHolders = MutableMap<String, ValueHolder<*>>
@@ -48,30 +49,46 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a value with a default.
      */
-    fun <T> value(default: T) = SchemaValueDelegateProvider(Default.Static(default))
+    fun <T> value(default: T) = SchemaValueDelegateProvider<T>(Default.Static(default))
 
     /**
      * Register a nested object value with a default-constructed instance by default.
      */
-    inline fun <reified T : SchemaNode> nested() = SchemaValueDelegateProvider(Default.NestedObject(T::class))
+    inline fun <reified T : SchemaNode> nested() = SchemaValueDelegateProvider<T>(Default.NestedObject)
+
+    /**
+     * Register a value with a default referencing another property.
+     *
+     * WARNING: Only the property's `name` is really taken into account.
+     * The name is resolved using regular reference resolution rules: ${<name>}
+     */
+    fun <T> referenceValue(property: KProperty0<T>) =
+        SchemaValueDelegateProvider<T>(Default.Reference(listOf(property.name)))
+
+    /**
+     * Register a value with a default referencing another property from the same type.
+     *
+     * WARNING: Only the properties' `name` is really taken into account.
+     * The name is resolved using regular reference resolution rules: `${<firstName>.<secondName>}`
+     */
+    fun <T1, T2> referenceValue(first: KProperty0<T1>, second: KProperty1<T1, T2>) =
+        SchemaValueDelegateProvider<T2>(Default.Reference(listOf(first.name, second.name)))
 
     /**
      * Register a value with a default depending on another property
      */
-    fun <T> dependentValue(property: KProperty0<T>) = SchemaValueDelegateProvider(Default.DirectDependent(property))
-
-    /**
-     * Register a value with a default depending on another property
-     */
-    fun <T, V> dependentValue(
-        property: KProperty0<T>,
-        desc: String? = null,
-        transformValue: (value: T) -> V,
-    ) = SchemaValueDelegateProvider(
-        Default.TransformedDependent(
-            desc = desc ?: "Default, computed from '${property.name}'",
-            property = property,
-            transformValue = transformValue,
+    @OptIn(DefaultsReferenceTransform::class)
+    fun <T> referenceValue(
+        property: KProperty0<*>,
+        description: String,
+        transformValue: (RefinedTreeNode) -> T,
+    ) = SchemaValueDelegateProvider<T>(
+        Default.Reference(
+            referencedPath = listOf(property.name),
+            transform = ReferenceNode.Transform(
+                description = description,
+                function = transformValue,
+            ),
         )
     )
 
@@ -89,65 +106,35 @@ abstract class SchemaNode : Traceable {
         set
 }
 
-sealed class Default<out T> {
-    abstract val value: T
-    abstract val trace: Trace
+sealed interface Default {
+    /**
+     * A static default [value].
+     * The value must correspond to the property type.
+     */
+    // TODO: Make a type-safe value
+    data class Static(val value: Any?) : Default
 
-    data class Static<T>(override val value: T) : Default<T>() {
-        override val trace = DefaultTrace
-    }
+    /**
+     * A default marker that means to create a default sub-object when none is provided.
+     */
+    data object NestedObject : Default
 
-    data class NestedObject<T : SchemaNode>(
-        private val kClass: KClass<T>,
-    ) : Default<T>() {
-        override val value by lazy { kClass.createInstance() }
-        override val trace = DefaultTrace
-    }
-
-    sealed class Dependent<T, V> : Default<V>() {
-        abstract val property: KProperty0<T>
-        abstract val desc: String
-    }
-
-    data class DirectDependent<T>(
-        override val property: KProperty0<T>,
-    ) : Dependent<T, T>() {
-        override val desc: String = "Default, inherited from '${property.name}'"
-        // We need to access property.schemaDelegate lazily because the delegate of the original property might not be
-        // initialized yet. This is the case when the dependent property is declared before the one it depends on in
-        // the schema.
-        override val value by lazy { property.schemaDelegate.value }
-        override val trace by lazy {
-            ResolvedReferenceTrace(
-                description = desc,
-                referenceTrace = DefaultTrace,
-                resolvedValue = property.schemaDelegate,
-            )
-        }
-    }
-
-    data class TransformedDependent<T, V>(
-        override val desc: String,
-        override val property: KProperty0<T>,
-        private val transformValue: (T) -> V,
-    ) : Dependent<T, V>() {
-        // We need to access property.schemaDelegate lazily because the delegate of the original property might not be
-        // initialized yet. This is the case when the dependent property is declared before the one it depends on in
-        // the schema.
-        override val value by lazy { transformValue(property.schemaDelegate.value) }
-        override val trace by lazy {
-            TransformedValueTrace(description = desc, sourceValue = property.schemaDelegate)
-        }
-    }
+    /**
+     * A reference default.
+     */
+    class Reference(
+        val referencedPath: List<String>,
+        val transform: ReferenceNode.Transform? = null,
+    ) : Default
 }
 
 class SchemaValueDelegateProvider<T>(
-    val default: Default<T>? = null,
+    val default: Default? = null,
 ) : PropertyDelegateProvider<SchemaNode, SchemaValueDelegate<T>> {
     override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): SchemaValueDelegate<T> {
         // Make sure that we can access delegates from reflection.
         property.isAccessible = true
-        return SchemaValueDelegate(property, default, thisRef.valueHolders).also { thisRef.allValues.add(it) }
+        return SchemaValueDelegate<T>(property, default, thisRef.valueHolders).also { thisRef.allValues.add(it) }
     }
 }
 
@@ -156,41 +143,30 @@ class SchemaValueDelegateProvider<T>(
  */
 class SchemaValueDelegate<T>(
     val property: KProperty<*>,
-    val default: Default<T>?,
+    val default: Default?,
     valueHolders: ValueHolders,
 ) : Traceable, ReadOnlyProperty<SchemaNode, T> {
     // We are creating lambdas here to prevent misusage of [valueHolders] from [SchemaValueDelegate].
     @Suppress("UNCHECKED_CAST") // What we put in valueHolders is checked up front
-    private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
+    private val valueGetter: () -> ValueHolder<T> = {
+        checkNotNull(valueHolders[property.name]) {
+            "Not reached: value for property '${property.name}' is not set"
+        } as ValueHolder<T>
+    }
 
     val value: T
-        get() {
-            val valueGetter = valueGetter()
-            if (valueGetter != null) {
-                return valueGetter.value
-            }
-            if (default is Default.TransformedDependent<*, *>) {
-                // The only default that is taken into account on the delegate level
-                // other defaults are merged on the tree level to make them traceable and referencable.
-                return default.value
-            }
-            error("Required property '${property.name}' is not set")
-        }
+        get() = valueGetter().value
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
 
     override val trace: Trace
-        get() = valueGetter()?.valueTrace
-            ?: default?.trace
-            // Not really "default" but rather "missing mandatory value".
-            // It only happens for required properties (without default) that also don't have a value.
-            ?: DefaultTrace
+        get() = valueGetter().valueTrace
 
     /**
      * A trace to the whole `key: value` pair, if present.
      */
     val keyValueTrace: Trace
-        get() = valueGetter()?.keyValueTrace ?: DefaultTrace
+        get() = valueGetter().keyValueTrace
 
     override fun toString(): String = "SchemaValue(property = ${property.fullyQualifiedName}, value = $value)"
 }

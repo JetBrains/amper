@@ -5,7 +5,9 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.isDefault
@@ -95,8 +97,13 @@ private class TreeReferencesResolver(
             return node
         }
 
-        val resolved = resolve(node, node.referencedPath) ?: return node
-        val trace = node.resolvedTrace(resolved)
+        var resolved = resolve(node, node.referencedPath) ?: return node
+        val trace = node.transform?.let { transform ->
+            node.transformedTrace(resolved, transform).also { trace ->
+                resolved = Default.Static(transform.function(resolved)).toTreeValue(node.type, trace)
+            }
+        } ?: node.resolvedTrace(resolved)
+
         val converted = resolved.cast(targetType = node.type) ?: run {
             reporter.reportBundleError(
                 node.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
@@ -314,3 +321,14 @@ private fun ReferenceNode.resolvedTrace(resolvedValue: Traceable) = ResolvedRefe
     referenceTrace = trace,
     resolvedValue = resolvedValue,
 )
+
+private fun ReferenceNode.transformedTrace(
+    resolvedValue: Traceable,
+    transform: ReferenceNode.Transform,
+): Trace {
+    check(trace.isDefault) { "Can't have transform in the non-default references" }
+    return TransformedValueTrace(
+        description = $$"default, based on ${$${referencedPath.joinToString(".")}}: $${transform.description}",
+        sourceValue = resolvedValue,
+    )
+}

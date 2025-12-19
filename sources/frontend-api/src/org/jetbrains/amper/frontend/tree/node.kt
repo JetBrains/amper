@@ -56,7 +56,7 @@ fun LeafTreeNode.copyWithTrace(
     trace: Trace,
 ): LeafTreeNode = when (this) {
     is ErrorNode -> ErrorNode(trace = trace)
-    is ReferenceNode -> ReferenceNode(referencedPath, type, trace, contexts)
+    is ReferenceNode -> ReferenceNode(referencedPath, type, transform, trace, contexts)
     is StringInterpolationNode -> StringInterpolationNode(parts, type, trace, contexts)
     is NullLiteralNode -> NullLiteralNode(trace, contexts)
     is BooleanNode -> BooleanNode(value, type, trace, contexts)

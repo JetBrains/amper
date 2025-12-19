@@ -22,7 +22,7 @@ settings@jvm:
       selectionMode: auto  # default
       version: 21  # default
     mainClass: null  # default
-    release: 21  # Default, computed from 'jdk'
+    release: 21  # default, from ${jdk.version}
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -61,7 +61,7 @@ settings@jvm:
       enabled: false  # default
       version: 0.10.1  # default
     serialization:
-      enabled: false  # enabled when 'format' is specified
+      enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
       version: 1.9.0  # default
     suppressWarnings: false  # default
