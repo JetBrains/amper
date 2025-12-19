@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.types
 
 import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
-import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.RefinedKeyValue
 import org.jetbrains.amper.frontend.tree.createDefault
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration.Property
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -47,7 +47,7 @@ internal interface PluginBasedTypeDeclaration : SchemaTypeDeclaration {
 internal abstract class SchemaObjectDeclarationBase : SchemaObjectDeclaration {
     private val propertiesByName by lazy { properties.associateBy { it.name } }
     private val shorthands by lazy(::Shorthands)
-    private val defaults = mutableMapOf<String, KeyValue?>()
+    private val defaults = mutableMapOf<String, RefinedKeyValue?>()
 
     final override fun getProperty(name: String): Property? {
         return propertiesByName[name]
@@ -65,7 +65,7 @@ internal abstract class SchemaObjectDeclarationBase : SchemaObjectDeclaration {
         return shorthands.fromKeyAndTheRestNestedProperty
     }
 
-    final override fun getDefaultFor(property: Property): KeyValue? {
+    final override fun getDefaultFor(property: Property): RefinedKeyValue? {
         require(propertiesByName[property.name] === property) {
             "Property doesn't belong to the `$this` class: $property"
         }

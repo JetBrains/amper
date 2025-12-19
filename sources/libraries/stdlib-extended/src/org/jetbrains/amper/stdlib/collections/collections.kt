@@ -89,3 +89,24 @@ fun <T> Iterable<T>.zipWithNextOrNull(): List<Pair<T, T?>> {
         }
     }
 }
+
+/**
+ * Returns a [Map] containing the values provided by [valueTransform]\
+ * and indexed by [keySelector] functions applied to elements of the given collection.
+ * If [valueTransform] returns `null` for any element, that element is ignored.
+ *
+ * If any two elements would have the same key returned by [keySelector] the last one gets added to the map.
+ *
+ * The returned map preserves the entry iteration order of the original collection.
+ */
+inline fun <T, K, V : Any> Iterable<T>.associateByNotNull(keySelector: (T) -> K, valueTransform: (T) -> V?): Map<K, V> {
+    return buildMap {
+        for (element in this@associateByNotNull) {
+            val key = keySelector(element)
+            val value = valueTransform(element)
+            if (key != null && value != null) {
+                put(key, value)
+            }
+        }
+    }
+}

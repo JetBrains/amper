@@ -170,8 +170,7 @@ private class RefineRequest(
                     val existingValue = refinedChildren[property.name]
                     if (existingValue == null || existingValue.value is ErrorNode) {
                         type.declaration.getDefaultFor(property)?.let { default ->
-                            // We refine the default here because it can (in theory) contain multi-context things.
-                            put(property.name, default.copyWithValue(value = refine(default.value)))
+                            put(property.name, default)
                         }
                     }
                 }

@@ -80,6 +80,16 @@ fun KeyValue(
 ) : KeyValue = KeyValueImpl(propertyDeclaration.name, keyTrace, value, propertyDeclaration, trace)
 
 /**
+ * Creates a [org.jetbrains.amper.frontend.tree.RefinedKeyValue] instance using the supplied [propertyDeclaration].
+ */
+fun RefinedKeyValue(
+    keyTrace: Trace,
+    value: RefinedTreeNode,
+    propertyDeclaration: SchemaObjectDeclaration.Property,
+    trace: Trace,
+): RefinedKeyValue = RefinedKeyValueImpl(propertyDeclaration.name, keyTrace, value, propertyDeclaration, trace)
+
+/**
  * Copies the key-value node as an *unrefined* node, replacing its value to the supplied [value].
  */
 fun KeyValue.copyWithValue(
