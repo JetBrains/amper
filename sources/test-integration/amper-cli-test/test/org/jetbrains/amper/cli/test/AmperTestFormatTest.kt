@@ -228,21 +228,24 @@ private fun parseTeamCityServiceMessages(text: String): List<ServiceMessage> = t
     .mapNotNull { ServiceMessage.parse(it) }
 
 private fun assertServiceMessagesEqual(expected: List<ServiceMessage>, actual: List<ServiceMessage>) {
-    assertEqualsWithDiff(expected.map { it.normalized() }, actual.map { it.normalized() })
+    val expectedIdsMap = mutableMapOf<String, Int>()
+    val actualIdsMap = mutableMapOf<String, Int>()
+    assertEqualsWithDiff(
+        expected.map { it.normalized(actualIdsMap) },
+        actual.map { it.normalized(expectedIdsMap) },
+    )
 }
 
-private fun ServiceMessage.normalized(): String {
+// The value of the flow IDs doesn't matter, what matters is that the links between different flows are preserved.
+// Therefore, we can replace all flow IDs in a reproducible way to normalize the messages.
+private fun ServiceMessage.normalized(normalizedFlowIds: MutableMap<String, Int>): String {
     val serializedMessage = asString()
 
-    // The value of the flow IDs doesn't matter, what matters is that the links between different flows are preserved.
-    // Therefore, we can replace all flow IDs in a reproducible way to normalize the messages.
-    val normalizedFlowIds = mutableMapOf<String, Int>()
-    var currentFlowId = 0
     val flowIdRegex = Regex("flowId='([^']+)'")
     val parentRegex = Regex("parent='([^']+)'")
     val messageWithFlows = flowIdRegex.findAll(serializedMessage).fold(serializedMessage) { msg, match ->
         val flowId = match.groupValues[1]
-        val normalized = normalizedFlowIds.computeIfAbsent(flowId) { currentFlowId++ }
+        val normalized = normalizedFlowIds.computeIfAbsent(flowId) { normalizedFlowIds.size }
         msg
             .replace(flowIdRegex, "flowId='<normalized:$normalized>'")
             .replace(parentRegex, "parent='<normalized:$normalized>'")

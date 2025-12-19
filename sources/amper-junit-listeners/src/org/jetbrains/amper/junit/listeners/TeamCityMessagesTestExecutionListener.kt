@@ -222,6 +222,11 @@ class TeamCityMessagesTestExecutionListener(
     private fun elapsedMillis(test: TestIdentifier): Int =
         startTimes[test.uniqueIdObject]?.elapsedNow()?.inWholeMilliseconds?.toInt()
             ?: error("Start time was not registered for test ${test.uniqueId} ('${test.displayName}')")
+
+    private fun ServiceMessage.withFlowId(testIdentifier: TestIdentifier): ServiceMessage {
+        setFlowId(testIdentifier.teamCityFlowId)
+        return this
+    }
 }
 
 /**
@@ -266,11 +271,6 @@ private fun ServiceMessage.withTimestamp(datetime: LocalDateTime): ServiceMessag
 private fun LocalDateTime.toJavaDateInSystemTimeZone(): Date {
     val instant = atZone(ZoneOffset.systemDefault()).toInstant()
     return Date(instant.toEpochMilli())
-}
-
-private fun ServiceMessage.withFlowId(testIdentifier: TestIdentifier): ServiceMessage {
-    setFlowId(testIdentifier.uniqueId)
-    return this
 }
 
 /**

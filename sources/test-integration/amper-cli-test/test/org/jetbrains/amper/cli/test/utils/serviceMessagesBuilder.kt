@@ -34,18 +34,20 @@ class ServiceMessagesBuilder {
     fun flow(block: ServiceMessagesBuilder.() -> Unit) {
         val parentFlowId = flowStack.lastOrNull()
         val flowId = nextFlowId++
-        currentFlowId = flowId.toString()
+        val flowString = flowId.toString()
+        currentFlowId = flowString
         flowStack.addLast(flowId)
-        messages.add(FlowStarted(flowId = currentFlowId!!, parent = parentFlowId?.toString()))
+        messages.add(FlowStarted(flowId = flowString, parent = parentFlowId?.toString()))
         block()
-        messages.add(FlowFinished(flowId = currentFlowId!!))
+        messages.add(FlowFinished(flowId = flowString))
         flowStack.removeLast()
     }
 
     fun suite(name: String, block: ServiceMessagesBuilder.() -> Unit = {}) {
-        messages.add(TestSuiteStarted(name).withFlowId(currentFlowId))
+        val flowId = currentFlowId
+        messages.add(TestSuiteStarted(name).withFlowId(flowId))
         block()
-        messages.add(TestSuiteFinished(name).withFlowId(currentFlowId))
+        messages.add(TestSuiteFinished(name).withFlowId(flowId))
     }
 
     fun suiteWithFlow(name: String, block: ServiceMessagesBuilder.() -> Unit = {}) {
@@ -61,9 +63,10 @@ class ServiceMessagesBuilder {
         block: ServiceMessagesBuilder.() -> Unit,
     ) {
         currentTest = name
-        messages.add(TestStarted(name, captureStdOutput, locationHint).withFlowId(currentFlowId))
+        val flowId = currentFlowId
+        messages.add(TestStarted(name, captureStdOutput, locationHint).withFlowId(flowId))
         block()
-        messages.add(TestFinished(name, 42).withFlowId(currentFlowId))
+        messages.add(TestFinished(name, 42).withFlowId(flowId))
         currentTest = null
     }
 
