@@ -87,28 +87,30 @@ class AmperTestFormatTest : AmperCliTestBase() {
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter") {
-                    suiteWithFlow("FailedTest", locationHint = "java:suite://FailedTest") {
-                        testWithFlow("FailedTest.doTest()", locationHint = "java:test://FailedTest/doTest") {
-                        }
-                        testWithFlow("FailedTest.stringComparisonFailure()", locationHint = "java:test://FailedTest/stringComparisonFailure") {
-                            testFailed(
-                                message = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
-                                expectedValue = "EXPECTED_VALUE",
-                                actualValue = "ACTUAL_VALUE",
-                                serializedStackTrace = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)$ENL\tat org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)$ENL\tat org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)$ENL\tat org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)$ENL\tat kotlin.test.AssertionsKt.assertEquals(Unknown Source)$ENL\tat FailedTest.stringComparisonFailure(tests.kt:18)$ENL"
-                            )
-                        }
-                        testWithFlow("FailedTest.booleanFailure()", locationHint = "java:test://FailedTest/booleanFailure") {
-                            testFailed(
-                                message = "org.opentest4j.AssertionFailedError: The boolean value is incorrect",
-                                serializedStackTrace = "org.opentest4j.AssertionFailedError: The boolean value is incorrect$ENL\tat org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)$ENL\tat org.junit.jupiter.api.Assertions.fail(Assertions.java:143)$ENL\tat kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:694)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:704)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)$ENL\tat kotlin.test.AssertionsKt.assertTrue(Unknown Source)$ENL\tat FailedTest.booleanFailure(tests.kt:13)$ENL"
-                            )
-                        }
+                suiteWithFlow("FailedTest", locationHint = "java:suite://FailedTest") {
+                    testWithFlow("FailedTest.doTest()", locationHint = "java:test://FailedTest/doTest") {
+                    }
+                    testWithFlow(
+                        "FailedTest.stringComparisonFailure()",
+                        locationHint = "java:test://FailedTest/stringComparisonFailure"
+                    ) {
+                        testFailed(
+                            message = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>",
+                            expectedValue = "EXPECTED_VALUE",
+                            actualValue = "ACTUAL_VALUE",
+                            serializedStackTrace = "org.opentest4j.AssertionFailedError: Strings are not equal ==> expected: <EXPECTED_VALUE> but was: <ACTUAL_VALUE>$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)$ENL\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)$ENL\tat org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)$ENL\tat org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)$ENL\tat org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)$ENL\tat kotlin.test.AssertionsKt.assertEquals(Unknown Source)$ENL\tat FailedTest.stringComparisonFailure(tests.kt:18)$ENL"
+                        )
+                    }
+                    testWithFlow(
+                        "FailedTest.booleanFailure()",
+                        locationHint = "java:test://FailedTest/booleanFailure"
+                    ) {
+                        testFailed(
+                            message = "org.opentest4j.AssertionFailedError: The boolean value is incorrect",
+                            serializedStackTrace = "org.opentest4j.AssertionFailedError: The boolean value is incorrect$ENL\tat org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)$ENL\tat org.junit.jupiter.api.Assertions.fail(Assertions.java:143)$ENL\tat kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:694)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.Asserter.assertTrue(Assertions.kt:704)$ENL\tat kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)$ENL\tat kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)$ENL\tat kotlin.test.AssertionsKt.assertTrue(Unknown Source)$ENL\tat FailedTest.booleanFailure(tests.kt:13)$ENL"
+                        )
                     }
                 }
-                suiteWithFlow("JUnit Vintage")
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
@@ -125,49 +127,78 @@ class AmperTestFormatTest : AmperCliTestBase() {
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter")
-                suiteWithFlow("JUnit Vintage") {
-                    suiteWithFlow("com.example.jvmcli.OrderedTestSuite", locationHint = "java:suite://com.example.jvmcli.OrderedTestSuite") {
-                        suiteWithFlow("com.example.jvmcli.JvmIntegrationTest", locationHint = "java:suite://com.example.jvmcli.JvmIntegrationTest") {
-                            testWithFlow("com.example.jvmcli.JvmIntegrationTest.integrationTest()", locationHint = "java:test://com.example.jvmcli.JvmIntegrationTest/integrationTest") {
-                                testStdOut("output line 1 in JvmIntegrationTest.integrationTest")
-                                testStdOut(NL)
-                                testStdErr("error line 1 in JvmIntegrationTest.integrationTest")
-                                testStdErr(NL)
-                                testStdOut("output line 2 in JvmIntegrationTest.integrationTest")
-                                testStdOut(NL)
-                                testStdErr("error line 2 in JvmIntegrationTest.integrationTest")
-                                testStdErr(NL)
-                            }
+                suiteWithFlow(
+                    "com.example.jvmcli.OrderedTestSuite",
+                    locationHint = "java:suite://com.example.jvmcli.OrderedTestSuite"
+                ) {
+                    suiteWithFlow(
+                        "com.example.jvmcli.JvmIntegrationTest",
+                        locationHint = "java:suite://com.example.jvmcli.JvmIntegrationTest"
+                    ) {
+                        testWithFlow(
+                            "com.example.jvmcli.JvmIntegrationTest.integrationTest()",
+                            locationHint = "java:test://com.example.jvmcli.JvmIntegrationTest/integrationTest"
+                        ) {
+                            testStdOut("output line 1 in JvmIntegrationTest.integrationTest")
+                            testStdOut(NL)
+                            testStdErr("error line 1 in JvmIntegrationTest.integrationTest")
+                            testStdErr(NL)
+                            testStdOut("output line 2 in JvmIntegrationTest.integrationTest")
+                            testStdOut(NL)
+                            testStdErr("error line 2 in JvmIntegrationTest.integrationTest")
+                            testStdErr(NL)
                         }
-                        suiteWithFlow("com.example.jvmcli.MyClass1Test", locationHint = "java:suite://com.example.jvmcli.MyClass1Test") {
-                            testWithFlow("com.example.jvmcli.MyClass1Test.test1()", locationHint = "java:test://com.example.jvmcli.MyClass1Test/test1") {
-                                testStdOut("running MyClass1Test.test1")
-                                testStdOut(NL)
-                            }
-                            testWithFlow("com.example.jvmcli.MyClass1Test.test2()", locationHint = "java:test://com.example.jvmcli.MyClass1Test/test2") {
-                                testStdOut("running MyClass1Test.test2")
-                                testStdOut(NL)
-                            }
-                            testWithFlow("com.example.jvmcli.MyClass1Test.test3()", locationHint = "java:test://com.example.jvmcli.MyClass1Test/test3") {
-                                testStdOut("running MyClass1Test.test3")
-                                testStdOut(NL)
-                            }
+                    }
+                    suiteWithFlow(
+                        "com.example.jvmcli.MyClass1Test",
+                        locationHint = "java:suite://com.example.jvmcli.MyClass1Test"
+                    ) {
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass1Test.test1()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass1Test/test1"
+                        ) {
+                            testStdOut("running MyClass1Test.test1")
+                            testStdOut(NL)
                         }
-                        suiteWithFlow("com.example.jvmcli.MyClass2Test", locationHint = "java:suite://com.example.jvmcli.MyClass2Test") {
-                            testWithFlow("com.example.jvmcli.MyClass2Test.test1()", locationHint = "java:test://com.example.jvmcli.MyClass2Test/test1") {
-                                testStdOut("running MyClass2Test.test1")
-                                testStdOut(NL)
-                            }
-                            testWithFlow("com.example.jvmcli.MyClass2Test.test2()", locationHint = "java:test://com.example.jvmcli.MyClass2Test/test2") {
-                                testStdOut("running MyClass2Test.test2")
-                                testStdOut(NL)
-                            }
-                            testWithFlow("com.example.jvmcli.MyClass2Test.test3()", locationHint = "java:test://com.example.jvmcli.MyClass2Test/test3") {
-                                testStdOut("running MyClass2Test.test3")
-                                testStdOut(NL)
-                            }
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass1Test.test2()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass1Test/test2"
+                        ) {
+                            testStdOut("running MyClass1Test.test2")
+                            testStdOut(NL)
+                        }
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass1Test.test3()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass1Test/test3"
+                        ) {
+                            testStdOut("running MyClass1Test.test3")
+                            testStdOut(NL)
+                        }
+                    }
+                    suiteWithFlow(
+                        "com.example.jvmcli.MyClass2Test",
+                        locationHint = "java:suite://com.example.jvmcli.MyClass2Test"
+                    ) {
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass2Test.test1()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass2Test/test1"
+                        ) {
+                            testStdOut("running MyClass2Test.test1")
+                            testStdOut(NL)
+                        }
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass2Test.test2()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass2Test/test2"
+                        ) {
+                            testStdOut("running MyClass2Test.test2")
+                            testStdOut(NL)
+                        }
+                        testWithFlow(
+                            "com.example.jvmcli.MyClass2Test.test3()",
+                            locationHint = "java:test://com.example.jvmcli.MyClass2Test/test3"
+                        ) {
+                            testStdOut("running MyClass2Test.test3")
+                            testStdOut(NL)
                         }
                     }
                 }
@@ -199,33 +230,32 @@ class AmperTestFormatTest : AmperCliTestBase() {
 
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter") {
-                    suiteWithFlow("com.example.testswithparams.OverloadsTest", locationHint = "java:suite://com.example.testswithparams.OverloadsTest") {
-                        testWithFlow(
-                            name = "com.example.testswithparams.OverloadsTest.test()",
-                            locationHint = "java:test://com.example.testswithparams.OverloadsTest/test",
-                        ) {
-                            testStdOut("running OverloadsTest.test()")
-                            testStdOut(NL)
-                        }
-                        testWithFlow(
-                            name = "com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)",
-                            locationHint = "java:test://com.example.testswithparams.OverloadsTest/test[org.junit.jupiter.api.TestInfo]",
-                        ) {
-                            testStdOut("running OverloadsTest.test(TestInfo)")
-                            testStdOut(NL)
-                        }
-                        testWithFlow(
-                            name = "com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)",
-                            locationHint = "java:test://com.example.testswithparams.OverloadsTest/test[org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter]",
-                        ) {
-                            testStdOut("running OverloadsTest.test(TestInfo, TestReporter)")
-                            testStdOut(NL)
-                        }
+                suiteWithFlow(
+                    "com.example.testswithparams.OverloadsTest",
+                    locationHint = "java:suite://com.example.testswithparams.OverloadsTest"
+                ) {
+                    testWithFlow(
+                        name = "com.example.testswithparams.OverloadsTest.test()",
+                        locationHint = "java:test://com.example.testswithparams.OverloadsTest/test",
+                    ) {
+                        testStdOut("running OverloadsTest.test()")
+                        testStdOut(NL)
+                    }
+                    testWithFlow(
+                        name = "com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo)",
+                        locationHint = "java:test://com.example.testswithparams.OverloadsTest/test[org.junit.jupiter.api.TestInfo]",
+                    ) {
+                        testStdOut("running OverloadsTest.test(TestInfo)")
+                        testStdOut(NL)
+                    }
+                    testWithFlow(
+                        name = "com.example.testswithparams.OverloadsTest.test(org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter)",
+                        locationHint = "java:test://com.example.testswithparams.OverloadsTest/test[org.junit.jupiter.api.TestInfo, org.junit.jupiter.api.TestReporter]",
+                    ) {
+                        testStdOut("running OverloadsTest.test(TestInfo, TestReporter)")
+                        testStdOut(NL)
                     }
                 }
-                suiteWithFlow("JUnit Vintage")
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
@@ -241,38 +271,34 @@ class AmperTestFormatTest : AmperCliTestBase() {
             )
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter") {
-                    suiteWithFlow("GeneratorTest", locationHint = "java:suite://GeneratorTest") {
-                        suiteWithFlow(
+                suiteWithFlow("GeneratorTest", locationHint = "java:suite://GeneratorTest") {
+                    suiteWithFlow(
+                        name = "GeneratorTest.testFactory()",
+                        locationHint = "java:test://GeneratorTest/testFactory",
+                    ) {
+                        testWithFlow(
                             name = "GeneratorTest.testFactory()",
                             locationHint = "java:test://GeneratorTest/testFactory",
                         ) {
-                            testWithFlow(
-                                name = "GeneratorTest.testFactory()",
-                                locationHint = "java:test://GeneratorTest/testFactory",
-                            ) {
-                                testStdOut("running generated test with 0")
-                                testStdOut(NL)
-                            }
-                            testWithFlow(
-                                name = "GeneratorTest.testFactory()",
-                                locationHint = "java:test://GeneratorTest/testFactory",
-                            ) {
-                                testStdOut("running generated test with 1")
-                                testStdOut(NL)
-                            }
-                            testWithFlow(
-                                name = "GeneratorTest.testFactory()",
-                                locationHint = "java:test://GeneratorTest/testFactory",
-                            ) {
-                                testStdOut("running generated test with 2")
-                                testStdOut(NL)
-                            }
+                            testStdOut("running generated test with 0")
+                            testStdOut(NL)
+                        }
+                        testWithFlow(
+                            name = "GeneratorTest.testFactory()",
+                            locationHint = "java:test://GeneratorTest/testFactory",
+                        ) {
+                            testStdOut("running generated test with 1")
+                            testStdOut(NL)
+                        }
+                        testWithFlow(
+                            name = "GeneratorTest.testFactory()",
+                            locationHint = "java:test://GeneratorTest/testFactory",
+                        ) {
+                            testStdOut("running generated test with 2")
+                            testStdOut(NL)
                         }
                     }
                 }
-                suiteWithFlow("JUnit Vintage")
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
@@ -288,28 +314,24 @@ class AmperTestFormatTest : AmperCliTestBase() {
             )
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter") {
-                    suiteWithFlow("AbortedTest", locationHint = "java:suite://AbortedTest") {
-                        testWithFlow(
-                            name = "AbortedTest.assumeWithoutMessage()",
-                            locationHint = "java:test://AbortedTest/assumeWithoutMessage",
-                        ) {
-                            testStdOut("running assume without message")
-                            testStdOut(NL)
-                            testIgnored("Assumption failed: assumption is not true")
-                        }
-                        testWithFlow(
-                            name = "AbortedTest.assumeWithMessage()",
-                            locationHint = "java:test://AbortedTest/assumeWithMessage",
-                        ) {
-                            testStdOut("running assume with message")
-                            testStdOut(NL)
-                            testIgnored("Assumption failed: 1 is not equal to 2 in this universe")
-                        }
+                suiteWithFlow("AbortedTest", locationHint = "java:suite://AbortedTest") {
+                    testWithFlow(
+                        name = "AbortedTest.assumeWithoutMessage()",
+                        locationHint = "java:test://AbortedTest/assumeWithoutMessage",
+                    ) {
+                        testStdOut("running assume without message")
+                        testStdOut(NL)
+                        testIgnored("Assumption failed: assumption is not true")
+                    }
+                    testWithFlow(
+                        name = "AbortedTest.assumeWithMessage()",
+                        locationHint = "java:test://AbortedTest/assumeWithMessage",
+                    ) {
+                        testStdOut("running assume with message")
+                        testStdOut(NL)
+                        testIgnored("Assumption failed: 1 is not equal to 2 in this universe")
                     }
                 }
-                suiteWithFlow("JUnit Vintage")
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }
@@ -325,27 +347,23 @@ class AmperTestFormatTest : AmperCliTestBase() {
             )
             val serviceMessages = parseTeamCityServiceMessages(r.stdout)
             val expectedMessages = buildServiceMessages {
-                suiteWithFlow("JUnit Platform Suite")
-                suiteWithFlow("JUnit Jupiter") {
-                    suiteWithFlow("IgnoredTest", locationHint = "java:suite://IgnoredTest") {
-                        testWithFlow(
-                            name = "IgnoredTest.ignoredWithoutMessage()",
-                            locationHint = "java:test://IgnoredTest/ignoredWithoutMessage",
-                        ) {
-                            testIgnored("public final void IgnoredTest.ignoredWithoutMessage() is @Disabled")
-                        }
-                        testWithFlow(
-                            name = "IgnoredTest.ignoredWithMessage()",
-                            locationHint = "java:test://IgnoredTest/ignoredWithMessage",
-                        ) {
-                            testIgnored("Ignored for a reason")
-                        }
+                suiteWithFlow("IgnoredTest", locationHint = "java:suite://IgnoredTest") {
+                    testWithFlow(
+                        name = "IgnoredTest.ignoredWithoutMessage()",
+                        locationHint = "java:test://IgnoredTest/ignoredWithoutMessage",
+                    ) {
+                        testIgnored("public final void IgnoredTest.ignoredWithoutMessage() is @Disabled")
                     }
-                    suiteWithFlow("IgnoredSuiteTest", locationHint = "java:suite://IgnoredSuiteTest") {
-                        testSuiteIgnored("Ignoring the suite")
+                    testWithFlow(
+                        name = "IgnoredTest.ignoredWithMessage()",
+                        locationHint = "java:test://IgnoredTest/ignoredWithMessage",
+                    ) {
+                        testIgnored("Ignored for a reason")
                     }
                 }
-                suiteWithFlow("JUnit Vintage")
+                suiteWithFlow("IgnoredSuiteTest", locationHint = "java:suite://IgnoredSuiteTest") {
+                    testSuiteIgnored("Ignoring the suite")
+                }
             }
             assertServiceMessagesEqual(expectedMessages, serviceMessages)
         }

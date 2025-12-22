@@ -51,6 +51,7 @@ class TeamCityMessagesTestExecutionListener(
     private val alsoPrintNormalOutput = System.getProperty("$configPropertyGroup.alsoPrintNormalOutput", "false").toBooleanStrict()
 
     private val currentTest = InheritableThreadLocal<TestIdentifier?>()
+    private val ignoredRootContainers = mutableSetOf<UniqueId>()
 
     private val watchedStdout = watchedStream(
         original = System.out,
@@ -91,6 +92,9 @@ class TeamCityMessagesTestExecutionListener(
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         testPlanId = UUID.randomUUID().toString()
+        // We don't want to have engine containers in the tree output of the run,
+        // as they introduce extra nesting level without adding much to the semantic grouping of the tests.
+        ignoredRootContainers.addAll(testPlan.roots.map { it.uniqueIdObject })
     }
 
     /**
@@ -105,10 +109,13 @@ class TeamCityMessagesTestExecutionListener(
      * Equivalent to [teamCityFlowId] but for the parent identifier of this test.
      */
     private val TestIdentifier.teamCityParentFlowId: String?
-        get() = parentId.getOrNull()?.let { "$it-$testPlanId" }
+        get() = parentIdObject
+            .getOrNull()
+            ?.takeIf { it !in ignoredRootContainers }
+            ?.let { "$it-$testPlanId" }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
-        if (!enabled) return
+        if (shouldIgnore(testIdentifier)) return
         emit(FlowStarted(testIdentifier.teamCityFlowId, testIdentifier.teamCityParentFlowId))
         val locationHint = testIdentifier.toIntelliJLocationHint()
         @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
@@ -133,7 +140,7 @@ class TeamCityMessagesTestExecutionListener(
     // However, for IntelliJ we are better with reporting start and finish, because testStarted and testSuiteStarted
     // hold the location hint information which can be used to navigate to the ignored test or suite.
     override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
-        if (!enabled) return
+        if (shouldIgnore(testIdentifier)) return
         executionStarted(testIdentifier)
         // TeamCity seems to only care about ignored tests (not ignored suites), but it might not harm to report it.
         // Therefore, no need for the distinction on the identifier type.
@@ -142,7 +149,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
-        if (!enabled) return
+        if (shouldIgnore(testIdentifier)) return
         // make sure partial output at the end of the tests is reported
         watchedStdout.forceFlush()
         watchedStderr.forceFlush()
@@ -195,7 +202,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun reportingEntryPublished(testIdentifier: TestIdentifier, entry: ReportEntry) {
-        if (!enabled) return
+        if (shouldIgnore(testIdentifier)) return
         entry.keyValuePairs.forEach { (key, value) ->
             // We don't use the standard `stdout` and `stderr` keys (from the stream capture feature of JUnit)
             // in any special way anymore. We can't use them for TC reporting, because we want to report these
@@ -215,7 +222,7 @@ class TeamCityMessagesTestExecutionListener(
     }
 
     override fun fileEntryPublished(testIdentifier: TestIdentifier, file: FileEntry) {
-        if (!enabled) return
+        if (shouldIgnore(testIdentifier)) return
         emit(PublishArtifacts(file.path.pathString).withFlowId(testIdentifier).withTimestamp(file.timestamp))
     }
 
@@ -235,6 +242,9 @@ class TeamCityMessagesTestExecutionListener(
         setFlowId(testIdentifier.teamCityFlowId)
         return this
     }
+
+    private fun shouldIgnore(testIdentifier: TestIdentifier): Boolean =
+        !enabled || testIdentifier.uniqueIdObject in ignoredRootContainers
 }
 
 /**
