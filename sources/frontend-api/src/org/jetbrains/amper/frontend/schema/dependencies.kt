@@ -15,7 +15,10 @@ import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
+import org.jetbrains.amper.frontend.userGuideUrl
 import java.nio.file.Path
+
+private const val dependenciesGuideUrl = "$userGuideUrl/dependencies"
 
 @EnumOrderSensitive
 enum class DependencyScope(
@@ -42,17 +45,17 @@ sealed class ScopedDependency : Dependency() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
     @Shorthand
-    @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
+    @SchemaDoc("Whether a dependency should be [visible as a part of a published API]($dependenciesGuideUrl/#transitivity)")
     val exported by value(false)
     
     @Shorthand
-    @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
+    @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes]($dependenciesGuideUrl/#scopes)")
     val scope by value(DependencyScope.ALL)
 }
 
 class ExternalMavenDependency : ScopedDependency() {
 
-    @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
+    @SchemaDoc("Dependency on [a Kotlin or Java library]($dependenciesGuideUrl/#external-maven-dependencies) in a Maven repository")
     @StringSemantics(Semantics.MavenCoordinates)
     @FromKeyAndTheRestIsNested
     val coordinates by value<String>()
@@ -60,14 +63,14 @@ class ExternalMavenDependency : ScopedDependency() {
 
 class InternalDependency : ScopedDependency() {
 
-    @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
+    @SchemaDoc("Dependency [on another module]($dependenciesGuideUrl/#module-dependencies) in the codebase")
     @FromKeyAndTheRestIsNested
     val path by value<Path>()
 }
 
 class CatalogDependency : ScopedDependency() {
 
-    @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
+    @SchemaDoc("Dependency from [a library catalog]($dependenciesGuideUrl/#library-catalogs)")
     @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()
 }
@@ -115,7 +118,7 @@ sealed class BomDependency : Dependency()
 
 class ExternalMavenBomDependency : BomDependency() {
 
-    @SchemaDoc("Dependency on [a BOM](#external-maven-dependencies) in a Maven repository")
+    @SchemaDoc("Dependency on [a BOM]($dependenciesGuideUrl/#using-a-maven-bom) in a Maven repository")
     @FromKeyAndTheRestIsNested
     @StringSemantics(Semantics.MavenCoordinates)
     val coordinates by value<String>()
@@ -123,7 +126,7 @@ class ExternalMavenBomDependency : BomDependency() {
 
 class CatalogBomDependency : BomDependency() {
 
-    @SchemaDoc("BOM dependency from [a dependency catalog](#dependencyversion-catalogs)")
+    @SchemaDoc("BOM dependency from [a library catalog]($dependenciesGuideUrl/#library-catalogs)")
     @FromKeyAndTheRestIsNested
     val catalogKey by value<String>()
 }

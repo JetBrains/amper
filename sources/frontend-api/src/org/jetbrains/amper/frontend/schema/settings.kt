@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.userGuideUrl
 import java.nio.file.Path
 
 @SchemaDoc("JUnit version that is used for the module tests")
@@ -48,12 +49,12 @@ class Settings : SchemaNode() {
 
     @PlatformAgnostic
     @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework. " +
-            "Read more about [Compose configuration](#configuring-compose-multiplatform)")
+            "Read more about [Compose configuration]($userGuideUrl/builtin-tech/compose-multiplatform/)")
     val compose: ComposeSettings by nested()
 
     @Misnomers("test")
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
-            "Read more about [testing support](#tests)")
+            "Read more about [testing support]($userGuideUrl/testing/)")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     val junit by value(JUnitVersion.JUNIT5)
 
@@ -179,7 +180,7 @@ class IosSettings : SchemaNode() {
             " or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)")
     val teamId by nullableValue<String>()
 
-    @SchemaDoc("(Only for the library [product type](#product-types) " +
+    @SchemaDoc("(Only for the library [product type]($userGuideUrl/product-types/) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
     @ProductTypeSpecific(ProductType.LIB)
     val framework: IosFrameworkSettings by nested()

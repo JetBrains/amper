@@ -34,3 +34,7 @@ interface Context {
     val pretty: String
     val leaves: Set<Context>
 }
+
+// TODO: Versioning?
+internal const val baseDocUrl: String = "https://amper.org/latest"
+internal const val userGuideUrl: String = "$baseDocUrl/user-guide"

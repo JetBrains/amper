@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
+import org.jetbrains.amper.frontend.userGuideUrl
 
 enum class DependencyMode(override val schemaValue: String, override val outdated: Boolean = false): SchemaEnum {
     CLASSES("classes"),
@@ -75,7 +76,7 @@ class JvmSettings : SchemaNode() {
     @KnownIntValues(25, 21, 17, 11, 8)
     val release: Int? by dependentValue(::jdk) { jdk.version }
 
-    @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
+    @SchemaDoc("(Only for `jvm/app` [product type]($userGuideUrl/product-types)). The fully-qualified name of the class used to run the application")
     @ProductTypeSpecific(ProductType.JVM_APP)
     @StringSemantics(Semantics.JvmMainClass)
     val mainClass by nullableValue<String>()
