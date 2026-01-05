@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.junit.listeners
@@ -15,6 +15,7 @@ import jetbrains.buildServer.messages.serviceMessages.TestStarted
 import jetbrains.buildServer.messages.serviceMessages.TestStdErr
 import jetbrains.buildServer.messages.serviceMessages.TestStdOut
 import jetbrains.buildServer.messages.serviceMessages.TestSuiteFinished
+import jetbrains.buildServer.messages.serviceMessages.TestSuiteStarted
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
@@ -48,8 +49,10 @@ class TeamCityMessagesTestExecutionListener(
 ) : TestExecutionListener {
 
     private val enabled = System.getProperty("$configPropertyGroup.enabled", "false").toBooleanStrict()
-    private val alsoPrintNormalOutput = System.getProperty("$configPropertyGroup.alsoPrintNormalOutput", "false").toBooleanStrict()
+    private val alsoPrintNormalOutput =
+        System.getProperty("$configPropertyGroup.alsoPrintNormalOutput", "false").toBooleanStrict()
 
+    private val currentTestPlan = InheritableThreadLocal<TestPlan?>()
     private val currentTest = InheritableThreadLocal<TestIdentifier?>()
     private val ignoredRootContainers = mutableSetOf<UniqueId>()
 
@@ -59,7 +62,11 @@ class TeamCityMessagesTestExecutionListener(
         forwardToOriginalStream = alsoPrintNormalOutput,
         currentTest = currentTest,
     ) { testId, output ->
-        emit(TestStdOut(testId.teamCityName, output).withFlowId(testId))
+        emit(
+            TestStdOut(testId.teamCityName, output)
+                .withFlowId(testId)
+                .withDisplayName(testId.displayName)
+        )
     }
 
     private val watchedStderr = watchedStream(
@@ -68,7 +75,11 @@ class TeamCityMessagesTestExecutionListener(
         forwardToOriginalStream = alsoPrintNormalOutput,
         currentTest = currentTest,
     ) { testId, output ->
-        emit(TestStdErr(testId.teamCityName, output).withFlowId(testId))
+        emit(
+            TestStdErr(testId.teamCityName, output)
+                .withFlowId(testId)
+                .withDisplayName(testId.displayName)
+        )
     }
 
     /**
@@ -95,6 +106,7 @@ class TeamCityMessagesTestExecutionListener(
         // We don't want to have engine containers in the tree output of the run,
         // as they introduce extra nesting level without adding much to the semantic grouping of the tests.
         ignoredRootContainers.addAll(testPlan.roots.map { it.uniqueIdObject })
+        currentTestPlan.set(testPlan)
     }
 
     /**
@@ -120,17 +132,25 @@ class TeamCityMessagesTestExecutionListener(
         val locationHint = testIdentifier.toIntelliJLocationHint()
         @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
         when (testIdentifier.type) {
-            TestDescriptor.Type.CONTAINER -> {
-                emit(TestSuiteStartedWithLocation(testIdentifier.teamCityName, locationHint).withFlowId(testIdentifier))
-            }
+            TestDescriptor.Type.CONTAINER -> emit(
+                TestSuiteStarted(testIdentifier.teamCityName)
+                    .withFlowId(testIdentifier)
+                    .withLocationHint(locationHint)
+                    .withDisplayName(testIdentifier.displayName)
+            )
             TestDescriptor.Type.TEST,
-            TestDescriptor.Type.CONTAINER_AND_TEST -> {
+            TestDescriptor.Type.CONTAINER_AND_TEST,
+                -> {
                 currentTest.set(testIdentifier)
                 markStart(testIdentifier)
                 // disable automatic stdout/stderr capture between start&stop messages
                 // (we use proper service messages to report it, so no need for guesswork)
                 val captureStdOutput = false
-                emit(TestStarted(testIdentifier.teamCityName, captureStdOutput, locationHint).withFlowId(testIdentifier))
+                emit(
+                    TestStarted(testIdentifier.teamCityName, captureStdOutput, locationHint)
+                        .withFlowId(testIdentifier)
+                        .withDisplayName(testIdentifier.displayName)
+                )
             }
         }
     }
@@ -144,7 +164,11 @@ class TeamCityMessagesTestExecutionListener(
         executionStarted(testIdentifier)
         // TeamCity seems to only care about ignored tests (not ignored suites), but it might not harm to report it.
         // Therefore, no need for the distinction on the identifier type.
-        emit(TestIgnored(testIdentifier.teamCityName, reason).withFlowId(testIdentifier))
+        emit(
+            TestIgnored(testIdentifier.teamCityName, reason)
+                .withFlowId(testIdentifier)
+                .withDisplayName(testIdentifier.displayName)
+        )
         executionFinished(testIdentifier, TestExecutionResult.successful())
     }
 
@@ -156,11 +180,14 @@ class TeamCityMessagesTestExecutionListener(
         currentTest.set(null)
         @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA") // TestIdentifier can't be constructed with the `null` `type`
         when (testIdentifier.type) {
-            TestDescriptor.Type.CONTAINER -> {
-                emit(TestSuiteFinished(testIdentifier.teamCityName).withFlowId(testIdentifier))
-            }
+            TestDescriptor.Type.CONTAINER -> emit(
+                TestSuiteFinished(testIdentifier.teamCityName)
+                    .withFlowId(testIdentifier)
+                    .withDisplayName(testIdentifier.displayName)
+            )
             TestDescriptor.Type.TEST,
-            TestDescriptor.Type.CONTAINER_AND_TEST -> {
+            TestDescriptor.Type.CONTAINER_AND_TEST,
+                -> {
                 when (testExecutionResult.status) {
                     TestExecutionResult.Status.SUCCESSFUL -> {} // just 'finished' is considered a success
                     TestExecutionResult.Status.FAILED -> {
@@ -170,7 +197,14 @@ class TeamCityMessagesTestExecutionListener(
                         emit(testFailedMessage(testIdentifier, testExecutionResult, "Test was aborted"))
                     }
                 }
-                emit(TestFinished(testIdentifier.teamCityName, elapsedMillis(testIdentifier)).withFlowId(testIdentifier))
+                emit(
+                    TestFinished(
+                        testIdentifier.teamCityName,
+                        elapsedMillis(testIdentifier)
+                    )
+                        .withFlowId(testIdentifier)
+                        .withDisplayName(testIdentifier.displayName)
+                )
             }
         }
         emit(FlowFinished(testIdentifier.teamCityFlowId))
@@ -198,7 +232,9 @@ class TeamCityMessagesTestExecutionListener(
             throwable != null -> TestFailed(testIdentifier.teamCityName, throwable)
             else -> TestFailed(testIdentifier.teamCityName, messageIfNoException)
         }
-        return testFailed.withFlowId(testIdentifier)
+        return testFailed
+            .withFlowId(testIdentifier)
+            .withDisplayName(testIdentifier.displayName)
     }
 
     override fun reportingEntryPublished(testIdentifier: TestIdentifier, entry: ReportEntry) {
@@ -217,7 +253,12 @@ class TeamCityMessagesTestExecutionListener(
                 StreamingOutputKeys.STDERR -> TestStdErr(testIdentifier.teamCityName, value)
                 else -> TestMetadata(testName = testIdentifier.teamCityName, name = key, value = value)
             }
-            emit(message.withFlowId(testIdentifier).withTimestamp(entry.timestamp))
+            emit(
+                message
+                    .withFlowId(testIdentifier)
+                    .withTimestamp(entry.timestamp)
+                    .withDisplayName(testIdentifier.displayName)
+            )
         }
     }
 
@@ -245,6 +286,58 @@ class TeamCityMessagesTestExecutionListener(
 
     private fun shouldIgnore(testIdentifier: TestIdentifier): Boolean =
         !enabled || testIdentifier.uniqueIdObject in ignoredRootContainers
+
+    /**
+     * The name of the test identified by this ID, in the format expected by Teamcity.
+     *
+     * TeamCity mentions in the documentation:
+     *   > A full test name can have a form of:
+     *   > `<suite name>: <package/namespace name>.<class name>.<test method>(<test parameters>)`,
+     *   > where `<class name>` and `<test method>` cannot have dots in the names.
+     *   > Only `<test method>` is a mandatory part of a full test name.
+     *
+     * However, what is actually useful for the reporting are **arguments**, not **parameters**.
+     * Considering, that [TestIdentifier] doesn't have this information (only types), we resort to using
+     * [TestIdentifier.displayName] instead of <test method>(<test parameters>) segment as the most user-friendly name.
+     *
+     * For the better grouping and filtering we also prepend full class name in case the test originates from a class.
+     *
+     * Relevant TeamCity docs:
+     *  * On [test name unicity](https://www.jetbrains.com/help/teamcity/service-messages.html#Nested+Test+Reporting)
+     *  * On [the exact test name format](https://www.jetbrains.com/help/teamcity/service-messages.html#Interpreting+Test+Names)
+     */
+    private val TestIdentifier.teamCityName: String
+        get() {
+            val parentContainer = parentContainer
+            return buildString {
+                if (parentContainer != null) {
+                    append(parentContainer.teamCityName)
+                    append(": ")
+                }
+                append(sourcePrefix)
+                append(displayName)
+            }
+        }
+
+    private val TestIdentifier.parentContainer: TestIdentifier?
+        get() = currentTestPlan.get()
+            ?.getParent(this)
+            ?.getOrNull()
+            // Do not add root containers to TC name.
+            ?.takeIf { it.uniqueIdObject !in ignoredRootContainers }
+
+    private val TestIdentifier.sourcePrefix: String
+        get() = when (val source = source.getOrNull()) {
+            // Prepend package information to separate suites with the same name
+            is ClassSource -> {
+                val packageName = source.javaClass.packageName
+                if (packageName.isNotBlank()) "$packageName." else ""
+            }
+            // Prepend full class name if the test originates from method
+            // to have filtering by package and class in TeamCity.
+            is MethodSource -> "${source.className}."
+            else -> ""
+        }
 }
 
 /**
@@ -292,20 +385,6 @@ private fun LocalDateTime.toJavaDateInSystemTimeZone(): Date {
 }
 
 /**
- * The name of the test in identified by this ID, in the format expected by Teamcity. It should look like this:
- *
- * `<suite name>: <package/namespace name>.<class name>.<test method>(<test parameters>)`
- *
- * See [the TeamCity docs](https://www.jetbrains.com/help/teamcity/service-messages.html#Interpreting+Test+Names).
- */
-private val TestIdentifier.teamCityName: String
-    get() = when (val s = source.getOrNull()) {
-        is MethodSource -> "${s.className}.${s.methodName}(${s.methodParameterTypes})"
-        is ClassSource -> s.className
-        else -> displayName
-    }
-
-/**
  * This format is based on the one expected by `com.intellij.execution.testframework.JavaLocator` from IntelliJ.
  */
 private fun TestIdentifier.toIntelliJLocationHint(): String? = when (val s = source.getOrNull()) {
@@ -329,20 +408,22 @@ private fun TestIdentifier.toIntelliJLocationHint(): String? = when (val s = sou
 }
 
 /**
- * Test suite started message extended with a location hint required for IntelliJ to navigate.
+ * Adds more user-friendly display name to the given [ServiceMessage].
+ */
+private fun ServiceMessage.withDisplayName(displayName: String): ServiceMessage = object : MessageWithAttributes(
+    messageName,
+    attributes + mapOf("displayName" to displayName)
+) {}
+
+/**
+ * Adds a location hint to the given [ServiceMessage].
  *
  * @see toIntelliJLocationHint
  */
-private class TestSuiteStartedWithLocation(
-    suiteName: String,
-    locationHint: String?
-): MessageWithAttributes(
-    ServiceMessageTypes.TEST_SUITE_STARTED,
-    buildMap {
-        put("name", suiteName)
-        locationHint?.let { put("locationHint", it) }
-    },
-)
+private fun ServiceMessage.withLocationHint(locationHint: String?): ServiceMessage {
+    if (locationHint == null) return this
+    return object : MessageWithAttributes(messageName, attributes + mapOf("locationHint" to locationHint)) {}
+}
 
 /**
  * Represents a test metadata message as defined in
