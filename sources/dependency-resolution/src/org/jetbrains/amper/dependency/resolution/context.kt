@@ -170,8 +170,8 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
      * The local repositories to use as extra sources to speed up resolution.
      *
      * Their purpose is only to improve download speeds. This has important implications:
-     * 1. the local artifacts are never returned directly, they are first copied to the configured [localRepository]
-     * 2. the artifacts must exist in one of the remote repositories and we'll check their checksums online first
+     * 1. The local artifacts are never returned directly, they are first copied to the configured [localRepository]
+     * 2. The artifacts must exist in one of the remote repositories, and we'll check their checksums online first
      */
     var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
 
@@ -205,8 +205,8 @@ fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
 }
 
 // todo (AB) : Should it be emptyList by default?
-private fun FileCacheBuilder.defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository.Default)
-private fun FileCacheBuilder.defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
+private fun defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository.Default)
+private fun defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
 
 /**
  * Intended to define a resolution session.
@@ -319,24 +319,24 @@ typealias SpanBuilderSource = (String) -> SpanBuilder
 
 fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
 
-// Copy-pasted from amper-cli
+/**
+ * The string representation of the jdk version.
+ * It is used for evaluating of Maven Profiles jdk activation condition.
+ *
+ * Notes:
+ *   Maven Profiles support "1.x" notation for java major versions before 9 (..., "1.6", "1.7", "1.8")
+ *   and just a release number for versions starting from 9 ("9", "10", ..., "25", ...)
+ */
 data class JavaVersion(
     /**
-     * The integer representation of this version for the `--release` option of the Java compiler, and the
-     * `-Xjdk-release` option of the Kotlin compiler.
-     *
      * Notes:
-     *  * The Java compiler only supports versions from 6 and above for the `--release` option.
-     *  * Despite the documentation, the Kotlin compiler supports "8" as an alias for "1.8" in `-Xjdk-release`, but the
-     *    `-jvm-target` option requires "1.8".
+     *  Maven Profiles support "1.x" notation for java major versions before 9 (..., "1.6", "1.7", "1.8")
+     *  and just a release number for versions starting from 9 ("9", "10", ..., "25", ...)
      */
-    val releaseNumber: Int,
+    val value: String,
 ) {
-    /**
-     * The legacy notation of this version, which uses the "1." prefix for every version before 9.
-     *
-     * Examples: 1.6, 1.7, 1.8, 9, 10, 11, 17, 21
-     */
-    val legacyNotation: String
-        get() = if (releaseNumber <= 8) "1.$releaseNumber" else releaseNumber.toString()
+
+    constructor(releaseNumber: Int) : this(
+        value = if (releaseNumber <= 8) "1.$releaseNumber" else releaseNumber.toString()
+    )
 }

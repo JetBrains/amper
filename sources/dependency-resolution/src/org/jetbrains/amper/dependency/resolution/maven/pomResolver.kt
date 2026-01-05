@@ -296,7 +296,7 @@ private fun getAndRegisterEnvironmentVariable(name: String, dynamicInputs: Dynam
     dynamicInputs.readEnv(name)
 
 private fun String.isActiveJdk(settings: Settings, dynamicInputs: DynamicInputs): Boolean {
-    val actualVersion = settings.jdkVersion?.legacyNotation
+    val actualVersion = settings.jdkVersion?.value
         ?: getAndRegisterSystemProperty("java.version", dynamicInputs).takeIf { !it.isNullOrEmpty() }
         ?: return false
 
