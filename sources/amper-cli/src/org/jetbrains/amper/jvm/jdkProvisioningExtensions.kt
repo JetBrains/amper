@@ -6,7 +6,8 @@ package org.jetbrains.amper.jvm
 
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
+import org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.jdk.provisioning.Jdk
@@ -33,10 +34,11 @@ internal suspend fun JdkProvider.getJdkOrUserError(jdkSettings: JdkSettings): Jd
  *
  * Potential global errors about `JAVA_HOME` are logged once per instance of [JdkProvider].
  */
+@OptIn(DiscouragedDirectDefaultVersionAccess::class) // this is the point of this function
 suspend fun JdkProvider.getDefaultJdk(selectionMode: JdkSelectionMode = JdkSelectionMode.auto): Jdk =
     context(CliProblemReporter) {
         getJdk(
-            criteria = JdkProvisioningCriteria(majorVersion = UsedVersions.defaultJdkVersion),
+            criteria = JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk),
             selectionMode = selectionMode,
         ).orElse { errorMessage ->
             userReadableError("Could not provide the default JDK: $errorMessage")

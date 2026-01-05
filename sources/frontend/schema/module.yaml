@@ -9,6 +9,7 @@ settings:
     serialization:
       enabled: true
       format: json
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
 
 dependencies:
   - ../../amper-build-info

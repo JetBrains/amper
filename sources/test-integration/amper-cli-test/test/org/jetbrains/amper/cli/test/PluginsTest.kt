@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.normalizeLineSeparators
@@ -69,15 +69,15 @@ class PluginsTest : AmperCliTestBase() {
             classpath base.dependencies = [{modulePath: $projectRoot/app}]
             classpath base.dependencies[0] = {modulePath: $projectRoot/app}
             classpath base.dependencies[0].modulePath = $projectRoot/app
-            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath core.dependencies = [{modulePath: $projectRoot/core}]
             classpath core.dependencies[0] = {modulePath: $projectRoot/core}
             classpath core.dependencies[0].modulePath = $projectRoot/core
-            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
             classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
             classpath lib.dependencies[0].modulePath = $projectRoot/lib
-            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0

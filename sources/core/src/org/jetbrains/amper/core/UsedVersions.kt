@@ -1,23 +1,20 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core
 
-/**
- * User-visible versions used within project. This file should be changed automatically by `syncVersions.sh`.
- * The /*magic_replacement*/ markers are used to find the version.
- */
+@Suppress("unused") // Still used in the IDEA plugin, let's wait until it's updated
 object UsedVersions {
 
-    /*magic_replacement*/ val composeHotReloadVersion = "1.0.0-rc01"
-    /*magic_replacement*/ val composeVersion = "1.8.2"
-    /*magic_replacement*/ val defaultJdkVersion = 21 // TODO bump to 25 when Kotlin supports it
-    /*magic_replacement*/ val defaultKotlinVersion = "2.2.21"
-    /*magic_replacement*/ val junitPlatform = "6.0.1"
-    /*magic_replacement*/ val kotlinxSerializationVersion = "1.9.0"
-    /*magic_replacement*/ val kspVersion = "2.3.0"
-    /*magic_replacement*/ val ktorVersion = "3.2.3"
-    /*magic_replacement*/ val lombokVersion = "1.18.38"
-    /*magic_replacement*/ val springBootVersion = "3.5.5"
+    // Kept because still used in ultimate.git for now
+    @Deprecated(
+        message = "Use the frontend settings instead, not the defaults directly. If you don't have a choice, use " +
+                "`org.jetbrains.amper.frontend.schema.DefaultVersions.kotlin` from the frontend module instead.",
+        replaceWith = ReplaceWith(
+            expression = "DefaultVersions.kotlin",
+            imports = ["org.jetbrains.amper.frontend.schema.DefaultVersions"],
+        ),
+    )
+    val defaultKotlinVersion = "2.2.21"
 }

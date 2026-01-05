@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -8,7 +8,6 @@ import io.opentelemetry.api.OpenTelemetry
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
@@ -16,18 +15,17 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDescriptor
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
@@ -203,8 +201,8 @@ abstract class BaseModuleDrTest {
         if (!goldenFile.exists()) fail("$fileDescription $goldenFile doesn't exist")
         return goldenFile
             .readText()
-            .replace("#kotlinVersion", UsedVersions.defaultKotlinVersion)
-            .replace("#composeDefaultVersion", UsedVersions.composeVersion)
+            .replace("#kotlinVersion", DefaultVersions.kotlin)
+            .replace("#composeDefaultVersion", DefaultVersions.compose)
             .trim()
     }
 
@@ -296,19 +294,19 @@ abstract class BaseModuleDrTest {
         private fun String.replaceVersionsWithVariables(): String =
             replaceArtifactFilenames(
                 filePrefix = "kotlin-stdlib",
-                version = UsedVersions.defaultKotlinVersion,
+                version = DefaultVersions.kotlin,
                 versionVariableName = "kotlinVersion",
             )
                 .replaceCoordinateVersionWithReference(
                     groupPrefix = "org.jetbrains.kotlin",
                     artifactPrefix = "kotlin-",
-                    version = UsedVersions.defaultKotlinVersion,
+                    version = DefaultVersions.kotlin,
                     versionVariableName = "kotlinVersion",
                 )
                 .replaceCoordinateVersionWithReference(
                     groupPrefix = "org.jetbrains.compose",
                     artifactPrefix = "",
-                    version = UsedVersions.composeVersion,
+                    version = DefaultVersions.compose,
                     versionVariableName = "composeDefaultVersion",
                 )
 

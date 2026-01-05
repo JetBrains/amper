@@ -1,11 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.catalogs
 
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.InMemoryVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -23,16 +23,17 @@ import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
-    kotlinVersion = kotlin::version.asTraceableVersion(UsedVersions.defaultKotlinVersion),
-    serializationVersion = kotlin.serialization::version.asTraceableVersion(UsedVersions.kotlinxSerializationVersion)
+    kotlinVersion = kotlin::version.asTraceableVersion(DefaultVersions.kotlin),
+    serializationVersion = kotlin.serialization::version.asTraceableVersion(DefaultVersions.kotlinxSerialization)
         .takeIf { kotlin.serialization.enabled },
-    composeVersion = compose::version.asTraceableVersion(UsedVersions.composeVersion)
+    composeVersion = compose::version.asTraceableVersion(DefaultVersions.compose)
         .takeIf { compose.enabled },
-    ktorVersion = ktor::version.asTraceableVersion(UsedVersions.ktorVersion)
+    ktorVersion = ktor::version.asTraceableVersion(DefaultVersions.ktor)
         .takeIf { ktor.enabled },
-    springBootVersion = springBoot::version.asTraceableVersion(UsedVersions.springBootVersion)
+    springBootVersion = springBoot::version.asTraceableVersion(DefaultVersions.springBoot)
         .takeIf { springBoot.enabled },
-    composeHotReloadVersion = compose.experimental.hotReload::version.asTraceableVersion(UsedVersions.composeHotReloadVersion),
+    composeHotReloadVersion = compose.experimental.hotReload::version
+        .asTraceableVersion(DefaultVersions.composeHotReload),
 )
 
 context(problemReporter: ProblemReporter)

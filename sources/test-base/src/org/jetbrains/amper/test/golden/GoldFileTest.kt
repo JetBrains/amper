@@ -1,10 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test.golden
 
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import org.jetbrains.amper.test.normalizeLineSeparators
 import java.io.File
@@ -73,8 +73,8 @@ abstract class GoldFileTest(val caseName: String, rawBase: Path) {
             .replace("{{ testProcessDir }}", testProcessDir)
             .replace("{{ testResources }}", testResources)
             .replace("{{ fileSeparator }}", File.separator)
-            .replace("#kotlinVersion", UsedVersions.defaultKotlinVersion)
-            .replace("#composeDefaultVersion", UsedVersions.composeVersion)
+            .replace("#kotlinVersion", DefaultVersions.kotlin)
+            .replace("#composeDefaultVersion", DefaultVersions.compose)
     }
 
     open fun doTest() {

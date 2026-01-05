@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -15,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.ModuleDependencyWithOverriddenVersion
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
@@ -61,8 +61,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                 │         ╰─── org.jetbrains:annotations:13.0
                 ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
@@ -72,12 +72,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}
-                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.defaultKotlinVersion}
-                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}, implicit (because the test engine is junit-5)
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${DefaultVersions.kotlin}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
                 │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
                 │              ├─── org.junit:junit-bom:5.10.1
                 │              ├─── org.opentest4j:opentest4j:1.3.0
@@ -93,8 +93,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
                 ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
@@ -103,10 +103,10 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}, implicit (because the test engine is junit-5)
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin} (*)
                 ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                      ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 """.trimIndent(),
@@ -127,9 +127,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 "apiguardian-api-1.1.2.jar",
                 "junit-jupiter-api-5.10.1.jar",
                 "junit-platform-commons-1.10.1.jar",
-                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
-                "kotlin-test-${UsedVersions.defaultKotlinVersion}.jar",
-                "kotlin-test-junit5-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
+                "kotlin-test-${DefaultVersions.kotlin}.jar",
+                "kotlin-test-junit5-${DefaultVersions.kotlin}.jar",
                 "opentest4j-1.3.0.jar",
             ),
             sharedTestFragmentDeps
@@ -258,8 +258,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
             verifyMessages = false,

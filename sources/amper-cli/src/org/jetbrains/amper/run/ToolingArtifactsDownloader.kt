@@ -1,11 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.run
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
@@ -14,6 +13,8 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
+import org.jetbrains.amper.frontend.schema.DefaultVersions
+import org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
@@ -60,9 +61,10 @@ class ToolingArtifactsDownloader(
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 
+    @OptIn(DiscouragedDirectDefaultVersionAccess::class)
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
         listOf(
-            MavenCoordinates("org.springframework.boot", "spring-boot-loader", UsedVersions.springBootVersion)
+            MavenCoordinates("org.springframework.boot", "spring-boot-loader", DefaultVersions.springBoot)
         )
     ).single()
 

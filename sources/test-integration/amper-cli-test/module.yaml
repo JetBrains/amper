@@ -5,6 +5,7 @@ apply:
 
 test-dependencies:
   - ../../core
+  - ../../frontend-api # for DefaultVersions
   - ../../libraries/system-info
   - ../../libraries/telemetry
   - ../../test-base

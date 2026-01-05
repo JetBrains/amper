@@ -1,14 +1,14 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnspecifiedDependencyVersion
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
@@ -50,8 +50,8 @@ class BomTest: BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
         )
@@ -60,7 +60,7 @@ class BomTest: BaseModuleDrTest() {
             listOf(
                 "annotations-13.0.jar",
                 "jackson-annotations-2.18.3.jar",
-                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
             ),
             jvmAppDeps
         )

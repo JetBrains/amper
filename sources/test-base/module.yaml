@@ -36,3 +36,4 @@ apply:
 settings:
   kotlin:
     serialization: enabled
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]

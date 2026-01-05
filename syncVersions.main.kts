@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalPathApi::class)
@@ -42,6 +42,7 @@ val kotlinVersion = "2.2.21" // /!\ Remember to update the KotlinVersion enum wi
 
 val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.8.2"
+val jdkVersion = "21" // TODO bump to 25 when Kotlin supports it
 val junitPlatformVersion = "6.0.1"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.3.0"
@@ -54,12 +55,12 @@ val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this
 val amperWrapperModuleDir = amperRootDir / "sources/amper-wrapper"
 val docsDir = amperRootDir / "docs"
 val versionsCatalogToml = amperRootDir / "libs.versions.toml"
-val usedVersionsKt = amperRootDir / "sources/core/src/org/jetbrains/amper/core/UsedVersions.kt"
+val defaultVersionsKt = amperRootDir / "sources/frontend-api/src/org/jetbrains/amper/frontend/schema/DefaultVersions.kt"
 
 fun syncVersions() {
     println("Making sure user-visible versions are aligned in Amper, docs, and examples...")
     updateVersionsCatalog()
-    updateUsedVersionsKt()
+    updateDefaultVersionsKt()
     updateAmperWrappers()
     updateWrapperTemplates()
     println("Done.")
@@ -80,22 +81,28 @@ fun String.replaceCatalogVersionVariable(variableName: String, newValue: String)
     replacement = newValue,
 )
 
-fun updateUsedVersionsKt() {
-    usedVersionsKt.replaceFileText { text ->
+fun updateDefaultVersionsKt() {
+    defaultVersionsKt.replaceFileText { text ->
         text
-            .replaceBundledVersionVariable(variableName = "defaultKotlinVersion", newValue = kotlinVersion)
-            .replaceBundledVersionVariable(variableName = "kotlinxSerializationVersion", newValue = kotlinxSerializationVersion)
-            .replaceBundledVersionVariable(variableName = "composeVersion", newValue = composeVersion)
-            .replaceBundledVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
-            .replaceBundledVersionVariable(variableName = "kspVersion", newValue = kspVersion)
-            .replaceBundledVersionVariable(variableName = "composeHotReloadVersion", newValue = composeHotReloadVersion)
-            .replaceBundledVersionVariable(variableName = "ktorVersion", newValue = ktorVersion)
-            .replaceBundledVersionVariable(variableName = "springBootVersion", newValue = springBootVersion)
+            .replaceDefaultVersionVariable(variableName = "compose", newValue = composeVersion)
+            .replaceDefaultVersionVariable(variableName = "composeHotReload", newValue = composeHotReloadVersion)
+            .replaceDefaultVersionIntVariable(variableName = "jdk", newValue = jdkVersion)
+            .replaceDefaultVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
+            .replaceDefaultVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
+            .replaceDefaultVersionVariable(variableName = "kotlinxSerialization", newValue = kotlinxSerializationVersion)
+            .replaceDefaultVersionVariable(variableName = "ksp", newValue = kspVersion)
+            .replaceDefaultVersionVariable(variableName = "ktor", newValue = ktorVersion)
+            .replaceDefaultVersionVariable(variableName = "springBoot", newValue = springBootVersion)
     }
 }
 
-fun String.replaceBundledVersionVariable(variableName: String, newValue: String): String = replaceRegexGroup1(
-    regex = Regex("""\/\*magic_replacement\*\/\s*val\s+${Regex.escape(variableName)}\s*=\s*\"([^"]+)\""""),
+fun String.replaceDefaultVersionVariable(variableName: String, newValue: String): String = replaceRegexGroup1(
+    regex = Regex("""\/\*managed_default\*\/\s*val\s+${Regex.escape(variableName)}\s*=\s*\"([^"]+)\""""),
+    replacement = newValue,
+)
+
+fun String.replaceDefaultVersionIntVariable(variableName: String, newValue: String): String = replaceRegexGroup1(
+    regex = Regex("""\/\*managed_default\*\/\s*val\s+${Regex.escape(variableName)}\s*=\s*(\d+)"""),
     replacement = newValue,
 )
 

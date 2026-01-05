@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.KnownIntValues
 import org.jetbrains.amper.frontend.api.Misnomers
@@ -104,7 +103,7 @@ class JdkSettings : SchemaNode() {
     @Misnomers("majorVersion", "major")
     @SchemaDoc("The major version of the JDK to use for this module. A JDK of this version will be found or " +
             "provisioned depending on the selection mode setting.")
-    val version by value(UsedVersions.defaultJdkVersion)
+    val version by value(DefaultVersions.jdk)
 
     @PlatformAgnostic
     @Misnomers("vendors")
