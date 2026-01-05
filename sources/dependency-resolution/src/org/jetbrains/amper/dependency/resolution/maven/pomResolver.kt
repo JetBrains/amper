@@ -19,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.ActivationFile
 import org.jetbrains.amper.dependency.resolution.metadata.xml.ActivationOS
 import org.jetbrains.amper.dependency.resolution.metadata.xml.ActivationProperty
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
+import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Parent
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Profile
@@ -83,17 +84,12 @@ private suspend fun Project.resolve(
         diagnosticsReporter.addMessage(ProjectHasMoreThanTenAncestors.asMessage(origin))
         return this
     }
-    val parentNode = parent?.let {
-        context.createOrReuseDependency(it.coordinates, isBom = false)
-    }
+    val parentNode = parent?.let { context.createOrReuseDependency(it.coordinates, isBom = false) }
 
     val activeProfiles = this.activeProfiles(context.settings)
 
-    val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(
-            resolutionLevel,
-            context,
-            diagnosticsReporter
-        ))
+    val project = if (parentNode != null
+        && parentNode.pom.isDownloadedOrDownload(resolutionLevel, context, diagnosticsReporter)
     ) {
         val text = parentNode.pom.readText()
         val parentProject =
@@ -105,12 +101,8 @@ private suspend fun Project.resolve(
             dependencies = activeProfiles.dependencies() + dependencies + parentProject.dependencies,
             properties = parentProject.properties + properties + activeProfiles.properties(),
         ).let {
-            val importedDependencyManagement = it.resolveImportedDependencyManagement(
-                context,
-                resolutionLevel,
-                diagnosticsReporter,
-                depth,
-            )
+            val importedDependencyManagement =
+                it.resolveImportedDependencyManagement(context, resolutionLevel, diagnosticsReporter, depth)
             it.copy(
                 // Dependencies declared directly in pom.xml dependencyManagement section take precedence over directly imported dependencies,
                 // both in turn take precedence over parent dependencyManagement
@@ -119,12 +111,8 @@ private suspend fun Project.resolve(
             )
         }
     } else if (parent != null && (groupId == null || artifactId == null || version == null)) {
-        val importedDependencyManagement = resolveImportedDependencyManagement(
-            context,
-            resolutionLevel,
-            diagnosticsReporter,
-            depth,
-        )
+        val importedDependencyManagement =
+            resolveImportedDependencyManagement(context, resolutionLevel, diagnosticsReporter, depth)
         copy(
             groupId = groupId ?: parent.groupId,
             artifactId = artifactId ?: parent.artifactId,
@@ -134,12 +122,8 @@ private suspend fun Project.resolve(
             properties = properties + activeProfiles.properties(),
         )
     } else {
-        val importedDependencyManagement = resolveImportedDependencyManagement(
-            context,
-            resolutionLevel,
-            diagnosticsReporter,
-            depth,
-        )
+        val importedDependencyManagement =
+            resolveImportedDependencyManagement(context, resolutionLevel, diagnosticsReporter, depth)
         copy(
             dependencies = activeProfiles.dependencies() + dependencies,
             dependencyManagement = activeProfiles.dependencyManagement() + dependencyManagement + importedDependencyManagement,
@@ -153,34 +137,8 @@ private suspend fun Project.resolve(
         )
     )
 
-    val dependencies = project.dependencies
-        ?.dependencies
-        ?.map { it.expandTemplates(project) } // expanding properties used in groupId/artifactId
-        ?.map { dep ->
-            if (dep.version != null && dep.scope != null) {
-                return@map if (dep.version.resolveSingleVersion() != dep.version) {
-                    dep.copy(version = dep.version.resolveSingleVersion())
-                } else dep
-            }
-            dependencyManagement
-                ?.dependencies
-                ?.dependencies
-                ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
-                ?.let { dependencyManagementEntry ->
-                    return@map dep
-                        .let {
-                            val dependencyManagementEntryVersion =
-                                dependencyManagementEntry.version?.resolveSingleVersion()
-                            if (dep.version == null && dependencyManagementEntryVersion != null) it.copy(version = dependencyManagementEntryVersion)
-                            else it
-                        }.let {
-                            if (dep.scope == null && dependencyManagementEntry.scope != null) it.copy(scope = dependencyManagementEntry.scope)
-                            else it
-                        }
-                }
-                ?: return@map dep
-        }
-        ?.map { it.expandTemplates(project) }
+    val dependencies = project.getEffectiveDependencies(dependencyManagement)
+
     return project
         .expandTemplates()
         .copy(
@@ -188,6 +146,41 @@ private suspend fun Project.resolve(
             dependencyManagement = dependencyManagement
         )
 }
+
+/**
+ * @return raw project dependencies with resolved declarations.
+ * Unspecified versions are resolved from the dependencyManagement section (if any),
+ * Project properties used in the dependencies declaration are substituted with actual values.
+ */
+private fun Project.getEffectiveDependencies(dependencyManagement: DependencyManagement?): List<Dependency>? =
+    dependencies
+    ?.dependencies
+    ?.map { it.expandTemplates(this) } // expanding properties used in groupId/artifactId
+    ?.map { dep ->
+        if (dep.version != null && dep.scope != null) {
+            return@map if (dep.version.resolveSingleVersion() != dep.version) {
+                dep.copy(version = dep.version.resolveSingleVersion())
+            } else dep
+        }
+        dependencyManagement
+            ?.dependencies
+            ?.dependencies
+            ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
+            ?.let { dependencyManagementEntry ->
+                return@map dep
+                    .let {
+                        val dependencyManagementEntryVersion =
+                            dependencyManagementEntry.version?.resolveSingleVersion()
+                        if (dep.version == null && dependencyManagementEntryVersion != null) it.copy(version = dependencyManagementEntryVersion)
+                        else it
+                    }.let {
+                        if (dep.scope == null && dependencyManagementEntry.scope != null) it.copy(scope = dependencyManagementEntry.scope)
+                        else it
+                    }
+            }
+            ?: return@map dep
+    }
+    ?.map { it.expandTemplates(this) }
 
 /**
  * Resolve an effective imported dependencyManagement.
