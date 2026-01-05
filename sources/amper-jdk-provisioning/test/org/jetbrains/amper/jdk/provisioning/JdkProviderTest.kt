@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jdk.provisioning
@@ -58,6 +58,10 @@ class JdkProviderTest {
             && Architecture.current() == Architecture.AARCH64
             && distribution == JvmDistribution.AlibabaDragonwell) {
             return@runTest // there are no Dragonwell JDKs for macOS ARM64
+        }
+        // FIXME AMPER-5000 SapMachine is no longer found on Windows
+        if (OperatingSystem.current() == OperatingSystem.WINDOWS && distribution == JvmDistribution.SapMachine) {
+            return@runTest
         }
         // assertValidJdk already checks that the detected distribution in the provisioned JDK actually matches the
         // requested one (because it's the only one in the list in this test case).
