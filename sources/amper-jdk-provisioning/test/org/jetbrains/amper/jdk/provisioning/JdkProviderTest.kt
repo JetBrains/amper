@@ -39,11 +39,6 @@ class JdkProviderTest {
         assertValidJdk(JdkProvisioningCriteria(majorVersion = 25))
     }
 
-    @Test
-    fun provisionJdk_default() = runTest(timeout = 10.minutes) {
-        assertValidJdk(JdkProvisioningCriteria())
-    }
-
     @ParameterizedTest
     @EnumSource
     fun provisionJdk_distributionsAreCorrectlyDetected(distribution: JvmDistribution) = runTest(timeout = 10.minutes) {

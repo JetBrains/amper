@@ -1,15 +1,17 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jvm
 
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
 import org.jetbrains.amper.jdk.provisioning.orElse
 
 /**
@@ -33,7 +35,10 @@ internal suspend fun JdkProvider.getJdkOrUserError(jdkSettings: JdkSettings): Jd
  */
 suspend fun JdkProvider.getDefaultJdk(selectionMode: JdkSelectionMode = JdkSelectionMode.auto): Jdk =
     context(CliProblemReporter) {
-        getJdk(selectionMode = selectionMode).orElse { errorMessage ->
+        getJdk(
+            criteria = JdkProvisioningCriteria(majorVersion = UsedVersions.defaultJdkVersion),
+            selectionMode = selectionMode,
+        ).orElse { errorMessage ->
             userReadableError("Could not provide the default JDK: $errorMessage")
         }
     }

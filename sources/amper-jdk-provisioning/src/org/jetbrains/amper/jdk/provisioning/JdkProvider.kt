@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jdk.provisioning
@@ -17,7 +17,6 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.downloader.AmperUserAgent
 import org.jetbrains.amper.foojay.api.DiscoApiClient
 import org.jetbrains.amper.foojay.model.Architecture
@@ -37,7 +36,7 @@ import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 @Serializable
 data class JdkProvisioningCriteria(
-    val majorVersion: Int = UsedVersions.defaultJdkVersion,
+    val majorVersion: Int,
     val distributions: List<JvmDistribution>? = null,
     val acknowledgedLicenses: List<JvmDistribution> = emptyList(),
     val operatingSystems: List<OperatingSystem> = listOf(OperatingSystem.current()),
@@ -107,7 +106,7 @@ class JdkProvider(
      */
     context(invalidJavaHomeReporter: ProblemReporter)
     suspend fun getJdk(
-        criteria: JdkProvisioningCriteria = JdkProvisioningCriteria(),
+        criteria: JdkProvisioningCriteria,
         selectionMode: JdkSelectionMode,
     ): JdkResult = openTelemetry.tracer.spanBuilder("Get JDK ${criteria.majorVersion}")
         .setAttribute("selection-mode", selectionMode.name)
@@ -159,7 +158,7 @@ class JdkProvider(
      * This function doesn't attempt to find a matching JDK in `JAVA_HOME`.
      * It directly searches via the Foojay Disco API.
      */
-    suspend fun provisionJdk(criteria: JdkProvisioningCriteria = JdkProvisioningCriteria()): JdkResult =
+    suspend fun provisionJdk(criteria: JdkProvisioningCriteria): JdkResult =
         provisionJdk(criteria, unusableJavaHomeResult = null)
 
     private suspend fun provisionJdk(
