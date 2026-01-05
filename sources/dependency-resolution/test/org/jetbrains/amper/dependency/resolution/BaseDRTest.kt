@@ -87,9 +87,10 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNodeHolderWithContext =
-        context(scope, platform, repositories, cacheBuilder, openTelemetry)
+        context(scope, platform, repositories, cacheBuilder, openTelemetry, jdkVersion)
             .use { context ->
                 val root = dependency.toRootNode(context)
                 doTest(root, verifyMessages, expected, filterMessages)
@@ -129,6 +130,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
     ): DependencyNodeHolderWithContext {
         val goldenFile = goldenFileOsAware("${testInfo.nameToGoldenFile()}.tree.txt")
         return withActualDump(goldenFile) {
@@ -144,7 +146,8 @@ abstract class BaseDRTest {
                 expected,
                 cacheBuilder,
                 filterMessages,
-                openTelemetry
+                openTelemetry,
+                jdkVersion,
             )
         }
     }
@@ -181,6 +184,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
     ): DependencyNodeHolderWithContext = doTestImpl(
         testInfo,
         dependency,
@@ -191,6 +195,7 @@ abstract class BaseDRTest {
         expected,
         cacheBuilder,
         openTelemetry,
+        jdkVersion,
         filterMessages,
     )
 
@@ -200,7 +205,8 @@ abstract class BaseDRTest {
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        openTelemetry: OpenTelemetry? = null
+        openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null
     ) = Context {
         this.scope = scope
         this.platforms = platform
@@ -208,6 +214,7 @@ abstract class BaseDRTest {
         this.cache = cacheBuilder
         this.openTelemetry = openTelemetry
         this.incrementalCache = null // no cache in DR tests
+        this.jdkVersion = jdkVersion
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {

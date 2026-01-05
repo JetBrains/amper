@@ -90,6 +90,58 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * The following several tests check
+     * that dependency from the active Maven Profile is added into the resulting dependencies graph
+     * if the java version passed to the DR matches activation condition.
+     *
+     * In particular, pom.xml of the library "org.xmlunit:xmlunit-core:2.10.3"
+     * contains the following profile that should be applied if the java version is greater or equal to 9
+     *
+     * <profile>
+     *   <id>java9+</id>
+     *   <activation>
+     *     <jdk>[9,)</jdk>
+     *   </activation>
+     *   <dependencies>
+     *     <dependency>
+     *       <groupId>jakarta.xml.bind</groupId>
+     *       <artifactId>jakarta.xml.bind-api</artifactId>
+     *     </dependency>
+     *     ...
+     *     </profile>
+     *   </profiles>
+     */
+    @Test
+    fun `maven profile jdk activation org_xmlunit xmlunit-core 2_10_3 java 11`(testInfo: TestInfo) = runDrTest {
+        doTestByFile(
+            testInfo = testInfo,
+            dependency = listOf("org.xmlunit:xmlunit-core:2.10.3"),
+            jdkVersion = JavaVersion(11)
+        )
+    }
+    @Test
+    fun `maven profile jdk activation org_xmlunit xmlunit-core 2_10_3 java 9`(testInfo: TestInfo) = runDrTest {
+        doTestByFile(
+            testInfo = testInfo,
+            dependency = listOf("org.xmlunit:xmlunit-core:2.10.3"),
+            jdkVersion = JavaVersion(9)
+        )
+    }
+
+    /**
+     * "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3" is not added to the graph
+     * because the given java version is 8 (less than 9 declared in profile activation condition)
+     */
+    @Test
+    fun `maven profile jdk activation org_xmlunit xmlunit-core 2_10_3 java 8`(testInfo: TestInfo) = runDrTest {
+        doTestByFile(
+            testInfo = testInfo,
+            dependency = listOf("org.xmlunit:xmlunit-core:2.10.3"),
+            jdkVersion = JavaVersion(8)
+        )
+    }
+
+    /**
      * This test checks that the variable used in packaging is correctly resolved.
      * In particular, netty-codec-native-quic-4.2.7.Final.pom
      * declares <packaging>${packaging.type}</packaging>

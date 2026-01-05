@@ -510,7 +510,7 @@ private data class JdkVersion private constructor(
     val parts: List<Int>
 ): Comparable<JdkVersion> {
     override fun compareTo(other: JdkVersion): Int {
-        for (i in 0..< Math.max(parts.size, other.parts.size) - 1) {
+        for (i in 0..< Math.max(parts.size, other.parts.size)) {
             val thisPart = parts.getOrElse(i) { Int.MIN_VALUE }
             val otherPart = other.parts.getOrElse(i) { Int.MIN_VALUE }
             if (thisPart != otherPart) return thisPart.compareTo(otherPart)
