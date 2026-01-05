@@ -87,7 +87,7 @@ open class MavenResolver(
                 this.platforms = setOf(platform)
                 this.openTelemetry = GlobalOpenTelemetry.get()
                 this.incrementalCache = this@MavenResolver.incrementalCache
-                this.jvmRelease = jvmRelease
+                this.jdkVersion = jvmRelease
             }
             resolve(rootBuilder(context), resolveSourceMoniker, resolutionDepth)
         }

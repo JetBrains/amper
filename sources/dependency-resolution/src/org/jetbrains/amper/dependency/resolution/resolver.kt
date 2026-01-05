@@ -232,9 +232,8 @@ class Resolver {
     }
 
     /**
-     * Calculate the expiration time of the graph represented with this node.
-     * Collect environment context used for resolution of the graph.
-     * Wrap it all into resulting [ResolvedGraph]
+     * Calculate the expiration time of the graph represented with this node,
+     * and wrap it together with the root node into resulting [ResolvedGraph]
      *
      * Note:
      * Among others, a graph expiration is calculated based on the expiration time of the snapshot files,

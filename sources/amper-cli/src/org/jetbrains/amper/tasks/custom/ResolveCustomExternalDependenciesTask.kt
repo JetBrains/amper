@@ -56,7 +56,7 @@ internal class ResolveCustomExternalDependenciesTask(
             this.cache = getAmperFileCacheBuilder(userCacheRoot)
             this.scope = resolutionScope
             this.platforms = setOf(ResolutionPlatform.JVM)
-            this.jvmRelease = JavaVersion(module.jdkSettings.version)
+            this.jdkVersion = JavaVersion(module.jdkSettings.version)
         }
         val externalDependencyNodes = externalDependencies.map {
             // It's safe to split here, because, validation was already done in the frontend

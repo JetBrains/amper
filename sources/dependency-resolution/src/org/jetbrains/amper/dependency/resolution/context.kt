@@ -130,7 +130,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
     var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
     var verifyChecksumsLocally: Boolean = true
-    var jvmRelease: JavaVersion? = null // todo (AB) : Check that it is correctly set in all places.
+    var jdkVersion: JavaVersion? = null // todo (AB) : Check that it is correctly set in all places.
 
     init {
         apply(init)
@@ -148,7 +148,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             conflictResolutionStrategies,
             dependenciesBlocklist,
             verifyChecksumsLocally,
-            jvmRelease
+            jdkVersion
         )
 }
 
@@ -226,7 +226,7 @@ data class Settings(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
     val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
     val verifyChecksumsLocally: Boolean,
-    var jvmRelease: JavaVersion? = null
+    var jdkVersion: JavaVersion? = null
 ): ResolutionConfig {
     val spanBuilder: SpanBuilderSource
         get() = { openTelemetry

@@ -206,8 +206,8 @@ abstract class BaseDRTest {
         this.platforms = platform
         this.repositories = repositories
         this.cache = cacheBuilder
-        this.incrementalCache = null // no cache in DR tests
         this.openTelemetry = openTelemetry
+        this.incrementalCache = null // no cache in DR tests
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {

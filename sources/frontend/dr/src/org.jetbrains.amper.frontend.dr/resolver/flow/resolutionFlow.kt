@@ -148,7 +148,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.cache = fileCacheBuilder
                 this.openTelemetry = openTelemetry
                 this.incrementalCache = incrementalCache
-                this.jvmRelease = JavaVersion(jdkSettings.version)
+                this.jdkVersion = JavaVersion(jdkSettings.version)
                 fragments.firstOrNull()?.let { rootFragment ->
                     this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
                         val groupAndArtifact = it.split(":", limit = 2)
