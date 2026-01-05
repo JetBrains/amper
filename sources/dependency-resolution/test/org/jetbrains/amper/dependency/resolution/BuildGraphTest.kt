@@ -998,7 +998,7 @@ class BuildGraphTest : BaseDRTest() {
      * SNAPSHOT libraries are published to https://www.jetbrains.com/intellij-repository/snapshots
      */
     @Test
-    fun `com_jetbrains_intellij_platform core-impl 252_26830_24-EAP-SNAPSHOT`(testInfo: TestInfo) = runDrTest {
+    fun `com_jetbrains_intellij_platform core-impl 253_29346_50-EAP-SNAPSHOT`(testInfo: TestInfo) = runDrTest {
         doTestByFile(
             testInfo,
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS)
