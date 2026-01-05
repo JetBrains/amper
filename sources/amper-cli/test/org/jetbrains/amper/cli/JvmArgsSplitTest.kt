@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -33,6 +33,15 @@ class JvmArgsSplitTest {
     }
 
     @Test
+    fun unquotedArgs_shouldKeepTheirEscapedSpaces() {
+        assertEquals(listOf(" "), """\ """.splitArgsHonoringQuotes())
+        assertEquals(listOf(" ", " "), """\  \ """.splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c"), """a\ b\ c""".splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c", "d"), """a\ b\ c d""".splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c", "d e"), """a\ b\ c d\ e""".splitArgsHonoringQuotes())
+    }
+
+    @Test
     fun quotedArgs_shouldLoseTheirQuotes() {
         assertEquals(listOf("arg1", "-Dmy.prop=hello"), "\"arg1\" \"-Dmy.prop=hello\"".splitArgsHonoringQuotes())
     }
@@ -54,6 +63,11 @@ class JvmArgsSplitTest {
     @Test
     fun escapedBackslash_shouldBeKeptAsIs() {
         assertEquals(listOf("arg1\\", "\\arg2"), """arg1\\ \\arg2""".splitArgsHonoringQuotes())
+    }
+
+    @Test
+    fun escapedLetter_shouldBeKeptAsIs() {
+        assertEquals(listOf("a", "b"), """\a \b""".splitArgsHonoringQuotes())
     }
 
     @Test
