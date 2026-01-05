@@ -7,3 +7,4 @@ dependencies:
   - $libs.org.eclipse.jgit
   - $libs.snakeyaml
   - $libs.slf4j.simple
+  - $libs.kotlin.poet

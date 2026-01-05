@@ -4,4 +4,4 @@ tasks:
       taskOutputDirectory: ${taskOutputDir}
     markOutputsAs:
       - path: ${taskOutputDir}
-        kind: jvm-resources
+        kind: kotlin-sources
