@@ -4,6 +4,7 @@ apply:
   - ../../common.module-template.yaml
 
 test-dependencies:
+  - ../../amper-build-info
   - ../../core
   - ../../frontend-api # for DefaultVersions
   - ../../libraries/system-info

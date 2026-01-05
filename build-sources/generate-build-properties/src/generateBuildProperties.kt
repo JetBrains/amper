@@ -72,8 +72,8 @@ private fun generateBuildInfoFile(
 ): FileSpec {
     val instantClass = ClassName("kotlin.time", "Instant")
 
-    val isSnapshot = version.contains("-SNAPSHOT")
     val isDevVersion = version.contains("-dev-")
+    val isSnapshot = version.contains("-SNAPSHOT")
     val majorAndMinorVersion = extractMajorAndMinorVersion(version)
     val docUrl = documentationUrl(version)
 

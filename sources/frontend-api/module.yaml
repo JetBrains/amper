@@ -5,6 +5,7 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-build-info
   - ../amper-problem-reporting
   - ../core: exported
   - ../extensibility/amper-extensibility-schema-model: exported

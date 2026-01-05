@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.buildinfo.AmperBuild
+
 fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 
 val AmperModule.mavenRepositories: List<RepositoriesModulePart.Repository>
@@ -35,6 +37,4 @@ interface Context {
     val leaves: Set<Context>
 }
 
-// TODO: Versioning?
-internal const val baseDocUrl: String = "https://amper.org/latest"
-internal const val userGuideUrl: String = "$baseDocUrl/user-guide"
+internal const val userGuideUrl: String = "${AmperBuild.documentationUrl}/user-guide"
