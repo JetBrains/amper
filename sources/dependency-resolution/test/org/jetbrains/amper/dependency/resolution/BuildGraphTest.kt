@@ -108,8 +108,8 @@ class BuildGraphTest : BaseDRTest() {
      *       <artifactId>jakarta.xml.bind-api</artifactId>
      *     </dependency>
      *     ...
-     *     </profile>
-     *   </profiles>
+     *   </dependencies>
+     * </profile>
      */
     @Test
     fun `maven profile jdk activation org_xmlunit xmlunit-core 2_10_3 java 11`(testInfo: TestInfo) = runDrTest {
