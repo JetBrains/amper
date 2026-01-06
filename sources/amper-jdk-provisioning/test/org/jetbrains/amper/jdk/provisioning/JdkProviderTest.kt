@@ -54,7 +54,8 @@ class JdkProviderTest {
             && distribution == JvmDistribution.AlibabaDragonwell) {
             return@runTest // there are no Dragonwell JDKs for macOS ARM64
         }
-        // FIXME AMPER-5000 SapMachine is no longer found on Windows
+        // We no longer get any ZIP package for SAP Machine JDK 21 on Windows
+        // When https://github.com/foojayio/discoapi/issues/136 is fixed (if ever), we can remove this 'if'
         if (OperatingSystem.current() == OperatingSystem.WINDOWS && distribution == JvmDistribution.SapMachine) {
             return@runTest
         }
