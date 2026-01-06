@@ -1006,6 +1006,32 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that the built-in property 'project.prerequisites.maven'
+     * is resolved and used in properties substitution.
+     *
+     * <prerequisites>
+     *   <maven>3.0</maven>
+     * </prerequisites>
+     *
+     * <dependencies>
+     *   <dependency>
+     *     <groupId>org.apache.maven</groupId>
+     *     <artifactId>maven-plugin-api</artifactId>
+     *     <version>${project.prerequisites.maven}</version>
+     *     <scope>provided</scope>
+     *   </dependency>
+     * </dependencies>
+     */
+    @Test
+    fun `org_jacoco jacoco-maven-plugin 0_8_13`(testInfo: TestInfo) = runDrTest {
+        doTestByFile(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_INTELLIJ_DEPS, REDIRECTOR_INTELLIJ_SNAPSHOTS)
+        )
+    }
+
+    /**
      * BOM is published with pom.xml and with Gradle metadata (.module file).
      * Such a BOM being imported applies dependency constraints to the resolution graph
      */

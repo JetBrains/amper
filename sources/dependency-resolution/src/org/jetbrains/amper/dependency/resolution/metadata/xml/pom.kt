@@ -242,7 +242,7 @@ data class Contributor(
 @XmlSerialName("prerequisites", POM_XML_NAMESPACE)
 data class Prerequisites(
     @XmlElement(true)
-    val maven: String,
+    val maven: String = "2.0",
 )
 
 @Serializable
@@ -375,6 +375,7 @@ internal fun String.expandTemplate(project: Project): String {
             "groupId" -> project.groupId
             "artifactId" -> project.artifactId
             "version" -> project.version
+            "prerequisites.maven" -> project.prerequisites?.maven
             "parent.groupId" -> project.parent?.groupId
             "parent.artifactId" -> project.parent?.artifactId
             "parent.version" -> project.parent?.version
