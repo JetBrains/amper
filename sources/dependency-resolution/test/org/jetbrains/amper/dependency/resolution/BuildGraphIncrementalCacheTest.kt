@@ -9,7 +9,10 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDepe
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
+import uk.org.webcompere.systemstubs.properties.SystemProperties
 import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.*
@@ -96,6 +99,55 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
             expectedRootNodeType = RootDependencyNodeWithContext::class
         )
     }
+
+    /**
+     * This test checks that
+     * if some system property was used in Maven profile activation condition evaluation
+     * (and thus should affect cache entry invalidation)
+     * and that property has another value on the next attempt to get the graph from the cache,
+     * then that graph won't be reused (won't be taken from cache), instead it will be recalculated.
+     */
+    @Test
+    @ExtendWith( SystemStubsExtension::class)
+    fun `check that graph is recalculated if system property used for its calculation was changed`(testInfo: TestInfo, systemProperties: SystemProperties) =
+        runSlowDrTest(timeout = 10.minutes) {
+            val coordinates = "io.netty:netty-common:4.1.124.Final".toMavenCoordinates()
+            val repository = MavenRepository("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2/")
+
+            // Incremental cache root is calculated once and reused between all resolution runs.
+            val tmpDir = uniqueNestedTempDir()
+            val incrementalCachePath = tmpDir.resolve(".inc")
+
+            systemProperties.remove("forcenpn")
+
+            // 1. The first resolution takes place. It populates the cache
+            resolveAndCheck(
+                coordinates, testInfo, incrementalCachePath,
+                repositories = listOf(repository),
+                expectedRootNodeType = RootDependencyNodeWithContext::class
+            )
+            // 2. Graph is taken from the cache.
+            resolveAndCheck(
+                coordinates, testInfo, incrementalCachePath,
+                repositories = listOf(repository),
+                expectedRootNodeType = SerializableRootDependencyNode::class
+            )
+
+            systemProperties.set("forcenpn", "XXX")
+
+            // 3. Re-resolve the graph due to changed system property
+            resolveAndCheck(
+                coordinates, testInfo, incrementalCachePath,
+                repositories = listOf(repository),
+                expectedRootNodeType = RootDependencyNodeWithContext::class
+            )
+            // 4. Graph is taken from the cache since the proprty has not changed
+            resolveAndCheck(
+                coordinates, testInfo, incrementalCachePath,
+                repositories = listOf(repository),
+                expectedRootNodeType = SerializableRootDependencyNode::class
+            )
+        }
 
     /**
      * Resolve a library with the given [coordinates].

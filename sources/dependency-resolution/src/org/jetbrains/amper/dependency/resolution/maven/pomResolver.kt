@@ -271,7 +271,7 @@ private suspend fun Project.activeProfiles(settings: Settings): List<Profile> {
     return activatedProfiles
 }
 
-private suspend fun Profile.isActivated(settings: Settings): Boolean {
+internal suspend fun Profile.isActivated(settings: Settings): Boolean {
     return activation != null && activation.isActivated(settings)
 }
 
