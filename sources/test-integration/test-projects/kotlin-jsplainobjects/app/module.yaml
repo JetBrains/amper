@@ -1,0 +1,8 @@
+product: js/app
+
+dependencies:
+  - ../lib
+
+settings:
+  kotlin:
+    jsPlainObjects: enabled

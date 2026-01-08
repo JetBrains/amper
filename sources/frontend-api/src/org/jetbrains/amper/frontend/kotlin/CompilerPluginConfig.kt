@@ -88,6 +88,20 @@ data class NoArgCompilerPluginConfig(
     )
 }
 
+data class JsPlainObjectsCompilerPluginConfig(
+    val kotlinVersion: String,
+) : CompilerPluginConfig {
+    // https://github.com/JetBrains/kotlin/blob/cb4652c3452c43aa5060407c0dc26746ca01eabb/libraries/tools/js-plain-objects/src/common/kotlin/org/jetbrains/kotlinx/jso/gradle/JsPlainObjectsKotlinGradleSubplugin.kt#L43
+    override val id = "org.jetbrains.kotlinx.js-plain-objects"
+    override val options = emptyList<Option>()
+    override val mavenCoordinates = CompilerPluginConfig.MavenCoordinates(
+        groupId = KOTLIN_GROUP_ID,
+        // https://github.com/JetBrains/kotlin/blob/cb4652c3452c43aa5060407c0dc26746ca01eabb/libraries/tools/js-plain-objects/src/common/kotlin/org/jetbrains/kotlinx/jso/gradle/JsPlainObjectsKotlinGradleSubplugin.kt#L25
+        artifactId = "kotlinx-js-plain-objects-compiler-plugin-embeddable",
+        version = kotlinVersion,
+    )
+}
+
 data class PowerAssertCompilerPluginConfig(
     val kotlinVersion: String,
     val functions: List<String>,

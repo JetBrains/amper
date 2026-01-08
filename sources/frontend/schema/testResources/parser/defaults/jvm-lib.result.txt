@@ -95,6 +95,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -251,6 +254,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }

@@ -52,6 +52,12 @@ fun Settings.compilerPluginsConfigurations(): List<CompilerPluginConfig> = build
         )
     }
 
+    if (kotlin.jsPlainObjects.enabled) {
+        add(
+            JsPlainObjectsCompilerPluginConfig(kotlinVersion = kotlin.version)
+        )
+    }
+
     if (kotlin.powerAssert.enabled) {
         add(
             PowerAssertCompilerPluginConfig(

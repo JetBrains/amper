@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -172,6 +172,17 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
                 dependencyTrace = serializationFormatTrace,
             ))
         }
+    }
+    if (settings.kotlin.jsPlainObjects.enabled && setOf(Platform.JS) == platforms) {
+        val jsPlainObjectsDependencyTrace = TransformedValueTrace(
+            description = "because Kotlin JsPlainObjects is enabled",
+            sourceValue = settings.kotlin.jsPlainObjects::enabled.schemaDelegate,
+        )
+        add(kotlinDependencyOf(
+            artifactId = "kotlin-js-plain-objects",
+            version = kotlinVersion,
+            dependencyTrace = jsPlainObjectsDependencyTrace,
+        ))
     }
     if (settings.android.parcelize.enabled && setOf(Platform.JVM, Platform.ANDROID).containsAll(platforms)) {
         val parcelizeDependencyTrace = TransformedValueTrace(

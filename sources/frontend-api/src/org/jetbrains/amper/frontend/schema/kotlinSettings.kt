@@ -98,6 +98,12 @@ class AllOpenSettings : SchemaNode() {
     val presets by nullableValue<List<AllOpenPreset>>()
 }
 
+class JsPlainObjectsSettings : SchemaNode() {
+    @Shorthand
+    @SchemaDoc("Enables the Kotlin JS plain objects compiler plugin")
+    val enabled by value(false)
+}
+
 class PowerAssertSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enables the Kotlin power-assert compiler plugin")
@@ -183,6 +189,10 @@ class KotlinSettings : SchemaNode() {
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
     val allOpen: AllOpenSettings by nested()
+
+    @PlatformSpecific(Platform.JS)
+    @SchemaDoc("Configure the [Kotlin JS plain objects compiler plugin](https://kotlinlang.org/docs/js-plain-objects.html)")
+    val jsPlainObjects: JsPlainObjectsSettings by nested()
 
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)")
