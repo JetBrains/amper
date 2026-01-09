@@ -159,3 +159,10 @@ data class LombokCompilerPluginConfig(val kotlinVersion: String) : CompilerPlugi
         version = kotlinVersion,
     )
 }
+
+@Suppress("unused") // currently provided so the IDE can prepare 3rd-party compiler plugin support
+data class ThirdPartyCompilerPluginConfig(
+    override val id: String,
+    override val options: List<Option>,
+    override val mavenCoordinates: CompilerPluginConfig.MavenCoordinates,
+) : CompilerPluginConfig
