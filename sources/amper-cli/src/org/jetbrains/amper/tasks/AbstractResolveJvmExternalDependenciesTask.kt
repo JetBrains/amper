@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -17,7 +17,6 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
 import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
@@ -29,6 +28,7 @@ import org.jetbrains.amper.frontend.schema.UnscopedDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -109,7 +109,7 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
     }
 
     private fun Context.parseCoordinates(coordinates: TraceableString, isBom: Boolean): MavenDependencyNodeWithContext {
-        val mavenCoordinates = coordinates.mavenCoordinates().toDrMavenCoordinates()
+        val mavenCoordinates = coordinates.toMavenCoordinates().toDrMavenCoordinates()
         return MavenDependencyNodeWithContext(this, mavenCoordinates, isBom)
     }
 

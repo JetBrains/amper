@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.plugins
@@ -26,13 +26,13 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
-import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
 import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.frontend.types.maven.Configuration
 import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.frontend.types.maven.ParameterValue
@@ -87,7 +87,7 @@ private suspend fun downloadPluginAndDirectDependencies(
         resolveSourceMoniker = declaration.coordinates,
         resolutionDepth = ResolutionDepth.GRAPH_FULL,
     ) { context ->
-        val coordinates = declaration::coordinates.traceableString().mavenCoordinates().toDrMavenCoordinates()
+        val coordinates = declaration::coordinates.traceableString().toMavenCoordinates().toDrMavenCoordinates()
         val pluginNode = MavenDependencyNodeWithContext(context, coordinates = coordinates, isBom = false)
         RootDependencyNodeWithContext(
             templateContext = context,

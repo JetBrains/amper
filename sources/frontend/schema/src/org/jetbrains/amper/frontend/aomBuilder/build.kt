@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -10,13 +10,11 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
@@ -28,8 +26,8 @@ import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
-import org.jetbrains.amper.frontend.diagnostics.treeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
+import org.jetbrains.amper.frontend.diagnostics.treeDiagnostics
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.plus
@@ -48,6 +46,7 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
@@ -257,7 +256,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = ::coordinates.traceableString().mavenCoordinates(),
+        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -265,7 +264,7 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = ::coordinates.traceableString().mavenCoordinates(),
+        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")
@@ -274,33 +273,6 @@ private fun Dependency.resolveInternalDependency(
 
 fun KProperty0<String>.traceableString(): TraceableString {
     return TraceableString(get(), schemaDelegate.trace)
-}
-
-fun String.mavenCoordinates(): MavenCoordinates = TraceableString(this, DefaultTrace).mavenCoordinates()
-
-/**
-* Full maven format contains 2-4 parts delimited with ":" with optional packaginType delimited by "@" at the end.
-* groupId:artifactId[:version][:classifier][@packagingType]
-*/
-fun TraceableString.mavenCoordinates(): MavenCoordinates {
-    val parts = value.trim().split(":").toMutableList()
-    check(parts.size in 2..4) {
-        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $this. " +
-                "Ensure that the coordinates were properly validated in the parser."
-    }
-    val packagingType = parts[parts.size - 1].substringAfterLast("@", "").ifBlank { null }
-
-    // Drop packagingType from the last part
-    parts[parts.size - 1] = parts[parts.size - 1].substringBeforeLast("@")
-
-    return MavenCoordinates(
-        groupId = parts[0],
-        artifactId = parts[1],
-        version = if (parts.size > 2) parts[2] else null,
-        classifier = if (parts.size > 3) parts[3] else null,
-        packagingType = packagingType,
-        trace = this.trace,
-    )
 }
 
 context(problemReporter: ProblemReporter)

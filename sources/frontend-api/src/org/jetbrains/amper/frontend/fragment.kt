@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
@@ -199,6 +200,31 @@ data class MavenCoordinates(
         classifier?.let { append(':').append(it) }
         packagingType?.let { append('@').append(it) }
     }
+}
+
+/**
+ * Full maven format contains 2-4 parts delimited with ":" with optional packaginType delimited by "@" at the end.
+ * groupId:artifactId[:version][:classifier][@packagingType]
+ */
+fun TraceableString.mavenCoordinates(): MavenCoordinates {
+    val parts = value.trim().split(":").toMutableList()
+    check(parts.size in 2..4) {
+        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $this. " +
+                "Ensure that the coordinates were properly validated in the parser."
+    }
+    val packagingType = parts[parts.size - 1].substringAfterLast("@", "").ifBlank { null }
+
+    // Drop packagingType from the last part
+    parts[parts.size - 1] = parts[parts.size - 1].substringBeforeLast("@")
+
+    return MavenCoordinates(
+        groupId = parts[0],
+        artifactId = parts[1],
+        version = if (parts.size > 2) parts[2] else null,
+        classifier = if (parts.size > 3) parts[3] else null,
+        packagingType = packagingType,
+        trace = this.trace,
+    )
 }
 
 data class MavenDependency(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins
@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
-import org.jetbrains.amper.frontend.aomBuilder.mavenCoordinates
 import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -16,12 +15,11 @@ import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.collections.distinctBy
-import kotlin.collections.iterator
-import kotlin.collections.plus
 import kotlin.io.path.pathString
 
 /**
@@ -99,7 +97,7 @@ internal fun applyPlugins(
                         node = node,
                         localDependencies = localModules.distinct(),
                         externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
-                            .map { it::coordinates.traceableString().mavenCoordinates() },
+                            .map { it::coordinates.traceableString().toMavenCoordinates() },
                         propertyLocation = propertyLocation,
                     )
                 },

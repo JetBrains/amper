@@ -1,17 +1,19 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
-import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.api.StringSemantics
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 import java.nio.file.Path
 
@@ -126,3 +128,31 @@ class CatalogBomDependency : BomDependency() {
     val catalogKey by value<String>()
 }
 
+/**
+ * Splits this [TraceableString] into its [MavenCoordinates] components.
+ *
+ * This [TraceableString] must respect the full Maven format with 2 to 4 parts delimited with `:`, and with an optional
+ * packaging type appended after `@` at the end:
+ *
+ * ```
+ * groupId:artifactId[:version][:classifier][@packagingType]
+ * ```
+ */
+fun TraceableString.toMavenCoordinates(): MavenCoordinates {
+    val coordsAndPackaging = value.trim().split("@")
+    val coords = coordsAndPackaging.first().split(":")
+    val packagingType = coordsAndPackaging.getOrNull(1)
+
+    check(coords.size in 2..4) {
+        "Coordinates should have between 2 and 4 parts, but got ${coords.size}: $this. " +
+                "Ensure that the coordinates were properly validated in the parser."
+    }
+    return MavenCoordinates(
+        groupId = coords[0],
+        artifactId = coords[1],
+        version = coords.getOrNull(2),
+        classifier = coords.getOrNull(3),
+        packagingType = packagingType,
+        trace = this.trace,
+    )
+}
