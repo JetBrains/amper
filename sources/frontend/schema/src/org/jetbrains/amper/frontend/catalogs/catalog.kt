@@ -26,6 +26,8 @@ internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
     kotlinVersion = kotlin::version.asTraceableVersion(DefaultVersions.kotlin),
     serializationVersion = kotlin.serialization::version.asTraceableVersion(DefaultVersions.kotlinxSerialization)
         .takeIf { kotlin.serialization.enabled },
+    rpcVersion = kotlin.rpc::version.asTraceableVersion(DefaultVersions.kotlinxRpc)
+        .takeIf { kotlin.rpc.enabled },
     composeVersion = compose::version.asTraceableVersion(DefaultVersions.compose)
         .takeIf { compose.enabled },
     ktorVersion = ktor::version.asTraceableVersion(DefaultVersions.ktor)
@@ -60,6 +62,7 @@ private fun KProperty0<String>.asTraceableVersion(fallbackVersion: String): Trac
 private class BuiltInCatalog(
     kotlinVersion: TraceableVersion,
     serializationVersion: TraceableVersion?,
+    rpcVersion: TraceableVersion?,
     composeVersion: TraceableVersion?,
     ktorVersion: TraceableVersion?,
     springBootVersion: TraceableVersion?,
@@ -82,6 +85,21 @@ private class BuiltInCatalog(
             put("kotlin.serialization.json-okio", library("org.jetbrains.kotlinx:kotlinx-serialization-json-okio", serializationVersion))
             put("kotlin.serialization.properties", library("org.jetbrains.kotlinx:kotlinx-serialization-properties", serializationVersion))
             put("kotlin.serialization.protobuf", library("org.jetbrains.kotlinx:kotlinx-serialization-protobuf", serializationVersion))
+        }
+
+        if (rpcVersion != null) {
+            put("kotlin.rpc.bom", library("org.jetbrains.kotlinx:kotlinx-rpc-bom", rpcVersion))
+            put("kotlin.rpc.core", library("org.jetbrains.kotlinx:kotlinx-rpc-core", rpcVersion))
+            put("kotlin.rpc.krpc.client", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-client", rpcVersion))
+            put("kotlin.rpc.krpc.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-core", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.client", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-client", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-core", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.server", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-server", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.cbor", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-cbor", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-core", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.json", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-json", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.protobuf", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-protobuf", rpcVersion))
+            put("kotlin.rpc.krpc.server", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-server", rpcVersion))
         }
 
         // Add compose.

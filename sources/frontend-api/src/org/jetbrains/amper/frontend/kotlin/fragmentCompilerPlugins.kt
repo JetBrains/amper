@@ -67,6 +67,16 @@ fun Settings.compilerPluginsConfigurations(): List<CompilerPluginConfig> = build
         )
     }
 
+    if (kotlin.rpc.enabled) {
+        addAll(
+            kotlinxRpcCompilerPlugins(
+                kotlinVersion = kotlin.version,
+                kotlinxRpcVersion = kotlin.rpc.version,
+                annotationTypeSafetyEnabled = kotlin.rpc.annotationTypeSafetyEnabled,
+            )
+        )
+    }
+
     if (lombok.enabled) {
         add(LombokCompilerPluginConfig(kotlinVersion = kotlin.version))
     }

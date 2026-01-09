@@ -1,0 +1,13 @@
+product: jvm/app
+
+dependencies:
+  - ../rpc-api
+  - $kotlin.rpc.krpc.ktor.server
+  - $kotlin.rpc.krpc.serialization.json
+  - $ktor.server.netty
+  - ch.qos.logback:logback-classic:1.5.20
+
+settings:
+  ktor: enabled
+  kotlin:
+    rpc: enabled

@@ -160,6 +160,36 @@ data class LombokCompilerPluginConfig(val kotlinVersion: String) : CompilerPlugi
     )
 }
 
+fun kotlinxRpcCompilerPlugins(
+    kotlinVersion: String,
+    kotlinxRpcVersion: String,
+    annotationTypeSafetyEnabled: Boolean,
+): List<CompilerPluginConfig> = buildList {
+    for (subpluginName in setOf("k2", "common", "backend", "cli")) {
+        add(
+            ThirdPartyCompilerPluginConfig(
+                // https://github.com/Kotlin/kotlinx-rpc/blob/2b895329b779d6560363f4fb79eed0e27ea82e07/gradle-plugin/src/main/kotlin/kotlinx/rpc/RpcPluginConst.kt#L14
+                id = "org.jetbrains.kotlinx.rpc",
+                // We only want to add options in one of the subplugins, so we use cli like in the Gradle plugin
+                // https://github.com/Kotlin/kotlinx-rpc/blob/2b895329b779d6560363f4fb79eed0e27ea82e07/gradle-plugin/src/main/kotlin/kotlinx/rpc/compilerPlugins.kt#L25-L39
+                options = if (subpluginName == "cli") {
+                    listOf(Option(name = "annotation-type-safety", value = annotationTypeSafetyEnabled.toString()))
+                } else {
+                    emptyList()
+                },
+                mavenCoordinates = CompilerPluginConfig.MavenCoordinates(
+                    groupId = "org.jetbrains.kotlinx",
+                    // https://github.com/Kotlin/kotlinx-rpc/blob/2b895329b779d6560363f4fb79eed0e27ea82e07/gradle-plugin/src/main/kotlin/kotlinx/rpc/RpcPluginConst.kt#L15
+                    // + the suffix added there: https://github.com/Kotlin/kotlinx-rpc/blob/2b895329b779d6560363f4fb79eed0e27ea82e07/gradle-plugin/src/main/kotlin/kotlinx/rpc/compilerPlugins.kt#L13-L26
+                    artifactId = "kotlinx-rpc-compiler-plugin-$subpluginName",
+                    // https://github.com/Kotlin/kotlinx-rpc/blob/2b895329b779d6560363f4fb79eed0e27ea82e07/gradle-plugin/src/main/kotlin/kotlinx/rpc/RpcPluginConst.kt#L22
+                    version = "$kotlinVersion-$kotlinxRpcVersion",
+                )
+            )
+        )
+    }
+}
+
 @Suppress("unused") // currently provided so the IDE can prepare 3rd-party compiler plugin support
 data class ThirdPartyCompilerPluginConfig(
     override val id: String,

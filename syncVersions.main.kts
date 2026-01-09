@@ -44,6 +44,7 @@ val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.8.2"
 val jdkVersion = "21" // TODO bump to 25 when Kotlin supports it
 val junitPlatformVersion = "6.0.1"
+val kotlinxRpcVersion = "0.10.1"
 val kotlinxSerializationVersion = "1.9.0"
 val kspVersion = "2.3.0"
 val ktorVersion = "3.2.3"
@@ -89,6 +90,7 @@ fun updateDefaultVersionsKt() {
             .replaceDefaultVersionIntVariable(variableName = "jdk", newValue = jdkVersion)
             .replaceDefaultVersionVariable(variableName = "junitPlatform", newValue = junitPlatformVersion)
             .replaceDefaultVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
+            .replaceDefaultVersionVariable(variableName = "kotlinxRpc", newValue = kotlinxRpcVersion)
             .replaceDefaultVersionVariable(variableName = "kotlinxSerialization", newValue = kotlinxSerializationVersion)
             .replaceDefaultVersionVariable(variableName = "ksp", newValue = kspVersion)
             .replaceDefaultVersionVariable(variableName = "ktor", newValue = ktorVersion)

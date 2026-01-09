@@ -123,6 +123,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -283,6 +289,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -441,6 +453,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -602,6 +620,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -760,6 +784,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -921,6 +951,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null

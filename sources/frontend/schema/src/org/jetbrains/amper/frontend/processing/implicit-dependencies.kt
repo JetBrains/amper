@@ -60,6 +60,16 @@ private fun composeResourcesDependency(composeVersion: TraceableString, dependen
     trace = dependencyTrace,
 )
 
+private fun kotlinxRpcBomDependency(kotlinxRpcVersion: TraceableString, dependencyTrace: Trace): BomDependency = BomDependency(
+    coordinates = coords("org.jetbrains.kotlinx", "kotlinx-rpc-bom", kotlinxRpcVersion),
+    trace = dependencyTrace,
+)
+
+private fun kotlinxRpcCoreDependency(kotlinxRpcVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
+    coordinates = coords("org.jetbrains.kotlinx", "kotlinx-rpc-core", kotlinxRpcVersion),
+    trace = dependencyTrace,
+)
+
 private fun ktorBomDependency(ktorVersion: TraceableString, dependencyTrace: Trace): BomDependency = BomDependency(
     coordinates = coords("io.ktor", "ktor-bom", ktorVersion),
     trace = dependencyTrace,
@@ -210,6 +220,27 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         // Have to add dependency because generated code depends on it
         if (settings.compose.resources.exposedAccessors || module.fragments.any { it.hasAnyComposeResources }) {
             add(composeResourcesDependency(composeVersion, dependencyTrace = composeDependencyTrace))
+        }
+    }
+
+    if (settings.kotlin.rpc.enabled) {
+        val kotlinxRpcVersion = settings.kotlin.rpc::version.schemaDelegate.asTraceableString()
+        val kotlinxRpcEnabledTrace = TransformedValueTrace(
+            description = "because kotlinx.rpc is enabled",
+            sourceValue = settings.kotlin.rpc::enabled.schemaDelegate,
+        )
+        add(kotlinxRpcCoreDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcEnabledTrace))
+
+        if (settings.kotlin.rpc.applyBom) {
+            val kotlinxRpcBomTrace = TransformedValueTrace(
+                description = "because kotlinx.rpc is enabled and kotlin.rpc.applyBom=true",
+                sourceValue = if (settings.kotlin.rpc::applyBom.isExplicitlySet) {
+                    settings.kotlin.rpc::applyBom.schemaDelegate
+                } else {
+                    settings.kotlin.rpc::enabled.schemaDelegate
+                },
+            )
+            add(kotlinxRpcBomDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcBomTrace))
         }
     }
 

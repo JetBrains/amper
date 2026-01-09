@@ -73,6 +73,11 @@ settings@android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -152,6 +157,11 @@ settings@jvm:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -244,6 +254,11 @@ settings@jvm+android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -326,6 +341,11 @@ settings@jvm:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -416,6 +436,11 @@ settings@android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
