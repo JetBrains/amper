@@ -65,11 +65,6 @@ interface Fragment {
     val isTest: Boolean
 
     /**
-     * Whether this fragment is chosen by default when no variants are specified.
-     */
-    val isDefault: Boolean
-
-    /**
      * Sources directories.
      */
     val sourceRoots: List<Path>
