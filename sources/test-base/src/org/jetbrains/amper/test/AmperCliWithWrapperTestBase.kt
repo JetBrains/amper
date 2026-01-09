@@ -226,15 +226,22 @@ abstract class AmperCliWithWrapperTestBase {
         if (!buildOutputEnv.isNullOrBlank()) {
             return Path(buildOutputEnv)
         }
-        val buildOutputArgIndex = args.indexOf("--build-dir")
+        return findArgumentValue(args, "--build-dir")
+            ?: findArgumentValue(args, "--build-output-root")
+            ?: Path("build")
+    }
+
+    private fun findArgumentValue(args: List<String>, argName: String): Path? {
+        val buildOutputArgIndex = args.indexOf(argName)
+        @Suppress("ReplaceManualRangeWithIndicesCalls") // this range shouldn't be replaced (KTIJ-37692)
         if (buildOutputArgIndex in 0..<args.lastIndex) {
             return Path(args[buildOutputArgIndex + 1])
         }
-        val buildOutputArg = args.find { it.startsWith("--build-dir=") }
+        val buildOutputArg = args.find { it.startsWith("$argName=") }
         if (buildOutputArg != null) {
             return Path(buildOutputArg.substringAfter("="))
         }
-        return Path("build")
+        return null
     }
 
     private fun publishLogs(amperResult: AmperCliResult) {

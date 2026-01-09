@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 import org.jetbrains.amper.core.AmperUserCacheInitializationFailure
@@ -25,7 +25,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        systemProperties.set("amper.cache.root", tempRoot.pathString)
+        systemProperties.set("amper.shared.cache.dir", tempRoot.pathString)
 
         val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
         assertIs<AmperUserCacheRoot>(userCacheRoot, "Amper user cache root should be resolved from system settings")
@@ -38,7 +38,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        environmentVariables.set("AMPER_CACHE_ROOT", tempRoot.pathString)
+        environmentVariables.set("AMPER_SHARED_CACHE_DIR", tempRoot.pathString)
 
         val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
         assertIs<AmperUserCacheRoot>(userCacheRoot, "Amper user cache root should be resolved from env variable")
@@ -51,7 +51,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        systemProperties.set("amper.cache.root", "my-home/.cache")
+        systemProperties.set("amper.shared.cache.dir", "my-home/.cache")
 
         val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
         assertIs<AmperUserCacheInitializationFailure.NonAbsolutePath>(
@@ -66,7 +66,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties, environmentVariables: EnvironmentVariables
     ) {
         clearLocalAmperCacheOverrides(systemProperties, environmentVariables)
-        environmentVariables.set("AMPER_CACHE_ROOT", "my-home/.cache")
+        environmentVariables.set("AMPER_SHARED_CACHE_DIR", "my-home/.cache")
 
         val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult()
         assertIs<AmperUserCacheInitializationFailure.NonAbsolutePath>(
@@ -82,7 +82,7 @@ class AmperUserCacheRootTest {
         systemProperties: SystemProperties,
         environmentVariables: EnvironmentVariables
     ) {
-        systemProperties.remove("amper.cache.root")
-        environmentVariables.remove("AMPER_CACHE_ROOT")
+        systemProperties.remove("amper.shared.cache.dir")
+        environmentVariables.remove("AMPER_SHARED_CACHE_DIR")
     }
 }

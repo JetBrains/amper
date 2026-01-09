@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -94,8 +94,8 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         ), ignoreCase = true
     ).default(Level.INFO)
 
-    private val sharedCachesRoot by option(
-        "--shared-caches-root",
+    private val sharedCacheDir by option(
+        "--shared-cache-dir",
         help = "Path to the cache directory shared between all Amper projects",
     )
         .path(canBeFile = false)
@@ -103,6 +103,15 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         // It's ok to use a non-lazy default here because most of the time we'll use the default value anyway.
         // Detecting this path eagerly allows showing the default value in the help.
         .default(AmperUserCacheRoot.fromCurrentUserResult().unwrap())
+
+    private val sharedCachesRoot by option(
+        "--shared-caches-root",
+        help = "Path to the cache directory shared between all Amper projects",
+    )
+        .path(canBeFile = false)
+        .convert { AmperUserCacheRoot(it.toAbsolutePath()) }
+        .deprecated("WARN: `--shared-caches-root` was renamed to `--shared-cache-dir`. " +
+                "Please use the new name instead. The old name will no longer be accepted in future versions.")
 
     private val buildOutputRoot by option(
         "--build-output",
@@ -113,15 +122,17 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
     private val debuggingOptions by DebuggingOptions()
 
     override suspend fun run() {
+        val effectiveSharedCacheDir = sharedCachesRoot ?: sharedCacheDir
+
         // Ensure we're writing traces to the configured user cache (we start with the default in early telemetry).
         // For commands that have a project context, the traces will eventually be moved to the project build logs dir.
-        TelemetryEnvironment.setUserCacheRoot(sharedCachesRoot)
+        TelemetryEnvironment.setUserCacheRoot(effectiveSharedCacheDir)
 
         currentContext.obj = CommonOptions(
             explicitProjectRoot = root,
             consoleLogLevel = consoleLogLevel,
             profilerEnabled = debuggingOptions.profilerEnabled,
-            sharedCachesRoot = sharedCachesRoot,
+            sharedCachesRoot = effectiveSharedCacheDir,
             explicitBuildOutputRoot = buildOutputRoot,
         )
 

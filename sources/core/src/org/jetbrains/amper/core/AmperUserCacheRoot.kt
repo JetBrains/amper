@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core
@@ -7,6 +7,7 @@ package org.jetbrains.amper.core
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
 import org.jetbrains.amper.system.info.OsFamily
+import org.slf4j.LoggerFactory
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -49,6 +50,8 @@ data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResu
     companion object {
         private const val AMPER_CACHE_SUBFOLDER = "JetBrains/Amper"
 
+        private val logger = LoggerFactory.getLogger(AmperUserCacheRoot::class.java)
+
         /**
          * The error here is user-friendly and can be reported as is.
          */
@@ -64,13 +67,19 @@ data class AmperUserCacheRoot(val path: Path) : AmperUserCacheInitializationResu
                 }
 
         private fun getFromSystemSettings(): AmperUserCacheInitializationResult? {
-            val systemPropertyPath = System.getProperty("amper.cache.root")?.takeIf { it.isNotBlank() } ?: return null
-            return systemPropertyPath.buildAmperCacheRoot(source = "\"amper.cache.root\" system property")
+            val systemPropertyPath = System.getProperty("amper.shared.cache.dir")?.takeIf { it.isNotBlank() } ?: return null
+            return systemPropertyPath.buildAmperCacheRoot(source = "\"amper.shared.cache.dir\" system property")
         }
 
-        private fun getFromEnvSettings(): AmperUserCacheInitializationResult? {
-            val envVariablePath = System.getenv("AMPER_CACHE_ROOT")?.takeIf { it.isNotBlank() } ?: return null
-            return envVariablePath.buildAmperCacheRoot(source = "\"AMPER_CACHE_ROOT\" environment variable")
+        private fun getFromEnvSettings(): AmperUserCacheInitializationResult? =
+            getFromEnvVar("AMPER_SHARED_CACHE_DIR")
+                ?: getFromEnvVar("AMPER_CACHE_ROOT")?.also {
+                    logger.warn("AMPER_CACHE_ROOT is deprecated, use AMPER_SHARED_CACHE_DIR instead.")
+                }
+
+        private fun getFromEnvVar(envVarName: String): AmperUserCacheInitializationResult? {
+            val envVariablePath = System.getenv(envVarName)?.takeIf { it.isNotBlank() } ?: return null
+            return envVariablePath.buildAmperCacheRoot(source = "\"$envVarName\" environment variable")
         }
 
         private fun getWindowsCacheFolder(): AmperUserCacheInitializationResult {

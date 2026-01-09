@@ -70,6 +70,13 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         help = "The directory in which to update (or create) the wrappers — usually a project's root directory. " +
                 "By default, wrappers are updated (or created) in the current directory.",
     ).path(mustExist = true, canBeFile = false, canBeDir = true)
+        /*
+        We could also decide that the default is to update the currently running wrapper.
+        (it can be implemented using the `amper.wrapper.path` system prop),
+        but the benefit would be marginal, and it would break amper-from-sources.
+        Let's not do anything until we handle the global Amper installation / version in
+        project.yaml story. See AMPER-5156 and AMPER-4104.
+        */
         .default(Path("."))
 
     private val repository by option(
@@ -100,9 +107,6 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     @OptIn(ProcessLeak::class)
     override suspend fun run() {
-        // We could in theory find the parent dir of the actual script that launched Amper (using the
-        // 'amper.wrapper.path' system prop), but the benefit would be marginal, and it would break amper-from-sources.
-        // Also, we would still have to respect an explicit --target-dir option to allow users to update other projects.
         val amperBashPath = targetDir.resolve("amper")
         val amperBatPath = targetDir.resolve("amper.bat")
         checkNotDirectories(amperBashPath, amperBatPath)
