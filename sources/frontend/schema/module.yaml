@@ -14,6 +14,7 @@ settings:
 dependencies:
   - ../../amper-build-info
   - ../../amper-problem-reporting: exported
+  - ../../amper-telemetry
   - ../../android-integration/amper-android-sdk-detector
   - ../../frontend-api: exported
   - ../../extensibility/amper-extensibility-schema-model: exported

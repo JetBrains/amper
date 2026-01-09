@@ -7,7 +7,6 @@ package org.jetbrains.amper.tasks.native
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -22,6 +21,7 @@ import org.jetbrains.amper.tasks.NativeDesktopRunSettings
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.workingDir
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory

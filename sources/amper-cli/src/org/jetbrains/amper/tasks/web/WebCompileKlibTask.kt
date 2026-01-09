@@ -19,7 +19,7 @@ import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.validSourceFileExtensions
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule

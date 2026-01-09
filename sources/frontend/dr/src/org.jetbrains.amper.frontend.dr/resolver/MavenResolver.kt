@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.dr.resolver
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.JavaVersion
@@ -24,6 +23,7 @@ import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import kotlin.io.path.pathString
 

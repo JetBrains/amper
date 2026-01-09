@@ -11,6 +11,7 @@ test-dependencies:
 
 dependencies:
   - ../schema
+  - ../../amper-telemetry
   - ../../core
   - ../../dependency-resolution: exported
   - ../../libraries/telemetry

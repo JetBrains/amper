@@ -33,6 +33,9 @@ dependencies:
 apply:
   - ../common.module-template.yaml
 
+test-dependencies:
+  - ../amper-telemetry
+
 settings:
   kotlin:
     serialization: enabled

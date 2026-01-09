@@ -5,6 +5,7 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-telemetry
   - ../core
   - ../frontend/plain/toml-psi
   - ../frontend/plain/yaml-psi

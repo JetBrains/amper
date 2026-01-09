@@ -13,6 +13,7 @@ dependencies:
   - ../amper-maven-converter
   - ../amper-maven-publish
   - ../amper-project-templates
+  - ../amper-telemetry
   - ../amper-wrapper
   - ../core
   - ../core-intellij

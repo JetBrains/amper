@@ -15,7 +15,6 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
@@ -31,6 +30,7 @@ import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory

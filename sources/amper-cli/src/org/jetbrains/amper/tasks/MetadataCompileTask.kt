@@ -16,7 +16,6 @@ import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -37,6 +36,7 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path

@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.custom
 
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
@@ -31,6 +30,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.tasks.toIncrementalCacheResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import kotlin.io.path.pathString

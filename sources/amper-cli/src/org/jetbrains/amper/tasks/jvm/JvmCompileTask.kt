@@ -27,7 +27,6 @@ import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -56,6 +55,7 @@ import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
 import org.jetbrains.amper.tasks.maven.MavenPhaseResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.kotlin.buildtools.api.CompilationResult

@@ -7,9 +7,9 @@ package org.jetbrains.amper.cli.commands
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.logging.LoggingInitializer
 import org.jetbrains.amper.cli.telemetry.TelemetryEnvironment
-import org.jetbrains.amper.core.telemetry.spanBuilder
-import org.jetbrains.amper.diagnostics.Profiler
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
+import org.jetbrains.amper.diagnostics.Profiler
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 
 /**

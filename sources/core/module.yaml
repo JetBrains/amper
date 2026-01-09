@@ -5,6 +5,7 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-telemetry
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
   - ../libraries/stdlib-extended

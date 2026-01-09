@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.readProject

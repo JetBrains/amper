@@ -6,9 +6,9 @@ package org.jetbrains.amper.plugins
 
 import com.android.utils.associateNotNull
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.plugins.parsePluginManifestFromModuleFile
 import org.jetbrains.amper.plugins.schema.model.PluginData
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 
 /**

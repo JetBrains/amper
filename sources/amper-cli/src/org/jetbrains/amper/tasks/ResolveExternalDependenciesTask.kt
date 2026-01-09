@@ -11,7 +11,6 @@ import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -37,6 +36,7 @@ import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.io.File

@@ -13,7 +13,7 @@ import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.project.findProjectContext
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -11,7 +11,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.Model

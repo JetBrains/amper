@@ -34,7 +34,6 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder
 import org.eclipse.aether.RepositorySystemSession
 import org.eclipse.aether.repository.RemoteRepository
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -47,6 +46,7 @@ import org.jetbrains.amper.maven.publish.createRepositorySession
 import org.jetbrains.amper.maven.publish.mavenRepositorySystem
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.io.File
 import java.nio.file.Path

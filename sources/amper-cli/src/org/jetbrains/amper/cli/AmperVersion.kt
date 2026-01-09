@@ -7,8 +7,8 @@ package org.jetbrains.amper.cli
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.toLocalDateTimeInDefaultTimezone
 

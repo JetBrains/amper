@@ -11,7 +11,6 @@ import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
@@ -20,6 +19,7 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.plugins.prepareMavenPlugins
 import org.jetbrains.amper.plugins.preparePlugins
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import kotlin.io.path.Path

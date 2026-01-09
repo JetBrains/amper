@@ -10,7 +10,6 @@ import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
@@ -19,6 +18,7 @@ import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory

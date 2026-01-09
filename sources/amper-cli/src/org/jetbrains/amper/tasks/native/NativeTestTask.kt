@@ -8,7 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask

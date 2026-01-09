@@ -10,10 +10,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.tasks.AllRunSettings
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.util.concurrent.atomic.AtomicReference
 
