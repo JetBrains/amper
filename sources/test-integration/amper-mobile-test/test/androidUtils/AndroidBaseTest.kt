@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.test.android.AndroidTools
+import org.jetbrains.amper.test.android.Emulator
 import org.jetbrains.amper.test.processes.TestReporterProcessOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.nio.file.Path
@@ -45,22 +46,18 @@ open class AndroidBaseTest : TestBase() {
         // This dispatcher switch is not superstition. The test dispatcher skips delays by default.
         // We interact with real external processes here, so we can't skip delays when we do retries.
         withContext(Dispatchers.IO) {
-            androidTools.ensureEmulatorIsRunning()
-            println("Installing test app containing instrumented tests (${testApp.id})")
-            androidTools.uninstall("com.jetbrains.sample.app")
-            androidTools.uninstall(testApp.id)
-            if (applicationId != null) {
-                androidTools.uninstall(applicationId)
+            androidTools.withEmulator {
+                println("Installing test app containing instrumented tests (${testApp.id})")
+                installApk(testApp.apkPath)
+                println("Installing target app from test project ($targetApkPath)")
+                installApk(targetApkPath)
+                println("Running tests via adb...")
+                runTestsViaAdb(applicationId)
             }
-            androidTools.installApk(testApp.apkPath)
-            println("Installing target app from test project ($targetApkPath)")
-            androidTools.installApk(targetApkPath)
-            println("Running tests via adb...")
-            runTestsViaAdb(applicationId)
         }
     }
 
-    private suspend fun runTestsViaAdb(applicationId: String? = null) {
+    private suspend fun Emulator.runTestsViaAdb(applicationId: String? = null) {
         // disable all animations on the emulator to speed up test execution.
         adbShell("settings", "put", "global", "window_animation_scale", "0.0")
         adbShell("settings", "put", "global", "transition_animation_scale", "0.0")
@@ -79,18 +76,18 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 
-    private suspend fun failTestWithAppDiagnostics(output: String, message: String): Nothing {
+    private suspend fun Emulator.failTestWithAppDiagnostics(output: String, message: String): Nothing {
         val nSecondsAgo = 15
-        val logCatOutput = androidTools.logcatLastNSeconds(nSecondsAgo).prependIndent("[logcat] ")
+        val logCatOutput = logcatLastNSeconds(nSecondsAgo).prependIndent("[logcat] ")
         fail("$message\n\nEmulator errors/warnings in the last $nSecondsAgo seconds of logs:\n\n${logCatOutput}\n\nTest output:\n\n$output")
     }
 
     /**
      * Executes the given adb shell [command] and returns the output.
      */
-    private suspend fun adbShell(vararg command: String): String {
+    private suspend fun Emulator.adbShell(vararg command: String): String {
         val outputListener = TestReporterProcessOutputListener("adb shell", testReporter)
-        return androidTools.adb("shell", *command, outputListener = outputListener).checkExitCodeIsZero().stdout
+        return adb("shell", *command, outputListener = outputListener).checkExitCodeIsZero().stdout
     }
 
     /**
@@ -111,16 +108,12 @@ open class AndroidBaseTest : TestBase() {
     }
 }
 
-private suspend fun AndroidTools.ensureEmulatorIsRunning() {
-    if (!isEmulatorRunning()) {
-        val testAvdName = "amper-test-avd"
-        // If no emulator is currently running, a new one is started before executing the command.
-        if (!listAvds().contains(testAvdName)) {
-            println("AVD $testAvdName not found, creating a new one...")
-            createAvd(testAvdName)
-        }
-        startAndAwaitEmulator(testAvdName)
-    } else {
-        println("An emulator is already running, using this one for the tests...")
+private suspend fun <T> AndroidTools.withEmulator(block: suspend Emulator.() -> T): T {
+    val testAvdName = "amper-test-avd"
+    // If no emulator is currently running, a new one is started before executing the command.
+    if (!listAvds().contains(testAvdName)) {
+        println("AVD $testAvdName not found, creating a new one...")
+        createAvd(testAvdName)
     }
+    return withEmulator(testAvdName) { block() }
 }
