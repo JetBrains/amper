@@ -131,6 +131,7 @@ opentelemetry-exporterLoggingOtlp = { module = "io.opentelemetry:opentelemetry-e
 opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 opentelemetry-ktor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "opentelemetry-ktor" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
+opentelemetry-sdk-common = { module = "io.opentelemetry:opentelemetry-sdk-common", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
 org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

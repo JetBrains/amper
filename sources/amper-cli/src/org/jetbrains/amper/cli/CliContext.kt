@@ -86,7 +86,7 @@ class CliContext(
     }
 
     val processRunner: ProcessRunner by lazy {
-        ProcessRunner()
+        ProcessRunner(telemetryDir = currentLogsRoot.telemetryPath)
     }
 
     companion object {

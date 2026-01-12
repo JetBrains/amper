@@ -8,22 +8,26 @@ import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
-import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.telemetry.ChildProcessTelemetry
+import org.jetbrains.amper.telemetry.ChildProcessTelemetry.OTEL_FOLDER_ENV_VAR
+import org.jetbrains.amper.telemetry.ChildProcessTelemetry.OTEL_PARENT_CONTEXT_ENV_VAR
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.jvm.javaClass
+import kotlin.io.path.pathString
 
 /**
  * Ordinary operations like running processes and copying files require
  * a comprehensive support in a build system to make it observable
  */
-class ProcessRunner {
+class ProcessRunner(
+    private val telemetryDir: Path,
+) {
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
@@ -56,6 +60,12 @@ class ProcessRunner {
         logger.debug("[cmd] ${ShellQuoting.quoteArgumentsPosixShellWay(command.toList())}")
 
         val result = withContext(Dispatchers.IO) {
+            val environmentWithTelemetry = buildMap {
+                put(OTEL_PARENT_CONTEXT_ENV_VAR, ChildProcessTelemetry.createSerializedParentContextData())
+                put(OTEL_FOLDER_ENV_VAR, telemetryDir.pathString)
+                putAll(environment)
+            }
+
             // Why quoteCommandLineForCurrentPlatform:
             // ProcessBuilder does not correctly escape its arguments on Windows
             // generally, JDK developers do not think that executed command should receive the same arguments as passed to ProcessBuilder
@@ -64,7 +74,7 @@ class ProcessRunner {
             runProcessAndCaptureOutput(
                 workingDir = workingDir,
                 command = CommandLineUtils.quoteCommandLineForCurrentPlatform(command),
-                environment = environment,
+                environment = environmentWithTelemetry,
                 redirectErrorStream = redirectErrorStream,
                 input = input,
                 outputListener = outputListener,
