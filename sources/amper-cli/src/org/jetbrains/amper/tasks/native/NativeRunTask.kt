@@ -5,7 +5,6 @@
 package org.jetbrains.amper.tasks.native
 
 import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.DeadLockMonitor

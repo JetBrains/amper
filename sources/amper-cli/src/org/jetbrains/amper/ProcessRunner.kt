@@ -6,7 +6,6 @@ package org.jetbrains.amper
 
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -15,12 +14,9 @@ import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
-import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.pathString
 import kotlin.jvm.javaClass
 
 /**
@@ -83,19 +79,3 @@ class ProcessRunner {
     }
 }
 
-object BuildPrimitives {
-    // defaults are selected for build system-stuff
-    suspend fun copy(from: Path, to: Path, overwrite: Boolean = false, followLinks: Boolean = true) {
-        // Do not change coroutine context, we want to stay in tasks pool
-
-        spanBuilder("copy")
-            .setAttribute("from", from.pathString)
-            .setAttribute("to", to.pathString)
-            .use {
-                // TODO is it really interruptible here?
-                runInterruptible {
-                    from.copyToRecursively(to, overwrite = overwrite, followLinks = followLinks)
-                }
-            }
-    }
-}
