@@ -7,7 +7,6 @@ package org.jetbrains.amper.tasks.maven
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.version
@@ -19,6 +18,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.tasks.ModuleDependencies
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.SourceRoot
@@ -28,8 +28,8 @@ import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
-import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.tasks.doResolveExternalDependencies
+import org.jetbrains.amper.tasks.forResolution
 import org.jetbrains.amper.tasks.jvm.CompiledJvmClassesArtifact
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -274,13 +274,9 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
      * resolve and as a result - change cache key that is used within DR incremental request.
      * Thus, we need to create a new instance of the node every time here.
      */
-    private fun getModuleDependencies(scope: ResolutionScope) = parameters.module.buildDependenciesGraph(
-        isTest = parameters.isTest,
-        platform = Platform.JVM,
-        dependencyReason = scope,
-        userCacheRoot = parameters.cacheRoot,
-        incrementalCache = parameters.incrementalCache,
-    )
+    private fun getModuleDependencies() =
+        ModuleDependencies(parameters.module, parameters.cacheRoot, parameters.incrementalCache)
+            .forResolution(Platform.JVM, parameters.isTest)
 
     // Here we are converting the external dependencies graph to the flat list of maven artifacts.
     private suspend fun PhaseTaskParameters.getExternalAetherArtifacts() =
@@ -288,8 +284,7 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
             module = module,
             platform = Platform.JVM,
             isTest = isTest,
-            compileModuleDependencies = getModuleDependencies(ResolutionScope.COMPILE),
-            runtimeModuleDependencies = getModuleDependencies(ResolutionScope.RUNTIME),
+            moduleDependencies = getModuleDependencies(),
         )
             .let { it.runtimeDependenciesRootNode ?: it.compileDependenciesRootNode }
             .distinctBfsSequence()

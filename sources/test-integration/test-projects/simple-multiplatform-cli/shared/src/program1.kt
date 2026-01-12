@@ -4,12 +4,12 @@
 
 package package1
 
-import kotlinx.datetime.toLocalTime
-import getWorld
 import Utils
+import getWorld
+import kotlinx.datetime.LocalTime
 
 fun main(args: Array<String>) {
-    val hour = "12:01:03".toLocalTime().hour
+    val hour = LocalTime.parse("12:01:03").hour
     println(Utils.superCommonMethod() + " Multiplatform CLI $hour: ${getWorld()}")
     for ((index, arg) in args.withIndex()) {
         println("ARG${index}: <$arg>")

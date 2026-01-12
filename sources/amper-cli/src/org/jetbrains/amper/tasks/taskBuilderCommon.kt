@@ -34,6 +34,9 @@ internal enum class CommonFragmentTaskType(override val prefix: String) : Fragme
 }
 
 fun ProjectTasksBuilder.setupCommonTasks() {
+    val moduleDependenciesMap = model.modules.associateBy({ it }) {
+        ModuleDependencies(it, context.userCacheRoot, context.incrementalCache)
+    }
     allModules()
         .alsoPlatforms()
         .alsoTests()
@@ -65,8 +68,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     isTest = isTest,
                     // for test code, we resolve dependencies on union of test and prod dependencies
                     fragments = fragmentsIncludeProduction,
-                    fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
-                    fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                    moduleDependencies = moduleDependenciesMap[module]!!,
                     taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
                 )
             )

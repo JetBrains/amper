@@ -13,8 +13,10 @@ import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.asRootCacheEntryKey
 import org.jetbrains.amper.engine.Task
@@ -30,6 +32,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAn
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
@@ -66,8 +69,7 @@ internal suspend fun CliReportingMavenResolver.doResolveExternalDependencies(
     module: AmperModule,
     platform: Platform,
     isTest: Boolean,
-    compileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
-    runtimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
+    moduleDependencies: List<ModuleDependencyNodeWithModuleAndContext>,
 ): ExternalDependenciesResolutionResult {
     val resolveSourceMoniker = "module ${module.userReadableName}"
     val cacheKey = CacheEntryKey.CompositeCacheEntryKey(
@@ -80,14 +82,25 @@ internal suspend fun CliReportingMavenResolver.doResolveExternalDependencies(
     )
     val root = RootDependencyNodeWithContext(
         rootCacheEntryKey = cacheKey.asRootCacheEntryKey(),
-        children = listOfNotNull(compileModuleDependencies, runtimeModuleDependencies),
+        children = moduleDependencies,
         templateContext = emptyContext()
     )
+
+    val platformCompileDepsIndex = moduleDependencies.indexOfFirst {
+        it.context.settings.platforms.single() == platform.toResolutionPlatform()
+                && it.context.settings.scope == ResolutionScope.COMPILE
+    }.takeIf { it != -1 } ?: error("Compile dependencies for $platform are not found")
+
+    val platformRuntimeDepsIndex = moduleDependencies.indexOfFirst {
+        it.context.settings.platforms.single() == platform.toResolutionPlatform()
+                && it.context.settings.scope == ResolutionScope.RUNTIME
+    }.takeIf { it != -1 }
+
     val resolvedGraph = resolve(root = root, resolveSourceMoniker = resolveSourceMoniker)
     val resolvedChildren = resolvedGraph.root.children
     return ExternalDependenciesResolutionResult(
-        resolvedChildren.first(),
-        resolvedChildren.drop(1).firstOrNull(),
+        resolvedChildren[platformCompileDepsIndex],
+        platformRuntimeDepsIndex?.let { resolvedChildren[it] },
         resolvedGraph.expirationTime
     )
 }
@@ -99,8 +112,7 @@ class ResolveExternalDependenciesTask(
     private val platform: Platform,
     private val isTest: Boolean,
     private val fragments: List<Fragment>,
-    private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModuleAndContext,
-    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModuleAndContext?,
+    private val moduleDependencies: ModuleDependencies,
     override val taskName: TaskName,
 ) : Task {
 
@@ -148,13 +160,12 @@ class ResolveExternalDependenciesTask(
         // rely on the plain paths list of the dependencies to act as an indicator
         // for incrementality.
         // Also, `DependencyNode` generally is not serializable.
-        val compileDependencyCoordinates = fragmentsCompileModuleDependencies.getExternalDependencies()
-        val runtimeDependencyCoordinates = fragmentsRuntimeModuleDependencies?.getExternalDependencies()
+        val platformOnlyDependencies = moduleDependencies.forPlatform(platform, isTest)
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
             .setFragments(fragments)
-            .setListAttribute("dependencies", compileDependencyCoordinates.map { it.toString() })
-            .setListAttribute("runtimeDependencies", runtimeDependencyCoordinates?.map { it.toString() } ?: emptyList())
+            .setListAttribute("dependencies", platformOnlyDependencies.compileDepsCoordinates.map { it.toString() })
+            .setListAttribute("runtimeDependencies", platformOnlyDependencies.runtimeDepsCoordinates.map { it.toString() })
             .setAttribute("isTest", isTest)
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
@@ -171,19 +182,19 @@ class ResolveExternalDependenciesTask(
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
-                            "${compileDependencyCoordinates.joinToString(" ")} -- " +
+                            "${platformOnlyDependencies.compileDepsCoordinates.joinToString(" ")} -- " +
                             "resolvePlatform=${resolvedPlatform.type.value} " +
                             "nativeTarget=${resolvedPlatform.nativeTarget} " +
                             "wasmTarget=${resolvedPlatform.wasmTarget}"
                 )
 
                 val result = try {
+                    val moduleDependenciesForResolution = moduleDependencies.forResolution(platform, isTest)
                     incrementalCache.execute(
                         key = taskName.name,
                         inputValues = mapOf(
                             "userCacheRoot" to userCacheRoot.path.pathString,
-                            "compileDependencies" to compileDependencyCoordinates.joinToString("|"),
-                            "runtimeDependencies" to (runtimeDependencyCoordinates?.joinToString("|") ?: ""),
+                            "dependencies" to moduleDependenciesForResolution.flatMap{ it.getExternalDependencies() }.joinToString("|"),
                             "repositories" to repositories.joinToString("|"),
                             "resolvePlatform" to resolvedPlatform.type.value,
                             "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
@@ -196,8 +207,7 @@ class ResolveExternalDependenciesTask(
                                 module = module,
                                 platform = platform,
                                 isTest = isTest,
-                                compileModuleDependencies = fragmentsCompileModuleDependencies,
-                                runtimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                                moduleDependencies = moduleDependenciesForResolution,
                             )
 
                         val compileClasspath = compileDependenciesRootNode.dependencyPaths()
@@ -227,12 +237,14 @@ class ResolveExternalDependenciesTask(
                                     "fragments: ${fragments.userReadableList()}\n" +
                                     "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                                     "direct dependencies:\n${
-                                        fragmentsCompileModuleDependencies.getExternalDependencies(true)
+                                        platformOnlyDependencies.compileDeps.getExternalDependencies(true)
                                             .joinToString("\n")
                                             .prependIndent("  ")
                                     }\n" +
                                     "all dependencies:\n${
-                                        compileDependencyCoordinates.joinToString("\n").prependIndent("  ")
+                                        platformOnlyDependencies.compileDepsCoordinates
+                                            .joinToString("\n")
+                                            .prependIndent("  ")
                                     }\n" +
                                     "platform: $resolvedPlatform" +
                                     (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: "") +
@@ -254,7 +266,7 @@ class ResolveExternalDependenciesTask(
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
-                            "${compileDependencyCoordinates.joinToString(" ")} -- " +
+                            "${platformOnlyDependencies.compileDepsCoordinates.joinToString(" ")} -- " +
                             "resolvePlatform=$resolvedPlatform " +
                             "nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                             "wasmTarget=${resolvedPlatform.wasmTarget}\n" +
@@ -316,4 +328,73 @@ class ResolveExternalDependenciesTask(
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
+}
+
+class ModuleDependencies(module: AmperModule, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache) {
+
+    val mainDeps: Map<Platform, PerPlatformDependencies> =
+        module.perPlatformDependencies(false, userCacheRoot, incrementalCache)
+
+    val testDeps: Map<Platform, PerPlatformDependencies> =
+        module.perPlatformDependencies(true, userCacheRoot, incrementalCache)
+
+    companion object {
+        private fun AmperModule.perPlatformDependencies(
+            isTest: Boolean, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache,
+        ): Map<Platform, PerPlatformDependencies> =
+            leafPlatforms
+                .sortedBy { it.name }
+                .associateBy(keySelector = { it }) {
+                    PerPlatformDependencies(it, isTest = isTest, this, userCacheRoot, incrementalCache)
+                }
+    }
+}
+
+class PerPlatformDependencies(
+    platform: Platform,
+    isTest: Boolean,
+    module: AmperModule,
+    userCacheRoot: AmperUserCacheRoot,
+    incrementalCache: IncrementalCache,
+) {
+    val compileDeps: ModuleDependencyNodeWithModuleAndContext = module.buildDependenciesGraph(
+        isTest = isTest,
+        platform = platform,
+        dependencyReason = ResolutionScope.COMPILE,
+        userCacheRoot = userCacheRoot,
+        incrementalCache = incrementalCache,
+    )
+    val runtimeDeps: ModuleDependencyNodeWithModuleAndContext? =  when {
+        platform.isDescendantOf(Platform.NATIVE) -> null  // The native world doesn't distinguish compile/runtime classpath
+        else -> module.buildDependenciesGraph(
+            isTest = isTest,
+            platform = platform,
+            dependencyReason = ResolutionScope.RUNTIME,
+            userCacheRoot = userCacheRoot,
+            incrementalCache = incrementalCache,
+        )
+    }
+
+    val compileDepsCoordinates: List<MavenCoordinates> by lazy { compileDeps.getExternalDependencies() }
+    val runtimeDepsCoordinates: List<MavenCoordinates> by lazy { runtimeDeps?.getExternalDependencies() ?: emptyList() }
+}
+
+fun ModuleDependencies.forResolution(platform: Platform, isTest: Boolean): List<ModuleDependencyNodeWithModuleAndContext> {
+    // Test dependencies contain dependencies of both test and corresponding main fragments
+    val perPlatformDeps = if (isTest) testDeps else mainDeps
+
+    return buildList {
+        perPlatformDeps[platform] ?: error("Dependencies for $platform are not calculated")
+        perPlatformDeps.values.forEach {
+            add(it.compileDeps)
+            it.runtimeDeps?.let { add(it) }
+        }
+    }
+}
+
+fun ModuleDependencies.forPlatform(platform: Platform, isTest: Boolean): PerPlatformDependencies {
+    // Test dependencies contain dependencies of both test and corresponding main fragments
+    val perPlatformDeps = if (isTest) testDeps else mainDeps
+    return perPlatformDeps[platform]
+        ?: error("Dependencies for $platform are not calculated")
 }
