@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.maven
@@ -29,11 +29,10 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.doResolveExternalDependencies
-import org.jetbrains.amper.tasks.jvm.CompiledJvmClassesArtifact
+import org.jetbrains.amper.tasks.jvm.CompiledJvmArtifact
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.absolutePathString
 
 /**
  * An order-sensitive list of maven phases that are supported by the maven compatibility layer.
@@ -113,8 +112,8 @@ data class ModelChange(
  * mocks that are created during mojo execution.
  */
 data class MavenProjectEmbryo(
-    val classesOutputPath: Path? = null,
-    val testClassesOutputPath: Path? = null,
+    val allClassesOutputPaths: List<Path> = emptyList(),
+    val allTestClassesOutputPaths: List<Path> = emptyList(),
     val sourcesPaths: List<Path> = emptyList(),
     val testSourcesPaths: List<Path> = emptyList(),
     val resourcesPaths: List<Path> = emptyList(),
@@ -125,8 +124,8 @@ data class MavenProjectEmbryo(
      * Merges this embryo with another one with this's embryo properties taking precedence.
      */
     fun merge(other: MavenProjectEmbryo) = MavenProjectEmbryo(
-        classesOutputPath = this.classesOutputPath ?: other.classesOutputPath,
-        testClassesOutputPath = this.testClassesOutputPath ?: other.testClassesOutputPath,
+        allClassesOutputPaths = other.allClassesOutputPaths + allClassesOutputPaths,
+        allTestClassesOutputPaths = other.allTestClassesOutputPaths + allTestClassesOutputPaths,
         sourcesPaths = other.sourcesPaths + sourcesPaths,
         testSourcesPaths = other.testSourcesPaths + testSourcesPaths,
         resourcesPaths = other.resourcesPaths + resourcesPaths,
@@ -135,8 +134,7 @@ data class MavenProjectEmbryo(
     )
 
     fun configureProject(mavenProject: MavenProject) {
-        mavenProject.build.outputDirectory = classesOutputPath?.absolutePathString()
-        mavenProject.build.testOutputDirectory = testClassesOutputPath?.absolutePathString()
+        // Note: outputDirectory and testOutputDirectory are set in ExecuteMavenMojoTask after aggregation.
         mavenProject.addCompileSourceRoots(sourcesPaths.distinct())
         mavenProject.addTestCompileSourceRoots(testSourcesPaths.distinct())
         mavenProject.addResources(resourcesPaths.distinct())
@@ -245,15 +243,18 @@ class AdditionalResourcesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : 
 class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
 
     private val compiledJvmClassesDirs by Selectors.fromModuleOnly(
-        type = CompiledJvmClassesArtifact::class,
+        type = CompiledJvmArtifact::class,
         module = parameters.module,
         platform = Platform.JVM,
         isTest = parameters.isTest,
     )
 
-    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo =
-        if (!isTest) MavenProjectEmbryo(classesOutputPath = compiledJvmClassesDirs.singleOrNull()?.path)
-        else MavenProjectEmbryo(testClassesOutputPath = compiledJvmClassesDirs.singleOrNull()?.path)
+    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
+        val kotlinOutputRoots = compiledJvmClassesDirs.map { it.kotlinCompilerOutputRoot }
+        val javaOutputRoots = compiledJvmClassesDirs.map { it.javaCompilerOutputRoot }
+        return if (!isTest) MavenProjectEmbryo(allClassesOutputPaths = kotlinOutputRoots + javaOutputRoots)
+        else MavenProjectEmbryo(allTestClassesOutputPaths = kotlinOutputRoots + javaOutputRoots)
+    }
 }
 
 /**
@@ -273,17 +274,17 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
      * resolve and as a result - change cache key that is used within DR incremental request.
      * Thus, we need to create a new instance of the node every time here.
      */
-    private fun getModuleDependencies() =
+    private fun getModuleDependencies(isTest: Boolean) =
         ModuleDependencies(parameters.module, parameters.cacheRoot, parameters.incrementalCache)
-            .forResolution(parameters.isTest)
+            .forResolution(isTest)
 
     // Here we are converting the external dependencies graph to the flat list of maven artifacts.
-    private suspend fun PhaseTaskParameters.getExternalAetherArtifacts() =
+    private suspend fun PhaseTaskParameters.getExternalAetherArtifacts(isTest: Boolean) =
         mavenResolver.doResolveExternalDependencies(
             module = module,
             platform = Platform.JVM,
             isTest = isTest,
-            moduleDependencies = getModuleDependencies(),
+            moduleDependencies = getModuleDependencies(isTest),
         )
             .let { it.runtimeDependenciesRootNode ?: it.compileDependenciesRootNode }
             .distinctBfsSequence()
@@ -305,7 +306,7 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
             .toSet()
 
     private val moduleDependenciesClasses by Selectors.fromModuleWithDependencies(
-        type = CompiledJvmClassesArtifact::class,
+        type = CompiledJvmArtifact::class,
         leafFragment = targetFragment,
         userCacheRoot = AmperUserCacheRoot(Path(".").absolute()),
         quantifier = Quantifier.AnyOrNone,
@@ -313,14 +314,16 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
         incrementalCache = parameters.incrementalCache,
     )
 
-    private fun CompiledJvmClassesArtifact.toArtifact(scope: String) =
-        module.asMavenArtifact(scope).apply { file = path.toFile() }
+    private fun CompiledJvmArtifact.toArtifacts(scope: String) =
+        listOf("java-output", "kotlin-output", "resources-output").map {
+            module.asMavenArtifact(scope, "-${it}")
+                .apply { file = path.resolve(it).toFile() }
+        }
 
     override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
-        val classesArtifacts =
-            if (isTest) moduleDependenciesClasses.map { it.toArtifact("test") }.toSet()
-            else moduleDependenciesClasses.map { it.toArtifact("runtime") }.toSet()
-        val externalArtifacts = getExternalAetherArtifacts()
+        val classesArtifacts = moduleDependenciesClasses
+            .flatMap { it.toArtifacts(if (it.isTest) "test" else "runtime") }.toSet()
+        val externalArtifacts = getExternalAetherArtifacts(false) + getExternalAetherArtifacts(true)
 
         return MavenProjectEmbryo(
             artifacts = classesArtifacts + externalArtifacts,

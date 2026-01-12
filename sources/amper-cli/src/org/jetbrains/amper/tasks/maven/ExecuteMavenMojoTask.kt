@@ -52,10 +52,12 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 
 typealias MavenPlugin = Plugin
 typealias MojoDesc = AmperMavenPluginMojo
@@ -72,6 +74,7 @@ class ExecuteMavenMojoTask(
     val configString: String,
 ) : Task {
     private val pluginCoordinates = "${mavenPlugin.groupId}:${mavenPlugin.artifactId}:${mavenPlugin.version}"
+    private val mavenBuildDir = (buildOutputRoot.path / "maven-build").absolute()
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -102,12 +105,28 @@ class ExecuteMavenMojoTask(
 
         val newMavenProject = MockedMavenProject(mavenProject).apply {
             file = module.source.buildFile.toFile()
-            build.directory = buildOutputRoot.path.absolutePathString()
+            // Use a Maven-specific subdirectory to avoid clashing with Amper actions
+            build.directory = mavenBuildDir.absolutePathString()
             artifact = module.asMavenArtifact("runtime")
             model.dependencyManagement = MavenDependencyManagement()
 
             // Get all collected configurations from the embryo.
             projectEmbryo.configureProject(this)
+
+            // Aggregate classes directories if there are multiple (maven does not support multiple classes directories).
+            val aggregatedClassesDir = aggregateClassDirectoriesOrNull(
+                projectEmbryo.allClassesOutputPaths,
+                buildOutputRoot.path / "aggregatedClasses"
+            )
+
+            val aggregatedTestClassesDir = aggregateClassDirectoriesOrNull(
+                projectEmbryo.allTestClassesOutputPaths,
+                buildOutputRoot.path / "aggregatedTestClasses"
+            )
+
+            // Set the aggregated directories.
+            build.outputDirectory = aggregatedClassesDir.absolutePathString()
+            build.testOutputDirectory = aggregatedTestClassesDir.absolutePathString()
 
             // Set artifact repositories that are usually being set within the model building listener.
             remoteArtifactRepositories = request.remoteRepositories
@@ -225,7 +244,7 @@ class ExecuteMavenMojoTask(
         )
 
         // Finally, render the report.
-        val reportFile = (buildOutputRoot.path / "${mojo.outputName}.html")
+        val reportFile = (mavenBuildDir / "${mojo.outputName}.html")
             .apply { parent?.createDirectories() }
             .apply { if (!exists()) createFile() }
             .toFile()
@@ -241,7 +260,7 @@ class ExecuteMavenMojoTask(
         remoteRepositories: List<RemoteRepository>,
     ): SiteRenderingContext {
         val siteDirectory = module.source.moduleDir.resolve("site").toFile()
-        val generatedSiteDirectory = buildOutputRoot.path.resolve("generated-site").toFile()
+        val generatedSiteDirectory = mavenBuildDir.resolve("generated-site").toFile()
 
         val siteModel = prepareSiteModel(locale, project, siteDirectory, repoSession, remoteRepositories)
         val templateProperties = buildMap<String, Any?> {
@@ -303,6 +322,18 @@ class ExecuteMavenMojoTask(
     } catch (e: SiteToolException) {
         throw MojoExecutionException("Failed to obtain site model", e)
     }
+
+    /**
+     * Copy all files from source directories to the target directory.
+     * If the same file exists in multiple source directories, the last one wins (overwrites).
+     */
+    private fun aggregateClassDirectoriesOrNull(sourceDirs: List<Path>, targetDir: Path): Path =
+        if (sourceDirs.isEmpty()) targetDir
+        else targetDir.createDirectories().also {
+            for (sourceDir in sourceDirs.map(Path::absolute).distinct())
+                if (sourceDir.exists() && sourceDir.isDirectory())
+                    sourceDir.copyToRecursively(targetDir, followLinks = false, overwrite = true)
+        }
 
     /**
      * Safe wrapper for session scope enter/exit.

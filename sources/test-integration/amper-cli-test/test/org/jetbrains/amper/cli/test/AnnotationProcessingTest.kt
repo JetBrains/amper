@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -28,7 +28,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
 
         val buildResult = runCli(projectRoot, "build")
 
-        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmClassesArtifact" / "lombokjvm" / "java-output" / "Person.class"
+        val classFilePath = buildResult.buildOutputRoot / "artifacts" / "CompiledJvmArtifact" / "lombokjvm" / "java-output" / "Person.class"
         assertTrue(classFilePath.exists(), "Generated Person class file not found")
 
         val result = runCli(projectRoot, "run")
@@ -150,7 +150,7 @@ class AnnotationProcessingTest : AmperCliTestBase() {
         val result = runCli(projectRoot, "test", assertEmptyStdErr = false)
 
         val springConfigurationMetadataPath = Path("artifacts") /
-                "CompiledJvmClassesArtifact" /
+                "CompiledJvmArtifact" /
                 "spring-configuration-propertiesjvm" /
                 "java-output" /
                 "META-INF" /

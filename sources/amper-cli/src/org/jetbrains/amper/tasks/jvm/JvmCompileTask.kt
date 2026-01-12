@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -99,7 +99,7 @@ internal class JvmCompileTask(
         }
     }
 
-    private val compiledJvmClassesPath by CompiledJvmClassesArtifact(
+    private val compiledJvmArtifact by CompiledJvmArtifact(
         buildOutputRoot = buildOutputRoot,
         module = module,
         platform = platform,
@@ -123,12 +123,7 @@ internal class JvmCompileTask(
         quantifier = Quantifier.AnyOrNone,
     )
 
-    val taskOutputRoot get() = compiledJvmClassesPath.path
-
-    private val javaCompilerOutputRoot = taskOutputRoot / "java-output"
-    private val kotlinCompilerOutputRoot = taskOutputRoot / "kotlin-output"
-    private val resourcesRoot = taskOutputRoot / "resources-output"
-    private val jicDataDir = taskOutputRoot / "jic-data"
+    val taskOutputRoot get() = compiledJvmArtifact.path
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         require(fragments.isNotEmpty()) {
@@ -204,9 +199,9 @@ internal class JvmCompileTask(
             if (!shouldCompileJavaIncrementally(userSettings.java, javaAnnotationProcessorClasspath)) {
                 cleanDirectory(taskOutputRoot)
             }
-            javaCompilerOutputRoot.createDirectories()
-            kotlinCompilerOutputRoot.createDirectories()
-            resourcesRoot.createDirectories()
+            compiledJvmArtifact.javaCompilerOutputRoot.createDirectories()
+            compiledJvmArtifact.kotlinCompilerOutputRoot.createDirectories()
+            compiledJvmArtifact.resourcesRoot.createDirectories()
 
             val nonEmptySourceDirs = sources
                 .filter {
@@ -219,8 +214,8 @@ internal class JvmCompileTask(
                 }
 
             val outputPaths = mutableListOf<Path>()
-            outputPaths.add(javaCompilerOutputRoot.toAbsolutePath())
-            outputPaths.add(kotlinCompilerOutputRoot.toAbsolutePath())
+            outputPaths.add(compiledJvmArtifact.javaCompilerOutputRoot.toAbsolutePath())
+            outputPaths.add(compiledJvmArtifact.kotlinCompilerOutputRoot.toAbsolutePath())
 
             if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
@@ -244,9 +239,9 @@ internal class JvmCompileTask(
             val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
                 val dest = if (resource.isDirectory()) {
-                    resourcesRoot
+                    compiledJvmArtifact.resourcesRoot
                 } else {
-                    resourcesRoot / resource.fileName
+                    compiledJvmArtifact.resourcesRoot / resource.fileName
                 }
                 logger.debug("Copying resources from '{}' to '{}'...", resource, dest)
 
@@ -260,9 +255,9 @@ internal class JvmCompileTask(
 
         return Result(
             classesOutputRoots = listOf(
-                javaCompilerOutputRoot,
-                kotlinCompilerOutputRoot,
-                resourcesRoot
+                compiledJvmArtifact.javaCompilerOutputRoot,
+                compiledJvmArtifact.kotlinCompilerOutputRoot,
+                compiledJvmArtifact.resourcesRoot
             ).map { it.toAbsolutePath() },
             module = module,
             isTest = isTest,
@@ -311,7 +306,7 @@ internal class JvmCompileTask(
             compileJavaSources(
                 jdk = jdk,
                 userSettings = userSettings,
-                classpath = classpath + listOf(kotlinCompilerOutputRoot),
+                classpath = classpath + listOf(compiledJvmArtifact.kotlinCompilerOutputRoot),
                 processorClasspath = javaAnnotationProcessorClasspath,
                 processorGeneratedDir = javaAnnotationProcessorsGeneratedDir,
                 javaSourceFiles = javaFilesToCompile,
@@ -353,7 +348,7 @@ internal class JvmCompileTask(
             userSettings = userSettings,
             classpath = classpath,
             jdkHome = jdk.homeDir,
-            outputPath = kotlinCompilerOutputRoot,
+            outputPath = compiledJvmArtifact.kotlinCompilerOutputRoot,
             compilerPlugins = compilerPlugins,
             fragments = fragments,
             additionalSourceRoots = additionalSourceRoots,
@@ -427,7 +422,7 @@ internal class JvmCompileTask(
         val freeCompilerArgs = userSettings.java.freeCompilerArgs
 
         val success = if (shouldCompileJavaIncrementally(userSettings.java, processorClasspath)) {
-            jicDataDir.createDirectories()
+            compiledJvmArtifact.jicDataDir.createDirectories()
             val jicJavacArgs = commonArgs + freeCompilerArgs
             javacSpanBuilder(jicJavacArgs, jdk, incremental = true).use {
                 compileJavaWithJic(
@@ -437,8 +432,8 @@ internal class JvmCompileTask(
                     isTest,
                     javaSourceFiles,
                     jicJavacArgs,
-                    javaCompilerOutputRoot,
-                    jicDataDir,
+                    compiledJvmArtifact.javaCompilerOutputRoot,
+                    compiledJvmArtifact.jicDataDir,
                     classpath,
                     logger
                 )
@@ -472,7 +467,7 @@ internal class JvmCompileTask(
             add("-implicit:none")
 
             add("-d")
-            add(javaCompilerOutputRoot.pathString)
+            add(compiledJvmArtifact.javaCompilerOutputRoot.pathString)
 
             addAll(freeCompilerArgs)
 
