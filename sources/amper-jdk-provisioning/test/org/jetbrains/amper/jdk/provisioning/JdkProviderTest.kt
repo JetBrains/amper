@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.TempDirExtension
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -57,6 +58,10 @@ class JdkProviderTest {
         // We no longer get any ZIP package for SAP Machine JDK 21 on Windows
         // When https://github.com/foojayio/discoapi/issues/136 is fixed (if ever), we can remove this 'if'
         if (OperatingSystem.current() == OperatingSystem.WINDOWS && distribution == JvmDistribution.SapMachine) {
+            return@runTest
+        }
+        // TODO remove this once we stop getting 502s for https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u472-b08/openlogic-openjdk-8u472-b08-mac-x64.zip
+        if (distribution == JvmDistribution.PerforceOpenLogic) {
             return@runTest
         }
         // assertValidJdk already checks that the detected distribution in the provisioned JDK actually matches the
@@ -194,6 +199,7 @@ class JdkProviderTest {
      *  ╰─ man
      *  ```
      */
+    @Disabled("Getting 502s when downloading OpenLogic")
     @Test
     fun provisionJdk_nestedJdkAmongOtherDirs() = runTest(timeout = 10.minutes) {
         assertValidJdk(
