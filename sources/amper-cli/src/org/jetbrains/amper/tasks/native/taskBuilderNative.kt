@@ -29,6 +29,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
             incrementalCache = context.incrementalCache,
             tempRoot = context.projectTempRoot,
             jdkProvider = context.jdkProvider,
+            processRunner = context.processRunner,
         )
     )
 
@@ -50,6 +51,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     isTest = isTest,
                     buildType = buildType,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -89,6 +91,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                             }
                         },
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
@@ -140,6 +143,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     buildType = buildType,
                     runSettings = runSettings,
                     terminal = context.terminal,
+                    processRunner = context.processRunner,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = false, buildType)
             )
@@ -161,6 +165,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     runSettings = runSettings,
                     terminal = context.terminal,
+                    processRunner = context.processRunner,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = true, buildType)
             )

@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.native
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.RunTask
@@ -34,6 +35,7 @@ class NativeRunTask(
     override val buildType: BuildType,
     private val runSettings: NativeDesktopRunSettings,
     private val terminal: Terminal,
+    private val processRunner: ProcessRunner,
 ) : RunTask {
     init {
         require(platform.isLeaf)
@@ -53,7 +55,7 @@ class NativeRunTask(
             .setAttribute("executable", executable.pathString)
             .setListAttribute("args", programArgs)
             .use { span ->
-                val result = BuildPrimitives.runProcessAndGetOutput(
+                val result = processRunner.runProcessAndGetOutput(
                     workingDir = runSettings.workingDir,
                     command = listOf(executable.pathString) + programArgs,
                     span = span,

@@ -187,6 +187,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     platform = Platform.ANDROID,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
@@ -359,6 +360,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     jdkProvider = context.jdkProvider,
                     platform = Platform.ANDROID,
                     buildType = buildType,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true, buildType),

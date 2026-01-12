@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.native
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -32,6 +33,7 @@ class NativeTestTask(
     override val platform: Platform,
     override val buildType: BuildType,
     private val terminal: Terminal,
+    private val processRunner: ProcessRunner,
 ) : TestTask {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -62,7 +64,7 @@ class NativeTestTask(
 
                 val workingDir = module.source.moduleDir
 
-                val result = BuildPrimitives.runProcessAndGetOutput(
+                val result = processRunner.runProcessAndGetOutput(
                     workingDir = workingDir,
                     command = command,
                     span = span,

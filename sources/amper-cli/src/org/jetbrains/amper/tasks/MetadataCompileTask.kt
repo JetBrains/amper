@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -58,6 +59,7 @@ internal class MetadataCompileTask(
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase(), BuildTask {
 
     override val buildType: Nothing? get() = null
@@ -181,7 +183,8 @@ internal class MetadataCompileTask(
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Compiling Kotlin metadata for module '${module.userReadableName}'...")
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.metadata.K2MetadataCompiler",
                     classpath = compilerJars,

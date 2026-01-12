@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.CliProblemReporter
@@ -46,6 +47,7 @@ class JvmHotRunTask(
     runSettings: JvmMainRunSettings,
     incrementalCache: IncrementalCache,
     jdkProvider: JdkProvider,
+    processRunner: ProcessRunner,
     private val toolingArtifactsDownloader: ToolingArtifactsDownloader = ToolingArtifactsDownloader(
         userCacheRoot,
         incrementalCache
@@ -60,6 +62,7 @@ class JvmHotRunTask(
     runSettings,
     incrementalCache,
     jdkProvider,
+    processRunner,
 ) {
     override val buildType: BuildType
         get() = BuildType.Debug

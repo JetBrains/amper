@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -42,6 +43,7 @@ abstract class AbstractJvmRunTask(
     protected val runSettings: JvmMainRunSettings,
     protected val incrementalCache: IncrementalCache?,
     protected val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ) : RunTask {
     override val platform = Platform.JVM
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
@@ -53,7 +55,8 @@ abstract class AbstractJvmRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()
 
-        val result = getJdk().runJava(
+        val result = processRunner.runJava(
+            jdk = getJdk(),
             workingDir = runSettings.workingDir,
             mainClass = getMainClass(dependenciesResult),
             classpath = getClasspath(dependenciesResult),

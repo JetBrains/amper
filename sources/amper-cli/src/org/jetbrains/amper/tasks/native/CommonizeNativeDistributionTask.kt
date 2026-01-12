@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.native
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
@@ -40,6 +41,7 @@ class CommonizeNativeDistributionTask(
     private val tempRoot: AmperProjectTempRoot,
     private val incrementalCache: IncrementalCache,
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ) : Task {
     companion object {
         val TASK_NAME = TaskName("commonizeNativeDistribution")
@@ -92,7 +94,8 @@ class CommonizeNativeDistributionTask(
                         )
                     ) {
                         logger.info("Commonizing Kotlin/Native distribution...")
-                        val result = compiler.jdk.runJava(
+                        val result = processRunner.runJava(
+                            jdk = compiler.jdk,
                             workingDir = Path("."),
                             mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
                             classpath = commonizerClasspath,

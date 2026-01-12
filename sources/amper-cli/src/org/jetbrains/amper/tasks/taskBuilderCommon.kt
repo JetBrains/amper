@@ -84,6 +84,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 incrementalCache = context.incrementalCache,
                 tempRoot = context.projectTempRoot,
                 jdkProvider = context.jdkProvider,
+                processRunner = context.processRunner,
             )
         )
         // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)

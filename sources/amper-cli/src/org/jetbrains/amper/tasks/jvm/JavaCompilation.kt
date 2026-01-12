@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jic.JicCompilationRequest
@@ -20,6 +21,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.listDirectoryEntries
 
 internal suspend fun compileJavaWithJic(
+    processRunner: ProcessRunner,
     jdk: Jdk,
     module: AmperModule,
     isTest: Boolean,
@@ -56,7 +58,8 @@ internal suspend fun compileJavaWithJic(
         }
     }
 
-    val result = jdk.runJava(
+    val result = processRunner.runJava(
+        jdk = jdk,
         workingDir = Path("."),
         mainClass = "org.jetbrains.amper.jic.JicMainKt",
         programArgs = emptyList(),

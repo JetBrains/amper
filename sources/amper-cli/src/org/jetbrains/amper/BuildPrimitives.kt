@@ -21,12 +21,13 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.pathString
+import kotlin.jvm.javaClass
 
 /**
  * Ordinary operations like running processes and copying files require
  * a comprehensive support in a build system to make it observable
  */
-object BuildPrimitives {
+class ProcessRunner {
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
@@ -77,6 +78,12 @@ object BuildPrimitives {
         return result
     }
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
+}
+
+object BuildPrimitives {
     // defaults are selected for build system-stuff
     suspend fun copy(from: Path, to: Path, overwrite: Boolean = false, followLinks: Boolean = true) {
         // Do not change coroutine context, we want to stay in tasks pool
@@ -91,6 +98,4 @@ object BuildPrimitives {
                 }
             }
     }
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ksp
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.kotlinModuleName
@@ -72,6 +73,7 @@ internal class KspTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val incrementalCache: IncrementalCache,
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase() {
     private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
@@ -118,7 +120,7 @@ internal class KspTask(
 
         val kspVersion = fragments.singleLeafFragment().settings.kotlin.ksp.version
         val kspJars = downloadKspCli(kspVersion)
-        val ksp = Ksp(kspVersion, jdk, kspJars)
+        val ksp = Ksp(kspVersion, jdk, kspJars, processRunner)
 
         val kspProcessorClasspath = dependenciesResult.filterIsInstance<KspProcessorClasspathTask.Result>()
             .flatMap { it.processorClasspath }

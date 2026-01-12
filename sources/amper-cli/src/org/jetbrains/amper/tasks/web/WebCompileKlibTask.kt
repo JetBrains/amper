@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.web
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -68,6 +69,7 @@ internal abstract class WebCompileKlibTask(
     override val buildType: BuildType? = null,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
+    private val processRunner: ProcessRunner,
 ) : ArtifactTaskBase(), BuildTask {
 
     abstract val expectedPlatform: Platform
@@ -220,7 +222,8 @@ internal abstract class WebCompileKlibTask(
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Compiling Kotlin ${expectedPlatform.name} for module '${module.userReadableName}'...")
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.js.K2JSCompiler",
                     classpath = compilerJars,

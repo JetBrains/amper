@@ -9,6 +9,7 @@ import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import org.jetbrains.amper.android.AndroidSdkDetector
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -82,6 +83,10 @@ class CliContext(
 
     val androidHomeRoot: AndroidHomeRoot by lazy {
         AndroidHomeRoot(AndroidSdkDetector.detectSdkPath().createDirectories())
+    }
+
+    val processRunner: ProcessRunner by lazy {
+        ProcessRunner()
     }
 
     companion object {

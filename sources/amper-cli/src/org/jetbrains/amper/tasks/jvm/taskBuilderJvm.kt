@@ -39,6 +39,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     tempRoot = context.projectTempRoot,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -177,6 +178,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         tempRoot = context.projectTempRoot,
                         incrementalCache = context.incrementalCache,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -194,6 +196,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         tempRoot = context.projectTempRoot,
                         incrementalCache = context.incrementalCache,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -225,6 +228,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         terminal = context.terminal,
                         runSettings = runSettings,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     dependsOn = listOf(executableJarTaskName)
                 )
@@ -288,6 +292,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     runSettings = runSettings,
                     incrementalCache = context.incrementalCache,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true),

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.js
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
@@ -33,6 +34,7 @@ internal class JsCompileKlibTask(
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
     jdkProvider: JdkProvider,
+    processRunner: ProcessRunner,
     buildType: BuildType? = null,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
@@ -48,6 +50,7 @@ internal class JsCompileKlibTask(
     isTest,
     buildType,
     kotlinArtifactsDownloader,
+    processRunner,
 ) {
     override val expectedPlatform: Platform
         get() = Platform.JS

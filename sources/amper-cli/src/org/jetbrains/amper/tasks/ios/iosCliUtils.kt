@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessOutputListener
@@ -29,17 +29,17 @@ const val XCRUN_EXECUTABLE = "/usr/bin/xcrun"
 
 private const val SIM_RUNTIME_PREFIX_IOS = "com.apple.CoreSimulator.SimRuntime.iOS-"
 
-suspend fun installAppOnDevice(deviceId: String, appPath: Path) =
+suspend fun ProcessRunner.installAppOnDevice(deviceId: String, appPath: Path) =
     xcrun("simctl", "install", deviceId, appPath.pathString)
 
-suspend fun launchAppOnDevice(deviceId: String, bundleId: String) =
+suspend fun ProcessRunner.launchAppOnDevice(deviceId: String, bundleId: String) =
     xcrun("simctl", "launch", deviceId, bundleId)
 
-suspend fun shutdownDevice(deviceId: String) =
+suspend fun ProcessRunner.shutdownDevice(deviceId: String) =
     xcrun("simctl", "shutdown", deviceId)
 
-suspend fun pickBestDevice(): Device? {
-    val devices = SimCtl.queryAvailableDevices().sortedByDescending { it.runtimeId }
+suspend fun ProcessRunner.pickBestDevice(): Device? {
+    val devices = SimCtl.queryAvailableDevices(processRunner = this).sortedByDescending { it.runtimeId }
     val latestRuntime = devices.firstOrNull()?.runtimeId ?: return null
     // Naive ranking algorithm
     return devices.takeWhile { it.runtimeId == latestRuntime }.maxBy {
@@ -49,20 +49,20 @@ suspend fun pickBestDevice(): Device? {
     }
 }
 
-suspend fun queryDevice(deviceId: String): Device? {
-    return SimCtl.queryDevice(deviceId)
+suspend fun ProcessRunner.queryDevice(deviceId: String): Device? {
+    return SimCtl.queryDevice(processRunner = this, deviceId)
 }
 
 private fun Boolean.toInt() = if (this) 1 else 0
 
-suspend fun bootAndWaitSimulator(
+suspend fun ProcessRunner.bootAndWaitSimulator(
     device: Device,
     forceShowWindow: Boolean = false,
 ) {
     if (forceShowWindow) {
         // The `open` command works without any errors/warnings regardless of the simulator boot status.
         // It boots the simulator on demand and brings its window forward.
-        BuildPrimitives.runProcessAndGetOutput(
+        runProcessAndGetOutput(
             workingDir = Path("."),
             command = listOf("open", "-a", "Simulator"),
             outputListener = LoggingProcessOutputListener(logger),
@@ -73,13 +73,13 @@ suspend fun bootAndWaitSimulator(
         return
     }
 
-    BuildPrimitives.runProcessAndGetOutput(
+    runProcessAndGetOutput(
         workingDir = Path("."),
         command = listOf("xcrun", "simctl", "boot", device.deviceId),
         outputListener = LoggingProcessOutputListener(logger),
     )
     repeat(20) {
-        val device = SimCtl.queryDevice(device.deviceId) ?: userReadableError(
+        val device = SimCtl.queryDevice(processRunner = this, device.deviceId) ?: userReadableError(
             "Simulator device `${device.deviceId}` disappeared unexpectedly while waiting to be booted."
         )
         if (device.isBooted) {
@@ -90,10 +90,10 @@ suspend fun bootAndWaitSimulator(
     userReadableError("Simulator boot timeout for `${device.deviceId}`.")
 }
 
-private suspend fun xcrun(
+private suspend fun ProcessRunner.xcrun(
     vararg args: String,
     listener: ProcessOutputListener = LoggingProcessOutputListener(logger),
-) = BuildPrimitives.runProcessAndGetOutput(
+) = runProcessAndGetOutput(
     workingDir = Path("."),
     command = listOf(XCRUN_EXECUTABLE) + args,
     outputListener = listener,
@@ -123,8 +123,8 @@ private object SimCtl {
         val devices: Map<String, List<DeviceData>>,
     )
 
-    suspend fun queryDevice(deviceId: String): Device? {
-        val simcltListOut = xcrun(
+    suspend fun queryDevice(processRunner: ProcessRunner, deviceId: String): Device? {
+        val simcltListOut = processRunner.xcrun(
             "simctl", "list", "-v", "devices", deviceId, "--json",
             listener = ProcessOutputListener.NOOP,
         )
@@ -133,8 +133,8 @@ private object SimCtl {
             .devices.mapNotNull { it.value.singleOrNull()?.toDevice(runtimeId = it.key) }.singleOrNull()
     }
 
-    suspend fun queryAvailableDevices(): List<Device> {
-        val simcltListOut = xcrun(
+    suspend fun queryAvailableDevices(processRunner: ProcessRunner): List<Device> {
+        val simcltListOut = processRunner.xcrun(
             "simctl", "list", "-v", "devices", "--json",
             listener = ProcessOutputListener.NOOP,
         )
@@ -159,12 +159,12 @@ private object SimCtl {
     )
 }
 
-suspend fun installAppOnPhysicalDevice(
+suspend fun ProcessRunner.installAppOnPhysicalDevice(
     deviceId: String,
     appPath: Path,
 ) = xcrun("devicectl", "device", "install", "app", "--device", deviceId, appPath.pathString)
 
-suspend fun launchAppOnPhysicalDevice(
+suspend fun ProcessRunner.launchAppOnPhysicalDevice(
     deviceId: String,
     bundleId: String,
 ) = xcrun("devicectl", "device", "process", "launch", "--device", deviceId, bundleId)

@@ -6,6 +6,7 @@ package org.jetbrains.amper.plugins
 
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.CliProblemReporter
 import org.jetbrains.amper.cli.userReadableError
@@ -39,6 +40,7 @@ internal suspend fun doPreparePlugins(
     jdkProvider: JdkProvider,
     incrementalCache: IncrementalCache,
     plugins: Map<Path, PluginManifest>,
+    processRunner: ProcessRunner,
 ): List<PluginData> {
     require(plugins.isNotEmpty())
     val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
@@ -69,7 +71,8 @@ internal suspend fun doPreparePlugins(
             }
         )
         logger.info("Processing local plugin schema for [${plugins.values.joinToString { it.id }}]...")
-        val result = jdk.runJava(
+        val result = processRunner.runJava(
+            jdk = jdk,
             workingDir = Path("."),
             mainClass = "org.jetbrains.amper.schema.processing.MainKt",
             programArgs = emptyList(),

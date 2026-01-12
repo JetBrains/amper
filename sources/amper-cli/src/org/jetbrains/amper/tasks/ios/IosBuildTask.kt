@@ -8,7 +8,7 @@ import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -52,6 +52,7 @@ class IosBuildTask(
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val processRunner: ProcessRunner,
 ) : BuildTask {
     init {
         require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
@@ -116,7 +117,7 @@ class IosBuildTask(
                 .setAmperModule(module)
                 .setListAttribute("args", xcodebuildArgs)
                 .use { span ->
-                    val result = BuildPrimitives.runProcessAndGetOutput(
+                    val result = processRunner.runProcessAndGetOutput(
                         workingDir = workingDir,
                         command = xcodebuildArgs,
                         span = span,

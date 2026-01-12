@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.native
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
@@ -53,6 +54,7 @@ internal class NativeCompileKlibTask(
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase(), BuildTask {
     init {
         require(platform.isLeaf)
@@ -154,7 +156,7 @@ internal class NativeCompileKlibTask(
             )
 
             logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
-            nativeCompiler.compile(args, tempRoot, module)
+            nativeCompiler.compile(processRunner, args, tempRoot, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifact))
         }.outputFiles.singleOrNull()

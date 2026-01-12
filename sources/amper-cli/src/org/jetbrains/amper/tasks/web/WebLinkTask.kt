@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.web
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -60,6 +61,7 @@ internal abstract class WebLinkTask(
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     override val buildType: BuildType? = null,
+    private val processRunner: ProcessRunner,
     /**
      * The name of the task that produces the klib for the sources of this module.
      */
@@ -188,7 +190,8 @@ internal abstract class WebLinkTask(
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Linking Kotlin ${expectedPlatform.name} for module '${module.userReadableName}'...")
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.js.K2JSCompiler",
                     classpath = compilerJars,

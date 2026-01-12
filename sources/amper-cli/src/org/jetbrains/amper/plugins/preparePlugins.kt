@@ -49,6 +49,7 @@ suspend fun preparePlugins(
                     jdkProvider = context.jdkProvider,
                     incrementalCache = context.incrementalCache,
                     plugins = pluginInfos,
+                    processRunner = context.processRunner,
                 )
             }
     }

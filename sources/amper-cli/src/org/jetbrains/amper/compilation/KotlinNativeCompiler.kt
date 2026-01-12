@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.compilation
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
@@ -58,6 +59,7 @@ class KotlinNativeCompiler(
     }
 
     suspend fun compile(
+        processRunner: ProcessRunner,
         args: List<String>,
         tempRoot: AmperProjectTempRoot,
         module: AmperModule,
@@ -75,7 +77,8 @@ class KotlinNativeCompiler(
                     // We call konanc via java because the konanc command line doesn't support spaces in paths:
                     // https://youtrack.jetbrains.com/issue/KT-66952
                     // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
-                    val result = jdk.runJava(
+                    val result = processRunner.runJava(
+                        jdk = jdk,
                         workingDir = kotlinNativeHome,
                         mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
                         classpath = listOf(

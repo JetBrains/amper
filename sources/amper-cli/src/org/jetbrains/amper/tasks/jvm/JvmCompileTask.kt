@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.jvm
 import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -89,6 +90,7 @@ internal class JvmCompileTask(
     private val jdkProvider: JdkProvider,
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase(), BuildTask {
 
     init {
@@ -429,6 +431,7 @@ internal class JvmCompileTask(
             val jicJavacArgs = commonArgs + freeCompilerArgs
             javacSpanBuilder(jicJavacArgs, jdk, incremental = true).use {
                 compileJavaWithJic(
+                    processRunner,
                     jdk,
                     module,
                     isTest,
@@ -478,7 +481,7 @@ internal class JvmCompileTask(
 
         val exitCode = withJavaArgFile(tempRoot, plainJavacArgs) { argsFile ->
             val result = javacSpanBuilder(plainJavacArgs, jdk, incremental = false).use { span ->
-                BuildPrimitives.runProcessAndGetOutput(
+                processRunner.runProcessAndGetOutput(
                     workingDir = jdk.homeDir,
                     command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),
                     span = span,
