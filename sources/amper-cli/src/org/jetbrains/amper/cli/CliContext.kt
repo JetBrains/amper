@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
+import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -26,7 +27,6 @@ class CliContext(
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
     val terminal: Terminal,
-    val androidHomeRoot: AndroidHomeRoot,
 ) {
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
 
@@ -78,6 +78,10 @@ class CliContext(
             openTelemetry = GlobalOpenTelemetry.get(),
             incrementalCache = incrementalCache,
         )
+    }
+
+    val androidHomeRoot: AndroidHomeRoot by lazy {
+        AndroidHomeRoot(AndroidSdkDetector.detectSdkPath().createDirectories())
     }
 
     companion object {
