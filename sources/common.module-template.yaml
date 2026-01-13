@@ -36,6 +36,7 @@ settings:
 
   kotlin:
     progressiveMode: true
+    powerAssert: enabled
     freeCompilerArgs:
       - -Xannotation-default-target=param-property
       - -Xconsistent-data-class-copy-visibility
