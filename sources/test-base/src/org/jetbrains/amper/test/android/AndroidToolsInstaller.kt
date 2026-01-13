@@ -83,9 +83,10 @@ internal object AndroidToolsInstaller {
             extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
             // we need a JDK to run the Java-based Android command line tools
-            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache).use {
-                it.provisionJdk(JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk)).orThrow()
-            }
+            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache)
+                .provisionJdk(JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk))
+                .orThrow()
+
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
             IncrementalCache.ExecutionResult(

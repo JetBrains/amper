@@ -10,9 +10,10 @@ dependencies:
   - ../core
   - ../frontend-api: exported
   - ../libraries/concurrency
-  - ../libraries/foojay-kotlin-client
   - ../libraries/incremental-cache: exported
+  - ../libraries/jetbrains-jdk-list
   - ../libraries/serialization-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
   - $libs.junit.jupiter.params
   - $libs.ktor.client.core

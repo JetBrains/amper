@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands.tools
@@ -49,7 +49,7 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
             openTelemetry = GlobalOpenTelemetry.get(),
             incrementalCache = commonOptions.sharedCachesRoot.sharedIncrementalCache(),
         )
-        val jdk = jdkProvider.use { it.getDefaultJdk() }
+        val jdk = jdkProvider.getDefaultJdk()
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {

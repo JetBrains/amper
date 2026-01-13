@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jdk.provisioning
@@ -92,28 +92,28 @@ internal data class ReleaseInfo(
             lci.startsWith("amazon") -> JvmDistribution.AmazonCorretto
             lci.startsWith("azul") -> JvmDistribution.AzulZulu
             lci.startsWith("bellsoft") -> JvmDistribution.BellSoftLiberica
-            lci.startsWith("bisheng") -> JvmDistribution.Bisheng
+            lci.startsWith("bisheng") -> null // Bisheng is unsupported now
             lci.startsWith("eclipse") -> JvmDistribution.EclipseTemurin
             lci.startsWith("ibm") || lci.startsWith("international business") ->
                 if (sourceRepo != null && "git@github.ibm.com" in sourceRepo) {
                     // the only difference between the certified and open version of Semeru is the git host, unfortunately
-                    JvmDistribution.IbmSemeruCertified
+                    null // IBM's "certified" Semeru is unsupported now
                 } else {
                     JvmDistribution.IbmSemeru
                 }
             lci.startsWith("jetbrains") -> JvmDistribution.JetBrainsRuntime
             lci.startsWith("microsoft") -> JvmDistribution.Microsoft
-            lci.startsWith("openlogic") -> JvmDistribution.PerforceOpenLogic
+            lci.startsWith("openlogic") -> null // unsupported now
             lci.startsWith("oracle") -> if (source != null && "open:git:" in source) {
                 // This might seem counter-intuitive, but the non-open Oracle JDK contains both git: and open:git: refs
                 // like this: ".:git:49d6a23b8806 open:git:6c48f4ed707b", while the Oracle OpenJDK variant contains only
                 // a regular ".:git:6c48f4ed707b".
-                JvmDistribution.Oracle
+                null // Oracle's paid JDK is unsupported now
             } else {
                 JvmDistribution.OracleOpenJdk
             }
             lci.startsWith("sap") -> JvmDistribution.SapMachine
-            lci.startsWith("tencent") -> JvmDistribution.TencentKona
+            lci.startsWith("tencent") -> null // Tencent Kona is unsupported now
             else -> null
         }
     }

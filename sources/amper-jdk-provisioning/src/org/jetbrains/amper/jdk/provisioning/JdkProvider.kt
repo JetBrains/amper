@@ -4,26 +4,14 @@
 
 package org.jetbrains.amper.jdk.provisioning
 
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
-import io.ktor.http.*
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.Span
-import io.opentelemetry.instrumentation.api.instrumenter.SpanNameExtractor
-import io.opentelemetry.instrumentation.ktor.v3_0.KtorClientTelemetry
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.downloader.AmperUserAgent
-import org.jetbrains.amper.foojay.api.DiscoApiClient
-import org.jetbrains.amper.foojay.model.Architecture
-import org.jetbrains.amper.foojay.model.OperatingSystem
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
-import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.telemetry.setAttribute
@@ -32,50 +20,16 @@ import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.time.Clock
-import io.ktor.client.plugins.logging.Logger as KtorLogger
-
-@Serializable
-data class JdkProvisioningCriteria(
-    val majorVersion: Int,
-    val distributions: List<JvmDistribution>? = null,
-    val acknowledgedLicenses: List<JvmDistribution> = emptyList(),
-    val operatingSystems: List<OperatingSystem> = listOf(OperatingSystem.current()),
-    val architectures: List<Architecture> = listOf(Architecture.current()),
-)
 
 internal val jdkProviderLogger: Logger = LoggerFactory.getLogger(JdkProvider::class.java)
 
 class JdkProvider(
-    private val userCacheRoot: AmperUserCacheRoot,
+    userCacheRoot: AmperUserCacheRoot,
     private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
     private val incrementalCache: IncrementalCache,
-) : AutoCloseable {
-    private val discoApiClient = DiscoApiClient {
-        install(UserAgent) {
-            agent = AmperUserAgent
-        }
-
-        // Debug logs for calls to the DiscoAPI
-        install(Logging) {
-            level = LogLevel.INFO // INFO = just HTTP method and URL, no headers or body
-            logger = object : KtorLogger {
-                override fun log(message: String): Unit = jdkProviderLogger.debug(message)
-            }
-        }
-
-        install(KtorClientTelemetry) {
-            setOpenTelemetry(openTelemetry)
-            spanNameExtractor {
-                SpanNameExtractor<HttpRequestData> { request ->
-                    request.method.value + " " + request.url.encodedPath.removePrefix("/disco/v3.0")
-                }
-            }
-            capturedRequestHeaders(HttpHeaders.CacheControl, HttpHeaders.IfModifiedSince, HttpHeaders.IfUnmodifiedSince)
-            capturedResponseHeaders(HttpHeaders.CacheControl, HttpHeaders.ETag, HttpHeaders.LastModified, HttpHeaders.Expires)
-        }
-    }
-
+) {
     private val javaHomeInfoProvider = JavaHomeInfoProvider(openTelemetry)
+    private val jdkProvisioner = JdkProvisioner(openTelemetry, userCacheRoot)
 
     private val provisioningCache = AsyncConcurrentMap<JdkProvisioningCriteria, JdkResult>()
 
@@ -193,11 +147,7 @@ class JdkProvider(
         ) {
             provisioningSpan.setAttribute("from-persistent-cache", false)
             val result = openTelemetry.tracer.spanBuilder("Provision JDK").use {
-                discoApiClient.provisionJdk(
-                    userCacheRoot = userCacheRoot,
-                    criteria = criteria,
-                    unusableJavaHomeResult = unusableJavaHomeResult,
-                )
+                jdkProvisioner.provision(criteria, unusableJavaHomeResult)
             }
             val outputFiles = when (result) {
                 is JdkResult.Success -> listOf(result.jdk.homeDir)
@@ -249,10 +199,6 @@ class JdkProvider(
         info.releaseInfo.match(jdkProvisioningCriteria).also { result ->
             span.setAttribute("result", result.toString())
         }
-    }
-
-    override fun close() {
-        discoApiClient.close()
     }
 }
 

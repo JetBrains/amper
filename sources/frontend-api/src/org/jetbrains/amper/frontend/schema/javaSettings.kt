@@ -148,7 +148,6 @@ enum class JdkSelectionMode(
 /**
  * A JVM distribution.
  */
-@Suppress("EnumEntryName")
 enum class JvmDistribution(
     override val schemaValue: String,
     /**
@@ -182,24 +181,13 @@ enum class JvmDistribution(
     @SchemaDoc("The [Microsoft JDK](https://learn.microsoft.com/en-us/java/openjdk/download) distribution.")
     Microsoft(schemaValue = "microsoft"),
 
-    @SchemaDoc("The [BiSheng JDK](https://www.openeuler.org/en/other/projects/bishengjdk) distribution.")
-    Bisheng(schemaValue = "bisheng"),
-
     @Misnomers("alibaba")
     @SchemaDoc("The [Alibaba Dragonwell](https://dragonwell-jdk.io) distribution.")
     AlibabaDragonwell(schemaValue = "dragonwell"),
 
-    @Misnomers("tencent")
-    @SchemaDoc("The [Tencent Kona](https://tencent.github.io/konajdk) distribution.")
-    TencentKona(schemaValue = "kona"),
-
     @Misnomers("bellsoft")
     @SchemaDoc("The [BellSoft Liberica](https://bell-sw.com) distribution.")
     BellSoftLiberica(schemaValue = "liberica"),
-
-    @Misnomers("perforce")
-    @SchemaDoc("The [Perforce OpenLogic](https://www.openlogic.com/openjdk-downloads) distribution.")
-    PerforceOpenLogic(schemaValue = "openLogic"),
 
     @SchemaDoc("The [SapMachine](https://sap.github.io/SapMachine) distribution.")
     SapMachine(schemaValue = "sapMachine"),
@@ -208,10 +196,12 @@ enum class JvmDistribution(
     @SchemaDoc("The [IBM Semeru Runtime Open Edition](https://www.ibm.com/support/pages/semeru-runtimes-getting-started) distribution, based on the [Eclipse OpenJ9](https://eclipse.dev/openj9) JVM")
     IbmSemeru(schemaValue = "semeru"),
 
-    @SchemaDoc("The [Oracle](https://www.oracle.com/java/technologies/downloads/) distribution. Check the Oracle website for licensing considerations.")
-    Oracle(schemaValue = "oracle", requiresLicense = true),
+    @Misnomers("graalce", "graalvmce", "community")
+    @SchemaDoc("The [GraalVM Community Edition](https://github.com/graalvm/graalvm-ce-builds/releases/) distribution.")
+    GraalVMCommunityEdition(schemaValue = "graalVM"),
 
-    @Misnomers("openj9", "ibm")
-    @SchemaDoc("The [IBM Semeru Runtime™ Certified Edition](https://www.ibm.com/support/pages/semeru-runtimes-getting-started) distribution, based on the Eclipse OpenJ9 JVM. Check the IBM website for licensing considerations.")
-    IbmSemeruCertified(schemaValue = "semeruCertified", requiresLicense = true),
+    @SchemaDoc("The [Oracle GraalVM](https://www.oracle.com/downloads/graalvm-downloads.html) distribution " +
+            "(formerly known as GraalVM Enterprise Edition).")
+    // https://download.oracle.com/graalvm/25/archive/graalvm-jdk-25.0.1_windows-x64_bin.zip
+    OracleGraalVM(schemaValue = "oracleGraalVM", requiresLicense = true),
 }

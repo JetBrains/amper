@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -235,14 +235,12 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
     private suspend fun provisionZulu25(): Path {
         val fakeUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
         val incrementalCache = IncrementalCache(stateRoot = tempDir, codeVersion = "1")
-        val jdkResult = JdkProvider(fakeUserCacheRoot, incrementalCache = incrementalCache).use {
-            it.provisionJdk(
-                JdkProvisioningCriteria(
-                    majorVersion = 25,
-                    distributions = listOf(JvmDistribution.AzulZulu),
-                )
+        val jdkResult = JdkProvider(fakeUserCacheRoot, incrementalCache = incrementalCache).provisionJdk(
+            JdkProvisioningCriteria(
+                majorVersion = 25,
+                distributions = listOf(JvmDistribution.AzulZulu),
             )
-        }
+        )
         return jdkResult.orThrow().homeDir
     }
 
