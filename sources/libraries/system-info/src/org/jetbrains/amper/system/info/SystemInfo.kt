@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.system.info
@@ -39,8 +39,8 @@ enum class Arch(internal val value: String) {
     companion object {
         val current by lazy {
             when (val arch = System.getProperty("os.arch").lowercase().trim()) {
-                "aarch64", "arm64" -> Arm64
-                "x86_64", "x86-64", "amd64" -> X64
+                "aarch64", "arm64", "armv8" -> Arm64
+                "amd64", "x64", "x86-64", "x86_64", "x86lx64" -> X64
                 else -> error("Unsupported architecture: $arch")
             }
         }
