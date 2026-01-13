@@ -30,11 +30,17 @@ enum class OsFamily(internal val value: String) {
     val isMac by lazy { this == MacOs }
 
     val isWindows by lazy { this == Windows }
+
+    val displayName: String
+        get() = name
 }
 
 enum class Arch(internal val value: String) {
     X64("x64"),
     Arm64("arm64");
+
+    val displayName: String
+        get() = value
 
     companion object {
         val current by lazy {
