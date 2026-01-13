@@ -37,6 +37,8 @@ import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.ModuleDependencies
+import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
@@ -81,8 +83,6 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         help = """
             The scope for which to show the graph. If unspecified, both graphs will be shown.
             This option can be repeated to show the dependencies for multiple scopes.
-            
-            Compile and runtime scopes have different graphs of dependencies because the conflict resolution happens independently.
         """.trimIndent()
     )
         .choice(
@@ -112,32 +112,75 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             platformGroups
                 .map { it.checkAndFilterLeaves(module, failOnUnsupportedPlatforms) }
                 .filter { it.isNotEmpty() } // we might have empty sets when we don't report errors, just skip
+                .distinct()
                 .ifEmpty { return } // if none of the sets had any platforms, just skip
         }
 
         val mavenCoordinates = filter?.resolveFilter()
 
-        val variantsToResolve = buildList {
+        val resolvedModuleDependencies = module.resolveDependencies(platformSetsToResolveFor, cliContext)
+
+        printDependencies(
+            mavenCoordinates,
+            module,
+            // printing requested nodes only
+            resolvedModuleDependencies, filter)
+    }
+
+    private suspend fun AmperModule.resolveDependencies(
+        platformSetsToResolveFor: List<Set<Platform>>,
+        cliContext: CliContext
+    ): List<DependencyNode> {
+        val moduleDependencies = ModuleDependencies(this, commonOptions.sharedCachesRoot, cliContext.incrementalCache)
+
+        val mainDependenciesMap = moduleDependencies.resolveDependencies( platformSetsToResolveFor, false, cliContext)
+        val testDependenciesMap = if (includeTests) moduleDependencies.resolveDependencies(platformSetsToResolveFor, true, cliContext) else emptyMap()
+
+        return buildList {
+            mainDependenciesMap.forEach { (platforms, nodes) ->
+                addAll(nodes)
+                testDependenciesMap[platforms]?.let { addAll(it) }
+            }
+        }
+    }
+
+    private suspend fun ModuleDependencies.resolveDependencies(
+        platformSetsToResolveFor: List<Set<Platform>>,
+        isTests: Boolean,
+        cliContext: CliContext
+    ): Map<Set<Platform>, List<DependencyNode>> {
+        val module = this.module
+
+        val variantsToResolveWithPlatforms = buildList {
             platformSetsToResolveFor.forEach { platforms ->
-                listOfNotNull(false, true.takeIf { includeTests }).forEach { isTests ->
-                    scopes.forEach { scope ->
-                        // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
-                        // todo (AB) : (since it is used in Idea for symbol resolution)
-                        if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
-                            return@forEach // compile and runtime dependencies are the same for native single-platform contexts
-                        add(
-                            module.buildDependenciesGraph(
-                                isTest = isTests,
-                                platforms = platforms,
-                                dependencyReason = scope,
-                                userCacheRoot = commonOptions.sharedCachesRoot,
-                                incrementalCache = cliContext.incrementalCache
-                            )
+                scopes.forEach { scope ->
+                    // todo (AB) : Maybe it is a good idea to show java-like COMPILE graph for native as well
+                    // todo (AB) : (since it is used in Idea for symbol resolution)
+                    if (platforms.size == 1 && platforms.single().isDescendantOf(Platform.NATIVE) && scope == ResolutionScope.RUNTIME)
+                        return@forEach // compile and runtime dependencies are the same for native single-platform contexts
+                    add(
+                        platforms to module.buildDependenciesGraph(
+                            isTest = isTests,
+                            platforms = platforms,
+                            dependencyReason = scope,
+                            userCacheRoot = commonOptions.sharedCachesRoot,
+                            incrementalCache = cliContext.incrementalCache
                         )
-                    }
+                    )
                 }
             }
         }
+
+        val variantsToResolve = variantsToResolveWithPlatforms.map { it.second }
+
+        // Resolution should be done across all module platforms to align dependencies' versions.
+        val otherModuleDependencies = this.forResolution(isTests)
+            .filterNot { perPlatformNode ->
+                variantsToResolve.any {
+                    it.context.settings.platforms == perPlatformNode.context.settings.platforms
+                            &&  it.context.settings.scope == perPlatformNode.context.settings.scope
+                }
+            }
 
         val resolver = CliReportingMavenResolver(commonOptions.sharedCachesRoot, cliContext.incrementalCache)
 
@@ -147,11 +190,11 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
             //  - set of platforms
             //  - includeTests flag
             rootCacheEntryKey = CacheEntryKey.CompositeCacheEntryKey(listOfNotNull(
-                    module.uniqueModuleKey(),
-                    platformGroups.takeIf { it.isNotEmpty() }?.distinct(),
-                    includeTests
+                module.uniqueModuleKey(),
+                platformGroups.takeIf { it.isNotEmpty() }?.distinct(),
+                isTests
             )).asRootCacheEntryKey(),
-            children = variantsToResolve,
+            children = variantsToResolve + otherModuleDependencies,
             templateContext = emptyContext(
                 userCacheRoot = commonOptions.sharedCachesRoot,
                 openTelemetry = GlobalOpenTelemetry.get(),
@@ -161,26 +204,29 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
         val resolvedGraph = resolver.resolve(
             root = root,
-            resolveSourceMoniker = "module ${module.userReadableName}",
+            resolveSourceMoniker = "module ${module.userReadableName}${if(isTests) "(tests)" else ""}",
         )
 
-        printDependencies(mavenCoordinates, module, resolvedGraph.root, filter)
+        return resolvedGraph.root.children.subList(0, variantsToResolve.size)
+            .mapIndexed { index, node ->
+                variantsToResolveWithPlatforms[index].first to node
+            }.groupBy(keySelector = { it.first }, valueTransform = { it.second })
     }
 
     private fun printDependencies(
         mavenCoordinates: MavenCoordinates?,
         resolvedModule: AmperModule,
-        root: DependencyNode,
+        rootNodesToPrint: List<DependencyNode>,
         filter: String?,
     ) {
         if (mavenCoordinates == null) {
             terminal.println("Dependencies of module ${resolvedModule.userReadableName}: \n")
-            root.children.forEach {
+            rootNodesToPrint.forEach {
                 terminal.println(it.prettyPrint())
             }
         } else {
-            val rootsToPrint = root.children.mapNotNull {
-                filterGraph(mavenCoordinates.groupId, mavenCoordinates.artifactId, it)
+            val rootsToPrint = rootNodesToPrint.mapNotNull { rootNode ->
+                filterGraph(mavenCoordinates.groupId, mavenCoordinates.artifactId, rootNode)
                     .takeIf { it.children.isNotEmpty() }
             }
             if (rootsToPrint.isEmpty()) {

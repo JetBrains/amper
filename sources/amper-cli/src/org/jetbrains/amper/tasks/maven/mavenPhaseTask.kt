@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ModuleDependencies
+import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.SourceRoot
@@ -29,7 +30,6 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.doResolveExternalDependencies
-import org.jetbrains.amper.tasks.forResolution
 import org.jetbrains.amper.tasks.jvm.CompiledJvmClassesArtifact
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -276,7 +276,7 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
      */
     private fun getModuleDependencies() =
         ModuleDependencies(parameters.module, parameters.cacheRoot, parameters.incrementalCache)
-            .forResolution(Platform.JVM, parameters.isTest)
+            .forResolution(parameters.isTest)
 
     // Here we are converting the external dependencies graph to the flat list of maven artifacts.
     private suspend fun PhaseTaskParameters.getExternalAetherArtifacts() =

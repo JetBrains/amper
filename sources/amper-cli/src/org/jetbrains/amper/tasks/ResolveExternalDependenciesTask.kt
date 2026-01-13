@@ -38,6 +38,8 @@ import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forPlatform
+import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -189,7 +191,7 @@ class ResolveExternalDependenciesTask(
                 )
 
                 val result = try {
-                    val moduleDependenciesForResolution = moduleDependencies.forResolution(platform, isTest)
+                    val moduleDependenciesForResolution = moduleDependencies.forResolution(isTest)
                     incrementalCache.execute(
                         key = taskName.name,
                         inputValues = mapOf(
@@ -330,7 +332,7 @@ class ResolveExternalDependenciesTask(
     private val logger = LoggerFactory.getLogger(javaClass)
 }
 
-class ModuleDependencies(module: AmperModule, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache) {
+class ModuleDependencies(internal val module: AmperModule, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache) {
 
     val mainDeps: Map<Platform, PerPlatformDependencies> =
         module.perPlatformDependencies(false, userCacheRoot, incrementalCache)
@@ -347,6 +349,36 @@ class ModuleDependencies(module: AmperModule, userCacheRoot: AmperUserCacheRoot,
                 .associateBy(keySelector = { it }) {
                     PerPlatformDependencies(it, isTest = isTest, this, userCacheRoot, incrementalCache)
                 }
+
+        /**
+         * Module dependencies resolution should be performed on the entire list return by this method at once,
+         * so that versions of module dependencies are aligned across all module fragments.
+         *
+         * @return the list of module root nodes (one root node per platform).
+         * Each node from the list contains platform-specific dependencies of the module.
+         */
+        fun ModuleDependencies.forResolution(isTest: Boolean): List<ModuleDependencyNodeWithModuleAndContext> {
+            // Test dependencies contain dependencies of both test and corresponding main fragments
+            val perPlatformDeps = if (isTest) testDeps else mainDeps
+
+            return buildList {
+                perPlatformDeps.values.forEach {
+                    add(it.compileDeps)
+                    it.runtimeDeps?.let { add(it) }
+                }
+            }
+        }
+
+        /**
+         * @return unresolved compile/runtime module dependencies for the particular platform.
+         */
+        fun ModuleDependencies.forPlatform(platform: Platform, isTest: Boolean): PerPlatformDependencies {
+            // Test dependencies contain dependencies of both test and corresponding main fragments
+            val perPlatformDeps = if (isTest) testDeps else mainDeps
+            return perPlatformDeps[platform]
+                ?: error("Dependencies for $platform are not calculated")
+        }
+
     }
 }
 
@@ -377,24 +409,4 @@ class PerPlatformDependencies(
 
     val compileDepsCoordinates: List<MavenCoordinates> by lazy { compileDeps.getExternalDependencies() }
     val runtimeDepsCoordinates: List<MavenCoordinates> by lazy { runtimeDeps?.getExternalDependencies() ?: emptyList() }
-}
-
-fun ModuleDependencies.forResolution(platform: Platform, isTest: Boolean): List<ModuleDependencyNodeWithModuleAndContext> {
-    // Test dependencies contain dependencies of both test and corresponding main fragments
-    val perPlatformDeps = if (isTest) testDeps else mainDeps
-
-    return buildList {
-        perPlatformDeps[platform] ?: error("Dependencies for $platform are not calculated")
-        perPlatformDeps.values.forEach {
-            add(it.compileDeps)
-            it.runtimeDeps?.let { add(it) }
-        }
-    }
-}
-
-fun ModuleDependencies.forPlatform(platform: Platform, isTest: Boolean): PerPlatformDependencies {
-    // Test dependencies contain dependencies of both test and corresponding main fragments
-    val perPlatformDeps = if (isTest) testDeps else mainDeps
-    return perPlatformDeps[platform]
-        ?: error("Dependencies for $platform are not calculated")
 }
