@@ -5,10 +5,7 @@ apply:
   - ../../used-in-idea.module-template.yaml
 
 dependencies:
-  - $libs.ktor.client.core
-  - $libs.ktor.client.contentNegotiation
-  - $libs.ktor.client.encoding
-  - $libs.ktor.serialization.kotlinx.json
+  - $libs.xz
 
 settings:
   kotlin:

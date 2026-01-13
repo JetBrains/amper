@@ -48,6 +48,7 @@ modules:
   - sources/libraries/concurrency
   - sources/libraries/foojay-kotlin-client
   - sources/libraries/incremental-cache
+  - sources/libraries/jetbrains-jdk-list
   - sources/libraries/nio-filechannels
   - sources/libraries/serialization-extended
   - sources/libraries/stdlib-extended

@@ -40,6 +40,7 @@ systemstubs = "2.1.8"
 teamcity-servicemessages = "2024.12"
 tinylog = "2.7.0"
 xmlutil-serialization = "0.86.2"
+xz = "1.11"
 
 
 # Naming convention: https://blog.gradle.org/best-practices-naming-version-catalog-entries
@@ -143,3 +144,4 @@ tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-jul = { module = "org.tinylog:jul-tinylog", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
 xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil-serialization" }
+xz = { module = "org.tukaani:xz", version.ref = "xz" }
