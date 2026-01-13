@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.plugins
 
-import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -16,7 +15,6 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
-import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -39,7 +37,6 @@ import org.jetbrains.amper.frontend.types.maven.ParameterValue
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.div
 
 /**
  * Download specified maven plugins jars, extract their `plugin.xml` metadata and parse it.
@@ -47,9 +44,9 @@ import kotlin.io.path.div
 @UsedInIdePlugin
 suspend fun prepareMavenPlugins(
     projectContext: AmperProjectContext,
+    incrementalCache: IncrementalCache,
 ): List<MavenPluginXml> = coroutineScope prepare@{
     val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult() as? AmperUserCacheRoot ?: return@prepare emptyList()
-    val incrementalCache = mavenPluginsIncrementalCache(projectContext)
     
     val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
     projectContext.externalMavenPluginDependencies.map { declaration ->
@@ -61,15 +58,6 @@ suspend fun prepareMavenPlugins(
         }
     }.awaitAll().filterNotNull()
 }
-
-/**
- * Dedicated incremental cache for downloading maven plugins meta-information.
- */
-private fun mavenPluginsIncrementalCache(projectContext: AmperProjectContext): IncrementalCache = IncrementalCache(
-    stateRoot = projectContext.projectBuildDir / "maven.plugins.incremental.state",
-    codeVersion = AmperBuild.mavenVersion,
-    openTelemetry = GlobalOpenTelemetry.get(),
-)
 
 /**
  * Resolve and download the plugin and its direct dependencies.
