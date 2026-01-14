@@ -33,8 +33,6 @@ class ProcessRunner(
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
      * part of the returned [ProcessResult].
      *
-     * It is not supported to write to the standard input of the started process.
-     *
      * If a [span] is provided, extra attributes are added to it about the process result (exit code, stdout, stderr).
      *
      * If this function is cancelled before the process has terminated, it kills the process (first normally then
