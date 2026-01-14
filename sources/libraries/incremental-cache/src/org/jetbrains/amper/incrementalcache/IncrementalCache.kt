@@ -435,10 +435,10 @@ class IncrementalCache(
  * If one call needs to re-run [block] because the cache is invalid, later calls with the same ID will suspend
  * until the first call completes and then resume and use the cache immediately (if possible).
  */
-suspend fun IncrementalCache.executeForFiles(
+suspend inline fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
-    block: suspend () -> List<Path>,
+    crossinline block: suspend () -> List<Path>,
 ): List<Path> =
     execute(key, inputValues, inputFiles) { IncrementalCache.ExecutionResult(block()) }.outputFiles
