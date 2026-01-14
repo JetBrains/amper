@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("BlockingMethodInNonBlockingContext", "LoggingStringTemplateAsArgument")
@@ -102,10 +102,7 @@ class IncrementalCache(
 
             stateRoot.createDirectories()
 
-            val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9.\\-_]"), "_").take(50)
-            // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
-            val hash = shortHash("$key\nstate format version: ${State.formatVersion}")
-            val stateFile = stateRoot.resolve("$sanitizedKey-$hash")
+            val stateFile = stateFileFor(key)
 
             // Prevent parallel execution of this 'id' from this or other processes,
             // tracked by a lock on the state file
@@ -173,6 +170,16 @@ class IncrementalCache(
                 }
             }
         }
+
+    /**
+     * Returns the [Path] to the increment state file used to track the given [key].
+     */
+    private fun stateFileFor(key: String): Path {
+        val sanitizedKey = key.replace(Regex("[^a-zA-Z0-9.\\-_]"), "_").take(50)
+        // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
+        val hash = shortHash("$key\nstate format version: ${State.formatVersion}")
+        return stateRoot.resolve("$sanitizedKey-$hash")
+    }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun shortHash(key: String): String = MessageDigest.getInstance("MD5")
