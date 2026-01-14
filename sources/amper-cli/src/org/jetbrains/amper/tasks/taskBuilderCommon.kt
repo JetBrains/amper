@@ -34,7 +34,7 @@ internal enum class CommonFragmentTaskType(override val prefix: String) : Fragme
 }
 
 fun ProjectTasksBuilder.setupCommonTasks() {
-    val moduleDependenciesMap = model.modules.associateBy({ it }) {
+    val moduleDependenciesMap = model.modules.associateWith {
         ModuleDependencies(it, context.userCacheRoot, context.incrementalCache)
     }
     allModules()
