@@ -37,19 +37,11 @@ private data class IjJdksJsonRoot(
 data class IjJdkFamily(
     val vendor: String,
     val product: String,
-    val default: Boolean = false,
     val preview: Boolean = false,
-    val flavour: String? = null,
     @SerialName("jdk_version_major")
     val jdkVersionMajor: Int,
     @SerialName("jdk_version")
     val jdkVersion: String,
-    @SerialName("jdk_vendor_version")
-    val jdkVendorVersion: String? = null,
-    @SerialName("suggested_sdk_name")
-    val suggestedSdkName: String,
-    @SerialName("shared_index_aliases")
-    val sharedIndexAliases: List<String>,
     val packages: List<IjJdkPackage>, // so far, it has always been a single package
 )
 
@@ -59,22 +51,11 @@ data class IjJdkPackage(
     val arch: IjJdkArchitecture,
     val version: String,
     val url: String,
-    val package_type: String,
-    val unpack_prefix_filter: String,
-    val package_root_prefix: String,
-    val package_to_java_home_prefix: String,
-    val archive_file_name: String,
-    val install_folder_name: String,
-    val unpacked_size: Long,
-    val archive_size: Long,
+    @SerialName("unpacked_size")
+    val unpackedSize: Long,
+    @SerialName("archive_size")
+    val archiveSize: Long,
     val sha256: String,
-    val filter: PackageFilter? = null,
-)
-
-@Serializable
-data class PackageFilter(
-    val type: String,
-    val arch: String,
 )
 
 enum class IjJdkOs {
