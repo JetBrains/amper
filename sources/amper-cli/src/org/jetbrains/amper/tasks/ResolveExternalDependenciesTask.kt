@@ -13,7 +13,6 @@ import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.DependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -32,7 +31,6 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAn
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
-import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
@@ -330,83 +328,4 @@ class ResolveExternalDependenciesTask(
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
-}
-
-class ModuleDependencies(internal val module: AmperModule, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache) {
-
-    val mainDeps: Map<Platform, PerPlatformDependencies> =
-        module.perPlatformDependencies(false, userCacheRoot, incrementalCache)
-
-    val testDeps: Map<Platform, PerPlatformDependencies> =
-        module.perPlatformDependencies(true, userCacheRoot, incrementalCache)
-
-    companion object {
-        private fun AmperModule.perPlatformDependencies(
-            isTest: Boolean, userCacheRoot: AmperUserCacheRoot, incrementalCache: IncrementalCache,
-        ): Map<Platform, PerPlatformDependencies> =
-            leafPlatforms
-                .sortedBy { it.name }
-                .associateBy(keySelector = { it }) {
-                    PerPlatformDependencies(it, isTest = isTest, this, userCacheRoot, incrementalCache)
-                }
-
-        /**
-         * Module dependencies resolution should be performed on the entire list return by this method at once,
-         * so that versions of module dependencies are aligned across all module fragments.
-         *
-         * @return the list of module root nodes (one root node per platform).
-         * Each node from the list contains platform-specific dependencies of the module.
-         */
-        fun ModuleDependencies.forResolution(isTest: Boolean): List<ModuleDependencyNodeWithModuleAndContext> {
-            // Test dependencies contain dependencies of both test and corresponding main fragments
-            val perPlatformDeps = if (isTest) testDeps else mainDeps
-
-            return buildList {
-                perPlatformDeps.values.forEach {
-                    add(it.compileDeps)
-                    it.runtimeDeps?.let { add(it) }
-                }
-            }
-        }
-
-        /**
-         * @return unresolved compile/runtime module dependencies for the particular platform.
-         */
-        fun ModuleDependencies.forPlatform(platform: Platform, isTest: Boolean): PerPlatformDependencies {
-            // Test dependencies contain dependencies of both test and corresponding main fragments
-            val perPlatformDeps = if (isTest) testDeps else mainDeps
-            return perPlatformDeps[platform]
-                ?: error("Dependencies for $platform are not calculated")
-        }
-
-    }
-}
-
-class PerPlatformDependencies(
-    platform: Platform,
-    isTest: Boolean,
-    module: AmperModule,
-    userCacheRoot: AmperUserCacheRoot,
-    incrementalCache: IncrementalCache,
-) {
-    val compileDeps: ModuleDependencyNodeWithModuleAndContext = module.buildDependenciesGraph(
-        isTest = isTest,
-        platform = platform,
-        dependencyReason = ResolutionScope.COMPILE,
-        userCacheRoot = userCacheRoot,
-        incrementalCache = incrementalCache,
-    )
-    val runtimeDeps: ModuleDependencyNodeWithModuleAndContext? =  when {
-        platform.isDescendantOf(Platform.NATIVE) -> null  // The native world doesn't distinguish compile/runtime classpath
-        else -> module.buildDependenciesGraph(
-            isTest = isTest,
-            platform = platform,
-            dependencyReason = ResolutionScope.RUNTIME,
-            userCacheRoot = userCacheRoot,
-            incrementalCache = incrementalCache,
-        )
-    }
-
-    val compileDepsCoordinates: List<MavenCoordinates> by lazy { compileDeps.getExternalDependencies() }
-    val runtimeDepsCoordinates: List<MavenCoordinates> by lazy { runtimeDeps?.getExternalDependencies() ?: emptyList() }
 }
