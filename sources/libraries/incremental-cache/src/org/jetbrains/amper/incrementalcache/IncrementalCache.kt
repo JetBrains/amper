@@ -439,6 +439,13 @@ suspend inline fun IncrementalCache.executeForFiles(
     key: String,
     inputValues: Map<String, String>,
     inputFiles: List<Path>,
+    forceRecalculation: Boolean = false,
     crossinline block: suspend () -> List<Path>,
-): List<Path> =
-    execute(key, inputValues, inputFiles) { IncrementalCache.ExecutionResult(block()) }.outputFiles
+): List<Path> = execute(
+    key = key,
+    inputValues = inputValues,
+    inputFiles = inputFiles,
+    forceRecalculation = forceRecalculation,
+) {
+    IncrementalCache.ExecutionResult(block())
+}.outputFiles
