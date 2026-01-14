@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.plugins
@@ -13,6 +13,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.frontend.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginManifest
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.incrementalcache.executeForSerializable
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -47,7 +48,7 @@ internal suspend fun doPreparePlugins(
         "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
     })
 
-    val result = incrementalCache.execute(
+    return incrementalCache.executeForSerializable(
         key = "prepare-plugins",
         inputValues = mapOf(
             "plugins" to plugins.values.joinToString()
@@ -120,15 +121,9 @@ internal suspend fun doPreparePlugins(
             userReadableError("Local plugins pre-processing failed, see the errors above.")
         }
 
-        IncrementalCache.ExecutionResult(
-            outputFiles = emptyList(),
-            outputValues = mapOf(CACHE_OUTPUT_KEY to Json.encodeToString(allPluginData))
-        )
+        allPluginData
     }
-    return Json.decodeFromString(result.outputValues[CACHE_OUTPUT_KEY]!!)
 }
-
-private const val CACHE_OUTPUT_KEY = "pluginData"
 
 private class SchemaDiagnostic(
     diagnostic: PluginDataResponse.Diagnostic,

@@ -67,7 +67,7 @@ internal object AndroidToolsInstaller {
             // The cache should be invalidated when the code that downloads the tools changes.
             // We don't need the full classpath hash here, because it would change each time we change a test.
             // This constant string is a good compromise, but we must remember to update it if we change the code.
-            codeVersion = "android-sdk-2",
+            codeVersion = "android-sdk-3",
         )
         val result = incrementalCache.execute(
             key = "android-sdk",

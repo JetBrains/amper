@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.incrementalcache
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
@@ -220,6 +221,34 @@ class IncrementalCacheTest {
                     IncrementalCache.ExecutionResult(listOf(tempDir.resolve("1.out")))
                 }
             }
+        }
+    }
+
+    @Test
+    fun `executeForSerializable can serialize and handle errors`() {
+        @Serializable
+        data class Person(val name: String, val age: Int)
+        @Serializable
+        data class Person2(val name2: String, val age2: Int)
+
+        runBlocking {
+            val person = incrementalCache.executeForSerializable(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
+                Person("John", 25)
+            }
+            assertEquals(Person("John", 25), person, "Should get the computed value")
+
+            val personCached = incrementalCache.executeForSerializable(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
+                // This is a trick. Normally, if the code changes, the cache is not reused and the state is replaced.
+                // Here we're reusing the same code identifier, so this invalidation doesn't happen, and we just put a
+                // different value here to test that we correctly read the value from the cache.
+                Person("John", 26)
+            }
+            assertEquals(Person("John", 25), personCached, "Should reuse the cached state with age 25")
+
+            val person2 = incrementalCache.executeForSerializable(key = "1", inputValues = emptyMap(), inputFiles = emptyList()) {
+                Person2("New guy", 42)
+            }
+            assertEquals(Person2("New guy", 42), person2, "Should handle serialization errors by replacing the state")
         }
     }
 

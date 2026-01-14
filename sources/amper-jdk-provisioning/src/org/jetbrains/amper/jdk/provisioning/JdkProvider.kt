@@ -13,6 +13,8 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.frontend.schema.JdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.incrementalcache.ResultWithSerializable
+import org.jetbrains.amper.incrementalcache.execute
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.telemetry.setAttribute
 import org.jetbrains.amper.telemetry.setListAttribute
@@ -140,10 +142,11 @@ class JdkProvider(
         val cacheKey = openTelemetry.tracer.spanBuilder("Computing cache key").use {
             "jdk-provisioning_${Json.encodeToString<JdkProvisioningCriteria>(criteria)}" // will be sanitized by IC
         }
-        val cacheResult = incrementalCache.execute(
+        return incrementalCache.execute(
             key = cacheKey,
             inputValues = emptyMap(),
             inputFiles = emptyList(),
+            serializer = JdkResult.serializer(),
         ) {
             provisioningSpan.setAttribute("from-persistent-cache", false)
             val result = openTelemetry.tracer.spanBuilder("Provision JDK").use {
@@ -153,22 +156,16 @@ class JdkProvider(
                 is JdkResult.Success -> listOf(result.jdk.homeDir)
                 is JdkResult.Failure -> emptyList()
             }
-            val serializedResult = openTelemetry.tracer.spanBuilder("Serialize JDK result for cache").use {
-                Json.encodeToString(result)
-            }
-            IncrementalCache.ExecutionResult(
+            ResultWithSerializable(
+                outputValue = result,
                 outputFiles = outputFiles,
-                outputValues = mapOf("jdkResult" to serializedResult),
                 // We don't cache failures persistently, otherwise we can never recover from them.
                 // We cache successful results indefinitely for maximum reproducibility. We could argue that we
                 // should get patch versions ASAP, but it's better that the user controls when that happens (not in
                 // the middle of a git bisect) - they can do `./amper clean` to clean the cache.
                 expirationTime = if (result is JdkResult.Failure) Clock.System.now() else null,
             )
-        }
-        return openTelemetry.tracer.spanBuilder("Deserialize cached JDK result").use {
-            Json.decodeFromString<JdkResult>(cacheResult.outputValues.getValue("jdkResult"))
-        }
+        }.outputValue
     }
 
     context(invalidJavaHomeReporter: ProblemReporter)

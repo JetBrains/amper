@@ -51,7 +51,7 @@ class IncrementalCache(
      */
     private val openTelemetry: OpenTelemetry = OpenTelemetry.noop(),
 ) {
-    private val tracer: Tracer
+    internal val tracer: Tracer
         get() = openTelemetry.getTracer("org.jetbrains.amper.incrementalcache")
 
     /**

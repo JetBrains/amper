@@ -1,12 +1,12 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("ConvertCallChainIntoSequence")
 
 package org.jetbrains.amper.tasks
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
 import org.jetbrains.amper.cli.logging.DoNotLogToTerminalCookie
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setFragments
@@ -33,8 +33,11 @@ import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.incrementalcache.ResultWithSerializable
+import org.jetbrains.amper.incrementalcache.execute
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
+import org.jetbrains.amper.serialization.paths.SerializablePath
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -198,7 +201,8 @@ class ResolveExternalDependenciesTask(
                             "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
                             "resolveWasmTarget" to (resolvedPlatform.wasmTarget ?: ""),
                         ),
-                        inputFiles = emptyList()
+                        inputFiles = emptyList(),
+                        serializer = Result.serializer(),
                     ) {
                         val (compileDependenciesRootNode, runtimeDependenciesRootNode, expirationTime) =
                             mavenResolver.doResolveExternalDependencies(
@@ -216,12 +220,14 @@ class ResolveExternalDependenciesTask(
                             runtimeDependenciesRootNode = runtimeDependenciesRootNode,
                         )
 
-                        return@execute IncrementalCache.ExecutionResult(
+                        ResultWithSerializable(
                             outputFiles = (compileClasspath + runtimeClasspath).toSet().sorted(),
-                            outputValues = mapOf(
-                                "compile" to compileClasspath.joinToString(File.pathSeparator),
-                                "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
-                                "publicationCoordsOverrides" to Json.encodeToString(publicationCoordsOverrides),
+                            // We reuse the task Result class here because it has exactly the fields we need.
+                            // If types must diverge, we can always introduce a new Result class for this.
+                            outputValue = Result(
+                                compileClasspath = compileClasspath,
+                                runtimeClasspath = runtimeClasspath,
+                                coordinateOverridesForPublishing = publicationCoordsOverrides,
                             ),
                             expirationTime = expirationTime,
                         )
@@ -252,15 +258,6 @@ class ResolveExternalDependenciesTask(
                     throw t
                 }
 
-                val compileClasspath =
-                    result.outputValues["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
-                        .map { Path(it) }
-                val runtimeClasspath =
-                    result.outputValues["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
-                        .map { Path(it) }
-                val publicationCoordsOverrides =
-                    Json.decodeFromString<PublicationCoordinatesOverrides>(result.outputValues["publicationCoordsOverrides"]!!)
-
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
@@ -269,7 +266,7 @@ class ResolveExternalDependenciesTask(
                             "nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                             "wasmTarget=${resolvedPlatform.wasmTarget}\n" +
                             "${repositories.joinToString(" ")} resolved to:\n${
-                                compileClasspath.joinToString("\n") {
+                                result.outputValue.compileClasspath.joinToString("\n") {
                                     "  " + it.relativeToOrSelf(
                                         userCacheRoot.path
                                     ).pathString
@@ -279,11 +276,7 @@ class ResolveExternalDependenciesTask(
 
                 // todo (AB) : output should contain placeholder for every module (in a correct place in the list!!!
                 // todo (AB) : It might be replaced with the path to compiled module later in order to form complete correctly ordered classpath)
-                Result(
-                    compileClasspath = compileClasspath,
-                    runtimeClasspath = runtimeClasspath,
-                    coordinateOverridesForPublishing = publicationCoordsOverrides,
-                )
+                result.outputValue
             }
     }
 
@@ -319,9 +312,10 @@ class ResolveExternalDependenciesTask(
             }
         }
 
+    @Serializable
     class Result(
-        val compileClasspath: List<Path>,
-        val runtimeClasspath: List<Path>,
+        val compileClasspath: List<SerializablePath>,
+        val runtimeClasspath: List<SerializablePath>,
         val coordinateOverridesForPublishing: PublicationCoordinatesOverrides,
     ) : TaskResult
 

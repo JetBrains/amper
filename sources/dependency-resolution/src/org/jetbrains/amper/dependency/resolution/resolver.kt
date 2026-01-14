@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.dependency.resolution
 
@@ -16,7 +16,8 @@ import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
-import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.incrementalcache.ResultWithSerializable
+import org.jetbrains.amper.incrementalcache.execute
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -117,9 +118,9 @@ class Resolver {
      * @param unspecifiedVersionResolver instance of the [UnspecifiedVersionResolver] to resolve version of dependencies
      * that don't have a version specified in the input graph (or transitive dependencies with an unspecified version as well)
      *
-     * @param postProcessDeserializedGraph callback to be called after the graph is resolved and deserialized from the cache.
-     * It is useful if some data in the nput graph can't be serialized and thus is marked as [kotlinx.serialization.Transient],
-     * but still has to be populated from the input graph to the restored one before it is started using.
+     * @param postProcessGraph a callback that is called after the graph is resolved (and potentially deserialized from
+     * the cache). It should generally be used to restore [kotlinx.serialization.Transient] data from the graph, which
+     * would be absent when the graph is deserialized from the cache.
      *
      * @return resolved dependencies graph
      */
@@ -130,7 +131,7 @@ class Resolver {
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
-        postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
+        postProcessGraph: (SerializableDependencyNode) -> Unit = {},
     ): ResolvedGraph {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
             val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources, resolutionLevel)
@@ -149,83 +150,54 @@ class Resolver {
                     root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                     root.toResolvedGraph()
                 } else {
-                    var graphResolvedInsideCache: ResolvedGraph? = null
-
                     val cacheInputValues = mapOf(
                         "userCacheRoot" to root.context.settings.fileCache.amperCache.pathString,
                         "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
                     )
 
-                    val resolvedGraph = try {
-                        incrementalCache.execute(
-                            key = resolutionId,
-                            cacheInputValues,
-                            forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
-                            inputFiles = listOf(),
-                        ) {
-                            root.context.spanBuilder("DR.graph:resolution")
-                                .setAttribute(
-                                    "configuration",
-                                    cacheInputValues["dependencies"]
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute(
-                                    "userCacheRoot",
-                                    cacheInputValues["userCacheRoot"]
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute(
-                                    "resolutionId",
-                                    resolutionId
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .use {
-                                    root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                                    graphResolvedInsideCache = root.toResolvedGraph()
+                    incrementalCache.execute(
+                        key = resolutionId,
+                        inputValues = cacheInputValues,
+                        inputFiles = emptyList(),
+                        serializer = DependencyGraph.serializer(),
+                        json = GraphJson.json,
+                        forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
+                    ) {
+                        root.context.spanBuilder("DR.graph:resolution")
+                            .setAttribute(
+                                "configuration",
+                                cacheInputValues["dependencies"]
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .setAttribute(
+                                "userCacheRoot",
+                                cacheInputValues["userCacheRoot"]
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .setAttribute(
+                                "resolutionId",
+                                resolutionId
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .use {
+                                root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                                val resolvedGraph = root.toResolvedGraph()
+                                val serializableGraph = resolvedGraph.root.toGraph()
 
-                                    val serializableGraph = graphResolvedInsideCache.root.toGraph()
-                                    val serialized = GraphJson.json.encodeToString(serializableGraph)
-                                    IncrementalCache.ExecutionResult(
-                                        graphResolvedInsideCache.root.dependencyPaths(),
-                                        mapOf("graph" to serialized),
-                                        expirationTime = graphResolvedInsideCache.expirationTime
-                                    )
-                                }
-                        }.let {
-                            if (graphResolvedInsideCache != null) {
-                                graphResolvedInsideCache
-                            } else {
-                                val serialized = it.outputValues["graph"]!!
-                                val deserializedGraph: DependencyGraph = root.context.spanBuilder("DR.graph:deserialization").use {
-                                    GraphJson.json.decodeFromString<DependencyGraph>(serialized)
-                                }
-                                val resolvedGraph = deserializedGraph.root
-
-                                // Post-process deserialized graph enriching it with the state from the input graph.
-                                // Any exception thrown during this phase results in fallback to non-cached resolution of the input graph
-                                postProcessDeserializedGraph(resolvedGraph)
-
-                                ResolvedGraph(resolvedGraph, it.expirationTime)
+                                ResultWithSerializable(
+                                    outputValue = serializableGraph,
+                                    outputFiles = resolvedGraph.root.dependencyPaths(),
+                                    expirationTime = resolvedGraph.expirationTime,
+                                )
                             }
-                        }
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        logger.error(
-                            "Unable to calculate dependency graph based on incremental cache, " +
-                                    "falling back to non-cached resolution: ${e.toString()}",
-                            e
-                        )
-                        if (graphResolvedInsideCache != null) {
-                            graphResolvedInsideCache
-                        } else {
-                            // todo (AB) : Invalidate cache entry manually on any failure
-                            // todo (AB) : (might be not needed though if cache.codeVersion is properly specified)
-
-                            // Fallback to non-cached resolution
+                    }.let { result ->
+                        try {
+                            postProcessGraph(result.outputValue.root)
+                            ResolvedGraph(result.outputValue.root, result.expirationTime)
+                        } catch (e: Exception) {
+                            logger.error("Unable to post-process the serializable dependency graph. " +
+                                    "Falling back to uncached resolution", e)
                             root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                             root.toResolvedGraph()
                         }
                     }
-
-                    resolvedGraph
                 }
             }
         }
