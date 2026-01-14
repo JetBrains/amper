@@ -28,6 +28,7 @@ import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
 import org.opentest4j.AssertionFailedError
+import org.opentest4j.FileInfo
 import org.opentest4j.TestAbortedException
 import java.io.PrintStream
 import java.time.LocalDateTime
@@ -217,12 +218,9 @@ class TeamCityMessagesTestExecutionListener(
     ): ServiceMessage {
         val throwable = testExecutionResult.throwable.getOrNull()
         val testFailed = when {
-            throwable is AssertionFailedError -> TestFailed(
-                /* name = */ testIdentifier.teamCityName,
-                /* exception = */ throwable,
-                /* actual = */ throwable.actual?.stringRepresentation,
-                /* expected = */ throwable.expected?.stringRepresentation
-            )
+            throwable is AssertionFailedError -> {
+                throwable.toTestFailedMessage(testIdentifier.teamCityName)
+            }
             // Neither IntelliJ, nor TeamCity have a notion of an "aborted" test, thus the closest we can mark those
             // is as ignored.
             throwable is TestAbortedException -> TestIgnored(
@@ -339,6 +337,39 @@ class TeamCityMessagesTestExecutionListener(
             else -> ""
         }
 }
+
+private fun AssertionFailedError.toTestFailedMessage(testName: String): MessageWithAttributes {
+    val actualValue = actual?.value
+    val expectedValue = expected?.value
+    return if (actualValue is FileInfo && expectedValue is FileInfo) {
+        TestFailed(
+            /* name = */ testName,
+            /* exception = */ this,
+            /* actual = */ String(actualValue.contents),
+            /* expected = */ String(expectedValue.contents),
+        ).withFileInfo(expectedValue.path, actualValue.path)
+    } else {
+        TestFailed(
+            /* name = */ testName,
+            /* exception = */ this,
+            /* actual = */ actual?.stringRepresentation,
+            /* expected = */ expected?.stringRepresentation,
+        )
+    }
+}
+
+private fun TestFailed.withFileInfo(expectedFilePath: String, actualFilePath: String) = object : MessageWithAttributes(
+    messageName,
+
+    // custom IntelliJ attributes defined in
+    // com.intellij.execution.testframework.sm.runner.OutputToGeneralTestEventsConverter.MyServiceMessageVisitor#ATTR_KEY_EXPECTED_FILE_PATH
+    // com.intellij.execution.testframework.sm.runner.OutputToGeneralTestEventsConverter.MyServiceMessageVisitor#ATTR_KEY_ACTUAL_FILE_PATH
+    // they are used by the IDE to display file paths on top of the diff window.
+    attributes + mapOf(
+        "expectedFile" to expectedFilePath,
+        "actualFile" to actualFilePath,
+    )
+) {}
 
 /**
  * Wraps the given [original] stream in a [ThreadAwareEavesdroppingPrintStream] that associate output to tests using the
