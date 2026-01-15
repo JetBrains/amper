@@ -11,6 +11,7 @@ google-services = "4.4.3"
 gradle-toolingApi = "8.14.3"
 gradleplugins-gradle-api = "8.11.1" # Limited by https://mvnrepository.com/artifact/dev.gradleplugins/gradle-api
 intellij-async-profiler = "4.1-0"
+intellij-jps = "253.29346.138"
 intellij-parsing = "0.3.154"
 intellij-platform = "252.25557.178"
 intellij-xcodemodel = "241.14980"
@@ -69,6 +70,8 @@ gradle-api =  { module = "dev.gradleplugins:gradle-api", version.ref = "gradlepl
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-toolingApi" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
+intellij-jps-build-dependency-graph = { module = "com.jetbrains.intellij.platform:jps-build-dependency-graph", version.ref = "intellij-jps" }
+intellij-jps-build-javac-rt = { module = "com.jetbrains.intellij.platform:jps-build-javac-rt", version.ref = "intellij-jps" }
 intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }
 intellij-platform-core = { module = "com.jetbrains.intellij.platform:core", version.ref = "intellij-platform" }
 intellij-platform-coreImpl = { module = "com.jetbrains.intellij.platform:core-impl", version.ref = "intellij-platform" }
