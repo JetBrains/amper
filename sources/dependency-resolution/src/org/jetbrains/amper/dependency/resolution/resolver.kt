@@ -133,8 +133,9 @@ class Resolver {
         unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
         postProcessGraph: (SerializableDependencyNode) -> Unit = {},
     ): ResolvedGraph {
-        return root.context.spanBuilder("DR.graph:resolveDependencies").use {
+        return root.context.spanBuilder("DR.graph:resolveDependencies").use { span ->
             val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources, resolutionLevel)
+                .also { span.setAttribute("resolutionId", it) }
 
             val incrementalCache = root.context.settings.incrementalCache
 
@@ -163,20 +164,7 @@ class Resolver {
                         json = GraphJson.json,
                         forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
                     ) {
-                        root.context.spanBuilder("DR.graph:resolution")
-                            .setAttribute(
-                                "configuration",
-                                cacheInputValues["dependencies"]
-                            ) // todo (AB) : Remove it (was added for debugging purposes))
-                            .setAttribute(
-                                "userCacheRoot",
-                                cacheInputValues["userCacheRoot"]
-                            ) // todo (AB) : Remove it (was added for debugging purposes))
-                            .setAttribute(
-                                "resolutionId",
-                                resolutionId
-                            ) // todo (AB) : Remove it (was added for debugging purposes))
-                            .use {
+                        root.context.spanBuilder("DR.graph:resolution").use {
                                 root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                                 val resolvedGraph = root.toResolvedGraph()
                                 val serializableGraph = resolvedGraph.root.toGraph()
@@ -186,6 +174,7 @@ class Resolver {
                                     outputFiles = resolvedGraph.root.dependencyPaths(),
                                     expirationTime = resolvedGraph.expirationTime,
                                 )
+                            }
                             }
                     }.let { result ->
                         try {
