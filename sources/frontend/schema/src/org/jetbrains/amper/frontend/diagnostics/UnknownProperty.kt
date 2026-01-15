@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -32,7 +32,7 @@ class UnknownProperty(
             SchemaBundle.message(
                 "unknown.property.did.you.mean",
                 invalidName,
-                // repeated ORs are ok: we don't even have misnomer collisions yet, let alone more
+                // repeated ORs are ok: we have maximum 2 props with identical misnomers in the same type for now
                 possibleIntendedNames.joinToString(" or ") { "'$it'" },
             )
         }
