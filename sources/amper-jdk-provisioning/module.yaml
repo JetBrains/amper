@@ -5,7 +5,6 @@ apply:
   - ../used-in-idea.module-template.yaml # the IDE needs to provision JDKs to set them in the workspace model
 
 dependencies:
-  - ../amper-build-info
   - ../amper-problem-reporting: exported
   - ../core
   - ../frontend-api: exported
@@ -15,14 +14,12 @@ dependencies:
   - ../libraries/serialization-extended
   - ../libraries/system-info
   - ../libraries/telemetry
-  - $libs.junit.jupiter.params
-  - $libs.ktor.client.core
-  - $libs.ktor.client.logging
-  - $libs.opentelemetry.ktor3
+  - $libs.kotlinx.coroutines.core
+  - $libs.slf4j.api
 
 test-dependencies:
   - ../test-base
-  - $libs.kotlinx.coroutines.debug
+  - $libs.junit.jupiter.params
 
 settings:
   kotlin:
