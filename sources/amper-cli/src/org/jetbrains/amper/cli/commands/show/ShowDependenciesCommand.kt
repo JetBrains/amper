@@ -149,8 +149,6 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
         isTests: Boolean,
         cliContext: CliContext
     ): Map<Set<Platform>, List<DependencyNode>> {
-        val module = this.module
-
         val variantsToResolveWithPlatforms = buildList {
             platformSetsToResolveFor.forEach { platforms ->
                 scopes.forEach { scope ->
