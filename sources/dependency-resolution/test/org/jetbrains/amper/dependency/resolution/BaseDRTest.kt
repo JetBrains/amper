@@ -46,10 +46,11 @@ abstract class BaseDRTest {
         root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext {
         val resolver = Resolver()
-        resolver.buildGraph(root, ResolutionLevel.NETWORK)
+        resolver.buildGraph(root, ResolutionLevel.NETWORK, transitive = transitive)
         root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.verifyMessages(filterMessages)
@@ -88,12 +89,13 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         openTelemetry: OpenTelemetry? = null,
         jdkVersion: JavaVersion? = null,
+        transitive: Boolean = true,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNodeHolderWithContext =
         context(scope, platform, repositories, cacheBuilder, openTelemetry, jdkVersion)
             .use { context ->
                 val root = dependency.toRootNode(context)
-                doTest(root, verifyMessages, expected, filterMessages)
+                doTest(root, verifyMessages, expected, filterMessages, transitive)
             }
 
     protected suspend fun doTest(
@@ -107,6 +109,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext = doTest(
         testInfo,
         listOf(dependency),
@@ -117,7 +120,8 @@ abstract class BaseDRTest {
         expected,
         cacheBuilder,
         filterMessages,
-        openTelemetry
+        openTelemetry,
+        transitive = transitive,
     )
 
     protected suspend fun doTestByFile(
@@ -185,6 +189,7 @@ abstract class BaseDRTest {
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
         jdkVersion: JavaVersion? = null,
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext = doTestImpl(
         testInfo,
         dependency,
@@ -196,6 +201,7 @@ abstract class BaseDRTest {
         cacheBuilder,
         openTelemetry,
         jdkVersion,
+        transitive,
         filterMessages,
     )
 

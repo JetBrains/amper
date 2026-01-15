@@ -779,7 +779,7 @@ class ResolvedGraph(
  * @see ResolutionLevel
  */
 enum class ResolutionState {
-    INITIAL, UNSURE, RESOLVED
+    INITIAL, UNSURE, RESOLVED_WITHOUT_CHILDREN, RESOLVED
 }
 
 /**

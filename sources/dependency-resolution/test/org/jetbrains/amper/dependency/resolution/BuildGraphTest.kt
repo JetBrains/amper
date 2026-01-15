@@ -194,6 +194,26 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    @Test
+    fun `com_fasterxml_jackson_datatype jackson-datatype-jdk8 2_18_2 - non transitive resolution`(testInfo: TestInfo) = runDrTest {
+        val root = doTest(
+            testInfo,
+            dependency = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2",
+            expected = """
+                root
+                ╰─── com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2
+            """.trimIndent(),
+            transitive = false
+        )
+        downloadAndAssertFiles(
+            listOf(
+                "jackson-datatype-jdk8-2.18.2-sources.jar",
+                "jackson-datatype-jdk8-2.18.2.jar",
+            ),
+            root, true, verifyMessages = true
+        )
+    }
+
     /**
      * This test checks that dependency with an interval version taken from the pom property, like [2.18.2, 2.18.3)
      * is replaced with the single version and resolved correctly.

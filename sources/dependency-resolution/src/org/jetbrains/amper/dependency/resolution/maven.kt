@@ -227,9 +227,7 @@ class MavenDependencyNodeWithContext internal constructor(
         get() = dependency.messages
 
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {
-        if (transitive) {
-            dependency.resolveChildren(context, level)
-        }
+        dependency.resolveChildren(context, level, transitive)
     }
 
     override suspend fun downloadDependencies(downloadSources: Boolean) =
@@ -753,22 +751,23 @@ class MavenDependencyImpl internal constructor(
 
     suspend fun resolveChildren(
         context: Context,
-        level: ResolutionLevel
+        level: ResolutionLevel,
+        transitive: Boolean = true,
     ) {
-        if (state < level.state) {
+        if (state < getTargetState(level, transitive)) {
             mutex.withLock {
-                if (state < level.state) {
+                if (state < getTargetState(level, transitive)) {
                     context.spanBuilder("MavenDependencyNode.resolveChildren")
                         .setAttribute("coordinates", this.toString())
                         .use {
-                            resolve(context, level)
+                            resolve(context, level, transitive)
                         }
                 }
             }
         }
     }
 
-    private suspend fun resolve(context: Context, level: ResolutionLevel) {
+    private suspend fun resolve(context: Context, level: ResolutionLevel, transitive: Boolean) {
         try {
             if (version == null)
                 return
@@ -798,7 +797,7 @@ class MavenDependencyImpl internal constructor(
             // 2. If pom is missing or mentions metadata, use it.
             if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
                 if (moduleFile.isDownloadedOrDownload(level, context, moduleFile.diagnosticsReporter)) {
-                    resolveUsingMetadata(context, level, moduleFile.diagnosticsReporter)
+                    resolveUsingMetadata(context, level, transitive, moduleFile.diagnosticsReporter)
                     return
                 }
                 if (pomText != null) {
@@ -817,12 +816,12 @@ class MavenDependencyImpl internal constructor(
             }
             // 3. If metadata can't be used, use pom.
             if (pomText != null) {
-                resolveUsingPom(pomText, context, level, pom.diagnosticsReporter)
+                resolveUsingPom(pomText, context, level, transitive, pom.diagnosticsReporter)
                 return
             }
         } finally {
             // 4. if neither pom nor module file were downloaded
-            if (state < level.state) {
+            if (state < getTargetState(level, transitive)) {
                 metadataResolutionFailureMessage = UnableToResolveDependency(
                     coordinates = this.coordinates,
                     repositories = context.settings.repositories,
@@ -832,6 +831,12 @@ class MavenDependencyImpl internal constructor(
             }
         }
     }
+
+    private fun getTargetState(level: ResolutionLevel, transitive: Boolean) =
+        when (level) {
+            ResolutionLevel.LOCAL -> ResolutionState.UNSURE
+            ResolutionLevel.NETWORK -> if (transitive) ResolutionState.RESOLVED else ResolutionState.RESOLVED_WITHOUT_CHILDREN
+        }
 
     private fun resetMetadataDiagnostics() {
         metadataResolutionFailureMessage = null
@@ -942,6 +947,7 @@ class MavenDependencyImpl internal constructor(
     private suspend fun resolveUsingMetadata(
         context: Context,
         level: ResolutionLevel,
+        transitive: Boolean,
         diagnosticsReporter: DiagnosticReporter,
     ) {
         val moduleMetadata = parseModuleMetadata(context, level, diagnosticsReporter, true)
@@ -958,7 +964,7 @@ class MavenDependencyImpl internal constructor(
             )
         }
 
-        val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, diagnosticsReporter)
+        val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level, transitive, diagnosticsReporter)
         if (processedAsSpecialCase) {
             // Do nothing, dependency was already processed
         } else if (isBom) {
@@ -977,18 +983,20 @@ class MavenDependencyImpl internal constructor(
                         )
                     }
                 }
-                // Import platform/BOM dependency constraints
-                validVariants
-                    .withoutDocumentationAndMetadata
-                    .let { variants ->
-                        variants.flatMap {
-                            it.dependencyConstraints
-                        }.mapNotNull {
-                            it.toMavenDependencyConstraint(context)
-                        }.let {
-                            dependencyConstraints = it
+                if (transitive) {
+                    // Import platform/BOM dependency constraints
+                    validVariants
+                        .withoutDocumentationAndMetadata
+                        .let { variants ->
+                            variants.flatMap {
+                                it.dependencyConstraints
+                            }.mapNotNull {
+                                it.toMavenDependencyConstraint(context)
+                            }.let {
+                                dependencyConstraints = it
+                            }
                         }
-                    }
+                }
             }
         } else {
             // Regular library
@@ -1015,23 +1023,27 @@ class MavenDependencyImpl internal constructor(
                         .withoutDocumentationAndMetadata
                         .let { variants ->
                             variants.flatMap {
-                                it.dependencies(
-                                    context,
-                                    level,
-                                    diagnosticsReporter,
-                                ) + listOfNotNull(it.`available-at`?.asDependency())
+                                val dependencies = if (transitive)
+                                    it.dependencies(
+                                        context,
+                                        level,
+                                        diagnosticsReporter,
+                                    ) else emptyList()
+                                dependencies + listOfNotNull(it.`available-at`?.asDependency())
                             }.map {
                                 it.toMavenDependency(context, diagnosticsReporter)
                             }.let {
                                 children = it
                             }
 
-                            variants.flatMap {
-                                it.dependencyConstraints
-                            }.mapNotNull {
-                                it.toMavenDependencyConstraint(context)
-                            }.let {
-                                dependencyConstraints = it
+                            if (transitive) {
+                                variants.flatMap {
+                                    it.dependencyConstraints
+                                }.mapNotNull {
+                                    it.toMavenDependencyConstraint(context)
+                                }.let {
+                                    dependencyConstraints = it
+                                }
                             }
                         }
                 }
@@ -1052,6 +1064,7 @@ class MavenDependencyImpl internal constructor(
                         context,
                         moduleMetadata,
                         level,
+                        transitive,
                         kotlinMetadataVariant,
                         diagnosticsReporter
                     )
@@ -1070,7 +1083,7 @@ class MavenDependencyImpl internal constructor(
             }
         }
 
-        state = level.state
+        state = getTargetState(level, transitive)
 
         // We have used a module metadata file for resolving dependency, => lower severity of pom-related issues.
         if (pom.diagnosticsReporter.hasErrors()) {
@@ -1158,28 +1171,31 @@ class MavenDependencyImpl internal constructor(
         context: Context,
         moduleMetadata: Module,
         level: ResolutionLevel,
+        transitive: Boolean,
         diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         if (isSpecialKmpLibrary()) {
-            moduleMetadata
-                .variants
-                .let {
-                    it.flatMap {
-                        it.dependencies(context, level, diagnosticsReporter)
-                    }.map {
-                        it.toMavenDependency(context, diagnosticsReporter)
-                    }.let {
-                        children = it
-                    }
+            if (transitive) {
+                moduleMetadata
+                    .variants
+                    .let {
+                        it.flatMap {
+                            it.dependencies(context, level, diagnosticsReporter)
+                        }.map {
+                            it.toMavenDependency(context, diagnosticsReporter)
+                        }.let {
+                            children = it
+                        }
 
-                    it.flatMap {
-                        it.dependencyConstraints
-                    }.mapNotNull {
-                        it.toMavenDependencyConstraint(context)
-                    }.let {
-                        dependencyConstraints = it
+                        it.flatMap {
+                            it.dependencyConstraints
+                        }.mapNotNull {
+                            it.toMavenDependencyConstraint(context)
+                        }.let {
+                            dependencyConstraints = it
+                        }
                     }
-                }
+            }
             return true
         }
 
@@ -1236,7 +1252,7 @@ class MavenDependencyImpl internal constructor(
                     .takeIf { it.version != null }
                     ?.toMavenDependency(context, diagnosticsReporter)
                     ?.let {
-                        it.resolveChildren(context, level)
+                        it.resolveChildren(context, level, true)
                         it.dependencyConstraints
                     }
             }
@@ -1374,6 +1390,7 @@ class MavenDependencyImpl internal constructor(
         context: Context,
         moduleMetadata: Module,
         level: ResolutionLevel,
+        transitive: Boolean,
         kotlinMetadataVariant: Variant,
         diagnosticsReporter: DiagnosticReporter
     ) {
@@ -1431,35 +1448,36 @@ class MavenDependencyImpl internal constructor(
         }.awaitAll()
             .mapNotNull { it }
 
-        // Find source sets dependencies
-        children = kotlinProjectStructureMetadata.projectStructure.sourceSets
-            .filter { it.name in sourceSetsIntersection }
-            .flatMap { it.moduleDependency }
-            .toSet()
-            .mapNotNull { rawDep ->
-                val parts = rawDep.split(":")
-                if (parts.size != 2) {
-                    diagnosticsReporter.addMessage(UnexpectedDependencyFormat.asMessage(this, rawDep))
-                    null
-                } else {
-                    val dependencyGroup = parts[0]
-                    val dependencyModule = parts[1]
-                    kotlinMetadataVariant.dependencies(context, level, diagnosticsReporter)
-                        .filterNot { shouldIgnoreDependency(it.group, it.module, context) }
-                        .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
-                        ?.toMavenDependency(context) { reason ->
-                            diagnosticsReporter.addMessage(
-                                UnableToDetermineDependencyVersionForKotlinLibrary.asMessage(
-                                    this,
-                                    rawDep,
-                                    reason,
+        if (transitive) {
+            // Find source sets dependencies
+            children = kotlinProjectStructureMetadata.projectStructure.sourceSets
+                .filter { it.name in sourceSetsIntersection }
+                .flatMap { it.moduleDependency }
+                .toSet()
+                .mapNotNull { rawDep ->
+                    val parts = rawDep.split(":")
+                    if (parts.size != 2) {
+                        diagnosticsReporter.addMessage(UnexpectedDependencyFormat.asMessage(this, rawDep))
+                        null
+                    } else {
+                        val dependencyGroup = parts[0]
+                        val dependencyModule = parts[1]
+                        kotlinMetadataVariant.dependencies(context, level, diagnosticsReporter)
+                            .filterNot { shouldIgnoreDependency(it.group, it.module, context) }
+                            .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
+                            ?.toMavenDependency(context) { reason ->
+                                diagnosticsReporter.addMessage(
+                                    UnableToDetermineDependencyVersionForKotlinLibrary.asMessage(
+                                        this,
+                                        rawDep,
+                                        reason,
+                                    )
                                 )
-                            )
-                        }
+                            }
+                    }
                 }
-            }
-
-        // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
+            // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
+        }
     }
 
     /**
@@ -1856,28 +1874,31 @@ class MavenDependencyImpl internal constructor(
         text: String,
         context: Context,
         level: ResolutionLevel,
+        transitive: Boolean,
         diagnosticsReporter: DiagnosticReporter,
     ) {
         val project = resolvePom(text, context, level, diagnosticsReporter) ?: return
 
-        if (isBom) {
-            dependencyConstraints = project.resolveDependenciesConstraints(context)
-        } else {
-            (project.dependencies?.dependencies ?: listOf()).filter {
-                context.settings.scope.matches(it)
-            }.filterNot {
-                shouldIgnoreDependency(it.groupId, it.artifactId, context)
-            }.filter {
-                it.optional != true
-            }.map {
-                context.createOrReuseDependency(it.coordinates, false)
-            }.let {
-                children = it
+        if (transitive) {
+            if (isBom) {
+                dependencyConstraints = project.resolveDependenciesConstraints(context)
+            } else {
+                (project.dependencies?.dependencies ?: listOf()).filter {
+                    context.settings.scope.matches(it)
+                }.filterNot {
+                    shouldIgnoreDependency(it.groupId, it.artifactId, context)
+                }.filter {
+                    it.optional != true
+                }.map {
+                    context.createOrReuseDependency(it.coordinates, false)
+                }.let {
+                    children = it
+                }
             }
         }
 
         packaging = project.packaging ?: "jar"
-        state = level.state
+        state = getTargetState(level, transitive)
 
         if (packaging == "jar" && !isSpecialKmpLibrary()) {
             val nonJvmPlatforms =
