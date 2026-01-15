@@ -821,7 +821,7 @@ open class DependencyFileImpl(
     private suspend fun getExpectedHash(
         diagnosticsReporter: DiagnosticReporter, requestedLevel: ResolutionLevel, searchInMetadata: Boolean = true,
     ): Hash? {
-        val hash = LocalStorageHashSource.getExpectedHash(this, dependency.settings, searchInMetadata)
+        val hash = LocalStorageHashSource.getExpectedHash(this, searchInMetadata)
 
         if (hash == null && requestedLevel != ResolutionLevel.NETWORK) {
             diagnosticsReporter.addMessage(
@@ -1117,17 +1117,15 @@ open class DependencyFileImpl(
 
     private enum class LocalStorageHashSource {
         File {
-            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings) =
-                settings.spanBuilder("getHashFromGradleCacheDirectory").use { artifact.getHashFromGradleCacheDirectory(algorithm) }
-                    ?: settings.spanBuilder("getDependencyFile").use {
-                        artifact.getHashDependencyFile(algorithm)
-                    }
-                            .takeIf { file -> settings.spanBuilder("DependencyFile.isDownloaded").use { file.isDownloaded() }}
-                            ?.let { file -> settings.spanBuilder("readText").use { file.readText() } }
-                            ?.sanitize()
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm) =
+                artifact.getHashFromGradleCacheDirectory(algorithm)
+                    ?: artifact.getHashDependencyFile(algorithm)
+                        .takeIf { it.isDownloaded() }
+                        ?.readText()
+                        ?.sanitize()
         },
         MetadataInfo {
-            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings) =
+            override suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm) =
                 with(artifact) {
                     when (algorithm.name) {
                         "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
@@ -1139,11 +1137,11 @@ open class DependencyFileImpl(
                 }
         };
 
-        protected abstract suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings): String?
+        protected abstract suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm): String?
 
-        private suspend fun getExpectedHash(artifact: DependencyFileImpl, settings: Settings): Hash? {
+        private suspend fun getExpectedHash(artifact: DependencyFileImpl): Hash? {
             for (hashAlgorithm in hashAlgorithms) {
-                val expectedHash = getExpectedHash(artifact, hashAlgorithm, settings)
+                val expectedHash = getExpectedHash(artifact, hashAlgorithm)
                 if (expectedHash != null) {
                     return SimpleHash(hash = expectedHash, algorithm = hashAlgorithm)
                 }
@@ -1153,19 +1151,15 @@ open class DependencyFileImpl(
 
         companion object {
             suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings, searchInMetadata: Boolean) =
-                settings.spanBuilder(" File.getExpectedHash").use {
-                    File.getExpectedHash(artifact, algorithm, settings)
-                }
-                    ?: if (searchInMetadata) settings.spanBuilder("MetadataInfo.getExpectedHash").use {
-                        MetadataInfo.getExpectedHash(artifact, algorithm, settings)
-                    } else null
+                File.getExpectedHash(artifact, algorithm)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, algorithm) else null
 
             /**
              * @return hash of the artifact resolved from a local artifacts storage
              */
-            suspend fun getExpectedHash(artifact: DependencyFileImpl, settings: Settings, searchInMetadata: Boolean = true): Hash? =
-                File.getExpectedHash(artifact, settings)
-                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, settings) else null
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, searchInMetadata: Boolean = true): Hash? =
+                File.getExpectedHash(artifact)
+                    ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact) else null
         }
     }
 
