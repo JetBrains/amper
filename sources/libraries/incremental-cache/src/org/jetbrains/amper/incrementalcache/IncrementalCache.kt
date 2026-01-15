@@ -189,10 +189,16 @@ class IncrementalCache(
 
     private fun Span.addResult(result: ExecutionResult, dynamicInputsState: DynamicInputsState) {
         setListAttribute("output-files", result.outputFiles.map { it.pathString }.sorted())
-        setMapAttribute("output-values", result.outputValues)
-        setMapAttribute("dynamic-inputs-system-properties", dynamicInputsState.systemProperties)
-        setMapAttribute("dynamic-inputs-environment-variables", dynamicInputsState.environmentVariables)
-        setMapAttribute("dynamic-inputs-paths-existence", dynamicInputsState.pathsExistence)
+
+        // [outputValues] are not added as an attribute since it might be huge (serialized dependency graph)
+        // and don't help much in investigating incremental cache behavior
+
+        dynamicInputsState.systemProperties.takeIf { it.isNotEmpty() }
+            ?.let { setMapAttribute("dynamic-inputs-system-properties", it) }
+        dynamicInputsState.environmentVariables.takeIf { it.isNotEmpty() }
+            ?.let { setMapAttribute("dynamic-inputs-environment-variables", it) }
+        dynamicInputsState.pathsExistence.takeIf { it.isNotEmpty() }
+            ?.let { setMapAttribute("dynamic-inputs-paths-existence", it) }
     }
 
     private fun recordState(
