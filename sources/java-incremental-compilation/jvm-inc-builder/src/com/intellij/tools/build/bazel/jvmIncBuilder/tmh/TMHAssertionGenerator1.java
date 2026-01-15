@@ -183,11 +183,11 @@ public class TMHAssertionGenerator1 implements TMHAssertionGenerator {
 
   public static Set<? extends TMHAssertionGenerator> generators() {
     return Set.of(
-      new TMHAssertionGenerator1.AssertEdt(),
-      new TMHAssertionGenerator1.AssertBackgroundThread(),
-      new TMHAssertionGenerator1.AssertReadAccess(),
-      new TMHAssertionGenerator1.AssertWriteAccess(),
-      new TMHAssertionGenerator1.AssertNoReadAccess()
+      new AssertEdt(),
+      new AssertBackgroundThread(),
+      new AssertReadAccess(),
+      new AssertWriteAccess(),
+      new AssertNoReadAccess()
     );
   }
 }

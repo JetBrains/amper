@@ -82,7 +82,6 @@ class JDOMCoreNavigator extends DefaultNavigator {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public final Object getDocument(String url) throws FunctionCallException {
     SAXBuilder sb = new SAXBuilder();
     try {
@@ -102,7 +101,6 @@ class JDOMCoreNavigator extends DefaultNavigator {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public final boolean isProcessingInstruction(Object isit) {
     return isit instanceof ProcessingInstruction;
   }
@@ -216,13 +214,11 @@ class JDOMCoreNavigator extends DefaultNavigator {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public final String getProcessingInstructionTarget(Object pi) {
     return ((ProcessingInstruction)pi).getTarget();
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public final String getProcessingInstructionData(Object pi) {
     return ((ProcessingInstruction)pi).getData();
   }

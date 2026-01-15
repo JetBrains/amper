@@ -25,7 +25,6 @@ public final class PersistentMVStoreMultiMaplet<K, V, C extends Collection<V>> i
   private final MVMap.DecisionMaker<C> myAppendDecisionMaker;
   private final MVMap.DecisionMaker<C> myRemoveDecisionMaker;
 
-  @SuppressWarnings("unchecked")
   public PersistentMVStoreMultiMaplet(MVStore store, String mapName, DataType<K> keyType, DataType<V> valueType, Supplier<? extends C> collectionFactory, Function<Integer, C[]> collectionArrayFactory) {
     myCollectionFactory = collectionFactory;
     try {
@@ -94,7 +93,6 @@ public final class PersistentMVStoreMultiMaplet<K, V, C extends Collection<V>> i
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void put(K key, @NotNull Iterable<? extends V> values) {
     //noinspection unchecked
     C data = ensureCollection(values);
@@ -106,7 +104,7 @@ public final class PersistentMVStoreMultiMaplet<K, V, C extends Collection<V>> i
     }
   }
 
-  @SuppressWarnings("unchecked")
+  /** @noinspection unchecked*/
   private C ensureCollection(Iterable<? extends V> seq) {
     if (myEmptyCollection instanceof Set && seq instanceof Set) {
       return (C)seq;
@@ -175,7 +173,6 @@ public final class PersistentMVStoreMultiMaplet<K, V, C extends Collection<V>> i
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends C> T selectValue(T existingValue, T providedValue) {
       if (existingValue == null || existingValue.isEmpty()) {
         return providedValue;
@@ -219,7 +216,6 @@ public final class PersistentMVStoreMultiMaplet<K, V, C extends Collection<V>> i
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends C> T selectValue(T existingValue, T providedValue) {
       // both provided and existing values are non-empty collections
       //noinspection unchecked

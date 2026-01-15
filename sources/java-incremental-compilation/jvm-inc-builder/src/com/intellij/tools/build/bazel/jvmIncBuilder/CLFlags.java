@@ -51,6 +51,7 @@ public enum CLFlags {
   X_SAM_CONVERSIONS,
   X_STRICT_JAVA_NULLABILITY_ASSERTIONS,
   X_WASM_ATTACH_JS_EXCEPTION,
+  X_WASM_KCLASS_FQN,
   X_X_LANGUAGE,
 
   WARN,
@@ -59,8 +60,7 @@ public enum CLFlags {
 
   ADD_EXPORT,
   ADD_READS,
-  NO_PROC,
-  OTHER;
+  NO_PROC;
 
   public boolean isFlagSet(Map<CLFlags, ? extends Collection<String>> flags) {
     Collection<String> value = flags.get(this);

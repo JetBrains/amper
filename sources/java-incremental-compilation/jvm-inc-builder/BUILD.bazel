@@ -1,0 +1,118 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_list_flag")
+load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_jvm//:jvm.bzl", "jvm_import")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("//:src/jvm-args.bzl", "get_jvm_flags")
+
+java_binary(
+    name = "jvm-inc-builder",
+    #     jvm_flags = [],  -- Note(k15tfu): ignored w/ deploy jar, use :jvm-inc-builder-jvm_flags
+    main_class = "com.intellij.tools.build.bazel.jvmIncBuilder.BazelIncExecutor",
+    visibility = ["//visibility:public"],
+    runtime_deps = [":jvm-inc-builder-lib"],
+)
+
+java_library(
+    name = "patched-kotlin-compiler-for-bazel",
+    visibility = ["//visibility:public"],  # used by @community//:monorepo-jvm-builder (@community//fleet/compiler-plugins/expects:expects-compiler-plugin, etc.)
+    exports = [
+        ":jvm-abi-gen_import",
+        ":kotlin-compiler_import",
+        ":kotlin-reflect_import",
+        ":kotlin-script-runtime_import",
+        ":kotlin-stdlib-jdk7_import",
+        ":kotlin-stdlib-jdk8_import",
+        ":kotlin-stdlib_import",
+    ],
+)
+
+jvm_import(
+    name = "forms_import",
+    jar = "@forms_http//file",
+)
+
+jvm_import(
+    name = "jaxen_import",
+    jar = "@jaxen_http//file",
+)
+
+jvm_import(
+    name = "jvm-abi-gen_import",
+    jar = "@jvm-abi-gen_http//file",
+)
+
+jvm_import(
+    name = "kotlin-compiler_import",
+    jar = "@kotlin-compiler_http//file",
+)
+
+jvm_import(
+    name = "kotlin-reflect_import",
+    jar = "@kotlin-reflect_http//file",
+)
+
+jvm_import(
+    name = "kotlin-script-runtime_import",
+    jar = "@kotlin-script-runtime_http//file",
+)
+
+jvm_import(
+    name = "kotlin-stdlib_import",
+    jar = "@kotlin-stdlib_http//file",
+)
+
+jvm_import(
+    name = "kotlin-stdlib-jdk7_import",
+    jar = "@kotlin-stdlib-jdk7_http//file",
+)
+
+jvm_import(
+    name = "kotlin-stdlib-jdk8_import",
+    jar = "@kotlin-stdlib-jdk8_http//file",
+)
+
+kt_jvm_library(
+    name = "jvm-inc-builder-lib",
+    srcs = glob(
+        [
+            "src/**/*.kt",
+            "src/**/*.java",
+        ],
+        allow_empty = True,
+    ),
+    kotlinc_opts = "//:rules_jvm_bootstrap_kotlinc_options",
+    visibility = ["//visibility:public"],
+    deps = [
+        #this two dependencies should be on the top because some parts of that in the Kotlin compiler
+        "//:opentelemetry-api_import",
+        "//:asm-all_import",
+        "//:annotations_import",
+        "//:caffeine_import",
+        "//:h2-mvstore_import",
+        "//:hash4j_import",
+        "//:intellij-deps-fastutil_import",
+        "//:jps-javac-extension_import",
+        "//:kotlin-compose-compiler-plugin_import",
+        "//:kotlin-metadata-jvm_import",
+        "//:kotlin-serialization-compiler-plugin_import",
+        "//:qdox_import",
+        "//dependency-graph",
+        "//jps-builders-6:build-javac-rt",
+        "//src/worker-framework",
+        "//zip",
+        ":forms_import",  # forms compilation support
+        ":jaxen_import",  # forms compilation support
+        "patched-kotlin-compiler-for-bazel",
+    ],
+)
+
+string_list_flag(
+    name = "jvm-inc-builder-jvm_flags",
+    build_setting_default = get_jvm_flags([
+        "-Dkotlin.environment.keepalive=true",
+        "-XX:+HeapDumpOnOutOfMemoryError",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+### skip generation section `build intellij.tools.build.bazel.jvmIncBuilder`

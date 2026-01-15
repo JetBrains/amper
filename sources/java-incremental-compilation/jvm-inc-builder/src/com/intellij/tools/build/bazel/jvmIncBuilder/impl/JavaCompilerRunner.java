@@ -268,14 +268,28 @@ public class JavaCompilerRunner implements CompilerRunner {
       if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
         myHasErrors = true;
       }
-      String message;
-      if (diagnostic instanceof PlainMessageDiagnostic) {
-        message = diagnostic.getMessage(Locale.ENGLISH);
+      String message = diagnostic.getMessage(Locale.ENGLISH);
+      StringBuilder msgBuilder = new StringBuilder(message);
+      JavaFileObject source = diagnostic.getSource();
+      if (source != null) {
+        msgBuilder.append("\n\t").append(source.getName());
+        if (diagnostic.getPosition() != Diagnostic.NOPOS) {
+          msgBuilder.append(" (").append(diagnostic.getLineNumber()).append(":").append(diagnostic.getColumnNumber()).append(")");
+          try {
+            int start = (int)(diagnostic.getStartPosition());
+            int end = (int)(diagnostic.getEndPosition());
+            if (start >= 0 && end > start) {
+              CharSequence charContent = source.getCharContent(true);
+              if (end < charContent.length()) {
+                msgBuilder.append("\n\tcode: \"").append(charContent.subSequence(start, end)).append("\"");
+              }
+            }
+          }
+          catch (Throwable ignored) {
+          }
+        }
       }
-      else {
-        message = diagnostic.toString();
-      }
-      myDiagnosticSink.report(Message.create(myOwner, getMessageKind(diagnostic), message));
+      myDiagnosticSink.report(Message.create(myOwner, getMessageKind(diagnostic), msgBuilder.toString()));
     }
 
     private static Message.Kind getMessageKind(Diagnostic<? extends JavaFileObject> diagnostic) {

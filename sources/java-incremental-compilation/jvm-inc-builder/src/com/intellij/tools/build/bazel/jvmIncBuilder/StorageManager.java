@@ -1,13 +1,13 @@
 // Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package com.intellij.tools.build.bazel.jvmIncBuilder;
 
-import com.intellij.tools.build.bazel.amper.StorageManagerFileOpenOption;
-import com.intellij.tools.build.bazel.jvmIncBuilder.impl.AmperZipOutputBuilderWithClasses;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.CompositeZipOutputBuilder;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.Utils;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.ZipOutputBuilderImpl;
+import com.intellij.tools.build.bazel.jvmIncBuilder.impl.forms.FormBinding;
 import com.intellij.tools.build.bazel.jvmIncBuilder.impl.graph.PersistentMVStoreMapletFactory;
 import com.intellij.tools.build.bazel.jvmIncBuilder.instrumentation.InstrumentationClassFinder;
+import com.sun.nio.file.ExtendedOpenOption;
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.OffHeapStore;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +33,7 @@ public class StorageManager implements CloseableExt {
   private ZipOutputBuilderImpl myAbiOutputBuilder;
   private CompositeZipOutputBuilder myComposite;
   private InstrumentationClassFinder myInstrumentationClassFinder;
+  private FormBinding myFormBinding;
 
   private final MVStore myDataSwapStore;
 
@@ -47,9 +48,6 @@ public class StorageManager implements CloseableExt {
   }
 
   public void cleanBuildState() throws IOException {
-    if (myOutputBuilder != null) {
-      myOutputBuilder.cleanBuildStateOnFullRebuild();
-    }
     closeDataStorages(false);
     Path output = myContext.getOutputZip();
     Path abiOutput = myContext.getAbiOutputZip();
@@ -94,6 +92,14 @@ public class StorageManager implements CloseableExt {
     return myDataSwapStore.openMap(name);
   }
 
+  public FormBinding getFormsBinding() throws Exception {
+    FormBinding binding = myFormBinding;
+    if (binding == null) {
+      myFormBinding = binding = FormBinding.create(myContext);
+    }
+    return binding;
+  }
+
   public BuildContext getContext() {
     return myContext;
   }
@@ -116,8 +122,7 @@ public class StorageManager implements CloseableExt {
     if (builder == null) {
       Path output = myContext.getOutputZip();
       Path previousOutput = DataPaths.getJarBackupStoreFile(myContext, output);
-      myOutputBuilder = builder = new AmperZipOutputBuilderWithClasses(createOffHeapMap(output.getFileName().toString()), previousOutput, output,
-        myContext.getClassesOutput());
+      myOutputBuilder = builder = new ZipOutputBuilderImpl(createOffHeapMap(output.getFileName().toString()), previousOutput, output, true);
     }
     return builder;
   }
@@ -164,7 +169,7 @@ public class StorageManager implements CloseableExt {
 
   @Override
   public final void close() {
-    close(!myContext.hasErrors());
+    close(true); // close saving all successfully compiled content
   }
 
   @Override
@@ -188,12 +193,6 @@ public class StorageManager implements CloseableExt {
       safeClose(config.getGraph(), saveChanges);
     }
 
-    InstrumentationClassFinder finder = myInstrumentationClassFinder;
-    if (finder != null) {
-      myInstrumentationClassFinder = null;
-      finder.releaseResources();
-    }
-
     myComposite = null;
 
     safeClose(myOutputBuilder, saveChanges);
@@ -201,6 +200,12 @@ public class StorageManager implements CloseableExt {
 
     safeClose(myAbiOutputBuilder, saveChanges);
     myAbiOutputBuilder = null;
+
+    InstrumentationClassFinder finder = myInstrumentationClassFinder;
+    if (finder != null) {
+      myInstrumentationClassFinder = null;
+      finder.releaseResources();
+    }
   }
 
   private void safeClose(Closeable cl, boolean saveChanges) {
@@ -247,26 +252,6 @@ public class StorageManager implements CloseableExt {
     return null;
   }
 
-  private static final String WINDOWS_ERROR_TOO_MANY_LINKS = "An attempt was made to create more links on a file than the file system supports";
-  private static boolean tryCreateLink(Path link, Path existing) {
-    try {
-      Files.createLink(link, existing);
-      return true;
-    }
-    catch (FileSystemException e) {
-      String message = e.getMessage();
-      if (message != null && e.getMessage().endsWith(WINDOWS_ERROR_TOO_MANY_LINKS)) {
-        return false;
-      }
-      else {
-        throw new UncheckedIOException(e);
-      }
-    }
-    catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
   private static void createLinkAfterCopy(Path linkFile, Path originalFile, Path tempDir) throws IOException {
     int index = 1;
     Path copyFile;
@@ -275,7 +260,7 @@ public class StorageManager implements CloseableExt {
       if (!Files.exists(copyFile)) {
         Path tempFile = Files.createTempFile(tempDir, null, null);
         try {
-          try (OutputStream out = Files.newOutputStream(tempFile, StorageManagerFileOpenOption.INSTANCE.getWriteOption())) {
+          try (OutputStream out = Files.newOutputStream(tempFile, ExtendedOpenOption.NOSHARE_WRITE)) {
             Files.copy(originalFile, out);
           }
 
@@ -296,7 +281,7 @@ public class StorageManager implements CloseableExt {
           }
         }
       }
-    } while (!tryCreateLink(linkFile, copyFile));
+    } while (!Utils.tryCreateLink(linkFile, copyFile));
   }
 
   public static void backupDependencies(BuildContext context, Iterable<Path> deletedPaths, Iterable<Path> presentPaths) throws IOException {
@@ -314,7 +299,7 @@ public class StorageManager implements CloseableExt {
 
     for (Path presentPath : presentPaths) {
       Path backup = DataPaths.getJarBackupStoreFile(context, presentPath);
-      if (!tryCreateLink(backup, presentPath)) {
+      if (!Utils.tryCreateLink(backup, presentPath)) {
         Path trash = DataPaths.getLibraryTrashDir(context, presentPath);
         Files.createDirectories(trash);
         createLinkAfterCopy(backup, presentPath, trash);
