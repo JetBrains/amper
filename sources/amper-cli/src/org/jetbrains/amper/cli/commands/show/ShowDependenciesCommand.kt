@@ -133,7 +133,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
     ): List<DependencyNode> {
         val moduleDependencies = ModuleDependencies(this, commonOptions.sharedCachesRoot, cliContext.incrementalCache)
 
-        val mainDependenciesMap = moduleDependencies.resolveDependencies( platformSetsToResolveFor, false, cliContext)
+        val mainDependenciesMap = moduleDependencies.resolveDependencies(platformSetsToResolveFor, false, cliContext)
         val testDependenciesMap = if (includeTests) moduleDependencies.resolveDependencies(platformSetsToResolveFor, true, cliContext) else emptyMap()
 
         return buildList {
