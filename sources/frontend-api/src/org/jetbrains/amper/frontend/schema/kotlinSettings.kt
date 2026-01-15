@@ -196,6 +196,7 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
     val ksp: KspSettings by nested()
 
+    @Misnomers("kotlinx", "kotlinx-serialization", "kotlinx.serialization")
     @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     val serialization: SerializationSettings by nested()
@@ -216,6 +217,7 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)")
     val powerAssert: PowerAssertSettings by nested()
 
+    @Misnomers("kotlinx", "kotlinx-rpc", "kotlinx.rpc")
     @PlatformAgnostic
     @SchemaDoc("Configure the [kotlinx.rpc compiler plugin](https://kotlin.github.io/kotlinx-rpc/)")
     val rpc: KotlinxRpcSettings by nested()
