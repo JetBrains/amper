@@ -67,6 +67,52 @@ class BomTest: BaseModuleDrTest() {
     }
 
     /**
+     * Version of a direct dependency is resolved from BOM if it was left unspecified
+     * in non-transitive resolution mode ([ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES])
+     */
+    @Test
+    fun `resolving version of a direct dependency from BOM non-transitive case`() = runModuleDependenciesTest {
+        val aom = getTestProjectModel("jvm-bom-support-override-direct", testDataRoot)
+
+        val jvmAppDirectOnlyDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(
+                    ResolutionScope.COMPILE,
+                    setOf(ResolutionPlatform.JVM),
+                    false),
+
+                ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
+
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            verifyMessages = false,
+            module = "app",
+            expected = """
+                Module app
+                │ - main
+                │ - scope = COMPILE
+                │ - platforms = [jvm]
+                ├─── app:main:com.fasterxml.jackson.core:jackson-core:2.18.2
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:2.18.2 -> 2.18.3
+                ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
+                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                │         ╰─── com.fasterxml.jackson.core:jackson-core:2.18.3 (c)
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
+            """.trimIndent(),
+        )
+
+        assertFiles(
+            listOf(
+                "jackson-core-2.18.3.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
+            ),
+            jvmAppDirectOnlyDeps
+        )
+    }
+
+    /**
      * Version of an exported direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
@@ -102,7 +148,7 @@ class BomTest: BaseModuleDrTest() {
      *
      * Published metadata of the library 'io.github.dokar3:sonner-android:0.3.8' doesn't specify
      * a version of 'androidx.compose.ui:ui-tooling-preview'.
-     * Consumer of the library have no way to resolve the version without specifying it either explicitly or by using BOM.
+     * Consumers of the library have no way to resolve the version without specifying it either explicitly or by using BOM.
      *
      * This tests checks that a version of the dependency 'androidx.compose.ui:ui-tooling-preview'
      * is successfully resolved from the BOM 'androidx.compose:compose-bom:2025.05.00'

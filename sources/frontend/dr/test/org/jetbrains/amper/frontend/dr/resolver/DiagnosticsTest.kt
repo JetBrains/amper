@@ -285,7 +285,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
      */
     @Test
     fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runModuleDependenciesTest {
-        val aom = getTestProjectModel("jvm-bom-support-overridden", testDataRoot)
+        val aom = getTestProjectModel("jvm-bom-support-override", testDataRoot)
         val commonDeps = doTestByFile(
             testInfo = testInfo,
             aom,

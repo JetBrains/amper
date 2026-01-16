@@ -194,8 +194,12 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    /**
+     * This test checks that transitive dependencies are not resolved if parameter `transitive` of the API method
+     * [Resolver.buildGraph] is set to true.
+     */
     @Test
-    fun `com_fasterxml_jackson_datatype jackson-datatype-jdk8 2_18_2 - non transitive resolution`(testInfo: TestInfo) = runDrTest {
+    fun `non transitive resolution`(testInfo: TestInfo) = runDrTest {
         val root = doTest(
             testInfo,
             dependency = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2",
@@ -211,6 +215,111 @@ class BuildGraphTest : BaseDRTest() {
                 "jackson-datatype-jdk8-2.18.2.jar",
             ),
             root, true, verifyMessages = true
+        )
+    }
+
+    /**
+     * This test checks that a dependency version declared in BOM is resolved and applied
+     * to the dependency with an unspecified version during non-transitive resolution if both BOM
+     * and dependency with an unspecified version are siblingin the graph
+     * (where the parameter `transitive` of the API method [Resolver.buildGraph] is set to `false`).
+     */
+    @Test
+    fun `non transitive resolution basic BOM support`(testInfo: TestInfo) = runDrTest {
+        val root = context().use { context ->
+            val root = listOf(
+                "bom:org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4",
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+            ).toRootNode(context)
+            doTest(
+                root,
+                expected = """
+                    root
+                    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                    │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (c)
+                    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core:unspecified -> 1.6.4
+                         ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+                """.trimIndent(),
+                transitive = false
+            )
+        }
+        downloadAndAssertFiles(
+            listOf(
+                "kotlinx-coroutines-core-jvm-1.6.4-sources.jar",
+                "kotlinx-coroutines-core-jvm-1.6.4.jar",
+            ),
+            root, true, verifyMessages = true
+        )
+    }
+
+    /**
+     * This test checks that a platform-specific variant of the common KMP-library
+     * is correctly resolved in case of non-transitive resolution in the single-platform context.
+     *
+     * Single-platform resolution of KMP-library is a special case.
+     * In a multi-platform context, all matching KMP-library source sets are transformed to separate artifacts and
+     * are attached directly to the KMP-library node in the graph. Such artifacts are obviously resolved
+     * in non-transitive resolution since those are attached to the direct node presented in the original graph.
+     *
+     * But in the case of single-platform resolution, platform-specific variant is represented by a separate library with
+     * coordinates different from the coordinates of KMP-library.
+     * Such a library is added as a dependency to the KMP-library node,
+     * effectively becoming a transitive dependency of the node in terms of the graph.
+     * But semantically it is not transitive since it carries the platform-specific artifact related to the original KMP-library
+     */
+    @Test
+    fun `non transitive resolution of KMP library in single platform context`(testInfo: TestInfo) = runDrTest {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.compose.ui:ui-backhandler:1.8.2",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.IOS_ARM64),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
+            expected = """
+                root
+                ╰─── org.jetbrains.compose.ui:ui-backhandler:1.8.2
+                     ╰─── org.jetbrains.compose.ui:ui-backhandler-uikitarm64:1.8.2
+            """.trimIndent(),
+
+            transitive = false,
+
+        )
+
+        assertFiles(
+            listOf(
+                "ui-backhandler-uikitarm64-1.8.2.klib"
+            ),
+            root
+        )
+    }
+
+    /**
+     * This test checks that a KMP-library is correctly resolved in case of non-transitive resolution
+     * in the multi-platform context (matching source sets are wrapped into artifacts and attached to graph nodes)
+     */
+    @Test
+    fun `non transitive resolution of KMP library in multiplatform context`(testInfo: TestInfo) = runDrTest {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.compose.ui:ui-backhandler:1.8.2",
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_X64),
+            repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_JETBRAINS_KPM_PUBLIC, REDIRECTOR_MAVEN_GOOGLE),
+            expected = """
+                root
+                ╰─── org.jetbrains.compose.ui:ui-backhandler:1.8.2
+            """.trimIndent(),
+
+            transitive = false,
+
+            )
+
+        assertFiles(
+            listOf(
+                "ui-backhandler-commonMain-1.8.2.klib",
+                "ui-backhandler-jbMain-1.8.2.klib"
+            ),
+            root
         )
     }
 

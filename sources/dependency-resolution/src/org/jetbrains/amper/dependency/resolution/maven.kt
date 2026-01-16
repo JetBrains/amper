@@ -983,20 +983,18 @@ class MavenDependencyImpl internal constructor(
                         )
                     }
                 }
-                if (transitive) {
-                    // Import platform/BOM dependency constraints
-                    validVariants
-                        .withoutDocumentationAndMetadata
-                        .let { variants ->
-                            variants.flatMap {
-                                it.dependencyConstraints
-                            }.mapNotNull {
-                                it.toMavenDependencyConstraint(context)
-                            }.let {
-                                dependencyConstraints = it
-                            }
+                // Import platform/BOM dependency constraints
+                validVariants
+                    .withoutDocumentationAndMetadata
+                    .let { variants ->
+                        variants.flatMap {
+                            it.dependencyConstraints
+                        }.mapNotNull {
+                            it.toMavenDependencyConstraint(context)
+                        }.let {
+                            dependencyConstraints = it
                         }
-                }
+                    }
             }
         } else {
             // Regular library
@@ -1036,14 +1034,12 @@ class MavenDependencyImpl internal constructor(
                                 children = it
                             }
 
-                            if (transitive) {
-                                variants.flatMap {
-                                    it.dependencyConstraints
-                                }.mapNotNull {
-                                    it.toMavenDependencyConstraint(context)
-                                }.let {
-                                    dependencyConstraints = it
-                                }
+                            variants.flatMap {
+                                it.dependencyConstraints
+                            }.mapNotNull {
+                                it.toMavenDependencyConstraint(context)
+                            }.let {
+                                dependencyConstraints = it
                             }
                         }
                 }
@@ -1175,10 +1171,10 @@ class MavenDependencyImpl internal constructor(
         diagnosticsReporter: DiagnosticReporter,
     ): Boolean {
         if (isSpecialKmpLibrary()) {
-            if (transitive) {
-                moduleMetadata
-                    .variants
-                    .let {
+            moduleMetadata
+                .variants
+                .let {
+                    if (transitive) {
                         it.flatMap {
                             it.dependencies(context, level, diagnosticsReporter)
                         }.map {
@@ -1186,16 +1182,16 @@ class MavenDependencyImpl internal constructor(
                         }.let {
                             children = it
                         }
-
-                        it.flatMap {
-                            it.dependencyConstraints
-                        }.mapNotNull {
-                            it.toMavenDependencyConstraint(context)
-                        }.let {
-                            dependencyConstraints = it
-                        }
                     }
-            }
+
+                    it.flatMap {
+                        it.dependencyConstraints
+                    }.mapNotNull {
+                        it.toMavenDependencyConstraint(context)
+                    }.let {
+                        dependencyConstraints = it
+                    }
+                }
             return true
         }
 
@@ -1879,10 +1875,10 @@ class MavenDependencyImpl internal constructor(
     ) {
         val project = resolvePom(text, context, level, diagnosticsReporter) ?: return
 
-        if (transitive) {
-            if (isBom) {
-                dependencyConstraints = project.resolveDependenciesConstraints(context)
-            } else {
+        if (isBom) {
+            dependencyConstraints = project.resolveDependenciesConstraints(context)
+        } else {
+            if (transitive) {
                 (project.dependencies?.dependencies ?: listOf()).filter {
                     context.settings.scope.matches(it)
                 }.filterNot {
