@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli
 import org.jetbrains.amper.cli.options.splitArgsHonoringQuotes
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class JvmArgsSplitTest {
 
@@ -92,16 +92,32 @@ class JvmArgsSplitTest {
 
     @Test
     fun unclosedQuote_shouldFail() {
-        assertFails { "\"".splitArgsHonoringQuotes() }
-        assertFails { "\"arg1".splitArgsHonoringQuotes() }
-        assertFails { "\"start end".splitArgsHonoringQuotes() }
-        assertFails { "\"arg1\" \"arg2".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\"".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\"arg1".splitArgsHonoringQuotes() }
+
+        val e3 = assertFailsWith<UserReadableError> { "\"start end".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Unclosed quote at index 0 in --jvm-args:
+            "start end
+            ^
+        """.trimIndent(), e3.message)
+
+        val e4 = assertFailsWith<UserReadableError> { "\"arg1\" \"arg2".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Unclosed quote at index 7 in --jvm-args:
+            "arg1" "arg2
+                   ^
+        """.trimIndent(), e4.message)
     }
 
     @Test
     fun danglingEscape_shouldFail() {
-        assertFails { "\\".splitArgsHonoringQuotes() }
-        assertFails { "something\\".splitArgsHonoringQuotes() }
-        assertFails { "something \\".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\\".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "something\\".splitArgsHonoringQuotes() }
+        val e = assertFailsWith<UserReadableError> { "something \\".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Dangling escape character '\' at the end of the --jvm-args value:
+            something \
+        """.trimIndent(), e.message)
     }
 }
