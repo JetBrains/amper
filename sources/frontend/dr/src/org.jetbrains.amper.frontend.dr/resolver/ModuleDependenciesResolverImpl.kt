@@ -13,9 +13,9 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.GraphSerializableTypesProvider
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
-import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.MavenDependencyUnspecifiedVersionResolverBase
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.Resolver
@@ -23,9 +23,7 @@ import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeConverter
 import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
-import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.filterGraph
-import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
@@ -233,27 +231,9 @@ private sealed class DirectFragmentDependencyNodeConverter<T: DirectFragmentDepe
     }
 }
 
-class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext> {
+class DirectMavenDependencyUnspecifiedVersionResolver: MavenDependencyUnspecifiedVersionResolverBase() {
 
-    override fun isApplicable(node: MavenDependencyNodeWithContext): Boolean {
-        return node.originalVersion() == null
-    }
-
-    override fun resolveVersions(nodes: Set<MavenDependencyNodeWithContext>): Map<MavenDependencyNodeWithContext, String> {
-        return nodes.mapNotNull { node ->
-            if (!isApplicable(node)) {
-                null
-            } else {
-                resolveVersionFromBom(node)?.let { node to it }
-            }
-        }.toMap()
-    }
-
-    /**
-     * Resolve an unspecified dependency version from the BOM imported in the same module.
-     * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
-     */
-    private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
+    override fun getBomNodes(node: MavenDependencyNodeWithContext): List<MavenDependencyNode> {
         val directDependencyParents = node.directDependencyParents()
         val boms = if (directDependencyParents.isNotEmpty()) {
             // Using BOM from the same module for resolving direct module dependencies
@@ -267,28 +247,10 @@ class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolve
                         .filter { it.isBom }
                 }.flatten()
         } else {
-            // Raw maven dependencies case without grouping by module/fragments.
-            // Maven nodes are attached to some holders,
-            // a BOM attached to a holder might be used for resolving versions of other siblings inside this holder.
-            node.parents.map { parent ->
-                parent.children
-                    .filterIsInstance<MavenDependencyNode>()
-                    .filter { it.isBom }
-            }.flatten()
+            super.getBomNodes(node)
         }
 
-        boms.forEach { bom ->
-            val resolvedVersion = bom.children
-                .filterIsInstance<MavenDependencyConstraintNode>()
-                .firstOrNull { it.key == node.key }
-                ?.originalVersion()
-
-            if (resolvedVersion != null) {
-                return resolvedVersion
-            }
-        }
-
-        return null
+        return boms
     }
 
     /**

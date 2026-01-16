@@ -129,7 +129,7 @@ class Resolver {
         downloadSources: Boolean = false,
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
         postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
     ): ResolvedGraph {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
@@ -356,7 +356,7 @@ class Resolver {
         root: DependencyNodeWithContext,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         transitive: Boolean = true,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
     ) {
         root.context.spanBuilder("Resolver.buildGraph").use {
             val conflictResolver =
@@ -805,6 +805,55 @@ enum class ResolutionLevel(val state: ResolutionState) {
 interface UnspecifiedVersionResolver<T> {
     fun isApplicable(node: T): Boolean
     fun resolveVersions(nodes: Set<T>): Map<T, String>
+}
+
+open class MavenDependencyUnspecifiedVersionResolverBase: UnspecifiedVersionResolver<MavenDependencyNodeWithContext> {
+
+    override fun isApplicable(node: MavenDependencyNodeWithContext): Boolean {
+        return node.originalVersion() == null
+    }
+
+    override fun resolveVersions(nodes: Set<MavenDependencyNodeWithContext>): Map<MavenDependencyNodeWithContext, String> {
+        return nodes.mapNotNull { node ->
+            if (!isApplicable(node)) {
+                null
+            } else {
+                resolveVersionFromBom(node)?.let { node to it }
+            }
+        }.toMap()
+    }
+
+    /**
+     * Resolve an unspecified dependency version from the BOM imported in the same module.
+     * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
+     */
+    private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
+        val boms = getBomNodes(node)
+
+        boms.forEach { bom ->
+            val resolvedVersion = bom.children
+                .filterIsInstance<MavenDependencyConstraintNode>()
+                .firstOrNull { it.key == node.key }
+                ?.originalVersion()
+
+            if (resolvedVersion != null) {
+                return resolvedVersion
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * Raw maven dependencies case without grouping by module/fragments.
+     * Maven nodes are attached to some holders,
+     * a BOM attached to a holder might be used for resolving versions of other siblings inside this holder.
+     */
+    protected open fun getBomNodes(node: MavenDependencyNodeWithContext): List<MavenDependencyNode> = node.parents.map { parent ->
+        parent.children
+            .filterIsInstance<MavenDependencyNode>()
+            .filter { it.isBom }
+    }.flatten()
 }
 
 class Progress
