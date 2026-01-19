@@ -36,8 +36,6 @@ import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverride
 import org.jetbrains.amper.maven.publish.PublicationCoordinatesOverrides
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
-import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forPlatform
-import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -121,7 +119,7 @@ class ResolveExternalDependenciesTask(
     }
 
     /**
-     * An empty result which is returned when some error in 
+     * An empty result that is returned when some error in
      * the task parameters occurred (not supported platform, for instance).
      */
     private val onParametersErrorResult = Result(

@@ -38,7 +38,6 @@ import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.uniqueModuleKey
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ModuleDependencies
-import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 
 internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependencies") {
@@ -56,7 +55,7 @@ internal class ShowDependenciesCommand: AmperModelAwareCommand(name = "dependenc
 
     private val platformGroups by platformGroupOption(
         help = """
-            The name of a platform, group of platforms, or alias that defines a resolution scope to show the 
+            The name of a platform, group of platforms, or alias to show the 
             dependencies of.
 
             For example, `$PlatformGroupOption=native` shows the dependencies resolved for the sources that target

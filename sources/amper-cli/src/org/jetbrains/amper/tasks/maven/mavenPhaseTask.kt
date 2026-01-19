@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.ModuleDependencies
-import org.jetbrains.amper.tasks.ModuleDependencies.Companion.forResolution
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.SourceRoot
