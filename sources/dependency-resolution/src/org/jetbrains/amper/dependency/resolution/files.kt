@@ -422,7 +422,7 @@ open class DependencyFileImpl(
                 val computedHashes = settings.spanBuilder("Computing hashes").use { filePath.computeHash() }
 
                 val result = settings.spanBuilder("verifyHashes").use {
-                    verifyHashes(computedHashes, diagnosticsReporter, level, settings)
+                    verifyHashes(computedHashes, diagnosticsReporter, level)
                 }
                 when (result) {
                     VerificationResult.PASSED -> true
@@ -802,11 +802,10 @@ open class DependencyFileImpl(
         hashers: Collection<Hash>,
         diagnosticsReporter: DiagnosticReporter,
         requestedLevel: ResolutionLevel,
-        settings: Settings,
     ): VerificationResult {
         for (hasher in hashers) {
             val algorithm = hasher.algorithm
-            val expectedHash = settings.spanBuilder("getExpectedHash").use { getExpectedHash(algorithm, settings) } ?: continue
+            val expectedHash = getExpectedHash(algorithm) ?: continue
             return checkHash(
                 hasher,
                 expectedHash = SimpleHash(hash = expectedHash, algorithm = algorithm),
@@ -899,8 +898,8 @@ open class DependencyFileImpl(
      * uses them for verification.
      * This way, the checksum file is presented in local storage only in case metadata contains invalid data or is completely missing.
      */
-    internal suspend fun getExpectedHash(algorithm: HashAlgorithm, settings: Settings, searchInMetadata: Boolean = true): String? =
-        LocalStorageHashSource.getExpectedHash(this, algorithm, settings, searchInMetadata)
+    internal suspend fun getExpectedHash(algorithm: HashAlgorithm, searchInMetadata: Boolean = true): String? =
+        LocalStorageHashSource.getExpectedHash(this, algorithm, searchInMetadata)
 
     /**
      * Downloads hash of a particular type from one of the specified repositories.
@@ -989,10 +988,7 @@ open class DependencyFileImpl(
                 }
             ) { attempt ->
                 spanBuilderSource("downloadAttempt")
-                    .setAttribute("dependency", dependency.toString())
                     .setAttribute("attempt", attempt.toLong())
-                    .setAttribute("repository", repository.url)
-                    .setAttribute("fileName", fileName)
                     .setAttribute("url", url)
                     .use {
                         val request = HttpRequest.newBuilder()
@@ -1150,7 +1146,7 @@ open class DependencyFileImpl(
         }
 
         companion object {
-            suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, settings: Settings, searchInMetadata: Boolean) =
+            suspend fun getExpectedHash(artifact: DependencyFileImpl, algorithm: HashAlgorithm, searchInMetadata: Boolean) =
                 File.getExpectedHash(artifact, algorithm)
                     ?: if (searchInMetadata) MetadataInfo.getExpectedHash(artifact, algorithm) else null
 

@@ -1566,7 +1566,7 @@ class MavenDependencyImpl internal constructor(
         val sha1 = context.spanBuilder("toDependencyFile -> getExpectedHash")
             .setAttribute("fileName", kmpMetadataFile.fileName)
             .use {
-                kmpMetadataFile.getExpectedHash(getSha1Algorithm(), context.settings)
+                kmpMetadataFile.getExpectedHash(getSha1Algorithm())
             }
             ?: kmpMetadataFile.getPath()?.let { path ->
                 context.spanBuilder("toDependencyFile -> computeHash")
