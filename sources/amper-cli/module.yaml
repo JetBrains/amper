@@ -49,7 +49,6 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $libs.opentelemetry.api
-  - $libs.opentelemetry.exporterLoggingOtlp
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin

@@ -23,7 +23,7 @@ dependencies:
 
 test-dependencies:
   - ../test-base
-  - $libs.opentelemetry.exporterLoggingOtlp
+  - $libs.opentelemetry.sdkTesting
   - $libs.tinylog.api
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j

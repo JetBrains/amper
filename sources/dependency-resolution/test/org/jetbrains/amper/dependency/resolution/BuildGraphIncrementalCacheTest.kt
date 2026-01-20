@@ -1,9 +1,15 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
 
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
+import io.opentelemetry.sdk.trace.export.SpanExporter
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.UnableToResolveDependency
 import org.jetbrains.amper.incrementalcache.IncrementalCache
@@ -17,8 +23,8 @@ import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.div
-import kotlin.reflect.KClass
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.minutes
 
 class BuildGraphIncrementalCacheTest : BaseDRTest() {
@@ -44,15 +50,17 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
         val incrementalCachePath = uniqueNestedTempDir()
 
         // 1. The first resolution takes place and populates the cache
-        resolveAndCheck(coordinates, testInfo, incrementalCachePath,
+        resolveAndCheck(
+            coordinates, testInfo, incrementalCachePath,
             repositories = repositories,
-            expectedRootNodeType = RootDependencyNodeWithContext::class
+            expectFromCache = false,
         )
 
         // 2. Re-resolve the graph, from the incremental cache this time
-        resolveAndCheck(coordinates, testInfo, incrementalCachePath,
+        resolveAndCheck(
+            coordinates, testInfo, incrementalCachePath,
             repositories = repositories,
-            expectedRootNodeType = SerializableRootDependencyNode::class,
+            expectFromCache = true,
         )
     }
 
@@ -86,7 +94,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
             ),
             repositories = listOf(repository),
             assertCorrectResolution = false,
-            expectedRootNodeType = RootDependencyNodeWithContext::class
+            expectFromCache = false,
         )
 
         assertTheOnlyNonInfoMessage<UnableToResolveDependency>(resolvedGraph, Severity.ERROR)
@@ -95,7 +103,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
         resolveAndCheck(
             coordinates, testInfo, incrementalCachePath, localStorage = localStorage,
             repositories = listOf(repository),
-            expectedRootNodeType = RootDependencyNodeWithContext::class
+            expectFromCache = false,
         )
     }
 
@@ -123,13 +131,13 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
             resolveAndCheck(
                 coordinates, testInfo, incrementalCachePath,
                 repositories = listOf(repository),
-                expectedRootNodeType = RootDependencyNodeWithContext::class
+                expectFromCache = false,
             )
             // 2. Graph is taken from the cache.
             resolveAndCheck(
                 coordinates, testInfo, incrementalCachePath,
                 repositories = listOf(repository),
-                expectedRootNodeType = SerializableRootDependencyNode::class
+                expectFromCache = true,
             )
 
             systemProperties.set("forcenpn", "XXX")
@@ -138,13 +146,13 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
             resolveAndCheck(
                 coordinates, testInfo, incrementalCachePath,
                 repositories = listOf(repository),
-                expectedRootNodeType = RootDependencyNodeWithContext::class
+                expectFromCache = false,
             )
-            // 4. Graph is taken from the cache since the proprty has not changed
+            // 4. Graph is taken from the cache since the property has not changed
             resolveAndCheck(
                 coordinates, testInfo, incrementalCachePath,
                 repositories = listOf(repository),
-                expectedRootNodeType = SerializableRootDependencyNode::class
+                expectFromCache = true,
             )
         }
 
@@ -158,12 +166,14 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
         testInfo: TestInfo,
         incrementalCacheDir: Path,
         localStorage: Path = Dirs.userCacheRoot,
-        expectedRootNodeType: KClass<out DependencyNode>? = null,
+        expectFromCache: Boolean? = null,
         assertCorrectResolution: Boolean = true,
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         httpClient: HttpClient? = null,
     ): DependencyNode {
         val resolver = Resolver()
+
+        val testExporter = InMemorySpanExporter.create()
 
         val context = Context {
             this.repositories = repositories
@@ -177,6 +187,7 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
                 incrementalCacheDir,
                 "1"
             )
+            this.openTelemetry = createTestTelemetry(testExporter)
         }
 
         if (httpClient != null) context.resolutionCache[httpClientKey] = httpClient
@@ -189,10 +200,15 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
 
         val resolvedGraph = resolver.resolveDependencies(root).root
 
-        expectedRootNodeType?.let {
-            kotlin.test.assertEquals(
-                expectedRootNodeType, resolvedGraph::class,
-                "Unexpected type of root node is return by resolution"
+        if (expectFromCache != null) {
+            assertEquals(
+                expected = expectFromCache,
+                actual = testExporter.finishedSpanItems.none { it.name == "DR.graph:resolution" },
+                message = if (expectFromCache) {
+                    "The resolution should be skipped and the graph reused from cache"
+                } else {
+                    "The resolution should be performed, not taken from the cache"
+                },
             )
         }
 
@@ -201,6 +217,15 @@ class BuildGraphIncrementalCacheTest : BaseDRTest() {
             assertFiles(testInfo, resolvedGraph)
         }
         return resolvedGraph
+    }
+
+    private fun createTestTelemetry(exporter: SpanExporter): OpenTelemetry {
+        val tracerProvider = SdkTracerProvider.builder()
+            .addSpanProcessor(SimpleSpanProcessor.create(exporter))
+            .build()
+        return OpenTelemetrySdk.builder()
+            .setTracerProvider(tracerProvider)
+            .build()
     }
 
     private fun MavenCoordinates.toUrl(repository: MavenRepository, extension: String = "jar"): String {
