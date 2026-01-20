@@ -1,10 +1,10 @@
 package org.jetbrains.amper.samples.cinterop
 
 import kotlinx.cinterop.*
-import hello.*
+import org.jetbrains.amper.samples.cinterop.hello.* // Import the generated bindings
 
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-fun main() = memScoped {
-    println("Hello from Kotlin!")
+@kotlinx.cinterop.ExperimentalForeignApi
+fun main() {
+    println("Hello, John Doe from Kotlin!")
     sayHello("John Doe")
 }

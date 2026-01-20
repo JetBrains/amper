@@ -15,7 +15,7 @@ class CinteropDiscoveryTest : BasePlatformTestCase() {
 
     private fun runTest(
         moduleYamlContent: String,
-        setup: (FrontendPathResolver) -> Unit,
+        setup: (FrontendPathResolver) -> Unit = {},
         assertions: (NativeSettings) -> Unit
     ) {
         val pathResolver = FrontendPathResolver(project)
@@ -37,7 +37,7 @@ class CinteropDiscoveryTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun `cinterop defs are discovered automatically`() {
+    fun `cinterop module is discovered automatically`() {
         runTest(
             moduleYamlContent = """
                 product:
@@ -53,14 +53,15 @@ class CinteropDiscoveryTest : BasePlatformTestCase() {
             assertions = { nativeSettings ->
                 val cinterop = nativeSettings.cinterop
                 assertNotNull(cinterop)
-                assertEquals(1, cinterop.defs.size)
-                assertEquals("resources/cinterop/mydef.def", cinterop.defs.single().value)
+                val module = cinterop.modules["mydef"]
+                assertNotNull(module)
+                assertEquals("resources/cinterop/mydef.def", module!!.defFile)
             }
         )
     }
 
     @Test
-    fun `discovered and explicit defs are merged and deduplicated`() {
+    fun `discovered and explicit modules are merged`() {
         runTest(
             moduleYamlContent = """
                 product:
@@ -69,9 +70,10 @@ class CinteropDiscoveryTest : BasePlatformTestCase() {
                 settings@linuxX64:
                   native:
                     cinterop:
-                      defs:
-                        - resources/cinterop/discovered.def # Duplicate
-                        - explicit.def
+                      discovered:
+                        linkerOpts: [ "src/c/discovered.c" ]
+                      explicit:
+                        defFile: "explicit.def"
             """.trimIndent(),
             setup = {
                 myFixture.tempDirFixture.findOrCreateDir("my-module/resources/cinterop")
@@ -80,9 +82,45 @@ class CinteropDiscoveryTest : BasePlatformTestCase() {
             assertions = { nativeSettings ->
                 val cinterop = nativeSettings.cinterop
                 assertNotNull(cinterop)
-                assertEquals(2, cinterop.defs.size)
-                assertTrue(cinterop.defs.any { it.value == "resources/cinterop/discovered.def" })
-                assertTrue(cinterop.defs.any { it.value == "explicit.def" })
+                assertEquals(2, cinterop.modules.size)
+
+                val discoveredModule = cinterop.modules["discovered"]
+                assertNotNull(discoveredModule)
+                assertEquals("resources/cinterop/discovered.def", discoveredModule!!.defFile)
+                assertEquals(listOf("src/c/discovered.c"), discoveredModule.linkerOpts)
+
+                val explicitModule = cinterop.modules["explicit"]
+                assertNotNull(explicitModule)
+                assertEquals("explicit.def", explicitModule!!.defFile)
+            }
+        )
+    }
+
+    @Test
+    fun `non-conventional module is configured correctly`() {
+        runTest(
+            moduleYamlContent = """
+                product:
+                  type: lib
+                  platforms: [linuxX64]
+                settings@linuxX64:
+                  native:
+                    cinterop:
+                      custom:
+                        defFile: "custom/path/custom.def"
+                        packageName: "com.example.custom"
+                        compilerOpts: [ "-I/custom/include" ]
+                        linkerOpts: [ "custom/path/custom.c" ]
+            """.trimIndent(),
+            assertions = { nativeSettings ->
+                val cinterop = nativeSettings.cinterop
+                assertNotNull(cinterop)
+                val module = cinterop.modules["custom"]
+                assertNotNull(module)
+                assertEquals("custom/path/custom.def", module!!.defFile)
+                assertEquals("com.example.custom", module.packageName)
+                assertEquals(listOf("-I/custom/include"), module.compilerOpts)
+                assertEquals(listOf("custom/path/custom.c"), module.linkerOpts)
             }
         )
     }

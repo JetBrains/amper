@@ -5,3 +5,6 @@ product:
 settings:
   native:
     entryPoint: 'org.jetbrains.amper.samples.cinterop.main'
+    cinterop:
+      hello:
+        defFile: 'resources/cinterop/hello.def'

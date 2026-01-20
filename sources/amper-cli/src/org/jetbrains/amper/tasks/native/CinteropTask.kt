@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
@@ -37,6 +38,9 @@ internal class CinteropTask(
     override val isTest: Boolean,
     override val buildType: BuildType,
     private val defFile: Path,
+    private val packageName: String?,
+    private val compilerOpts: List<String>,
+    private val linkerOpts: List<String>,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
 ) : BuildTask {
@@ -53,27 +57,46 @@ internal class CinteropTask(
         val configuration = mapOf(
             "kotlin.version" to kotlinUserSettings.compilerVersion,
             "def.file" to defFile.toString(),
-        )
-        val inputs = listOf(defFile)
+            "package.name" to packageName,
+            "compiler.opts" to compilerOpts.joinToString(" "),
+            "linker.opts" to linkerOpts.joinToString(" "),
+        ).filterValues { it != null } as Map<String, String>
+        val inputs = listOf(defFile) + linkerOpts.map { module.source.moduleDir.resolve(it) }
 
         val artifact = incrementalCache.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val outputKLib = taskOutputRoot.path.resolve(defFile.toFile().nameWithoutExtension + ".klib")
 
-            val nativeCompiler = downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot)
-            val args = listOf(
-                "-def", defFile.toString(),
-                "-o", outputKLib.toString(),
-                "-compiler-option", "-I.",
-                "-target", platform.nameForCompiler,
-            )
+            val nativeCompiler =
+                downloadNativeCompiler(kotlinUserSettings.compilerVersion, userCacheRoot, JdkProvider(userCacheRoot))
+            val args = buildList {
+                add("-def")
+                add(defFile.toString())
+                add("-o")
+                add(outputKLib.toString())
+                add("-target")
+                add(platform.nameForCompiler)
+                if (packageName != null) {
+                    add("-pkg")
+                    add(packageName)
+                }
+                add("-compiler-option")
+                add("-I.")
+                compilerOpts.forEach {
+                    add(it)
+                }
+                linkerOpts.forEach {
+                    add("-linker-option")
+                    add(it)
+                }
+            }
 
             logger.info("Running cinterop for '${defFile.fileName}'...")
             nativeCompiler.cinterop(args, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(outputKLib))
-        }.outputs.singleOrNull()
+        }.outputFiles.singleOrNull()
 
         return Result(
             compiledKlib = artifact,

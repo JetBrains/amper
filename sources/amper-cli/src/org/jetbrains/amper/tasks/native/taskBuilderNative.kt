@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.singleLeafFragment
-import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
@@ -44,22 +43,24 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 .filter { it.platforms.contains(platform) && it.isTest == isTest }
                 .singleLeafFragment()
 
-            val cinteropTasks = fragment.settings.native?.cinterop?.defs.orEmpty().map { defFile ->
-                // Create a unique task name for each def file.
-                val taskNameSuffix = defFile.substring(defFile.lastIndexOf('/') + 1)
+            val cinteropTasks = fragment.settings.native?.cinterop?.map { (moduleName, cinteropModule) ->
+                val defFile = cinteropModule.defFile ?: "resources/cinterop/$moduleName.def"
                 val cinteropTaskName = NativeTaskType.Cinterop.getTaskName(module, platform, isTest, buildType)
-                    .let { TaskName(it.name + "-" + taskNameSuffix) }
+                    .let { TaskName(it.name + "-" + moduleName) }
                 CinteropTask(
                     module = module,
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(cinteropTaskName),
-                    incrementalCache = executeOnChangedInputs,
+                    incrementalCache = incrementalCache,
                     taskName = cinteropTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     buildType = buildType,
                     defFile = module.source.moduleDir.resolve(defFile),
+                    packageName = cinteropModule.packageName,
+                    compilerOpts = cinteropModule.compilerOpts,
+                    linkerOpts = cinteropModule.linkerOpts,
                 ).also { tasks.registerTask(it) }
             }
 
@@ -79,7 +80,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
-                    cinteropTasks.forEach { add(it.taskName) }
+                    cinteropTasks?.forEach { add(it.taskName) }
                     if (isTest) {
                         // todo (AB) : Check if this is required for test KLib compilation
                         add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))
@@ -119,7 +120,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
-                        cinteropTasks.forEach { add(it.taskName) }
+                        cinteropTasks?.forEach { add(it.taskName) }
                         add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                         if (isTest) {
                             add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false, buildType))

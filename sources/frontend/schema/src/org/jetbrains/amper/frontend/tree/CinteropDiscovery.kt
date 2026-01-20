@@ -2,10 +2,11 @@ package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.DefaultTrace
-import org.jetbrains.amper.frontend.contexts.DefaultCtxs
+import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.types.SchemaType
 import java.io.IOException
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.relativeTo
 
 context(buildCtx: BuildCtx)
@@ -15,7 +16,7 @@ internal fun MapLikeValue<*>.discoverCinteropDefs(): Merged {
     return buildCtx.treeMerger.mergeTrees(listOf(withDiscoveredDefs))
 }
 
-private class CinteropDiscoveryAppender() : TreeTransformer<TreeState>() {
+private class CinteropDiscoveryAppender : TreeTransformer<TreeState>() {
 
     override fun visitMapValue(value: MapLikeValue<TreeState>): TransformResult<MapLikeValue<TreeState>> {
         val transformResult = super.visitMapValue(value)
@@ -25,49 +26,73 @@ private class CinteropDiscoveryAppender() : TreeTransformer<TreeState>() {
             Removed -> return transformResult
         }
 
-        val moduleDir = transformedValue.trace.extractPsiElementOrNull()?.containingFile?.virtualFile?.parent ?: return transformResult
+        val moduleDir = transformedValue.trace.extractPsiElementOrNull()?.containingFile?.virtualFile?.parent
+            ?: return transformResult
         val cinteropDir = moduleDir.findChild("resources")?.findChild("cinterop")
-        if (cinteropDir == null || !cinteropDir.exists() || !cinteropDir.isDirectory) {
-            return transformResult
-        }
 
-        val discoveredDefFiles = try {
-            cinteropDir.children.filter { it.name.endsWith(".def") }
-        } catch (e: IOException) {
-            return transformResult
-        }
-
-        if (discoveredDefFiles.isEmpty()) {
-            return transformResult
+        val discoveredDefFiles = if (cinteropDir != null && cinteropDir.exists() && cinteropDir.isDirectory) {
+            try {
+                cinteropDir.children.filter { it.name.endsWith(".def") }
+            } catch (e: IOException) {
+                // Log error?
+                emptyList()
+            }
+        } else {
+            emptyList()
         }
 
         val modulePath = moduleDir.toNioPath()
-        val discoveredDefPaths = discoveredDefFiles.map {
-            it.toNioPath().relativeTo(modulePath).toString().replace('\\', '/')
+        val discoveredModules = discoveredDefFiles.associate {
+            val moduleName = it.nameWithoutExtension
+            val defPath = it.toNioPath().relativeTo(modulePath).invariantSeparatorsPathString
+            val defFileProperty = MapLikeValue.Property(
+                "defFile",
+                DefaultTrace,
+                ScalarValue<TreeState>(defPath, SchemaType.StringType, DefaultTrace, listOf(DefaultContext.ReactivelySet)),
+                null
+            )
+            val moduleNode = Owned(
+                children = listOf(defFileProperty),
+                type = SchemaType.MapType(SchemaType.StringType),
+                trace = DefaultTrace,
+                contexts = listOf(DefaultContext.ReactivelySet)
+            )
+            moduleName to moduleNode
         }
 
         val cinteropProperty = transformedValue.children.find { it.key == "cinterop" }
-        val cinteropNode = cinteropProperty?.value as? MapLikeValue<*>
-        val defsProperty = cinteropNode?.children?.find { it.key == "defs" }
-        val defsNode = defsProperty?.value as? ListValue<*>
-        val existingDefValues = defsNode?.children
-            ?.mapNotNull { it.asScalar?.value?.toString() }
+        val explicitCinteropNode = cinteropProperty?.value as? MapLikeValue<TreeState>
+
+        // Get explicitly defined modules
+        val explicitModules = explicitCinteropNode?.children
+            ?.filter { it.value is MapLikeValue<*> }
+            ?.associate { it.key to it.value as MapLikeValue<TreeState> }
             .orEmpty()
 
-        val allDefPaths = (existingDefValues + discoveredDefPaths).distinct()
-
-        val newDefNodes = allDefPaths.map { path ->
-            ScalarValue<TreeState>(path, SchemaType.StringType, DefaultTrace, DefaultCtxs)
+        // Merge discovered and explicit modules
+        val allModuleNames = discoveredModules.keys + explicitModules.keys
+        val mergedModuleProperties = allModuleNames.map { moduleName ->
+            val discovered = discoveredModules[moduleName]
+            val explicit = explicitModules[moduleName]
+            val mergedNode = when {
+                discovered != null && explicit != null -> {
+                    // Merge properties: explicit wins
+                    val discoveredProps = discovered.children.associateBy { it.key }
+                    val explicitProps = explicit.children.associateBy { it.key }
+                    val allProps = (discoveredProps + explicitProps).values.toList()
+                    discovered.copy(children = allProps)
+                }
+                else -> discovered ?: explicit!!
+            }
+            MapLikeValue.Property(moduleName, DefaultTrace, mergedNode, null)
         }
 
-        val newDefsList = ListValue(newDefNodes, SchemaType.ListType(SchemaType.StringType), DefaultTrace, DefaultCtxs)
-        val newDefsMapProperty = MapLikeValue.Property("defs", DefaultTrace, newDefsList, defsProperty?.pType)
+        if (mergedModuleProperties.isEmpty()) {
+            return transformResult
+        }
 
-        val otherCinteropProperties = cinteropNode?.children?.filter { it.key != "defs" }.orEmpty()
-        val newCinteropChildren = otherCinteropProperties + newDefsMapProperty
-
-        val newCinteropNode = (cinteropNode ?: Owned(emptyList(), SchemaType.MapType(SchemaType.StringType), DefaultTrace, DefaultCtxs))
-            .copy(children = newCinteropChildren)
+        val newCinteropNode = (explicitCinteropNode ?: Owned(emptyList(), SchemaType.MapType(SchemaType.StringType), DefaultTrace, emptyList()))
+            .copy(children = mergedModuleProperties)
         val newCinteropMapProperty = MapLikeValue.Property("cinterop", DefaultTrace, newCinteropNode, cinteropProperty?.pType)
 
         val finalChildren = transformedValue.children.filter { it.key != "cinterop" } + newCinteropMapProperty
