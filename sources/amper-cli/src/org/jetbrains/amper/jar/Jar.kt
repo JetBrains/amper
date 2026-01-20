@@ -37,7 +37,7 @@ data class JarConfig(
  */
 fun Path.writeJar(inputs: List<ZipInput>, config: JarConfig) {
     val manifest = createManifest(config)
-    JarOutputStream(outputStream(), manifest).use { out ->
+    JarOutputStream(outputStream().buffered(), manifest).use { out ->
         out.writeZip(inputs, config.zipConfig)
     }
 }
