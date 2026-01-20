@@ -7,34 +7,19 @@ package org.jetbrains.amper.plugins
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.XmlBufferedReader
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStream
-import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
-import nl.adaptivity.xmlutil.serialization.XML
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
-import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
-import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.withJarEntry
 import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
-import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
-import org.jetbrains.amper.frontend.types.maven.Configuration
-import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
-import org.jetbrains.amper.frontend.types.maven.ParameterValue
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.maven.MavenPluginXml
+import org.jetbrains.amper.maven.download.downloadSingleArtifactJar
+import org.jetbrains.amper.maven.parseMavenPluginXml
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
@@ -53,7 +38,12 @@ suspend fun prepareMavenPlugins(
         async {
             val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, declaration) ?: return@async null
             withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") {
-                parseMavenPluginXml(it, declaration.coordinates)
+                try {
+                    parseMavenPluginXml(it)
+                } catch (e: Exception) {
+                    logger.warn("Failed to parse plugin.xml for ${declaration.coordinates}", e)
+                    null
+                }
             }
         }
     }.awaitAll().filterNotNull()
@@ -66,77 +56,8 @@ private suspend fun downloadPluginAndDirectDependencies(
     mavenResolver: MavenResolver,
     declaration: UnscopedExternalMavenDependency,
 ): Path? {
-    // TODO Actually, here we need only the plugin jar. 
-    //  Need to use [ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES] when it will work properly.
-    val resolvedRoot = mavenResolver.resolveWithContext(
-        repositories = listOf(MavenCentral),
-        scope = ResolutionScope.RUNTIME,
-        platform = ResolutionPlatform.JVM,
-        resolveSourceMoniker = declaration.coordinates,
-        resolutionDepth = ResolutionDepth.GRAPH_FULL,
-    ) { context ->
-        val coordinates = declaration::coordinates.traceableString().toMavenCoordinates().toDrMavenCoordinates()
-        val pluginNode = MavenDependencyNodeWithContext(context, coordinates = coordinates, isBom = false)
-        RootDependencyNodeWithContext(
-            templateContext = context,
-            children = listOf(pluginNode)
-        )
-    }
-
-    // We can safely assume that there is only one dependency here, because we created root holder that way.
-    val pluginDep = resolvedRoot.root.children.first() as MavenDependencyNode
-    return pluginDep.dependency.files()
-        .filter { it.extension == "jar" }
-        .mapNotNull { it.path }
-        .singleOrNull()
+    val coordinates = declaration::coordinates.traceableString().toMavenCoordinates().toDrMavenCoordinates()
+    return mavenResolver.downloadSingleArtifactJar(coordinates)
 }
 
-@OptIn(ExperimentalXmlUtilApi::class)
-private val xml: XML = XML {
-    defaultPolicy {
-        unknownChildHandler = UnknownChildHandler { reader, _, xmlDesc, _, _ ->
-            // Do not recover anything, except `ParameterValue`.
-            if (xmlDesc.serialDescriptor != Configuration.serializer().descriptor) return@UnknownChildHandler emptyList()
-            // We need to use `peek()` function.
-            if (reader !is XmlBufferedReader) return@UnknownChildHandler emptyList()
-
-            @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
-            val replacingReader = object : XmlReader by reader {
-                override val localName: String get() = ParameterValue::class.simpleName!!
-            }
-            val result = buildList {
-                while (replacingReader.eventType == EventType.START_ELEMENT) {
-                    this += xml.decodeFromReader<ParameterValue>(replacingReader).copy(parameterName = reader.localName)
-                    // We need to read next tag to read next potential element if there is the next element.
-                    // 2 cases here - either `</configuration>` or the next parameter.
-                    //
-                    // Also, we can't just use `nextTag()`, because serializer expects the 
-                    // closing </configuration> tag to be unread yet.
-                    do {
-                        if (reader.peek()?.eventType == EventType.END_ELEMENT) break
-                        replacingReader.next()
-                    } while(reader.eventType.isIgnorable)
-                }
-            }
-
-            // Return data for the recovery.
-            listOf(XML.ParsedData(0, result))
-        }
-    }
-}
-
-/**
- * Parse maven plugin XML from a passed stream. Stream closing is on the caller side.
- */
-@OptIn(ExperimentalXmlUtilApi::class)
-private fun parseMavenPluginXml(inputStream: InputStream, moniker: String): MavenPluginXml? = try {
-    val reader = KtXmlReader(inputStream.reader(Charsets.UTF_8))
-    xml.decodeFromReader<MavenPluginXml>(reader)
-} catch (e: Exception) {
-    // TODO Need to pass a problem reporter here somehow to be able to report this on
-    //  the plugin element that was provided in `project.yaml`.
-    logger.error("Error while parsing plugin XML. Maven plugin \"$moniker\" will be ignored", e)
-    null
-}
-
-private val logger = LoggerFactory.getLogger("prepareMavenPlugins")
+private val logger = LoggerFactory.getLogger("PrepareMavenPluginsKt")

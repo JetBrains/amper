@@ -14,6 +14,7 @@ modules:
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
   - sources/amper-maven-converter
+  - sources/amper-maven-plugin-download
   - sources/amper-maven-plugins-compatibility
   - sources/amper-maven-publish
   - sources/amper-problem-reporting
@@ -49,6 +50,7 @@ modules:
   - sources/libraries/concurrency
   - sources/libraries/incremental-cache
   - sources/libraries/jetbrains-jdk-list
+  - sources/libraries/maven-plugin-xml-parser
   - sources/libraries/nio-filechannels
   - sources/libraries/serialization-extended
   - sources/libraries/stdlib-extended

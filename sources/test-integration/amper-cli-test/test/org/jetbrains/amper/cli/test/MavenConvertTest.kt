@@ -11,6 +11,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -163,6 +164,17 @@ class MavenConvertTest : AmperCliTestBase() {
         val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
 
         assertTrue((buildResult.projectRoot / "project.yaml").exists())
+        assertEquals("""
+            mavenPlugins:
+              - org.apache.maven.plugins:maven-enforcer-plugin:3.6.1
+              - io.spring.javaformat:spring-javaformat-maven-plugin:0.0.47
+              - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0
+              - org.graalvm.buildtools:native-maven-plugin:0.11.0
+              - org.jacoco:jacoco-maven-plugin:0.8.13
+              - io.github.git-commit-id:git-commit-id-maven-plugin:9.0.2
+              - org.cyclonedx:cyclonedx-maven-plugin:2.9.1
+
+        """.trimIndent(), (buildResult.projectRoot / "project.yaml").readText())
         assertTrue((buildResult.projectRoot / "module.yaml").exists())
         assertEquals(
             """
@@ -208,6 +220,65 @@ class MavenConvertTest : AmperCliTestBase() {
               - org.webjars.npm:bootstrap:5.3.8: exported
               - org.webjars.npm:font-awesome:4.7.0: exported
               - jakarta.xml.bind:jakarta.xml.bind-api:4.0.2: exported
+
+            plugins:
+              maven-enforcer-plugin.display-info: enabled
+              maven-enforcer-plugin.enforce:
+                enabled: true
+                rules:
+                  requireJavaVersion:
+                    message: This build requires at least Java 25, update your JVM, and run the build again
+                    version: 25
+              maven-enforcer-plugin.help: enabled
+              spring-javaformat-maven-plugin.apply: enabled
+              spring-javaformat-maven-plugin.help: enabled
+              spring-javaformat-maven-plugin.validate: enabled
+              maven-checkstyle-plugin.check:
+                enabled: true
+                configLocation: src/checkstyle/nohttp-checkstyle.xml
+                includes: '**/*'
+                excludes: '**/.git/**/*,**/.idea/**/*,**/target/**/,**/.flattened-pom.xml,**/*.class'
+                propertyExpansion: config_loc=${'$'}{basedir}/src/checkstyle/
+              maven-checkstyle-plugin.checkstyle: enabled
+              maven-checkstyle-plugin.checkstyle-aggregate: enabled
+              maven-checkstyle-plugin.help: enabled
+              native-maven-plugin.add-reachability-metadata: enabled
+              native-maven-plugin.build: enabled
+              native-maven-plugin.compile: enabled
+              native-maven-plugin.compile-no-fork: enabled
+              native-maven-plugin.generateResourceConfig: enabled
+              native-maven-plugin.generateTestResourceConfig: enabled
+              native-maven-plugin.merge-agent-files: enabled
+              native-maven-plugin.metadata-copy: enabled
+              native-maven-plugin.test: enabled
+              native-maven-plugin.write-args-file: enabled
+              jacoco-maven-plugin.check: enabled
+              jacoco-maven-plugin.dump: enabled
+              jacoco-maven-plugin.help: enabled
+              jacoco-maven-plugin.instrument: enabled
+              jacoco-maven-plugin.merge: enabled
+              jacoco-maven-plugin.prepare-agent: enabled
+              jacoco-maven-plugin.prepare-agent-integration: enabled
+              jacoco-maven-plugin.report: enabled
+              jacoco-maven-plugin.report-aggregate: enabled
+              jacoco-maven-plugin.report-integration: enabled
+              jacoco-maven-plugin.restore-instrumented-classes: enabled
+              git-commit-id-maven-plugin.revision:
+                enabled: true
+                failOnNoGitDirectory: false
+                failOnUnableToExtractRepoInfo: false
+                verbose: true
+                generateGitPropertiesFile: true
+                generateGitPropertiesFilename: ${'$'}{project.build.outputDirectory}/git.properties
+              git-commit-id-maven-plugin.validateRevision: enabled
+              cyclonedx-maven-plugin.makeAggregateBom:
+                enabled: true
+                projectType: application
+                outputDirectory: ${'$'}{project.build.outputDirectory}/META-INF/sbom
+                outputFormat: json
+                outputName: application.cdx
+              cyclonedx-maven-plugin.makeBom: enabled
+              cyclonedx-maven-plugin.makePackageBom: enabled
 
             test-dependencies:
               - org.springframework.boot:spring-boot-starter-test:4.0.0-M3
@@ -353,6 +424,8 @@ class MavenConvertTest : AmperCliTestBase() {
         """.trimIndent(), (buildResult.projectRoot / "lib" / "module.yaml").readText()
         )
 
+        assertTrue((buildResult.projectRoot / "module.yaml").notExists())
+
         val converted = testProject(buildResult.projectRoot.pathString)
 
         runCli(converted, "test")
@@ -371,5 +444,72 @@ class MavenConvertTest : AmperCliTestBase() {
         )
 
         buildResult.assertStderrContains("ERROR: pom.xml file not found")
+    }
+
+    @Test
+    fun `duplicate-executions`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/duplicate-executions")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        val pomPath = buildResult.projectRoot / "pom.xml"
+        assertEquals("""
+            product: jvm/app
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: demo
+                group: com.example
+                version: 0.0.1-SNAPSHOT
+              jvm:
+                storeParameterNames: true
+              springBoot:
+                enabled: true
+                version: 4.0.0
+
+            dependencies:
+              - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
+              - org.springframework.boot:spring-boot-starter:4.0.0: exported
+
+            plugins:
+              # WARNING: Plugin io.github.git-commit-id:git-commit-id-maven-plugin has goals [revision] configured in multiple executions.
+              # Execution [default] was translated to Amper, but manual configuration may be required for other executions.
+              git-commit-id-maven-plugin.revision:
+                enabled: true
+                verbose: true
+                generateGitPropertiesFile: true
+                generateGitPropertiesFilename: ${'$'}{project.build.outputDirectory}/git.properties
+                # The following executions were not translated automatically (only a single one was):
+                # Reference: $pomPath:56:32
+                # <execution>
+                #   <id>git-full</id>
+                #   <goals>
+                #     <goal>revision</goal>
+                #   </goals>
+                #   <configuration>
+                #     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                #     <commitIdGenerationMode>full</commitIdGenerationMode>
+                #   </configuration>
+                # </execution>
+                # Reference: $pomPath:66:32
+                # <execution>
+                #   <id>git-flat</id>
+                #   <goals>
+                #     <goal>revision</goal>
+                #   </goals>
+                #   <configuration>
+                #     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                #     <commitIdGenerationMode>flat</commitIdGenerationMode>
+                #   </configuration>
+                # </execution>
+              git-commit-id-maven-plugin.validateRevision: enabled
+
+            test-dependencies:
+              - org.springframework.boot:spring-boot-starter-test:4.0.0
+
+        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText())
     }
 }

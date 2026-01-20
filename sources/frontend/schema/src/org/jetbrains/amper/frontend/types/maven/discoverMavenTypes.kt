@@ -16,6 +16,8 @@ import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.pluginSettingsTypeKey
 import org.jetbrains.amper.frontend.types.withNullability
+import org.jetbrains.amper.maven.MavenPluginXml
+import org.jetbrains.amper.maven.Mojo
 import java.io.File
 
 data class MavenDeclarationKey(val artifactId: String, val mojoImplementation: String) : DeclarationKey
@@ -93,6 +95,9 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
  * ID string of a Maven mojo that is applied as an Amper plugin.
  */
 fun amperMavenPluginId(plugin: AmperMavenPluginDescription, mojo: AmperMavenPluginMojo): String =
+    "${plugin.artifactId}.${mojo.goal}"
+
+fun amperMavenPluginId(plugin: MavenPluginXml, mojo: Mojo): String =
     "${plugin.artifactId}.${mojo.goal}"
 
 private class MavenSchemaObjectDeclaration(

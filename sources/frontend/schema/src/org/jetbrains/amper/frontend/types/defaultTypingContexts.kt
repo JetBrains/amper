@@ -7,18 +7,13 @@ package org.jetbrains.amper.frontend.types
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.plugins.MinimalPluginModule
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
-import org.jetbrains.amper.frontend.plugins.Task
 import org.jetbrains.amper.frontend.plugins.TaskAction
-import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
-import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
-import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowMaps
-import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
 import org.jetbrains.amper.frontend.types.maven.discoverMavenPluginXmlTypes
+import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import kotlin.reflect.KClass
 

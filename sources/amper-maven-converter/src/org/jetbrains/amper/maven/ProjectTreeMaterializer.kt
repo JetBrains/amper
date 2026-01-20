@@ -23,13 +23,15 @@ internal class ProjectTreeMaterializer(private val amperForest: AmperForest) {
             options = arrayOf(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
         )
 
-        amperForest.modules.forEach { (modulePath, moduleTree) ->
+        amperForest.modules.forEach { (modulePath, moduleWithComments) ->
             if (modulePath.exists() && !overwrite) {
                 throw FileAlreadyExistsException(modulePath.toFile())
             }
 
+            val yamlContent = moduleWithComments.tree.serializeToYaml(moduleWithComments.comments)
+
             modulePath.writeText(
-                moduleTree.serializeToYaml(),
+                yamlContent,
                 options = arrayOf(StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
             )
         }

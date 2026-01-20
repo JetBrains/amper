@@ -27,13 +27,6 @@ import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.maven.Configuration
-import org.jetbrains.amper.frontend.types.maven.Dependencies
-import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
-import org.jetbrains.amper.frontend.types.maven.Mojo
-import org.jetbrains.amper.frontend.types.maven.Mojos
-import org.jetbrains.amper.frontend.types.maven.Parameter
-import org.jetbrains.amper.frontend.types.maven.Parameters
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -358,6 +351,33 @@ class RenderToYamlTest {
               - module1
               - module2
               - module3
+
+        """.trimIndent(), yaml)
+    }
+
+    @Test
+    fun `project with maven plugins`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
+        val tree = syntheticBuilder(DefaultTrace) {
+            `object`<Project> {
+                Project::modules {
+                    this += scalar("module1")
+                }
+                Project::mavenPlugins {
+                    this += scalar("org.apache.maven.plugins:maven-surefire-plugin:3.5.3")
+                    this += scalar("org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0")
+                }
+            }
+        }
+
+        val yaml = tree.serializeToYaml()
+
+        assertEquals("""
+            modules:
+              - module1
+
+            mavenPlugins:
+              - org.apache.maven.plugins:maven-surefire-plugin:3.5.3
+              - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0
 
         """.trimIndent(), yaml)
     }

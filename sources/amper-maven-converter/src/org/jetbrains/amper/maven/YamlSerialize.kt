@@ -29,7 +29,7 @@ typealias Key = String
 
 val treeRefiner = TreeRefiner()
 
-fun MappingNode.serializeToYaml(): String = buildString {
+internal fun MappingNode.serializeToYaml(comments: YamlComments = emptyMap()): String = buildString {
     val refinedMain = context(NoopProblemReporter) {
         treeRefiner.refineTree(this@serializeToYaml, listOf())
     }
@@ -39,23 +39,23 @@ fun MappingNode.serializeToYaml(): String = buildString {
     }
     val test = refinedTest.filterByContext(TestCtx, main)
 
-    append(main?.serializeToYaml() ?: "")
+    append(main?.serializeToYaml(0, emptyList(), comments) ?: "")
     if (test != null) {
         appendLine()
-        append(test.serializeToYaml())
+        append(test.serializeToYaml(0, emptyList(), comments))
     }
 }
 
-fun TreeNode.serializeToYaml(indent: Int = 0): String = buildString {
+private fun TreeNode.serializeToYaml(indent: Int, currentPath: List<String>, comments: YamlComments): String = buildString {
     when (this@serializeToYaml) {
         is ListNode -> append(this@serializeToYaml.serializeToYaml(indent))
-        is MappingNode -> append(this@serializeToYaml.serializeToYaml(indent))
+        is MappingNode -> append(this@serializeToYaml.serializeToYaml(indent, currentPath, comments))
         is ScalarNode -> append(this@serializeToYaml.serializeToYaml())
         else -> {}
     }
 }
 
-fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
+private fun MappingNode.serializeToYaml(indent: Int, currentPath: List<String>, comments: YamlComments): String = buildString {
     val isFromKeyAndTheRestNestedProperties = children.filter { it.propertyDeclaration?.isFromKeyAndTheRestNested == true }
     val isCollapsibleFromKey = isFromKeyAndTheRestNestedProperties.size == 1
 
@@ -85,16 +85,19 @@ fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
             return@buildString
         } else {
             append(":")
-            append(this@serializeToYaml.copy(theRest, type, trace, contexts).serializeToYaml(indent + 1))
+            append(this@serializeToYaml.copy(theRest, type, trace, contexts).serializeToYaml(indent + 1, currentPath, comments))
             return@buildString
         }
     }
 
     for (child in children) {
+        val childPath = currentPath + child.key
+        val comment = comments[childPath]
+
         if (child.propertyDeclaration?.hasShorthand == true && children.size == 1) {
             when (child.propertyDeclaration?.type) {
                 is SchemaType.BooleanType -> appendLine(" ${child.key}")
-                else -> append(child.value.serializeToYaml(indent))
+                else -> append(child.value.serializeToYaml(indent, childPath, comments))
             }
         } else {
             if (indent > 0 && child == children.first()) {
@@ -103,6 +106,14 @@ fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
 
             require(child.contexts.size == 1) {
                 "After context selection there must be only one context"
+            }
+
+            comment?.beforeKeyComment?.let { beforeComment ->
+                beforeComment.lines().forEach { line ->
+                    append("  ".repeat(indent))
+                    append("# ")
+                    appendLine(line)
+                }
             }
 
             val context = child.contexts.single()
@@ -116,7 +127,16 @@ fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
                 append(child.key.serializeToYaml(indent))
             }
 
-            append(child.value.serializeToYaml(indent + 1))
+            append(child.value.serializeToYaml(indent + 1, childPath, comments))
+
+            comment?.afterValueComment?.let { afterComment ->
+                afterComment.lines().forEach { line ->
+                    append("  ".repeat(indent + 1))
+                    append("# ")
+                    appendLine(line)
+                }
+            }
+
             if (indent == 0 && child != children.last()) {
                 appendLine()
             }
@@ -124,16 +144,16 @@ fun MappingNode.serializeToYaml(indent: Int = 0): String = buildString {
     }
 }
 
-fun ListNode.serializeToYaml(indent: Int = 0): String = buildString {
+private fun ListNode.serializeToYaml(indent: Int): String = buildString {
     appendLine()
     for (item in children) {
         append("  ".repeat(indent))
         append("-")
-        append(item.serializeToYaml(indent + 1))
+        append(item.serializeToYaml(indent + 1, emptyList(), emptyMap()))
     }
 }
 
-fun ScalarNode.serializeToYaml(): String = buildString {
+private fun ScalarNode.serializeToYaml(): String = buildString {
     append(" ")
     when (this@serializeToYaml) {
         is BooleanNode -> append(value)
@@ -145,7 +165,7 @@ fun ScalarNode.serializeToYaml(): String = buildString {
     appendLine()
 }
 
-fun Key.serializeToYaml(indent: Int): String = buildString {
+private fun Key.serializeToYaml(indent: Int): String = buildString {
     append("  ".repeat(indent))
     append(this@serializeToYaml)
     append(":")

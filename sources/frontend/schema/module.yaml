@@ -22,6 +22,7 @@ dependencies:
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
+  - ../../libraries/maven-plugin-xml-parser: exported
   - ../../libraries/stdlib-extended
   - ../../libraries/system-info
   - ../../libraries/telemetry

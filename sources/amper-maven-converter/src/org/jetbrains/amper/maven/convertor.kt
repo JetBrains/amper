@@ -5,14 +5,19 @@
 package org.jetbrains.amper.maven
 
 import org.apache.maven.project.MavenProject
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.maven.contributor.MavenRootNotFoundException
 import org.jetbrains.amper.maven.contributor.contributeCompilerPlugin
 import org.jetbrains.amper.maven.contributor.contributeCoreModule
 import org.jetbrains.amper.maven.contributor.contributeDependencies
 import org.jetbrains.amper.maven.contributor.contributeKotlinPlugin
+import org.jetbrains.amper.maven.contributor.contributeMavenPlugins
 import org.jetbrains.amper.maven.contributor.contributeProjects
 import org.jetbrains.amper.maven.contributor.contributeRepositories
 import org.jetbrains.amper.maven.contributor.contributeSpringBoot
+import org.jetbrains.amper.maven.contributor.contributeUnknownPlugins
+import org.jetbrains.amper.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -34,9 +39,19 @@ object MavenProjectConvertor {
      * @param pomXml Path to the Maven POM file from which reactor project discovery starts. pom.xml should be part of
      * the reactor project to be converted.
      * @param overwrite If true, existing files will be overwritten.
+     * @param userCacheRoot The user cache root for dependency resolution
+     * @param codeVersion Code version for the cache.
      */
-    fun convert(pomXml: Path, overwrite: Boolean = false) {
-        val reactorProjects = MavenModelReader.getReactorProjects(pomXml)
+    suspend fun convert(
+        pomXml: Path,
+        overwrite: Boolean = false,
+        userCacheRoot: AmperUserCacheRoot,
+        codeVersion: String = "1.0-SNAPSHOT",
+    ) {
+        val reactorProjects = spanBuilder("Reading Maven reactor projects").use {
+            logger.info("Reading Maven reactor projects from $pomXml")
+            MavenModelReader.getReactorProjects(pomXml)
+        }
 
         val potentialRoots = potentialRoots(reactorProjects)
 
@@ -52,7 +67,7 @@ object MavenProjectConvertor {
 
         val amperProjectPath = potentialRoots.first().basedir.toPath() / "project.yaml"
 
-        val trees = amperProjectTreeBuilder(amperProjectPath) {
+        val builder = amperProjectTreeBuilder(amperProjectPath) {
             contributeProjects(reactorProjects)
             contributeCoreModule(reactorProjects)
             contributeRepositories(reactorProjects)
@@ -60,7 +75,15 @@ object MavenProjectConvertor {
             contributeCompilerPlugin(reactorProjects)
             contributeKotlinPlugin(reactorProjects)
             contributeSpringBoot(reactorProjects)
-        }.build()
+        }
+
+        val unknownPluginXmls = reactorProjects.extractUnknownPluginXmls(userCacheRoot, codeVersion)
+        val unknownPluginBuilder = amperProjectTreeBuilder(amperProjectPath, unknownPluginXmls) {
+            contributeMavenPlugins(unknownPluginXmls)
+            contributeUnknownPlugins(reactorProjects, unknownPluginXmls)
+        }
+
+        val trees = builder.merge(unknownPluginBuilder).build()
 
         ProjectTreeMaterializer(trees).materialize(overwrite)
     }

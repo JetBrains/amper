@@ -4,7 +4,16 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
+  - ../amper-maven-plugin-download
+  - ../amper-telemetry
+  - ../core
+  - ../dependency-resolution
   - ../frontend-api
+  - ../frontend/dr
   - ../frontend/schema
-  - $libs.maven.core
+  - ../libraries/incremental-cache
+  - ../libraries/maven-plugin-xml-parser
   - $libs.maven.compat: runtime-only
+  - $libs.maven.core
+  - $libs.slf4j.api
+  - $libs.xmlutil.serialization

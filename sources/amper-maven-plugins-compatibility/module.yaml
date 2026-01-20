@@ -9,5 +9,7 @@ dependencies:
   - ../frontend/schema
   - ../frontend/dr
   - ../amper-build-info
+  - ../amper-maven-plugin-download
+  - ../libraries/maven-plugin-xml-parser: exported
   - $libs.xmlutil.serialization
   - $libs.slf4j.api
