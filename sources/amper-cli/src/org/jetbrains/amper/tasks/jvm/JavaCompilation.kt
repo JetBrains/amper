@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -56,6 +56,10 @@ internal suspend fun compileJavaWithJic(
         if (isDebugAgentPresent) {
             add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
         }
+
+        // There is a piece of code inside the jvm-inc-builder that calls an internal Sun API, namely
+        // sun.nio.fs.WindowsNativeDispatcher.FormatMessage
+        add("--add-opens=java.base/sun.nio.fs=ALL-UNNAMED")
     }
 
     val result = processRunner.runJava(
