@@ -67,7 +67,7 @@ class JdkProvider(
     ): JdkResult = openTelemetry.tracer.spanBuilder("Get JDK ${criteria.majorVersion}")
         .setAttribute("selection-mode", selectionMode.name)
         .setAttribute("criteria.majorVersion", criteria.majorVersion)
-        .setListAttribute("criteria.distributions", criteria.distributions?.map { it.schemaValue })
+        .setListAttribute("criteria.distributions", criteria.distributions?.map { it.schemaValue } ?: listOf("*"))
         .setListAttribute("criteria.os", criteria.operatingSystems.map { it.name })
         .setListAttribute("criteria.arch", criteria.architectures.map { it.name })
         .use { span ->

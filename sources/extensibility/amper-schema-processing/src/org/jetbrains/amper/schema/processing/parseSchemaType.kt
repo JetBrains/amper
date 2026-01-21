@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.schema.processing
@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
 import org.jetbrains.kotlin.analysis.api.types.KaStarTypeProjection
 import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.analysis.api.types.KaTypeArgumentWithVariance
-import org.jetbrains.kotlin.analysis.api.types.KaTypeNullability
 import org.jetbrains.kotlin.analysis.api.types.KaTypeProjection
 import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtTypeProjection
@@ -23,7 +22,7 @@ import org.jetbrains.kotlin.types.Variance
 
 context(session: KaSession, _: DiagnosticsReporter, symbolsCollector: SymbolsCollector, options: ParsingOptions)
 internal fun KaType.parseSchemaType(origin: () -> PsiElement): PluginData.Type? {
-    val isNullable = nullability == KaTypeNullability.NULLABLE
+    val isNullable = with(session) { isMarkedNullable }
     val symbol = expandTypeToClassSymbol() ?: run {
         reportUnexpectedType(origin)
         return null

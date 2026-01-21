@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -162,7 +162,7 @@ class AndroidRunTask(
         androidTarget: Int,
         emulatorExecutable: Path
     ): IDevice {
-        val androidVersion = AndroidVersion(androidTarget)
+        val androidVersion = AndroidVersion(androidTarget, 0)
         val selectedDevice = devices.firstOrNull { it.version.canRun(androidVersion) }
         return selectedDevice ?: run {
             val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)

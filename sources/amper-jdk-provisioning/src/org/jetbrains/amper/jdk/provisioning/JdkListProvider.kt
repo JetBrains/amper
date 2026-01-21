@@ -28,7 +28,7 @@ internal class JdkListProvider(
     /**
      * Fetches the metadata of the JDKs that can be provisioned. The list is cached in memory.
      */
-    suspend fun getOrFetch(): List<JdkPackage> = openTelemetry.tracer.spanBuilder("Get JDK list").use { span ->
+    suspend fun getOrFetch(): List<JdkPackage> = openTelemetry.tracer.spanBuilder("Get JDK list").use {
         jdkPackages ?: mutex.withLock {
             jdkPackages ?: withContext(Dispatchers.IO) {
                 fetchAndConvertWithTelemetry().also { packages ->

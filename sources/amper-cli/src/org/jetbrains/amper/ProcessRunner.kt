@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper
@@ -28,6 +28,8 @@ import kotlin.io.path.pathString
 class ProcessRunner(
     private val telemetryDir: Path,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
@@ -81,9 +83,4 @@ class ProcessRunner(
         span?.setProcessResultAttributes(result)
         return result
     }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
-    }
 }
-

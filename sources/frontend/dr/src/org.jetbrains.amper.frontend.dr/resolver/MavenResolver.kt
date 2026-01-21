@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -107,7 +107,7 @@ open class MavenResolver(
             settings.platforms.singleOrNull()?.nativeTarget?.let { setAttribute("nativeTarget", it) }
             settings.platforms.singleOrNull()?.wasmTarget?.let { setAttribute("wasmTarget", it) }
         }
-        .use { span ->
+        .use {
             with(moduleDependenciesResolver) { root.resolveDependencies(resolutionDepth, downloadSources = false) }
                 .also {
                     // We are referencing the same root, but after [resolveDependencies] was called, so it is filled now.

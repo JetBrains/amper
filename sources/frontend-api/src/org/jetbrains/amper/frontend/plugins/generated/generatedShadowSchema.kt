@@ -5,7 +5,7 @@
 // @formatter:off
 //
 @file:Suppress(
-    "RedundantVisibilityModifier",
+    "REDUNDANT_VISIBILITY_MODIFIER",
     "CanConvertToMultiDollarString",
 )
 
