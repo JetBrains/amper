@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -13,11 +13,13 @@ import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.ProjectBuilder
 import org.apache.maven.properties.internal.EnvironmentUtils
-import org.apache.maven.settings.MavenSettingsBuilder
+import org.apache.maven.settings.building.DefaultSettingsBuildingRequest
+import org.apache.maven.settings.building.SettingsBuilder
 import org.codehaus.plexus.DefaultContainerConfiguration
 import org.codehaus.plexus.DefaultPlexusContainer
 import org.codehaus.plexus.PlexusConstants
 import org.codehaus.plexus.classworlds.ClassWorld
+import java.io.File
 import java.nio.file.Path
 import java.util.*
 
@@ -25,7 +27,7 @@ import java.util.*
  * Inspired by https://github.com/gradle/gradle/blob/9139c5f77d30b0a7d37b87a504f853d23b12d5d0/platforms/software/build-init/src/main/java/org/gradle/unexported/buildinit/plugins/internal/maven/MavenProjectsCreator.java
  */
 internal object MavenModelReader {
-    internal fun getReactorProjects(pom: Path, javaVersion: String = "17"): Set<MavenProject> {
+    internal fun getReactorProjects(pom: Path): Set<MavenProject> {
         val containerConfiguration = DefaultContainerConfiguration().apply {
             classWorld = ClassWorld("plexus.core", MavenModelReader::class.java.classLoader)
             setName("mavenCore")
@@ -36,12 +38,23 @@ internal object MavenModelReader {
         val container = DefaultPlexusContainer(containerConfiguration)
         val builder = container.lookup(ProjectBuilder::class.java)
 
-        // todo: Populate user settings, it's needed for repository authentication information
         val mavenExecutionRequest = DefaultMavenExecutionRequest().apply {
-            val settingsBuilder = container.lookup(MavenSettingsBuilder::class.java)
-            val settings = settingsBuilder.buildSettings()
+            val settingsBuilder = container.lookup(SettingsBuilder::class.java)
+            val settingsRequest = DefaultSettingsBuildingRequest().apply {
+                userSettingsFile = File(System.getProperty("user.home"), ".m2/settings.xml")
+                globalSettingsFile = File(System.getProperty("maven.home"), "conf/settings.xml")
+                systemProperties = System.getProperties()
+            }
+
+            val settingsResult = settingsBuilder.build(settingsRequest)
+            val settings = settingsResult.effectiveSettings
+            setUserSettingsFile(settingsRequest.userSettingsFile)
+            setGlobalSettingsFile(settingsRequest.globalSettingsFile)
+
             val populator = container.lookup(MavenExecutionRequestPopulator::class.java)
             populator.populateDefaults(this)
+
+            @Suppress("DEPRECATION") // there is no public replacement in Maven 3 yet (setSettings is only in Maven 4)
             populator.populateFromSettings(this, settings)
         }
 
