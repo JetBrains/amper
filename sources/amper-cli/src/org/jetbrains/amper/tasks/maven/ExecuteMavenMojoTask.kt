@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.maven
@@ -29,7 +29,6 @@ import org.apache.maven.reporting.MavenReport
 import org.apache.maven.reporting.exec.MavenReportExecution
 import org.apache.maven.session.scope.internal.SessionScope
 import org.codehaus.plexus.PlexusContainer
-import org.codehaus.plexus.util.ReaderFactory
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder
 import org.eclipse.aether.RepositorySystemSession
 import org.eclipse.aether.repository.RemoteRepository
@@ -247,8 +246,8 @@ class ExecuteMavenMojoTask(
         val siteModel = prepareSiteModel(locale, project, siteDirectory, repoSession, remoteRepositories)
         val templateProperties = buildMap<String, Any?> {
             this["project"] = project
-            this["inputEncoding"] = ReaderFactory.FILE_ENCODING
-            this["outputEncoding"] = ReaderFactory.FILE_ENCODING
+            this["inputEncoding"] = Charset.defaultCharset().displayName()
+            this["outputEncoding"] = Charset.defaultCharset().displayName()
             project.properties.forEach { this[it.key.toString()] = it.value }
         }
 
