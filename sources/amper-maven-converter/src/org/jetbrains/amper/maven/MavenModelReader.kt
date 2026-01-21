@@ -6,9 +6,7 @@ package org.jetbrains.amper.maven
 
 import com.google.common.collect.ImmutableList
 import org.apache.maven.execution.DefaultMavenExecutionRequest
-import org.apache.maven.execution.DefaultMavenExecutionResult
 import org.apache.maven.execution.MavenExecutionRequestPopulator
-import org.apache.maven.execution.MavenSession
 import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.ProjectBuilder
@@ -73,20 +71,10 @@ internal object MavenModelReader {
         val mavenProject = builder.build(pom.toFile(), buildingRequest).project
         buildingRequest.project = mavenProject
 
-        val reactorProjects = buildSet {
+        return buildSet {
             add(mavenProject)
             val allProjects = builder.build(ImmutableList.of(pom.toFile()), true, buildingRequest)
             addAll(allProjects.map { it.project })
         }
-
-        val result = DefaultMavenExecutionResult().apply {
-            project = mavenProject
-        }
-
-        MavenSession(container, buildingRequest.repositorySession, mavenExecutionRequest, result).apply {
-            currentProject = mavenProject
-        }
-
-        return reactorProjects
     }
 }
