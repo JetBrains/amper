@@ -36,7 +36,7 @@ internal val Platform.sdk
 
 internal fun Map<String, *>.toPlist(): Plist = Plist().also { plist ->
     for ((k, v) in this) {
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST") // non-string keys will fail in toPlist() when used as Strings
         plist[k] = when (v) {
             is Map<*, *> -> (v as Map<String, *>).toPlist()
             else -> v

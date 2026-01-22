@@ -58,8 +58,8 @@ private const val MODULE_TO_PROJECT_EXT = "org.jetbrains.amper.gradle.android.ex
 private const val ANDROID_REQUEST = "org.jetbrains.amper.gradle.android.ext.androidRequest"
 private const val KNOWN_MODEL_EXT = "org.jetbrains.amper.gradle.android.ext.model"
 
-fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String): MutableMap<K, V> = try {
-    @Suppress("UNCHECKED_CAST")
+private fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String): MutableMap<K, V> = try {
+    @Suppress("UNCHECKED_CAST") // it's ok because we always read and write the map from the same typed place below
     this[name] as MutableMap<K, V>
 } catch (_: ExtraPropertiesExtension.UnknownPropertyException) {
     val bindingMap = mutableMapOf<K, V>()
