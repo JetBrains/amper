@@ -27,5 +27,10 @@ fun Span.setMapAttribute(key: String, map: Map<String, String?>): Span =
 /**
  * Returns the value of the attribute [key], or throws [NoSuchElementException] if no such attribute exists in this span.
  */
-fun <T> SpanData.getAttribute(key: AttributeKey<T>) = attributes[key]
+fun <T : Any> SpanData.getAttribute(key: AttributeKey<T>): T = attributes[key]
     ?: throw NoSuchElementException("attribute '$key' not found in span '$name'")
+
+/**
+ * Returns the value of the attribute [key], or throws [NoSuchElementException] if no such attribute exists in this span.
+ */
+fun SpanData.getListAttribute(key: String): List<String> = getAttribute(AttributeKey.stringArrayKey(key))

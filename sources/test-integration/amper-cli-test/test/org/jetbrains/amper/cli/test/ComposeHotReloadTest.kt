@@ -3,11 +3,13 @@
  */
 package org.jetbrains.amper.cli.test
 
-import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStderrDoesNotContain
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.telemetry.getListAttribute
+import org.jetbrains.amper.test.spans.SpansTestCollector
+import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -32,30 +34,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             assertEmptyStdErr = false,
         )
 
-        val spans = result.readTelemetrySpans()
-        @Suppress("UNCHECKED_CAST") val javaAgent = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-            .single { it.startsWith("-javaagent:") }
-
-        assertContains(javaAgent, "hot-reload-agent")
-
-        @Suppress("UNCHECKED_CAST") val envVars = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("env-vars")] as List<String> }
-
-        assertTrue(envVars.any { it.startsWith("AMPER_SERVER_PORT=") })
-        assertTrue(envVars.any { it.startsWith("AMPER_BUILD_ROOT=") })
-        assertContains(envVars, "AMPER_BUILD_TASK=:compose-hot-reload:reloadJvm")
-
-        @Suppress("UNCHECKED_CAST") val jvmArgs = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-
-        assertContains(jvmArgs, "-Dcompose.reload.devToolsEnabled=true")
+        result.readTelemetrySpans().assertHotReloadJavaExecSpan("compose-hot-reload")
     }
 
     @Test
@@ -73,30 +52,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             assertEmptyStdErr = false,
         )
 
-        val spans = result.readTelemetrySpans()
-        @Suppress("UNCHECKED_CAST") val javaAgent = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-            .single { it.startsWith("-javaagent:") }
-
-        assertContains(javaAgent, "hot-reload-agent")
-
-        @Suppress("UNCHECKED_CAST") val envVars = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("env-vars")] as List<String> }
-
-        assertTrue(envVars.any { it.startsWith("AMPER_SERVER_PORT=") })
-        assertTrue(envVars.any { it.startsWith("AMPER_BUILD_ROOT=") })
-        assertContains(envVars, "AMPER_BUILD_TASK=:compose-hot-reload-lib:reloadJvm")
-
-        @Suppress("UNCHECKED_CAST") val jvmArgs = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-
-        assertContains(jvmArgs, "-Dcompose.reload.devToolsEnabled=true")
+        result.readTelemetrySpans().assertHotReloadJavaExecSpan("compose-hot-reload-lib")
     }
 
     @Test
@@ -114,30 +70,7 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             assertEmptyStdErr = false,
         )
 
-        val spans = result.readTelemetrySpans()
-        @Suppress("UNCHECKED_CAST") val javaAgent = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-            .single { it.startsWith("-javaagent:") }
-
-        assertContains(javaAgent, "hot-reload-agent")
-
-        @Suppress("UNCHECKED_CAST") val envVars = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("env-vars")] as List<String> }
-
-        assertTrue(envVars.any { it.startsWith("AMPER_SERVER_PORT=") })
-        assertTrue(envVars.any { it.startsWith("AMPER_BUILD_ROOT=") })
-        assertContains(envVars, "AMPER_BUILD_TASK=:compose-hot-reload-jvm-lib:reloadJvm")
-
-        @Suppress("UNCHECKED_CAST") val jvmArgs = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-
-        assertContains(jvmArgs, "-Dcompose.reload.devToolsEnabled=true")
+        result.readTelemetrySpans().assertHotReloadJavaExecSpan("compose-hot-reload-jvm-lib")
     }
 
     @Test
@@ -198,32 +131,24 @@ class ComposeHotReloadTest : AmperCliTestBase() {
             assertEmptyStdErr = false,
         )
 
-        val spans = result.readTelemetrySpans()
-        @Suppress("UNCHECKED_CAST") val javaAgent = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-            .single { it.startsWith("-javaagent:") }
-
-        assertContains(javaAgent, "hot-reload-agent")
-
-        @Suppress("UNCHECKED_CAST") val envVars = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("env-vars")] as List<String> }
-
-        assertTrue(envVars.any { it.startsWith("AMPER_SERVER_PORT=") })
-        assertTrue(envVars.any { it.startsWith("AMPER_BUILD_ROOT=") })
-        assertContains(envVars, "AMPER_BUILD_TASK=:app-jvm:reloadJvm")
-
-        @Suppress("UNCHECKED_CAST") val jvmArgs = spans
-            .spans
-            .filter { it.name == "java-exec" }
-            .flatMap { it.attributes.asMap()[AttributeKey.stringArrayKey("jvm-args")] as List<String> }
-
-        assertContains(jvmArgs, "-Dcompose.reload.devToolsEnabled=true")
+        result.readTelemetrySpans().assertHotReloadJavaExecSpan("app-jvm")
 
         // Ensure we did not complain about multiple apps
         result.assertStderrDoesNotContain("There are several matching application modules")
+    }
+
+    private fun SpansTestCollector.assertHotReloadJavaExecSpan(moduleName: String) {
+        val javaExecSpan = spansNamed("java-exec").assertSingle()
+
+        val jvmArgs = javaExecSpan.getListAttribute("jvm-args")
+        assertContains(jvmArgs, "-Dcompose.reload.devToolsEnabled=true")
+
+        val javaAgent = jvmArgs.single { it.startsWith("-javaagent:") }
+        assertContains(javaAgent, "hot-reload-agent")
+
+        val envVars = javaExecSpan.getListAttribute("env-vars")
+        assertTrue(envVars.any { it.startsWith("AMPER_SERVER_PORT=") })
+        assertTrue(envVars.any { it.startsWith("AMPER_BUILD_ROOT=") })
+        assertContains(envVars, "AMPER_BUILD_TASK=:$moduleName:reloadJvm")
     }
 }
