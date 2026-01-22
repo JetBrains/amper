@@ -178,14 +178,14 @@ internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider 
     }
 
     fun SerializersModuleBuilder.moduleForDependencyNodePlainHierarchy() =
-        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class as KClass<DependencyNode>)
+        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy() =
         moduleForDependencyNodeHierarchy(DependencyNode::class)
 
-    fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<DependencyNode>) {
-        polymorphic(kClass,SerializableModuleDependencyNodeWithModule::class, SerializableModuleDependencyNodeWithModule.serializer())
-        polymorphic(kClass,SerializableDirectFragmentDependencyNodeHolder::class, SerializableDirectFragmentDependencyNodeHolder.serializer())
+    fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<in SerializableDependencyNode>) {
+        polymorphic(kClass, SerializableModuleDependencyNodeWithModule::class, SerializableModuleDependencyNodeWithModule.serializer())
+        polymorphic(kClass, SerializableDirectFragmentDependencyNodeHolder::class, SerializableDirectFragmentDependencyNodeHolder.serializer())
     }
 }
 
