@@ -68,19 +68,21 @@ fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String): MutableMap<K, V
 }
 
 val Gradle.projectPathToModule: MutableMap<String, AmperModule>
-    get() = (this as ExtensionAware).extensions.extraProperties.getBindingMap(PROJECT_TO_MODULE_EXT)
+    get() = extensions.extraProperties.getBindingMap(PROJECT_TO_MODULE_EXT)
 
 val Gradle.moduleFilePathToProject: MutableMap<Path, String>
-    get() = (this as ExtensionAware).extensions.extraProperties.getBindingMap(MODULE_TO_PROJECT_EXT)
+    get() = extensions.extraProperties.getBindingMap(MODULE_TO_PROJECT_EXT)
 
 var Gradle.request: AndroidBuildRequest?
-    get() = (this as ExtensionAware).extensions.extraProperties.get(ANDROID_REQUEST) as? AndroidBuildRequest
-    set(value) = (this as ExtensionAware).extensions.extraProperties.set(ANDROID_REQUEST, value)
+    get() = extensions.extraProperties[ANDROID_REQUEST]?.let { it as AndroidBuildRequest }
+    set(value) {
+        extensions.extraProperties[ANDROID_REQUEST] = value
+    }
 
 var Gradle.knownModel: Model?
-    get() = (this as ExtensionAware).extensions.extraProperties[KNOWN_MODEL_EXT] as? Model
+    get() = extensions.extraProperties[KNOWN_MODEL_EXT]?.let { it as Model }
     set(value) {
-        (this as ExtensionAware).extensions.extraProperties[KNOWN_MODEL_EXT] = value
+        extensions.extraProperties[KNOWN_MODEL_EXT] = value
     }
 
 
@@ -327,7 +329,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
                 * an app, we explicitly set the build file (using an internal API) in a synthetic Gradle project within
                 * the build folder.
                 */
-                (project as DefaultProjectDescriptor).buildFileName = currentPath
+                project.buildFileName = currentPath
                     .relativize(settings.rootDir.toPath() / "build.gradle.kts")
                     .toString()
             }

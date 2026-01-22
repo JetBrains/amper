@@ -15,6 +15,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 /**
@@ -259,7 +260,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 incrementalCacheUsage = IncrementalCacheUsage.SKIP
             ),
             module = "shared"
-        ) as ModuleDependencyNode
+        )
+        assertIs<ModuleDependencyNode>(sharedModuleDeps)
 
         sharedModuleDeps.assertMapping(
             mapOf(
@@ -293,7 +295,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
             ),
             module = "kmp-library",
-        ) as ModuleDependencyNode
+        )
+        assertIs<ModuleDependencyNode>(moduleDeps)
 
         moduleDeps.assertParentKmpLibraries(
             mapOf(

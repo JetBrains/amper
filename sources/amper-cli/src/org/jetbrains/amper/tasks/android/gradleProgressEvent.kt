@@ -47,13 +47,13 @@ internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
     if (descriptor.name == "Run build") {
         when (this) {
             is StartEvent -> logger.info("Gradle build started")
-            is FinishEvent -> when (result) {
+            is FinishEvent -> when (val r = result) {
                 is SuccessResult -> {
                     logger.info("Gradle build finished successfully")
                 }
                 is FailureResult -> {
                     logger.error("Gradle build failed with errors:")
-                    for (error in (result as FailureResult).failures) {
+                    for (error in r.failures) {
                         val causes = ArrayDeque(error.causes)
                         while (causes.isNotEmpty()) {
                             val cause = causes.removeFirst()
