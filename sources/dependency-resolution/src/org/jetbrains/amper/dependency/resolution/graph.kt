@@ -268,7 +268,7 @@ class DependencyGraph(
                     )
         }
 
-        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<*, *>>
                 by lazy {
                     buildMap {
                         providers
@@ -277,12 +277,16 @@ class DependencyGraph(
                     }
                 }
 
-        private fun <T: DependencyNode, P: SerializableDependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, P> =
-            converters[node::class] as? SerializableDependencyNodeConverter<T, P>
+        private fun <T : DependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, *> =
+            converters[node::class]
+                ?.let {
+                    @Suppress("UNCHECKED_CAST") // safe by definition of applicableTo and by construction of the map
+                    it as SerializableDependencyNodeConverter<T, *>
+                }
                 ?: error("Converter for the node ${node::class} is not registered")
 
-        private fun List<SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>.register(
-            map: MutableMap<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+        private fun List<SerializableDependencyNodeConverter<*, *>>.register(
+            map: MutableMap<KClass<out DependencyNode>, SerializableDependencyNodeConverter<*, *>>
         )= forEach {
             if (map.contains(it.applicableTo()))
                 error("Converter for the node of type ${it.applicableTo()} is already registered: (${map[it.applicableTo()]!!::class}), " +
@@ -322,21 +326,26 @@ class DependencyGraph(
          */
         fun DependencyNode.toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
             return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-                ?: run {
-                    val converter = getConverter<DependencyNode, SerializableDependencyNode>(this)
-                    // 1. Create an empty reference first (to break cycles)
-                    val newNodePlain = converter.toEmptyNodePlain(this, graphContext)
-
-                    // 2. register empty reference (to break cycles)
-                    val newReference = graphContext.registerSerializableDependencyNodeWithParent(this, newNodePlain, parent)
-
-                    // 3. enrich it with references
-                    converter.fillEmptyNodePlain(newNodePlain, this, graphContext, newReference)
-
-                    newReference
+                ?: context(graphContext) {
+                    getConverter(this).convertAndGetReference(this, parent)
                 }
         }
 
+        context(graphContext: DependencyGraphContext)
+        private fun <S : SerializableDependencyNode> SerializableDependencyNodeConverter<DependencyNode, S>.convertAndGetReference(
+            node: DependencyNode,
+            parent: DependencyNodeReference?,
+        ): DependencyNodeReference {
+            // 1. Create an empty reference first (to break cycles)
+            val newNodePlain = toEmptyNodePlain(node, graphContext)
+
+            // 2. register empty reference (to break cycles)
+            val newReference = graphContext.registerSerializableDependencyNodeWithParent(node, newNodePlain, parent)
+
+            // 3. enrich it with references
+            fillEmptyNodePlain(newNodePlain, node, graphContext, newReference)
+            return newReference
+        }
     }
 }
 
