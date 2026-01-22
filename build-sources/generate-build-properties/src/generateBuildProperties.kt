@@ -2,17 +2,20 @@
  * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
+import com.charleskorn.kaml.decodeFromStream
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import kotlinx.serialization.Serializable
 import org.eclipse.jgit.api.Git
 import org.jetbrains.amper.plugins.ExecutionAvoidance
 import org.jetbrains.amper.plugins.Output
 import org.jetbrains.amper.plugins.TaskAction
-import org.yaml.snakeyaml.Yaml
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -38,7 +41,7 @@ fun generateBuildProperties(@Output taskOutputDirectory: Path) {
     }
     val gitRoot = projectRoot.resolve(".git")
 
-    val version = getCurrentVersion(commonModuleTemplate)
+    val version = getConfiguredPublishingVersion(commonModuleTemplate)
 
     // .git is usually a directory, but can be a file in the case when `git worktree add` was used so exists check
     // is sufficient.
@@ -160,13 +163,21 @@ internal fun documentationUrl(version: String): String {
     return if (isDevVersion || isSnapshot) "https://amper.org/dev" else "https://amper.org/$majorAndMinorVersion"
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun getCurrentVersion(commonModuleTemplate: Path): String {
-    val commonTemplate = commonModuleTemplate.inputStream().use { Yaml().load<Map<String, Any>>(it) }
-    val yamlSettings = commonTemplate.getValue("settings") as Map<String, Any>
-    val yamlPublishing = yamlSettings.getValue("publishing") as Map<String, String>
-    return yamlPublishing.getValue("version")
+private fun getConfiguredPublishingVersion(commonModuleTemplate: Path): String {
+    val yamlConf = YamlConfiguration(strictMode = false)
+    val yaml = Yaml(configuration = yamlConf)
+    val commonTemplate = commonModuleTemplate.inputStream().use { yaml.decodeFromStream<TemplateYaml>(it) }
+    return commonTemplate.settings.publishing.version
 }
+
+@Serializable
+private data class TemplateYaml(val settings: SettingsYaml)
+
+@Serializable
+private data class SettingsYaml(val publishing: PublishingYaml)
+
+@Serializable
+private data class PublishingYaml(val version: String)
 
 private fun writeContentIfChanged(file: Path, content: ByteArray) {
     if (file.exists()) {

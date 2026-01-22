@@ -4,7 +4,11 @@ apply:
   - ../../sources/common.module-template.yaml
 
 dependencies:
-  - $libs.org.eclipse.jgit
-  - $libs.snakeyaml
-  - $libs.slf4j.simple
+  - $libs.charleskorn.kaml
   - $libs.kotlin.poet
+  - $libs.org.eclipse.jgit
+  - $libs.slf4j.simple
+
+settings:
+  kotlin:
+    serialization: enabled
