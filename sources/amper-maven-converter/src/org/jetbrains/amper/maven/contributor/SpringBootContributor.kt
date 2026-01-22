@@ -42,9 +42,10 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSpringBoot(
                     SpringBootSettings::version setTo scalar(plugin.version)
                 }
 
-                if (plugin.configuration is Xpp3Dom) {
-                    (plugin.configuration as Xpp3Dom).children.forEach { child ->
-                        if (child is Xpp3Dom && child.name == "mainClass") {
+                val pluginConfig = plugin.configuration
+                if (pluginConfig is Xpp3Dom) {
+                    pluginConfig.children.forEach { child ->
+                        if (child.name == "mainClass") {
                             if (child.value.startsWith("$")) {
                                 reactorProject.properties[child.value.substring(2, child.value.length - 1)]?.let { propertyValue ->
                                     Settings::jvm {

@@ -56,56 +56,55 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeCompilerPlugin(plugin
 context(sb: SyntheticBuilder, mapLikeValueBuilder: SyntheticBuilder.MapLikeValueBuilder)
 private fun ConfigurationContainer.configureCompilerExecution() {
     with(mapLikeValueBuilder) {
-        if (this@configureCompilerExecution.configuration is Xpp3Dom) {
-            (this@configureCompilerExecution.configuration as Xpp3Dom).children.forEach { child ->
-                if (child is Xpp3Dom) {
-                    when (child.name) {
-                        "compilerArgs" -> {
-                            val freeCompilerArgs = buildList { child.children.forEach { arg -> add(arg.value) } }
-                            Settings::java {
-                                JavaSettings::freeCompilerArgs setTo sb.list(SchemaType.ListType(SchemaType.StringType)) {
-                                    freeCompilerArgs.forEach { add(sb.scalar(it)) }
-                                }
+        val config = configuration
+        if (config is Xpp3Dom) {
+            config.children.filterNotNull().forEach { child ->
+                when (child.name) {
+                    "compilerArgs" -> {
+                        val freeCompilerArgs = buildList { child.children.forEach { arg -> add(arg.value) } }
+                        Settings::java {
+                            JavaSettings::freeCompilerArgs setTo sb.list(SchemaType.ListType(SchemaType.StringType)) {
+                                freeCompilerArgs.forEach { add(sb.scalar(it)) }
                             }
                         }
-                        "annotationProcessorPaths" -> {
-                            child.children.forEach { annotationProcessorPath ->
-                                val annotationProcessorCoordinates = buildString {
-                                    if (annotationProcessorPath is Xpp3Dom) {
-                                        when (annotationProcessorPath.name) {
-                                            "path" -> {
-                                                annotationProcessorPath.children.forEach { path ->
-                                                    if (path is Xpp3Dom) {
-                                                        when (path.name) {
-                                                            "groupId" -> append(path.value)
-                                                            "artifactId" -> append(":${path.value}")
-                                                            "version" -> append(":${path.value}")
-                                                        }
+                    }
+                    "annotationProcessorPaths" -> {
+                        child.children.forEach { annotationProcessorPath ->
+                            val annotationProcessorCoordinates = buildString {
+                                if (annotationProcessorPath is Xpp3Dom) {
+                                    when (annotationProcessorPath.name) {
+                                        "path" -> {
+                                            annotationProcessorPath.children.forEach { path ->
+                                                if (path is Xpp3Dom) {
+                                                    when (path.name) {
+                                                        "groupId" -> append(path.value)
+                                                        "artifactId" -> append(":${path.value}")
+                                                        "version" -> append(":${path.value}")
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                Settings::java {
-                                    JavaSettings::annotationProcessing {
-                                        JavaAnnotationProcessingSettings::processors {
-                                            this += sb.scalar(annotationProcessorCoordinates)
-                                        }
+                            Settings::java {
+                                JavaSettings::annotationProcessing {
+                                    JavaAnnotationProcessingSettings::processors {
+                                        this += sb.scalar(annotationProcessorCoordinates)
                                     }
                                 }
                             }
                         }
-                        "parameters" -> {
-                            Settings::jvm {
-                                JvmSettings::storeParameterNames setTo sb.scalar(child.value.toBoolean())
-                            }
+                    }
+                    "parameters" -> {
+                        Settings::jvm {
+                            JvmSettings::storeParameterNames setTo sb.scalar(child.value.toBoolean())
                         }
-                        "release" -> {
-                            Settings::jvm {
-                                JvmSettings::release setTo sb.scalar(child.value)
-                            }
+                    }
+                    "release" -> {
+                        Settings::jvm {
+                            JvmSettings::release setTo sb.scalar(child.value)
                         }
                     }
                 }

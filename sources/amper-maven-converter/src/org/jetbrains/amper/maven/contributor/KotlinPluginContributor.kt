@@ -27,13 +27,12 @@ internal fun ProjectTreeBuilder.contributeKotlinPlugin(reactorProjects: Set<Mave
         module(project.basedir.toPath() / "module.yaml") {
             project.model.build.plugins
                 .filter { it.groupId == "org.jetbrains.kotlin" && it.artifactId == "kotlin-maven-plugin" }
-                .forEach { plugin -> contributeKotlinPlugin(project, plugin) }
+                .forEach { plugin -> contributeKotlinPlugin(plugin) }
         }
     }
 }
 
 private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeKotlinPlugin(
-    reactorProject: MavenProject,
     plugin: Plugin,
 ) {
     // Kotlin plugin common settings
@@ -80,117 +79,116 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeKotlinPlugin(
 context(sb: SyntheticBuilder, mapLikeValueBuilder: SyntheticBuilder.MapLikeValueBuilder)
 private fun ConfigurationContainer.configureKotlinExecution() {
     with(mapLikeValueBuilder) {
-        if (this@configureKotlinExecution.configuration is Xpp3Dom) {
-            (this@configureKotlinExecution.configuration as Xpp3Dom).children.forEach { child ->
-                if (child is Xpp3Dom) {
-                    when (child.name) {
-                        "args" -> {
-                            val freeCompilerArgs = buildList {
-                                child.children.forEach { arg ->
-                                    add(arg.value)
-                                }
+        val config = configuration
+        if (config is Xpp3Dom) {
+            config.children.forEach { child ->
+                when (child.name) {
+                    "args" -> {
+                        val freeCompilerArgs = buildList {
+                            child.children.forEach { arg ->
+                                add(arg.value)
                             }
-                            Settings::kotlin {
-                                KotlinSettings::freeCompilerArgs setTo sb.list(
-                                    SchemaType.ListType(SchemaType.StringType)
-                                ) {
-                                    freeCompilerArgs.forEach { arg ->
-                                        add(sb.scalar(arg))
-                                    }
+                        }
+                        Settings::kotlin {
+                            KotlinSettings::freeCompilerArgs setTo sb.list(
+                                SchemaType.ListType(SchemaType.StringType)
+                            ) {
+                                freeCompilerArgs.forEach { arg ->
+                                    add(sb.scalar(arg))
                                 }
                             }
                         }
-                        "compilerPlugins" -> {
-                            child.children.forEach { plugin ->
-                                when (plugin.value) {
-                                    "all-open" -> {
-                                        Settings::kotlin {
-                                            KotlinSettings::allOpen {
-                                                AllOpenSettings::enabled setTo sb.scalar(true)
-                                            }
-                                        }
-                                    }
-                                    "no-arg" -> {
-                                        Settings::kotlin {
-                                            KotlinSettings::noArg {
-                                                NoArgSettings::enabled setTo sb.scalar(true)
-                                            }
-                                        }
-                                    }
-                                    "lombok" -> {
-                                        Settings::lombok {
-                                            LombokSettings::enabled setTo sb.scalar(true)
-                                        }
-                                    }
-                                    "kotlinx-serialization" -> {
-                                        Settings::kotlin {
-                                            KotlinSettings::serialization {
-                                                SerializationSettings::enabled setTo sb.scalar(true)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        "pluginOptions" -> {
-                            child.children.forEach { option ->
-                                if (option.value.startsWith("all-open:annotation=")) {
+                    }
+                    "compilerPlugins" -> {
+                        child.children.forEach { plugin ->
+                            when (plugin.value) {
+                                "all-open" -> {
                                     Settings::kotlin {
                                         KotlinSettings::allOpen {
-                                            AllOpenSettings::annotations setTo sb.list(
-                                                SchemaType.ListType(SchemaType.StringType)
-                                            ) {
-                                                add(sb.scalar(option.value.substringAfter("all-open:annotation=")))
-                                            }
+                                            AllOpenSettings::enabled setTo sb.scalar(true)
                                         }
                                     }
                                 }
-                                if (option.value.startsWith("all-open:preset=")) {
-                                    Settings::kotlin {
-                                        KotlinSettings::allOpen {
-                                            AllOpenSettings::presets setTo sb.list(
-                                                SchemaType.ListType(SchemaType.StringType)
-                                            ) {
-                                                add(sb.scalar(option.value.substringAfter("all-open:preset=")))
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (option.value.startsWith("no-arg:annotation=")) {
+                                "no-arg" -> {
                                     Settings::kotlin {
                                         KotlinSettings::noArg {
-                                            NoArgSettings::annotations setTo sb.list(
-                                                SchemaType.ListType(SchemaType.StringType)
-                                            ) {
-                                                add(sb.scalar(option.value.substringAfter("no-arg:annotation=")))
-                                            }
+                                            NoArgSettings::enabled setTo sb.scalar(true)
                                         }
                                     }
                                 }
-
-                                if (option.value.startsWith("no-arg:preset=")) {
+                                "lombok" -> {
+                                    Settings::lombok {
+                                        LombokSettings::enabled setTo sb.scalar(true)
+                                    }
+                                }
+                                "kotlinx-serialization" -> {
                                     Settings::kotlin {
-                                        KotlinSettings::noArg {
-                                            NoArgSettings::presets setTo sb.list(
-                                                SchemaType.ListType(SchemaType.StringType)
-                                            ) {
-                                                add(sb.scalar(option.value.substringAfter("no-arg:preset=")))
-                                            }
+                                        KotlinSettings::serialization {
+                                            SerializationSettings::enabled setTo sb.scalar(true)
                                         }
                                     }
                                 }
                             }
                         }
-                        "jvmTarget" -> {
-                            Settings::jvm {
-                                JvmSettings::release setTo sb.scalar(child.value)
+                    }
+                    "pluginOptions" -> {
+                        child.children.forEach { option ->
+                            if (option.value.startsWith("all-open:annotation=")) {
+                                Settings::kotlin {
+                                    KotlinSettings::allOpen {
+                                        AllOpenSettings::annotations setTo sb.list(
+                                            SchemaType.ListType(SchemaType.StringType)
+                                        ) {
+                                            add(sb.scalar(option.value.substringAfter("all-open:annotation=")))
+                                        }
+                                    }
+                                }
+                            }
+                            if (option.value.startsWith("all-open:preset=")) {
+                                Settings::kotlin {
+                                    KotlinSettings::allOpen {
+                                        AllOpenSettings::presets setTo sb.list(
+                                            SchemaType.ListType(SchemaType.StringType)
+                                        ) {
+                                            add(sb.scalar(option.value.substringAfter("all-open:preset=")))
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (option.value.startsWith("no-arg:annotation=")) {
+                                Settings::kotlin {
+                                    KotlinSettings::noArg {
+                                        NoArgSettings::annotations setTo sb.list(
+                                            SchemaType.ListType(SchemaType.StringType)
+                                        ) {
+                                            add(sb.scalar(option.value.substringAfter("no-arg:annotation=")))
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (option.value.startsWith("no-arg:preset=")) {
+                                Settings::kotlin {
+                                    KotlinSettings::noArg {
+                                        NoArgSettings::presets setTo sb.list(
+                                            SchemaType.ListType(SchemaType.StringType)
+                                        ) {
+                                            add(sb.scalar(option.value.substringAfter("no-arg:preset=")))
+                                        }
+                                    }
+                                }
                             }
                         }
-                        "javaParameters" -> {
-                            Settings::jvm {
-                                JvmSettings::storeParameterNames setTo sb.scalar(child.value.toBoolean())
-                            }
+                    }
+                    "jvmTarget" -> {
+                        Settings::jvm {
+                            JvmSettings::release setTo sb.scalar(child.value)
+                        }
+                    }
+                    "javaParameters" -> {
+                        Settings::jvm {
+                            JvmSettings::storeParameterNames setTo sb.scalar(child.value.toBoolean())
                         }
                     }
                 }
