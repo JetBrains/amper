@@ -195,8 +195,8 @@ internal abstract class BuiltInTypingContext protected constructor(
         override fun toString() = "enum declaration `${qualifiedName}`"
     }
 
-    protected open inner class BuiltinClassDeclaration(
-        override val backingReflectionClass: KClass<out SchemaNode>,
+    protected open inner class BuiltinClassDeclaration<T : SchemaNode>(
+        override val backingReflectionClass: KClass<T>,
     ) : SchemaObjectDeclaration, ReflectionBasedTypeDeclaration, SchemaObjectDeclarationBase() {
 
         override val properties by lazy { parseBuiltInProperties() }
@@ -213,7 +213,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                             .addStringSemanticsIfAny(prop),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
-                        default = prop.schemaDelegate(exampleInstance)?.default,
+                        default = prop.schemaDelegate(exampleInstance).default,
                         isModifierAware = prop.hasAnnotation<ModifierAware>(),
                         isFromKeyAndTheRestNested = prop.hasAnnotation<FromKeyAndTheRestIsNested>(),
                         specificToPlatforms = prop.findAnnotation<PlatformSpecific>()?.platforms?.toSet().orEmpty(),
@@ -254,7 +254,7 @@ internal abstract class BuiltInTypingContext protected constructor(
             return this
         }
 
-        override fun createInstance(): SchemaNode =
+        override fun createInstance(): T =
             backingReflectionClass.createInstance().apply {
                 schemaType = this@BuiltinClassDeclaration
             }

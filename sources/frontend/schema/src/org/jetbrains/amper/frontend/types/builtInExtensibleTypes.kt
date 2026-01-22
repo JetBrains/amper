@@ -59,9 +59,9 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         return super.findOrRegisterTypeWithDeclaration(type)
     }
 
-    private open inner class BuiltinDeclarationWithCustomProperties(
-        backingReflectionClass: KClass<out SchemaNode>,
-    ) : SchemaObjectDeclaration, BuiltinClassDeclaration(backingReflectionClass) {
+    private open inner class BuiltinDeclarationWithCustomProperties<T : SchemaNode>(
+        backingReflectionClass: KClass<T>,
+    ) : SchemaObjectDeclaration, BuiltinClassDeclaration<T>(backingReflectionClass) {
         override val properties by lazy { parseBuiltInProperties() + customProperties(backingReflectionClass) }
 
         private fun customProperties(type: KClass<out SchemaNode>): List<SchemaObjectDeclaration.Property> =

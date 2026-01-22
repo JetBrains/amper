@@ -201,18 +201,21 @@ private val KProperty<*>.fullyQualifiedName: String
 
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 
-@Suppress("UNCHECKED_CAST")
-fun <T, V> KProperty1<T, V>.schemaDelegate(receiver: SchemaNode): SchemaValueDelegate<V>? =
-    setAccessible().getDelegate(receiver as T) as? SchemaValueDelegate<V>
+fun <R, V> KProperty1<R, V>.schemaDelegate(receiver: R): SchemaValueDelegate<V> =
+    setAccessible().getDelegate(receiver)?.let {
+        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be V by definition of SchemaValueDelegate
+        it as SchemaValueDelegate<V>
+    } ?: error("Property $this should have a traceable schema delegate")
 
 /**
  * Returns the traceable [SchemaValueDelegate] of this property, or throws if this property isn't defined with such
  * a delegate. This should be used when this property is a schema property defined with a schema delegate.
  */
-@Suppress("UNCHECKED_CAST")
 val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
-    get() = setAccessible().getDelegate() as? SchemaValueDelegate<T>
-        ?: error("Property $this should have a traceable schema delegate")
+    get() = setAccessible().getDelegate()?.let {
+        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be T by definition of SchemaValueDelegate
+        it as SchemaValueDelegate<T>
+    } ?: error("Property $this should have a traceable schema delegate")
 
 /**
  * Whether this property is explicitly set in config files.
