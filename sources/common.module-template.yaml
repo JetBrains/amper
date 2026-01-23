@@ -35,6 +35,7 @@ settings:
     version: 1.0-SNAPSHOT
 
   kotlin:
+    version: 2.3.0
     progressiveMode: true
     powerAssert: enabled
     freeCompilerArgs:
