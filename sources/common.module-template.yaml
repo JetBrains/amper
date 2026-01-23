@@ -44,7 +44,7 @@ settings:
       - -Xconsistent-data-class-copy-visibility
       - -Xcontext-parameters
       - -Xrender-internal-diagnostic-names
-      - -Xwarning-level=OPT_IN_REQUIREMENT_MARKER_IS_UNRESOLVED:disabled # We want to opt in globally sometimes
+      - -Xwarning-level=UNCHECKED_CAST:error # At least suppress + explain why it's safe (where the check happened)
     optIns:
       - kotlin.contracts.ExperimentalContracts
       - kotlin.io.path.ExperimentalPathApi
