@@ -33,7 +33,6 @@ dependencies:
   - $libs.intellij.platform.coreImpl
   - $libs.intellij.platform.ideCore
   - $libs.intellij.platform.util
-  - $libs.kotlinx.collections
   - $libs.xmlutil.serialization
 
 test-dependencies:
