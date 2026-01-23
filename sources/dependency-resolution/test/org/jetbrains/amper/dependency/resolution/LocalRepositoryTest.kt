@@ -202,7 +202,7 @@ class LocalRepositoryTest : BaseDRTest() {
         )
 
         assertTrue(
-            (cache.localRepository as MavenLocalRepository).repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm")
+            cache.localRepository.repository.resolve("org/jetbrains/kotlinx/atomicfu-jvm")
                 .exists(),
             "Local repository should not contain atomicfu-jvm"
         )

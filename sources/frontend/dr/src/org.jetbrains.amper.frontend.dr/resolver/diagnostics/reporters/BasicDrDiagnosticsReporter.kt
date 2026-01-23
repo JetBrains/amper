@@ -12,7 +12,6 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.version
-import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
@@ -122,9 +121,8 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         dependencyElement: PsiElement,
     ): VersionDefinition? {
         if (node !is MavenDependencyNode) return null
-        val notation = directDependency.notation as? MavenDependencyBase ?: return null
 
-        val resolvedVersion = notation.coordinates.findTraceableVersion() ?: return null
+        val resolvedVersion = directDependency.notation.coordinates.findTraceableVersion() ?: return null
 
         val versionTrace = resolvedVersion.trace
 
