@@ -97,7 +97,7 @@ sealed interface UnusableJavaHomeResult {
 /**
  * Returns the [Jdk] if this result is [JdkResult.Success], or runs the given [fallback] function with the error message.
  */
-inline fun JdkResult.orElse(fallback: (errorMessage: String) -> Jdk): Jdk = when (this) {
+inline fun JdkResult.orElse(fallback: (errorMessage: @Nls String) -> Jdk): Jdk = when (this) {
     is JdkResult.Success -> jdk
     is JdkResult.Failure -> fallback(message)
 }
