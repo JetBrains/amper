@@ -129,6 +129,12 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertCanUpdateToCurrent(projectDir)
     }
 
+    @Test
+    fun `can update from 0_9_0 to current`() = runSlowTest {
+        val projectDir = createEmptyProjectWithWrappers(version = "0.9.0")
+        assertCanUpdateToCurrent(projectDir)
+    }
+
     private suspend fun createEmptyProjectWithWrappers(version: String): Path {
         val projectDir = newEmptyProjectDir()
         runCli(projectDir, "update", "--target-version=$version", "--create")
