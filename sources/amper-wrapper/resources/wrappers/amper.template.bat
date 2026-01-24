@@ -134,20 +134,6 @@ set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
 call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256" "true"
 if errorlevel 1 goto fail
 
-REM !! DO NOT REMOVE !!
-REM There is a command at the end of this line:@EXIT_COMMAND_PADDING@exit /b %ERRORLEVEL%
-REM
-REM The above comment is strategically placed to compensate for a bug in the update command in Amper 0.5.0.
-REM During the update, the wrapper script is overwritten in-place while running. The problem is that cmd.exe doesn't
-REM buffer the original script as a whole, and instead reloads it after every command, and tries to resume at the same
-REM byte offset as before.
-REM In the 0.5.0 script, the java command running Amper is followed by the command 'exit /b %ERRORLEVEL%', which is
-REM exactly at the byte offset 6826. So, when the java command finishes, cmd.exe wants to run this exit command, but
-REM it first reloads the file and gets the new content (this one) before trying to run whatever is at offset 6826.
-REM We must place an exit command right at that offset to allow 0.5.0 to complete properly.
-REM Since there are version/checksum placeholders at the top of this template wrapper file, we need to dynamically
-REM adjust the position of the exit command, hence the padding placeholder.
-
 REM ********** Provision JRE for Amper **********
 
 if defined AMPER_JAVA_HOME (

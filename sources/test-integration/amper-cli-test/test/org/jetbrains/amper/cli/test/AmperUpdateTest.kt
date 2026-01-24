@@ -94,21 +94,15 @@ class AmperUpdateTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `can downgrade from current to 0_5_0`() = runSlowTest {
+    fun `can downgrade from current to 0_6_0`() = runSlowTest {
         val projectDir = newEmptyProjectDir()
         LocalAmperPublication.setupWrappersIn(projectDir)
 
-        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir, "--target-version=0.5.0")
+        val (bashVersion, batVersion, result) = runAmperUpdateAndAwaitWinWrapper(projectDir, "--target-version=0.6.0")
 
         assertTrue(result.stdout.contains("Update successful"), "Update should be successful")
-        assertEquals("0.5.0", bashVersion, "amper bash script should have the new version")
-        assertEquals("0.5.0", batVersion, "amper bat script should have the new version")
-    }
-
-    @Test
-    fun `can update from 0_5_0 to current`() = runSlowTest {
-        val projectDir = createEmptyProjectWithWrappers(version = "0.5.0")
-        assertCanUpdateToCurrent(projectDir)
+        assertEquals("0.6.0", bashVersion, "amper bash script should have the new version")
+        assertEquals("0.6.0", batVersion, "amper bat script should have the new version")
     }
 
     @Test
