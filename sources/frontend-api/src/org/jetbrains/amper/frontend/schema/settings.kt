@@ -261,7 +261,7 @@ class NativeSettings : SchemaNode() {
 
 class CinteropModule : SchemaNode() {
     @SchemaDoc("Path to the .def file for cinterop generation.")
-    var defFile by nullableValue<String>()
+    var defFile by nullableValue<Path>()
 
     @SchemaDoc("The package name for the generated bindings.")
     var packageName by nullableValue<String>()

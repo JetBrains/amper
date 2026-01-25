@@ -19,6 +19,7 @@ import org.jetbrains.amper.tasks.getModuleDependencies
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.tasks.ios.ManageXCodeProjectTask
 import org.jetbrains.amper.util.BuildType
+import kotlin.io.path.Path
 
 private fun isIosApp(platform: Platform, module: AmperModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
@@ -44,7 +45,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 .singleLeafFragment()
 
             val cinteropTasks = fragment.settings.native?.cinterop?.map { (moduleName, cinteropModule) ->
-                val defFile = cinteropModule.defFile ?: "resources/cinterop/$moduleName.def"
+                val defFile = cinteropModule.defFile ?: Path("resources/cinterop/$moduleName.def")
                 val cinteropTaskName = NativeTaskType.Cinterop.getTaskName(module, platform, isTest, buildType)
                     .let { TaskName(it.name + "-" + moduleName) }
                 CinteropTask(
