@@ -123,9 +123,9 @@ class KotlinNativeCompiler(
             }
     }
 
-    private suspend fun runInProcess(
-        toolName: String,
-        programArgs: List<String>,
+    private suspend fun runNativeCommand(
+        commandName: String,
+        commandArgs: List<String>,
         argsMode: ArgsMode,
         workingDir: Path = kotlinNativeHome,
     ): org.jetbrains.amper.processes.ProcessResult {
