@@ -42,6 +42,16 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that symbol &oslash; used in pom.xml of 'plexus:plexus-root:1.0.2'
+     * (and treated by a parser as a global reference) doesn't break parsing.
+     */
+    @Test
+    fun `plexus plexus-utils 1_0_2`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that the variable ${project.parent.version} from pom.xml
      * is resolved and substituted.
      */

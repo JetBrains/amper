@@ -227,7 +227,8 @@ private fun MavenDependency.parsePom(text: String): Project =
     sanitizePom(text, coordinates).parsePom()
 
 private fun sanitizePom(pomText: String, coordinates: MavenCoordinates): String =
-    if (coordinates.groupId == "org.codehaus.plexus" && coordinates.artifactId == "plexus")
+    if (coordinates.groupId == "org.codehaus.plexus" && coordinates.artifactId == "plexus"
+        || coordinates.artifactId == "plexus-root")
         pomText.replace("&oslash;", "ø")
     else if (coordinates.artifactId == "hadoop-project")
         // Removing Xlint: prefix (that is recognized as an unknown namespace by XML parser making entire XML invalid)
