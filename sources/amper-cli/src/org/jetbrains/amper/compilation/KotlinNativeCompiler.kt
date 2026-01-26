@@ -17,6 +17,7 @@ import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.use
@@ -83,7 +84,7 @@ class KotlinNativeCompiler(
                 logger.debug("konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                    val result = runInProcess("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
+                    val result = runNativeCommand("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
                     span.setProcessResultAttributes(result)
 
                     if (result.exitCode != 0) {
@@ -109,7 +110,7 @@ class KotlinNativeCompiler(
             .use { span ->
                 logger.debug("cinterop ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
-                val result = runInProcess("cinterop", args, ArgsMode.CommandLine, module.source.moduleDir)
+                val result = runNativeCommand("cinterop", args, ArgsMode.CommandLine)
                 span.setProcessResultAttributes(result)
 
                 if (result.exitCode != 0) {
@@ -126,24 +127,23 @@ class KotlinNativeCompiler(
     private suspend fun runNativeCommand(
         commandName: String,
         commandArgs: List<String>,
-        argsMode: ArgsMode,
-        workingDir: Path = kotlinNativeHome,
-    ): org.jetbrains.amper.processes.ProcessResult {
+        argsMode: ArgsMode
+    ): ProcessResult {
         val konanLib = kotlinNativeHome / "konan" / "lib"
 
         // We call konanc via java because the konanc command line doesn't support spaces in paths:
         // https://youtrack.jetbrains.com/issue/KT-66952
         // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
         return jdk.runJava(
-            workingDir = workingDir,
+            workingDir = kotlinNativeHome,
             mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
             classpath = listOf(
                 konanLib / "kotlin-native-compiler-embeddable.jar",
                 konanLib / "trove4j.jar",
             ),
-            programArgs = listOf(toolName) + programArgs,
-            // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
+            programArgs = listOf(commandName) + commandArgs,
             argsMode = argsMode,
+            // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
             jvmArgs = listOf(
                 "-ea",
                 "-XX:TieredStopAtLevel=1",

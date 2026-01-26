@@ -82,7 +82,7 @@ internal class CinteropTask(
                     add(packageName)
                 }
                 add("-compiler-option")
-                add("-I.")
+                add("-I${module.source.moduleDir}")
                 compilerOpts.forEach {
                     add(it)
                 }
