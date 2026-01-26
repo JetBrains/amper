@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("CONTEXT_RECEIVERS_DEPRECATED")
@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.catalogs.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDeclaration
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Companion.find
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -43,7 +44,7 @@ class StandaloneAmperProjectContext(
     projectBuildDir: Path?,
     override val amperModuleFiles: List<VirtualFile>,
     override val pluginsModuleFiles: List<VirtualFile>,
-    override val externalMavenPluginDependencies: List<UnscopedExternalMavenDependency>,
+    override val externalMavenPlugins: List<MavenPlugin>,
 ) : AmperProjectContext {
 
     override val projectBuildDir: Path by lazy {
@@ -120,7 +121,7 @@ class StandaloneAmperProjectContext(
                     projectBuildDir = buildDir,
                     amperModuleFiles = listOf(result.startModuleFile),
                     pluginsModuleFiles = emptyList(), // no plugins for the single-module project.
-                    externalMavenPluginDependencies = emptyList(), // no maven plugins for the single-module project.
+                    externalMavenPlugins = emptyList(), // no maven plugins for the single-module project.
                 )
             }
             return potentialContext
@@ -207,7 +208,7 @@ class StandaloneAmperProjectContext(
                 projectBuildDir = buildDir,
                 amperModuleFiles = amperModuleFiles,
                 pluginsModuleFiles = localPluginDependencies,
-                externalMavenPluginDependencies = amperProject?.mavenPlugins.orEmpty(),
+                externalMavenPlugins = amperProject?.mavenPlugins.orEmpty(),
             )
         }
     }

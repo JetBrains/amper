@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -30,5 +30,5 @@ class Project : SchemaNode() {
     val plugins by value<List<UnscopedModuleDependency>>(default = emptyList())
 
     @HiddenFromCompletion
-    val mavenPlugins by value<List<UnscopedExternalMavenDependency>>(default = emptyList())
+    val mavenPlugins by value<List<MavenPlugin>>(default = emptyList())
 }

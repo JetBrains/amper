@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.helpers
@@ -40,7 +40,7 @@ class DiagnosticsTestRun(
         with(problemReporter) {
             val moduleFiles = listOf(inputFile).plus(additionalModules).sortedBy { it.path }
             projectContext.copy(amperModuleFiles = moduleFiles)
-                .readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
+                .readProjectModel(pluginData = emptyList(), mavenPluginsWithXmls = emptyList())
         }
 
         // Collect errors.

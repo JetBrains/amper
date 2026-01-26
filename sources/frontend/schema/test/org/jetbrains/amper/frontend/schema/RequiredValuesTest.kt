@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -47,7 +47,7 @@ class RequiredValuesTest : FrontendTestCaseBase(Path("testResources") / "require
         val problemReporter = CollectingProblemReporter()
         val model = with(problemReporter) {
             val context = readProjectContextWithTestFrontendResolver(testProjectDir)
-            context.doReadProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
+            context.doReadProjectModel(pluginData = emptyList(), mavenPluginsWithXmls = emptyList())
         }
         val actual = model.unreadableModuleFiles.map { it.toNioPath().relativeTo(testProjectDir) }
         val expectedUnreadableModulePaths = listOf(Path("b/module.yaml"), Path("c/module.yaml"))

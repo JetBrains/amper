@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -363,8 +364,12 @@ class RenderToYamlTest {
                     this += scalar("module1")
                 }
                 Project::mavenPlugins {
-                    this += scalar("org.apache.maven.plugins:maven-surefire-plugin:3.5.3")
-                    this += scalar("org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0")
+                    this += `object`<MavenPlugin> {
+                        MavenPlugin::coordinates setTo scalar("org.apache.maven.plugins:maven-surefire-plugin:3.5.3")
+                    }
+                    this += `object`<MavenPlugin> {
+                        MavenPlugin::coordinates setTo scalar("org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0")
+                    }
                 }
             }
         }

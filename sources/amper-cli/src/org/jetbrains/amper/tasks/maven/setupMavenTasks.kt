@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.maven
@@ -17,7 +17,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 // Set up maven tasks only for JVM modules. 
 fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
     // Skip maven tasks registration if we have no maven plugins specified.
-    if (context.projectContext.externalMavenPluginDependencies.isEmpty()) return
+    if (context.projectContext.externalMavenPlugins.isEmpty()) return
 
     allModules().alsoPlatforms(Platform.JVM).withEach {
         setupUmbrellaMavenTasks()
@@ -77,7 +77,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
 
 context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupMavenPluginTasks() {
-    module.amperMavenPluginsDescriptions.forEach plugin@{ pluginXml ->
+    module.amperMavenPluginsDescriptions.forEach plugin@{ pluginDescription ->
         // TODO What actual classloader to place here? Do we even need maven mojos to be aware of
         //  amper classes? Should classes be shared between different maven mojos/plugins?
         //  Even instances of plexus beans that are discovered on the classpath?
@@ -95,14 +95,23 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         val moduleMavenProject = MockedMavenProject()
 
         val mavenPlugin = MavenPlugin().apply {
-            artifactId = pluginXml.artifactId
-            groupId = pluginXml.groupId
-            version = pluginXml.version
+            artifactId = pluginDescription.artifactId
+            groupId = pluginDescription.groupId
+            version = pluginDescription.version
+            dependencies = pluginDescription.dependencies.map {
+                MavenDependency(
+                    groupId = it.groupId,
+                    artifactId = it.artifactId,
+                    version = it.version,
+                    type = "jar",
+                    scope = MavenArtifact.SCOPE_RUNTIME,
+                )
+            }
         }
 
         // Create mojo execution tasks.
-        val mojoTasks = pluginXml.mojos.mapNotNull { mojo ->
-            val mavenCompatPluginId = amperMavenPluginId(pluginXml, mojo)
+        val mojoTasks = pluginDescription.mojos.mapNotNull { mojo ->
+            val mavenCompatPluginId = amperMavenPluginId(pluginDescription, mojo)
 
             // There must be a node, at least to read "enabled" property.
             val correspondingNode = module.pluginSettings.valueHolders[mavenCompatPluginId]?.value

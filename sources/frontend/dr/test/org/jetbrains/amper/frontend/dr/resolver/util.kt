@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -29,7 +29,7 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
     val aom = with(NoopProblemReporter) {
         val amperProjectContext = StandaloneAmperProjectContext.create(projectPath, null)
             ?: fail("Failed to create test project context")
-        amperProjectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
+        amperProjectContext.readProjectModel(pluginData = emptyList(), mavenPluginsWithXmls = emptyList())
     }
     return aom
 }

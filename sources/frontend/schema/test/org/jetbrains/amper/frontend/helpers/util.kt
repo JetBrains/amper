@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.helpers
@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
-import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.system.info.OsFamily
@@ -31,7 +31,7 @@ data class TestProjectContext(
     override val pluginsModuleFiles = emptyList<VirtualFile>()
     override val projectBuildDir: Path get() = projectRootDir.toNioPath()
     override var projectVersionsCatalog: VersionCatalog? = null
-    override val externalMavenPluginDependencies = emptyList<UnscopedExternalMavenDependency>()
+    override val externalMavenPlugins = emptyList<MavenPlugin>()
 }
 
 /**

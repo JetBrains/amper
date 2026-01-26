@@ -296,7 +296,7 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
                     groupId = it.dependency.group,
                     artifactId = it.dependency.module,
                     version = it.dependency.version ?: "unspecified",
-                    scope = "runtime",
+                    scope = MavenArtifact.SCOPE_RUNTIME,
                     type = "jar",
                     isAddedToClasspath = true
                 ).apply {
@@ -322,7 +322,8 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMaven
 
     override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
         val classesArtifacts = moduleDependenciesClasses
-            .flatMap { it.toArtifacts(if (it.isTest) "test" else "runtime") }.toSet()
+            .flatMap { it.toArtifacts(if (it.isTest) MavenArtifact.SCOPE_TEST else MavenArtifact.SCOPE_RUNTIME) }
+            .toSet()
         val externalArtifacts = getExternalAetherArtifacts(false) + getExternalAetherArtifacts(true)
 
         return MavenProjectEmbryo(

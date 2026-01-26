@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.android.gradle
 
@@ -10,12 +10,10 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.BasePluginExtension
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.problems.Problems
 import org.gradle.api.problems.Severity
 import org.gradle.api.provider.Property
-import org.gradle.initialization.DefaultProjectDescriptor
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.MockableJarModelBuilder
@@ -293,7 +291,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
                 // as it currently can't influence project configuration (besides tasks)
                 // Any "unknown property" errors are going to be ignored here.
                 pluginData = emptyList(),
-                mavenPluginXmls = emptyList(),
+                mavenPluginsWithXmls = emptyList(),
             )
         }
 

@@ -1,8 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.plugins
+
+import org.jetbrains.amper.frontend.MavenCoordinates
 
 /**
  * Interface representing the maven "plugin.xml" structure that is used to:
@@ -16,6 +18,7 @@ interface AmperMavenPluginDescription {
     val version: String
     val goalPrefix: String
     val mojos: List<AmperMavenPluginMojo>
+    val dependencies: List<MavenCoordinates>
 }
 
 interface AmperMavenPluginMojo {

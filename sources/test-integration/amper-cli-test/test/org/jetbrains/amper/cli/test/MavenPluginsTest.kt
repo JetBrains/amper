@@ -11,8 +11,8 @@ import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
-import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
@@ -105,22 +105,39 @@ class MavenPluginsTest : AmperCliTestBase() {
     
     @Test
     fun `checkstyle plugin performs a report`() = runSlowTest {
+        val testProject = "checkstyle-plugin"
         val result = runTask(
-            projectWithMavenPath = "checkstyle-plugin",
+            projectWithMavenPath = testProject,
             taskName = "maven-checkstyle-plugin.checkstyle",
         )
         
-        val checkstyleTaskOutput = result.buildOutputRoot / "tasks/_app_maven-checkstyle-plugin.checkstyle/maven-build"
+        val checkstyleTaskOutput = result.buildOutputRoot / "tasks" / "_app_maven-checkstyle-plugin.checkstyle/maven-build"
         assertExists(checkstyleTaskOutput / "checkstyle.html")
         
         val checkstyleResult = checkstyleTaskOutput / "checkstyle-result.xml"
         assertExists(checkstyleResult)
         
         val checkstyleResultText = checkstyleResult.readText()
-        val pathToJavaFile = "checkstyle-plugin${File.separator}app${File.separator}src${File.separator}Foo.java"
-        assertContains(checkstyleResultText, pathToJavaFile)
+        val pathToJavaFile = emptyPath / testProject / "app" / "src" / "Foo.java"
+        assertContains(checkstyleResultText, pathToJavaFile.toString())
         assertContains(checkstyleResultText, "File does not end with a newline.")
         assertContains(checkstyleResultText, "Missing package-info.java file.")
+    }    
+    
+    @Test
+    fun `checkstyle plugin with nohttp dependency performs a report`() = runSlowTest {
+        val testProject = "checkstyle-plugin-with-dependency"
+        val result = runTask(
+            projectWithMavenPath = testProject,
+            taskName = "maven-checkstyle-plugin.checkstyle",
+        )
+        
+        val checkstyleResult = result.buildOutputRoot / "tasks" / "_app_maven-checkstyle-plugin.checkstyle" / "maven-build" / "checkstyle-result.xml"
+        assertExists(checkstyleResult)
+        val checkstyleResultText = checkstyleResult.readText()
+        val pathToJavaFile = emptyPath / testProject / "app" / "src" / "dummy.txt"
+        assertContains(checkstyleResultText, pathToJavaFile.toString())
+        assertContains(checkstyleResultText, "http:// URLs are not allowed but got &apos;http://not.allowed.com&apos;")
     }
 
     private fun assertExists(path: Path) = assertTrue(path.exists()) { 
@@ -128,6 +145,11 @@ class MavenPluginsTest : AmperCliTestBase() {
         "Expected \"$path\" was not found. The first existing parent is: \"${path.parent}\"." +
                 "\nIts children are: ${existingParent.listDirectoryEntries().joinToString { "\"${it.name}\"" }}."
     }
+
+    /**
+     * An empty path for convenient construction with [Path.div]
+     */
+    private val emptyPath = Path("")
     
     /**
      * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.

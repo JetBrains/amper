@@ -61,7 +61,7 @@ internal suspend fun findProjectContext(explicitProjectRoot: Path?, explicitBuil
 internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
     val pluginData = spanBuilder("Prepare plugins")
         .use { preparePlugins(context = this@preparePluginsAndReadModel) }
-    val mavenPluginsXmls = spanBuilder("Prepare Maven plugins").use {
+    val mavenPluginsWithXmls = spanBuilder("Prepare Maven plugins").use {
         prepareMavenPlugins(
             projectContext = projectContext,
             incrementalCache = mavenPluginsIncrementalCache(
@@ -76,7 +76,7 @@ internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
         with(CliProblemReporter) {
             projectContext.readProjectModel(
                 pluginData = pluginData,
-                mavenPluginXmls = mavenPluginsXmls,
+                mavenPluginsWithXmls = mavenPluginsWithXmls,
             )
         }
     }

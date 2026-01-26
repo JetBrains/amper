@@ -67,7 +67,25 @@ fun MavenProject.addTestResources(paths: List<Path>) = paths
     .map { Resource().apply { directory = it.absolutePathString() } }
     .forEach { addTestResource(it) }
 
-// --- Maven artifacts utilities ---
+// --- Maven artifacts/dependencies utilities ---
+
+/**
+ * Shortcut constructor for the `MavenDependency`.
+ */
+fun MavenDependency(
+    groupId: String,
+    artifactId: String,
+    version: String?,
+    type: String,
+    scope: String,
+) = MavenDependency().apply {
+    this.groupId = groupId
+    this.artifactId = artifactId
+    this.version = version
+    this.type = type
+    this.scope = scope
+}
+
 /**
  * Shortcut for the default constructor with `isAddedToClasspath` flag being provided.
  */

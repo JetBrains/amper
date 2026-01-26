@@ -42,6 +42,7 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
@@ -67,6 +68,10 @@ import kotlin.io.path.name
 import kotlin.io.path.relativeTo
 import kotlin.reflect.KProperty0
 
+// Convenience grouping, until we need a separate class for this.
+@UsedInIdePlugin
+typealias MavenPluginWithXml = Pair<MavenPlugin, MavenPluginXml>
+
 /**
  * Parses the configuration files of this [AmperProjectContext] and builds the project model.
  *
@@ -83,8 +88,8 @@ import kotlin.reflect.KProperty0
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(
     pluginData: List<PluginData>,
-    mavenPluginXmls: List<MavenPluginXml>,
-): Model = doReadProjectModel(pluginData, mavenPluginXmls)
+    mavenPluginsWithXmls: List<MavenPluginWithXml>,
+): Model = doReadProjectModel(pluginData, mavenPluginsWithXmls)
 
 /**
  * Testable version of [readProjectModel].
@@ -92,9 +97,13 @@ fun AmperProjectContext.readProjectModel(
 context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
-    mavenPluginXmls: List<MavenPluginXml>,
+    mavenPluginsWithXmls: List<MavenPluginWithXml>,
     systemInfo: SystemInfo = SystemInfo.CurrentHost,
-): Model = context(frontendPathResolver, SchemaTypingContext(pluginData, mavenPluginXmls), systemInfo) {
+): Model = context(
+    frontendPathResolver, 
+    SchemaTypingContext(pluginData, mavenPluginsWithXmls.map { it.second }), 
+    systemInfo,
+) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val rawModulesByFile = caching { templateCache ->
         amperModuleFiles.associateWith {
@@ -115,7 +124,9 @@ internal fun AmperProjectContext.doReadProjectModel(
     buildPlugins(pluginData, projectContext = this@doReadProjectModel, modules)
     
     // Add read maven plugin xmls.
-    modules.forEach { it.module.amperMavenPluginsDescriptions = mavenPluginXmls.map { xml -> xml.toAmperDescription() } }
+    modules.forEach { 
+        it.module.amperMavenPluginsDescriptions = mavenPluginsWithXmls.map(MavenPluginWithXml::toAmperDescription) 
+    }
 
     // Perform diagnostics.
     AomSingleModuleDiagnosticFactories.forEach { diagnostic ->

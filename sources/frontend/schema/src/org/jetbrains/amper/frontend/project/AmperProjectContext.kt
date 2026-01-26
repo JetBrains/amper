@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.project
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import java.nio.file.Path
 
@@ -46,9 +47,9 @@ interface AmperProjectContext {
     val amperModuleFiles: List<VirtualFile>
 
     /**
-     * Local plugin module files of this project. Subset of [amperModuleFiles].
+     * External maven plugins that are declared for this project.
      */
-    val externalMavenPluginDependencies: List<UnscopedExternalMavenDependency>
+    val externalMavenPlugins: List<MavenPlugin>
 
     /**
      * Local plugin module files of this project. Subset of [amperModuleFiles].
