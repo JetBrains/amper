@@ -8,13 +8,14 @@ aliases:
 settings:
   compose:
     enabled: true
-    version: 1.7.0-rc01
     resources:
       packageName: com.example.gen
       exposedAccessors: true
 
 dependencies:
   - $compose.material3
+  # this is no longer updated, but we need it here for the demo's sake.
+  - org.jetbrains.compose.material:material-icons-core:1.7.3
 
 dependencies@jvm:
   - $compose.desktop.common
