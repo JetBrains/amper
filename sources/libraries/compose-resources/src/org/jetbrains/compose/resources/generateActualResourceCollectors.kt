@@ -120,7 +120,6 @@ internal fun getActualResourceCollectorsFileSpec(
                 MAP.parameterizedBy(String::class.asClassName(), typeClassName),
                 mods
             )
-            .addAnnotation(experimentalAnnotation)
             .receiver(ClassName(packageName, "Res"))
             .delegate(initBlock)
             .build()

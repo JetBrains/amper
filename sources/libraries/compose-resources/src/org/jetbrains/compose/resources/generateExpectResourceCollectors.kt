@@ -53,7 +53,6 @@ private fun getExpectResourceCollectorsFileSpec(
                         KModifier.EXPECT,
                         resModifier
                     )
-                    .addAnnotation(experimentalAnnotation)
                     .receiver(ClassName(packageName, "Res"))
                     .build()
             )

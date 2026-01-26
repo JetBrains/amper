@@ -6,7 +6,6 @@ package demo.app
 
 import androidx.compose.ui.test.*
 import com.example.gen.*
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import shared.MainView
 import kotlin.test.Test
 import kotlin.test.expect
@@ -34,7 +33,6 @@ class ComposeTest {
     }
 
     @Test
-    @OptIn(ExperimentalResourceApi::class)
     fun `test resource collectors`() {
         expect(
             setOf(

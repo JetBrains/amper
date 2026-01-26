@@ -48,7 +48,6 @@ private fun getResFileSpec(
         file.addAnnotation(
             AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
                 .addMember("org.jetbrains.compose.resources.InternalResourceApi::class")
-                .addMember("org.jetbrains.compose.resources.ExperimentalResourceApi::class")
                 .build()
         )
         file.addType(TypeSpec.objectBuilder("Res").also { resObject ->

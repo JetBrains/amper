@@ -9,12 +9,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import shared.MainView
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 import app_jvm.generated.resources.Res
 import app_jvm.generated.resources.allDrawableResources
 
-@ExperimentalResourceApi
 fun main() =
     singleWindowApplication(
         title = "Resources demo",

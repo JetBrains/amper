@@ -6,9 +6,7 @@ import app_jvm.generated.resources.Res
 import app_jvm.generated.resources.allDrawableResources
 import kotlin.test.Test
 import kotlin.test.expect
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 
-@OptIn(ExperimentalResourceApi::class)
 class CollectorsTest {
     @Test
     fun test() {

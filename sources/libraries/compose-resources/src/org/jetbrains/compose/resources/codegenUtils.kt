@@ -4,7 +4,6 @@
 
 package org.jetbrains.compose.resources
 
-import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 
 internal fun ResourceType.getClassName(): ClassName = when (this) {
@@ -14,7 +13,3 @@ internal fun ResourceType.getClassName(): ClassName = when (this) {
     ResourceType.STRING_ARRAY -> ClassName("org.jetbrains.compose.resources", "StringArrayResource")
     ResourceType.PLURAL_STRING -> ClassName("org.jetbrains.compose.resources", "PluralStringResource")
 }
-
-internal val experimentalAnnotation = AnnotationSpec.builder(
-    ClassName("org.jetbrains.compose.resources", "ExperimentalResourceApi")
-).build()
