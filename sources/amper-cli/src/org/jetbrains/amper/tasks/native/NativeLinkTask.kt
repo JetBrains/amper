@@ -109,13 +109,10 @@ internal class NativeLinkTask(
             .filterIsInstance<CinteropTask.Result>()
             .mapNotNull { it.compiledKlib }
 
-        println("Linking native binary for ${fragments.identificationPhrase()} with compiled klibs:\n" +
-                compiledKLibs.sorted().joinToString("\n").prependIndent("  ")
-        )
-
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
 
-        logger.debug("native link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
+        logger.debug("Linking native binary for ${fragments.identificationPhrase()} with compiled klibs:\n" +
+                compiledKLibs.sorted().joinToString("\n").prependIndent("  "))
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
