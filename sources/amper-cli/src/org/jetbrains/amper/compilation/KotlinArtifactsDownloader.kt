@@ -6,12 +6,13 @@ package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
+import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import java.nio.file.Path
 import kotlin.io.path.name
 
@@ -19,7 +20,7 @@ internal class KotlinArtifactsDownloader(
     val userCacheRoot: AmperUserCacheRoot,
     private val incrementalCache: IncrementalCache,
 ) {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     /**
      * Downloads the implementation of the Kotlin Build Tools API (and its dependencies) in the given [version].
@@ -68,13 +69,13 @@ internal class KotlinArtifactsDownloader(
     private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
         // using incrementalCache because currently DR takes ~3s even when the artifact is already cached
         incrementalCache.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
-            val coordinates = "$groupId:$artifactId:$version"
+            val coordinates = MavenCoordinates(groupId, artifactId, version)
             val resolved = mavenResolver.resolve(
                 coordinates = listOf(coordinates),
                 repositories = listOf(MavenCentral),
                 scope = ResolutionScope.RUNTIME,
                 platform = ResolutionPlatform.JVM,
-                resolveSourceMoniker = coordinates,
+                resolveSourceMoniker = coordinates.toString(),
             )
             return@execute resolved.toIncrementalCacheResult()
         }.outputFiles

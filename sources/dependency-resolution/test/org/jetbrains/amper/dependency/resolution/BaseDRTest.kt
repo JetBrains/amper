@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import io.opentelemetry.api.OpenTelemetry
+import kotlinx.coroutines.test.TestScope
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -13,15 +14,18 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleMessage
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.golden.goldenFileOsAware
+import org.jetbrains.amper.test.runTestRespectingDelays
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.fail
 import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -31,6 +35,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseDRTest {
     protected open val testDataPath: Path
@@ -40,10 +46,11 @@ abstract class BaseDRTest {
         root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
+        filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext {
         val resolver = Resolver()
-        resolver.buildGraph(root, ResolutionLevel.NETWORK)
+        resolver.buildGraph(root, ResolutionLevel.NETWORK, transitive = transitive)
         root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.verifyMessages(filterMessages)
@@ -56,10 +63,9 @@ abstract class BaseDRTest {
         testInfo: TestInfo,
         root: DependencyNodeHolderWithContext,
         verifyMessages: Boolean = true,
-        @Language("text") expected: String? = null,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNode {
-        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        val goldenFile = goldenFileOsAware("${testInfo.nameToGoldenFile()}.tree.txt")
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) fail("Golden file with the resolved tree '$goldenFile' doesn't exist")
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
@@ -82,12 +88,14 @@ abstract class BaseDRTest {
         @Language("text") expected: String? = null,
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
+        transitive: Boolean = true,
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() }
     ): DependencyNodeHolderWithContext =
-        context(scope, platform, repositories, cacheBuilder, openTelemetry)
+        context(scope, platform, repositories, cacheBuilder, openTelemetry, jdkVersion)
             .use { context ->
                 val root = dependency.toRootNode(context)
-                doTest(root, verifyMessages, expected, filterMessages)
+                doTest(root, verifyMessages, expected, filterMessages, transitive)
             }
 
     protected suspend fun doTest(
@@ -101,6 +109,7 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext = doTest(
         testInfo,
         listOf(dependency),
@@ -111,7 +120,8 @@ abstract class BaseDRTest {
         expected,
         cacheBuilder,
         filterMessages,
-        openTelemetry
+        openTelemetry,
+        transitive = transitive,
     )
 
     protected suspend fun doTestByFile(
@@ -124,8 +134,9 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
     ): DependencyNodeHolderWithContext {
-        val goldenFile = testDataPath / "${testInfo.nameToGoldenFile()}.tree.txt"
+        val goldenFile = goldenFileOsAware("${testInfo.nameToGoldenFile()}.tree.txt")
         return withActualDump(goldenFile) {
             if (!goldenFile.exists()) { goldenFile.createFile() }
             val expected = goldenFile.readText().replace("\r\n", "\n").trim()
@@ -139,10 +150,14 @@ abstract class BaseDRTest {
                 expected,
                 cacheBuilder,
                 filterMessages,
-                openTelemetry
+                openTelemetry,
+                jdkVersion,
             )
         }
     }
+
+    protected fun goldenFileOsAware(goldenFileBaseName: String) =
+        testDataPath.goldenFileOsAware(goldenFileBaseName)
 
     private inline fun <T> withActualDump(expectedResultPath: Path? = null, block: () -> T): T {
         return try {
@@ -173,6 +188,8 @@ abstract class BaseDRTest {
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
         filterMessages: List<Message>.() -> List<Message> = { defaultFilterMessages() },
         openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null,
+        transitive: Boolean = true,
     ): DependencyNodeHolderWithContext = doTestImpl(
         testInfo,
         dependency,
@@ -183,6 +200,8 @@ abstract class BaseDRTest {
         expected,
         cacheBuilder,
         openTelemetry,
+        jdkVersion,
+        transitive,
         filterMessages,
     )
 
@@ -192,7 +211,8 @@ abstract class BaseDRTest {
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<Repository> = listOf(REDIRECTOR_MAVEN_CENTRAL),
         cacheBuilder: FileCacheBuilder.() -> Unit = cacheBuilder(Dirs.userCacheRoot),
-        openTelemetry: OpenTelemetry? = null
+        openTelemetry: OpenTelemetry? = null,
+        jdkVersion: JavaVersion? = null
     ) = Context {
         this.scope = scope
         this.platforms = platform
@@ -200,6 +220,7 @@ abstract class BaseDRTest {
         this.cache = cacheBuilder
         this.openTelemetry = openTelemetry
         this.incrementalCache = null // no cache in DR tests
+        this.jdkVersion = jdkVersion
     }
 
     protected fun cacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
@@ -225,8 +246,7 @@ abstract class BaseDRTest {
         RootDependencyNodeWithContext(children = map { it.toMavenNode(context) }, templateContext = context)
 
     protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
-        val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
+        return MavenDependencyNodeWithContext(context, this, isBom = false)
     }
 
     protected fun String.toMavenCoordinates(): MavenCoordinates {
@@ -243,7 +263,8 @@ abstract class BaseDRTest {
         val group = parts[0]
         val module = parts[1]
         val version = if (parts.size > 2) parts[2] else null
-        return MavenDependencyNodeWithContext(context, group, module, version, isBom = isBom)
+        val coordinates = MavenCoordinates(group, module, version)
+        return MavenDependencyNodeWithContext(context, coordinates, isBom = isBom)
     }
 
     protected fun assertFiles(
@@ -287,7 +308,7 @@ abstract class BaseDRTest {
         checkExistence: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true,
     ) {
-        val fileList = testDataPath / "${testInfo.nameToGoldenFile()}.files.txt"
+        val fileList = goldenFileOsAware("${testInfo.nameToGoldenFile()}.files.txt")
         if (!fileList.exists()) { fileList.createFile() }
         val expected = fileList.readText().trim().lines()
         withActualDump(fileList) {
@@ -354,6 +375,26 @@ abstract class BaseDRTest {
             MavenRepository("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public")
 
         internal val MAVEN_LOCAL = MavenLocal
+
+        /**
+         * Run DR test respecting delays inside DR code.
+         */
+        fun BaseDRTest.runDrTest(
+            context: CoroutineContext = EmptyCoroutineContext,
+            timeout: Duration = 1.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) =
+            runTestRespectingDelays(context = context, timeout = timeout, testBody = testBody)
+
+        /**
+         * Run DR test respecting delays inside DR code.
+         */
+        fun BaseDRTest.runSlowDrTest(
+            context: CoroutineContext = EmptyCoroutineContext,
+            timeout: Duration = 5.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) =
+            runDrTest(context = context, testBody = testBody, timeout = timeout)
 
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { it.severity > Severity.INFO }

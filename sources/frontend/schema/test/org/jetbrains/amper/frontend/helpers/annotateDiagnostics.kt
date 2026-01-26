@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.helpers
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.problems.reporting.BuildProblem
-import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
@@ -51,9 +50,11 @@ fun annotateTextWithDiagnostics(
         }
     }
 
-    val (diagnosticsWithOffsets, diagnosticsWithoutOffsets) = locationToDiagnosticMap.partition { (source, _) ->
+    val (diagnosticsWithOffsetsUntyped, diagnosticsWithoutOffsets) = locationToDiagnosticMap.partition { (source, _) ->
         source is FileWithRangesBuildProblemSource
     }
+    @Suppress("UNCHECKED_CAST") // we just checked this
+    val diagnosticsWithOffsets = diagnosticsWithOffsetsUntyped as List<Pair<FileWithRangesBuildProblemSource, BuildProblem>>
 
     return buildString {
         appendFileDiagnostics(diagnosticsWithoutOffsets.filter { (source, _) ->
@@ -86,20 +87,19 @@ private fun BuildProblem.renderWithSanitization(sanitizeDiagnostic: (String) -> 
 private data class DiagnosticPoint(val offset: Int, val isStart: Boolean, val problem: BuildProblem)
 
 private val diagnosticComparator =
-    compareBy<Pair<BuildProblemSource, BuildProblem>> { (it.first as FileWithRangesBuildProblemSource).offsetRange.first }
-        .thenBy { (it.first as FileWithRangesBuildProblemSource).offsetRange.last }
+    compareBy<Pair<FileWithRangesBuildProblemSource, BuildProblem>> { it.first.offsetRange.first }
+        .thenBy { it.first.offsetRange.last }
         .thenBy { it.second.message }
 
 private fun StringBuilder.appendFileTextDecoratedWithDiagnostics(
     origin: Path,
     clearedText: String,
-    diagnostics: List<Pair<BuildProblemSource, BuildProblem>>,
+    diagnostics: List<Pair<FileWithRangesBuildProblemSource, BuildProblem>>,
     sanitizeDiagnostic: (String) -> String,
 ) {
     val sortedDiagnostics = diagnostics.sortedWith(diagnosticComparator)
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { (source, diagnostic) ->
-        source as FileWithRangesBuildProblemSource
         if (source.file == origin) {
             val startOffset = source.offsetRange.first
             val endOffset = source.offsetRange.last

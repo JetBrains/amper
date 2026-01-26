@@ -14,21 +14,21 @@ import kotlin.io.path.absolute
 import kotlin.io.path.div
 import kotlin.io.path.readText
 
-val json = Json { ignoreUnknownKeys = true }
+private val json = Json { ignoreUnknownKeys = true }
 
-interface LazyArtifact {
+internal interface LazyArtifact {
     val value: Path
 }
 
-data class DirectLazyArtifact(override val value: Path) : LazyArtifact
+internal data class DirectLazyArtifact(override val value: Path) : LazyArtifact
 
 @Serializable
-data class OutputMetadata(val elements: List<Element>) {
+internal data class OutputMetadata(val elements: List<Element>) {
     @Serializable
     data class Element(val outputFile: String)
 }
 
-class RedirectedLazyArtifact(private val redirectFile: Path) : LazyArtifact {
+internal class RedirectedLazyArtifact(private val redirectFile: Path) : LazyArtifact {
     override val value: Path
         get() {
             val properties = redirectFile.readProperties()
@@ -49,4 +49,4 @@ class RedirectedLazyArtifact(private val redirectFile: Path) : LazyArtifact {
         }
 }
 
-fun redirect(file: File): RedirectedLazyArtifact = RedirectedLazyArtifact(file.toPath())
+internal fun redirect(file: File): RedirectedLazyArtifact = RedirectedLazyArtifact(file.toPath())

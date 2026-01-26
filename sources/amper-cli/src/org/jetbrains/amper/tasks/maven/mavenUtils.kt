@@ -5,27 +5,52 @@
 package org.jetbrains.amper.tasks.maven
 
 import org.apache.maven.artifact.handler.DefaultArtifactHandler
+import org.apache.maven.bridge.MavenRepositorySystem
+import org.apache.maven.classrealm.ClassRealmManager
+import org.apache.maven.doxia.siterenderer.SiteRenderer
+import org.apache.maven.doxia.tools.SiteTool
+import org.apache.maven.execution.MavenExecutionRequest
+import org.apache.maven.lifecycle.internal.LifecycleExecutionPlanCalculator
 import org.apache.maven.model.Resource
+import org.apache.maven.plugin.BuildPluginManager
+import org.apache.maven.plugin.MavenPluginManager
 import org.apache.maven.project.MavenProject
+import org.apache.maven.session.scope.internal.SessionScope
 import org.codehaus.plexus.PlexusContainer
-import org.eclipse.aether.graph.DefaultDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.group
-import org.jetbrains.amper.dependency.resolution.module
-import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.tasks.rootFragment
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-internal class MockedMavenProject : MavenProject()
+internal class MockedMavenProject(other: MavenProject) : MavenProject(other) {
+    constructor() : this(MavenProject())
 
-// --- Plexus container utilities ---
-/**
- * Type safe convention for [PlexusContainer.addComponent] fun.
- */
-inline fun <reified Role> PlexusContainer.addDefaultComponent(component: Role) =
-    addComponent(component, Role::class.java, "default")
+    private val _newSourceRoots = mutableListOf<String>()
+    val newSourceRoots: List<String> get() = _newSourceRoots
+
+    private val _newTestSourceRoots = mutableListOf<String>()
+    val newTestSourceRoots: List<String> get() = _newTestSourceRoots
+
+    override fun addCompileSourceRoot(path: String?) {
+        super.addCompileSourceRoot(path)
+        path?.let { _newSourceRoots.add(it) }
+    }
+
+    override fun addTestCompileSourceRoot(path: String?) {
+        super.addTestCompileSourceRoot(path)
+        path?.let { _newTestSourceRoots.add(it) }
+    }
+}
+
+// Various maven services.
+internal val PlexusContainer.mavenPluginManager: MavenPluginManager get() = lookup(MavenPluginManager::class.java)
+internal val PlexusContainer.buildPluginManager get() = lookup(BuildPluginManager::class.java)
+internal val PlexusContainer.siteTool get() = lookup(SiteTool::class.java)
+internal val PlexusContainer.siteRenderer get() = lookup(SiteRenderer::class.java)
+internal val PlexusContainer.sessionScope get() = lookup(SessionScope::class.java)
+internal val PlexusContainer.repoSystem get() = lookup(MavenRepositorySystem::class.java)
+internal val PlexusContainer.lifecycleExecutionPlanCalculator get() = lookup(LifecycleExecutionPlanCalculator::class.java)
+internal val PlexusContainer.classRealmManager get() = lookup(ClassRealmManager::class.java)
 
 // --- Maven project model changing utilities ---
 fun MavenProject.addCompileSourceRoots(paths: List<Path>) =
@@ -42,10 +67,7 @@ fun MavenProject.addTestResources(paths: List<Path>) = paths
     .map { Resource().apply { directory = it.absolutePathString() } }
     .forEach { addTestResource(it) }
 
-// --- Maven artifacts utilities and typealiases ---
-typealias MavenArtifact = org.apache.maven.artifact.Artifact
-typealias DefaultMavenArtifact = org.apache.maven.artifact.DefaultArtifact
-
+// --- Maven artifacts utilities ---
 /**
  * Shortcut for the default constructor with `isAddedToClasspath` flag being provided.
  */
@@ -55,6 +77,7 @@ fun DefaultMavenArtifact(
     version: String,
     scope: String,
     type: String,
+    extension: String = type,
     isAddedToClasspath: Boolean = true,
 ): MavenArtifact = DefaultMavenArtifact(
     /* groupId = */ groupId,
@@ -63,8 +86,12 @@ fun DefaultMavenArtifact(
     /* scope = */ scope,
     /* type = */ type,
     /* classifier = */ null,
-    // TODO Need to be think again about this flag.
-    /* artifactHandler = */ DefaultArtifactHandler().apply { this.isAddedToClasspath = isAddedToClasspath },
+    /* artifactHandler = */ DefaultArtifactHandler(type).apply {
+        // TODO Need to be think again about this flag.
+        this.isAddedToClasspath = isAddedToClasspath
+        this.isIncludesDependencies = false
+        this.extension = extension
+    },
 )
 
 fun AmperModule.asMavenArtifact(scope: String) = DefaultMavenArtifact(
@@ -75,38 +102,9 @@ fun AmperModule.asMavenArtifact(scope: String) = DefaultMavenArtifact(
     type = "jar",
 )
 
-// --- Aether artifacts utilities and typealiases ---
-typealias AetherDependencyNode = DefaultDependencyNode
-typealias DefaultAetherArtifact = org.eclipse.aether.artifact.DefaultArtifact
-typealias AetherArtifact = org.eclipse.aether.artifact.Artifact
-typealias AetherDependency = org.eclipse.aether.graph.Dependency
+// Kotlin-styled shortcuts.
+inline fun MavenExecutionRequest.addRemoteRepository(repository: () -> MavenArtifactRepository): MavenExecutionRequest =
+    addRemoteRepository(repository())
 
-suspend fun MavenDependencyNode.toAetherDependencyRecursive(extension: String?): AetherDependencyNode =
-    toAetherDependency(extension).apply {
-        children = this@toAetherDependencyRecursive.children
-            .filterIsInstance<MavenDependencyNode>()
-            .map { it.toAetherDependencyRecursive(extension) }
-    }
-
-suspend fun MavenDependencyNode.toAetherDependency(extension: String?): AetherDependencyNode =
-    AetherDependencyNode(AetherDependency(toAetherArtifact(extension), "runtime"))
-
-suspend fun MavenDependencyNode.toAetherArtifact(extension: String?): AetherArtifact =
-    DefaultAetherArtifact(
-        /* groupId = */ group,
-        /* artifactId = */ module,
-        /* classifier = */ "runtime",
-        /* extension = */ extension,
-        /* version = */ dependency.version,
-        /* type = */ null,
-    ).run {
-        val file = when {
-            isBom || extension == "pom" -> 
-                dependency.pomPath!!.toFile()
-            extension == null || extension == "" || extension == "jar" ->
-                dependency.files().first().path!!.toFile()
-            // TODO Think about that?
-            else -> error("Unsupported extension: $extension")
-        }
-        setFile(file)
-    }
+inline fun MavenExecutionRequest.addServer(configure: MavenServer.() -> Unit): MavenExecutionRequest =
+    addServer(MavenServer().apply(configure))

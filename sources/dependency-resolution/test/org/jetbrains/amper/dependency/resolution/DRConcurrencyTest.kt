@@ -8,7 +8,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.test.Dirs
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.NoSuchFileException
@@ -75,7 +74,7 @@ class DRConcurrencyTest : BaseDRTest() {
      * Trying to read from a file at that period of time would fail.
      * DR internal methods that read from a downloaded file cache should be resilient to this.
      */
-    fun doConcurrencyTest(testInfo: TestInfo, block: suspend (Path) -> Unit) = runTest {
+    fun doConcurrencyTest(testInfo: TestInfo, block: suspend (Path) -> Unit) = runDrTest {
         coroutineScope {
             val testBody = async(Dispatchers.IO) {
                 for (i in 0..20) {

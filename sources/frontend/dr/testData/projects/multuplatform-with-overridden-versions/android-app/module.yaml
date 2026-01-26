@@ -1,0 +1,7 @@
+product: android/app
+
+apply:
+  - ../compose.module-template.yaml
+
+dependencies:
+  - ../shared

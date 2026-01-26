@@ -62,6 +62,31 @@ interface DependencyNode {
      */
     fun distinctBfsSequence(
         childrenPredicate: (child: DependencyNode, parent: DependencyNode) -> Boolean = { _,_ -> true }
+    ): Sequence<DependencyNode> =
+        bfsSequence(includeDuplicates = false, childrenPredicate)
+
+    /**
+     * Returns a sequence of nodes using BFS starting at (and including) this node.
+     * If the same node appears several times in the graph, its subgraph is traversed once only.
+     *
+     * The given [childrenPredicate] can be used to skip parts of the graph.
+     * If [childrenPredicate] is false for a node, the node is skipped and will not appear in the sequence.
+     * The subgraph of the skipped node is also not traversed, so these descendant nodes won't be in the sequence unless
+     * they are reached via some other node.
+     * Using [childrenPredicate] is, therefore, different from filtering the resulting sequence after the fact.
+     *
+     * Flag [includeDuplicates] specifies whether to include nodes that appear several times in the graph in the resulting sequence
+     * or limit itself including the first occurence only (which is by default).
+     *
+     * The nodes are distinct in terms of referential identity, which is enough to eliminate duplicate "requested"
+     * dependency triplets. This does NOT eliminate nodes that requested the same dependency in different versions,
+     * even though conflict resolution should make them point to the same dependency version internally eventually.
+     *
+     * The returned sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
+     */
+    fun bfsSequence(
+        includeDuplicates: Boolean = false,
+        childrenPredicate: (child: DependencyNode, parent: DependencyNode) -> Boolean = { _,_ -> true }
     ): Sequence<DependencyNode> = sequence {
         val queue = LinkedList(listOf(this@DependencyNode))
         val visited = mutableSetOf<DependencyNode>()
@@ -70,6 +95,10 @@ interface DependencyNode {
             if (visited.add(node)) {
                 yield(node)
                 queue.addAll(node.children.filter { it !in visited && childrenPredicate(it, node) })
+            } else {
+                if (includeDuplicates) {
+                    yield(node)
+                }
             }
         }
     }
@@ -239,7 +268,7 @@ class DependencyGraph(
                     )
         }
 
-        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+        private val converters: Map<KClass<out DependencyNode>, SerializableDependencyNodeConverter<*, *>>
                 by lazy {
                     buildMap {
                         providers
@@ -248,12 +277,16 @@ class DependencyGraph(
                     }
                 }
 
-        private fun <T: DependencyNode, P: SerializableDependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, P> =
-            converters[node::class] as? SerializableDependencyNodeConverter<T, P>
+        private fun <T : DependencyNode> getConverter(node: T): SerializableDependencyNodeConverter<T, *> =
+            converters[node::class]
+                ?.let {
+                    @Suppress("UNCHECKED_CAST") // safe by definition of applicableTo and by construction of the map
+                    it as SerializableDependencyNodeConverter<T, *>
+                }
                 ?: error("Converter for the node ${node::class} is not registered")
 
-        private fun List<SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>.register(
-            map: MutableMap<KClass<out DependencyNode>, SerializableDependencyNodeConverter<out DependencyNode, out SerializableDependencyNode>>
+        private fun List<SerializableDependencyNodeConverter<*, *>>.register(
+            map: MutableMap<KClass<out DependencyNode>, SerializableDependencyNodeConverter<*, *>>
         )= forEach {
             if (map.contains(it.applicableTo()))
                 error("Converter for the node of type ${it.applicableTo()} is already registered: (${map[it.applicableTo()]!!::class}), " +
@@ -293,21 +326,26 @@ class DependencyGraph(
          */
         fun DependencyNode.toSerializableReference(graphContext: DependencyGraphContext, parent: DependencyNodeReference?): DependencyNodeReference {
             return graphContext.getDependencyNodeReferenceAndSetParent(this, parent)
-                ?: run {
-                    val converter = getConverter<DependencyNode, SerializableDependencyNode>(this)
-                    // 1. Create an empty reference first (to break cycles)
-                    val newNodePlain = converter.toEmptyNodePlain(this, graphContext)
-
-                    // 2. register empty reference (to break cycles)
-                    val newReference = graphContext.registerSerializableDependencyNodeWithParent(this, newNodePlain, parent)
-
-                    // 3. enrich it with references
-                    converter.fillEmptyNodePlain(newNodePlain, this, graphContext, newReference)
-
-                    newReference
+                ?: context(graphContext) {
+                    getConverter(this).convertAndGetReference(this, parent)
                 }
         }
 
+        context(graphContext: DependencyGraphContext)
+        private fun <S : SerializableDependencyNode> SerializableDependencyNodeConverter<DependencyNode, S>.convertAndGetReference(
+            node: DependencyNode,
+            parent: DependencyNodeReference?,
+        ): DependencyNodeReference {
+            // 1. Create an empty reference first (to break cycles)
+            val newNodePlain = toEmptyNodePlain(node, graphContext)
+
+            // 2. register empty reference (to break cycles)
+            val newReference = graphContext.registerSerializableDependencyNodeWithParent(node, newNodePlain, parent)
+
+            // 3. enrich it with references
+            fillEmptyNodePlain(newNodePlain, node, graphContext, newReference)
+            return newReference
+        }
     }
 }
 

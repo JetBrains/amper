@@ -5,6 +5,7 @@
 package org.jetbrains.amper.maven.publish
 
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
+import org.jetbrains.amper.dependency.resolution.mavenCoordinatesTrimmed
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -35,7 +36,7 @@ private fun AmperModule.kmpLeafPlatformPublicationCoordinates(platform: Platform
     return fragment.mavenCoordinates(artifactIdSuffix = "-${platform.schemaValue.lowercase()}")
 }
 
-private fun Fragment.mavenCoordinates(artifactIdSuffix: String): MavenCoordinates = MavenCoordinates(
+private fun Fragment.mavenCoordinates(artifactIdSuffix: String): MavenCoordinates = mavenCoordinatesTrimmed(
     groupId = settings.publishing.group
         ?: error("Missing 'group' in publishing settings of fragment '${name}' of module '${module.userReadableName}'"),
     artifactId = (settings.publishing.name ?: module.userReadableName.lowercase()) + artifactIdSuffix,

@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.Key
+import org.jetbrains.amper.dependency.resolution.MavenDependency
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
@@ -17,6 +19,7 @@ import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrReporterContext
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -33,30 +36,45 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
         node: DependencyNode,
         problemReporter: ProblemReporter,
         level: Level,
-        graphRoot: DependencyNode,
+        context: DrReporterContext,
     ) {
         if (node !is DirectFragmentDependencyNode) return
         val dependencyNode = node.dependencyNode as? MavenDependencyNode ?: return
+
         val originalVersion = dependencyNode.originalVersion() ?: return
 
         if (originalVersion != dependencyNode.resolvedVersion()) {
             // for every direct module dependency referencing this dependency node
             val psiElement = node.notation.trace.extractPsiElementOrNull()
             if (psiElement != null) {
+                val insightsCache = context.cache.computeIfAbsent(insightsCacheKey) { mutableMapOf() }
+                val dependencyInsight = insightsCache.computeIfAbsent(dependencyNode.key) {
+                    // todo (AB) : This call assume that conflict resolution is globally applied to the entire graph.
+                    // todo (AB) : If graph contains more than one cluster of nodes resolved with help of different
+                    // todo (AB) : conflict resolvers, the code won't work any longer.
+                    // todo (AB) : Rule of thumb: this method should be called on the complete (!) subgraph that contains
+                    // todo (AB) : all nodes resolved with the same conflict resolver.
+                    moduleDependenciesResolver.dependencyInsight(
+                        dependencyNode.group,
+                        dependencyNode.module,
+                        context.graphRoot,
+                        resolvedVersionOnly = true,
+                    )
+                }
                 problemReporter.reportMessage(
                     ModuleDependencyWithOverriddenVersion(
                         node,
-                        overrideInsight = moduleDependenciesResolver.dependencyInsight(
-                            dependencyNode.group,
-                            dependencyNode.module,
-                            graphRoot,
-                            resolvedVersionOnly = true,
-                        ),
+                        overrideInsight = dependencyInsight,
                         psiElement
                     )
                 )
             }
         }
+    }
+
+    companion object {
+        private val insightsCacheKey =
+            Key<MutableMap<Key<MavenDependency>, DependencyNode>>("OverriddenDirectModuleDependencies::insightsCache")
     }
 }
 

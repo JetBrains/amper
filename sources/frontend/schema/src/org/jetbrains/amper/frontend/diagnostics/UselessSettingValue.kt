@@ -13,25 +13,30 @@ import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesWithOwners
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.scalarValue
-import org.jetbrains.amper.frontend.tree.single
+import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.valueEqualsTo
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 private const val DiagnosticId = "setting.value.overrides.nothing"
 
+// FIXME: This diagnostic is not enabled.
+//  It relies on the fact, that an arbitrary configuration *sub*tree can be correctly refined.
+//  That was the property of so-called "merged" trees, that are no longer built by default.
+//  So this diagnostic must do its own preprocessing
 class UselessSettingValue(
     private val refiner: TreeRefiner,
-) : MergedTreeDiagnostic {
+) : TreeDiagnostic {
     companion object {
         const val diagnosticId = DiagnosticId
     }
     override val diagnosticId = DiagnosticId
 
-    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         // TODO There an optimization can be made.
         //  Here we can group by not by key name, but by key path.
         val groupedScalars = root.collectScalarPropertiesWithOwners().groupBy { it.second.key }.map { (_, it) -> it }
@@ -40,13 +45,15 @@ class UselessSettingValue(
             // TODO There an optimization can be made.
             //  We may not refine for all used contexts - only for most specific ones.
             group.forEach { (owner, scalarProp) ->
-                val refined = refiner.refineTree(owner, scalarProp.value.contexts)
+                val refined = context(problemReporter) {
+                    refiner.refineTree(owner, scalarProp.value.contexts)
+                }
 
                 // Since there is at least one value assignment,
                 // we can safely assume that after refinement it is exactly single.
-                val refinedProp = refined.single(scalarProp.key)?.value ?: return@forEach
+                val refinedProp = refined[scalarProp.key] ?: return@forEach
                 refinedProp.trace.precedingValue
-                    ?.takeIf { it.scalarValue<Any>() == refinedProp.scalarValue<Any>() }
+                    ?.takeIf { (it as? ScalarNode) valueEqualsTo (refinedProp as? ScalarNode) }
                     ?.let {
                         problemReporter.reportMessage(
                             UselessSetting(refinedProp.trace, it.trace.asSafely<PsiTrace>() ?: return@forEach),

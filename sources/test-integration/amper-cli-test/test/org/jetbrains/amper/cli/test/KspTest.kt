@@ -10,8 +10,9 @@ import org.jetbrains.amper.cli.test.utils.assertSomeStdoutLineContains
 import org.jetbrains.amper.cli.test.utils.assertStderrDoesNotContain
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 import org.jetbrains.amper.test.AmperCliResult
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
@@ -111,7 +112,7 @@ class KspTest: AmperCliTestBase() {
             "src/ksp/kotlin/com/sample/myprocessor/gen/MyNativeClassGenerated.kt",
         )
 
-        if (DefaultSystemInfo.detect().family.isMac) {
+        if (OsFamily.current.isMac) {
             buildResult.generatedFilesDir(module = "consumer", fragment = "iosArm64").assertContainsRelativeFiles(
                 "resources/ksp/com/sample/myprocessor/gen/annotated-classes.txt",
                 "src/ksp/kotlin/com/sample/myprocessor/gen/MyAppleClassGenerated.kt",
@@ -155,7 +156,7 @@ class KspTest: AmperCliTestBase() {
             com.sample.ksp.localprocessor.consumer.MyCommonClass
         """.trimIndent())
 
-        if (DefaultSystemInfo.detect().family.isMac) {
+        if (OsFamily.current.isMac) {
             generatedResourceFor(fragment = "iosArm64").assertContentEquals("""
                 com.sample.ksp.localprocessor.consumer.MyNativeClass
                 com.sample.ksp.localprocessor.consumer.MyIosClass
@@ -259,7 +260,7 @@ class KspTest: AmperCliTestBase() {
             "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
         )
 
-        val os = DefaultSystemInfo.detect()
+        val os = SystemInfo.CurrentHost
         if (os.family.isWindows) {
             kspResult.generatedFilesDir(module = "shared", fragment = "mingwX64").assertContainsRelativeFiles(
                 "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",

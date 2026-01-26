@@ -1,4 +1,9 @@
-# Ktor
+---
+description: |
+  Ktor is a Kotlin framework for building asynchronous server-side and client-side applications.
+  Amper provides support for it out of the box.
+---
+# :jetbrains-ktor: Ktor
 
 [Ktor](https://ktor.io/) is a Kotlin framework for building asynchronous server-side and client-side applications.
 

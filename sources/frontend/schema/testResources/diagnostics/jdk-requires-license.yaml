@@ -1,0 +1,6 @@
+product: jvm/lib
+
+settings:
+  jvm:
+    jdk:
+      distributions: [ zulu, <![Error] The `oracleGraalVM` JDK distribution requires a license, please check the license terms and indicate you accept them by adding `oracleGraalVM` to `settings.jvm.jdk.acknowledgedLicenses`.!>oracleGraalVM<!> ]

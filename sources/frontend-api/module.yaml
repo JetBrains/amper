@@ -5,6 +5,7 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-build-info
   - ../amper-problem-reporting
   - ../core: exported
   - ../extensibility/amper-extensibility-schema-model: exported
@@ -16,3 +17,8 @@ test-dependencies:
   - ../core-intellij
   - ../frontend/plain/yaml-psi
   - $libs.intellij.platform.coreImpl
+
+settings:
+  kotlin:
+    optIns:
+      - org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess # the frontend API is the intended place for it

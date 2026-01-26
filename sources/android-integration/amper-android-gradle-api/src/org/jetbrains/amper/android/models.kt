@@ -5,23 +5,21 @@
 package org.jetbrains.amper.android
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.serialization.paths.SerializablePath
 import java.io.File
-import java.nio.file.Path
-
 
 @Serializable
 data class ResolvedDependency(
     val group: String,
     val artifact: String,
     val version: String,
-    @Serializable(with = PathAsStringSerializer::class)
-    val path: Path
+    val path: SerializablePath
 )
 
 @Serializable
 data class AndroidModuleData(
     val modulePath: String, // relative module path from root in Gradle format ":path:to:module"
-    val moduleClasses: List<@Serializable(with = PathAsStringSerializer::class) Path> = emptyList(),
+    val moduleClasses: List<SerializablePath> = emptyList(),
     val resolvedAndroidRuntimeDependencies: List<ResolvedDependency> = listOf()
 )
 
@@ -30,8 +28,7 @@ data class AndroidBuildRequest(
     /**
      * The root of the Amper project, which is necessary to parse a correct Amper model.
      */
-    @Serializable(with = PathAsStringSerializer::class)
-    val root: Path,
+    val root: SerializablePath,
     val phase: Phase,
     val modules: Set<AndroidModuleData> = setOf(),
     val buildTypes: Set<BuildType> = setOf(BuildType.Debug),
@@ -41,8 +38,7 @@ data class AndroidBuildRequest(
      */
     val targets: Set<String> = setOf(),
 
-    @Serializable(with = PathAsStringSerializer::class)
-    val sdkDir: Path? = null
+    val sdkDir: SerializablePath? = null
 ) {
     enum class BuildType(val value: String) {
         Debug("debug"),

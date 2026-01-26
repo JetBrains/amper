@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -7,8 +7,8 @@ package org.jetbrains.amper.cli
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.incrementalcache.computeClassPathHash
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.toLocalDateTimeInDefaultTimezone
 
@@ -25,7 +25,7 @@ object AmperVersion {
      */
     val banner: String by lazy {
         with(AmperBuild) {
-            val commitDate = commitInstant?.toLocalDateTimeInDefaultTimezone()?.date?.format(LocalDate.Formats.ISO)
+            val commitDate = commitInstant.toLocalDateTimeInDefaultTimezone().date.format(LocalDate.Formats.ISO)
             val distInfoIfSnapshot = if (isSNAPSHOT) "\nDistribution hash: $distributionHash" else ""
             "JetBrains Amper version $mavenVersion ($commitShortHash, $commitDate)$distInfoIfSnapshot"
         }

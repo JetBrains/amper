@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
 import org.jetbrains.amper.cli.test.utils.assertFileContentEquals
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -65,9 +65,7 @@ class AmperInitTest : AmperCliTestBase() {
         assertTrue(bashWrapper.readText().count { it == '\r' } == 0,
             "Unix wrapper must not have \\r in line separators: $bashWrapper")
 
-        if (OsFamily.current.isUnix) {
-            assertTrue("Unix wrapper must be executable: $bashWrapper") { bashWrapper.isExecutable() }
-        }
+        assertTrue("Unix wrapper must be executable: $bashWrapper") { bashWrapper.isExecutable() }
 
         assertFileContentEquals(LocalAmperPublication.wrapperSh, bashWrapper)
         assertFileContentEquals(LocalAmperPublication.wrapperBat, batWrapper)

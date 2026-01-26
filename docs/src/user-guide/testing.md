@@ -1,14 +1,16 @@
+---
+description: This page describes how tests work in Amper.
+---
 # Testing
 
 Test code is located in the `test/` folder:
 
 ```
-|-src/            # production code
-|  ...      
-|-test/           # test code 
-|  |-MainTest.kt
-|  |-... 
-|-module.yaml
+├─ src/            # production code
+├─ test/           # test code
+│  ├─ MainTest.kt
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 By default, the [Kotlin test](https://kotlinlang.org/api/latest/kotlin.test/) framework is preconfigured for each
@@ -44,17 +46,15 @@ Test settings and dependencies by default are inherited from the main configurat
 [configuration propagation rules](multiplatform.md#dependencysettings-propagation).
 Example:
 ```
-|-src/             
-|  ...      
-|-src@ios/             
-|  ...      
-|-test/           # Sees declarations from src/. Executed on all platforms. 
-|  |-MainTest.kt
-|  |-... 
-|-test@ios/       # Sees declarations from src/, src@ios/, and `test/`. Executed on iOS platforms only.  
-|  |-IOSTest.kt 
-|  |-... 
-|-module.yaml
+├─ src/
+├─ src@ios/
+├─ test/           # Sees declarations from src/. Executed on all platforms.
+│  ├─ MainTest.kt
+│  ╰─ ...
+├─ test@ios/       # Sees declarations from src/, src@ios/, and `test/`. Executed on iOS platforms only.
+│  ├─ IOSTest.kt
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 ```yaml title="module.yaml"
@@ -78,5 +78,5 @@ settings:
 # these settings affect tests only
 test-settings:
   kotlin:
-    languageVersion: 1.9 # overrides `settings:kotlin:languageVersion: 1.8`
+    languageVersion: 1.9 # overrides settings.kotlin.languageVersion 1.8
 ```

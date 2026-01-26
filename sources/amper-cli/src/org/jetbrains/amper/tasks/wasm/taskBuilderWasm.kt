@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.wasm
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -32,6 +33,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         taskName: TaskName,
         tempRoot: AmperProjectTempRoot,
         isTest: Boolean,
+        processRunner: ProcessRunner,
     ) -> WebCompileKlibTask,
     createLinkTask: (
         module: AmperModule,
@@ -44,6 +46,7 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
         tempRoot: AmperProjectTempRoot,
         isTest: Boolean,
         compileKLibTaskName: TaskName,
+        processRunner: ProcessRunner,
     ) -> WebLinkTask,
 ) {
 
@@ -59,10 +62,11 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
                     context.userCacheRoot,
                     context.jdkProvider,
                     context.getTaskOutputPath(compileKLibTaskName),
-                    incrementalCache,
+                    context.incrementalCache,
                     compileKLibTaskName,
                     context.projectTempRoot,
                     isTest,
+                    context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -82,11 +86,12 @@ internal fun ProjectTasksBuilder.setupWasmTasks(
                         context.userCacheRoot,
                         context.jdkProvider,
                         context.getTaskOutputPath(linkAppTaskName),
-                        incrementalCache,
+                        context.incrementalCache,
                         linkAppTaskName,
                         context.projectTempRoot,
                         isTest,
                         compileKLibTaskName,
+                        context.processRunner,
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)

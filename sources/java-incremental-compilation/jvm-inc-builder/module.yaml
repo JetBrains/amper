@@ -18,10 +18,8 @@ dependencies:
   - $libs.slf4j.api
 
   #  JPS
-  # NB: these SNAPSHOT dependencies are not real SNAPSHOTS, they do not change in time
-  # TODO: replace with release dependencies after the release of 2025.3
-  - com.jetbrains.intellij.platform:jps-build-dependency-graph:253.25908.13-EAP-SNAPSHOT
-  - com.jetbrains.intellij.platform:jps-build-javac-rt:253.25908.13-EAP-SNAPSHOT
+  - $libs.intellij.jps.build.dependency.graph
+  - $libs.intellij.jps.build.javac.rt
   - com.jetbrains.intellij.idea:jps-standalone:253.18871
   - org.jetbrains.jps:jps-javac-extension:10
 

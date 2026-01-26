@@ -35,10 +35,11 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     userCacheRoot = context.userCacheRoot,
                     projectRoot = context.projectRoot,
                     taskName = compileTaskName,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     tempRoot = context.projectTempRoot,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -51,10 +52,15 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         add(JvmSpecificTaskType.JavaAnnotationProcessorClasspath.getTaskName(module, platform, isTest))
                     }
 
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache)
-                        .forEach {
-                            add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
-                        }
+                    module.getModuleDependencies(
+                        isTest = isTest,
+                        platform = platform,
+                        dependencyReason = ResolutionScope.COMPILE,
+                        userCacheRoot = context.userCacheRoot,
+                        incrementalCache = context.incrementalCache,
+                    ).forEach {
+                        add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
+                    }
                 }
             )
 
@@ -86,8 +92,15 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     add(mode.getTaskName(module, platform, isTest = false))
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
 
-                    module.getModuleDependencies(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot, incrementalCache)
-                        .forEach { add(mode.getTaskName(it, platform, isTest = false)) }
+                    module.getModuleDependencies(
+                        isTest = isTest,
+                        platform = platform,
+                        dependencyReason = ResolutionScope.RUNTIME,
+                        userCacheRoot = context.userCacheRoot,
+                        incrementalCache = context.incrementalCache,
+                    ).forEach {
+                        add(mode.getTaskName(it, platform, isTest = false))
+                    }
                 }
             )
 
@@ -99,7 +112,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         taskName = jarTaskName,
                         module = module,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                     ),
                     CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
                 )
@@ -122,7 +135,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                                     platform,
                                     ResolutionScope.RUNTIME,
                                     context.userCacheRoot,
-                                    incrementalCache
+                                    context.incrementalCache
                                 )
                                     .forEach {
                                         add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
@@ -143,6 +156,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         taskName = prepareForJvm,
                         fragment = fragment,
                         buildOutputRoot = context.buildOutputRoot,
+                        incrementalCache = context.incrementalCache,
                     ),
                 )
             }
@@ -162,8 +176,9 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         runSettings = runSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -179,8 +194,9 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         runSettings = runSettings,
                         terminal = context.terminal,
                         tempRoot = context.projectTempRoot,
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
                 )
@@ -190,7 +206,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     ExecutableJarTask(
                         taskName = executableJarTaskName,
                         module = module,
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(executableJarTaskName),
                     ),
@@ -212,6 +228,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                         terminal = context.terminal,
                         runSettings = runSettings,
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     dependsOn = listOf(executableJarTaskName)
                 )
@@ -273,8 +290,9 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
                     runSettings = runSettings,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true),

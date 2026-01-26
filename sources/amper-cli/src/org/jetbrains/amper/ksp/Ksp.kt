@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.ksp
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.jdk.provisioning.Jdk
@@ -20,6 +21,7 @@ internal class Ksp(
     val kspVersion: String,
     private val jdk: Jdk,
     private val kspImplJars: List<Path>,
+    private val processRunner: ProcessRunner,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(Ksp::class.java)
@@ -48,7 +50,8 @@ internal class Ksp(
         val args = config.toCommandLineOptions(workingDir, legacyListMode) + processorClasspathStr
 
         logger.debug("ksp {} {}", compilationType, args)
-        val result = jdk.runJava(
+        val result = processRunner.runJava(
+            jdk = jdk,
             workingDir = workingDir,
             mainClass = compilationType.kspMainClassFqn,
             classpath = kspImplJars,

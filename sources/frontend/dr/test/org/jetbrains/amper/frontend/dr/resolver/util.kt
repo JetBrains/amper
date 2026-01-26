@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.frontend.Model
@@ -14,17 +12,8 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.test.Dirs
 import java.nio.file.Path
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertIs
 import kotlin.test.fail
-import kotlin.time.Duration.Companion.minutes
-
-/**
- * [runTest] but with a 5-minute timeout.
- */
-internal fun runSlowTest(context: CoroutineContext = EmptyCoroutineContext, testBody: suspend TestScope.() -> Unit) =
-    runTest(context = context, timeout = 5.minutes, testBody = testBody)
 
 internal fun DependencyNode.moduleDeps(name: String): ModuleDependencyNode = children
     .filterIsInstance<ModuleDependencyNode>()

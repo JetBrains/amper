@@ -1,6 +1,8 @@
 modules:
   - build-sources/amper-distribution
   - build-sources/binary-compatibility-validator
+  - build-sources/detekt
+  - build-sources/dokka
   - build-sources/generate-build-properties
   - build-sources/generate-template-resources
   - build-sources/protobuf
@@ -11,10 +13,14 @@ modules:
   - sources/amper-compose-hot-reload-recompiler-extension
   - sources/amper-jdk-provisioning
   - sources/amper-junit-listeners
+  - sources/amper-maven-converter
+  - sources/amper-maven-plugin-download
+  - sources/amper-maven-plugins-compatibility
   - sources/amper-maven-publish
   - sources/amper-problem-reporting
   - sources/amper-project-templates
   - sources/amper-project-templates/amper-project-template-resources
+  - sources/amper-telemetry
   - sources/amper-wrapper
   - sources/android-integration/amper-android-gradle-api
   - sources/android-integration/amper-android-gradle-plugin
@@ -43,8 +49,12 @@ modules:
   - sources/libraries/compose-resources
   - sources/libraries/concurrency
   - sources/libraries/incremental-cache
+  - sources/libraries/jetbrains-jdk-list
+  - sources/libraries/maven-plugin-xml-parser
   - sources/libraries/nio-filechannels
+  - sources/libraries/serialization-extended
   - sources/libraries/stdlib-extended
+  - sources/libraries/system-info
   - sources/libraries/telemetry
   - sources/libraries/xcode-model-ext
   - sources/test-base
@@ -56,6 +66,8 @@ modules:
 plugins:
   - ./build-sources/amper-distribution
   - ./build-sources/binary-compatibility-validator
+  - ./build-sources/detekt
+  - ./build-sources/dokka
   - ./build-sources/generate-build-properties
   - ./build-sources/generate-template-resources
   - ./build-sources/protobuf

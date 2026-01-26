@@ -17,14 +17,14 @@ import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 class PluginDeclarationSchema : SchemaNode() {
     @SchemaDoc("Plugin id that is going to be used to refer to the plugin in the configuration files. " +
             "Module name is used by default.")
-    var id by value<TraceableString>() // Defaults to the module name, is set on the tree level later.
+    val id by value<TraceableString>() // Defaults to the module name, is set on the tree level later.
 
     @SchemaDoc("Plugin description. " +
             "Can be used by tooling to provide documentation on plugin references in configuration files.")
-    var description by nullableValue<String>()
+    val description by nullableValue<String>()
 
     @SchemaDoc("Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. " +
             "This interface can't come from a dependency, it must be declared in the source directory.")
     @StringSemantics(Semantics.PluginSettingsClass)
-    var settingsClass by nullableValue<TraceableString>()
+    val settingsClass by nullableValue<TraceableString>()
 }

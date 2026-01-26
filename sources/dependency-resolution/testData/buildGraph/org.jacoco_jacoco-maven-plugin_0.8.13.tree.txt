@@ -1,0 +1,19 @@
+root
+╰─── org.jacoco:jacoco-maven-plugin:0.8.13
+     ├─── org.codehaus.plexus:plexus-utils:3.0.24 -> 3.4.2
+     ├─── org.apache.maven.shared:file-management:3.1.0
+     │    ├─── org.slf4j:slf4j-api:1.7.36
+     │    ├─── org.codehaus.plexus:plexus-utils:3.4.2
+     │    ╰─── commons-io:commons-io:2.11.0
+     ├─── org.apache.maven.reporting:maven-reporting-api:3.0
+     │    ╰─── org.apache.maven.doxia:doxia-sink-api:1.0
+     ├─── org.jacoco:org.jacoco.agent:0.8.13
+     ├─── org.jacoco:org.jacoco.core:0.8.13
+     │    ├─── org.ow2.asm:asm:9.8
+     │    ├─── org.ow2.asm:asm-commons:9.8
+     │    │    ├─── org.ow2.asm:asm:9.8
+     │    │    ╰─── org.ow2.asm:asm-tree:9.8
+     │    │         ╰─── org.ow2.asm:asm:9.8
+     │    ╰─── org.ow2.asm:asm-tree:9.8 (*)
+     ╰─── org.jacoco:org.jacoco.report:0.8.13
+          ╰─── org.jacoco:org.jacoco.core:0.8.13 (*)

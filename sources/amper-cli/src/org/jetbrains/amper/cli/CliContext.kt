@@ -1,16 +1,21 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
+import io.opentelemetry.api.GlobalOpenTelemetry
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
+import org.jetbrains.amper.android.AndroidSdkDetector
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
+import org.jetbrains.amper.util.DelicateAmperApi
 import org.jetbrains.amper.util.nowInDefaultTimezone
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -23,7 +28,6 @@ class CliContext(
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
     val terminal: Terminal,
-    val androidHomeRoot: AndroidHomeRoot,
 ) {
     val projectRoot: AmperProjectRoot = AmperProjectRoot(projectContext.projectRootDir.toNioPath())
 
@@ -53,10 +57,37 @@ class CliContext(
     }
 
     /**
+     * The incremental cache for the current project.
+     */
+    val incrementalCache: IncrementalCache by lazy {
+        IncrementalCache(
+            stateRoot = buildOutputRoot.path.resolve("incremental.state"),
+            codeVersion = AmperVersion.codeIdentifier,
+            // by the time we get here, GlobalOpenTelemetry should be set
+            openTelemetry = GlobalOpenTelemetry.get(),
+        )
+    }
+
+    /**
      * A service that provisions JDKs on-demand. A single instance is used for the whole Amper execution, so we ensure
      * that invalid `JAVA_HOME` errors are only reported once. We can also benefit from the session-specific cache.
      */
-    val jdkProvider: JdkProvider by lazy { JdkProvider(userCacheRoot) }
+    val jdkProvider: JdkProvider by lazy {
+        JdkProvider(
+            userCacheRoot = userCacheRoot,
+            // by the time we get here, GlobalOpenTelemetry should be set
+            openTelemetry = GlobalOpenTelemetry.get(),
+            incrementalCache = incrementalCache,
+        )
+    }
+
+    val androidHomeRoot: AndroidHomeRoot by lazy {
+        AndroidHomeRoot(AndroidSdkDetector.detectSdkPath().createDirectories())
+    }
+
+    val processRunner: ProcessRunner by lazy {
+        ProcessRunner(telemetryDir = currentLogsRoot.telemetryPath)
+    }
 
     companion object {
         /**
@@ -100,6 +131,8 @@ data class AmperBuildLogsRoot(val path: Path) {
             "Build logs root is not an absolute path: $path"
         }
     }
+
+    val telemetryPath = path / "telemetry"
 }
 
 data class AmperProjectTempRoot(val path: Path) {
@@ -134,3 +167,17 @@ data class AndroidHomeRoot(val path: Path) {
         }
     }
 }
+
+/**
+ * An incremental cache shared between projects using the same Amper version.
+ *
+ * **Important:** using this incremental cache introduces a lot of directories in the Amper cache, especially when
+ * developing Amper locally. Make sure you only use it when it is impossible to use the project-specific incremental
+ * cache.
+ */
+@DelicateAmperApi
+internal fun AmperUserCacheRoot.sharedIncrementalCache(): IncrementalCache = IncrementalCache(
+    stateRoot = path / "incremental.state" / AmperVersion.codeIdentifier,
+    codeVersion = AmperVersion.codeIdentifier,
+    openTelemetry = GlobalOpenTelemetry.get(),
+)

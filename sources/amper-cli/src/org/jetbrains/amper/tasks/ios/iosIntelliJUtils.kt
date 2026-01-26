@@ -19,10 +19,9 @@ import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.system.info.OsFamily
 import java.util.concurrent.atomic.AtomicBoolean
 
 private val xCodeComponentInitializationCalled = AtomicBoolean(false)
@@ -32,7 +31,7 @@ private val xCodeInitializationMutex = Mutex()
  * Initializes the Xcode component manager once.
  */
 suspend fun initializeXcodeComponentManager() = xCodeInitializationMutex.withLock {
-    if (DefaultSystemInfo.detect().family != OsFamily.MacOs)
+    if (OsFamily.current != OsFamily.MacOs)
         userReadableError("This task is supported only on macOS systems.")
 
     if (xCodeComponentInitializationCalled.getAndSet(true)) return@withLock

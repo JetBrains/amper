@@ -14,24 +14,31 @@ docs_dir: src
 
 theme:
   name: material
-  logo: images/amper-logo.svg
-  favicon: images/amper-logo.svg
+  custom_dir: overrides
+  logo: images/amper-icon.svg
+  favicon: images/amper-icon.png
+  icon:
+    annotation: material/information-slab-circle
+    repo: fontawesome/brands/github
+  font:
+    code: JetBrains Mono
   features:
     - content.action.edit # adds an "Edit this page" button to each page
     - content.code.annotate # allows annotations (tooltips) inside code blocks
     - content.code.copy # adds a copy button to code blocks
+    - content.footnote.tooltips # adds a tooltip to footnotes references on hover
+    - content.tooltips # replaces the default browser title tooltips with nicer tooltips
     - navigation.expand # makes the navigation sections collapsible
     - navigation.footer # for next/prev links at the bottom of each page
     - navigation.indexes # to be able to associate a Markdown file with the "root" of a section without a nested page
     - navigation.instant # to use XHR instead of reloading the page when following links
+    - navigation.instant.preview # to show a preview tooltip when hovering links to other pages
     - navigation.tabs # turns the top-level navigation sections into tabs in the header bar
     - navigation.top # adds a back-to-top button when scrolling up after scrolling down on a page
     - navigation.tracking # updates the URL bar with anchors as the user scrolls
     - search.highlight # highlights the search term in the target page when clicking a search result
     - search.share # allows deep linking to search results
     - search.suggest # enables completion in the search bar
-  icon:
-    repo: fontawesome/brands/github
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
@@ -53,15 +60,11 @@ theme:
         name: Switch to system preference
 
 plugins:
-  - search
   - macros # for variable substitution in Markdown files
   - git-revision-date-localized: # to have the "last update" date in the footer of each page
       enabled: !ENV [CI, false] # we don't put the whole repo in the docker container locally, so there is no git repo
-  - git-committers: # to have the list of authors of the page
-      enabled: !ENV [CI, false] # we don't put the whole repo in the docker container locally, so there is no git repo
-      repository: JetBrains/amper
-      branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
-      token: !ENV [MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN, ""]
+  - search
+  - social # for proper previews in social media links
 
 markdown_extensions:
   - abbr # for abbreviation tooltips
@@ -82,9 +85,16 @@ markdown_extensions:
   - pymdownx.snippets:
       auto_append:
         - includes/abbreviations.md # auto-append abbreviations.md to all pages to get the definitions on hover
-  - pymdownx.superfences # required for code highlighting, tabs, and nested content in general
+  - pymdownx.superfences: # required for code highlighting, tabs, and nested content in general
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed: # for tabs support
       alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify # use the tab name in URL anchor instead of '__tabbed_1_1'
+        kwds:
+          case: lower
   - pymdownx.tasklist:
       custom_checkbox: true
   - tables
@@ -94,6 +104,7 @@ markdown_extensions:
 watch:
   - .icons
   - includes
+  - overrides
 
 nav:
   - 'Home': index.md
@@ -101,7 +112,7 @@ nav:
       - getting-started/index.md
       - 'IDE setup': getting-started/ide-setup.md
       - 'Tutorial': getting-started/tutorial.md
-      - 'Amper CLI': getting-started/cli.md
+      - 'Migrating from Maven': getting-started/migrating-from-maven.md
   - 'User guide':
       - user-guide/index.md
       - 'Basic concepts': user-guide/basics.md
@@ -109,30 +120,61 @@ nav:
       - 'Multiplatform modules': user-guide/multiplatform.md
       - 'Testing': user-guide/testing.md
       - 'Templates': user-guide/templates.md
+      - 'Product types':
+          - user-guide/product-types/index.md
+          - 'Android application': user-guide/product-types/android-app.md
+          - 'iOS application': user-guide/product-types/ios-app.md
+          - 'JVM application': user-guide/product-types/jvm-app.md
+          - 'JVM library': user-guide/product-types/jvm-lib.md
+          - 'Kotlin Multiplatform library': user-guide/product-types/kmp-lib.md
+          - 'Kotlin/JS application': user-guide/product-types/js-app.md
+          - 'Kotlin/Native application': user-guide/product-types/native-app.md
+          - 'Kotlin/Wasm application': user-guide/product-types/wasm-app.md
       - 'Built-in technologies':
-          - 'Android': user-guide/builtin-tech/android.md
-          - 'Compose': user-guide/builtin-tech/compose.md
-          - 'iOS': user-guide/builtin-tech/ios.md
+          - 'Compose Multiplatform': user-guide/builtin-tech/compose-multiplatform.md
           - 'Kotlin Serialization': user-guide/builtin-tech/kotlin-serialization.md
           - 'Ktor': user-guide/builtin-tech/ktor.md
           - 'Lombok': user-guide/builtin-tech/lombok.md
           - 'Spring Boot': user-guide/builtin-tech/spring.md
+      - 'Plugins':
+          - 'Overview': user-guide/plugins/overview.md
+          - 'Quick Start': user-guide/plugins/quick-start.md
+          - 'Plugin Structure': user-guide/plugins/topics/structure.md
+          - 'Configuration': user-guide/plugins/topics/configuration.md
+          - 'References': user-guide/plugins/topics/references.md
+          - 'Tasks': user-guide/plugins/topics/tasks.md
       - 'Advanced topics':
-          - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
+          - 'JDK provisioning': user-guide/advanced/jdk-provisioning.md
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
-          - 'Compiler plugins': user-guide/advanced/compiler-plugins.md
+          - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
+          - 'Kotlin compiler plugins': user-guide/advanced/kotlin-compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
+  - 'CLI':
+    - cli/index.md
+    - 'Wrapper & provisioning': cli/provisioning.md
   - 'Reference':
     - 'project.yaml': reference/project.md
     - 'module.yaml': reference/module.md
   - 'FAQ': faq.md
   - 'Releases ↗': https://github.com/JetBrains/amper/releases
 
+extra_css:
+  - stylesheets/extra.css
+
 extra:
   # The git_branch variable is used to generate the repo_filetree_url variable to link to repo files from the docs.
   # The MKDOCS_GIT_BRANCH variable is provided by the CI when building the docs.
-  # The HEAD fallback is to avoid breaking links locally.
-  git_branch: !ENV [MKDOCS_GIT_BRANCH, "HEAD"]
+  # The "main" fallback is to avoid breaking links locally.
+  git_branch: !ENV [MKDOCS_GIT_BRANCH, "main"]
   version:
     provider: mike # enables the version selector
+
+# Fails the docs build if there are any warnings (this avoids publishing a site with broken links)
+strict: true
+
+validation:
+  absolute_links: relative_to_docs
+  anchors: warn
+  omitted_files: warn
+  unrecognized_links: warn

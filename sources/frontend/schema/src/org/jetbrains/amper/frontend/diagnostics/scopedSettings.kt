@@ -19,9 +19,9 @@ import org.jetbrains.amper.frontend.diagnostics.helpers.extractKeyElement
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.OwnedTree
-import org.jetbrains.amper.frontend.tree.visitMapLikeValues
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.visitMappingNodes
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -33,18 +33,18 @@ import org.jetbrains.amper.stdlib.collections.joinToString
  */
 private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
-object IncorrectSettingsLocation : OwnedTreeDiagnostic {
+object IncorrectSettingsLocation : TreeDiagnostic {
     override val diagnosticId: BuildProblemId = "settings.incorrect.section"
 
-    override fun analyze(root: OwnedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
-        root.visitMapLikeValues { tree ->
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
+        root.visitMappingNodes { tree ->
             tree.children.forEach { PropertyCheck(problemReporter, minimalModule, prop = it).doCheck() }
         }
 
     private class PropertyCheck(
         val problemReporter: ProblemReporter,
         val minimalModule: MinimalModule,
-        val prop: MapLikeValue.Property<*>,
+        val prop: KeyValue,
     ) {
         fun doCheck() = if (!prop.value.trace.isDefault) {
             platformAgnostic()
@@ -54,10 +54,10 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
         } else Unit
 
         fun platformAgnostic() {
-            if (prop.pType?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
+            if (prop.propertyDeclaration?.isPlatformAgnostic == true && prop.contexts.platformCtxs().isNotEmpty()) {
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        trace = prop.value.trace,
+                        trace = prop.trace,
                         messageKey = "settings.unexpected.platform",
                         prop.key, // TODO use full path of the property instead
                         level = Level.Error,
@@ -66,7 +66,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             }
         }
 
-        private fun platformSpecific() = prop.pType?.specificToPlatforms?.takeIf { it.isNotEmpty() }?.let { platforms ->
+        private fun platformSpecific() = prop.propertyDeclaration?.specificToPlatforms?.takeIf { it.isNotEmpty() }?.let { platforms ->
             val platformsAndAliases =
                 minimalModule.unwrapAliases + naturalHierarchyExtStr - COMMON.schemaValue
             val propPlatforms = prop.contexts.platformCtxs().flatMap { platformsAndAliases[it.value] ?: emptyList() }.toSet()
@@ -75,7 +75,7 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             if (platforms.leaves.intersect(effectivePlatforms).isEmpty())
                 problemReporter.reportMessage(
                     IncorrectSettingsSection(
-                        trace = prop.value.trace,
+                        trace = prop.trace,
                         messageKey = "settings.incorrect.platforms",
                         prop.key, // TODO use full path of the property instead
                         effectivePlatforms.size,
@@ -96,11 +96,11 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
                 )
         }
 
-        private fun productSpecific() = prop.pType?.specificToProducts?.takeIf { it.isNotEmpty() }?.let { productTypes ->
+        private fun productSpecific() = prop.propertyDeclaration?.specificToProducts?.takeIf { it.isNotEmpty() }?.let { productTypes ->
             val usedProductType = minimalModule.product.type
             if (!productTypes.contains(usedProductType)) problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    trace = prop.value.trace,
+                    trace = prop.trace,
                     messageKey = "settings.incorrect.product.type",
                     prop.key, // TODO use full path of the property instead
                     usedProductType,
@@ -110,10 +110,10 @@ object IncorrectSettingsLocation : OwnedTreeDiagnostic {
             )
         }
 
-        private fun gradleSpecific() = prop.pType?.specificToGradleMessage?.let { message ->
+        private fun gradleSpecific() = prop.propertyDeclaration?.specificToGradleMessage?.let { message ->
             problemReporter.reportMessage(
                 IncorrectSettingsSection(
-                    trace = prop.value.trace,
+                    trace = prop.trace,
                     messageKey = "gradle.specific.unsupported",
                     message,
                     level = Level.Warning,

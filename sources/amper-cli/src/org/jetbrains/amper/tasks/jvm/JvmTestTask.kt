@@ -6,21 +6,23 @@ package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -30,6 +32,7 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestResultsFormat
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.test.FilterMode
 import org.jetbrains.amper.test.TestFilter
@@ -62,6 +65,7 @@ class JvmTestTask(
     override val taskName: TaskName,
     override val platform: Platform = Platform.JVM,
     override val buildType: BuildType? = null,
+    private val processRunner: ProcessRunner,
 ): TestTask {
 
     init {
@@ -102,7 +106,7 @@ class JvmTestTask(
         // TODO use maven instead of packing this in the distribution?
         val amperJUnitListenersJars = extractJUnitListenersClasspath()
 
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(module.jdkSettings)
 
         cleanDirectory(taskOutputRoot.path)
 
@@ -184,7 +188,8 @@ class JvmTestTask(
 
                 DeadLockMonitor.disable()
 
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = workingDirectory,
                     mainClass = "org.junit.platform.console.ConsoleLauncher",
                     classpath = testJvmClasspath,

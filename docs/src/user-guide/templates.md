@@ -1,3 +1,6 @@
+---
+description: This page describes how to use templates to share configuration between modules in the project.
+---
 # Templates
 
 In modularized projects, there is often a need to have a certain common configuration for all or some modules.

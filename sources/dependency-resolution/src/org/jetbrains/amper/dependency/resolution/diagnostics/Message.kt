@@ -37,6 +37,16 @@ interface Message {
      * Whether the message should be reported for transitive dependencies.
      */
     val reportTransitive: Boolean get() = true
+
+    /**
+     * @return false if the diagnostic points to the temporary issue
+     * that might be resolved in the later resolution runs (i/o errors, network failures).
+     * Diagnostic may point to such an issue itself, or it might be one of its nested (child) diagnostics
+     * (of the same or higher severity level).
+     * In any case, a dependency resolution graph that contains such diagnostics should not be reused
+     * and should be recalculated the next time it is requested.
+     */
+    val cacheable: Boolean get() = true
 }
 
 val Message.detailedMessage: @Nls String
@@ -49,6 +59,13 @@ internal interface WithChildMessages : Message {
     val childMessages: List<Message>
 
     override val details: @Nls String? get() = if (childMessages.isEmpty()) null else nestedMessages()
+
+    override val cacheable: Boolean
+        get() = childMessages.all {
+            // less severe suppressed diagnostics doesn't prevent us from caching this one
+            it.severity < severity
+                    || it.cacheable
+        }
 }
 
 private fun WithChildMessages.nestedMessages(level: Int = 1): @Nls String = buildString {
@@ -94,12 +111,15 @@ internal data class SimpleMessage(
     override val severity: Severity = Severity.INFO,
     @Transient
     val throwable: Throwable? = null,
+    private val preventCaching: Boolean = false,
     override val childMessages: List<Message> = emptyList(),
     override val id: String = "simple.message"
 ) : WithChildMessages {
 
     override val message: @Nls String
         get() = "${text}${extra.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""}"
+
+    override val cacheable: Boolean get() = !preventCaching && super.cacheable
 }
 
 internal fun SerializersModuleBuilder.registerSerializableMessages() {

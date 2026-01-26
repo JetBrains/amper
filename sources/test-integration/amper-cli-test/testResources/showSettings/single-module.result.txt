@@ -16,8 +16,13 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
     mainClass: null  # default
-    release: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -49,6 +54,11 @@ settings@jvm:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default

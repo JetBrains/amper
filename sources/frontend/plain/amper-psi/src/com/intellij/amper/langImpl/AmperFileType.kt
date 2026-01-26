@@ -3,6 +3,7 @@ package com.intellij.amper.langImpl
 import com.intellij.amper.lang.AmperLanguage
 import com.intellij.icons.EmptyIcon
 import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.util.NlsContexts
 import javax.swing.Icon
 
 class AmperFileType private constructor() : LanguageFileType(AmperLanguage.INSTANCE) {
@@ -10,7 +11,7 @@ class AmperFileType private constructor() : LanguageFileType(AmperLanguage.INSTA
     return "Amper"
   }
 
-  override fun getDescription(): String {
+  override fun getDescription(): @NlsContexts.Label String {
     return "Amper"
   }
 

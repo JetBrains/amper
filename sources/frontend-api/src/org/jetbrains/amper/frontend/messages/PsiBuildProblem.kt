@@ -33,8 +33,12 @@ abstract class PsiBuildProblem(
 
 fun KProperty0<*>.extractPsiElement(): PsiElement = schemaDelegate.extractPsiElement()
 
+fun KProperty0<*>.extractKeyValuePsiElement(): PsiElement = schemaDelegate.keyValueTrace.extractPsiElement()
+
 @UsedInIdePlugin
 fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = schemaDelegate.extractPsiElementOrNull()
+
+fun KProperty0<*>.extractKeyValuePsiElementOrNull(): PsiElement? = schemaDelegate.keyValueTrace.extractPsiElementOrNull()
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement

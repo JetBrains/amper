@@ -36,7 +36,12 @@ settings@android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -68,6 +73,11 @@ settings@android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -109,8 +119,13 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
     mainClass: null  # default
-    release: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -142,6 +157,11 @@ settings@jvm:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -196,7 +216,12 @@ settings@jvm+android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -212,7 +237,7 @@ settings@jvm+android:
     apiVersion: null  # default, from ${languageVersion}
     freeCompilerArgs: null  # default
     ksp:
-      processorOptions: {}  # module.yaml
+      processorOptions: {}  # default
       processors:
         - coordinates: androidx.room:room-compiler:2.7.0-alpha12  # module.yaml
       version: 2.3.0  # default
@@ -229,6 +254,11 @@ settings@jvm+android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -272,7 +302,12 @@ settings@jvm:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -306,6 +341,11 @@ settings@jvm:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default
@@ -357,7 +397,12 @@ settings@android:
     freeCompilerArgs: []  # default
   junit: junit-5  # default
   jvm:
-    release: 21  # default
+    jdk:
+      acknowledgedLicenses: []  # default
+      distributions: null  # default
+      selectionMode: auto  # default
+      version: 21  # default
+    release: 21  # Default, computed from 'jdk'
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
@@ -391,6 +436,11 @@ settings@android:
       functions:
         - kotlin.assert  # default
     progressiveMode: false  # default
+    rpc:
+      annotationTypeSafetyEnabled: true  # default
+      applyBom: true  # default
+      enabled: false  # default
+      version: 0.10.1  # default
     serialization:
       enabled: false  # enabled when 'format' is specified
       format: null  # default

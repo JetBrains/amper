@@ -1,0 +1,5 @@
+product:
+  type: jvm/app
+
+settings:
+  junit: junit-5

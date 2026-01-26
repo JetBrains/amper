@@ -1,17 +1,15 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.BomDependency
 import org.jetbrains.amper.frontend.DefaultScopedNotation
-import org.jetbrains.amper.frontend.MavenCoordinates
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Notation
@@ -28,9 +26,8 @@ import org.jetbrains.amper.frontend.contexts.PathCtx
 import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
-import org.jetbrains.amper.frontend.diagnostics.MergedTreeDiagnostics
-import org.jetbrains.amper.frontend.diagnostics.OwnedTreeDiagnostics
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
+import org.jetbrains.amper.frontend.diagnostics.treeDiagnostics
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.plus
@@ -47,17 +44,23 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.tree.MapLikeValue
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.maven.MavenPluginXml
+import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.maven.toAmperDescription
+import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.caching
+import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.name
@@ -90,15 +93,8 @@ context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
     mavenPluginXmls: List<MavenPluginXml>,
-    systemInfo: SystemInfo = DefaultSystemInfo,
-): Model = with(
-    BuildCtx(
-        pathResolver = frontendPathResolver,
-        problemReporter = problemReporter,
-        types = SchemaTypingContext(pluginData, mavenPluginXmls),
-        systemInfo = systemInfo,
-    )
-) {
+    systemInfo: SystemInfo = SystemInfo.CurrentHost,
+): Model = context(frontendPathResolver, SchemaTypingContext(pluginData, mavenPluginXmls), systemInfo) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val rawModulesByFile = caching { templateCache ->
         amperModuleFiles.associateWith {
@@ -119,7 +115,7 @@ internal fun AmperProjectContext.doReadProjectModel(
     buildPlugins(pluginData, projectContext = this@doReadProjectModel, modules)
     
     // Add read maven plugin xmls.
-    modules.forEach { it.module.amperMavenPluginsDescriptions = mavenPluginXmls }
+    modules.forEach { it.module.amperMavenPluginsDescriptions = mavenPluginXmls.map { xml -> xml.toAmperDescription() } }
 
     // Perform diagnostics.
     AomSingleModuleDiagnosticFactories.forEach { diagnostic ->
@@ -134,11 +130,11 @@ internal fun AmperProjectContext.doReadProjectModel(
     return model
 }
 
-context(problemReporter: ProblemReporter)
-internal fun BuildCtx.readModuleMergedTree(
+context(problemReporter: ProblemReporter, _: SchemaTypingContext, pathResolver: FrontendPathResolver, _: SystemInfo)
+internal fun readModuleMergedTree(
     moduleFile: VirtualFile,
     projectVersionsCatalog: VersionCatalog?,
-    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
+    templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
 ): ModuleBuildCtx? {
     val moduleCtx = PathCtx(moduleFile, moduleFile.asPsi().asTrace())
 
@@ -150,40 +146,37 @@ internal fun BuildCtx.readModuleMergedTree(
     //       for module building and minimal module building.
     val ownedTrees = readWithTemplates(minimalModule, moduleFile, moduleCtx, templatesCache)
 
-    // Perform diagnostics for owned trees.
-    OwnedTreeDiagnostics.forEach { diagnostic ->
-        ownedTrees.forEach { diagnostic.analyze(root = it, minimalModule.module, problemReporter) }
-    }
-
     val modulePsiDir = pathResolver.toPsiDirectory(moduleFile.parent) ?: error("A module file necessarily has a parent")
-    // Merge owned trees (see [TreeMerger]) and preprocess them.
-    val preProcessedTree = treeMerger.mergeTrees(ownedTrees)
-        .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
-        .appendDefaultValues()
 
-    // Choose catalogs.
+    val preProcessedTree = mergeTrees(ownedTrees)
+        .configurePluginDefaults(moduleDir = modulePsiDir, product = minimalModule.module.product)
+
     // TODO This should be done without refining somehow?
     val refiner = TreeRefiner(minimalModule.combinedInheritance)
-    val commonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
-        .resolveReferences()
-    val commonModule = createSchemaNode<Module>(commonTree)
-        ?: return null
-    val effectiveCatalog = commonModule.settings.builtInCatalog() + projectVersionsCatalog
 
+    // Create a common "preview" of module settings to finish dependent/reactive configuration.
+    val preProcessedCommonSettings: Settings = run {
+        val preProcessedCommonTree = refiner.refineTree(preProcessedTree, setOf(moduleCtx))
+        createSchemaNode(preProcessedCommonTree[Module::settings]!!) ?: return null
+    }
+    val effectiveCatalog = preProcessedCommonSettings.builtInCatalog() + projectVersionsCatalog
+
+    // Finish preparing the tree with the dependent/reactive configuration.
     val processedTree = preProcessedTree
         .substituteCatalogDependencies(effectiveCatalog)
-        .substituteComposeOsSpecific()
-        .configureSpringBootDefaults(commonModule)
-        .configureLombokDefaults(commonModule)
+        .substituteComposeOsSpecific()  // must be after catalog substitution
+        .configureSpringBootDefaults(preProcessedCommonSettings.springBoot)
+        .configureLombokDefaults(preProcessedCommonSettings.lombok)
 
-    // plugins configuration is platform-agnostic, it's safe to refine it here
-    val pluginsTree = refiner.refineTree(
-        tree = processedTree[Module::plugins].first().value as MapLikeValue<*>,
-        selectedContexts = setOf(moduleCtx),
-    )
+    // Create a common `Module` schema node needed later for `AmperModule` configuration.
+    val processedCommonTree = refiner.refineTree(processedTree, setOf(moduleCtx))
+    val commonModule = createSchemaNode<Module>(processedCommonTree)
+        ?: return null
 
-    // Perform diagnostics for the merged tree.
-    MergedTreeDiagnostics(refiner).forEach { diagnostic ->
+    // safe: `plugins` has a default
+    val pluginsTree = processedCommonTree[Module::plugins] as RefinedMappingNode
+
+    treeDiagnostics(refiner).forEach { diagnostic ->
         diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
     }
 
@@ -194,22 +187,24 @@ internal fun BuildCtx.readModuleMergedTree(
         catalog = effectiveCatalog,
         moduleCtxModule = commonModule,
         pluginsTree = pluginsTree,
-        buildCtx = this,
+        pathResolver = pathResolver,
+        problemReporter = problemReporter,
     )
 }
 
-internal fun BuildCtx.readWithTemplates(
+context(_: ProblemReporter, types: SchemaTypingContext, pathResolver: FrontendPathResolver)
+internal fun readWithTemplates(
     minimalModule: MinimalModuleHolder,
     mPath: VirtualFile,
     moduleCtx: PathCtx,
-    templatesCache: MutableMap<Path, MapLikeValue<*>> = hashMapOf(),
-): List<MapLikeValue<*>> {
-    val moduleTree = readTree(mPath, moduleAType, moduleCtx)
+    templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
+): List<MappingNode> {
+    val moduleTree = readTree(mPath, types.getDeclaration<Module>(), moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         templatesCache.getOrPut(it) {
             val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
             val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
-            readTree(templateVirtual, templateAType, PathCtx(templateVirtual, psiFile.asTrace()))
+            readTree(templateVirtual, types.getDeclaration<Template>(), PathCtx(templateVirtual, psiFile.asTrace()))
         }
     }
 }
@@ -217,8 +212,8 @@ internal fun BuildCtx.readWithTemplates(
 /**
  * Build and resolve internal module dependencies.
  */
-context(_: ProblemReporter)
-private fun BuildCtx.buildAmperModules(
+context(_: ProblemReporter, _: SchemaTypingContext)
+private fun buildAmperModules(
     modules: List<ModuleBuildCtx>,
 ): List<ModuleBuildCtx> {
     val dir2module = modules.associate { it.moduleFile.parent.toNioPath() to it.module }
@@ -262,7 +257,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = MavenCoordinates(::coordinates.traceableString()),
+        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -270,30 +265,15 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = MavenCoordinates(::coordinates.traceableString()),
+        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     else -> error("Unknown dependency type: ${this::class}")
 }
 
-private fun KProperty0<String>.traceableString(): TraceableString {
+fun KProperty0<String>.traceableString(): TraceableString {
     return TraceableString(get(), schemaDelegate.trace)
-}
-
-private fun MavenCoordinates(coordinates: TraceableString): MavenCoordinates {
-    val parts = coordinates.value.trim().split(":")
-    check(parts.size in 2..4) {
-        "Not reached: coordinates should have between 2 and 4 parts, but got ${parts.size}: $coordinates. " +
-                "Ensure that the coordinates were properly validated in the parser."
-    }
-    return MavenCoordinates(
-        groupId = parts[0],
-        artifactId = parts[1],
-        version = if (parts.size > 2) parts[2] else null,
-        classifier = if (parts.size > 3) parts[3] else null,
-        trace = coordinates.trace,
-    )
 }
 
 context(problemReporter: ProblemReporter)

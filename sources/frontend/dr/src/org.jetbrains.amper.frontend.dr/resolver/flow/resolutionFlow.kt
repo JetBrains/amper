@@ -7,6 +7,7 @@ import io.opentelemetry.api.OpenTelemetry
 import org.jetbrains.amper.dependency.resolution.CacheEntryKey
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenGroupAndArtifact
 import org.jetbrains.amper.dependency.resolution.MavenLocal
 import org.jetbrains.amper.dependency.resolution.MavenRepository
@@ -25,7 +26,8 @@ import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNodeHold
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.frontend.dr.resolver.emptyContext
 import org.jetbrains.amper.frontend.dr.resolver.spanBuilder
-import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
@@ -68,7 +70,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
     private val contextMap: ConcurrentHashMap<ContextKey, Context> = ConcurrentHashMap<ContextKey, Context>()
 
     internal fun MavenDependencyBase.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolderWithContext {
-        val dependencyNode = context.toMavenDependencyNode(toMavenCoordinates(), this is BomDependency)
+        val dependencyNode = context.toMavenDependencyNode(toDrMavenCoordinates(), this is BomDependency)
 
         val node = DirectFragmentDependencyNodeHolderWithContext(
             dependencyNode,
@@ -146,6 +148,7 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
                 this.cache = fileCacheBuilder
                 this.openTelemetry = openTelemetry
                 this.incrementalCache = incrementalCache
+                this.jdkVersion = JavaVersion(jdkSettings.version)
                 fragments.firstOrNull()?.let { rootFragment ->
                     this.dependenciesBlocklist = rootFragment.settings.internal.excludeDependencies.mapNotNull {
                         val groupAndArtifact = it.split(":", limit = 2)
@@ -177,7 +180,6 @@ private fun String.toRepository() = RepositoriesModulePart.Repository(this, this
 private val defaultRepositories = listOf(
     "https://repo1.maven.org/maven2",
     "https://maven.google.com/",
-    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
 )
 
 private data class ContextKey(

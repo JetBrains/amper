@@ -583,6 +583,7 @@ public final class Document extends CloneBase implements Parent, Serializable {
    * @return <code>Object</code> clone of this <code>Document</code>
    */
   @Override
+  @SuppressWarnings("deprecation")
   public Document clone() {
     final Document doc = (Document)super.clone();
 

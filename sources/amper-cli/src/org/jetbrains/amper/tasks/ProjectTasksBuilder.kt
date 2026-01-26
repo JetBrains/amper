@@ -30,7 +30,6 @@ import org.jetbrains.amper.tasks.maven.setupMavenCompatibilityTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmJsTasks
 import org.jetbrains.amper.tasks.wasm.setupWasmWasiTasks
-import org.jetbrains.amper.util.AmperCliIncrementalCache
 import org.jetbrains.amper.util.BuildType
 
 internal interface TaskType {
@@ -62,7 +61,6 @@ internal interface FragmentTaskType : TaskType {
 
 data class ModuleSequenceCtx(
     val module: AmperModule,
-    val incrementalCache: IncrementalCache,
     val platform: Platform = Platform.COMMON,
     val isTest: Boolean = false,
     val buildType: BuildType = BuildType.Debug,
@@ -84,7 +82,6 @@ class ProjectTasksBuilder(
     val runSettings: AllRunSettings,
 ) {
     val tasks = TaskGraphBuilder()
-    val incrementalCache = AmperCliIncrementalCache(context.buildOutputRoot)
 
     fun build(): TaskGraph {
         setupCommonTasks()
@@ -106,7 +103,7 @@ class ProjectTasksBuilder(
 
     fun allFragments() = model.modules.asSequence().flatMap { it.fragments }
 
-    fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it, incrementalCache) }
+    fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it) }
 
     fun Sequence<ModuleSequenceCtx>.alsoPlatforms(parent: Platform? = null) = flatMap { ctx ->
         ctx.module.leafPlatforms.filter { parent?.isParentOf(it) ?: true }.map { ctx.copy(platform = it) }
@@ -132,7 +129,7 @@ class ProjectTasksBuilder(
             ctx.platform,
             dependencyReason,
             context.userCacheRoot,
-            incrementalCache
+            context.incrementalCache
         ).map {
             ModuleDependencySequenceCtx(
                 module = ctx.module,

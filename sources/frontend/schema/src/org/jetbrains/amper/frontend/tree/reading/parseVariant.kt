@@ -24,7 +24,8 @@ import org.jetbrains.amper.frontend.schema.UnscopedDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.copyWithTrace
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaVariantDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -34,11 +35,11 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseVariant(
     value: YamlValue,
     type: SchemaType.VariantType,
-): TreeValue<*>? = when (type.declaration.qualifiedName) {
+): TreeNode? = when (type.declaration.qualifiedName) {
     Dependency::class.qualifiedName!! -> {
         val singleKeyValue = (value as? YamlValue.Mapping)?.keyValues?.singleOrNull()
         if (singleKeyValue != null && singleKeyValue.key.psi.text == "bom") {
-            parseValue(singleKeyValue.value, type.subVariantType(BomDependency::class))
+            parseNode(singleKeyValue.value, type.subVariantType(BomDependency::class))
                 ?.copyWithTrace(trace = singleKeyValue.asTrace()) ?: run {
                 reportParsing(singleKeyValue.value, "unexpected.bom.dependency.structure")
                 null

@@ -8,8 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.LocalAmperPublication
 import org.junit.jupiter.api.parallel.Execution
@@ -129,6 +129,12 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertCanUpdateToCurrent(projectDir)
     }
 
+    @Test
+    fun `can update from 0_9_0 to current`() = runSlowTest {
+        val projectDir = createEmptyProjectWithWrappers(version = "0.9.0")
+        assertCanUpdateToCurrent(projectDir)
+    }
+
     private suspend fun createEmptyProjectWithWrappers(version: String): Path {
         val projectDir = newEmptyProjectDir()
         runCli(projectDir, "update", "--target-version=$version", "--create")
@@ -172,7 +178,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should still be there")
 
         // On Windows, the bat script sometimes cannot be changed in-place, so we have to wait for the late replacement
-        if (DefaultSystemInfo.detect().family.isWindows) {
+        if (OsFamily.current.isWindows) {
             awaitWrapperVersionsMatchIn(projectDir)
         }
         return UpdateResult(

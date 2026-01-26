@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.Selectors
@@ -20,12 +21,13 @@ import kotlin.io.path.createDirectory
  */
 class GenerateActualResourceCollectorsTask(
     buildOutputRoot: AmperBuildOutputRoot,
+    incrementalCache: IncrementalCache,
     fragment: LeafFragment,
     packageName: String,
     makeAccessorsPublic: Boolean,
     useActualModifier: Boolean,
     shouldGenerateCode: Boolean,
-) : PureArtifactTaskBase(buildOutputRoot) {
+) : PureArtifactTaskBase(buildOutputRoot, incrementalCache) {
     private val packageName by extraInput(packageName)
     private val makeAccessorsPublic by extraInput(makeAccessorsPublic)
     private val useActualModifier by extraInput(useActualModifier)

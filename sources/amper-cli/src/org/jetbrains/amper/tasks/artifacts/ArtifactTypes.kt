@@ -55,7 +55,8 @@ abstract class FragmentScopedArtifact(
 }
 
 /**
- * An artifact is associated with a module, leaf platform and test modifier.
+ * An artifact is associated with a module, leaf platform, and test modifier.
+ * Basically, it is bound to the compilation for the specified leaf fragment.
  */
 abstract class CompilationScopedArtifact(
     buildOutputRoot: AmperBuildOutputRoot,

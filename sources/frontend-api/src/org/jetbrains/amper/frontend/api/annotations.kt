@@ -203,3 +203,12 @@ annotation class StringSemantics(val value: SchemaType.StringType.Semantics)
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class CanBeReferenced
+
+/**
+ * For properties that are not user-settable.
+ *
+ * If an object/mapping property is marked as [ReadOnly], then all its child properties cannot be set as well.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ReadOnly

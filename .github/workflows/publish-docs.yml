@@ -7,6 +7,9 @@ on:
       - 'release/*'
     paths:
       - 'docs/**'
+  create:
+    branches:
+      - 'release/*' # the push trigger is not enough because of the docs/** filter
 
 permissions:
   contents: write # allow pushing commits to gh-pages
@@ -14,7 +17,7 @@ permissions:
 jobs:
   docs:
     runs-on: ubuntu-latest
-
+    if: github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v5
         with:
@@ -30,9 +33,9 @@ jobs:
       - name: Install MkDocs with its plugins, and Mike
         run: pip install \
           mkdocs-material \
+          "mkdocs-material[imaging]" \
           mkdocs-macros-plugin \
           mkdocs-git-revision-date-localized-plugin \
-          mkdocs-git-committers-plugin-2 \
           mike
 
       - name: Configure git
@@ -71,13 +74,12 @@ jobs:
         env:
           MKDOCS_GIT_BRANCH: ${{ github.ref_name }}
           MKDOCS_GIT_EDIT_URL: edit/${{ github.ref_name }}/docs/src/
-          MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN: ${{ secrets.MKDOCS_COMMITTERS_PLUGIN_GITHUB_TOKEN}}
         run: |
           version_id="${{ steps.meta.outputs.version_id }}"
           version_title="${{ steps.meta.outputs.version_title }}"
 
           echo "Deploying version with ID: $version_id"
           echo "Title (for the UI selector): $version_title"
-          echo "BUILD_BRANCH: $BUILD_BRANCH"
+          echo "Source branch: $MKDOCS_GIT_BRANCH"
 
           mike deploy "$version_id" --title "$version_title" --update --push

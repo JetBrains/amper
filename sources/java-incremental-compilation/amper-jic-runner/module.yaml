@@ -8,10 +8,14 @@ repositories:
     url: https://www.jetbrains.com/intellij-repository/snapshots
 
 dependencies:
+  - ../../amper-build-info
+  - ../../amper-telemetry
   - ../amper-jic-api
   - ../jvm-inc-builder
 
+  - $libs.kotlinx.coroutines.core
   - $libs.slf4j.api
   - $libs.slf4j.simple
-  - com.jetbrains.intellij.platform:jps-build-dependency-graph:253.25908.13-EAP-SNAPSHOT
+  - $libs.intellij.jps.build.dependency.graph
   - org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
+  - $libs.opentelemetry.sdk.common

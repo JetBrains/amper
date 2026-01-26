@@ -5,12 +5,11 @@
 package org.jetbrains.amper.tasks.ios
 
 import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.engine.requireSingleDependency
@@ -24,6 +23,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.toNativeTestExecutableArgs
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
@@ -36,6 +36,7 @@ class IosKotlinTestTask(
     private val runSettings: NativeTestRunSettings,
     override val platform: Platform,
     override val buildType: BuildType,
+    private val processRunner: ProcessRunner,
 ) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         val compileTaskResult = dependenciesResult.requireSingleDependency<NativeLinkTask.Result>()
@@ -45,7 +46,7 @@ class IosKotlinTestTask(
             logger.info("No test binary was found for ${platform.pretty}, skipping test run")
             return EmptyTaskResult
         }
-        val chosenDevice = pickBestDevice() ?: error("No available device")
+        val chosenDevice = processRunner.pickBestDevice() ?: error("No available device")
 
         DeviceLock.withLock(hash = chosenDevice.deviceId.hashCode()) {
             val spawnTestsCommand = listOf(
@@ -61,9 +62,9 @@ class IosKotlinTestTask(
                 .setAttribute("executable", spawnTestsCommand.first())
                 .setListAttribute("args", spawnTestsCommand.drop(1))
                 .use { span ->
-                    bootAndWaitSimulator(chosenDevice)
+                    processRunner.bootAndWaitSimulator(chosenDevice)
 
-                    val result = BuildPrimitives.runProcessAndGetOutput(
+                    val result = processRunner.runProcessAndGetOutput(
                         workingDir = workingDir,
                         command = spawnTestsCommand,
                         span = span,
@@ -76,7 +77,7 @@ class IosKotlinTestTask(
                                     "'${module.userReadableName}' with exit code ${result.exitCode} (see errors above)"
                         )
                     }
-                    shutdownDevice(chosenDevice.deviceId)
+                    processRunner.shutdownDevice(chosenDevice.deviceId)
                     EmptyTaskResult
                 }
         }

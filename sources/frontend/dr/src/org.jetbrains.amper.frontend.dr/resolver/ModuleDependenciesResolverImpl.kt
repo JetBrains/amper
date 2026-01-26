@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.frontend.dr.resolver
 
@@ -13,9 +13,9 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeReference
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.GraphSerializableTypesProvider
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
-import org.jetbrains.amper.dependency.resolution.MavenDependencyConstraintNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
+import org.jetbrains.amper.dependency.resolution.MavenDependencyUnspecifiedVersionResolverBase
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel
 import org.jetbrains.amper.dependency.resolution.ResolvedGraph
 import org.jetbrains.amper.dependency.resolution.Resolver
@@ -23,9 +23,7 @@ import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeConverter
 import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
-import org.jetbrains.amper.dependency.resolution.UnspecifiedVersionResolver
 import org.jetbrains.amper.dependency.resolution.filterGraph
-import org.jetbrains.amper.dependency.resolution.originalVersion
 import org.jetbrains.amper.dependency.resolution.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
@@ -76,7 +74,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
                         resolutionDepth != ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
                         incrementalCacheUsage = incrementalCacheUsage,
                         DirectMavenDependencyUnspecifiedVersionResolver(),
-                        postProcessDeserializedGraph = {
+                        postProcessGraph = {
                             // Merge the input graph (that has PSI references) with the deserialized one
                             it.fillNotation(this@resolveDependencies)
                         }
@@ -180,14 +178,14 @@ internal class AmperDrSerializableTypesProvider: GraphSerializableTypesProvider 
     }
 
     fun SerializersModuleBuilder.moduleForDependencyNodePlainHierarchy() =
-        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class as KClass<DependencyNode>)
+        moduleForDependencyNodeHierarchy(SerializableDependencyNode::class)
 
     fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy() =
         moduleForDependencyNodeHierarchy(DependencyNode::class)
 
-    fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<DependencyNode>) {
-        polymorphic(kClass,SerializableModuleDependencyNodeWithModule::class, SerializableModuleDependencyNodeWithModule.serializer())
-        polymorphic(kClass,SerializableDirectFragmentDependencyNodeHolder::class, SerializableDirectFragmentDependencyNodeHolder.serializer())
+    fun SerializersModuleBuilder.moduleForDependencyNodeHierarchy(kClass: KClass<in SerializableDependencyNode>) {
+        polymorphic(kClass, SerializableModuleDependencyNodeWithModule::class, SerializableModuleDependencyNodeWithModule.serializer())
+        polymorphic(kClass, SerializableDirectFragmentDependencyNodeHolder::class, SerializableDirectFragmentDependencyNodeHolder.serializer())
     }
 }
 
@@ -233,56 +231,38 @@ private sealed class DirectFragmentDependencyNodeConverter<T: DirectFragmentDepe
     }
 }
 
-class DirectMavenDependencyUnspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext> {
+class DirectMavenDependencyUnspecifiedVersionResolver: MavenDependencyUnspecifiedVersionResolverBase() {
 
-    override fun isApplicable(node: MavenDependencyNodeWithContext): Boolean {
-        return node.originalVersion() == null
-    }
+    override fun getBomNodes(node: MavenDependencyNodeWithContext): List<MavenDependencyNode> {
+        val directDependencyParents = node.directDependencyParents()
+        val boms = if (directDependencyParents.isNotEmpty()) {
+            // Using BOM from the same module for resolving direct module dependencies
+            directDependencyParents
+                .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNode }
+                .map { parent ->
+                    parent.children
+                        .filterIsInstance<DirectFragmentDependencyNode>()
+                        .map { it.dependencyNode }
+                        .filterIsInstance<MavenDependencyNode>()
+                        .filter { it.isBom }
+                }.flatten()
+        } else {
+            super.getBomNodes(node)
+        }
 
-    override fun resolveVersions(nodes: Set<MavenDependencyNodeWithContext>): Map<MavenDependencyNodeWithContext, String> {
-        return nodes.mapNotNull { node ->
-            if (!isApplicable(node)) {
-                null
-            } else {
-                resolveVersionFromBom(node)?.let { node to it }
-            }
-        }.toMap()
+        return boms
     }
 
     /**
-     * Resolve an unspecified dependency version from the BOM imported in the same module.
-     * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
+     * @return list of [DirectFragmentDependencyNode]s that depend on this maven libary (either directly or transitevly)
      */
-    private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
-        val nodeParentsToFindBomsFrom: List<DirectFragmentDependencyNode> = when {
+    private fun MavenDependencyNodeWithContext.directDependencyParents(): List<DirectFragmentDependencyNode> {
+        return when {
             // Direct dependency
-            node.parents.any { it is DirectFragmentDependencyNode } -> node.parents.filterIsInstance<DirectFragmentDependencyNode>()
+            parents.any { it is DirectFragmentDependencyNode } -> parents.filterIsInstance<DirectFragmentDependencyNode>()
             // Transitive dependency,
             // find all direct dependencies this transitive one is referenced by and use those for BOM resolution
-            else -> node.fragmentDependencies
+            else -> fragmentDependencies
         }
-
-        val boms = nodeParentsToFindBomsFrom
-            .mapNotNull { it.parents.singleOrNull() as? ModuleDependencyNode }
-            .map { node ->
-                node.children
-                    .filterIsInstance<DirectFragmentDependencyNode>()
-                    .map { it.dependencyNode }
-                    .filterIsInstance<MavenDependencyNode>()
-                    .filter { it.isBom }
-            }.flatten()
-
-        boms.forEach { bom ->
-            val resolvedVersion = bom.children
-                .filterIsInstance<MavenDependencyConstraintNode>()
-                .firstOrNull { it.key == node.key }
-                ?.originalVersion()
-
-            if (resolvedVersion != null) {
-                return resolvedVersion
-            }
-        }
-
-        return null
     }
 }

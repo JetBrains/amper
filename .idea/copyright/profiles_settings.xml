@@ -3,6 +3,10 @@
     <module2copyright>
       <element module="Amper" copyright="Apache 2.0" />
     </module2copyright>
+    <LanguageOptions name="HTML">
+      <option name="fileTypeOverride" value="1" />
+      <option name="prefixLines" value="false" />
+    </LanguageOptions>
     <LanguageOptions name="Properties">
       <option name="fileTypeOverride" value="1" />
     </LanguageOptions>

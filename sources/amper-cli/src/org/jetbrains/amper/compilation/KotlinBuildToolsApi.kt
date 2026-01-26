@@ -5,8 +5,7 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.concurrency.StripedMutex
-import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.concurrency.AsyncConcurrentMap
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
@@ -15,7 +14,6 @@ import org.slf4j.Logger
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.concurrent.ThreadSafe
 import kotlin.io.path.absolutePathString
 
@@ -40,7 +38,7 @@ internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
     kotlinVersion: String,
     downloader: KotlinArtifactsDownloader,
 ): CompilationService {
-    val classLoader = KotlinBuildToolsClassLoaderCache.getOrPut(kotlinVersion) {
+    val classLoader = KotlinBuildToolsClassLoaderCache.computeIfAbsent(kotlinVersion) {
         val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion)
         val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray<URL>()
         URLClassLoader("KotlinBuildToolsImplClassLoader-$kotlinVersion", urls, CompilationService::class.java.classLoader)
@@ -54,22 +52,9 @@ internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
  * A thread-safe cache for Kotlin Build Tools implementation class loaders. At the moment, these class loaders are
  * kept until the end of the Amper execution.
  */
-private object KotlinBuildToolsClassLoaderCache {
-
-    private val classLoaders = ConcurrentHashMap<String, ClassLoader>()
-
-    // There are usually very few different versions of Kotlin in the same project, but they collide easily with less
-    // than 64 stripes (for example "1.8.20" and "1.9.21" hashes collide even with 32 stripes)
-    private val stripedMutex = StripedMutex(stripeCount = 64)
-
-    suspend fun getOrPut(kotlinVersion: String, createClassLoader: suspend () -> ClassLoader): ClassLoader =
-        // ConcurrentMap.getOrPut guarantees atomic insert but doesn't guarantee that createClassLoader() will only be
-        // called once, so without locking we could download the dependency twice and then discard one classloader
-        // without closing it. The JDK computeIfAbsent() would solve this problem but doesn't support suspend functions.
-        stripedMutex.withLock(kotlinVersion.hashCode()) {
-            classLoaders.getOrPut(kotlinVersion) { createClassLoader() }
-        }
-}
+// There are usually very few different versions of Kotlin in the same project, but they collide easily with less
+// than 64 stripes (for example "1.8.20" and "1.9.21" hashes collide even with 32 stripes)
+private val KotlinBuildToolsClassLoaderCache = AsyncConcurrentMap<String, ClassLoader>(stripeCount = 64)
 
 /**
  * Adapts this SLF4J [Logger] to the [KotlinLogger] interface, for usage in the Kotlin Build Tools API.

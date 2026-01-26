@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.contexts
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
 import org.jetbrains.amper.frontend.api.Misnomers
@@ -16,15 +16,15 @@ import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.keyValueAsBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -38,12 +38,12 @@ import org.jetbrains.yaml.psi.YAMLPsiElement
  * Must be fully compatible with [org.jetbrains.amper.frontend.schema.Module].
  */
 class MinimalModule : SchemaNode() {
-    var product by value<ModuleProduct>()
+    val product by value<ModuleProduct>()
 
-    var aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
+    val aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
 
     @Misnomers("templates")
-    var apply by nullableValue<List<TraceablePath>>()
+    val apply by nullableValue<List<TraceablePath>>()
 }
 
 val MinimalModule.unwrapAliases get() = aliases?.mapValues { it.value.leaves }.orEmpty()
@@ -53,25 +53,22 @@ internal val defaultContextsInheritance by lazy {
 }
 
 @OptIn(NonIdealDiagnostic::class)
-internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
+context(problemReporter: ProblemReporter, types: SchemaTypingContext, pathResolver: FrontendPathResolver)
+internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHolder? {
     val collectingReporter = CollectingProblemReporter()
-    val minimalModule = with(copy(problemReporter = collectingReporter)) {
-        val rawModuleTree = readTree(
+    val minimalModule = context(collectingReporter) {
+        val moduleTree = readTree(
             moduleFilePath,
             declaration = types.getDeclaration<MinimalModule>(),
             reportUnknowns = false,
         )
 
-        // We need to resolve defaults for the tree.
-        val moduleTree = rawModuleTree
-            .appendDefaultValues()
-
         val refined = TreeRefiner().refineTree(moduleTree, EmptyContexts)
-            .resolveReferences()
         val delegate = object : MissingPropertiesHandler.Default(collectingReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
                 valuePath: List<String>,
+                relativeValuePath: List<String>,
             ) {
                 when (valuePath) {
                     listOf("product") -> collectingReporter.reportBundleError(
@@ -83,7 +80,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
                         source = trace.asBuildProblemSource(),
                         messageKey = "product.not.defined",
                     )
-                    else -> super.onMissingRequiredPropertyValue(trace, valuePath)
+                    else -> super.onMissingRequiredPropertyValue(trace, valuePath, relativeValuePath)
                 }
             }
         }
@@ -119,7 +116,7 @@ internal fun BuildCtx.tryReadMinimalModule(moduleFilePath: VirtualFile): Minimal
 
     return MinimalModuleHolder(
         moduleFilePath = moduleFilePath,
-        buildCtx = this@tryReadMinimalModule,
+        pathResolver = pathResolver,
         // We can cast here because we know that minimal module
         // properties should be used outside any context.
         module = minimalModule,
@@ -146,7 +143,7 @@ private fun ProblemReporter.reportUnsupportedPlatform(
 private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduct) {
     val isYaml = product::type.extractPsiElementOrNull()?.parent is YAMLPsiElement
     reportBundleError(
-        source = product::type.asBuildProblemSource(),
+        source = product::type.keyValueAsBuildProblemSource(),
         messageKey = if (isYaml) {
             "product.type.does.not.have.default.platforms"
         } else {
@@ -158,8 +155,8 @@ private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduc
 
 internal class MinimalModuleHolder(
     val moduleFilePath: VirtualFile,
-    val buildCtx: BuildCtx,
     val module: MinimalModule,
+    pathResolver: FrontendPathResolver,
 ) {
     val appliedTemplates by lazy {
         module.apply?.map { it.value }.orEmpty()
@@ -173,7 +170,7 @@ internal class MinimalModuleHolder(
     val pathInheritance by lazy {
         // Order first by files and then by platforms.
         val appliedTemplates = module.apply?.map { it.value }.orEmpty()
-        val filesOrder = appliedTemplates.mapNotNull { buildCtx.pathResolver.loadVirtualFileOrNull(it) } +
+        val filesOrder = appliedTemplates.mapNotNull { pathResolver.loadVirtualFileOrNull(it) } +
                 listOf(moduleFilePath)
         PathInheritance(filesOrder)
     }

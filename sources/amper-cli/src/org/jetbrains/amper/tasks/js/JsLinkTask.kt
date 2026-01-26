@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.js
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
@@ -33,6 +34,7 @@ internal class JsLinkTask(
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
     jdkProvider: JdkProvider,
+    processRunner: ProcessRunner,
     buildType: BuildType? = null,
     compileKLibTaskName: TaskName,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
@@ -48,6 +50,7 @@ internal class JsLinkTask(
     tempRoot,
     isTest,
     buildType,
+    processRunner,
     compileKLibTaskName,
     kotlinArtifactsDownloader,
 ) {

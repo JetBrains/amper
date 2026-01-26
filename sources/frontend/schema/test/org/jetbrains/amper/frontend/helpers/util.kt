@@ -6,21 +6,22 @@ package org.jetbrains.amper.frontend.helpers
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 import kotlin.test.fail
 
 class TestSystemInfo(
-    private val predefined: SystemInfo.Os
-) : SystemInfo {
-    override fun detect() = predefined
-}
+    override val family: OsFamily,
+    override val arch: Arch,
+) : SystemInfo
 
 data class TestProjectContext(
     override val projectRootDir: VirtualFile,

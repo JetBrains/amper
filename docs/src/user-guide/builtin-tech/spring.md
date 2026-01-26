@@ -1,4 +1,9 @@
-# Spring Boot
+---
+description: |
+  Spring Boot is a framework that simplifies the creation of stand-alone, Spring-based applications.
+  Amper provides support for it out of the box.
+---
+# :spring-boot: Spring Boot
 
 [Spring Boot](https://spring.io/projects/spring-boot) is a framework that simplifies the creation of stand-alone,
 Spring based applications.

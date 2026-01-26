@@ -105,34 +105,34 @@ class AndroidSettings : SchemaNode() {
     @Misnomers("minApiLevel")
     @SchemaDoc("Minimum API level needed to run the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var minSdk by value(AndroidVersion.VERSION_21)
+    val minSdk by value(AndroidVersion.VERSION_21)
 
     @Misnomers("maxApiLevel")
     @SchemaDoc("Maximum API level on which the application can run. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var maxSdk by nullableValue<AndroidVersion>()
+    val maxSdk by nullableValue<AndroidVersion>()
 
     @Misnomers("targetApiLevel")
     @SchemaDoc("The target API level for the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var targetSdk by dependentValue(::compileSdk)
+    val targetSdk by dependentValue(::compileSdk)
 
     @CanBeReferenced // by targetSdk
     @Misnomers("compileApiLevel")
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
             "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
-    var compileSdk by value(AndroidVersion.VERSION_36)
+    val compileSdk by value(AndroidVersion.VERSION_36)
 
     @CanBeReferenced // by applicationId
     @Misnomers("packageName")
     @SchemaDoc("A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
-    var namespace by value("org.example.namespace")
+    val namespace by value("org.example.namespace")
 
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var applicationId by dependentValue(::namespace)
+    val applicationId by dependentValue(::namespace)
 
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")
@@ -142,12 +142,12 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("Version code. " +
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var versionCode by value(1)
+    val versionCode by value(1)
 
     @SchemaDoc("Version name. " +
             "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
     @ProductTypeSpecific(ProductType.ANDROID_APP)
-    var versionName by value("unspecified")
+    val versionName by value("unspecified")
 
     @Misnomers("packagingOptions")
     @SchemaDoc("Packaging options for java resource files.")
@@ -162,11 +162,11 @@ class AndroidSettings : SchemaNode() {
 class AndroidSigningSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enables signing with keystore")
-    var enabled by value(default = false)
+    val enabled by value(default = false)
 
     @Misnomers("keystoreFile")
     @SchemaDoc("Properties file where the keystore data is stored.")
-    var propertiesFile by value(Path("keystore.properties"))
+    val propertiesFile by value(Path("keystore.properties"))
 }
 
 enum class KeystoreProperty(val key: String) {
@@ -187,30 +187,30 @@ class ParcelizeSettings : SchemaNode() {
     @SchemaDoc("Enables [Parcelize](https://developer.android.com/kotlin/parcelize). When enabled, an " +
             "implementation of the `Parcelable` interface is automatically generated for classes annotated with " +
             "`@Parcelize`.")
-    var enabled by value(default = false)
+    val enabled by value(default = false)
 
     @SchemaDoc("The full-qualified name of additional annotations that should be considered as `@Parcelize`. " +
             "This is useful if you need to annotate classes in common code shared between different platforms, where " +
             "the real `@Parcelize` annotation is not available. In that case, create your own common annotation and " +
             "add its fully-qualified name here so that Parcelize recognizes it.")
-    var additionalAnnotations: List<TraceableString> by value(default = emptyList())
+    val additionalAnnotations: List<TraceableString> by value(default = emptyList())
 }
 
 class AndroidJavaResourcesPackagingSettings : SchemaNode() {
     @SchemaDoc("The set of excluded patterns. " +
             "Java resources matching any of these patterns do not get packaged in the APK.<br>" +
             "Example: '**/*.md', 'META-INF/LICENSE.txt', etc.")
-    var excludes by value<List<TraceableString>>(default = emptyList())
+    val excludes by value<List<TraceableString>>(default = emptyList())
 
     @SchemaDoc("The set of patterns for which matching java resources are merged. " +
             "For each java resource APK entry path matching one of these patterns, " +
             "all java resources with that path are concatenated and packaged as a single entry in the APK.<br>" +
             "Example: '**/*.properties', 'META-INF/NOTICE.md', etc.")
-    var merges by value<List<TraceableString>>(default = emptyList())
+    val merges by value<List<TraceableString>>(default = emptyList())
 
     @SchemaDoc("The set of patterns for which the first occurrence is packaged in the APK. " +
             "For each java resource APK entry path matching one of these patterns, " +
             "only the first java resource found with that path gets packaged in the APK.<br>" +
             "Example: '**/*.version', 'META-INF/*.kotlin_module', etc.")
-    var pickFirsts by value<List<TraceableString>>(default = emptyList())
+    val pickFirsts by value<List<TraceableString>>(default = emptyList())
 }

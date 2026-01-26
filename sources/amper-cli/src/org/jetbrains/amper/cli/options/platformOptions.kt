@@ -20,7 +20,7 @@ import org.jetbrains.amper.cli.withPlatformSuggestions
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 
-private val checkPlatformsListMsg =
+private const val checkPlatformsListMsg =
     "Check the full list of supported platforms in the documentation:\n${Platform.docsUrl}"
 
 /**

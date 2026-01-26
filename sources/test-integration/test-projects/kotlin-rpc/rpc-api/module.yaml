@@ -1,0 +1,5 @@
+product: jvm/lib
+
+settings:
+  kotlin:
+    rpc: enabled

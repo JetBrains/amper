@@ -16,8 +16,9 @@ import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.userGuideUrl
 
-@SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
+@SchemaDoc("Defines what should be produced out of the module. Read more about the [product types]($userGuideUrl/product-types)")
 @EnumValueFilter("outdated", isNegated = true)
 @EnumOrderSensitive
 enum class ProductType(
@@ -124,16 +125,16 @@ enum class ProductType(
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }
 
-@SchemaDoc("Defines what should be produced out of the module. [Read more](#product-types)")
+@SchemaDoc("Defines what should be produced out of the module. [Read more]($userGuideUrl/product-types)")
 class ModuleProduct : SchemaNode() {
 
     @Misnomers("application", "library")
     @Shorthand
     @SchemaDoc("What type of product to generate")
-    var type by value<ProductType>()
+    val type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by dependentValue(::type) { productType ->
+    val platforms by dependentValue(::type) { productType ->
         productType.defaultPlatforms
             ?.map { platform ->
                 platform.asTraceable(

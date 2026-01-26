@@ -1,0 +1,9 @@
+product: jvm/amper-plugin
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+pluginInfo:
+  settingsClass: org.jetbrains.amper.plugins.detekt.Settings
+
+# No hard dependency on Detekt itself — resolved dynamically via Classpath in plugin.yaml

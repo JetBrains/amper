@@ -45,6 +45,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
         tasks.registerTask(
             GenerateResClassTask(
                 buildOutputRoot = context.buildOutputRoot,
+                incrementalCache = context.incrementalCache,
                 rootFragment = rootFragment,
                 makeAccessorsPublic = makeAccessorsPublic,
                 packageName = packageName,
@@ -56,6 +57,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             tasks.registerTask(
                 GenerateExpectResourceCollectorsTask(
                     buildOutputRoot = context.buildOutputRoot,
+                    incrementalCache = context.incrementalCache,
                     rootFragment = rootFragment,
                     packageName = packageName,
                     makeAccessorsPublic = makeAccessorsPublic,
@@ -77,6 +79,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             tasks.registerTask(
                 PrepareComposeResourcesTask(
                     buildOutputRoot = context.buildOutputRoot,
+                    incrementalCache = context.incrementalCache,
                     fragment = fragment,
                     packagingDir = packagingDir,
                 )
@@ -84,6 +87,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             tasks.registerTask(
                 GenerateResourceAccessorsTask(
                     buildOutputRoot = context.buildOutputRoot,
+                    incrementalCache = context.incrementalCache,
                     fragment = fragment,
                     packageName = packageName,
                     packagingDir = packagingDir,
@@ -96,6 +100,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             tasks.registerTask(
                 GenerateActualResourceCollectorsTask(
                     buildOutputRoot = context.buildOutputRoot,
+                    incrementalCache = context.incrementalCache,
                     useActualModifier = shouldSeparateExpectActual,
                     fragment = fragment,
                     packageName = packageName,
@@ -106,6 +111,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             tasks.registerTask(
                 MergePreparedComposeResourcesTask(
                     buildOutputRoot = context.buildOutputRoot,
+                    incrementalCache = context.incrementalCache,
                     fragment = fragment,
                     packagingDir = packagingDir,
                 )

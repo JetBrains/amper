@@ -59,7 +59,11 @@ fun renderMessage(problem: BuildProblem): @Nls String = buildString {
                 appendLine(problem.message)
                 appendLine("╰─ ${source.groupingMessage}")
                 source.sources.forEachEndAware { isLast, it ->
-                    append("   ╰─ ")
+                    if (isLast) {
+                        append("   ╰─ ")
+                    } else {
+                        append("   ├─ ")
+                    }
                     appendSource(it, appendMessage = false)
                     if (!isLast) appendLine()
                 }

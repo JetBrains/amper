@@ -19,6 +19,7 @@ import org.jetbrains.jps.dependency.NodeSourcePathMapper
 import org.jetbrains.jps.dependency.impl.PathSourceMapper
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
@@ -37,8 +38,7 @@ internal class AmperJicBuildContext(
     private val printToStderr: (String) -> Unit,
 ) : BuildContext {
 
-    @Volatile
-    private var hasErrors = false
+    private val errors = mutableListOf<Message>()
 
     private val pathMapper = createPathSourceMapper()
     private val buildProcessLogger = MyBuildProcessLogger()
@@ -135,14 +135,23 @@ internal class AmperJicBuildContext(
         val message = msg.text
 
         if (msg.getKind() == Message.Kind.ERROR) {
-            hasErrors = true
+            synchronized(errors) {
+                errors += msg
+            }
             printToStderr(message)
         } else {
             printToStdout(message)
         }
     }
 
-    override fun hasErrors(): Boolean = hasErrors
+    override fun hasErrors(): Boolean = synchronized(errors) {
+        errors.isNotEmpty()
+    }
+
+    override fun getErrors(): Iterable<Message?> = synchronized(errors) {
+        // defensive copy so that the caller can iterate safely in case we modify the list
+        errors.toList()
+    }
 
     // copy-pasted from the BuildContextImpl.java from intellij java-inc-builder
     private fun createPathSourceMapper(): PathSourceMapper = PathSourceMapper(

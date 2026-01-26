@@ -1,0 +1,122 @@
+/*
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.jdk.provisioning
+
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.StatusCode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.telemetry.use
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+
+/**
+ * Allows reading information about the JDK located at the current `JAVA_HOME` path.
+ * The information is cached for further invocations in a thread-safe way.
+ */
+// this is NOT a Kotlin `object` because some consumers may need to reset the cache by creating a new instance
+internal class JavaHomeInfoProvider(
+    private val openTelemetry: OpenTelemetry,
+) {
+    private val mutex = Mutex()
+    private var javaHomeInfo: JavaHomeInfo? = null
+
+    /**
+     * Gets the [JavaHomeInfo] for the current `JAVA_HOME`, reporting critical problems to the given [problemReporter].
+     *
+     * The result is cached for further invocations in a thread-safe way, so the problems are reported only once per
+     * instance of [JavaHomeInfoProvider].
+     */
+    context(problemReporter: ProblemReporter)
+    suspend fun getOrRead(): JavaHomeInfo = openTelemetry.tracer.spanBuilder("Get JAVA_HOME info").use { span ->
+        readJavaHomeInfoOrGetCached().also { javaHomeResult ->
+            span.setAttribute("result", javaHomeResult.javaClass.simpleName)
+            if (javaHomeResult is JavaHomeInfo.Invalid) {
+                span.setStatus(StatusCode.ERROR, "JAVA_HOME is invalid: ${System.getenv("JAVA_HOME")}")
+            }
+        }
+    }
+
+    context(problemReporter: ProblemReporter)
+    private suspend fun readJavaHomeInfoOrGetCached(): JavaHomeInfo =
+        javaHomeInfo ?: mutex.withLock {
+            javaHomeInfo ?: withContext(Dispatchers.IO) {
+                readJavaHomeInfo().also { javaHomeResult ->
+                    javaHomeInfo = javaHomeResult
+                }
+            }
+        }
+
+    context(problemReporter: ProblemReporter)
+    private suspend fun readJavaHomeInfo(): JavaHomeInfo {
+        val javaHomeEnv = System.getenv("JAVA_HOME")?.takeIf { it.isNotBlank() } ?: return JavaHomeInfo.UnsetOrEmpty
+        val javaHomePath = try {
+            Path(javaHomeEnv)
+        } catch (e: InvalidPathException) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.path", e.message))
+            return JavaHomeInfo.Invalid
+        }
+        if (!javaHomePath.exists()) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.nonexistent.path", javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        if (!javaHomePath.isDirectory()) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.not.directory", javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        val releaseFile = javaHomePath.resolve("release")
+        if (!releaseFile.exists()) {
+            // In some archives (often on macOS), the real JDK home with the 'bin/javac' executable is nested somewhere
+            // deeper - not at the root. If we don't find the 'release' file in the current JAVA_HOME, it's possible
+            // that the user didn't know that their real JDK home is nested, and just pointed at the root. Let's check
+            // for this situation before complaining about the missing 'release'.
+            val messageId = if (javaHomePath.findValidJdkHomeDir() != javaHomePath) {
+                "java.home.invalid.jdk.dir"
+            } else {
+                "java.home.no.release.file"
+            }
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, messageId, javaHomeEnv))
+            return JavaHomeInfo.Invalid
+        }
+        val releaseInfo = try {
+            openTelemetry.tracer.spanBuilder("Read JDK release file").use {
+                releaseFile.readReleaseInfo()
+            }
+        } catch (e: InvalidReleaseInfoException) {
+            problemReporter.reportMessage(InvalidJavaHome(javaHomeEnv, "java.home.invalid.release.file", e.message))
+            return JavaHomeInfo.Invalid
+        }
+        return JavaHomeInfo.Valid(javaHomePath, releaseInfo)
+    }
+}
+
+internal sealed interface JavaHomeInfo {
+
+    /**
+     * This result means that `JAVA_HOME` is not set, or is set to the empty string.
+     */
+    data object UnsetOrEmpty : JavaHomeInfo
+
+    /**
+     * This result means that `JAVA_HOME` is set to a valid JDK or JRE, and that we could read the release information.
+     */
+    data class Valid(
+        val path: Path,
+        val releaseInfo: ReleaseInfo,
+    ) : JavaHomeInfo
+
+    /**
+     * This result means that `JAVA_HOME` is invalid (e.g., invalid path, doesn't exist, is not a directory, etc.).
+     *
+     * The exact errors are reported via the [ProblemReporter].
+     */
+    data object Invalid : JavaHomeInfo
+}

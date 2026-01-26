@@ -8,6 +8,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
 
 interface SchemaObjectDeclaration : SchemaTypeDeclaration {
@@ -36,6 +38,12 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
     fun getFromKeyAndTheRestNestedProperty(): Property?
 
     fun createInstance(): SchemaNode
+
+    /**
+     * Returns the type-level default tree value for the given [property] from this declaration.
+     * `null` if no default exists.
+     */
+    fun getDefaultFor(property: Property): KeyValue?
 
     override fun toType(): SchemaType.ObjectType = SchemaType.ObjectType(this)
 

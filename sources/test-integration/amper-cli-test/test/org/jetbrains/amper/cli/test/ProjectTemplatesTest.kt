@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
-import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
@@ -75,7 +75,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
     fun `compose-multiplatform`(testInfo: TestInfo) = runSlowTest {
         runInitForTemplateFromTestName(testInfo)
         val result = runCli(tempRoot, "build", configureAndroidHome = true, assertEmptyStdErr = false)
-        if (DefaultSystemInfo.detect().family.isMac) {
+        if (OsFamily.current.isMac) {
             result.readTelemetrySpans().assertXcodeProjectIsValid()
         }
     }
@@ -140,7 +140,7 @@ class ProjectTemplatesTest : AmperCliTestBase() {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         val result = runCli(tempRoot, "build", assertEmptyStdErr = false)
-        if (DefaultSystemInfo.detect().family.isMac) {
+        if (OsFamily.current.isMac) {
             result.readTelemetrySpans().assertXcodeProjectIsValid()
         }
     }

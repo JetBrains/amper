@@ -1,0 +1,9 @@
+# This test project contains overridden dependencies and is used to test
+# performance-related issues.
+# In particular: how many times dependency insight is calculated for the same dependency added to many modules.
+
+modules:
+  - android-app
+  - ios-app
+  - jvm-app
+  - shared

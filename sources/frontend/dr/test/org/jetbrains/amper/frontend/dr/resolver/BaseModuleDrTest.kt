@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
@@ -7,9 +7,7 @@ package org.jetbrains.amper.frontend.dr.resolver
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolderWithContext
@@ -17,11 +15,9 @@ import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.IncrementalCacheUsage
 import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.RootDependencyNodeStub
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
@@ -29,16 +25,18 @@ import org.jetbrains.amper.dependency.resolution.diagnostics.SimpleDiagnosticDes
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.getDefaultFileCacheBuilder
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.assertEqualsWithDiff
+import org.jetbrains.amper.test.golden.goldenFileOsAware
+import org.jetbrains.amper.test.runTestRespectingDelays
 import org.junit.jupiter.api.TestInfo
 import org.opentest4j.AssertionFailedError
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -49,6 +47,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseModuleDrTest {
     protected open val testGoldenFilesRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/goldenFiles")
@@ -68,9 +68,10 @@ abstract class BaseModuleDrTest {
         fragment: String? = null,
         messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for resolved tree")
-        return withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for resolved tree")
+        return withActualDump(goldenFile) {
             doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
         }
     }
@@ -163,9 +164,10 @@ abstract class BaseModuleDrTest {
         checkExistence: Boolean = false,
         checkAutoAddedDocumentation: Boolean = true
     ) {
-        val fileName = "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt"
-        val expected = getGoldenFileText(fileName, fileDescription = "Golden file for files")
-        withActualDump(testGoldenFilesRoot.resolve(fileName)) {
+        val goldenFile = goldenFileOsAware(
+            "${testInfo.testMethod.get().name.replace(" ", "_")}.files.txt")
+        val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for files")
+        withActualDump(goldenFile) {
             assertFiles(expected.trim().lines(), root, withSources, checkExistence, checkAutoAddedDocumentation)
         }
     }
@@ -196,17 +198,74 @@ abstract class BaseModuleDrTest {
             }
     }
 
-    protected fun getGoldenFileText(fileName: String, fileDescription: String): String {
-        val goldenFile = testGoldenFilesRoot / fileName
+    protected fun getGoldenFileText(goldenFile: Path, fileDescription: String): String {
         if (!goldenFile.exists()) fail("$fileDescription $goldenFile doesn't exist")
         return goldenFile
             .readText()
-            .replace("#kotlinVersion", UsedVersions.defaultKotlinVersion)
-            .replace("#composeDefaultVersion", UsedVersions.composeVersion)
+            .replace("#kotlinVersion", DefaultVersions.kotlin)
+            .replace("#composeDefaultVersion", DefaultVersions.compose)
             .trim()
     }
 
+    protected fun goldenFileOsAware(goldenFileBaseName: String) =
+        testGoldenFilesRoot.goldenFileOsAware(goldenFileBaseName)
+
     companion object {
+        /**
+         * Run every test twice if [checkIncrementalCache] is set to true
+         * (the first run without cache, the second with cache populated during the first run)
+         */
+        internal fun BaseModuleDrTest.runModuleDependenciesTest(
+            checkIncrementalCache: Boolean = true,
+            timeout: Duration = 1.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) {
+            if (checkIncrementalCache) {
+                val incrementalCacheUsageContext =
+                    IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
+                runTestRespectingDelays(
+                    context = EmptyCoroutineContext + incrementalCacheUsageContext,
+                    timeout = timeout,
+                    testBody = {
+                        executeWithAndWithoutCache(incrementalCacheUsageContext, testBody)
+                    }
+                )
+            } else {
+                runTestRespectingDelays(testBody = testBody, timeout = timeout)
+            }
+        }
+
+        /**
+         * Run every test twice if [checkIncrementalCache] is set to true
+         * (the first run without cache, the second with cache populated during the first run)
+         *
+         * test timeout is 5 minutes by default
+         */
+        internal fun BaseModuleDrTest.runSlowModuleDependenciesTest(
+            checkIncrementalCache: Boolean = true,
+            timeout: Duration = 5.minutes,
+            testBody: suspend TestScope.() -> Unit
+        ) = runModuleDependenciesTest(checkIncrementalCache, timeout, testBody)
+
+        private suspend fun TestScope.executeWithAndWithoutCache(
+            incrementalCacheUsageContext: IncrementalCacheUsageContextElement,
+            testBody: suspend TestScope.() -> Unit,
+        ) {
+            try {
+                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
+                testBody()
+
+                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
+                println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
+                testBody()
+            } finally {
+                incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
+            }
+        }
+
+        internal suspend fun getIncrementalCacheUsage() =
+            currentCoroutineContext()[IncrementalCacheUsageContextElementKey]?.incrementalCacheUsage?: IncrementalCacheUsage.SKIP
+
         fun List<Message>.defaultFilterMessages(): List<Message> =
             filter { "Downloaded " !in it.message && "Resolved " !in it.message }
 
@@ -239,19 +298,19 @@ abstract class BaseModuleDrTest {
         private fun String.replaceVersionsWithVariables(): String =
             replaceArtifactFilenames(
                 filePrefix = "kotlin-stdlib",
-                version = UsedVersions.defaultKotlinVersion,
+                version = DefaultVersions.kotlin,
                 versionVariableName = "kotlinVersion",
             )
                 .replaceCoordinateVersionWithReference(
                     groupPrefix = "org.jetbrains.kotlin",
                     artifactPrefix = "kotlin-",
-                    version = UsedVersions.defaultKotlinVersion,
+                    version = DefaultVersions.kotlin,
                     versionVariableName = "kotlinVersion",
                 )
                 .replaceCoordinateVersionWithReference(
                     groupPrefix = "org.jetbrains.compose",
                     artifactPrefix = "",
-                    version = UsedVersions.composeVersion,
+                    version = DefaultVersions.compose,
                     versionVariableName = "composeDefaultVersion",
                 )
 
@@ -310,23 +369,6 @@ abstract class BaseModuleDrTest {
         )
     }
 
-    protected suspend fun populateLocalCacheWithDependencies(cacheRoot: Path, coordinates: List<MavenCoordinates>) {
-        val context = context(cacheBuilder = cacheBuilder(cacheRoot))
-
-        val root = RootDependencyNodeWithContext(
-            children = coordinates.map{ it.toMavenNode(context) },
-            templateContext = context
-        )
-
-        Resolver().buildGraph(root)
-        Resolver().downloadDependencies(root)
-    }
-
-    protected fun MavenCoordinates.toMavenNode(context: Context): MavenDependencyNodeWithContext {
-        val isBom = artifactId.startsWith("bom:")
-        return MavenDependencyNodeWithContext(context, groupId, artifactId, version, isBom = isBom)
-    }
-
     protected fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
@@ -356,47 +398,3 @@ internal class IncrementalCacheUsageContextElement(
     override fun toString(): String = "ResolutionCacheUsageContextElement"
 }
 
-/**
- * Run every test twice (the first run without cache, the second with cache populated during the first run)
- */
-internal fun runSlowModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
-    val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
-    runSlowTest(
-        context = EmptyCoroutineContext + incrementalCacheUsageContext,
-        testBody = {
-            executeWithAndWithoutCache(incrementalCacheUsageContext, testBody)
-        }
-    )
-}
-
-/**
- * Run every test twice (the first run without cache, the second with cache populated during the first run)
- */
-internal fun runModuleDependenciesTest(testBody: suspend TestScope.() -> Unit) {
-    val incrementalCacheUsageContext = IncrementalCacheUsageContextElement(IncrementalCacheUsage.REFRESH_AND_USE)
-    runTest(
-        context = EmptyCoroutineContext + incrementalCacheUsageContext,
-        testBody = {
-            executeWithAndWithoutCache(incrementalCacheUsageContext, testBody)
-        }
-    )
-}
-
-private suspend fun TestScope.executeWithAndWithoutCache(
-    incrementalCacheUsageContext: IncrementalCacheUsageContextElement,
-    testBody: suspend TestScope.() -> Unit,
-) {
-    try {
-        println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
-        testBody()
-
-        incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
-        println("Running test with resolutionCacheUsage=${incrementalCacheUsageContext.incrementalCacheUsage}")
-        testBody()
-    } finally {
-        incrementalCacheUsageContext.incrementalCacheUsage = IncrementalCacheUsage.SKIP
-    }
-}
-
-internal suspend fun getIncrementalCacheUsage() =
-    currentCoroutineContext()[IncrementalCacheUsageContextElementKey]?.incrementalCacheUsage?: IncrementalCacheUsage.SKIP

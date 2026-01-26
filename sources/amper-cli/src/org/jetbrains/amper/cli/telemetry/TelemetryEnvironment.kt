@@ -5,22 +5,18 @@
 package org.jetbrains.amper.cli.telemetry
 
 import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.exporter.logging.otlp.internal.traces.OtlpStdoutSpanExporter
-import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
-import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.telemetry.TelemetrySetup
 import org.jetbrains.amper.util.DateTimeFormatForFilenames
 import org.jetbrains.amper.util.nowInDefaultTimezone
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
@@ -60,7 +56,7 @@ object TelemetryEnvironment {
     }
 
     fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
-        moveSpansFile(newPath = amperBuildLogsRoot.path.createDirectories() / "opentelemetry_traces.jsonl")
+        moveSpansFile(newPath = amperBuildLogsRoot.telemetryPath.createDirectories() / "amper_cli_traces.jsonl")
     }
 
     private fun userLevelTracesPath(userCacheRoot: AmperUserCacheRoot): Path {
@@ -74,28 +70,12 @@ object TelemetryEnvironment {
     }
 
     fun setup(defaultCacheRoot: AmperUserCacheRoot) {
-        val initialTracesPath = userLevelTracesPath(defaultCacheRoot)
-        movableFileOutputStream = MovableFileOutputStream(initialPath = initialTracesPath)
-
-        val exporter = OtlpStdoutSpanExporter.builder()
-            .setOutput(movableFileOutputStream)
-            .setWrapperJsonObject(true)
-            .build()
-        val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
-            .setResource(resource)
-            .build()
-        val openTelemetry = OpenTelemetrySdk.builder()
-            .setTracerProvider(tracerProvider)
-            .build()
+        val outputStream = MovableFileOutputStream(initialPath = userLevelTracesPath(defaultCacheRoot))
+        movableFileOutputStream = outputStream
+        val openTelemetry = TelemetrySetup.createOpenTelemetry(outputStream, resource)
         GlobalOpenTelemetry.set(openTelemetry)
-
-        Runtime.getRuntime().addShutdownHook(thread(start = false) {
-            try {
-                openTelemetry.close()
-            } catch (t: Throwable) {
-                LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${t.message}", t)
-            }
-        })
+        TelemetrySetup.closeTelemetryOnShutdown(openTelemetry) { error ->
+            LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${error.message}", error)
+        }
     }
 }

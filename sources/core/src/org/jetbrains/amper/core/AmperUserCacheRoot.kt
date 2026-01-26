@@ -6,7 +6,7 @@ package org.jetbrains.amper.core
 
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.OsFamily
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.Path

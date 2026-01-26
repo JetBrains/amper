@@ -4,37 +4,30 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import com.intellij.util.asSafely
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.ScalarValue
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.NotChanged
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TreeTransformer
-import org.jetbrains.amper.frontend.tree.copy
-import org.jetbrains.amper.frontend.types.getType
+import org.jetbrains.amper.frontend.tree.copyWithValue
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.system.info.SystemInfo
 
-context(buildCtx: BuildCtx)
-internal fun Merged.substituteComposeOsSpecific() = 
-    ComposeOsSpecificSubstitutor(buildCtx).transform(this) as? Merged ?: this
+context(systemInfo: SystemInfo)
+internal fun MappingNode.substituteComposeOsSpecific() =
+    ComposeOsSpecificSubstitutor(systemInfo).transform(this) as? MappingNode ?: this
 
-internal class ComposeOsSpecificSubstitutor(buildCtx: BuildCtx) : TreeTransformer<Merged>() {
-
-    private val dependencyType = buildCtx.types.getType<ExternalMavenDependency>()
-    private val coordinatesPName = ExternalMavenDependency::coordinates.name
-    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${buildCtx.systemInfo.detect().familyArch}:"
+internal class ComposeOsSpecificSubstitutor(systemInfo: SystemInfo) : TreeTransformer() {
+    private val replacement = "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.familyArch}:"
 
     private fun String.doReplace() = this
         .replace("org.jetbrains.compose.desktop:desktop:", replacement)
         .replace("org.jetbrains.compose.desktop:desktop-jvm:", replacement)
 
-    override fun visitMapValue(value: MapLikeValue<Merged>) =
-        if (value.type != dependencyType) super.visitMapValue(value)
-        else value.copy<Merged, ScalarValue<Merged>> { key, pValue, old ->
-            pValue.value.asSafely<String>()
-                .takeIf { key == coordinatesPName }
-                ?.let { old.copy(value = pValue.copy(value = it.doReplace())) }
-                .let { listOf(it ?: old) }
-        }.let(::Changed)
+    override fun visitScalar(node: ScalarNode) = when (node) {
+        is StringNode if node.type.semantics == SchemaType.StringType.Semantics.MavenCoordinates ->
+            Changed(node.copyWithValue(value = node.value.doReplace()))
+        else -> NotChanged
+    }
 }

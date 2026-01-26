@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -25,6 +26,7 @@ class JvmRunTask(
     runSettings: JvmMainRunSettings,
     incrementalCache: IncrementalCache,
     jdkProvider: JdkProvider,
+    processRunner: ProcessRunner,
 ) : AbstractJvmRunTask(
     taskName = taskName,
     module = module,
@@ -35,6 +37,7 @@ class JvmRunTask(
     runSettings = runSettings,
     incrementalCache = incrementalCache,
     jdkProvider = jdkProvider,
+    processRunner = processRunner
 ) {
     override val buildType: BuildType = BuildType.Debug
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -9,7 +9,7 @@ import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.test.spans.assertHasAttribute
 import org.jetbrains.amper.test.spans.spansNamed
 import org.jetbrains.amper.test.spans.withAttribute
@@ -41,7 +41,7 @@ class SerializationTest: AmperCliTestBase() {
             .assertHasAttribute(
                 key = AttributeKey.stringArrayKey("dependencies"),
                 value = listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}",
+                    "org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}",
                     "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1",
                     "org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1",
                     "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1",

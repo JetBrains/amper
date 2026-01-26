@@ -5,6 +5,7 @@
 package org.jetbrains.amper.plugins.schema.model
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.serialization.paths.SerializablePath
 
 /**
  * Special response data structure that is sent by the `amper-schema-processor` to CLI's `preparePlugins` routine
@@ -16,7 +17,7 @@ data class PluginDataResponse(
 ) {
     @Serializable
     data class PluginDataWithDiagnostics(
-        val sourcePath: PathAsString,
+        val sourcePath: SerializablePath,
         val declarations: PluginData.Declarations,
         val diagnostics: List<Diagnostic> = emptyList(),
     )

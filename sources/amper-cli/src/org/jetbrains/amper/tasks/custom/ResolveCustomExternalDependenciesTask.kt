@@ -6,8 +6,8 @@ package org.jetbrains.amper.tasks.custom
 
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.JavaVersion
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNodeWithContext
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -15,18 +15,22 @@ import org.jetbrains.amper.dependency.resolution.RootDependencyNodeWithContext
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.getAmperFileCacheBuilder
+import org.jetbrains.amper.frontend.dr.resolver.getExternalDependencies
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.tasks.toIncrementalCacheResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -37,10 +41,10 @@ internal class ResolveCustomExternalDependenciesTask(
     private val module: AmperModule,
     private val incrementalCache: IncrementalCache,
     private val resolutionScope: ResolutionScope,
-    private val externalDependencies: List<String>,
+    private val externalDependencies: List<MavenCoordinates>,
     private val localDependencies: List<AmperModule>,
 ) : Task {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -52,11 +56,11 @@ internal class ResolveCustomExternalDependenciesTask(
             this.cache = getAmperFileCacheBuilder(userCacheRoot)
             this.scope = resolutionScope
             this.platforms = setOf(ResolutionPlatform.JVM)
+            this.jdkVersion = JavaVersion(module.jdkSettings.version)
         }
         val externalDependencyNodes = externalDependencies.map {
             // It's safe to split here, because, validation was already done in the frontend
-            val (group, module, version) = it.split(":") // FIXME: This has to be done in frontend
-            MavenDependencyNodeWithContext(drContext, group, module, version, isBom = false)
+            MavenDependencyNodeWithContext(drContext, it.toDrMavenCoordinates(), isBom = false)
         }
         val localDependencyNodes = localDependencies.map {
             it.buildDependenciesGraph(isTest = false, Platform.JVM, resolutionScope, userCacheRoot, incrementalCache)

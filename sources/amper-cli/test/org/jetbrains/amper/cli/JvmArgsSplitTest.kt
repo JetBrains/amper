@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli
 import org.jetbrains.amper.cli.options.splitArgsHonoringQuotes
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class JvmArgsSplitTest {
 
@@ -30,6 +30,15 @@ class JvmArgsSplitTest {
         assertEquals(listOf("arg1", "arg2"), "arg1   arg2".splitArgsHonoringQuotes())
         assertEquals(listOf("arg1", "arg2", "arg3"), "arg1  arg2 arg3".splitArgsHonoringQuotes())
         assertEquals(listOf("-ea", "-Xmx=4g", "-Dmy.prop=hello"), "-ea    -Xmx=4g   -Dmy.prop=hello".splitArgsHonoringQuotes())
+    }
+
+    @Test
+    fun unquotedArgs_shouldKeepTheirEscapedSpaces() {
+        assertEquals(listOf(" "), """\ """.splitArgsHonoringQuotes())
+        assertEquals(listOf(" ", " "), """\  \ """.splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c"), """a\ b\ c""".splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c", "d"), """a\ b\ c d""".splitArgsHonoringQuotes())
+        assertEquals(listOf("a b c", "d e"), """a\ b\ c d\ e""".splitArgsHonoringQuotes())
     }
 
     @Test
@@ -57,6 +66,11 @@ class JvmArgsSplitTest {
     }
 
     @Test
+    fun escapedLetter_shouldBeKeptAsIs() {
+        assertEquals(listOf("a", "b"), """\a \b""".splitArgsHonoringQuotes())
+    }
+
+    @Test
     fun escapedBackslash_shouldNotEscapeQuotes() {
         assertEquals(listOf("start\\ \\end"), """start\\" \\"end""".splitArgsHonoringQuotes())
     }
@@ -78,16 +92,32 @@ class JvmArgsSplitTest {
 
     @Test
     fun unclosedQuote_shouldFail() {
-        assertFails { "\"".splitArgsHonoringQuotes() }
-        assertFails { "\"arg1".splitArgsHonoringQuotes() }
-        assertFails { "\"start end".splitArgsHonoringQuotes() }
-        assertFails { "\"arg1\" \"arg2".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\"".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\"arg1".splitArgsHonoringQuotes() }
+
+        val e3 = assertFailsWith<UserReadableError> { "\"start end".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Unclosed quote at index 0 in --jvm-args:
+            "start end
+            ^
+        """.trimIndent(), e3.message)
+
+        val e4 = assertFailsWith<UserReadableError> { "\"arg1\" \"arg2".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Unclosed quote at index 7 in --jvm-args:
+            "arg1" "arg2
+                   ^
+        """.trimIndent(), e4.message)
     }
 
     @Test
     fun danglingEscape_shouldFail() {
-        assertFails { "\\".splitArgsHonoringQuotes() }
-        assertFails { "something\\".splitArgsHonoringQuotes() }
-        assertFails { "something \\".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "\\".splitArgsHonoringQuotes() }
+        assertFailsWith<UserReadableError> { "something\\".splitArgsHonoringQuotes() }
+        val e = assertFailsWith<UserReadableError> { "something \\".splitArgsHonoringQuotes() }
+        assertEquals("""
+            Dangling escape character '\' at the end of the --jvm-args value:
+            something \
+        """.trimIndent(), e.message)
     }
 }

@@ -7,6 +7,7 @@ package org.jetbrains.amper.incrementalcache
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -71,6 +72,13 @@ internal data class State(
      */
     val excludedOutputFiles: Set<String>,
     /**
+     * State of environment parameters that affected the cached computation.
+     * Their values are recorded and persisted on disk.
+     * The next time the computation is run, the new state of the these parameters is compared to the recorded one,
+     * and the computation is re-run if anything is changed
+     */
+    val dynamicInputs: DynamicInputsState,
+    /**
      * Date and time the cache entry is no longer valid after, and should be recalculated
      */
     @Serializable(with = InstantSerializer::class)
@@ -78,9 +86,28 @@ internal data class State(
 ) {
     companion object {
         // increment this counter if you change the state file format
-        const val formatVersion = 5
+        const val formatVersion = 6
     }
 }
+
+@Serializable
+class DynamicInputsState(
+    /**
+     * System properties that affected the cached computation.
+     */
+    @Serializable(with = SortedMapNullableSerializer::class)
+    val systemProperties: Map<String, String?> = emptyMap(),
+    /**
+     * Environment variables that affected the cached computation.
+     */
+    @Serializable(with = SortedMapNullableSerializer::class)
+    val environmentVariables: Map<String, String?> = emptyMap(),
+    /**
+     * Existence of paths that affected the cache computation.
+     */
+    @Serializable(with = SortedMapSerializer::class)
+    val pathsExistence: Map<String, String> = emptyMap(),
+)
 
 internal fun FileChannel.writeState(state: State) {
     truncate(0)
@@ -124,6 +151,20 @@ private object SortedMapSerializer: KSerializer<Map<String, String>> {
     }
 
     override fun deserialize(decoder: Decoder): Map<String, String> {
+        return mapSerializer.deserialize(decoder)
+    }
+}
+
+private object SortedMapNullableSerializer: KSerializer<Map<String, String?>> {
+    private val mapSerializer = MapSerializer(String.serializer(), String.serializer().nullable)
+
+    override val descriptor: SerialDescriptor = mapSerializer.descriptor
+
+    override fun serialize(encoder: Encoder, value: Map<String, String?>) {
+        mapSerializer.serialize(encoder, value.toSortedMap())
+    }
+
+    override fun deserialize(decoder: Decoder): Map<String, String?> {
         return mapSerializer.deserialize(decoder)
     }
 }

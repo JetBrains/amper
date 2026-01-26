@@ -34,6 +34,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     runSettings = runSettings,
                     platform = platform,
                     buildType = buildType,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true, buildType)
             )
@@ -61,7 +62,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     leafFragment = module.leafFragments.single {
                         it.platform == platform && !it.isTest
                     },
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     userCacheRoot = context.userCacheRoot,
                 ),
@@ -95,6 +96,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     userCacheRoot = context.userCacheRoot,
                     taskOutputPath = context.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = listOf(
                     preBuildTaskName,
@@ -113,6 +115,7 @@ fun ProjectTasksBuilder.setupIosTasks() {
                     module = module,
                     runSettings = runSettings,
                     taskOutputPath = context.getTaskOutputPath(runTaskName),
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = listOf(buildTaskName)
             )

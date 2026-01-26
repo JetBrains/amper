@@ -1,25 +1,25 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test.android
 
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runProcess
 import org.jetbrains.amper.processes.runProcessAndCaptureOutput
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import org.jetbrains.amper.test.processes.checkExitCodeIsZero
 import java.io.File
+import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -32,10 +32,12 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
+import java.net.ServerSocket
 
-private val binExtension = if (DefaultSystemInfo.detect().family.isWindows) ".exe" else ""
-private val scriptExtension = if (DefaultSystemInfo.detect().family.isWindows) ".bat" else ""
+private val binExtension = if (OsFamily.current.isWindows) ".exe" else ""
+private val scriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
 
 /**
  * A Kotlin API for Android SDK tools.
@@ -146,7 +148,7 @@ class AndroidTools(
         name: String,
         apiLevel: Int = 35,
         variant: String = "default",
-        arch: String = DefaultSystemInfo.detect().arch.toEmulatorArch(),
+        arch: String = Arch.current.toEmulatorArch(),
     ) {
         // Note: this modifies .knownPackages, which might be important for caching
         avdmanager(
@@ -177,50 +179,79 @@ class AndroidTools(
     suspend fun isEmulatorRunning(): Boolean = adb("devices").checkExitCodeIsZero().stdout.contains("emulator")
 
     /**
-     * Starts the Android emulator with the given AVD (Android Virtual Device) and waits until it is fully booted.
-     * Warning: the emulator keeps running after the JVM exits.
+     * Runs the given [block] alongside a new Android emulator with the AVD (Android Virtual Device) identified by the
+     * given [avdName].
      *
-     * @return the PID of the emulator process
+     * The emulator is guaranteed to be booted before [block] is executed, and to be killed after [block] completes.
      */
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun startAndAwaitEmulator(avdName: String) {
-        log("Starting emulator for AVD $avdName...")
-
-        // We launch it in a long-lived coroutine to reuse the emulator between tests.
-        // It will be killed on JVM exit thanks to runProcess's default behavior.
-        val emulatorJob = GlobalScope.launch {
-            runProcess(
-                command = listOf(
-                    emulatorExe.pathString,
-                    "-avd",
-                    avdName,
-                    "-no-window", // required on CI, otherwise the device fails to start because of the absence of UI
-                    "-no-metrics", // needs to be explicitly disabled to avoid interactive prompts in the future
-                    "-no-snapshot", // avoids saving/restoring emulator state (we don't need it)
-                    "-no-boot-anim", // faster startup
-                    "-no-audio", // audio not needed
-                    "-wipe-data", // start fresh each time we launch the test suite
-                ),
-                environment = environment() + mapOf(
-                    "JAVA_HOME" to javaHome.pathString,
-                    // apparently, the emulator needs to have these tools on the PATH
-                    "PATH" to envPathWithPrepended(
-                        androidSdkHome / "emulator",
-                        androidSdkHome / "platform-tools",
-                    ),
-                ),
-                // we can't ignore stdout because some startup errors are printed there (e.g. absence of window)
-                outputListener = PrefixPrintOutputListener("emulator"),
-            )
+    suspend fun <T> withEmulator(avdName: String, block: suspend Emulator.() -> T): T = coroutineScope {
+        val port = chooseFreeEmulatorPort()
+        val emulatorJob = launch {
+            runNewEmulator(avdName, port)
+            log("Emulator started")
         }
+        val emulator = Emulator(serial = "emulator-$port", androidTools = this@AndroidTools)
+        emulator.awaitReady(emulatorJob)
 
-        awaitEmulatorReady(emulatorJob)
+        try {
+            block(emulator)
+        } finally {
+            emulatorJob.cancel()
+            emulator.kill()
+            log("Awaiting emulator termination for AVD $avdName...")
+        }
+    }
+
+    private fun chooseFreeEmulatorPort(): Int {
+        while (true) {
+            val port = Random.nextInt(5554, 5584)
+            try {
+                ServerSocket(port).close()
+                return port
+            } catch (_: IOException) {
+                continue
+            }
+        }
+    }
+
+    /**
+     * Starts the Android emulator with the AVD (Android Virtual Device) identified by the given [avdName], and keeps
+     * running until canceled. Upon cancellation, the emulator process will be terminated gracefully.
+     */
+    private suspend fun runNewEmulator(avdName: String, port: Int) {
+        log("Starting emulator for AVD $avdName...")
+        runProcess(
+            command = listOf(
+                emulatorExe.pathString,
+                "-port",
+                port.toString(),
+                "-avd",
+                avdName,
+                "-read-only", // to not write anything back to the AVD image (enables running multiple emulators with the same AVD)
+                "-no-window", // required on CI, otherwise the device fails to start because of the absence of UI
+                "-no-metrics", // needs to be explicitly disabled to avoid interactive prompts in the future
+                "-no-snapshot", // avoids saving/restoring the emulator state (we don't need it)
+                "-no-boot-anim", // faster startup
+                "-no-audio", // audio isn't needed
+                "-wipe-data", // start fresh each time we launch the test suite
+            ),
+            environment = environment() + mapOf(
+                "JAVA_HOME" to javaHome.pathString,
+                // apparently, the emulator needs to have these tools on the PATH
+                "PATH" to envPathWithPrepended(
+                    androidSdkHome / "emulator",
+                    androidSdkHome / "platform-tools",
+                ),
+            ),
+            // we can't ignore stdout because some startup errors are printed there (e.g. absence of window)
+            outputListener = PrefixPrintOutputListener("emulator"),
+        )
     }
 
     private fun envPathWithPrepended(vararg path: Path): String =
         (path.map { it.pathString } + listOf(System.getenv("PATH"))).joinToString(File.pathSeparator)
 
-    private suspend fun awaitEmulatorReady(emulatorJob: Job) {
+    private suspend fun Emulator.awaitReady(emulatorJob: Job) {
         log("Waiting for the emulator to boot...")
         while (true) {
             if (!emulatorJob.isActive) {
@@ -242,26 +273,6 @@ class AndroidTools(
     }
 
     /**
-     * Installs the APK located at the given [apkPath] on the emulator using adb.
-     */
-    suspend fun installApk(apkPath: Path) {
-        check(apkPath.exists()) { "APK file not found at path: $apkPath" }
-        adb(
-            "install", "-r", apkPath.pathString,  // "-r" flag allows reinstalling the APK if it's already installed
-            outputListener = PrefixPrintOutputListener("adb install"),
-        ).checkExitCodeIsZero()
-    }
-
-    /**
-     * Returns the last [nSeconds] seconds of logcat output at warning level or above.
-     */
-    suspend fun logcatLastNSeconds(nSeconds: Int): String {
-        val formattedTime = LocalDateTime.now().minusSeconds(nSeconds.toLong())
-            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
-        return adb("logcat", "*:W", "-d", "-t", formattedTime).checkExitCodeIsZero().stdout
-    }
-
-    /**
      * Runs the given ADB [command].
      *
      * The exit code and entire output is captured in the returned [ProcessResult].
@@ -278,6 +289,7 @@ class AndroidTools(
     }
 
     private fun registerAdbShutdownOnExit() {
+        shutdownHookRegistered = true
         Runtime.getRuntime().addShutdownHook(thread(start = false) {
             // We cannot use async-process helpers while the JVM is shutting down, because they are automatically
             // cleaned up on JVM exit, so it would immediately fail.
@@ -298,6 +310,56 @@ class AndroidTools(
         input = input,
         outputListener = outputListener,
     )
+}
+
+class Emulator(
+    val serial: String,
+    private val androidTools: AndroidTools,
+) {
+    suspend fun adb(
+        vararg args: String,
+        outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
+    ) = androidTools.adb("-s", serial, *args, outputListener = outputListener)
+
+    /**
+     * Installs the APK located at the given [apkPath] on the emulator using adb.
+     */
+    suspend fun installApk(apkPath: Path) {
+        check(apkPath.exists()) { "APK file not found at path: $apkPath" }
+        adb(
+            "install", "-r", apkPath.pathString,  // "-r" flag allows reinstalling the APK if it's already installed
+            outputListener = PrefixPrintOutputListener("adb install"),
+        ).checkExitCodeIsZero()
+    }
+
+    /**
+     * Uninstalls the application with the given [packageName].
+     *
+     * If [ignoreFailures] is true (the default), the exit code of the `adb uninstall` command is not checked.
+     * This is useful to avoid failing if the package is not found (already not installed).
+     */
+    suspend fun uninstall(packageName: String, ignoreFailures: Boolean = true) {
+        val result = adb("uninstall", packageName, outputListener = PrefixPrintOutputListener("adb uninstall"))
+        if (!ignoreFailures) {
+            result.checkExitCodeIsZero()
+        }
+    }
+
+    /**
+     * Returns the last [nSeconds] seconds of logcat output at warning level or above.
+     */
+    suspend fun logcatLastNSeconds(nSeconds: Int): String {
+        val formattedTime = LocalDateTime.now().minusSeconds(nSeconds.toLong())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS"))
+        return adb("logcat", "*:W", "-d", "-t", formattedTime).checkExitCodeIsZero().stdout
+    }
+
+    /**
+     * Kills this emulator's process.
+     */
+    suspend fun kill() {
+        adb("emu", "kill").checkExitCodeIsZero()
+    }
 }
 
 fun Arch.toEmulatorArch(): String = when(this) {

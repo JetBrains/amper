@@ -116,7 +116,8 @@ internal class TestCommand : AmperModelAwareCommand(name = "test") {
         help = """
             The format to use for test results:
             - `pretty` is a human-readable format for local CLI runs
-            - `events` is for machine readable events that can be interpreted by some CI systems and IDEs.
+            - `teamcity` is the machine-readable events format that is understood natively by TeamCity, and can be 
+              useful to some other CI systems and IDEs.
         """.trimIndent(),
     ).enum<TestResultsFormat> { it.cliValue }.default(TestResultsFormat.Pretty)
 

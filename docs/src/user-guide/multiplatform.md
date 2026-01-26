@@ -1,36 +1,64 @@
-# Kotlin Multiplatform projects
+---
+description: |
+  Learn everything about Kotlin Multiplatform configuration in Amper module files: supported platforms, platform 
+  qualifiers, module layout, and more.
+---
+# Multiplatform modules
 
-## Platform qualifier
+Amper was built from the start with [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/kmp-overview.html)
+in mind. Kotlin Multiplatform is a technology that allows building a single module for different target platforms.
 
-Use the `@platform`-qualifier to mark platform-specific source folders and sections in the `module.yaml` files.
-You can use Kotlin Multiplatform [platform names](https://kotlinlang.org/docs/native-target-support.html) and families 
-as `@platform`-qualifier.
+## Supported platforms
 
-```yaml
-dependencies:               # common dependencies for all platforms
-dependencies@ios:           # ios is a platform family name  
-dependencies@iosArm64:      # iosArm64 is a KMP platform name
-```
-```yaml
-settings:                   # common settings for all platforms
-settings@ios:               # ios is a platform family name  
-settings@iosArm64:          # iosArm64 is a KMP platform name
-```
-```
-|-src/                      # common code for all platforms
-|-src@ios/                  # sees declarations from src/ 
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
-```
-```
-|-resources/                # resources for all platforms
-|-resources@ios/             
-|-resources@iosArm64/       
+In the diagram below, you'll find all supported platforms.
+Some target platforms belong to the same _family_ and share some common APIs.
+
+The following diagram shows the hierarchy between all platform families (intermediate nodes) and platforms (leaf nodes):
+
+``` title="Defaut platforms hierarchy"
+common
+ ├─ jvm
+ ├─ android
+ ├─ web
+ │   ├─ js
+ │   ╰─ wasmJs
+ ├─ wasmWasi
+ ╰─ native
+     ├─ linux
+     │   ├─ linuxX64
+     │   ╰─ linuxArm64
+     ├─ mingw
+     │   ╰─ mingwX64
+     ├─ apple
+     │   ├─ macos
+     │   │   ├─ macosX64
+     │   │   ╰─ macosArm64
+     │   ├─ ios
+     │   │   ├─ iosArm64
+     │   │   ├─ iosSimulatorArm64
+     │   │   ╰─ iosX64
+     │   ├─ watchos
+     │   │   ├─ watchosArm32
+     │   │   ├─ watchosArm64
+     │   │   ├─ watchosDeviceArm64
+     │   │   ╰─ watchosSimulatorArm64
+     │   ╰─ tvos
+     │       ├─ tvosArm64
+     │       ├─ tvosSimulatorArm64
+     │       ╰─ tvosX64
+     ╰─ androidNative
+         ├─ androidNativeArm32
+         ├─ androidNativeArm64
+         ├─ androidNativeX64
+         ╰─ androidNativeX86
 ```
 
-See also how the [resources](basics.md#resources) are handled in the multiplatform projects.
+!!! warning "The platforms listed here are not all equally supported or tested."
 
+## Choosing target platforms
 
-Only the platform names (but not the platform family names) can be currently used in the `platforms:` list:
+Not all multiplatform modules support all target platforms. Most modules define a limited subset of the target
+platforms. To do so, use the `product.platforms` list:
 
 ```yaml
 product:
@@ -38,76 +66,75 @@ product:
   platforms: [iosArm64, android, jvm]
 ```
 
-## Platforms hierarchy
+??? note "No platform family shortcuts here"
+    The `product.platforms` list may only contain _platform_ names, not _platform family_ names.
+    This is to ensure the stability of the platforms list when Kotlin is bumped to a higher version.
+    Using family shortcuts could change the list of platforms in a very subtle and implicit way.
 
-Some target platforms belong to the same family and share some common APIs.
-They form a hierarchy as follows:
-```yaml
-common  # corresponds to src directories or configuration sections without @platform suffix
-  jvm
-  android  
-  native
-    linux
-      linuxX64
-      linuxArm64
-    mingw
-      mingwX64
-    apple
-      macos
-        macosX64
-        macosArm64
-      ios
-        iosArm64
-        iosSimulatorArm64
-        iosX64            # iOS Simulator for Intel Mac
-      watchos
-        watchosArm32
-        watchosArm64
-        watchosDeviceArm64
-        watchosSimulatorArm64
-        watchosX64
-      tvos
-        tvosArm64
-        tvosSimulatorArm64
-        tvosX64
-  ...
-```
+## Platform qualifier
 
-!!! note
+In multiplatform modules, some source directories and sections in the configuration files can be platform-specific.
+Amper defines a special suffix, called the `@platform` qualifier, to mark such platform-specific things.
 
-    Note: not all platforms listed here are equally supported or tested.
-    Additional platforms may also exist in addition to the ones listed here, but are also untested/highly experimental.
+What follows the `@` sign is the name of a _platform_ or _platform family_. The available platforms and platform 
+families are described in the [Platforms hierarchy](#supported-platforms) section.
 
-Based on this hierarchy, common code is visible from more `@platform`-specific code, but not vice versa:
+We'll see in the next sections how these directories and settings interact.
+
+## Module layout
+
+Here is an overview of what the layout of a multiplatform module looks like when `jvm`, `iosArm64`, `iosSimulatorArm64`,
+and `iosX64` platforms are enabled:
+
+--8<-- "includes/module-layouts/kmp-lib.md"
+
+!!! note 
+    Some other @platform directories were omitted for brevity.
+
+We'll explain what's going on here in the following sections.
+
+### Source dirs
+
+Based on the [platforms hierarchy](#supported-platforms), more common code is visible from more platform-specific code, 
+but not vice versa:
 
 ```
-|-src/             
-|  |-...      
-|-src@ios/                  # sees declarations from src/ 
-|  |-...      
-|-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@iosSimulatorArm64/    # sees declarations from src/ and from src@ios/ 
-|  |-...      
-|-src@jvm/                  # sees declarations from src/
-|  |-...      
-|-module.yaml
+├─ src/
+├─ src@native/            # sees declarations from src
+├─ src@apple/             # sees declarations from src + src@native
+├─ src@ios/               # sees declarations from src + src@native + src@apple
+├─ src@iosArm64/          # sees declarations from src + src@native + src@apple + src@ios
+├─ src@iosSimulatorArm64/ # sees declarations from src + src@native + src@apple + src@ios
+├─ src@jvm/               # sees declarations from src
+╰─ module.yaml
 ```
 
 You can therefore share code between platforms by placing it in a common ancestor in the hierarchy:
 code placed in `src@ios` is shared between `iosArm64` and `iosSimulatorArm64`, for instance.
 
-For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), 
-put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding 
+For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html),
+put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding
 `src@<platform>/` folders.
 
-This hierarchy applies to `@platform`-qualified sections in the configuration files as well.
-We'll see how this works more precisely in the [Multiplatform Dependencies](#multiplatform-dependencies) and
-[Multiplatform Settings](#multiplatform-settings) sections.
+### Resources
 
-### Aliases
+The final artifact for each platform gets its resources from `resources` and all `resources@platform` directories that
+correspond to this platform of its parent families:
 
-If the default hierarchy is not enough, you can define new groups of platforms by giving them an alias.
+```
+├─ resources/          # these resources are copied into the Android and JVM artifact
+├─ resources@android/  # these resources are copied into the Android artifact
+╰─ resources@jvm/      # these resources are copied into the JVM artifact
+```
+
+If different resource directories contain a resource with the same name, the more common resource is overwritten by the 
+more specific ones.
+That is `resources/foo.txt` will be overwritten by `resources@android/foo.txt`.
+
+## Aliases
+
+If the [default hierarchy](#supported-platforms) is not enough, you can define new groups of platforms by giving them 
+an alias.
 You can then use the alias in places where `@platform` suffixes usually appear to share code, settings, or dependencies:
 
 ```yaml
@@ -133,10 +160,10 @@ settings@jvmAndAndroid:
 ```
 
 ```
-|-src/             
-|-src@jvmAndAndroid/ # sees declarations from src/ 
-|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
-|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
+├─ src/
+├─ src@jvmAndAndroid/ # sees declarations from src/
+├─ src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/
+╰─ src@android/       # sees declarations from src/ and src@jvmAndAndroid/
 ```
 
 ## Multiplatform dependencies
@@ -144,7 +171,7 @@ settings@jvmAndAndroid:
 When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.
 
 Example:
-To add the [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multiplatform module, simply write
+To add the [KmLogging library](https://github.com/DiamondEdge1/KmLogging) to a multiplatform module, simply write
 
 ```yaml
 product:
@@ -152,25 +179,25 @@ product:
   platforms: [android, iosArm64, jvm]
 
 dependencies:
-  - org.lighthousegames:logging:1.3.0
+  - com.diamondedge:logging:2.1.0
 ```
 
 The effective dependency lists are:
 
 ```yaml
 dependencies@android:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-android:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-android:2.1.0
 ```
 ```yaml
 dependencies@iosArm64:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-iosarm64:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-iosarm64:2.1.0
 ```
 ```yaml
 dependencies@jvm:
-  - org.lighthousegames:logging:1.3.0
-  - org.lighthousegames:logging-jvm:1.3.0
+  - com.diamondedge:logging:2.1.0
+  - com.diamondedge:logging-jvm:2.1.0
 ```
 
 For the explicitly specified dependencies in the `@platform`-sections the general 
@@ -231,7 +258,7 @@ You can use `@platform`-qualifier.
 Note that certain platform names match the toolchain names, e.g. Android:
 
 - `settings@android` qualifier specifies settings for all Android target platforms
-- `settings:android:` is an Android toolchain settings
+- `settings.android` is an Android toolchain settings
 
 This could lead to confusion in cases like:
 
@@ -336,17 +363,17 @@ declarations, and vice versa.
 So Java code can be placed alongside Kotlin code in the same source folder that is compiled for JVM/Android:
 
 ```
-|-src/             
-|  |-main.kt      
-|-src@jvm/             
-|  |-KotlinCode.kt      
-|  |-JavaCode.java      
-|-src@android/             
-|  |-KotlinCode.kt 
-|  |-JavaCode.java
-|-src@ios/
-|  |- ...
-|-module.yaml
+├─ src/
+│  ├─ main.kt
+├─ src@jvm/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@android/
+│  ├─ KotlinCode.kt
+│  ├─ JavaCode.java
+├─ src@ios/
+│  ╰─ ...
+╰─ module.yaml
 ```
 
 In the future, Kotlin Native will also support joint Kotlin+Swift compilation in the same way,
@@ -354,4 +381,4 @@ but this is not the case yet.
 At the moment, Kotlin code is first compiled into a single framework per `ios/app` module,
 and then Swift is compiled using the Xcode toolchain with a dependency on that framework.
 This means that Swift code can reference Kotlin declarations, but Kotlin cannot reference Swift declarations.
-See more in the dedicated [Swift support](builtin-tech/ios.md#swift-support) section.
+See more in the dedicated [Swift support](product-types/ios-app.md#swift-support) section.

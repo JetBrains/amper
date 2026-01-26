@@ -5,12 +5,12 @@
 package org.jetbrains.amper.processes
 
 import com.intellij.execution.CommandLineWrapperUtil
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.setMapAttribute
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import java.io.File
 import java.nio.file.Path
@@ -45,7 +45,8 @@ sealed class ArgsMode {
 /**
  * Runs a Java program with the runtime of this [Jdk].
  */
-suspend fun Jdk.runJava(
+suspend fun ProcessRunner.runJava(
+    jdk: Jdk,
     workingDir: Path,
     mainClass: String,
     classpath: List<Path>,
@@ -70,8 +71,10 @@ suspend fun Jdk.runJava(
     }
 
     return spanBuilder("java-exec")
-        .setAttribute("java-executable", javaExecutable.pathString)
-        .setAttribute("java-version", version)
+        .setAttribute("java-executable", jdk.javaExecutable.pathString)
+        .setAttribute("java-version", jdk.version)
+        .setAttribute("jdk-distribution", jdk.distribution?.toString() ?: "unknown")
+        .setAttribute("jdk-source", jdk.source)
         .setListAttribute("program-args", programArgs)
         .setListAttribute("jvm-args", jvmArgs)
         .setMapAttribute("env-vars", environment)
@@ -79,9 +82,9 @@ suspend fun Jdk.runJava(
         .setAttribute("main-class", mainClass)
         .use { span ->
             argsMode.withEffectiveArgs(args) { effectiveArgs ->
-                BuildPrimitives.runProcessAndGetOutput(
+                runProcessAndGetOutput(
                     workingDir = workingDir,
-                    command = listOf(javaExecutable.pathString) + effectiveArgs,
+                    command = listOf(jdk.javaExecutable.pathString) + effectiveArgs,
                     environment = environment,
                     span = span,
                     outputListener = outputListener,

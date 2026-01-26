@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.web
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -18,7 +19,7 @@ import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -26,10 +27,12 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -58,6 +61,7 @@ internal abstract class WebLinkTask(
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     override val buildType: BuildType? = null,
+    private val processRunner: ProcessRunner,
     /**
      * The name of the task that produces the klib for the sources of this module.
      */
@@ -115,7 +119,7 @@ internal abstract class WebLinkTask(
         val compiledKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
 
         val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(module.jdkSettings)
 
         logger.debug("${expectedPlatform.name} link '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
@@ -186,7 +190,8 @@ internal abstract class WebLinkTask(
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Linking Kotlin ${expectedPlatform.name} for module '${module.userReadableName}'...")
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.js.K2JSCompiler",
                     classpath = compilerJars,

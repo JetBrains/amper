@@ -7,27 +7,27 @@ package org.jetbrains.amper.tasks.maven
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModuleAndContext
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.tasks.ModuleDependencies
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
-import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.JvmResourcesDirArtifact
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
-import org.jetbrains.amper.tasks.buildDependenciesGraph
 import org.jetbrains.amper.tasks.doResolveExternalDependencies
 import org.jetbrains.amper.tasks.jvm.CompiledJvmClassesArtifact
 import java.nio.file.Path
@@ -35,104 +35,45 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 
+/**
+ * An order-sensitive list of maven phases that are supported by the maven compatibility layer.
+ */
 @Suppress("EnumEntryName")
 enum class KnownMavenPhase(
-    vararg val dependsOn: KnownMavenPhase = emptyArray(),
     private val taskCtor: (PhaseTaskParameters) -> BaseUmbrellaMavenPhaseTask = ::BaseUmbrellaMavenPhaseTask,
     private val isTest: Boolean = false,
 ) {
-    validate(
-        taskCtor = ::ModuleDependenciesAwareMavenPhaseTask
-    ),
+    validate(::InitialMavenPhaseTask),
+    initialize,
+    `generate-sources`(::GeneratedSourcesMavenPhaseTask),
+    `process-sources`,
+    `generate-resources`(::AdditionalResourcesAwareMavenPhaseTask),
+    `process-resources`,
+    compile(::ClassesAwareMavenPhaseTask),
+    `process-classes`,
+    `generate-test-sources`(::GeneratedSourcesMavenPhaseTask, isTest = true),
+    `process-test-sources`(isTest = true),
+    `generate-test-resources`(::AdditionalResourcesAwareMavenPhaseTask, isTest = true),
+    `process-test-resources`(isTest = true),
+    `test-compile`(::ClassesAwareMavenPhaseTask, isTest = true),
+    `process-test-classes`(isTest = true),
+    test,
 
-    initialize(
-        validate
-    ),
-
-    `generate-sources`(
-        initialize,
-        taskCtor = ::GeneratedSourcesMavenPhaseTask
-    ),
-
-    `process-sources`(
-        initialize,
-        `generate-sources`
-    ),
-
-    `generate-resources`(
-        initialize, `generate-sources`,
-        taskCtor = ::AdditionalResourcesAwareMavenPhaseTask
-    ),
-
-    `process-resources`(
-        initialize, `generate-resources`
-    ),
-
-    compile(
-        `process-sources`, `process-resources`,
-        taskCtor = ::ClassesAwareMavenPhaseTask
-    ),
-
-    `process-classes`(
-        compile
-    ),
-
-    `generate-test-sources`(
-        initialize,
-        taskCtor = ::GeneratedSourcesMavenPhaseTask,
-        isTest = true
-    ),
-
-    `process-test-sources`(
-        initialize, `generate-test-sources`,
-        isTest = true
-    ),
-
-    `generate-test-resources`(
-        initialize, `generate-test-sources`,
-        taskCtor = ::AdditionalResourcesAwareMavenPhaseTask,
-        isTest = true
-    ),
-
-    `process-test-resources`(
-        initialize, `generate-test-resources`,
-        isTest = true
-    ),
-
-    `test-compile`(
-        `process-test-sources`, `process-test-resources`, `process-classes`,
-        taskCtor = ::ClassesAwareMavenPhaseTask,
-        isTest = true
-    ),
-
-    `process-test-classes`(
-        `test-compile`,
-        isTest = true
-    ),
-
-    test(
-        `process-test-classes`
-    ),
-
-    // Now we don't know how to run these:
-//    `prepare-package`(
-//        `process-classes`
-//    ),
-//
-//    `package`(
-//        `prepare-package`
-//    ),
+    // We don't know how to bind these to the existing Amper tasks yet.
+    `prepare-package`,
+    `package`,
+    `pre-integration-test`,
+    `integration-test`,
+    `post-integration-test`,
+    verify,
+    install,
+    deploy,
     ;
-
-    //   pre-integration-test,
-    //   integration-test,
-    //   post-integration-test,
-    //   verify,
-    //   install,
-    //   deploy,
 
     context(moduleCtx: ModuleSequenceCtx)
     val taskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name))
+
+    val dependsOn get() = entries.getOrNull(entries.indexOf(this) - 1)
 
     context(moduleCtx: ModuleSequenceCtx, taskBuilder: ProjectTasksBuilder)
     fun createTask() = taskCtor(
@@ -140,11 +81,31 @@ enum class KnownMavenPhase(
             taskName = taskName,
             module = moduleCtx.module,
             isTest = isTest,
-            incrementalCache = moduleCtx.incrementalCache,
+            incrementalCache = taskBuilder.context.incrementalCache,
             cacheRoot = taskBuilder.context.userCacheRoot,
         )
     )
 }
+
+data class MavenPhaseResult(
+    val fragment: Fragment,
+    val embryo: MavenProjectEmbryo,
+    val modelChanges: List<ModelChange>,
+) : TaskResult {
+    val sourceRoots: List<SourceRoot>
+        get() = modelChanges
+            .flatMap { if (!fragment.isTest) it.additionalSources else it.additionalTestSources }
+            .distinct()
+            .map { SourceRoot(fragment.name, it) }
+}
+
+/**
+ * Project model additions brought up by maven mojo executions.
+ */
+data class ModelChange(
+    val additionalSources: List<Path>,
+    val additionalTestSources: List<Path>,
+) : TaskResult
 
 /**
  * Cumulative information about a maven project that is collected
@@ -154,32 +115,32 @@ enum class KnownMavenPhase(
 data class MavenProjectEmbryo(
     val classesOutputPath: Path? = null,
     val testClassesOutputPath: Path? = null,
-    val generatedSourcesPaths: List<Path> = emptyList(),
-    val generatedTestSourcesPaths: List<Path> = emptyList(),
-    val generatedResourcesPaths: List<Path> = emptyList(),
-    val generatedTestResourcesPaths: List<Path> = emptyList(),
+    val sourcesPaths: List<Path> = emptyList(),
+    val testSourcesPaths: List<Path> = emptyList(),
+    val resourcesPaths: List<Path> = emptyList(),
+    val testResourcesPaths: List<Path> = emptyList(),
     val artifacts: Set<MavenArtifact> = emptySet(),
-) : TaskResult {
+) {
     /**
      * Merges this embryo with another one with this's embryo properties taking precedence.
      */
     fun merge(other: MavenProjectEmbryo) = MavenProjectEmbryo(
         classesOutputPath = this.classesOutputPath ?: other.classesOutputPath,
         testClassesOutputPath = this.testClassesOutputPath ?: other.testClassesOutputPath,
-        generatedSourcesPaths = other.generatedSourcesPaths + generatedSourcesPaths,
-        generatedTestSourcesPaths = other.generatedTestSourcesPaths + generatedTestSourcesPaths,
-        generatedResourcesPaths = other.generatedResourcesPaths + generatedResourcesPaths,
-        generatedTestResourcesPaths = other.generatedTestResourcesPaths + generatedTestResourcesPaths,
+        sourcesPaths = other.sourcesPaths + sourcesPaths,
+        testSourcesPaths = other.testSourcesPaths + testSourcesPaths,
+        resourcesPaths = other.resourcesPaths + resourcesPaths,
+        testResourcesPaths = other.testResourcesPaths + testResourcesPaths,
         artifacts = other.artifacts + artifacts,
     )
 
     fun configureProject(mavenProject: MavenProject) {
-        classesOutputPath?.let { mavenProject.build.outputDirectory = it.absolutePathString() }
-        testClassesOutputPath?.let { mavenProject.build.testOutputDirectory = it.absolutePathString() }
-        mavenProject.addCompileSourceRoots(generatedSourcesPaths)
-        mavenProject.addTestCompileSourceRoots(generatedTestSourcesPaths)
-        mavenProject.addResources(generatedResourcesPaths)
-        mavenProject.addTestResources(generatedTestResourcesPaths)
+        mavenProject.build.outputDirectory = classesOutputPath?.absolutePathString()
+        mavenProject.build.testOutputDirectory = testClassesOutputPath?.absolutePathString()
+        mavenProject.addCompileSourceRoots(sourcesPaths.distinct())
+        mavenProject.addTestCompileSourceRoots(testSourcesPaths.distinct())
+        mavenProject.addResources(resourcesPaths.distinct())
+        mavenProject.addTestResources(testResourcesPaths.distinct())
         // Copy the collection.
         mavenProject.artifacts = artifacts.toSet()
     }
@@ -205,6 +166,10 @@ open class BaseUmbrellaMavenPhaseTask(
     protected val parameters: PhaseTaskParameters,
 ) : ArtifactTaskBase() {
 
+    val targetFragment = parameters.module.leafFragments.singleOrNull {
+        it.platform == Platform.JVM && it.isTest == parameters.isTest
+    } ?: error("No relevant JVM fragment was found. This task should be created only for modules with JVM platform.")
+
     override val taskName get() = parameters.taskName
 
     /**
@@ -217,13 +182,28 @@ open class BaseUmbrellaMavenPhaseTask(
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
-    ): MavenProjectEmbryo = dependenciesResult.filterIsInstance<MavenProjectEmbryo>()
-        .fold(parameters.embryo(dependenciesResult), MavenProjectEmbryo::merge)
+    ): MavenPhaseResult {
+        val previousPhasesResults = dependenciesResult.filterIsInstance<MavenPhaseResult>()
+        val currentPhaseModelChanges = dependenciesResult.filterIsInstance<ModelChange>()
+
+        // Collect all the model information to pass to the next phase task.
+        val currentEmbryo = parameters.embryo(dependenciesResult)
+        val embryoFromChanges = MavenProjectEmbryo(
+            sourcesPaths = currentPhaseModelChanges.flatMap { it.additionalSources },
+            testSourcesPaths = currentPhaseModelChanges.flatMap { it.additionalTestSources },
+        )
+        val cumulativeEmbryo = (previousPhasesResults.map { it.embryo } + embryoFromChanges + currentEmbryo)
+            .reversed().reduce(MavenProjectEmbryo::merge)
+
+        // Aggregate model changes to pass to the dependent Amper tasks through task results.
+        val previousChanges = previousPhasesResults.flatMap { it.modelChanges }
+        return MavenPhaseResult(targetFragment, cumulativeEmbryo, previousChanges + currentPhaseModelChanges)
+    }
 }
 
 /**
  * Aggregating task for [`generate-sources`] and [`generate-test-sources`] phases.
- * It is adding additional sources to the embryo as well as external artifacts that should
+ * It is adding additional sources to the embryo that should
  * be accessible to the maven model.
  */
 class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
@@ -236,64 +216,9 @@ class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbr
         quantifier = Quantifier.AnyOrNone,
     )
 
-    private val mavenResolver by lazy {
-        MavenResolver(parameters.cacheRoot, parameters.incrementalCache)
-    }
-
-    // Here we are converting the external dependencies graph to the flat list of maven artifacts.
-    suspend fun PhaseTaskParameters.getExternalAetherArtifacts(dependenciesResult: List<TaskResult>) =
-        dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .map {
-                mavenResolver.doResolveExternalDependencies(
-                    module = module,
-                    platform = Platform.JVM,
-                    isTest = isTest,
-                    compileModuleDependencies = getModuleDependencies(ResolutionScope.COMPILE),
-                    runtimeModuleDependencies = getModuleDependencies(ResolutionScope.RUNTIME),
-                )
-            }
-            .map { it.runtimeDependenciesRootNode ?: it.compileDependenciesRootNode }
-            .flatMap { it.distinctBfsSequence() }
-            .filterIsInstance<MavenDependencyNode>()
-            // Filter out all dependencies without files.
-            .mapNotNull { it.dependency.files().firstOrNull()?.path?.to(it) }
-            .map { (path, it) ->
-                DefaultMavenArtifact(
-                    groupId = it.dependency.group,
-                    artifactId = it.dependency.module,
-                    version = it.dependency.version ?: "unspecified",
-                    scope = "runtime",
-                    type = "jar",
-                    isAddedToClasspath = true
-                ).apply {
-                    file = path.toFile()
-                }
-            }
-            .toSet()
-
-    /**
-     * [ModuleDependencyNodeWithModuleAndContext] cannot be reused, as its transitive children can change after
-     * resolve and as a result - change cache key that is used within DR incremental request.
-     * Thus, we need to create a new instance of the node every time here.
-     */
-    private fun getModuleDependencies(scope: ResolutionScope) = parameters.module.buildDependenciesGraph(
-        isTest = parameters.isTest,
-        platform = Platform.JVM,
-        dependencyReason = scope,
-        userCacheRoot = parameters.cacheRoot,
-        incrementalCache = parameters.incrementalCache,
-    )
-
-    private fun PhaseTaskParameters.getEmbryoWithSources(): MavenProjectEmbryo =
-        if (!isTest) MavenProjectEmbryo(generatedSourcesPaths = additionalSourceDirs.map { it.path })
-        else MavenProjectEmbryo(generatedTestSourcesPaths = additionalSourceDirs.map { it.path })
-
-    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
-        val embryoWithSources = getEmbryoWithSources()
-        val externalArtifacts = getExternalAetherArtifacts(dependenciesResult)
-        return embryoWithSources.copy(artifacts = externalArtifacts)
-    }
+    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>) =
+        if (!isTest) MavenProjectEmbryo(sourcesPaths = additionalSourceDirs.map { it.path })
+        else MavenProjectEmbryo(testSourcesPaths = additionalSourceDirs.map { it.path })
 }
 
 /**
@@ -310,8 +235,8 @@ class AdditionalResourcesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : 
     )
 
     override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>) =
-        if (!isTest) MavenProjectEmbryo(generatedSourcesPaths = additionalResourceDirs.map { it.path })
-        else MavenProjectEmbryo(generatedTestResourcesPaths = additionalResourceDirs.map { it.path })
+        if (!isTest) MavenProjectEmbryo(resourcesPaths = additionalResourceDirs.map { it.path })
+        else MavenProjectEmbryo(testResourcesPaths = additionalResourceDirs.map { it.path })
 }
 
 /**
@@ -332,13 +257,56 @@ class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrella
 }
 
 /**
- * Maven phase task that is aware of compiled classes.
+ * Initial maven phase task that adds:
+ *  - compiled classes as artifacts
+ *  - resolved external artifacts
+ *  - initial source and resource paths
  */
-class ModuleDependenciesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+
+    private val mavenResolver by lazy {
+        CliReportingMavenResolver(parameters.cacheRoot, parameters.incrementalCache)
+    }
+
+    /**
+     * [ModuleDependencyNodeWithModuleAndContext] cannot be reused, as its transitive children can change after
+     * resolve and as a result - change cache key that is used within DR incremental request.
+     * Thus, we need to create a new instance of the node every time here.
+     */
+    private fun getModuleDependencies() =
+        ModuleDependencies(parameters.module, parameters.cacheRoot, parameters.incrementalCache)
+            .forResolution(parameters.isTest)
+
+    // Here we are converting the external dependencies graph to the flat list of maven artifacts.
+    private suspend fun PhaseTaskParameters.getExternalAetherArtifacts() =
+        mavenResolver.doResolveExternalDependencies(
+            module = module,
+            platform = Platform.JVM,
+            isTest = isTest,
+            moduleDependencies = getModuleDependencies(),
+        )
+            .let { it.runtimeDependenciesRootNode ?: it.compileDependenciesRootNode }
+            .distinctBfsSequence()
+            .filterIsInstance<MavenDependencyNode>()
+            // Filter out all dependencies without files.
+            .mapNotNull { it.dependency.files().firstOrNull()?.path?.to(it) }
+            .map { (path, it) ->
+                DefaultMavenArtifact(
+                    groupId = it.dependency.group,
+                    artifactId = it.dependency.module,
+                    version = it.dependency.version ?: "unspecified",
+                    scope = "runtime",
+                    type = "jar",
+                    isAddedToClasspath = true
+                ).apply {
+                    file = path.toFile()
+                }
+            }
+            .toSet()
 
     private val moduleDependenciesClasses by Selectors.fromModuleWithDependencies(
         type = CompiledJvmClassesArtifact::class,
-        leafFragment = parameters.module.leafFragments.single { it.platform == Platform.JVM && it.isTest == parameters.isTest },
+        leafFragment = targetFragment,
         userCacheRoot = AmperUserCacheRoot(Path(".").absolute()),
         quantifier = Quantifier.AnyOrNone,
         includeSelf = false,
@@ -348,7 +316,16 @@ class ModuleDependenciesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : B
     private fun CompiledJvmClassesArtifact.toArtifact(scope: String) =
         module.asMavenArtifact(scope).apply { file = path.toFile() }
 
-    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo =
-        if (isTest) MavenProjectEmbryo(artifacts = moduleDependenciesClasses.map { it.toArtifact("test") }.toSet())
-        else MavenProjectEmbryo(artifacts = moduleDependenciesClasses.map { it.toArtifact("runtime") }.toSet())
+    override suspend fun PhaseTaskParameters.embryo(dependenciesResult: List<TaskResult>): MavenProjectEmbryo {
+        val classesArtifacts =
+            if (isTest) moduleDependenciesClasses.map { it.toArtifact("test") }.toSet()
+            else moduleDependenciesClasses.map { it.toArtifact("runtime") }.toSet()
+        val externalArtifacts = getExternalAetherArtifacts()
+
+        return MavenProjectEmbryo(
+            artifacts = classesArtifacts + externalArtifacts,
+            sourcesPaths = targetFragment.sourceRoots,
+            resourcesPaths = listOf(targetFragment.resourcesPath),
+        )
+    }
 }

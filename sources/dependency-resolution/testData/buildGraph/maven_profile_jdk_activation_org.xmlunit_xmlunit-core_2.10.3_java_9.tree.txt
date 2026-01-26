@@ -1,0 +1,4 @@
+root
+╰─── org.xmlunit:xmlunit-core:2.10.3
+     ╰─── jakarta.xml.bind:jakarta.xml.bind-api:2.3.3
+          ╰─── jakarta.activation:jakarta.activation-api:1.2.2

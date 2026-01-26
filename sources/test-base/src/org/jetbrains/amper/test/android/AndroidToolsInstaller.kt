@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test.android
@@ -9,10 +9,13 @@ import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
+import org.jetbrains.amper.jdk.provisioning.orThrow
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
 import java.nio.file.Path
 import java.util.*
@@ -53,19 +56,20 @@ internal object AndroidToolsInstaller {
         "build-tools;35.0.0",
         "build-tools;36.0.0",
         // to create AVDs automatically in mobile-tests
-        "system-images;android-35;default;${DefaultSystemInfo.detect().arch.toEmulatorArch()}",
+        "system-images;android-35;default;${Arch.current.toEmulatorArch()}",
     )
 
     suspend fun install(androidSdkHome: Path, androidUserHomeParent: Path, androidSetupCacheDir: Path): AndroidTools {
         val commandLineToolsZip = downloadCommandLineToolsZip(androidSetupCacheDir)
 
-        val result = IncrementalCache(
+        val incrementalCache = IncrementalCache(
             stateRoot = androidSetupCacheDir / "incremental.state",
             // The cache should be invalidated when the code that downloads the tools changes.
             // We don't need the full classpath hash here, because it would change each time we change a test.
             // This constant string is a good compromise, but we must remember to update it if we change the code.
-            codeVersion = "android-sdk-1",
-        ).execute(
+            codeVersion = "android-sdk-3",
+        )
+        val result = incrementalCache.execute(
             key = "android-sdk",
             inputValues = mapOf(
                 "androidSdkHomePath" to androidSdkHome.pathString,
@@ -79,7 +83,10 @@ internal object AndroidToolsInstaller {
             extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
             // we need a JDK to run the Java-based Android command line tools
-            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir)).getJdk()
+            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache)
+                .provisionJdk(JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk))
+                .orThrow()
+
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
             IncrementalCache.ExecutionResult(
@@ -100,7 +107,7 @@ internal object AndroidToolsInstaller {
     }
 
     private suspend fun downloadCommandLineToolsZip(androidSetupCacheDir: Path): Path {
-        val commandLineToolsFilename = when (DefaultSystemInfo.detect().family) {
+        val commandLineToolsFilename = when (OsFamily.current) {
             OsFamily.Linux,
             OsFamily.FreeBSD,
             OsFamily.Solaris -> "commandlinetools-linux-11076708_latest.zip"

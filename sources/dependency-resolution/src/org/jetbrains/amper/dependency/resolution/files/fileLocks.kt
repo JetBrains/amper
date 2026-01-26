@@ -7,6 +7,9 @@ package org.jetbrains.amper.dependency.resolution.files
 import org.jetbrains.amper.concurrency.DelicateConcurrentApi
 import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.getOrComputeWithDoubleLock
+import org.jetbrains.amper.dependency.resolution.Hasher
+import org.jetbrains.amper.dependency.resolution.computeHash
+import org.jetbrains.amper.dependency.resolution.getSha1Algorithm
 import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
 import java.nio.file.Path
@@ -69,7 +72,7 @@ suspend fun produceFileWithDoubleLockAndHash(
                 null
             } else {
                 val expectedHash = hashFile.readText()
-                val actualHash = computeHash(target, "sha1").hash
+                val actualHash = computeHash(target, getSha1Algorithm()).hash
 
                 if (expectedHash != actualHash) {
                     null
@@ -85,7 +88,7 @@ suspend fun produceFileWithDoubleLockAndHash(
             if (it) {
                 val hashFile = target.parent.resolve("${target.name}.sha1")
                 // Store sha1 of resulted sourceSet file
-                val hasher = Hasher("sha1")
+                val hasher = Hasher(getSha1Algorithm())
                 fileChannel.position(0)
                 fileChannel.readTo(listOf(hasher.writer))
                 hashFile.parent.createDirectories()

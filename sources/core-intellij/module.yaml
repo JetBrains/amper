@@ -5,12 +5,12 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-telemetry
   - ../core
   - ../frontend/plain/toml-psi
   - ../frontend/plain/yaml-psi
   - ../frontend/plain/amper-psi
   - ../libraries/telemetry
   - $libs.intellij.platform.util
-  - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl

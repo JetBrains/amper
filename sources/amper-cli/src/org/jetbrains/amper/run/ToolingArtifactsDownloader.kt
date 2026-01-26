@@ -1,22 +1,22 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.run
 
-import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.dependency.resolution.MavenLocal
+import org.jetbrains.amper.dependency.resolution.MavenCoordinates
 import org.jetbrains.amper.dependency.resolution.MavenRepository
 import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
+import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
+import org.jetbrains.amper.frontend.schema.DefaultVersions
+import org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess
 import org.jetbrains.amper.incrementalcache.IncrementalCache
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toIncrementalCacheResult
+import org.jetbrains.amper.system.info.SystemInfo
 import java.nio.file.Path
 
 val GOOGLE_REPOSITORY = MavenRepository("https://maven.google.com")
@@ -27,13 +27,13 @@ class ToolingArtifactsDownloader(
     private val incrementalCache: IncrementalCache,
 ) {
 
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     suspend fun downloadHotReloadAgent(hotReloadVersion: String): List<Path> =
         downloadToolingArtifacts(
             listOf(
-                "org.jetbrains.compose.hot-reload:hot-reload-agent:$hotReloadVersion",
-                "org.jetbrains.compose.hot-reload:hot-reload-runtime-jvm:$hotReloadVersion",
+                MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-agent", hotReloadVersion),
+                MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-runtime-jvm", hotReloadVersion),
             ),
         )
 
@@ -42,8 +42,8 @@ class ToolingArtifactsDownloader(
         composeVersion: String,
     ): List<Path> = downloadToolingArtifacts(
         listOf(
-            "org.jetbrains.compose.hot-reload:hot-reload-devtools:$hotReloadVersion",
-            "org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion",
+            MavenCoordinates("org.jetbrains.compose.hot-reload", "hot-reload-devtools", hotReloadVersion),
+            MavenCoordinates("org.jetbrains.compose.desktop", "desktop-jvm-${SystemInfo.CurrentHost.familyArch}", composeVersion),
         ),
         buildList {
             addAll(listOf(MavenCentral, GOOGLE_REPOSITORY, AMPER_DEV_REPOSITORY))
@@ -51,30 +51,42 @@ class ToolingArtifactsDownloader(
     )
 
     suspend fun downloadComposeDesktop(composeVersion: String): List<Path> = downloadToolingArtifacts(
-        listOf("org.jetbrains.compose.desktop:desktop-jvm-${DefaultSystemInfo.detect().familyArch}:$composeVersion"),
+        listOf(
+            MavenCoordinates(
+                "org.jetbrains.compose.desktop",
+                "desktop-jvm-${SystemInfo.CurrentHost.familyArch}",
+                composeVersion
+            ),
+        ),
         listOf(MavenCentral, GOOGLE_REPOSITORY)
     )
 
+    @OptIn(DiscouragedDirectDefaultVersionAccess::class)
     suspend fun downloadSpringBootLoader(): Path = downloadToolingArtifacts(
-        listOf("org.springframework.boot:spring-boot-loader:${UsedVersions.springBootVersion}")
+        listOf(
+            MavenCoordinates("org.springframework.boot", "spring-boot-loader", DefaultVersions.springBoot)
+        )
     ).single()
 
     private suspend fun downloadToolingArtifacts(
-        coordinates: List<String>,
+        coordinates: List<MavenCoordinates>,
         repositories: List<Repository> = listOf(MavenCentral),
-    ): List<Path> =
-        incrementalCache.execute(
-            key = "resolve-$coordinates",
-            inputValues = emptyMap(),
+    ): List<Path> {
+        val scope = ResolutionScope.RUNTIME
+        val platform = ResolutionPlatform.JVM
+        return incrementalCache.execute(
+            key = "resolve-$coordinates ($scope, $platform)",
+            inputValues = mapOf("repositories" to repositories.joinToString(",")),
             inputFiles = emptyList(),
         ) {
             val resolved = mavenResolver.resolve(
                 coordinates = coordinates,
                 repositories = repositories,
-                scope = ResolutionScope.RUNTIME,
-                platform = ResolutionPlatform.JVM,
+                scope = scope,
+                platform = platform,
                 resolveSourceMoniker = "Compose hot reload: $coordinates",
             )
             return@execute resolved.toIncrementalCacheResult()
         }.outputFiles
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands.tools
@@ -8,12 +8,16 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import io.opentelemetry.api.GlobalOpenTelemetry
 import org.jetbrains.amper.cli.commands.AmperSubcommand
+import org.jetbrains.amper.cli.sharedIncrementalCache
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
+import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.util.DelicateAmperApi
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
@@ -27,7 +31,7 @@ internal class JdkToolCommand: AmperSubcommand(name = "jdk") {
         )
     }
 
-    override fun help(context: Context): String = "Run various tools from Amper default JDK"
+    override fun help(context: Context): String = "Run various tools from Amper's default JDK"
 
     override suspend fun run() = Unit
 }
@@ -38,8 +42,14 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
 
     override fun helpEpilog(context: Context): String = "Use `--` to separate `$name`'s arguments from Amper options"
 
+    @OptIn(DelicateAmperApi::class)
     override suspend fun run() {
-        val jdk = JdkProvider(commonOptions.sharedCachesRoot).getJdk()
+        val jdkProvider = JdkProvider(
+            userCacheRoot = commonOptions.sharedCachesRoot,
+            openTelemetry = GlobalOpenTelemetry.get(),
+            incrementalCache = commonOptions.sharedCachesRoot.sharedIncrementalCache(),
+        )
+        val jdk = jdkProvider.getDefaultJdk()
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.contexts.Context
@@ -13,10 +14,12 @@ import org.jetbrains.amper.frontend.contexts.WithContexts
 import org.jetbrains.amper.frontend.contexts.asCompareResult
 import org.jetbrains.amper.frontend.contexts.defaultContextsInheritance
 import org.jetbrains.amper.frontend.contexts.sameOrMoreSpecific
+import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.TestOnly
 
 /**
- * This is a class responsible for refining [TreeValue] values for a specified [Contexts].
+ * This is a class responsible for refining [TreeNode] values for a specified [Contexts].
  * Consider the following example:
  * ```yaml
  * # tree 1
@@ -37,20 +40,37 @@ import org.jetbrains.annotations.TestOnly
 class TreeRefiner(
     private val contextComparator: ContextsInheritance<Context> = defaultContextsInheritance,
 ) {
+    context(_: ProblemReporter)
     fun refineTree(
-        tree: MapLikeValue<*>,
+        tree: MappingNode,
         selectedContexts: Contexts,
-    ): Refined = RefineRequest(selectedContexts, contextComparator).refine(tree) as Refined
+        resolveReferences: Boolean = true,
+    ): RefinedMappingNode = RefineRequest(
+        selectedContexts = selectedContexts,
+        withDefaults = true,
+        resolveReferences = resolveReferences,
+        contextComparator = contextComparator,
+    ).refineMapping(tree)
 }
 
 @TestOnly
-internal fun MapLikeValue<*>.refineTree(
+context(_: ProblemReporter)
+internal fun MappingNode.refineTree(
     selectedContexts: Contexts,
     contextComparator: ContextsInheritance<Context>,
-): Refined = RefineRequest(selectedContexts, contextComparator).refine(this) as Refined
+    withDefaults: Boolean = true,
+    resolveReferences: Boolean = true,
+): RefinedMappingNode = RefineRequest(
+    selectedContexts = selectedContexts,
+    withDefaults = withDefaults,
+    resolveReferences = resolveReferences,
+    contextComparator = contextComparator,
+).refineMapping(this)
 
-class RefineRequest(
+private class RefineRequest(
     private val selectedContexts: Contexts,
+    private val withDefaults: Boolean,
+    private val resolveReferences: Boolean,
     contextComparator: ContextsInheritance<Context>,
 ) : ContextsInheritance<Context> by contextComparator {
 
@@ -58,66 +78,78 @@ class RefineRequest(
      * Creates a copy out of the subtree of the initial tree, selected by [selectedContexts]
      * with merged nodes.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun refine(node: TreeValue<*>): TreeValue<Refined> {
+    context(_: ProblemReporter)
+    fun refineMapping(node: MappingNode): RefinedMappingNode {
+        var refined = refine(node) as RefinedMappingNode
+        if (resolveReferences) {
+            // TODO: Incorporate reference resolution routine tightly into refining to enable merging resolved values.
+            refined = refined.resolveReferences()
+        }
+        return refined
+    }
+
+    private fun refine(node: TreeNode): RefinedTreeNode {
         return when (node) {
-            is ListValue -> ListValue(
+            is RefinedTreeNode -> node
+            is ListNode -> RefinedListNode(
                 children = node.children.filterByContexts().map(::refine),
                 type = node.type,
                 trace = node.trace,
                 contexts = node.contexts,
             )
-            is MapLikeValue -> Refined(
+            is MappingNode -> refinedMappingNodeWithDefaults(
                 node.children.refineProperties(),
                 type = node.type,
                 trace = node.trace,
                 contexts = node.contexts,
             )
-            is ScalarOrReference -> node as TreeValue<Refined>
-            is ErrorValue -> node
         }
     }
 
     /**
      * Merge named properties, comparing them by their contexts and by their name.
      */
-    private fun List<MapLikeValue.Property<TreeValue<*>>>.refineProperties(): Map<String, MapLikeValue.Property<TreeValue<Refined>>> =
+    private fun List<KeyValue>.refineProperties(): Map<String, RefinedKeyValue> =
         filterByContexts().run {
             // Do actual overriding for key-value pairs.
             val refinedProperties = refineOrReduceByKeys {
-                it.sortedWith(::compareAndReport).reduceProperties { first, second ->
+                it.sortedWith(::compareAndReport).reduceProperties { first: TreeNode, second: TreeNode ->
                     val newTrace = second.trace.let { trace ->
                         if (trace.isDefault) {
                             trace // Defaults with higher priority just replace each other without a trace
                         } else trace.withPrecedingValue(first)
                     }
-                    val newValue = when (second) {
-                        is NullValue -> second.copy(trace = newTrace)
-                        is ScalarValue -> second.copy(trace = newTrace)
-                        is ReferenceValue -> second.copy(trace = newTrace)
-                        is StringInterpolationValue<*> -> second.copy(trace = newTrace)
-                        is ErrorValue -> if (first is ErrorValue) ErrorValue(trace = newTrace) else refine(first)
-                        is ListValue<*> -> {
-                            val firstChildren = (first as? ListValue<*>)?.children.orEmpty()
-                            ListValue(
+                    when (second) {
+                        is ErrorNode -> {
+                            // If `first` is not an error - use it
+                            // to recover as much information for the invalid but "best-effort" tree.
+                            if (first is ErrorNode) ErrorNode(trace = newTrace) else refine(first)
+                        }
+                        is LeafTreeNode -> second.copyWithTrace(trace = newTrace)
+                        is ListNode -> {
+                            val firstChildren = (first as? ListNode)?.children.orEmpty()
+                            RefinedListNode(
                                 children = firstChildren.plus(second.children).filterByContexts().map(::refine),
                                 type = second.type,
                                 trace = second.trace.withPrecedingValue(first),
                                 contexts = second.contexts,
                             )
                         }
-                        is MapLikeValue<*> -> {
-                            val firstChildren = (first as? MapLikeValue<*>)?.children.orEmpty()
-                            Refined(
+                        is MappingNode -> {
+                            val firstChildren = (first as? MappingNode)?.children.orEmpty()
+                            val trace = second.trace.let { trace ->
+                                if (trace.isDefault) {
+                                    trace // Defaults with higher priority just replace each other without a trace
+                                } else trace.withPrecedingValue(first)
+                            }
+                            refinedMappingNodeWithDefaults(
                                 refinedChildren = (firstChildren + second.children).refineProperties(),
                                 type = second.type,
-                                trace = second.trace.withPrecedingValue(first),
+                                trace = trace,
                                 contexts = second.contexts,
                             )
                         }
                     }
-                    @Suppress("UNCHECKED_CAST")
-                    newValue as TreeValue<Refined>
                 }
             }
 
@@ -126,31 +158,61 @@ class RefineRequest(
             return mapTo(mutableSetOf()) { it.key }.associateWith { unordered[it]!! }
         }
 
+    private fun refinedMappingNodeWithDefaults(
+        refinedChildren: Map<String, RefinedKeyValue>,
+        type: SchemaType.MapLikeType,
+        trace: Trace,
+        contexts: Contexts,
+    ): RefinedMappingNode {
+        val refinedChildrenWithDefaults = if (withDefaults && type is SchemaType.ObjectType) {
+            val defaults = buildMap {
+                for (property in type.declaration.properties) {
+                    val existingValue = refinedChildren[property.name]
+                    if (existingValue == null || existingValue.value is ErrorNode) {
+                        type.declaration.getDefaultFor(property)?.let { default ->
+                            // We refine the default here because it can (in theory) contain multi-context things.
+                            put(property.name, default.copyWithValue(value = refine(default.value)))
+                        }
+                    }
+                }
+            }
+            if (defaults.isEmpty()) refinedChildren else refinedChildren + defaults
+        } else refinedChildren
+
+        // TODO: We could report missing properties here and pull this logic from the `schemaInstantiator.kt`.
+        return RefinedMappingNode(
+            refinedChildren = refinedChildrenWithDefaults,
+            type = type,
+            trace = trace,
+            contexts = contexts,
+        )
+    }
+
     /**
      * Compares two nodes by their contexts.
      * If they are not comparable ([isMoreSpecificThan] had returned null), then the problem is reported.
      * Node is treated as "greater than" another node if its contexts can be inherited from other node contexts.
      */
-    fun compareAndReport(first: MapLikeValue.Property<*>, second: MapLikeValue.Property<*>): Int =
+    fun compareAndReport(first: KeyValue, second: KeyValue): Int =
         (first.value.contexts.isMoreSpecificThan(second.value.contexts)).asCompareResult ?: run {
             // TODO AMPER-4516 Report unable to sort. Maybe even same contexts? See [asCompareResult].
             0
         }
 
     // Do not call on collections without at least two elements.
-    private fun <T : TreeValue<*>, R : T> List<MapLikeValue.Property<T>>.reduceProperties(block: (T, T) -> R): MapLikeValue.Property<R> {
-        val initial = this[1].copy(newValue = block(this[0].value, this[1].value))
+    private fun List<KeyValue>.reduceProperties(block: (TreeNode, TreeNode) -> RefinedTreeNode): RefinedKeyValue {
+        val initial = this[1].copyWithValue(value = block(this[0].value, this[1].value))
         return drop(2).fold(initial) { first, second ->
-            second.copy(newValue = block(first.value, second.value))
+            second.copyWithValue(block(first.value, second.value))
         }
     }
 
     /**
      * Refines the element if it is single or applies [reduce] to a collection of properties grouped by keys.
      */
-    private fun <T : MapLikeValue.Property<TreeValue<*>>> List<T>.refineOrReduceByKeys(reduce: (List<T>) -> MapLikeValue.Property<TreeValue<Refined>>) =
+    private fun List<KeyValue>.refineOrReduceByKeys(reduce: (List<KeyValue>) -> RefinedKeyValue) =
         groupBy { it.key }.values.map { props ->
-            props.singleOrNull()?.let { MapLikeValue.Property(it, refine(it.value)) }
+            props.singleOrNull()?.let { it.copyWithValue(refine(it.value)) }
                 ?: props.filterByContexts().let(reduce)
         }
 

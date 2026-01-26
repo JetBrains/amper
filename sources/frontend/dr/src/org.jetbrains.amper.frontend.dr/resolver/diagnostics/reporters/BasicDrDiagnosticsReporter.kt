@@ -12,7 +12,6 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
 import org.jetbrains.amper.dependency.resolution.version
-import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
@@ -22,6 +21,7 @@ import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
+import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrReporterContext
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapLevelToSeverity
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.mapSeverityToLevel
 import org.jetbrains.amper.frontend.dr.resolver.fragmentDependencies
@@ -45,7 +45,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         node: DependencyNode,
         problemReporter: ProblemReporter,
         level: Level,
-        graphRoot: DependencyNode,
+        context: DrReporterContext,
     ) {
         val severity = level.mapLevelToSeverity()
         val importantMessages = node.messages.filter { it.severity >= severity && it.toString().isNotBlank() }
@@ -121,9 +121,8 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
         dependencyElement: PsiElement,
     ): VersionDefinition? {
         if (node !is MavenDependencyNode) return null
-        val notation = directDependency.notation as? MavenDependencyBase ?: return null
 
-        val resolvedVersion = notation.coordinates.findTraceableVersion() ?: return null
+        val resolvedVersion = directDependency.notation.coordinates.findTraceableVersion() ?: return null
 
         val versionTrace = resolvedVersion.trace
 

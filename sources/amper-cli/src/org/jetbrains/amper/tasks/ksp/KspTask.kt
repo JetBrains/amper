@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ksp
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.kotlinModuleName
@@ -11,7 +12,6 @@ import org.jetbrains.amper.compilation.serializableCompilationSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
@@ -22,11 +22,14 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
+import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
+import org.jetbrains.amper.frontend.dr.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForFiles
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType
@@ -37,8 +40,6 @@ import org.jetbrains.amper.ksp.KspNativeConfig
 import org.jetbrains.amper.ksp.KspOutputPaths
 import org.jetbrains.amper.ksp.WebBackend
 import org.jetbrains.amper.ksp.downloadKspJars
-import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toIncrementalCacheResult
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -51,6 +52,7 @@ import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.native.NativeCompileKlibTask
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -71,8 +73,9 @@ internal class KspTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val incrementalCache: IncrementalCache,
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase() {
-    private val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
+    private val mavenResolver = CliReportingMavenResolver(userCacheRoot, incrementalCache)
 
     private val leafFragment = fragments
         .filterIsInstance<LeafFragment>()
@@ -113,11 +116,11 @@ internal class KspTask(
     )
 
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(leafFragment.settings.jvm.jdk)
 
         val kspVersion = fragments.singleLeafFragment().settings.kotlin.ksp.version
         val kspJars = downloadKspCli(kspVersion)
-        val ksp = Ksp(kspVersion, jdk, kspJars)
+        val ksp = Ksp(kspVersion, jdk, kspJars, processRunner)
 
         val kspProcessorClasspath = dependenciesResult.filterIsInstance<KspProcessorClasspathTask.Result>()
             .flatMap { it.processorClasspath }
@@ -162,7 +165,6 @@ internal class KspTask(
     private suspend fun downloadKspCli(kspVersion: String): List<Path> {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.toRepository() }.distinct()
         val kspDownloadConfiguration = mapOf(
-            "kspVersion" to kspVersion,
             "respositories" to repositories.joinToString("|"),
         )
         return incrementalCache.execute("download-ksp-cli-$kspVersion", kspDownloadConfiguration, emptyList()) {

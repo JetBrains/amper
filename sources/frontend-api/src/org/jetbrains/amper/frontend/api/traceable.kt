@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.asSafely
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.TreeNode
 import java.nio.file.Path
 
 /**
@@ -21,7 +21,7 @@ sealed interface Trace {
      * Old value defined initially and suppressed by merge or inheritance during model building,
      * it could be a chain of the subsequent preceding values built during merge of templates and module file definitions.
      */
-    val precedingValue: TreeValue<*>?
+    val precedingValue: TreeNode?
 }
 
 /**
@@ -57,7 +57,7 @@ val Trace.isFromTemplate: Boolean
  * A trace indicating that the value is a static default value (hardcoded in the schema, or in the code).
  */
 data object DefaultTrace : Trace {
-    override val precedingValue: TreeValue<*>?
+    override val precedingValue: TreeNode?
         get() = null // doesn't override anything because it's a default - it was here first!
 }
 
@@ -69,7 +69,7 @@ data class PsiTrace(
      * The [PsiElement] that this value was read from.
      */
     val psiElement: PsiElement,
-    override val precedingValue: TreeValue<*>? = null,
+    override val precedingValue: TreeNode? = null,
 ) : Trace
 
 /**
@@ -85,7 +85,7 @@ data class BuiltinCatalogTrace(
     val catalog: VersionCatalog,
     val version: TraceableVersion,
 ) : Trace {
-    override val precedingValue: TreeValue<*>? get() = null
+    override val precedingValue: TreeNode? get() = null
 }
 
 /**
@@ -176,7 +176,7 @@ data class TransformedValueTrace(
     override val description: String,
     override val sourceValue: Traceable,
     override val definitionTrace: Trace = DefaultTrace,
-    override val precedingValue: TreeValue<*>? = null,
+    override val precedingValue: TreeNode? = null,
 ) : DerivedValueTrace
 
 /**
@@ -198,13 +198,13 @@ data class ResolvedReferenceTrace(
      * The traceable value that was resolved from the reference (or copied from the source, in a wider sense).
      */
     val resolvedValue: Traceable,
-    override val precedingValue: TreeValue<*>? = null,
+    override val precedingValue: TreeNode? = null,
 ) : DerivedValueTrace {
     override val definitionTrace: Trace get() = referenceTrace
     override val sourceValue: Traceable get() = resolvedValue
 }
 
-fun Trace.withPrecedingValue(precedingValue: TreeValue<*>): Trace = when (this) {
+fun Trace.withPrecedingValue(precedingValue: TreeNode): Trace = when (this) {
     is PsiTrace -> copy(precedingValue = precedingValue)
     is ResolvedReferenceTrace -> copy(precedingValue = precedingValue)
     is TransformedValueTrace -> copy(precedingValue = precedingValue)

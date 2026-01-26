@@ -29,9 +29,10 @@ fun ProjectTasksBuilder.setupNativeTasks() {
         task = CommonizeNativeDistributionTask(
             model = model,
             userCacheRoot = context.userCacheRoot,
-            incrementalCache = incrementalCache,
+            incrementalCache = context.incrementalCache,
             tempRoot = context.projectTempRoot,
             jdkProvider = context.jdkProvider,
+            processRunner = context.processRunner,
         )
     )
 
@@ -72,12 +73,13 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileKLibTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     buildType = buildType,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -96,7 +98,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(linkTaskName),
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         taskName = linkTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
@@ -111,13 +113,14 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                                     platform = platform,
                                     dependencyReason = ResolutionScope.COMPILE,
                                     userCacheRoot = context.userCacheRoot,
-                                    incrementalCache = incrementalCache
+                                    incrementalCache = context.incrementalCache
                                 ).forEach { dependsOn ->
                                     add(NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false, buildType))
                                 }
                             }
                         },
                         jdkProvider = context.jdkProvider,
+                        processRunner = context.processRunner,
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)
@@ -170,6 +173,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     buildType = buildType,
                     runSettings = runSettings,
                     terminal = context.terminal,
+                    processRunner = context.processRunner,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = false, buildType)
             )
@@ -191,6 +195,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     runSettings = runSettings,
                     terminal = context.terminal,
+                    processRunner = context.processRunner,
                 ),
                 NativeTaskType.Link.getTaskName(module, platform, isTest = true, buildType)
             )

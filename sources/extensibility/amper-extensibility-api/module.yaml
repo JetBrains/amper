@@ -2,10 +2,14 @@ product: jvm/lib
 
 apply:
   - ../../common.module-template.yaml
+  - ../../detekt.module-template.yaml
+  - ../../dokka.module-template.yaml
 
 plugins:
   binary-compatibility-validator:
     enabled: true
+  dokka:
+    documentedVisibilities: [ public, internal ]
 
 settings:
   publishing:
@@ -15,4 +19,4 @@ settings:
 
 tasks:
   testJvm:
-    dependsOn: [ :amper-extensibility-api:apiCheck@binary-compatibility-validator ]
+    dependsOn: [ apiCheck@binary-compatibility-validator ]

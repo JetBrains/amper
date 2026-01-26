@@ -1,28 +1,25 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
-import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.group
 import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.orUnspecified
 import org.jetbrains.amper.dependency.resolution.version
-import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.collectBuildProblems
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.DependencyBuildProblem
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.ModuleDependencyWithOverriddenVersion
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.Level
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import org.junit.jupiter.api.fail
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -40,7 +37,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         get() = super.testGoldenFilesRoot.resolve("diagnostics")
 
     @Test
-    fun `test sync diagnostics`() = runTest {
+    fun `test sync diagnostics`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("multi-module-failed-resolve", testDataRoot)
 
         assertEquals(
@@ -64,8 +61,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                 │         ╰─── org.jetbrains:annotations:13.0
                 ├─── shared:common:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
@@ -75,12 +72,12 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}
-                │         ├─── org.jetbrains.kotlin:kotlin-test:${UsedVersions.defaultKotlinVersion}
-                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
+                ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}, implicit (because the test engine is junit-5)
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}
+                │         ├─── org.jetbrains.kotlin:kotlin-test:${DefaultVersions.kotlin}
+                │         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
                 │         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
                 │              ├─── org.junit:junit-bom:5.10.1
                 │              ├─── org.opentest4j:opentest4j:1.3.0
@@ -96,8 +93,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
                 ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
@@ -106,10 +103,10 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion} (*)
-                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion}, implicit (because the test engine is junit-5)
-                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.defaultKotlinVersion} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin} (*)
+                ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin}, implicit (because the test engine is junit-5)
+                │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:${DefaultVersions.kotlin} (*)
                 ╰─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:12.12.12, implicit (because Compose is enabled)
                      ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 """.trimIndent(),
@@ -130,9 +127,9 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 "apiguardian-api-1.1.2.jar",
                 "junit-jupiter-api-5.10.1.jar",
                 "junit-platform-commons-1.10.1.jar",
-                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
-                "kotlin-test-${UsedVersions.defaultKotlinVersion}.jar",
-                "kotlin-test-junit5-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
+                "kotlin-test-${DefaultVersions.kotlin}.jar",
+                "kotlin-test-junit5-${DefaultVersions.kotlin}.jar",
                 "opentest4j-1.3.0.jar",
             ),
             sharedTestFragmentDeps
@@ -154,33 +151,96 @@ class DiagnosticsTest : BaseModuleDrTest() {
         // Direct dependency on a built-in library,
         // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.foundation", "foundation",
-            Path("module.yaml"), 16, 5
+            buildProblems, 4,
+            "org.jetbrains.compose.foundation", "foundation",
+            Path("module.yaml"), 16, 14
         )
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.material3", "material3",
-            Path("module.yaml"), 16, 5
+            buildProblems, 4,
+            "org.jetbrains.compose.material3", "material3",
+            Path("module.yaml"), 16, 14
         )
 
         // Implicit dependency added by `compose: enabled`
         // A version of the library is taken from settings:compose:version in file module.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.compose.runtime", "runtime",
+            buildProblems, 4,
+            "org.jetbrains.compose.runtime", "runtime",
             Path("module.yaml")
         )
 
         // Implicit dependency added by `serialization: enabled`
         // A version of the library is taken from settings:serialization:version in file template.yaml
         checkBuiltInDependencyBuildProblem(
-            buildProblems, "org.jetbrains.kotlinx", "kotlinx-serialization-core",
+            buildProblems, 4,
+            "org.jetbrains.kotlinx", "kotlinx-serialization-core",
             Path("..") / "templates" / "template.yaml",
-            5, 7
+            5, 16
         )
     }
 
+    /**
+     * AMPER-4882 revealed that the dependency insights graph is calculated for the same coordinates as many times as
+     * coordinates are mentioned in the AOM
+     * (i.e., the number of times dependency is added to project modules multiplied by the number
+     * of resolution contexts (platform and scope)).
+     *
+     * This tests checks that the dependency insights graph is calculated the same number of times as the quantity of
+     * different coordinates with an overridden version
+     * (one coordinates with an overridden version => one dependency insights graph)
+     */
+    @Test
+    fun `dependency insights is calculated no more that once for problematic dependency`(testInfo: TestInfo) =
+        runSlowModuleDependenciesTest {
+            val aom = getTestProjectModel("multuplatform-with-overridden-versions", testDataRoot)
+
+            val projectDeps = doTestByFile(
+                testInfo,
+                aom,
+                ResolutionInput(
+                    DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                    fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+                ),
+                messagesCheck = { node ->
+                    node.messages.all { it.severity <= Severity.WARNING }
+                }
+            )
+
+            assertFiles(testInfo,projectDeps)
+
+            val diagnosticsReporter = CollectingProblemReporter()
+            collectBuildProblems(projectDeps, diagnosticsReporter, Level.Warning)
+            val buildProblems = diagnosticsReporter.problems
+
+            /**
+             * This magic number doesn't matter on its own.
+             * What matters is that all warnings are related to overridden dependencies (next check).
+             */
+            assertEquals(34, buildProblems.size)
+
+            val overriddenDependencyProblems = buildProblems.mapNotNull { it as? ModuleDependencyWithOverriddenVersion }
+            assertEquals(buildProblems.size, overriddenDependencyProblems.size)
+
+            val problematicDependencies = overriddenDependencyProblems.map { it.dependencyNode.key }.distinct()
+            assertEquals(
+                setOf(
+                    "org.jetbrains.compose.runtime:runtime"
+                ),
+                problematicDependencies.map { it.name }.toSet()
+            )
+
+            val uniqueInsights = overriddenDependencyProblems.map { it.overrideInsight }.distinct()
+            assertEquals(
+                1, uniqueInsights.size,
+                "Insights were calculated unexpected number of times, " +
+                        "while calculation of the single insight " +
+                        "for the library 'org.jetbrains.compose.runtime:runtime' is expected"
+            )
+        }
+
     // AMPER-4270
     @Test
-    fun `overridden version for BOM version is not displayed for unspecified versions`() = runTest {
+    fun `overridden version for BOM version is not displayed for unspecified versions`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
         val mainFragmentDeps = doTest(
             aom,
@@ -198,8 +258,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
             verifyMessages = false,
@@ -224,8 +284,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
      * taken from BOM, but later was overridden due to conflict resolution.
      */
     @Test
-    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runTest {
-        val aom = getTestProjectModel("jvm-bom-support-overridden", testDataRoot)
+    fun `overridden version for unspecified version resolved from BOM is detected`(testInfo: TestInfo) = runModuleDependenciesTest {
+        val aom = getTestProjectModel("jvm-bom-support-override", testDataRoot)
         val commonDeps = doTestByFile(
             testInfo = testInfo,
             aom,
@@ -285,13 +345,19 @@ class DiagnosticsTest : BaseModuleDrTest() {
     }
 
     private fun checkBuiltInDependencyBuildProblem(
-        buildProblems: Collection<BuildProblem>, group: String,
-        module: String, filePath: Path, versionLineNumber: Int? = null, versionColumn: Int? = null
+        buildProblems: Collection<BuildProblem>,
+        expectedProblemsCount: Int,
+        group: String, module: String,
+        filePath: Path,
+        versionLineNumber: Int? = null, versionColumn: Int? = null
     ) {
         val relevantBuildProblems = buildProblems.filter {
             it is DependencyBuildProblem
                     && it.problematicDependency.isMavenDependency(group, module)
         }
+
+        assertEquals(expected = expectedProblemsCount, actual = relevantBuildProblems.size,
+            "Unexpected number of build problems for $group:$module")
 
         relevantBuildProblems.forEach { buildProblem ->
             buildProblem as DependencyBuildProblem

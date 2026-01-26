@@ -1,13 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.catalogs
 
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.InMemoryVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
@@ -17,23 +14,28 @@ import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.system.info.SystemInfo
 import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
-    kotlinVersion = kotlin::version.asTraceableVersion(UsedVersions.defaultKotlinVersion),
-    serializationVersion = kotlin.serialization::version.asTraceableVersion(UsedVersions.kotlinxSerializationVersion)
+    kotlinVersion = kotlin::version.asTraceableVersion(DefaultVersions.kotlin),
+    serializationVersion = kotlin.serialization::version.asTraceableVersion(DefaultVersions.kotlinxSerialization)
         .takeIf { kotlin.serialization.enabled },
-    composeVersion = compose::version.asTraceableVersion(UsedVersions.composeVersion)
+    rpcVersion = kotlin.rpc::version.asTraceableVersion(DefaultVersions.kotlinxRpc)
+        .takeIf { kotlin.rpc.enabled },
+    composeVersion = compose::version.asTraceableVersion(DefaultVersions.compose)
         .takeIf { compose.enabled },
-    ktorVersion = ktor::version.asTraceableVersion(UsedVersions.ktorVersion)
+    ktorVersion = ktor::version.asTraceableVersion(DefaultVersions.ktor)
         .takeIf { ktor.enabled },
-    springBootVersion = springBoot::version.asTraceableVersion(UsedVersions.springBootVersion)
+    springBootVersion = springBoot::version.asTraceableVersion(DefaultVersions.springBoot)
         .takeIf { springBoot.enabled },
-    composeHotReloadVersion = compose.experimental.hotReload::version.asTraceableVersion(UsedVersions.composeHotReloadVersion),
+    composeHotReloadVersion = compose.experimental.hotReload::version
+        .asTraceableVersion(DefaultVersions.composeHotReload),
 )
 
 context(problemReporter: ProblemReporter)
@@ -60,11 +62,12 @@ private fun KProperty0<String>.asTraceableVersion(fallbackVersion: String): Trac
 private class BuiltInCatalog(
     kotlinVersion: TraceableVersion,
     serializationVersion: TraceableVersion?,
+    rpcVersion: TraceableVersion?,
     composeVersion: TraceableVersion?,
     ktorVersion: TraceableVersion?,
     springBootVersion: TraceableVersion?,
     composeHotReloadVersion: TraceableVersion,
-    private val systemInfo: SystemInfo = DefaultSystemInfo,
+    private val systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ) : InMemoryVersionCatalog {
 
     override val entries: Map<String, TraceableString> = buildMap {
@@ -84,6 +87,21 @@ private class BuiltInCatalog(
             put("kotlin.serialization.protobuf", library("org.jetbrains.kotlinx:kotlinx-serialization-protobuf", serializationVersion))
         }
 
+        if (rpcVersion != null) {
+            put("kotlin.rpc.bom", library("org.jetbrains.kotlinx:kotlinx-rpc-bom", rpcVersion))
+            put("kotlin.rpc.core", library("org.jetbrains.kotlinx:kotlinx-rpc-core", rpcVersion))
+            put("kotlin.rpc.krpc.client", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-client", rpcVersion))
+            put("kotlin.rpc.krpc.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-core", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.client", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-client", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-core", rpcVersion))
+            put("kotlin.rpc.krpc.ktor.server", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-server", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.cbor", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-cbor", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.core", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-core", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.json", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-json", rpcVersion))
+            put("kotlin.rpc.krpc.serialization.protobuf", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-protobuf", rpcVersion))
+            put("kotlin.rpc.krpc.server", library("org.jetbrains.kotlinx:kotlinx-rpc-krpc-server", rpcVersion))
+        }
+
         // Add compose.
         if (composeVersion != null) {
             put("compose.animation", library("org.jetbrains.compose.animation:animation", composeVersion))
@@ -92,7 +110,7 @@ private class BuiltInCatalog(
             put("compose.desktop.common", library("org.jetbrains.compose.desktop:desktop", composeVersion))
             put("compose.desktop.components.animatedImage", library("org.jetbrains.compose.components:components-animatedimage", composeVersion))
             put("compose.desktop.components.splitPane", library("org.jetbrains.compose.components:components-splitpane", composeVersion))
-            put("compose.desktop.currentOs", library("org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}", composeVersion))
+            put("compose.desktop.currentOs", library("org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.familyArch}", composeVersion))
             put("compose.desktop.linux_arm64", library("org.jetbrains.compose.desktop:desktop-jvm-linux-arm64", composeVersion))
             put("compose.desktop.linux_x64", library("org.jetbrains.compose.desktop:desktop-jvm-linux-x64", composeVersion))
             put("compose.desktop.macos_arm64", library("org.jetbrains.compose.desktop:desktop-jvm-macos-arm64", composeVersion))

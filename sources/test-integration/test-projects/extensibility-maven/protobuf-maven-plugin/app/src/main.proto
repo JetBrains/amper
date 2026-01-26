@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package apkg;
+
+message Foo {
+  int64 value = 1;
+}

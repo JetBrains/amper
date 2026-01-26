@@ -1,13 +1,13 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.util
 
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.system.info.Arch
+import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.system.info.SystemInfo
 
 object PlatformUtil {
     // Which platforms we may execute on current system
@@ -18,18 +18,19 @@ object PlatformUtil {
             add(Platform.JVM)
             add(Platform.ANDROID)
 
-            when (OsFamily.current) {
+            val os = SystemInfo.CurrentHost
+            when (os.family) {
                 OsFamily.Windows -> {
                     add(Platform.MINGW_X64)
                 }
-                OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> when (DefaultSystemInfo.detect().arch) {
+                OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> when (os.arch) {
                     Arch.X64 -> add(Platform.LINUX_X64)
                     Arch.Arm64 -> {
                         // Linux arm64 is not yet easily supported by kotlin native
                         // KT-36871 Support Aarch64 Linux as a host for the Kotlin/Native
                     }
                 }
-                OsFamily.MacOs -> when (DefaultSystemInfo.detect().arch) {
+                OsFamily.MacOs -> when (os.arch) {
                     Arch.X64 -> {
                         add(Platform.MACOS_X64)
                         // Simulator targets:

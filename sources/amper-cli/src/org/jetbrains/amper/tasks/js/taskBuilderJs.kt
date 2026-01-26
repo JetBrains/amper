@@ -25,11 +25,12 @@ fun ProjectTasksBuilder.setupJsTasks() {
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(compileKLibTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     taskName = compileKLibTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -48,12 +49,13 @@ fun ProjectTasksBuilder.setupJsTasks() {
                         platform = platform,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(linkAppTaskName),
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         taskName = linkAppTaskName,
                         tempRoot = context.projectTempRoot,
                         isTest = isTest,
                         jdkProvider = context.jdkProvider,
                         compileKLibTaskName = compileKLibTaskName,
+                        processRunner = context.processRunner,
                     ),
                     dependsOn = buildList {
                         add(compileKLibTaskName)

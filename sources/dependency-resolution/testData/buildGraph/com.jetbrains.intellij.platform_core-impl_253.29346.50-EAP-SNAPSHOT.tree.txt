@@ -1,0 +1,14 @@
+root
+╰─── com.jetbrains.intellij.platform:core-impl:253.29346.50-EAP-SNAPSHOT
+     ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.20
+     │    ╰─── org.jetbrains:annotations:13.0
+     ├─── org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.16-jb1
+     ├─── com.fasterxml:aalto-xml:1.3.3
+     │    ╰─── org.codehaus.woodstox:stax2-api:4.2.2
+     ├─── dk.brics:automaton:1.12-4
+     ╰─── com.google.guava:guava:33.4.8-jre
+          ├─── com.google.guava:failureaccess:1.0.3
+          ├─── com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+          ├─── org.jspecify:jspecify:1.0.0
+          ├─── com.google.errorprone:error_prone_annotations:2.36.0
+          ╰─── com.google.j2objc:j2objc-annotations:3.0.0

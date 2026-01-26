@@ -14,9 +14,9 @@ import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.TreeRefiner
-import org.jetbrains.amper.frontend.tree.appendDefaultValues
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -27,14 +27,15 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 context(problemReporter: ProblemReporter)
 @UsedInIdePlugin
 fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog =
-    with(BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)) {
-        val templateTree = readTree(file = templateFile, declaration = templateAType)
-            .appendDefaultValues()
+    context(frontendPathResolver, SchemaTypingContext(), problemReporter) {
+        val templateTree = readTree(
+            file = templateFile,
+            declaration = contextOf<SchemaTypingContext>().getDeclaration<Template>(),
+        )
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.
         // NOTE: That will change when nested templated are allowed.
         val noContextsTree = refiner.refineTree(templateTree, EmptyContexts)
-            .resolveReferences()
         val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
         val builtinCatalog = noContextsTemplate?.settings?.builtInCatalog() ?: EmptyVersionCatalog
         builtinCatalog + projectVersionsCatalog

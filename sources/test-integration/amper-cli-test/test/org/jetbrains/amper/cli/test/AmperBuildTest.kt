@@ -142,7 +142,6 @@ class AmperBuildTest : AmperCliTestBase() {
             Repositories used for resolution:
               - https://repo1.maven.org/maven2
               - https://maven.google.com
-              - https://maven.pkg.jetbrains.space/public/p/compose/dev
             """.trimIndent()
         
         // Could be any of them:

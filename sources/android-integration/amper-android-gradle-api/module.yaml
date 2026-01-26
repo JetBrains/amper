@@ -5,9 +5,10 @@ apply:
 
 dependencies:
   - ../../frontend-api
+  - ../../libraries/serialization-extended
 
 settings:
   kotlin:
-    serialization: json
+    serialization: enabled
   publishing:
     enabled: true

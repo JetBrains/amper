@@ -4,13 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_COMPOSE_DEV
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_CENTRAL
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.REDIRECTOR_MAVEN_GOOGLE
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.defaultFilterMessages
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyMessages
-import org.jetbrains.amper.dependency.resolution.BaseDRTest.Companion.verifyOwnMessages
 import org.jetbrains.amper.dependency.resolution.diagnostics.PlatformsAreNotSupported
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
 import org.jetbrains.amper.dependency.resolution.diagnostics.detailedMessage
@@ -35,7 +28,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class DependencyFileTest {
+class DependencyFileTest: BaseDRTest() {
     @TempDir
     lateinit var temp: Path
 
@@ -52,7 +45,7 @@ class DependencyFileTest {
     private fun mavenLocalRepository() = MavenLocalRepository(mavenLocalPath)
 
     @Test
-    fun `kotlin-test-1_9_20 module hash`() = runTest {
+    fun `kotlin-test-1_9_20 module hash`() = runDrTest {
         val gradleLocalRepository = gradleLocalRepository()
         Context {
             cache = {
@@ -80,7 +73,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `jackson-module-kotlin-2_15_2_jar hash`() = runTest {
+    fun `jackson-module-kotlin-2_15_2_jar hash`() = runDrTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -100,7 +93,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message NETWORK level`() = runTest {
+    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message NETWORK level`() = runDrTest {
         Context {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
@@ -136,7 +129,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message LOCAL level`() = runTest {
+    fun `org_junit_jupiter junit-jupiter-api 9999 diagnostic error message LOCAL level`() = runDrTest {
         Context {
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL, REDIRECTOR_COMPOSE_DEV)
             cache = {
@@ -165,7 +158,7 @@ class DependencyFileTest {
      * that define jvm-related variants only
      */
     @Test
-    fun `skiko-awt-runtime-macos-arm64-0_8_22_jar hash`() = runTest {
+    fun `skiko-awt-runtime-macos-arm64-0_8_22_jar hash`() = runDrTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -200,7 +193,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `skiko-0_8_4_jar macOS platforms`() = runTest {
+    fun `skiko-0_8_4_jar macOS platforms`() = runDrTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -227,7 +220,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `compose-multiplatform iosSimulatorArm64`() = runTest {
+    fun `compose-multiplatform iosSimulatorArm64`() = runDrTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -264,7 +257,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `skiko-0_8_4_jar iosSimulatorArm64`() = runTest {
+    fun `skiko-0_8_4_jar iosSimulatorArm64`() = runDrTest {
         Context {
             cache = {
                 amperCache = amperPath
@@ -288,7 +281,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() = runTest {
+    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() = runDrTest {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL.copy(url = "${REDIRECTOR_MAVEN_CENTRAL.url}/"))
@@ -310,7 +303,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_9_0 check metadata`() = runTest {
+    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_9_0 check metadata`() = runDrTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -340,7 +333,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `artifact is re-downloaded if it has incorrect checksum`() = runTest {
+    fun `artifact is re-downloaded if it has incorrect checksum`() = runDrTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -384,7 +377,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `obsolete diagnostic errors from LOCAL run are suppressed after artifact is re-downloaded`() = runTest {
+    fun `obsolete diagnostic errors from LOCAL run are suppressed after artifact is re-downloaded`() = runDrTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -437,7 +430,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() = runTest {
+    fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() = runDrTest {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf(REDIRECTOR_MAVEN_CENTRAL)
@@ -467,7 +460,7 @@ class DependencyFileTest {
     }
 
     @Test
-    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check sourceSets`() = runTest {
+    fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check sourceSets`() = runDrTest {
         Context {
             platforms = setOf(
                 ResolutionPlatform.JVM,
@@ -494,11 +487,11 @@ class DependencyFileTest {
 
             assertEquals(
                 setOf("commonMain", "concurrentMain"),
-                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
+                dependency.files().map { it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
 
-            val sourceSetFiles = dependency.files().associate { it.settings[KmpSourceSetName]!! to it.getPath()!! }
+            val sourceSetFiles = dependency.files().associate { it.kmpSourceSet!! to it.getPath()!! }
 
             // check sourceSet files content validity
             sourceSetFiles.forEach {
@@ -550,10 +543,10 @@ class DependencyFileTest {
                 "concurrentMain" to commonPlatforms - ResolutionPlatform.JS,
             )
             dependency.files().forEach { file ->
-                val sourceSetName = file.settings[KmpSourceSetName]
+                val sourceSetName = file.kmpSourceSet
                 val platforms = expectedPlatforms[sourceSetName]
                 assertNotNull(platforms, "Unexpected source set: $sourceSetName")
-                assertEquals(platforms, file.settings[KmpPlatforms], "Wrong set of supported platforms for $sourceSetName")
+                assertEquals(platforms, file.kmpPlatforms, "Wrong set of supported platforms for $sourceSetName")
             }
         }
     }
@@ -617,7 +610,7 @@ class DependencyFileTest {
     )
 
     @Test
-    fun `org_jetbrains_compose_ui ui 1_5_10 kmp library resolution`() = runTest {
+    fun `org_jetbrains_compose_ui ui 1_5_10 kmp library resolution`() = runDrTest {
         Context {
             platforms = setOf(
                 ResolutionPlatform.JVM,
@@ -644,7 +637,7 @@ class DependencyFileTest {
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
             assertEquals(setOf("commonMain"),
-                dependency.files().map { it.settings[KmpSourceSetName] }.toSet(),
+                dependency.files().map { it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
         }

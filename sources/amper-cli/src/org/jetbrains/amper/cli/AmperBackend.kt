@@ -7,8 +7,7 @@ package org.jetbrains.amper.cli
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.options.UserJvmArgsOption
 import org.jetbrains.amper.cli.widgets.TaskProgressRenderer
-import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.MaybeBuildTypeAware
 import org.jetbrains.amper.engine.PackageTask
@@ -25,6 +24,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.tasks.AllRunSettings
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask

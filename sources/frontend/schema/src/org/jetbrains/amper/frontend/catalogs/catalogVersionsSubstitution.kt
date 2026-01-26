@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.frontend.catalogs
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.VersionCatalog
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -24,27 +22,29 @@ import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.tree.Changed
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.NotChanged
 import org.jetbrains.amper.frontend.tree.Removed
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.TransformResult
 import org.jetbrains.amper.frontend.tree.TreeTransformer
-import org.jetbrains.amper.frontend.tree.asScalar
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.full.createType
 
-context(buildCtx: BuildCtx)
-internal fun Merged.substituteCatalogDependencies(catalog: VersionCatalog) =
-    CatalogVersionsSubstitutor(catalog, buildCtx).transform(this) as? Merged ?: this
+context(types: SchemaTypingContext, problemReporter: ProblemReporter)
+internal fun MappingNode.substituteCatalogDependencies(catalog: VersionCatalog) =
+    CatalogVersionsSubstitutor(catalog, types, problemReporter).transform(this) as? MappingNode ?: this
 
 internal class CatalogVersionsSubstitutor(
     private val catalog: VersionCatalog,
-    private val buildCtx: BuildCtx,
-) : TreeTransformer<Merged>() {
-    inline fun <reified T> getType() = buildCtx.types.getType(T::class.createType())
+    private val types: SchemaTypingContext,
+    private val problemReporter: ProblemReporter,
+) : TreeTransformer() {
+    inline fun <reified T> getType() = types.getType(T::class.createType())
     private val substitutionTypes = mapOf(
         getType<CatalogDependency>() to getType<ExternalMavenDependency>(),
         getType<UnscopedCatalogDependency>() to getType<UnscopedExternalMavenDependency>(),
@@ -53,28 +53,33 @@ internal class CatalogVersionsSubstitutor(
         getType<ShadowDependencyCatalog>() to getType<ShadowDependencyMaven>(),
     )
 
-    override fun visitMapValue(value: MapLikeValue<Merged>): TransformResult<MapLikeValue<Merged>> {
+    override fun visitMap(node: MappingNode): TransformResult<MappingNode> {
         // Here we don't know what kind of node we are visiting, so we have to use `super`.
-        val substituted = substitutionTypes[value.type] as? SchemaType.ObjectType ?: return super.visitMapValue(value)
+        val substituted = substitutionTypes[node.type] as? SchemaType.ObjectType ?: return super.visitMap(node)
         // Here we know that we have the right node (one of the dependencies), so we can return `NotChanged`.
-        val catalogKeyProp = value.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
+        val catalogKeyProp = node.children.singleOrNull { it.key == "catalogKey" } ?: return NotChanged
         // TODO Maybe report here.
-        val catalogKeyScalar = catalogKeyProp.value.asScalar ?: return Removed
-        val catalogKey = catalogKeyScalar.value.asSafely<String>() ?: return Removed
-        val found = with(buildCtx.problemReporter) {
+        val catalogKeyScalar = catalogKeyProp.value as? StringNode ?: return Removed
+        val catalogKey = catalogKeyScalar.value
+        val found = context(problemReporter) {
             catalog.findInCatalogWithReport(catalogKey.removePrefix("$"), catalogKeyScalar.trace) ?: return Removed
         }
-        val newCValue = catalogKeyScalar.copy(
+        val coordinatesProperty = checkNotNull(substituted.declaration.getProperty("coordinates")) {
+            "Missing `coordinates` property in the dependency type"
+        }
+        val newCValue = StringNode(
             value = found.value,
+            type = coordinatesProperty.type as SchemaType.StringType,
             trace = ResolvedReferenceTrace(
                 description = "from $catalogKey",
                 referenceTrace = catalogKeyScalar.trace,
                 resolvedValue = found,
             ),
+            contexts = catalogKeyScalar.contexts,
         )
-        val newChildren = value.children - catalogKeyProp +
-                MapLikeValue.Property("coordinates", catalogKeyProp.kTrace, newCValue, substituted.declaration)
-        return Changed(value.copy(children = newChildren, type = substituted))
+        val newChildren = node.children - catalogKeyProp +
+                KeyValue(catalogKeyProp.keyTrace, newCValue, coordinatesProperty, catalogKeyProp.trace)
+        return Changed(node.copy(children = newChildren, type = substituted))
     }
 }
 

@@ -29,6 +29,7 @@ public class BazelIncBuilder {
   private static final Logger LOG = Logger.getLogger("com.intellij.tools.build.bazel.jvmIncBuilder.BazelIncBuilder");
   // recompile all, if more than X percent of files has been changed; for incremental tests, set equal to 100
   private static final int RECOMPILE_CHANGED_RATIO_PERCENT = 85;
+  private static final boolean COLLECT_BUILD_DIAGNOSTICS = true;
 
   public ExitCode build(BuildContext context) {
     // todo: support cancellation checks
@@ -42,6 +43,7 @@ public class BazelIncBuilder {
 
     try (StorageManager storageManager = new StorageManager(context)) {
 
+      BuildDiagnosticCollector diagnosticCollector = COLLECT_BUILD_DIAGNOSTICS? new BuildDiagnosticCollector(context) : null;
       try {
         GraphUpdater graphUpdater = new GraphUpdater(context.getTargetName());
 
@@ -113,7 +115,7 @@ public class BazelIncBuilder {
 
                 try {
                   Delta libDelta = new DeltaView(changedLibNodeSources, deletedLibNodeSources, CompositeGraph.create(presentLibGraphs));
-                  srcSnapshotDelta = graphUpdater.updateBeforeCompilation(storageManager.getGraph(), srcSnapshotDelta, libDelta, pastLibGraphs);
+                  srcSnapshotDelta = graphUpdater.updateBeforeCompilation(storageManager.getGraph(), srcSnapshotDelta, libDelta, pastLibGraphs, diagnosticCollector);
                   if (shouldRecompileAll(srcSnapshotDelta)) {
                     srcSnapshotDelta.markRecompileAll();
                   }
@@ -130,7 +132,7 @@ public class BazelIncBuilder {
             if (!srcSnapshotDelta.isRecompileAll()) {
               DependencyGraph graph = storageManager.getGraph();
               Delta sourceOnlyDelta = graph.createDelta(srcSnapshotDelta.getModified(), srcSnapshotDelta.getDeleted(), true);
-              srcSnapshotDelta = graphUpdater.updateBeforeCompilation(graph, srcSnapshotDelta, sourceOnlyDelta, List.of());
+              srcSnapshotDelta = graphUpdater.updateBeforeCompilation(graph, srcSnapshotDelta, sourceOnlyDelta, List.of(), diagnosticCollector);
               if (shouldRecompileAll(srcSnapshotDelta)) {
                 srcSnapshotDelta.markRecompileAll();
               }
@@ -148,6 +150,9 @@ public class BazelIncBuilder {
         do { // build rounds loop
 
           if (srcSnapshotDelta.isRecompileAll()) {
+            if (isInitialRound && diagnosticCollector != null) {
+              diagnosticCollector.setWholeTargetRebuild(true);
+            }
             storageManager.cleanBuildState();
             modifiedLibraries = ElementSnapshot.derive(context.getBinaryDependencies(), ns -> DataPaths.isLibraryTracked(ns.toString())).getElements();
             deletedLibraries = Set.of();
@@ -228,7 +233,7 @@ public class BazelIncBuilder {
           }
 
           NodeSourceSnapshotDelta nextSnapshotDelta = graphUpdater.updateAfterCompilation(
-            storageManager.getGraph(), srcSnapshotDelta, createGraphDelta(storageManager.getGraph(), srcSnapshotDelta, outSink), diagnostic.hasErrors()
+            storageManager.getGraph(), srcSnapshotDelta, createGraphDelta(storageManager.getGraph(), srcSnapshotDelta, outSink), diagnostic.hasErrors(), diagnosticCollector
           );
 
           if (!diagnostic.hasErrors()) {
@@ -267,11 +272,18 @@ public class BazelIncBuilder {
       finally {
         if (diagnostic instanceof PostponedDiagnosticSink) {
           // report postponed errors, if necessary; ensure all errors are reported before storages are closed
-          ((PostponedDiagnosticSink)diagnostic).drainTo(context);
+          ((PostponedDiagnosticSink) diagnostic).drainTo(context);
+        }
+        if (diagnosticCollector != null) {
+          diagnosticCollector.writeData();
         }
       }
 
-      return ExitCode.OK;
+    }
+    catch (Throwable e) {
+      // catch any unexpected errors happened closing storages
+      context.report(Message.create(null, e));
+      return ExitCode.ERROR;
     }
     finally {
       NodeSourceSnapshot sourcesState = srcSnapshotDelta != null? srcSnapshotDelta.asSnapshot() : null;
@@ -279,6 +291,8 @@ public class BazelIncBuilder {
         context, sourcesState, context.getResources(), modifiedLibraries, deletedLibraries
       );
     }
+
+    return context.hasErrors()? ExitCode.ERROR : ExitCode.OK;
   }
 
   private static void deleteResources(Iterable<ResourceGroup> resGroups, Iterable<NodeSource> resources, ZipOutputBuilder out) {
@@ -368,41 +382,58 @@ public class BazelIncBuilder {
     Iterable<NodeSource> modifiedLibraries, Iterable<NodeSource> deletedLibraries
   ) {
 
-    if (sourcesState != null) {
-      if (context.hasErrors()) {
-        ConfigurationState pastState = ConfigurationState.loadSavedState(context);
-        new ConfigurationState(context.getPathMapper(), sourcesState, resourcesState, pastState.getLibraries(), context.getFlags()).save(context);
+    if (sourcesState == null) {
+      return; // nothing is done
+    }
+    try {
+      Set<Path> presentPaths = collect(filter(map(modifiedLibraries, context.getPathMapper()::toPath), Files::exists), new HashSet<>());
+      Set<Path> deletedPaths = collect(map(deletedLibraries, context.getPathMapper()::toPath), new HashSet<>());
+      Path outputZip = context.getOutputZip();
+      if (Files.exists(outputZip)) {
+        presentPaths.add(outputZip);
       }
       else {
-        new ConfigurationState(context.getPathMapper(), sourcesState, resourcesState, context.getBinaryDependencies(), context.getFlags()).save(context);
+        deletedPaths.add(outputZip);
       }
-    }
-
-    if (!context.hasErrors()) {
-      try { // backup current deps content if the build was successful
-        Set<Path> presentPaths = collect(filter(map(modifiedLibraries, context.getPathMapper()::toPath), Files::exists), new HashSet<>());
-        Set<Path> deletedPaths = collect(map(deletedLibraries, context.getPathMapper()::toPath), new HashSet<>());
-        Path outputZip = context.getOutputZip();
-        if (Files.exists(outputZip)) {
-          presentPaths.add(outputZip);
+      Path abiOut = context.getAbiOutputZip();
+      if (abiOut != null) {
+        if (Files.exists(abiOut)) {
+          presentPaths.add(abiOut);
         }
         else {
-          deletedPaths.add(outputZip);
+          deletedPaths.add(abiOut);
         }
-        Path abiOut = context.getAbiOutputZip();
-        if (abiOut != null) {
-          if (Files.exists(abiOut)) {
-            presentPaths.add(abiOut);
-          }
-          else {
-            deletedPaths.add(abiOut);
-          }
-        }
-        StorageManager.backupDependencies(context, deletedPaths, presentPaths);
       }
-      catch (Throwable e) {
-        LOG.log(Level.SEVERE, "Error saving build state " + context.getTargetName(), e);
-        context.report(Message.create(null, e));
+      StorageManager.backupDependencies(context, deletedPaths, presentPaths);
+
+      if (context.hasErrors()) {
+        // in case of errors, rollback to previous resources state to ensure that
+        // all resources deleted or changed for this compile session will be handled in the next session
+        ConfigurationState pastState = ConfigurationState.loadSavedState(context);
+        resourcesState = pastState.getResources();
+
+        // do not publish incomplete artifacts
+        Utils.deleteIfExists(outputZip);
+        if (abiOut != null) {
+          Utils.deleteIfExists(abiOut);
+        }
+      }
+
+      // at this point saved build state contains all successfully compiled files and classes
+      new ConfigurationState(
+        context.getPathMapper(), sourcesState, resourcesState, context.getBinaryDependencies(), context.getFlags()
+      ).save(context);
+    }
+    catch (Throwable e) {
+      LOG.log(Level.SEVERE, "Error saving build state " + context.getTargetName(), e);
+      context.report(Message.create(null, e));
+
+      // Cannot guarantee build state data consistency: delete config store file => this will effectively cause target rebuild on next build
+      try {
+        Utils.deleteIfExists(DataPaths.getConfigStateStoreFile(context));
+      }
+      catch (Throwable ex) {
+        LOG.log(Level.SEVERE, "Error clearing build state file for " + context.getTargetName(), ex);
       }
     }
   }

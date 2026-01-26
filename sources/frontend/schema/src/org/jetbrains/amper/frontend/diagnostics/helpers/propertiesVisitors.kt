@@ -5,79 +5,72 @@
 package org.jetbrains.amper.frontend.diagnostics.helpers
 
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.tree.ErrorValue
-import org.jetbrains.amper.frontend.tree.ListValue
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.MapProperty
-import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.MergedTree
-import org.jetbrains.amper.frontend.tree.NullValue
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.ErrorNode
+import org.jetbrains.amper.frontend.tree.ListNode
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
 import org.jetbrains.amper.frontend.tree.RecurringTreeVisitor
 import org.jetbrains.amper.frontend.tree.RecurringTreeVisitorUnit
-import org.jetbrains.amper.frontend.tree.ReferenceValue
-import org.jetbrains.amper.frontend.tree.ScalarProperty
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.StringInterpolationValue
-import org.jetbrains.amper.frontend.tree.TreeValue
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringInterpolationNode
+import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.declaration
-import org.jetbrains.amper.frontend.tree.visitMapLikeValues
+import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.types.isSameAs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /**
- * Visit all passed scalar properties within given [TreeValue].
+ * Visit all passed enum properties within given [TreeNode].
  */
-inline fun <reified T : SchemaNode, reified V> MergedTree.visitScalarProperties(
+inline fun <reified T, reified V> TreeNode.visitEnumProperties(
     vararg properties: KProperty1<T, V>,
-    noinline visitSelected: (ScalarProperty<Merged>, V & Any) -> Unit,
+    noinline visitSelected: (KeyValue, V & Any) -> Unit,
+) where T : SchemaNode, V : Enum<*>? {
+    ObjectPropertiesVisitorRecurring(
+        objectKlass = T::class,
+        properties = properties.map { it.name },
+    ) {
+        val node = it.value as? EnumNode ?: return@ObjectPropertiesVisitorRecurring
+        node.enumConstantIfAvailable?.let { enum ->
+            visitSelected(it, (enum as V)!!)
+        }
+    }.visit(this)
+}
+
+/**
+ * Visit all passed string properties within given [TreeNode].
+ */
+inline fun <reified T : SchemaNode> TreeNode.visitStringProperties(
+    vararg properties: KProperty1<T, String>,
+    noinline visitSelected: (KeyValue, String) -> Unit,
 ) {
     ObjectPropertiesVisitorRecurring(
         objectKlass = T::class,
         properties = properties.map { it.name },
     ) {
-        val pValue = it.value as? ScalarValue<*> ?: return@ObjectPropertiesVisitorRecurring
-        val value = pValue.value
-        if (value is V) visitSelected(it as ScalarProperty<Merged>, value)
-    }.visitValue(this)
+        val node = it.value as? StringNode ?: return@ObjectPropertiesVisitorRecurring
+        visitSelected(it, node.value)
+    }.visit(this)
 }
 
 /**
- * Visit all passed [MapLikeValue] properties within given [TreeValue].
+ * Visit all passed [MappingNode] properties within given [TreeNode].
  */
-inline fun <reified T : SchemaNode> MergedTree.visitMapLikeProperties(
+inline fun <reified T : SchemaNode> TreeNode.visitListProperties(
     vararg properties: KProperty1<T, *>,
-    noinline visitSelected: (MapProperty<Merged>, MapLikeValue<Merged>) -> Unit,
+    noinline visitSelected: (KeyValue, ListNode) -> Unit,
 ) = ObjectPropertiesVisitorRecurring(
     objectKlass = T::class,
     properties = properties.map { it.name },
 ) {
-    val pValue = it.value as? MapLikeValue<Merged> ?: return@ObjectPropertiesVisitorRecurring
-    visitSelected(it as MapProperty<Merged>, pValue)
-}.visitValue(this)
-
-/**
- * Visit all passed [MapLikeValue] properties within given [TreeValue].
- */
-inline fun <reified T : SchemaNode> MergedTree.visitListProperties(
-    vararg properties: KProperty1<T, *>,
-    noinline visitSelected: (MapLikeValue.Property<ListValue<Merged>>, ListValue<Merged>) -> Unit,
-) = ObjectPropertiesVisitorRecurring(
-    objectKlass = T::class,
-    properties = properties.map { it.name },
-) {
-    val pValue = it.value as? ListValue<Merged> ?: return@ObjectPropertiesVisitorRecurring
-    visitSelected(it as MapLikeValue.Property<ListValue<Merged>>, pValue)
-}.visitValue(this)
-
-/**
- * Visit all objects of the matching type in the tree.
- */
-inline fun <reified T : SchemaNode> MergedTree.visitObjects(
-    crossinline block: (MapLikeValue<Merged>) -> Unit
-) = visitMapLikeValues { 
-    if (it.declaration?.isSameAs<T>() == true) block(it)
-}
+    val node = it.value as? ListNode ?: return@ObjectPropertiesVisitorRecurring
+    visitSelected(it, node)
+}.visit(this)
 
 /**
  * Visits properties with keys from [properties] in objects with [objectKlass] type.
@@ -85,35 +78,35 @@ inline fun <reified T : SchemaNode> MergedTree.visitObjects(
 class ObjectPropertiesVisitorRecurring(
     private val objectKlass: KClass<out SchemaNode>,
     private val properties: Collection<String>,
-    private val visitSelected: (MapLikeValue.Property<MergedTree>) -> Unit,
-) : RecurringTreeVisitorUnit<Merged>() {
+    private val visitSelected: (KeyValue) -> Unit,
+) : RecurringTreeVisitorUnit() {
 
-    override fun visitMapValue(value: MapLikeValue<Merged>) {
-        if (value.declaration?.isSameAs(objectKlass) == true) value.children.map { it.doVisitMapProperty() }
-        else super.visitMapValue(value)
+    override fun visitMap(node: MappingNode) {
+        if (node.declaration?.isSameAs(objectKlass) == true) node.children.forEach { it.doVisitMapProperty() }
+        else super.visitMap(node)
     }
 
-    fun MapLikeValue.Property<MergedTree>.doVisitMapProperty() =
+    fun KeyValue.doVisitMapProperty() =
         if (key in properties) visitSelected(this)
-        else visitValue(value)
+        else visit(value)
 }
 
 /**
- * Visit all scalar properties within passed [TreeValue].
+ * Visit all scalar properties within passed [TreeNode].
  * FIXME Need also check non scalars, but not objects.
  */
-fun MergedTree.collectScalarPropertiesWithOwners() = AllScalarPropertiesCollector.visitValue(this)
+fun TreeNode.collectScalarPropertiesWithOwners() = AllScalarPropertiesCollector.visit(this)
 
-private typealias ScalarPropertyWithOwner = Pair<MapLikeValue<Merged>, ScalarProperty<Merged>>
-private typealias ScalarPropertiesWithOwner = List<ScalarPropertyWithOwner>
+private typealias PropertyWithOwner = Pair<MappingNode, KeyValue>
+private typealias PropertiesWithOwner = List<PropertyWithOwner>
 
-private object AllScalarPropertiesCollector : RecurringTreeVisitor<ScalarPropertiesWithOwner, Merged>() {
-    override fun visitNullValue(value: NullValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitScalarValue(value: ScalarValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitNoValue(value: ErrorValue) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitReferenceValue(value: ReferenceValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun visitStringInterpolationValue(value: StringInterpolationValue<Merged>) = emptyList<ScalarPropertyWithOwner>()
-    override fun aggregate(value: MergedTree, childResults: List<ScalarPropertiesWithOwner>) = childResults.flatten()
-    override fun visitMapValue(value: MapLikeValue<Merged>) = super.visitMapValue(value) +
-            value.children.filter { it.value is ScalarValue }.map { value to (it as ScalarProperty<Merged>) }
+private object AllScalarPropertiesCollector : RecurringTreeVisitor<PropertiesWithOwner>() {
+    override fun visitNull(node: NullLiteralNode) = emptyList<Nothing>()
+    override fun visitScalar(node: ScalarNode) = emptyList<Nothing>()
+    override fun visitError(node: ErrorNode) = emptyList<Nothing>()
+    override fun visitReference(node: ReferenceNode) = emptyList<Nothing>()
+    override fun visitStringInterpolation(node: StringInterpolationNode) = emptyList<Nothing>()
+    override fun aggregate(node: TreeNode, childResults: List<PropertiesWithOwner>) = childResults.flatten()
+    override fun visitMap(node: MappingNode) = super.visitMap(node) +
+            node.children.filter { it.value is ScalarNode }.map { node to it }
 }

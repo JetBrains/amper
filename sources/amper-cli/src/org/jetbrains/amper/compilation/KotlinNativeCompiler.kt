@@ -4,22 +4,23 @@
 
 package org.jetbrains.amper.compilation
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setProcessResultAttributes
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getDefaultJdk
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
@@ -27,19 +28,6 @@ import java.net.URLEncoder
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
-
-@UsedInIdePlugin
-@Deprecated(
-    message = "Provide a JdkProvider instance instead, to properly scope errors",
-    replaceWith = ReplaceWith(
-        expression = "downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))",
-        imports = ["org.jetbrains.amper.jdk.provisioning.JdkProvider"],
-    ),
-)
-suspend fun downloadNativeCompiler(
-    kotlinVersion: String,
-    userCacheRoot: AmperUserCacheRoot,
-): KotlinNativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot, JdkProvider(userCacheRoot))
 
 suspend fun downloadNativeCompiler(
     kotlinVersion: String,
@@ -49,8 +37,8 @@ suspend fun downloadNativeCompiler(
     val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion, userCacheRoot)
         ?: error("kotlin native compiler is not available for the current platform")
 
-    // According to the Kotlin/Native team, no special requirements for this JDK, but they mostly tested with 11.
-    val jdk = jdkProvider.getJdk()
+    // According to the Kotlin/Native team, no special requirements for this JDK, but they mostly test with 11.
+    val jdk = jdkProvider.getDefaultJdk()
     return KotlinNativeCompiler(kotlinNativeHome, kotlinVersion, jdk)
 }
 
@@ -72,6 +60,7 @@ class KotlinNativeCompiler(
     }
 
     suspend fun compile(
+        processRunner: ProcessRunner,
         args: List<String>,
         tempRoot: AmperProjectTempRoot,
         module: AmperModule,
@@ -85,6 +74,8 @@ class KotlinNativeCompiler(
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     val result = runNativeCommand("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
+                    // TODO this is redundant with the java span of the external process run. Ideally, we
+                    //  should extract higher-level information from the raw output and use that in this span.
                     span.setProcessResultAttributes(result)
 
                     if (result.exitCode != 0) {
@@ -134,7 +125,8 @@ class KotlinNativeCompiler(
         // We call konanc via java because the konanc command line doesn't support spaces in paths:
         // https://youtrack.jetbrains.com/issue/KT-66952
         // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
-        return jdk.runJava(
+        return processRunner.runJava(
+            jdk = jdk,
             workingDir = kotlinNativeHome,
             mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
             classpath = listOf(

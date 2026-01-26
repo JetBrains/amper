@@ -9,10 +9,12 @@ settings:
     serialization:
       enabled: true
       format: json
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
 
 dependencies:
   - ../../amper-build-info
   - ../../amper-problem-reporting: exported
+  - ../../amper-telemetry
   - ../../android-integration/amper-android-sdk-detector
   - ../../frontend-api: exported
   - ../../extensibility/amper-extensibility-schema-model: exported
@@ -20,7 +22,9 @@ dependencies:
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
+  - ../../libraries/maven-plugin-xml-parser: exported
   - ../../libraries/stdlib-extended
+  - ../../libraries/system-info
   - ../../libraries/telemetry
   - ../../core-intellij
   - $libs.kotlin.reflect
@@ -29,7 +33,6 @@ dependencies:
   - $libs.intellij.platform.coreImpl
   - $libs.intellij.platform.ideCore
   - $libs.intellij.platform.util
-  - $libs.kotlinx.collections
   - $libs.xmlutil.serialization
 
 test-dependencies:

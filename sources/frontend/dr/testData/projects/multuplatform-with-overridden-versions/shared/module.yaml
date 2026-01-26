@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
+
+apply:
+  - ../compose.module-template.yaml
+
+dependencies:
+  # Leads to overriding a version of the dependency 'org.jetbrains.compose.runtime:runtime' from 1.8.2 to 1.9.1
+  - org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5: exported

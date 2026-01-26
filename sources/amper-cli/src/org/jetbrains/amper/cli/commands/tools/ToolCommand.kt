@@ -16,6 +16,7 @@ internal class ToolCommand : AmperSubcommand(name = "tool") {
             JdkToolCommand(),
             KeystoreToolCommand(),
             XCodeIntegrationCommand(),
+            ConvertProjectCommand(),
         )
     }
 

@@ -148,6 +148,8 @@ data class Project(
     val dependencies: Dependencies? = null,
     @XmlElement(true)
     val packaging: String? = null,
+    @XmlElement(true)
+    val profiles: Profiles? = null
 )
 
 @Serializable
@@ -242,7 +244,7 @@ data class Contributor(
 @XmlSerialName("prerequisites", POM_XML_NAMESPACE)
 data class Prerequisites(
     @XmlElement(true)
-    val maven: String,
+    val maven: String = "2.0",
 )
 
 @Serializable
@@ -324,6 +326,8 @@ data class Dependency(
     @XmlElement(true)
     val type: String? = null,
     @XmlElement(true)
+    val classifier: String? = null,
+    @XmlElement(true)
     val scope: String? = null,
     @XmlElement(true)
     val exclusions: Exclusions? = null,
@@ -345,7 +349,76 @@ data class Exclusion(
     val artifactId: String? = null,
 )
 
-fun Dependency.expandTemplates(project: Project): Dependency = copy(
+@Serializable
+@XmlSerialName("profiles", POM_XML_NAMESPACE)
+data class Profiles(
+    @XmlElement(true)
+    val profiles: List<Profile>? = null
+)
+
+
+@Serializable
+@XmlSerialName("profile", POM_XML_NAMESPACE)
+data class Profile(
+    @XmlElement(true)
+    val id: String? = null,
+    @XmlElement(true)
+    val activation: List<ProfileActivation>? = null,
+    @XmlElement(true)
+    val properties: Properties? = null,
+    @XmlElement(true)
+    val dependencies: Dependencies? = null,
+    @XmlElement(true)
+    val dependencyManagement: DependencyManagement? = null,
+)
+
+@Serializable
+@XmlSerialName("activation", POM_XML_NAMESPACE)
+data class ProfileActivation(
+    @XmlElement(true)
+    val activeByDefault: Boolean? = null,
+    @XmlElement(true)
+    val jdk: String? = null,
+    @XmlElement(true)
+    val os: ActivationOS? = null,
+    @XmlElement(true)
+    val property: ActivationProperty? = null,
+    @XmlElement(true)
+    val file: ActivationFile? = null,
+)
+
+@Serializable
+@XmlSerialName("property", POM_XML_NAMESPACE)
+data class ActivationProperty(
+    @XmlElement(true)
+    val name: String? = null,
+    @XmlElement(true)
+    val value: String? = null,
+)
+
+@Serializable
+@XmlSerialName("file", POM_XML_NAMESPACE)
+data class ActivationFile(
+    @XmlElement(true)
+    val missing: String? = null,
+    @XmlElement(true)
+    val exists: String? = null,
+)
+
+@Serializable
+@XmlSerialName("os", POM_XML_NAMESPACE)
+data class ActivationOS(
+    @XmlElement(true)
+    val name: String? = null,
+    @XmlElement(true)
+    val family: String? = null,
+    @XmlElement(true)
+    val arch: String? = null,
+    @XmlElement(true)
+    val version: String? = null,
+)
+
+internal fun Dependency.expandTemplates(project: Project): Dependency = copy(
     groupId = groupId.expandTemplate(project),
     artifactId = artifactId.expandTemplate(project),
     version = version?.expandTemplate(project)?.resolveSingleVersion(),
@@ -353,7 +426,14 @@ fun Dependency.expandTemplates(project: Project): Dependency = copy(
     scope = scope?.expandTemplate(project),
 )
 
-private fun String.expandTemplate(project: Project): String {
+internal fun Project.expandTemplates(): Project = copy(
+    packaging = packaging?.expandTemplate(this),
+    artifactId = artifactId?.expandTemplate(this),
+    groupId = groupId?.expandTemplate(this),
+    version = version?.expandTemplate(this),
+)
+
+internal fun String.expandTemplate(project: Project): String {
     if (!contains("\${") || !contains("}")) {
         return this
     }
@@ -368,6 +448,7 @@ private fun String.expandTemplate(project: Project): String {
             "groupId" -> project.groupId
             "artifactId" -> project.artifactId
             "version" -> project.version
+            "prerequisites.maven" -> project.prerequisites?.maven
             "parent.groupId" -> project.parent?.groupId
             "parent.artifactId" -> project.parent?.artifactId
             "parent.version" -> project.parent?.version

@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.readProjectModel
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
@@ -16,22 +15,15 @@ import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.fail
-import java.nio.file.LinkOption
 import java.nio.file.Path
-import java.util.jar.JarFile
-import kotlin.io.path.absolute
-import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class AmperBackendTest : AmperIntegrationTestBase() {
 
-    private suspend fun TestCollector.setupTestDataProject(
+    private fun TestCollector.setupTestDataProject(
         testProjectName: String,
         copyToTemp: Boolean = false,
     ): AmperBackend {
@@ -43,135 +35,14 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         val model = with(problemReporter) { 
             cliContext.projectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList()) 
         }
-            ?: error("Couldn't read project model for test project '$testProjectName'")
         if (problemReporter.problems.isNotEmpty()) {
-            fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n")}")
+            fail("Error(s) in the '$testProjectName' test project's model:\n${problemReporter.problems.joinToString("\n") { it.message }}")
         }
         return AmperBackend(
             context = cliContext,
             model = model,
             runSettings = AllRunSettings(),
             backgroundScope = backgroundScope,
-        )
-    }
-
-    @Test
-    fun `simple multiplatform cli sources jars`() = runTestWithCollector {
-        val backend = setupTestDataProject("simple-multiplatform-cli")
-
-        val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
-        backend.runTask(sourcesJarJvm)
-        val sourcesJarLinuxArm64Task = TaskName(":shared:sourcesJarLinuxArm64")
-        backend.runTask(sourcesJarLinuxArm64Task)
-        val sourcesJarLinuxX64Task = TaskName(":shared:sourcesJarLinuxX64")
-        backend.runTask(sourcesJarLinuxX64Task)
-        val sourcesJarMingwX64Task = TaskName(":shared:sourcesJarMingwX64")
-        backend.runTask(sourcesJarMingwX64Task)
-        val sourcesJarMacosArm64Task = TaskName(":shared:sourcesJarMacosArm64")
-        backend.runTask(sourcesJarMacosArm64Task)
-        val sourcesJarJsTask = TaskName(":shared:sourcesJarJs")
-        backend.runTask(sourcesJarJsTask)
-        val sourcesJarWasmJsTask = TaskName(":shared:sourcesJarWasmJs")
-        backend.runTask(sourcesJarWasmJsTask)
-        val sourcesJarWasmWasiTask = TaskName(":shared:sourcesJarWasmWasi")
-        backend.runTask(sourcesJarWasmWasiTask)
-
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarJvm) / "shared-jvm-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "jvmMain/",
-                "jvmMain/Jvm.java",
-                "jvmMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarLinuxArm64Task) / "shared-linuxarm64-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "linuxMain/",
-                "linuxMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarLinuxX64Task) / "shared-linuxx64-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "linuxMain/",
-                "linuxMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarMingwX64Task) / "shared-mingwx64-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "mingwMain/",
-                "mingwMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarMacosArm64Task) / "shared-macosarm64-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "macosMain/",
-                "macosMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarJsTask) / "shared-js-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "jsMain/",
-                "jsMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarWasmJsTask) / "shared-wasmjs-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "wasmJsMain/",
-                "wasmJsMain/World.kt",
-            )
-        )
-        assertJarFileEntries(
-            jarPath = backend.context.taskOutputPath(sourcesJarWasmWasiTask) / "shared-wasmwasi-sources.jar",
-            expectedEntries = listOf(
-                "META-INF/MANIFEST.MF",
-                "commonMain/",
-                "commonMain/World.kt",
-                "commonMain/program1.kt",
-                "commonMain/program2.kt",
-                "wasmWasiMain/",
-                "wasmWasiMain/World.kt",
-            )
         )
     }
 
@@ -297,20 +168,3 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         backend.runTask(compileMetadataJvmMain)
     }
 }
-
-private fun assertJarFileEntries(jarPath: Path, expectedEntries: List<String>) {
-    assertTrue(jarPath.existsCaseSensitive(), "Jar file $jarPath doesn't exist")
-    JarFile(jarPath.toFile()).use { jar ->
-        assertEquals(expectedEntries, jar.entries().asSequence().map { it.name }.toList())
-    }
-}
-
-private fun Path.existsCaseSensitive(): Boolean =
-    // toRealPath() ensures the case matches what's on disk even on Windows
-    exists() && absolute().normalize().pathString == toRealPath(LinkOption.NOFOLLOW_LINKS).pathString
-
-// This is not a public API, we're not supposed to know where the outputs are, but it's convenient to test
-// if the task output is correct. We might remove it later when the output of the tested tasks are actually
-// tested with their real-life usage. For instance, source jars will be tested as part of publication.
-private fun CliContext.taskOutputPath(taskName: TaskName): Path =
-    buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_")

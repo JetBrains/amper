@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.wasm
 
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
@@ -34,6 +35,7 @@ internal class WasmWasiLinkTask(
     tempRoot: AmperProjectTempRoot,
     isTest: Boolean,
     compileKLibTaskName: TaskName,
+    processRunner: ProcessRunner,
     buildType: BuildType? = null,
     kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
@@ -48,6 +50,7 @@ internal class WasmWasiLinkTask(
     tempRoot,
     isTest,
     buildType,
+    processRunner,
     compileKLibTaskName,
     kotlinArtifactsDownloader,
 ) {

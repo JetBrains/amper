@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.engine.RunTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
@@ -30,15 +30,16 @@ class IosRunTask(
     override val module: AmperModule,
     private val runSettings: MobileRunSettings,
     private val taskOutputPath: TaskOutputRoot,
+    private val processRunner: ProcessRunner,
 ) : RunTask {
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<IosBuildTask.Result>()
         if (platform.isIosSimulator) {
             val simulatorDevice = selectSimulatorDevice()
-            bootAndWaitSimulator(simulatorDevice, forceShowWindow = true)
-            installAppOnDevice(simulatorDevice.deviceId, builtApp.appPath)
-            launchAppOnDevice(simulatorDevice.deviceId, builtApp.bundleId)
+            processRunner.bootAndWaitSimulator(simulatorDevice, forceShowWindow = true)
+            processRunner.installAppOnDevice(simulatorDevice.deviceId, builtApp.appPath)
+            processRunner.launchAppOnDevice(simulatorDevice.deviceId, builtApp.bundleId)
         } else {
             // Physical device
             if (!checkAppIsSigned(builtApp.appPath)) {
@@ -49,8 +50,8 @@ class IosRunTask(
             val deviceId = runSettings.deviceId
                 ?: userReadableError("To run on a physical iOS device, the -d/--device-id argument must be specified.\n" +
                         "Use `xcrun devicectl list devices` command to see what devices are available.")
-            installAppOnPhysicalDevice(deviceId, builtApp.appPath)
-            launchAppOnPhysicalDevice(deviceId, builtApp.bundleId)
+            processRunner.installAppOnPhysicalDevice(deviceId, builtApp.appPath)
+            processRunner.launchAppOnPhysicalDevice(deviceId, builtApp.bundleId)
         }
         return EmptyTaskResult
     }
@@ -58,14 +59,14 @@ class IosRunTask(
     private suspend fun selectSimulatorDevice(): Device {
         val id = runSettings.deviceId
         return if (id != null) {
-            queryDevice(id) ?: userReadableError("Unable to find the iOS simulator with the specified id: `$id`")
+            processRunner.queryDevice(id) ?: userReadableError("Unable to find the iOS simulator with the specified id: `$id`")
         } else {
-            pickBestDevice() ?: userReadableError("Unable to detect any usable iOS simulator, check your environment")
+            processRunner.pickBestDevice() ?: userReadableError("Unable to detect any usable iOS simulator, check your environment")
         }
     }
 
     private suspend fun checkAppIsSigned(appPath: Path): Boolean {
-        return BuildPrimitives.runProcessAndGetOutput(
+        return processRunner.runProcessAndGetOutput(
             workingDir = Path("."),
             command = listOf("codesign", "-v", appPath.absolutePathString()),
             outputListener = ProcessOutputListener.NOOP,

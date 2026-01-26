@@ -5,7 +5,7 @@
 // @formatter:off
 //
 @file:Suppress(
-    "RedundantVisibilityModifier",
+    "REDUNDANT_VISIBILITY_MODIFIER",
     "CanConvertToMultiDollarString",
 )
 
@@ -40,7 +40,7 @@ public sealed class ShadowDependency : SchemaNode()
  * Generated!
  * Shadow for `org.jetbrains.amper.plugins.Classpath`
  */
-@SchemaDoc(doc = "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property.")
+@SchemaDoc(doc = "Use to get a resolved JVM classpath for the list of [dependencies].\n\nThe resulting classpath can be obtained via [resolvedFiles] property.\n\nTo conveniently get the classpath of the *current module* the plugin is applied to,\nyou can reference the provided values:\n- `${'$'}{module.runtimeClasspath}`\n- `${'$'}{module.compileClasspath}`")
 public class ShadowClasspath : SchemaNode() {
     @Shorthand
     @CanBeReferenced
@@ -127,7 +127,7 @@ public enum class ShadowResolutionScope(
 ) : SchemaEnum {
     @SchemaDoc(doc = "`runtime` maven-like dependency scope.\nIncludes the dependencies that must be present in the runtime classpath.")
     Runtime("runtime"),
-    @SchemaDoc(doc = "`compile` maven-like dependency scope.\nIncludes the dependencies that must be present in the compilation classpath.")
+    @SchemaDoc(doc = "`compile` maven-like dependency scope.\nIncludes the dependencies that must be present in the compilation classpath.\n\nDoes not include the module compilation results for [local dependencies][Dependency.Local].")
     Compile("compile"),
     ;
 }

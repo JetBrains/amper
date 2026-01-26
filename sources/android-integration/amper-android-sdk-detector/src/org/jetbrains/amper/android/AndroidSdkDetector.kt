@@ -5,8 +5,7 @@
 package org.jetbrains.amper.android
 
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.system.info.OsFamily
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -19,7 +18,7 @@ object AndroidSdkDetector {
 
     private fun getPathFromEnv(envVarName: String): Path? = System.getenv(envVarName)?.let { Path(it) }
 
-    private fun defaultSdkPath(): Path = when (DefaultSystemInfo.detect().family) {
+    private fun defaultSdkPath(): Path = when (OsFamily.current) {
         OsFamily.Windows -> Path(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
         OsFamily.MacOs -> Path(System.getProperty("user.home")).resolve("Library/Android/sdk")
         else -> Path(System.getProperty("user.home")).resolve("Android/Sdk")

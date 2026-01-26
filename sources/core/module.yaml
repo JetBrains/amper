@@ -5,9 +5,11 @@ apply:
   - ../used-in-idea.module-template.yaml
 
 dependencies:
+  - ../amper-telemetry
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
   - $libs.kotlinx.coroutines.core
   - $libs.apacheCommons.compress
@@ -15,8 +17,7 @@ dependencies:
   - $libs.ktor.client
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
-  - $libs.jna
   - $libs.jna.platform
 
 test-dependencies:
-  - uk.org.webcompere:system-stubs-jupiter:2.1.7
+  - $libs.system.stubs.jupiter

@@ -285,6 +285,7 @@ public final class DocType extends Content {
    * <code>DocType</code>
    */
   @Override
+  @SuppressWarnings("deprecation")
   public String toString() {
     return "[DocType: " + new XMLOutputter().outputString(this) + "]";
   }

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
@@ -16,7 +17,6 @@ import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.serializableKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.refinedFragments
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -36,6 +37,7 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -57,6 +59,7 @@ internal class MetadataCompileTask(
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase(), BuildTask {
 
     override val buildType: Nothing? get() = null
@@ -88,7 +91,7 @@ internal class MetadataCompileTask(
         val refinesPaths = fragment.refinedFragments.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
         val friendPaths = fragment.friends.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
 
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(jdkSettings = fragment.settings.jvm.jdk)
 
         val inputValues = mapOf(
             "jdk.version" to jdk.version,
@@ -180,7 +183,8 @@ internal class MetadataCompileTask(
             .setListAttribute("compiler-args", compilerArgs)
             .use {
                 logger.info("Compiling Kotlin metadata for module '${module.userReadableName}'...")
-                val result = jdk.runJava(
+                val result = processRunner.runJava(
+                    jdk = jdk,
                     workingDir = Path("."),
                     mainClass = "org.jetbrains.kotlin.cli.metadata.K2MetadataCompiler",
                     classpath = compilerJars,

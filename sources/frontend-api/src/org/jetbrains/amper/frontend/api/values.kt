@@ -4,12 +4,11 @@
 
 package org.jetbrains.amper.frontend.api
 
-import com.intellij.util.asSafely
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
-import kotlin.properties.ReadWriteProperty
+import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
@@ -21,7 +20,8 @@ typealias ValueHolders = MutableMap<String, ValueHolder<*>>
 
 data class ValueHolder<T>(
     val value: T,
-    val trace: Trace? = null,
+    val valueTrace: Trace,
+    val keyValueTrace: Trace,
 )
 
 /**
@@ -158,11 +158,10 @@ class SchemaValueDelegate<T>(
     val property: KProperty<*>,
     val default: Default<T>?,
     valueHolders: ValueHolders,
-) : Traceable, ReadWriteProperty<SchemaNode, T> {
+) : Traceable, ReadOnlyProperty<SchemaNode, T> {
     // We are creating lambdas here to prevent misusage of [valueHolders] from [SchemaValueDelegate].
     @Suppress("UNCHECKED_CAST") // What we put in valueHolders is checked up front
     private val valueGetter: () -> ValueHolder<T>? = { valueHolders[property.name] as ValueHolder<T>? }
-    private val valueSetter: (ValueHolder<T>?) -> Unit = { if (it != null) valueHolders[property.name] = it }
 
     val value: T
         get() {
@@ -179,18 +178,19 @@ class SchemaValueDelegate<T>(
         }
 
     override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
-    override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
-        if (value != null) {
-            valueSetter(ValueHolder(value, value.asSafely<Traceable>()?.trace))
-        }
-    }
 
     override val trace: Trace
-        get() = valueGetter()?.trace
+        get() = valueGetter()?.valueTrace
             ?: default?.trace
             // Not really "default" but rather "missing mandatory value".
             // It only happens for required properties (without default) that also don't have a value.
             ?: DefaultTrace
+
+    /**
+     * A trace to the whole `key: value` pair, if present.
+     */
+    val keyValueTrace: Trace
+        get() = valueGetter()?.keyValueTrace ?: DefaultTrace
 
     override fun toString(): String = "SchemaValue(property = ${property.fullyQualifiedName}, value = $value)"
 }
@@ -201,18 +201,21 @@ private val KProperty<*>.fullyQualifiedName: String
 
 private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
 
-@Suppress("UNCHECKED_CAST")
-fun <T, V> KProperty1<T, V>.schemaDelegate(receiver: SchemaNode): SchemaValueDelegate<V>? =
-    setAccessible().getDelegate(receiver as T) as? SchemaValueDelegate<V>
+fun <R, V> KProperty1<R, V>.schemaDelegate(receiver: R): SchemaValueDelegate<V> =
+    setAccessible().getDelegate(receiver)?.let {
+        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be V by definition of SchemaValueDelegate
+        it as SchemaValueDelegate<V>
+    } ?: error("Property $this should have a traceable schema delegate")
 
 /**
  * Returns the traceable [SchemaValueDelegate] of this property, or throws if this property isn't defined with such
  * a delegate. This should be used when this property is a schema property defined with a schema delegate.
  */
-@Suppress("UNCHECKED_CAST")
 val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
-    get() = setAccessible().getDelegate() as? SchemaValueDelegate<T>
-        ?: error("Property $this should have a traceable schema delegate")
+    get() = setAccessible().getDelegate()?.let {
+        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be T by definition of SchemaValueDelegate
+        it as SchemaValueDelegate<T>
+    } ?: error("Property $this should have a traceable schema delegate")
 
 /**
  * Whether this property is explicitly set in config files.

@@ -48,15 +48,21 @@ object StandardStreamsCapture {
         } finally {
             for ((stream, interception) in streamToInterception) {
                 stream.currentInterception = null
-
                 // Flush the remaining stuff if any
-                val remainingLines = interception.buffer.toString().lines()
-                remainingLines.forEachIndexed { i, line ->
-                    if (i != remainingLines.lastIndex || line.isNotEmpty()) {
-                        interception.onLine(line)
-                    }
-                }
+                flushAllRemaining(interception)
             }
+        }
+    }
+
+    private fun flushAllRemaining(interception: Interception) {
+        val remainingLines = interception.buffer.toString().lines()
+        remainingLines.forEachIndexed { i, line ->
+            if (i != remainingLines.lastIndex || line.isNotEmpty()) {
+                interception.onLine(line)
+            }
+        }
+        for (childInterception in interception.children) {
+            flushAllRemaining(childInterception)
         }
     }
 
@@ -66,6 +72,9 @@ object StandardStreamsCapture {
         // This doesn't have to be thread safe because it only is accessed from the single thread
         // that the instance is *local* to.
         var buffer = ByteArrayOutputStream()
+
+        // Interception objects, local to child threads
+        var children = mutableListOf<Interception>()
     }
 
     private class InterceptingOutputStream(
@@ -76,7 +85,12 @@ object StandardStreamsCapture {
         private val interceptionHolder = object : InheritableThreadLocal<Interception>() {
             override fun childValue(parentValue: Interception?): Interception? {
                 // Ensure each thread has its own buffer to write to
-                return parentValue?.let { Interception(onLine = it.onLine) }
+                return parentValue?.let {
+                    val child = Interception(onLine = it.onLine)
+                    // childValue is called in the parent thread, so there are no races here
+                    it.children += child
+                    child
+                }
             }
         }
 
@@ -155,20 +169,22 @@ private class PrintStreamWithUnlockedAutoFlush(
 
     // region override potentially flushing methods
 
+    @Suppress("KotlinArrayToString") // false positive?
     override fun print(s: CharArray) = super.print(s).also { if ('\n' in s) flush() }
     override fun print(s: String?) = super.print(s).also { if (s != null && '\n' in s) flush() }
     override fun print(obj: Any?) = print(obj.toString())
 
     override fun println() = super.println().also { flush() }
-    override fun println(x: Boolean) = super.println(x).also { flush() }
-    override fun println(x: Char) = super.println(x).also { flush() }
-    override fun println(x: Int) = super.println(x).also { flush() }
-    override fun println(x: Long) = super.println(x).also { flush() }
-    override fun println(x: Float) = super.println(x).also { flush() }
-    override fun println(x: Double) = super.println(x).also { flush() }
-    override fun println(x: CharArray) = super.println(x).also { flush() }
-    override fun println(x: String?) = super.println(x).also { flush() }
-    override fun println(x: Any?) = super.println(x).also { flush() }
+    override fun println(x: Boolean) = super.print(x).also { println() }
+    override fun println(x: Char) = super.print(x).also { println() }
+    override fun println(x: Int) = super.print(x).also { println() }
+    override fun println(x: Long) = super.print(x).also { println() }
+    override fun println(x: Float) = super.print(x).also { println() }
+    override fun println(x: Double) = super.print(x).also { println() }
+    @Suppress("KotlinArrayToString") // false positive?
+    override fun println(x: CharArray) = super.print(x).also { println() }
+    override fun println(x: String?) = super.print(x).also { println() }
+    override fun println(x: Any?) = super.print(x).also { println() }
 
     override fun format(format: String, vararg args: Any?) = apply { print(String.format(format, *args)) }
     override fun format(l: Locale, format: String, vararg args: Any?) = apply { print(String.format(l, format, *args)) }

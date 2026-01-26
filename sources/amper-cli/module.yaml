@@ -10,8 +10,10 @@ repositories:
 dependencies:
   - ../amper-build-info
   - ../amper-jdk-provisioning
+  - ../amper-maven-converter
   - ../amper-maven-publish
   - ../amper-project-templates
+  - ../amper-telemetry
   - ../amper-wrapper
   - ../core
   - ../core-intellij
@@ -23,12 +25,15 @@ dependencies:
   - ../libraries/compose-resources
   - ../libraries/concurrency
   - ../libraries/incremental-cache
+  - ../libraries/serialization-extended
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
   - ../libraries/xcode-model-ext
   - ../android-integration/amper-android-runner
   - ../android-integration/amper-android-sdk-detector
   - ../java-incremental-compilation/amper-jic-api
+  - ../amper-maven-plugins-compatibility
   - $libs.bouncycastle.bcprov # for keystore generation
   - $libs.bouncycastle.bcpkix # for keystore generation
   - $libs.intellij.amper.xcodemodel
@@ -44,7 +49,6 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $libs.opentelemetry.api
-  - $libs.opentelemetry.exporterLoggingOtlp
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin
@@ -75,6 +79,9 @@ dependencies:
   - $libs.ktor.server.sse
   - $libs.ktor.server.contentNegotiation
   - $libs.ktor.serialization.kotlinx.json
+  - $libs.maven.reporting
+  - $libs.maven.plugin.annotations
+  - $libs.maven.site.plugin
   - com.google.code.findbugs:jsr305:3.0.2
 
 test-dependencies:

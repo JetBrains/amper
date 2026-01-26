@@ -8,14 +8,13 @@ import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.SystemImageTags.GOOGLE_APIS_TAG
 import com.android.sdklib.devices.Abi
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraphBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -86,7 +85,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskName = prepareTaskName,
                     module = module,
                     buildType = buildType,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     androidSdkPath = androidSdkPath,
                     fragments = fragments,
                     projectRoot = context.projectRoot,
@@ -116,7 +115,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     module = module,
                     buildType = buildType,
                     isTest = false,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     androidSdkPath = androidSdkPath,
                     fragments = module.fragments.filter { !isTest && it.platforms.contains(platform) },
                     projectRoot = context.projectRoot,
@@ -139,7 +138,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             tasks.registerTask(
                 task = TransformAarExternalDependenciesTask(
                     taskName = CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     classpathExtractor = { it.runtimeClasspath }
                 ),
                 dependsOn = CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
@@ -152,7 +151,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         taskName = mockablePlatformJarTaskName,
                         module = module,
                         buildType = buildType,
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         androidSdkPath = androidSdkPath,
                         fragments = fragments,
                         projectRoot = context.projectRoot,
@@ -183,11 +182,12 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     userCacheRoot = context.userCacheRoot,
                     projectRoot = context.projectRoot,
                     taskName = compileTaskName,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     tempRoot = context.projectTempRoot,
                     platform = Platform.ANDROID,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
@@ -232,7 +232,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         module = module,
                         buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         platform = Platform.ANDROID,
                     ),
                     dependsOn = CommonTaskType.Compile.getTaskName(module, platform, false, buildType),
@@ -242,7 +242,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 tasks.registerTask(
                     task = AndroidAarTask(
                         taskName = aarTaskName,
-                        incrementalCache = incrementalCache,
+                        incrementalCache = context.incrementalCache,
                         module = module,
                         buildType = buildType,
                         taskOutputRoot = context.getTaskOutputPath(aarTaskName),
@@ -356,10 +356,11 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     taskOutputRoot = context.getTaskOutputPath(testTaskName),
                     terminal = context.terminal,
                     runSettings = runSettings,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     jdkProvider = context.jdkProvider,
                     platform = Platform.ANDROID,
                     buildType = buildType,
+                    processRunner = context.processRunner,
                 ),
                 dependsOn = listOf(
                     CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
@@ -387,7 +388,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 task = AndroidBundleTask(
                     module = module,
                     buildType = BuildType.Release,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     androidSdkPath = androidSdkPath,
                     fragments = fragments,
                     projectRoot = context.projectRoot,
@@ -468,7 +469,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
     val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: return
-    val abi = if (DefaultSystemInfo.detect().arch == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
+    val abi = if (Arch.current == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "system-images;android-$versionNumber;${GOOGLE_APIS_TAG.id};$abi",

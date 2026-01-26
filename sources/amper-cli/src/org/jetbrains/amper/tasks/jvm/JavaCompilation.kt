@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jic.JicCompilationRequest
@@ -20,6 +21,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.listDirectoryEntries
 
 internal suspend fun compileJavaWithJic(
+    processRunner: ProcessRunner,
     jdk: Jdk,
     module: AmperModule,
     isTest: Boolean,
@@ -54,9 +56,14 @@ internal suspend fun compileJavaWithJic(
         if (isDebugAgentPresent) {
             add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
         }
+
+        // There is a piece of code inside the jvm-inc-builder that calls an internal Sun API, namely
+        // sun.nio.fs.WindowsNativeDispatcher.FormatMessage
+        add("--add-opens=java.base/sun.nio.fs=ALL-UNNAMED")
     }
 
-    val result = jdk.runJava(
+    val result = processRunner.runJava(
+        jdk = jdk,
         workingDir = Path("."),
         mainClass = "org.jetbrains.amper.jic.JicMainKt",
         programArgs = emptyList(),

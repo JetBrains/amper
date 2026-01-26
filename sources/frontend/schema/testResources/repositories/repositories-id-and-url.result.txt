@@ -134,12 +134,6 @@ Repositories:
     resolve: true
     username: null
     password: null
-  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
-    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
-    publish: false
-    resolve: true
-    username: null
-    password: null
   - id: https://a.b
     url: https://a.b
     publish: false

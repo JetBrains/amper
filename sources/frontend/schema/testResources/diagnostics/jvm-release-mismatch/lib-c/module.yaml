@@ -4,4 +4,4 @@ product:
 
 settings:
   jvm:
-    <![Warning] Module android-app uses JVM release 21 (default) but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-a uses JVM release 11 but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-b uses JVM release 21 (default) but depends on module lib-c with a higher JVM release 24!>release: 24<!><!><!>
+    release: <![Warning] Module android-app uses JVM release 21 (default) but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-a uses JVM release 11 but depends on module lib-c with a higher JVM release 24!><![Warning] Module lib-b uses JVM release 21 (default) but depends on module lib-c with a higher JVM release 24!>24<!><!><!>

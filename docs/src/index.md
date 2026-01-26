@@ -18,7 +18,7 @@ or Ktor, multiplatform projects that share business logic and/or UI, and more.
 Amper should be invisible when you're working on your code – nobody likes dealing with the build tool.
 Ideally, you shouldn't have to leave your source files to adjust the build configuration.
 
-When you do edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
+When you _do_ edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
 
 We believe that this can be achieved by:
 
@@ -29,7 +29,8 @@ We believe that this can be achieved by:
 - carefully choosing the extensibility points – to keep the overall mental model and UX of the configuration consistent
   and to avoid unexpected third-party code execution.
 
-In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
+In essence, we aim to achieve a similar well-thought-out and well-tested experience as with 
+[:intellij-jetbrains: JetBrains IDEs](https://www.jetbrains.com/ides/).
 
 ## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://github.com/JetBrains#jetbrains-on-github)
 
@@ -46,23 +47,24 @@ We’re currently looking at various aspects, including extensibility, publicati
 * [x] Mixing Kotlin, Java, and Swift code
 * [x] Code assistance for [module files](user-guide/basics.md#module-file-anatomy) in IntelliJ IDEA
 * [x] [Multi-module](user-guide/basics.md#project-layout) projects
-* [x] [Compose Multiplatform](user-guide/builtin-tech/compose.md), with
-  [multiplatform resources](user-guide/builtin-tech/compose.md#using-multiplatform-resources) and
-  [Compose Hot Reload](user-guide/builtin-tech/compose.md#compose-hot-reload-experimental)
-* [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs-aka-version-catalogs)
+* [x] [Compose Multiplatform](user-guide/builtin-tech/compose-multiplatform.md), with
+  [multiplatform resources](user-guide/builtin-tech/compose-multiplatform.md#using-multiplatform-resources) and
+  [Compose Hot Reload](user-guide/builtin-tech/compose-multiplatform.md#compose-hot-reload-experimental)
+* [x] Integration with [Gradle version catalogs](user-guide/dependencies.md#library-catalogs)
+* [x] Extensibility (Preview)
 
 Future directions:
 
-* [ ] Extensibility
 * [ ] Packaging, publication, distribution
 * [ ] Maven migration
+* [ ] More features for extensibility
 * [ ] Platform-specific test types, including android instrumented tests.
 * [ ] Native dependencies support, such as CocoaPods, Swift Package Manager
 * [ ] Build variants support
 
 ## Issues and feedback
 
-Amper uses [:youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
+Amper uses [:jetbrains-youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
 [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
 You can also join the [:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.

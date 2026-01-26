@@ -1,3 +1,6 @@
+---
+description: A brief introduction to the YAML language used in Amper configuration files.
+---
 # Brief YAML primer
 
 Amper uses (a subset of) the YAML language for configuration files.

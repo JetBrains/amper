@@ -1,3 +1,6 @@
+---
+description: "Ready to try Amper? Choose the right approach for you: examples, tutorial, user guide..."
+---
 # Getting started
 
 Ready to try Amper? Choose the right approach for you:
@@ -26,7 +29,7 @@ Ready to try Amper? Choose the right approach for you:
 
     ---
 
-    Use `./amper init` from the [CLI](cli.md#installation), or create a new Amper project in IntelliJ IDEA.
+    Use `./amper init` from the [CLI](../cli/index.md#installation), or create a new Amper project in IntelliJ IDEA.
 
 </div>
 

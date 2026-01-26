@@ -34,34 +34,24 @@ internal enum class CommonFragmentTaskType(override val prefix: String) : Fragme
 }
 
 fun ProjectTasksBuilder.setupCommonTasks() {
+    val moduleDependenciesMap = model.modules.associateWith {
+        ModuleDependencies(it, context.userCacheRoot, context.incrementalCache)
+    }
     allModules()
         .alsoPlatforms()
         .alsoTests()
         .withEach {
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
-            val fragmentsCompileModuleDependencies =
-                module.buildDependenciesGraph(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot, incrementalCache)
-            val fragmentsRuntimeModuleDependencies = when {
-                platform.isDescendantOf(Platform.NATIVE) -> null  // The native world doesn't distinguish compile/runtime classpath
-                else -> module.buildDependenciesGraph(
-                    isTest,
-                    platform,
-                    ResolutionScope.RUNTIME,
-                    context.userCacheRoot,
-                    incrementalCache
-                )
-            }
             tasks.registerTask(
                 ResolveExternalDependenciesTask(
                     module = module,
                     userCacheRoot = context.userCacheRoot,
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     platform = platform,
                     isTest = isTest,
                     // for test code, we resolve dependencies on union of test and prod dependencies
                     fragments = fragmentsIncludeProduction,
-                    fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
-                    fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                    moduleDependencies = moduleDependenciesMap[module]!!,
                     taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
                 )
             )
@@ -76,9 +66,10 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                 fragment = it,
                 userCacheRoot = context.userCacheRoot,
                 taskOutputRoot = context.getTaskOutputPath(taskName),
-                incrementalCache = incrementalCache,
+                incrementalCache = context.incrementalCache,
                 tempRoot = context.projectTempRoot,
                 jdkProvider = context.jdkProvider,
+                processRunner = context.processRunner,
             )
         )
         // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)
@@ -108,7 +99,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     module = module,
                     platform = platform,
                     taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                 )
             )
         }

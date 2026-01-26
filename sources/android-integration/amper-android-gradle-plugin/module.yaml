@@ -6,13 +6,11 @@ apply:
 dependencies:
   - ../amper-android-gradle-api
   - ../amper-android-sdk-detector
-  - ../../core
-  - ../../core-intellij
   - ../../frontend-api
   - ../../frontend/schema
   - ../../libraries/stdlib-extended
   - $libs.android.gradle.plugin
-  - $libs.google.services.gradle.plugin
+  - $libs.google.services.gradle.plugin: runtime-only
   - $libs.gradle.api: compile-only
 
 settings:

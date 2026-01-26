@@ -4,99 +4,39 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
+import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 
 /**
- * This is a class responsible for merging several trees into one, moving [MapLikeValue.Property]s
- * as low in the final tree as possible.
- *
- * Note: [MergedTree] has an interesting property: If any value is overridden during refinement,
- * than overriding value is located within the same parent. Thus, any subtree can be refined
- * independently of other non-intersecting subtrees.
- *
- * Consider the following example:
- * ```yaml
- * # tree 1
- * foo:
- *   bar:
- *     baz: 42
- *
- * # tree 2
- * foo@jvm:
- *   bar@jvm:
- *     baz@jvm: 43
- *
- * # merged tree:
- * foo:
- *   bar:
- *     baz: 42
- *     baz@jvm: 43
- * ```
+ * Merges all the trees from the argument list.
  */
-class TreeMerger {
+fun mergeTrees(vararg trees: MappingNode) = mergeTrees(trees.toList())
 
-    /**
-     * Returns a [Merged] view of the given [tree].
-     */
-    fun mergeTrees(tree: MapLikeValue<*>): Merged = tree.mergeSingle() as Merged
+/**
+ * Merges (joins) all given [MappingNode]s into a single value.
+ * The [trace][MappingNode.trace] is merged by adding each tree's trace as a preceding value.
+ *
+ * NOTE: The resulting tree node will have no contexts.
+ *
+ * @param trees input trees to merge. Must not be empty.
+ */
+fun mergeTrees(trees: List<MappingNode>): MappingNode {
+    require(trees.isNotEmpty()) { "Cannot merge empty list of trees" }
+    if (trees.size == 1) return trees.single()
 
-    /**
-     * Merges the given [trees] into one.
-     *
-     * Intermediate nodes that appear in several trees are merged by recursively merging the corresponding subtrees.
-     *
-     * Leaf properties that are present in several trees are all kept together in the resulting tree.
-     * This means that the same property with the same key can appear several times in the resulting tree.
-     * It's the role of the [TreeRefiner] to remove duplicate properties later.
-     */
-    // TODO Optimize; Do not copy when it is unnecessary.
-    fun mergeTrees(trees: List<MapLikeValue<*>>): Merged {
-        if (trees.size == 1) return trees.first().mergeSingle() as Merged
-        val firstTree = trees.first()
+    val allChildren = trees.flatMap { it.children }
+    val trace = trees.fold(DefaultTrace as Trace) { acc, tree ->
+        if (acc.isDefault) tree.trace else acc.withPrecedingValue(tree)
+    }
+    return MappingNode(
+        children = allChildren,
         // TODO Maybe check that we are merging (or within same hierarchy) types?
-        val allChildren = trees.flatMap { it.children }
-        val (mapLike, other) = allChildren.partitionMapLike()
-        val otherMerged = other.map { it.mergeSingle() }
-        val mapLikeMerged = mapLike.mergeProperties()
-        val firstNonDefault = trees.firstOrNull { !it.trace.isDefault } ?: firstTree
-        return Merged(
-            children = mapLikeMerged + otherMerged,
-            type = firstNonDefault.type,
-            trace = firstNonDefault.trace,
-            contexts = EmptyContexts,
-        )
-    }
-
-    // TODO Optimize; Do not copy when it is unnecessary.
-    private fun TreeValue<*>.mergeSingle(): MergedTree = when (this) {
-        is NullValue,
-        is ScalarValue,
-        is ReferenceValue,
-        is StringInterpolationValue,
-        is ErrorValue -> @Suppress("UNCHECKED_CAST") (this as MergedTree)
-        is ListValue -> ListValue(children.map { it.mergeSingle() }, type, trace, contexts) as MergedTree
-        is MapLikeValue -> {
-            val (mapLike, other) = children.partitionMapLike()
-            val mapLikeMerged = mapLike.mergeProperties()
-            val otherMerged = other.map { it.mergeSingle() }
-            Merged(children = mapLikeMerged + otherMerged, type, trace, EmptyContexts)
-        }
-    }
-
-    private fun MapLikeValue.Property<*>.mergeSingle() =
-        MapLikeValue.Property(key, kTrace, value.mergeSingle(), pType)
-
-    private fun List<MapProperty<*>>.mergeProperties() = groupBy { it.key }.map { (key, group) ->
-        val pType = group.first().pType // Every group has at least one element.
-        val kTrace = group.first().kTrace //FIXME Need to figure out what trace is in the merged property.
-        MapProperty(key, kTrace, mergeTrees(group.map { it.value }), pType)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun List<MapLikeValue.Property<*>>.partitionMapLike() = run {
-        val mapLikeChildren = filter { it.value is MapLikeValue<*> } as List<MapProperty<*>>
-        val otherChildren = filter { it.value !is MapLikeValue<*> }
-        mapLikeChildren to otherChildren
-    }
+        type = trees.first().type,
+        trace = trace,
+        // Note: all the children already have the necessary contexts
+        contexts = EmptyContexts,
+    )
 }

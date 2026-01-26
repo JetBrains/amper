@@ -22,23 +22,20 @@ import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
-// TODO Use the configured JDK version when it becomes configurable. For now we hardcoded 21 in the backend
-private val DefaultJdkVersion = 21
-
 object JvmReleaseLowerThanDependencies : AomModelDiagnosticFactory {
 
     override fun analyze(model: Model, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace>()
         model.modules.forEach { module ->
-            // A null JVM release means we use the JDK's default source/target/release configuration
-            val thisJvmRelease = module.jvmRelease() ?: DefaultJdkVersion
+            val thisJvmRelease = module.jvmReleaseOrJdkVersion() ?: return // null means no fragments, module is broken
             module.fragments
                 // No need to warn for tests fragments, because any real problem would be noticed during the tests
                 .filter { !it.isTest && it.platforms.any(Platform::isAffectedByJvmRelease) }
                 .flatMap { it.externalDependencies }
                 .filterIsInstance<LocalModuleDependency>()
                 .forEach { dep ->
-                    val depJvmRelease = dep.module.jvmRelease() ?: DefaultJdkVersion
+                    // null means no fragments, module is broken
+                    val depJvmRelease = dep.module.jvmReleaseOrJdkVersion() ?: return@forEach
                     if (depJvmRelease > thisJvmRelease && reportedPlaces.add(dep.trace)) {
                         problemReporter.reportMessage(
                             JvmReleaseTooLowForDependency(
@@ -96,8 +93,12 @@ class JvmReleaseTooLowForDependency(
     }
 }
 
+/**
+ * Returns the release version targeted in this module, or null if the module doesn't have any fragment.
+ */
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
-private fun AmperModule.jvmRelease(): Int? = fragments.firstOrNull()?.settings?.jvm?.release
+private fun AmperModule.jvmReleaseOrJdkVersion(): Int? =
+    fragments.firstOrNull()?.settings?.jvm?.let { it.release ?: it.jdk.version }
 
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
 private fun AmperModule.jvmReleasePsiElement(): PsiElement? =

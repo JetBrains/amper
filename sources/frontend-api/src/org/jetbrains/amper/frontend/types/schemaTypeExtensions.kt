@@ -145,6 +145,6 @@ fun <T : SchemaType> T.withNullability(
         is SchemaType.StringType -> copy(isMarkedNullable = isMarkedNullable)
         is SchemaType.VariantType -> copy(isMarkedNullable = isMarkedNullable)
     }
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST") // the validity of this cast is enforced by each copy() function
     return copy as T
 }

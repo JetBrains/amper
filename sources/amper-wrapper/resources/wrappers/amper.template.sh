@@ -12,6 +12,7 @@
 #   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 #   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 #   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
+#   AMPER_NO_WELCOME_BANNER    Disables the first-run welcome message if set to a non-empty value
 
 set -e -u
 
@@ -82,7 +83,7 @@ download_and_extract() {
     return 0;
   fi
 
-  if [ "$show_banner_on_cache_miss" = "true" ]; then
+  if [ "$show_banner_on_cache_miss" = "true" ] && [ -z "${AMPER_NO_WELCOME_BANNER:-}" ]; then
       echo
       echo '        _____  Welcome to                                  '
       echo '       /:::::|  ____   ___     ____      ____    __  ___   '
@@ -248,19 +249,21 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
 
   download_and_extract "Amper runtime v$zulu_version" "$jre_url" "$jre_sha256" 256 "$amper_cache_dir" "$jre_target_dir" "false"
 
-  AMPER_JAVA_HOME=
+  effective_amper_java_home=
   for d in "$jre_target_dir" "$jre_target_dir"/* "$jre_target_dir"/Contents/Home "$jre_target_dir"/*/Contents/Home; do
     if [ -e "$d/bin/java" ]; then
-      AMPER_JAVA_HOME="$d"
+      effective_amper_java_home="$d"
     fi
   done
 
-  if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
+  if [ "x${effective_amper_java_home:-}" = "x" ]; then
     die "Unable to find bin/java under $jre_target_dir"
   fi
+else
+  effective_amper_java_home="$AMPER_JAVA_HOME"
 fi
 
-java_exe="$AMPER_JAVA_HOME/bin/java"
+java_exe="$effective_amper_java_home/bin/java"
 if [ '!' -x "$java_exe" ]; then
   die "Unable to find bin/java executable at $java_exe"
 fi

@@ -4,17 +4,11 @@
 
 package org.jetbrains.amper.tasks.maven
 
-import org.eclipse.aether.impl.ArtifactResolver
-import org.eclipse.aether.impl.DependencyCollector
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.tree.Refined
-import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.asMapLikeAndGet
 import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
-import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -44,7 +38,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
     KnownMavenPhase.entries.forEach { phase ->
         taskBuilder.tasks.registerTask(
             task = phase.createTask(),
-            dependsOn = phase.dependsOn.map { it.taskName },
+            dependsOn = listOfNotNull(phase.dependsOn?.taskName),
         )
     }
 
@@ -83,16 +77,20 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
 
 context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupMavenPluginTasks() {
-    val drBridge = AmperMavenDRBridge(MavenResolver(taskBuilder.context.userCacheRoot, incrementalCache))
-
     module.amperMavenPluginsDescriptions.forEach plugin@{ pluginXml ->
         // TODO What actual classloader to place here? Do we even need maven mojos to be aware of
         //  amper classes? Should classes be shared between different maven mojos/plugins?
         //  Even instances of plexus beans that are discovered on the classpath?
-        val container = createPlexusContainer()
-
-        container.addDefaultComponent<DependencyCollector>(drBridge)
-        container.addDefaultComponent<ArtifactResolver>(drBridge)
+        val container = createPlexusContainer(KnownMavenPhase::class.java.classLoader)
+        
+        // Adjust the Maven API class loader (that is used as a "parent" for plugin classloaders) 
+        // so that classes that are already on the Amper classpath won't be loaded twice for 
+        // plugins that depend on these classes.
+        container.classRealmManager.mavenApiRealm.apply {
+            importFrom(container.containerRealm, "org.apache.maven.doxia")
+            importFrom(container.containerRealm, "org.apache.maven.reporting")
+            importFrom(container.containerRealm, "org.apache.velocity")
+        }
 
         val moduleMavenProject = MockedMavenProject()
 
@@ -138,13 +136,11 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
 
         // Register mojo execution tasks and link them to the phases.
         mojoTasks.forEach { mojoTask ->
-            // Skip mojos without known phases for now.
-            val phase = KnownMavenPhase.entries.singleOrNull { it.name == mojoTask.mojo.phase } ?: return@forEach
             taskBuilder.tasks.registerTask(mojoTask)
+            // Set the verify phase as default, so it will set up basic knowledge about the project for maven.
+            val phase = KnownMavenPhase.entries.singleOrNull { it.name == mojoTask.mojo.phase } ?: KnownMavenPhase.verify
             taskBuilder.tasks.registerDependency(phase.taskName, mojoTask.taskName)
-            phase.dependsOn.forEach { taskBuilder.tasks.registerDependency(mojoTask.taskName, it.taskName) }
+            phase.dependsOn?.let { taskBuilder.tasks.registerDependency(mojoTask.taskName, it.taskName) }
         }
     }
 }
-
-operator fun TreeValue<Refined>?.get(property: String) = this?.asMapLikeAndGet(property)

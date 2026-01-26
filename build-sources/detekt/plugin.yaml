@@ -1,0 +1,16 @@
+tasks:
+  analyze:
+    action: !org.jetbrains.amper.plugins.detekt.runDetectForOutput
+      commonParameters:
+        settings: ${pluginSettings}
+        sources: ${module.kotlinJavaSources}
+        moduleClasspath: ${module.compileClasspath}
+        detektClasspath:
+          - io.gitlab.arturbosch.detekt:detekt-cli:1.23.8
+      baselineFile: ${module.rootDir}/detekt/baseline.xml
+      outputXmlReport: ${taskOutputDir}/report.xml
+
+  updateBaseline:
+    action: !org.jetbrains.amper.plugins.detekt.runDetectForBaseline
+      commonParameters: ${analyze.action.commonParameters}
+      outputBaselineFile: ${analyze.action.baselineFile}

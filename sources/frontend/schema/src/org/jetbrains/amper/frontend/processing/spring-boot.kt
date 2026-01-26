@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.frontend.processing
 
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
@@ -20,48 +18,47 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.NoArgPreset
 import org.jetbrains.amper.frontend.schema.NoArgSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.SpringBootSettings
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
-import org.jetbrains.amper.frontend.tree.Merged
-import org.jetbrains.amper.frontend.tree.asMapLike
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 
-context(buildCtx: BuildCtx)
-internal fun Merged.configureSpringBootDefaults(moduleCtxModule: Module) =
-    if (moduleCtxModule.settings.springBoot.enabled) {
+context(_: SchemaTypingContext)
+internal fun MappingNode.configureSpringBootDefaults(springBootSettings: SpringBootSettings) =
+    if (springBootSettings.enabled) {
         val springBootEnabledDefault = TransformedValueTrace(
             description = "because Spring Boot is enabled",
-            sourceValue = moduleCtxModule.settings.springBoot::enabled.schemaDelegate,
+            sourceValue = springBootSettings::enabled.schemaDelegate,
         )
 
         val springBootApplyBomDefault = TransformedValueTrace(
             description = "because applyBom=true",
-            sourceValue = moduleCtxModule.settings.springBoot::applyBom.schemaDelegate,
+            sourceValue = springBootSettings::applyBom.schemaDelegate,
         )
-        val applyBom = moduleCtxModule.settings.springBoot.applyBom
-        val springBootVersion = moduleCtxModule.settings.springBoot.version
-        buildCtx
-            .treeMerger
-            .mergeTrees(
-                listOfNotNull(
-                    asMapLike,
-                    buildCtx.springBootDefaultsTree(
-                        applyBom,
-                        springBootVersion,
-                        springBootEnabledDefault,
-                        springBootApplyBomDefault,
-                    ),
-                )
-            )
+        val applyBom = springBootSettings.applyBom
+        val springBootVersion = springBootSettings.version
+        mergeTrees(
+            this,
+            springBootDefaultsTree(
+                applyBom,
+                springBootVersion,
+                springBootEnabledDefault,
+                springBootApplyBomDefault,
+            ),
+        )
     } else {
         this
     }
 
-private fun BuildCtx.springBootDefaultsTree(
+context(_: SchemaTypingContext)
+private fun springBootDefaultsTree(
     applyBom: Boolean,
     springBootVersion: String,
     springBootEnabledTrace: Trace,
     springBootApplyBomTrace: Trace,
-) = syntheticBuilder(types, springBootEnabledTrace) {
+) = syntheticBuilder(springBootEnabledTrace) {
     `object`<Module> {
         Module::settings {
             Settings::kotlin {
@@ -73,7 +70,7 @@ private fun BuildCtx.springBootDefaultsTree(
                     NoArgSettings::enabled setTo scalar(true)
                     NoArgSettings::presets { add(scalar(NoArgPreset.Jpa)) }
                 }
-                KotlinSettings::freeCompilerArgs { add(scalar(TraceableString("-Xjsr305=strict", springBootEnabledTrace))) }
+                KotlinSettings::freeCompilerArgs { add(traceableScalar("-Xjsr305=strict", springBootEnabledTrace)) }
             }
             if (applyBom) {
                 Settings::java {

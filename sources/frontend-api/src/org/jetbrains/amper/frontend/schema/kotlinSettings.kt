@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
@@ -75,38 +74,62 @@ enum class NoArgPreset(override val schemaValue: String, override val outdated: 
 class NoArgSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enables the Kotlin no-arg compiler plugin")
-    var enabled by value(false)
+    val enabled by value(false)
 
     @SchemaDoc("List of annotations that trigger no-arg constructor generation. Classes annotated with these annotations will have a no-arg constructor generated.")
-    var annotations by nullableValue<List<TraceableString>>()
+    val annotations by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("Whether to call initializers in the synthesized constructor. By default, initializers are not called.")
-    var invokeInitializers by value(false)
+    val invokeInitializers by value(false)
     
     @SchemaDoc("Predefined sets of annotations. Currently only 'jpa' preset is supported, which automatically includes JPA entity annotations.")
-    var presets by nullableValue<List<NoArgPreset>>()
+    val presets by nullableValue<List<NoArgPreset>>()
 }
 
 class AllOpenSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enables the Kotlin all-open compiler plugin")
-    var enabled by value(false)
+    val enabled by value(false)
 
     @SchemaDoc("List of annotations that trigger open class/method generation. Classes/methods annotated with these annotations will be automatically made open.")
-    var annotations by nullableValue<List<TraceableString>>()
+    val annotations by nullableValue<List<TraceableString>>()
     
     @SchemaDoc("Predefined sets of annotations for common frameworks. Each preset automatically includes annotations specific to that framework.")
-    var presets by nullableValue<List<AllOpenPreset>>()
+    val presets by nullableValue<List<AllOpenPreset>>()
+}
+
+class JsPlainObjectsSettings : SchemaNode() {
+    @Shorthand
+    @SchemaDoc("Enables the Kotlin JS plain objects compiler plugin")
+    val enabled by value(false)
 }
 
 class PowerAssertSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enables the Kotlin power-assert compiler plugin")
-    var enabled by value(false)
+    val enabled by value(false)
 
     @SchemaDoc("A list of fully-qualified function names that the Power-assert plugin should transform. " +
             "If not specified, only kotlin.assert() calls will be transformed by default.")
-    var functions by value(listOf(TraceableString("kotlin.assert", DefaultTrace)))
+    val functions by value(listOf(TraceableString("kotlin.assert", DefaultTrace)))
+}
+
+class KotlinxRpcSettings : SchemaNode() {
+    @Shorthand
+    @SchemaDoc("Enables the kotlinx.rpc compiler plugin")
+    val enabled by value(false)
+
+    @SchemaDoc("Applies the kotlinx.rpc BOM to enforce dependency version alignment")
+    val applyBom by value(true)
+
+    @SchemaDoc("The version of kotlinx.rpc to use")
+    val version by value(DefaultVersions.kotlinxRpc)
+
+    @SchemaDoc("Controls `@Rpc` [annotation type-safety](https://github.com/Kotlin/kotlinx-rpc/pull/240) " +
+            "compile-time checkers.\n" +
+            "CAUTION: Disabling is considered unsafe. This option is only needed to prevent cases where type-safety " +
+            "analysis fails and valid code can't be compiled.")
+    val annotationTypeSafetyEnabled by value(true)
 }
 
 class KotlinSettings : SchemaNode() {
@@ -114,65 +137,66 @@ class KotlinSettings : SchemaNode() {
     @PlatformAgnostic
     @Misnomers("compiler")
     @SchemaDoc("The version of the Kotlin compiler and standard library to use")
-    var version by value(UsedVersions.defaultKotlinVersion)
+    val version by value(DefaultVersions.kotlin)
 
     @CanBeReferenced  // by apiVersion
     @PlatformAgnostic
     @Misnomers("language-version")
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
-    var languageVersion by nullableValue<KotlinVersion>()
+    val languageVersion by nullableValue<KotlinVersion>()
 
     @PlatformAgnostic
     @Misnomers("api-version", "sdkVersion", "sdk")
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
-    var apiVersion by dependentValue(::languageVersion)
+    val apiVersion by dependentValue(::languageVersion)
 
     @Misnomers("Werror")
     @SchemaDoc("Turn any warnings into a compilation error")
-    var allWarningsAsErrors by value(false)
+    val allWarningsAsErrors by value(false)
 
     @Misnomers("compilation", "arguments", "options")
     @SchemaDoc("Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly")
-    var freeCompilerArgs by nullableValue<List<TraceableString>>()
+    val freeCompilerArgs by nullableValue<List<TraceableString>>()
 
     @Misnomers("nowarn")
     @SchemaDoc("Suppress the compiler from displaying warnings during compilation")
-    var suppressWarnings by value(false)
+    val suppressWarnings by value(false)
 
     @SchemaDoc("Enables verbose logging output which includes details of the compilation process")
-    var verbose by value(false)
+    val verbose by value(false)
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
             "Additional arguments to pass to the linker during binary building.")
     @PlatformSpecific(Platform.NATIVE)
     @Misnomers("linkerOpts", "arguments")
-    var linkerOptions by nullableValue<List<TraceableString>>()
+    val linkerOptions by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
             "Enables emitting debug information. Enabled in debug variants by default.")
     @PlatformSpecific(Platform.NATIVE)
-    var debug by nullableValue<Boolean>()
+    val debug by nullableValue<Boolean>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) " +
             "Enables compilation optimizations and produce a binary with better runtime performance. " +
             "Enabled in release variants by default.")
     @PlatformSpecific(Platform.NATIVE)
-    var optimization by nullableValue<Boolean>()
+    val optimization by nullableValue<Boolean>()
 
     @SchemaDoc("Enables the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
-    var progressiveMode by value(false)
+    val progressiveMode by value(false)
 
     // TODO Add doc
     // @SchemaDoc("")
-    var languageFeatures by nullableValue<List<TraceableString>>()
+    val languageFeatures by nullableValue<List<TraceableString>>()
     
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
-    var optIns by nullableValue<List<TraceableString>>()
+    val optIns by nullableValue<List<TraceableString>>()
 
     @StandaloneSpecific
     @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
     val ksp: KspSettings by nested()
 
+    @Misnomers("kotlinx", "kotlinx-serialization", "kotlinx.serialization")
     @PlatformAgnostic
     @SchemaDoc("Configure [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
     val serialization: SerializationSettings by nested()
@@ -185,7 +209,16 @@ class KotlinSettings : SchemaNode() {
     @SchemaDoc("Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html)")
     val allOpen: AllOpenSettings by nested()
 
+    @PlatformSpecific(Platform.JS)
+    @SchemaDoc("Configure the [Kotlin JS plain objects compiler plugin](https://kotlinlang.org/docs/js-plain-objects.html)")
+    val jsPlainObjects: JsPlainObjectsSettings by nested()
+
     @PlatformAgnostic
     @SchemaDoc("Configure the [Kotlin power-assert compiler plugin](https://kotlinlang.org/docs/power-assert.html)")
     val powerAssert: PowerAssertSettings by nested()
+
+    @Misnomers("kotlinx", "kotlinx-rpc", "kotlinx.rpc")
+    @PlatformAgnostic
+    @SchemaDoc("Configure the [kotlinx.rpc compiler plugin](https://kotlin.github.io/kotlinx-rpc/)")
+    val rpc: KotlinxRpcSettings by nested()
 }

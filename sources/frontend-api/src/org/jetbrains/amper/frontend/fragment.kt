@@ -1,18 +1,19 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
+import java.util.*
 
 /**
- * Some part of the module that supports "single resolve context" invariant for
- * every source and resource file that is included.
+ * A part of a module containing its own sources, resources, dependencies, and even toolchain settings.
+ *
+ * It must respect the *single resolution context* invariant: every source file can be analyzed with a specific set of
+ * dependencies that doesn't depend on, say, which platform we're compiling against.
  */
 interface Fragment {
     /**
@@ -22,6 +23,8 @@ interface Fragment {
 
     /**
      * The modifier that can be used in the build file or in the source directories names to refer to this fragment.
+     *
+     * Example: `@mingwX64` is the modifier used in the source directory name `src@mingwX64` for the Windows fragment.
      */
     val modifier: String
 
@@ -62,18 +65,12 @@ interface Fragment {
     val isTest: Boolean
 
     /**
-     * Is this fragment is chosen by default when
-     * no variants are specified?
-     */
-    val isDefault: Boolean
-
-    /**
-     * Sources directories
+     * Sources directories.
      */
     val sourceRoots: List<Path>
 
     /**
-     * Resources directories
+     * Resources directories.
      */
     val resourcesPath: Path
 
@@ -107,6 +104,42 @@ interface Fragment {
 }
 
 /**
+ * A dependency between fragments.
+ */
+interface FragmentLink {
+    val target: Fragment
+    val type: FragmentDependencyType
+}
+
+/**
+ * A type that describes the relation between a fragment and the fragment it depends on.
+ */
+enum class FragmentDependencyType {
+    /**
+     * When fragment A depends on B with a "refines" relationship, it means A can define `actual` declarations for the
+     * `expect` declarations of B.
+     */
+    REFINE,
+    /**
+     * When fragment A depends on B with a "friends" relationship, it means A can see `internal` declarations from B.
+     * Note: this relation is not symmetric.
+     */
+    FRIEND,
+}
+
+/**
+ * A [Fragment] that has exactly one target platform.
+ *
+ * There is a one-to-one mapping between leaf fragments and platform-specific artifacts.
+ */
+interface LeafFragment : Fragment {
+    /**
+     * The single platform that this fragment is compiled to.
+     */
+    val platform: Platform
+}
+
+/**
  * Fragments (within the same module) that this fragment depends on with the FRIEND relationship.
  * Internal declarations from these fragments will be visible despite the independent compilation.
  */
@@ -122,18 +155,7 @@ val Fragment.refinedFragments: List<Fragment>
     get() = fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.map { it.target }
 
 /**
- * The fragment together with all fragments (within the same module) that this fragment depends on with the REFINE relationship transitively.
- * The fragment depends on all external dependencies declared for its complete refined fragments as well as on its own.
- */
-val Fragment.withAllFragmentDependencies: Sequence<Fragment>
-    get() = allFragmentDependencies(true)
-
-
-private val Fragment.directModuleCompileDependencies: List<AmperModule>
-    get() = externalDependencies.filterIsInstance<LocalModuleDependency>().filter { it.compile }.map { it.module }
-
-/**
- * Source fragments (not Maven) that this fragment depends on with compile scope.
+ * Source fragments (not Maven) that this fragment depends on with `compile` scope.
  *
  * This includes fragment dependencies from the same module, but also fragments from "external" source module
  * dependencies that support a superset of the platforms.
@@ -157,73 +179,8 @@ val Fragment.allSourceFragmentCompileDependencies: List<Fragment>
         return fragmentsFromThisModule + fragmentsFromOtherModules
     }
 
-/**
- * Leaf fragment must have only one platform.
- * Also, it should contain parts, that are specific
- * for concrete artifacts.
- *
- * Each result artifact is specified by single leaf fragment
- * (Except for KMP libraries).
- */
-interface LeafFragment : Fragment {
-    val platform: Platform
-}
-
-sealed interface Notation : Traceable
-
-interface DefaultScopedNotation : Notation {
-    val compile: Boolean get() = true
-    val runtime: Boolean get() = true
-    val exported: Boolean get() = false
-}
-
-interface LocalModuleDependency : DefaultScopedNotation {
-    val module: AmperModule
-}
-
-sealed interface MavenDependencyBase : Notation {
-    val coordinates: MavenCoordinates
-}
-
-data class MavenCoordinates(
-    val groupId: String,
-    val artifactId: String,
-    val version: String?,
-    val classifier: String? = null,
-    override val trace: Trace,
-) : Traceable {
-    override fun toString() = buildString {
-        append(groupId).append(':').append(artifactId)
-        version?.let { append(':').append(it) }
-        classifier?.let { append(':').append(it) }
-    }
-}
-
-data class MavenDependency(
-    override val coordinates: MavenCoordinates,
-    override val trace: Trace,
-    override val compile: Boolean = true,
-    override val runtime: Boolean = true,
-    override val exported: Boolean = false,
-) : MavenDependencyBase, DefaultScopedNotation
-
-data class BomDependency(
-    override val coordinates: MavenCoordinates,
-    override val trace: Trace,
-) : MavenDependencyBase
-
-enum class FragmentDependencyType {
-    REFINE, FRIEND,
-}
-
-/**
- * Dependency between fragments.
- * Can differ by type (refines dependency, test on sources dependency, etc.).
- */
-interface FragmentLink {
-    val target: Fragment
-    val type: FragmentDependencyType
-}
+private val Fragment.directModuleCompileDependencies: List<AmperModule>
+    get() = externalDependencies.filterIsInstance<LocalModuleDependency>().filter { it.compile }.map { it.module }
 
 /**
  * Returns the path to the single source root directory of this [Fragment], or fails if there is more than one.
@@ -233,3 +190,54 @@ interface FragmentLink {
  */
 fun Fragment.singleSourceRoot(reason: String): Path =
     sourceRoots.singleOrNull() ?: error("Expected a single source root in fragment '$name' ($reason). Got:\n${sourceRoots.joinToString("\n")}")
+
+/**
+ * Returns all fragments that this fragment depends on transitively, in DFS order.
+ */
+fun Fragment.allFragmentDependencies(includeSelf: Boolean = false): Sequence<Fragment> = sequence {
+    if (includeSelf) {
+        yield(this@allFragmentDependencies)
+    }
+    val traversed = hashSetOf<FragmentLink>()
+    val stack = ArrayList(fragmentDependencies)
+    while (stack.isNotEmpty<FragmentLink>()) {
+        val link = stack.removeLast()
+        if (traversed.add(link)) {
+            yield(link.target)
+            stack.addAll(link.target.fragmentDependencies)
+        }
+    }
+}
+
+/**
+ * Returns the path from this [Fragment] to its farthest ancestor (more general parents).
+ * Closer parents appear first, even when they're on different paths (BFS order).
+ *
+ * Example:
+ * ```
+ *      common
+ *      /    \
+ *  desktop  apple
+ *      \    /
+ *     macosX64
+ * ```
+ * In this situation calling [ancestralPath] on `macosX64` yields `[macosX64, desktop, apple, common]`.
+ * The order between `desktop` and `apple` is unspecified.
+ */
+fun Fragment.ancestralPath(): Sequence<Fragment> = sequence {
+    val seenAncestorNames = mutableSetOf<String>()
+
+    val queue = ArrayDeque<Fragment>()
+    queue.add(this@ancestralPath)
+    while (queue.isNotEmpty()) {
+        val fragment = queue.removeFirst()
+        yield(fragment)
+        fragment.fragmentDependencies.forEach { link ->
+            val parent = link.target
+            if (parent.name !in seenAncestorNames) {
+                queue.add(parent)
+                seenAncestorNames.add(parent.name)
+            }
+        }
+    }
+}

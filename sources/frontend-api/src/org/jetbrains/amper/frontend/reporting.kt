@@ -51,6 +51,8 @@ fun ProblemReporter.reportBundleError(
 
 fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = schemaDelegate.trace.asBuildProblemSource()
 
+fun KProperty0<*>.keyValueAsBuildProblemSource(): BuildProblemSource = schemaDelegate.keyValueTrace.asBuildProblemSource()
+
 fun Traceable.asBuildProblemSource(): BuildProblemSource = trace.asBuildProblemSource()
 
 @OptIn(NonIdealDiagnostic::class)

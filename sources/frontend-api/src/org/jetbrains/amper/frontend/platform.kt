@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.buildinfo.AmperBuild
 import org.jetbrains.amper.frontend.Platform.Companion.naturalHierarchy
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -100,7 +101,7 @@ enum class Platform(
 
     companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {
 
-        val docsUrl = "https://jetbrains.github.io/amper/documentation#multiplatform-projects"
+        const val docsUrl = "${AmperBuild.documentationUrl}/user-guide/multiplatform/#supported-platforms"
 
         val leafPlatforms: Set<Platform> = Platform.values.filterTo(mutableSetOf()) { it.isLeaf }
 

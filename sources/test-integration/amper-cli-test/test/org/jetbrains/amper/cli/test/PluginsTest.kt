@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.normalizeLineSeparators
@@ -69,15 +69,15 @@ class PluginsTest : AmperCliTestBase() {
             classpath base.dependencies = [{modulePath: $projectRoot/app}]
             classpath base.dependencies[0] = {modulePath: $projectRoot/app}
             classpath base.dependencies[0].modulePath = $projectRoot/app
-            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath base.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, $buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath core.dependencies = [{modulePath: $projectRoot/core}]
             classpath core.dependencies[0] = {modulePath: $projectRoot/core}
             classpath core.dependencies[0].modulePath = $projectRoot/core
-            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath core.resolvedFiles = [$buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath lib.dependencies = [{modulePath: $projectRoot/lib}]
             classpath lib.dependencies[0] = {modulePath: $projectRoot/lib}
             classpath lib.dependencies[0].modulePath = $projectRoot/lib
-            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${UsedVersions.defaultKotlinVersion}/kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath lib.resolvedFiles = [$buildDir/tasks/_lib_jarJvm/lib-jvm.jar, $buildDir/tasks/_core_jarJvm/core-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/${DefaultVersions.kotlin}/kotlin-stdlib-${DefaultVersions.kotlin}.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             classpath kotlin-poet.dependencies = [{coordinates: com.squareup:kotlinpoet:2.2.0}]
             classpath kotlin-poet.dependencies[0] = {coordinates: com.squareup:kotlinpoet:2.2.0}
             classpath kotlin-poet.dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
@@ -89,7 +89,7 @@ class PluginsTest : AmperCliTestBase() {
             classpath compile.dependencies = [{modulePath: $projectRoot/app}]
             classpath compile.dependencies[0] = {modulePath: $projectRoot/app}
             classpath compile.dependencies[0].modulePath = $projectRoot/app
-            classpath compile.resolvedFiles = [$buildDir/tasks/_app_jarJvm/app-jvm.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
+            classpath compile.resolvedFiles = [${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/kotlin/kotlin-stdlib/2.2.10/kotlin-stdlib-2.2.10.jar, ${Dirs.userCacheRoot}/.m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar]
             compilation result: {from: {modulePath: $projectRoot/app}}
             compilation result path: $buildDir/tasks/_app_jarJvm/app-jvm.jar
         """.trimIndent().replace('/', File.separatorChar))
@@ -283,7 +283,7 @@ class PluginsTest : AmperCliTestBase() {
         r.assertStdoutContains("""
             Plugin `build-konfig` is not enabled, but has some explicit configuration.
             ╰─ Values explicitly set at:
-               ╰─ $app3:6:5
+               ├─ $app3:6:5
                ╰─ $app3:9:5
         """.trimIndent())
     }
@@ -354,11 +354,11 @@ class PluginsTest : AmperCliTestBase() {
                 """
                 Plugin id must be unique across the project
                 ╰─ There are multiple plugins with the id `hello`:
-                   ╰─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
-                   ╰─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
+                   ├─ ${projectRoot / "plugin-a" / "module.yaml"}:4:7
+                   ├─ ${projectRoot / "plugin-b" / "module.yaml"}:4:7
                    ╰─ ${projectRoot / "hello"}
                 """.trimIndent(),
-                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:1: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
+                "${projectRoot / "not-a-plugin" / "module.yaml"}:1:10: Unexpected product type for plugin. Expected jvm/amper-plugin, got jvm/app",
                 "${projectRoot / "plugin-empty-id" / "module.yaml"}:5:18: Plugin settings class `com.example.Settings` is not found",
             )
             assertStdoutContains("Processing local plugin schema for [plugin-empty-id, plugin-no-plugin-block, hello]...")
@@ -424,34 +424,33 @@ class PluginsTest : AmperCliTestBase() {
         val projectRoot = result.projectRoot
         val pluginYamlForInvalidInputs = projectRoot / "tasks-with-invalid-inputs" / "plugin.yaml"
         val pluginYamlForLoops = projectRoot / "tasks-with-loops" / "plugin.yaml"
-        val buildDir = tempRoot / "build"
         val sep = File.separatorChar
         result.assertErrors(
             """
             Output path `${projectRoot / "app" / "foo" / "bar"}` is declared to be produced by multiple tasks: task `withSameOutputA` in module `app` from plugin `tasks-with-invalid-inputs`, task `withSameOutputB` in module `app` from plugin `tasks-with-invalid-inputs`
             ╰─ The output path is specified at:
-               ╰─ $pluginYamlForInvalidInputs:22:7
-               ╰─ $pluginYamlForInvalidInputs:26:7
+               ├─ $pluginYamlForInvalidInputs:22:16
+               ╰─ $pluginYamlForInvalidInputs:26:16
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:5:7
-               ╰─ $pluginYamlForInvalidInputs:6:7
-               ╰─ $pluginYamlForInvalidInputs:7:7
+               ├─ $pluginYamlForInvalidInputs:5:15
+               ├─ $pluginYamlForInvalidInputs:6:15
+               ╰─ $pluginYamlForInvalidInputs:7:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-root-dir>${sep}app`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:11:7
-               ╰─ $pluginYamlForInvalidInputs:12:7
-               ╰─ $pluginYamlForInvalidInputs:13:7
+               ├─ $pluginYamlForInvalidInputs:11:15
+               ├─ $pluginYamlForInvalidInputs:12:15
+               ╰─ $pluginYamlForInvalidInputs:13:15
             """.trimIndent(),
             """
             Task input/output paths that are children/parents/duplicates of each other are not allowed (reserved for potential future use). The conflicting path is `<project-build-dir>${sep}tasks${sep}_app_withConflictingOutputs@tasks-with-invalid-inputs`
             ╰─ Conflicting paths are specified at:
-               ╰─ $pluginYamlForInvalidInputs:17:7
-               ╰─ $pluginYamlForInvalidInputs:18:7
+               ├─ $pluginYamlForInvalidInputs:17:16
+               ╰─ $pluginYamlForInvalidInputs:18:16
             """.trimIndent(),
             """
             Task dependency loop detected:
@@ -463,9 +462,9 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-root-dir>${sep}tasks-with-loops${sep}source.txt` produced by ───╮
             4. task `task3` in module `tasks-with-loops` from plugin `tasks-with-loops` (*) <─╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForLoops:10:7
-               ╰─ $pluginYamlForLoops:6:7
-               ╰─ $pluginYamlForLoops:14:7
+               ├─ $pluginYamlForLoops:10:15
+               ├─ $pluginYamlForLoops:6:15
+               ╰─ $pluginYamlForLoops:14:15
             """.trimIndent(),
             """
             Task dependency loop detected:
@@ -489,9 +488,9 @@ class PluginsTest : AmperCliTestBase() {
                ╰───> consumes `<project-build-dir>${sep}tasks${sep}_app_consumesResources@tasks-with-invalid-inputs` produced by
             4. task `consumesResources` in module `app` from plugin `tasks-with-invalid-inputs` (*) <────────────────╯
             ╰─ Related configuration elements that may have caused the loop:
-               ╰─ $pluginYamlForInvalidInputs:41:9
-               ╰─ $pluginYamlForInvalidInputs:34:9
-               ╰─ $pluginYamlForInvalidInputs:42:7
+               ├─ $pluginYamlForInvalidInputs:41:27
+               ├─ $pluginYamlForInvalidInputs:34:9
+               ╰─ $pluginYamlForInvalidInputs:42:15
             """.trimIndent()
         )
     }
@@ -514,12 +513,13 @@ class PluginsTest : AmperCliTestBase() {
                 "${pluginYaml}:17:11: Referencing `markOutputsAs` is not allowed",
                 "${pluginYaml}:14:11: Maven coordinates should not contain slashes",
                 "${pluginYaml}:15:11: Maven coordinates one-part should contain at least two parts separated by ':', but got 1",
-                "${pluginYaml}:11:7: Referencing `module` is not allowed",
-                "${pluginYaml}:12:7: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
-                "${pluginYaml}:6:7: The value of type `string` cannot be assigned to the type `boolean`",
-                "${pluginYaml}:9:7: The value of type `Settings` cannot be assigned to the type `path`",
-                "${pluginYaml}:7:7: The value of type `boolean` cannot be used in string interpolation",
-                "${pluginYaml}:4:5: No value for required property 'int'.",
+                "${pluginYaml}:11:16: Referencing `module` is not allowed",
+                "${pluginYaml}:12:16: The value of type `mapping {string : Element}` cannot be assigned to the type `Nested`",
+                "${pluginYaml}:6:17: The value of type `string` cannot be assigned to the type `boolean`",
+                "${pluginYaml}:9:13: The value of type `Settings` cannot be assigned to the type `path`",
+                "${pluginYaml}:7:23: The value of type `boolean` cannot be used in string interpolation",
+                "${pluginYaml}:4:13: No value for required property 'int'.",
+                "${pluginYaml}:4:13: No value for required property 'classpath.dependencies'.",
             )
             assertWarnings(
                 "${pluginYaml}:16:11: Maven classifiers are currently not supported",

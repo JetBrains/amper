@@ -10,6 +10,7 @@ import com.intellij.tools.build.bazel.jvmIncBuilder.ExitCode
 import org.jetbrains.amper.jps.JicOutputAutoFlushWorkaround.serializeJpsCompilerOutput
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 internal class JicJavaBuilder(
     val amperModuleName: String,
@@ -30,7 +31,7 @@ internal class JicJavaBuilder(
         val clFlags = buildMap {
             put(CLFlags.TARGET_LABEL, listOf(amperModuleName))
             put(CLFlags.NON_INCREMENTAL, listOf("false"))
-            put(CLFlags.CP, classpath.map { path -> amperModuleDir.relativize(path).toString() })
+            put(CLFlags.CP, classpath.map { amperModuleDir.absolutePathString() })
             put(CLFlags.OTHER, javacArgs)
         }
 

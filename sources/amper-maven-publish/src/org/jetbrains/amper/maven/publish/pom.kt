@@ -17,7 +17,7 @@ import org.jetbrains.amper.frontend.MavenDependencyBase
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ancestralPath
-import org.jetbrains.amper.frontend.dr.resolver.toMavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -138,7 +138,7 @@ private fun AmperModule.singleProductionFragmentOrNull(platform: Platform) = if 
 }
 
 private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: PublicationCoordinatesOverrides): Dependency {
-    val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(toMavenCoordinates())
+    val effectiveCoordinates = publicationCoordsOverrides.actualCoordinatesFor(toDrMavenCoordinates())
 
     val dependency = Dependency()
     dependency.groupId = effectiveCoordinates.groupId
@@ -150,7 +150,7 @@ private fun MavenDependencyBase.toPomDependency(publicationCoordsOverrides: Publ
         is BomDependency -> "import"
     }
     dependency.type = when (this) {
-        is MavenDependency -> "jar"
+        is MavenDependency -> effectiveCoordinates.packagingType ?: "jar"
         is BomDependency -> "pom"
     }
     return dependency

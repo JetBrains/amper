@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.native
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
@@ -58,6 +59,7 @@ internal class NativeLinkTask(
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, incrementalCache),
     private val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ): BuildTask {
     init {
         require(platform.isLeaf)
@@ -184,7 +186,7 @@ internal class NativeLinkTask(
                 include = includeArtifact,
             )
 
-            nativeCompiler.compile(args, tempRoot, module)
+            nativeCompiler.compile(processRunner, args, tempRoot, module)
 
             return@execute IncrementalCache.ExecutionResult(listOf(artifactPath))
         }.outputFiles.single()

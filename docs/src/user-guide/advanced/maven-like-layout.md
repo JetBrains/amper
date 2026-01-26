@@ -1,3 +1,9 @@
+---
+description: |
+  Amper is opinionated about where to put your sources, resources, and tests.
+  The maven-like module layout allows to keep the same directory structure as Maven and Gradle, which is especially 
+  useful when transitioning from these tools.
+---
 # Maven-like module layout
 
 Amper is opinionated about where to put your sources, resources, and tests (see the 

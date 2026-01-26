@@ -8,7 +8,7 @@ sealed interface SchemaType {
     val isMarkedNullable: Boolean
 
     /**
-     * Type for [org.jetbrains.amper.frontend.tree.ScalarValue]
+     * Type for [org.jetbrains.amper.frontend.tree.ScalarNode]
      */
     sealed interface ScalarType : SchemaType
     
@@ -17,12 +17,12 @@ sealed interface SchemaType {
     }
 
     /**
-     * Type for [org.jetbrains.amper.frontend.tree.StringInterpolationValue]
+     * Type for [org.jetbrains.amper.frontend.tree.StringInterpolationNode]
      */
     sealed interface StringInterpolatableType : ScalarType
 
     /**
-     * Type for [org.jetbrains.amper.frontend.tree.MapLikeValue]
+     * Type for [org.jetbrains.amper.frontend.tree.MappingNode]
      */
     sealed interface MapLikeType : SchemaType
 

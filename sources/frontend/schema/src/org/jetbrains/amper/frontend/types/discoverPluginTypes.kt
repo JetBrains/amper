@@ -215,7 +215,7 @@ private class ExternalEnumDeclaration(
         }
     }
     override val isOrderSensitive get() = false
-    override fun toEnumConstant(name: String) = name
+    override fun toEnumConstant(name: String): Nothing? = null
     override fun toString() = qualifiedName
 }
 

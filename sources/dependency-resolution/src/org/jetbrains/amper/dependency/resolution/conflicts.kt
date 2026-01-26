@@ -69,13 +69,13 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
         val candidatesWithResolvedVersion = candidates.filter { it.originalVersion() == resolvedVersion }.toSet()
 
         candidates.asSequence()
-            // do not override yet unresolved dependencies until their original version are resolved from BOM
+            // do not override unresolved dependencies yet until their original versions are resolved from BOM
             .filter { it.originalVersion() != null }
             .forEach {
                 when(it) {
                     // todo (AB) don't align strictly constraint
                     is MavenDependencyNodeWithContext -> {
-                        it.dependency = it.context.createOrReuseDependency(it.group, it.module, resolvedVersion, it.isBom)
+                        it.dependency = it.context.createOrReuseDependency(it.dependency.coordinates.copy(version = resolvedVersion), it.isBom)
                         it.overriddenBy = if (it.originalVersion() != resolvedVersion) candidatesWithResolvedVersion else emptySet()
                     }
                     is MavenDependencyConstraintNodeWithContext -> {

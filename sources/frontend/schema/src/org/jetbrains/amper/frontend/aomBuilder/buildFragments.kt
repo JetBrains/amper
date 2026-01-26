@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -21,7 +21,8 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.enabled
-import org.jetbrains.amper.frontend.tree.resolveReferences
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -70,8 +71,6 @@ open class DefaultFragment(
     }
 
     final override val platforms = seed.platforms
-
-    override val isDefault = true
 
     override val sourceRoots: List<Path> by lazy {
         when (module.layout) {
@@ -199,7 +198,8 @@ fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path):
 fun Fragment.javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot: Path): Path =
     generatedSourcesRoot(buildOutputRoot) / "apt/java"
 
-internal fun BuildCtx.createFragments(
+context(problemReporter: ProblemReporter, _: SchemaTypingContext)
+internal fun createFragments(
     seeds: Collection<FragmentSeed>,
     ctx: ModuleBuildCtx,
     resolveDependency: (Dependency) -> Notation?,
@@ -215,13 +215,13 @@ internal fun BuildCtx.createFragments(
                 platforms.map { PlatformCtx(it.pretty) } +
                 PathCtx(ctx.moduleFile)
         val refinedTree = ctx.refiner.refineTree(ctx.mergedTree, selectedContexts)
-            .resolveReferences()
         val handler = object : MissingPropertiesHandler.Default(problemReporter) {
             override fun onMissingRequiredPropertyValue(
                 trace: Trace,
                 valuePath: List<String>,
+                relativeValuePath: List<String>,
             ) = when (valuePath[0]) {
-                "settings", "dependencies" -> super.onMissingRequiredPropertyValue(trace, valuePath)
+                "settings", "dependencies" -> super.onMissingRequiredPropertyValue(trace, valuePath, relativeValuePath)
                 else -> Unit  // ignoring; was already reported in the `ctx.moduleCtxModule`.
             }
         }

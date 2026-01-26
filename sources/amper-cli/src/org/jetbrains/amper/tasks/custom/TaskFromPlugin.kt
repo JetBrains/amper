@@ -23,8 +23,6 @@ import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.api.Artifact
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactSelector
 import org.jetbrains.amper.tasks.artifacts.api.ArtifactTask
-import org.jetbrains.amper.tasks.artifacts.api.ArtifactType
-import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.util.StandardStreamsCapture
@@ -32,6 +30,7 @@ import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.kotlinFunction
 
@@ -43,7 +42,6 @@ class TaskFromPlugin(
     val incrementalCache: IncrementalCache,
     val terminal: Terminal,
 ) : ArtifactTask {
-
 
     class ExternalTaskGeneratedKotlinJavaSourcesArtifact(
         buildOutputRoot: AmperBuildOutputRoot,
@@ -135,7 +133,8 @@ class TaskFromPlugin(
                 taskRuntimeClasspath = taskCode.jvmRuntimeClasspath,
             )
             IncrementalCache.ExecutionResult(
-                outputFiles = description.outputs.map { it.path.value },
+                outputFiles = description.outputs.map { it.path.value }
+                    .filter { it.exists() },
             )
         }
 

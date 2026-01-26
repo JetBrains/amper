@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -57,6 +57,16 @@ private fun composeRuntimeDependency(composeVersion: TraceableString, dependency
 
 private fun composeResourcesDependency(composeVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = coords("org.jetbrains.compose.components", "components-resources", composeVersion),
+    trace = dependencyTrace,
+)
+
+private fun kotlinxRpcBomDependency(kotlinxRpcVersion: TraceableString, dependencyTrace: Trace): BomDependency = BomDependency(
+    coordinates = coords("org.jetbrains.kotlinx", "kotlinx-rpc-bom", kotlinxRpcVersion),
+    trace = dependencyTrace,
+)
+
+private fun kotlinxRpcCoreDependency(kotlinxRpcVersion: TraceableString, dependencyTrace: Trace) = MavenDependency(
+    coordinates = coords("org.jetbrains.kotlinx", "kotlinx-rpc-core", kotlinxRpcVersion),
     trace = dependencyTrace,
 )
 
@@ -173,6 +183,17 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
             ))
         }
     }
+    if (settings.kotlin.jsPlainObjects.enabled && setOf(Platform.JS) == platforms) {
+        val jsPlainObjectsDependencyTrace = TransformedValueTrace(
+            description = "because Kotlin JsPlainObjects is enabled",
+            sourceValue = settings.kotlin.jsPlainObjects::enabled.schemaDelegate,
+        )
+        add(kotlinDependencyOf(
+            artifactId = "kotlin-js-plain-objects",
+            version = kotlinVersion,
+            dependencyTrace = jsPlainObjectsDependencyTrace,
+        ))
+    }
     if (settings.android.parcelize.enabled && setOf(Platform.JVM, Platform.ANDROID).containsAll(platforms)) {
         val parcelizeDependencyTrace = TransformedValueTrace(
             description = "because Android Parcelize is enabled",
@@ -199,6 +220,27 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         // Have to add dependency because generated code depends on it
         if (settings.compose.resources.exposedAccessors || module.fragments.any { it.hasAnyComposeResources }) {
             add(composeResourcesDependency(composeVersion, dependencyTrace = composeDependencyTrace))
+        }
+    }
+
+    if (settings.kotlin.rpc.enabled) {
+        val kotlinxRpcVersion = settings.kotlin.rpc::version.schemaDelegate.asTraceableString()
+        val kotlinxRpcEnabledTrace = TransformedValueTrace(
+            description = "because kotlinx.rpc is enabled",
+            sourceValue = settings.kotlin.rpc::enabled.schemaDelegate,
+        )
+        add(kotlinxRpcCoreDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcEnabledTrace))
+
+        if (settings.kotlin.rpc.applyBom) {
+            val kotlinxRpcBomTrace = TransformedValueTrace(
+                description = "because kotlinx.rpc is enabled and kotlin.rpc.applyBom=true",
+                sourceValue = if (settings.kotlin.rpc::applyBom.isExplicitlySet) {
+                    settings.kotlin.rpc::applyBom.schemaDelegate
+                } else {
+                    settings.kotlin.rpc::enabled.schemaDelegate
+                },
+            )
+            add(kotlinxRpcBomDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcBomTrace))
         }
     }
 

@@ -4,18 +4,13 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.test.Dirs
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class GraphConsistencyTest {
-
-    private val testDataRoot: Path = Dirs.amperSourcesRoot.resolve("frontend/dr/testData/projects")
+class GraphConsistencyTest: BaseModuleDrTest() {
 
     @Test
     fun `check parents in a dependencies graph - ide`() = runSlowModuleDependenciesTest {

@@ -5,10 +5,16 @@
 package org.jetbrains.amper.frontend.plugins
 
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.CanBeReferenced
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
+import org.jetbrains.amper.frontend.api.ReadOnly
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
+import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
+import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
+import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
+import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
 
@@ -18,17 +24,58 @@ class PluginYamlRoot : SchemaNode() {
             "They are conventionally lowerCamelCase.")
     val tasks by value<Map<String, Task>>(default = emptyMap())
 
+    @ReadOnly
+    @SchemaDoc("Data from the module the plugin is applied to")
+    val module by value<ModuleDataForPlugin>()
+
     companion object {
-        /**
-         * Reference-only property name
-         */
-        const val MODULE = "module"
 
         /**
-         * Reference-only plugin settings property name
+         * Reference-only plugin settings property name.
+         *
+         * NOTE: Can't be expressed via the `@ReadOnly` property because its exact type is plugin-dependent.
+         * If a plugin doesn't define the settings type, then this property is not present at all.
          */
         const val PLUGIN_SETTINGS = "pluginSettings"
     }
+}
+
+/**
+ * NOTE: We do not mark all the properties here as [ReadOnly] because the [PluginYamlRoot.module] is already marked.
+ * So all these properties also cannot be set by the user.
+ */
+class ModuleDataForPlugin : SchemaNode() {
+    @CanBeReferenced
+    @SchemaDoc("Name of the module")
+    val name by value<String>()
+
+    @CanBeReferenced
+    @SchemaDoc("Module's root directory (where `module.yaml` resides)")
+    val rootDir by value<Path>()
+
+    @CanBeReferenced
+    @SchemaDoc("Runtime classpath of the module (jvm, main)")
+    val runtimeClasspath by value<ShadowClasspath>()
+
+    @CanBeReferenced
+    @SchemaDoc("Compilation classpath of the module (jvm, main)")
+    val compileClasspath by value<ShadowClasspath>()
+
+    @CanBeReferenced
+    @SchemaDoc("Kotlin and Java source directories of the module (jvm, main)")
+    val kotlinJavaSources by value<ShadowModuleSources>()
+
+    @CanBeReferenced
+    @SchemaDoc("Resource directories of the module (jvm, main)")
+    val resources by value<ShadowModuleSources>()
+
+    @CanBeReferenced
+    @SchemaDoc("Compiled JAR for the module (jvm, main)")
+    val jar by value<ShadowCompilationArtifact>()
+
+    @CanBeReferenced
+    @SchemaDoc("Dependency on the module itself")
+    val self by value<ShadowDependencyLocal>()
 }
 
 class TaskAction(
@@ -50,12 +97,10 @@ class Task : SchemaNode() {
             "add the corresponding entry to this list.")
     val markOutputsAs by value<List<MarkOutputAs>>(default = emptyList())
 
-    companion object {
-        /**
-         * Reference-only property name
-         */
-        const val TASK_OUTPUT_DIR = "taskOutputDir"
-    }
+    @ReadOnly
+    @CanBeReferenced
+    @SchemaDoc("Dedicated task directory under the build root")
+    val taskOutputDir by value<Path>()
 }
 
 class MarkOutputAs : SchemaNode() {
@@ -82,10 +127,10 @@ class FragmentDescriptor : SchemaNode() {
             "JVM-only modules, or the most common fragment in multiplatform modules, which means that the " +
             "generated files are visible transitively in all fragments of the module). " +
             "Empty string by default.")
-    var modifier by value(default = "")
+    val modifier by value(default = "")
 
     @SchemaDoc("`true` to select a test fragment, `false` by default")
-    var isTest by value(default = false)
+    val isTest by value(default = false)
 }
 
 enum class GeneratedPathKind(

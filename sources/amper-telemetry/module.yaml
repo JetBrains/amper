@@ -1,0 +1,19 @@
+product: jvm/lib
+
+apply:
+  - ../common.module-template.yaml
+  - ../used-in-idea.module-template.yaml
+
+dependencies:
+  - ../amper-build-info
+  - ../libraries/telemetry
+  - $libs.kotlinx.coroutines.core
+  - $libs.slf4j.api
+  - $libs.opentelemetry.sdk.common
+  - $libs.opentelemetry.exporterLoggingOtlp
+  - $libs.opentelemetry.sdkTrace
+  - $libs.opentelemetry.sdk
+
+settings:
+  kotlin:
+    serialization: json

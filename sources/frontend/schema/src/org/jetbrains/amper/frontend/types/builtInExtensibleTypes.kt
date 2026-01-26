@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.types.SchemaType.TypeWithDeclaration
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Typing context that allows to register custom properties and variants for reflection-based types.
@@ -38,16 +39,16 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         registeredCustomProperties.getOrPut(key) { mutableListOf() }.add(descriptor)
 
     override fun findOrRegisterTypeWithDeclaration(type: KType): TypeWithDeclaration? {
-        @Suppress("UNCHECKED_CAST")
-        val classifier = type.classifier as? KClass<out SchemaNode>
-            ?: return super.findOrRegisterTypeWithDeclaration(type)
+        val classifier = (type.classifier as? KClass<*>) ?: return super.findOrRegisterTypeWithDeclaration(type)
 
         val key = classifier.builtInKey
 
         // Try to check if the type has custom properties.
         if (registeredCustomProperties[key] != null) {
+            // Must be a SchemaNode if it has custom properties
+            val schemaNodeSubclass = classifier.asSubclassOf(SchemaNode::class)
             val declaration = findOrRegister<SchemaObjectDeclaration>(key) {
-                BuiltinDeclarationWithCustomProperties(classifier)
+                BuiltinDeclarationWithCustomProperties(schemaNodeSubclass)
             } ?: return null
 
             return SchemaType.ObjectType(
@@ -59,9 +60,9 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
         return super.findOrRegisterTypeWithDeclaration(type)
     }
 
-    private open inner class BuiltinDeclarationWithCustomProperties(
-        backingReflectionClass: KClass<out SchemaNode>,
-    ) : SchemaObjectDeclaration, BuiltinClassDeclaration(backingReflectionClass) {
+    private open inner class BuiltinDeclarationWithCustomProperties<T : SchemaNode>(
+        backingReflectionClass: KClass<T>,
+    ) : SchemaObjectDeclaration, BuiltinClassDeclaration<T>(backingReflectionClass) {
         override val properties by lazy { parseBuiltInProperties() + customProperties(backingReflectionClass) }
 
         private fun customProperties(type: KClass<out SchemaNode>): List<SchemaObjectDeclaration.Property> =
@@ -78,4 +79,12 @@ internal abstract class ExtensibleBuiltInTypingContext protected constructor(
                 )
             }.orEmpty()
     }
+}
+
+private fun <T : Any> KClass<*>.asSubclassOf(clazz: KClass<T>): KClass<out T> {
+    check(isSubclassOf(clazz)) {
+        "Class $qualifiedName is not a subclass of ${clazz.qualifiedName}"
+    }
+    @Suppress("UNCHECKED_CAST") // we checked right above
+    return this as KClass<out T>
 }

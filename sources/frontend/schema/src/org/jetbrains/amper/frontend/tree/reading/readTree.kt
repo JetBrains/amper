@@ -8,14 +8,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.childrenOfType
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.asPsi
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.Owned
+import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -25,14 +25,15 @@ import org.jetbrains.yaml.psi.YAMLFile
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
-internal fun BuildCtx.readTree(
+context(_: ProblemReporter, _: FrontendPathResolver)
+internal fun readTree(
     file: VirtualFile,
     declaration: SchemaObjectDeclaration,
     vararg contexts: Context,
     reportUnknowns: Boolean = true,
     referenceParsingMode: ReferencesParsingMode = ReferencesParsingMode.IgnoreButWarn,
     parseContexts: Boolean = true,
-): MapLikeValue<*> {
+): MappingNode {
     val psiFile = file.asPsi()
     return ApplicationManager.getApplication().runReadAction(Computable {
         when (psiFile.language) {
@@ -45,13 +46,13 @@ internal fun BuildCtx.readTree(
                         supportContexts = parseContexts,
                         referenceParsingMode = referenceParsingMode,
                     )
-                    context(config, problemReporter, rootContexts) {
+                    context(config, rootContexts) {
                         parseFile(
                             file = psiFile as YAMLFile,
                             type = declaration.toType(),
                         )
                     }
-                } ?: Owned(emptyList(), declaration.toType(), psiFile.asTrace(), rootContexts)
+                } ?: MappingNode(emptyList(), declaration.toType(), psiFile.asTrace(), rootContexts)
             }
             else -> error("Unsupported language: ${psiFile.language}")
         }
@@ -69,7 +70,7 @@ context(_: Contexts, _: ParsingConfig, reporter: ProblemReporter)
 private fun parseFile(
     file: YAMLFile,
     type: SchemaType.ObjectType,
-): Owned? {
+): MappingNode? {
     val documents = file.childrenOfType<YAMLDocument>()
     if (documents.size > 1) {
         reporter.reportBundleError(
@@ -78,7 +79,7 @@ private fun parseFile(
     }
     val value = documents.first() // Safe - at least one document is always present
         .topLevelValue ?: return null
-    return parseValue(YamlValue(value), type) as? Owned?
+    return parseNode(YamlValue(value), type) as? MappingNode?
 }
 
 internal enum class ReferencesParsingMode {

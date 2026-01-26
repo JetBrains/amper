@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("SameParameterValue")
@@ -49,21 +49,14 @@ abstract class AmperIntegrationTestBase {
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(Dirs.userCacheRoot)
 
-    protected suspend fun TestCollector.setupTestProject(
+    protected fun TestCollector.setupTestProject(
         testProjectPath: Path,
         copyToTemp: Boolean,
-        useEmptyAndroidHome: Boolean = false,
     ): CliContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
-        val androidHomeRoot = if (useEmptyAndroidHome) {
-            // in temp dir so we get a fresh one in every build on the CI
-            AndroidHomeRoot((Dirs.tempDir / "empty-android-sdk").also { it.createDirectories() })
-        } else {
-            AndroidHomeRoot(AndroidTools.getOrInstallForTests().androidSdkHome)
-        }
 
         val problemReporter = CollectingProblemReporter()
         val projectContext = with(problemReporter) {
@@ -78,7 +71,6 @@ abstract class AmperIntegrationTestBase {
             projectContext = projectContext,
             userCacheRoot = userCacheRoot,
             terminal = terminal,
-            androidHomeRoot = androidHomeRoot,
         )
     }
 

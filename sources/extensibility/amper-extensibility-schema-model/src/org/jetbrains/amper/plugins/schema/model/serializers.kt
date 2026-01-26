@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.plugins.schema.model
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -12,19 +11,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.pathString
-
-typealias PathAsString = @Contextual @Serializable(PathSerializer::class) Path
-
-object PathSerializer : KSerializer<Path> {
-    override val descriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: Path) {
-        encoder.encodeString(value.pathString)
-    }
-    override fun deserialize(decoder: Decoder): Path = Path(decoder.decodeString())
-}
 
 class SchemaNameSerializer : KSerializer<PluginData.SchemaName> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("SchemaName", PrimitiveKind.STRING)

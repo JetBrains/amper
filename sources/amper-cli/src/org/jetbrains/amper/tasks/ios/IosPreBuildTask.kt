@@ -1,18 +1,17 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.ios
 
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.android.PathAsStringSerializer
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.serialization.paths.SerializablePath
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeLinkTask
-import java.nio.file.Path
 
 class IosPreBuildTask(
     override val taskName: TaskName,
@@ -34,10 +33,8 @@ class IosPreBuildTask(
 
     @Serializable
     class Result(
-        @Serializable(with = PathAsStringSerializer::class)
-        val appFrameworkPath: Path,
-        @Serializable(with = PathAsStringSerializer::class)
-        val composeResourcesDirectoryPath: Path?,
+        val appFrameworkPath: SerializablePath,
+        val composeResourcesDirectoryPath: SerializablePath?,
     ) : TaskResult {
         companion object {
             /**

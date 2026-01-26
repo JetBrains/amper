@@ -12,6 +12,7 @@
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 @rem   AMPER_JAVA_OPTIONS         JVM options to pass to the JVM running Amper (does not affect the user's application)
+@rem   AMPER_NO_WELCOME_BANNER    Disables the first-run welcome message if set to a non-empty value
 
 setlocal
 
@@ -67,7 +68,7 @@ if (-not $createdNew) { ^
  ^
 try { ^
     if ((Get-Content '%flag_file%' -ErrorAction Ignore) -ne '%sha%') { ^
-        if ('%show_banner_on_cache_miss%' -eq 'true') { ^
+        if (('%show_banner_on_cache_miss%' -eq 'true') -and [string]::IsNullOrEmpty('%AMPER_NO_WELCOME_BANNER%')) { ^
             Write-Host '*** Welcome to Amper v.%amper_version%! ***'; ^
             Write-Host ''; ^
             Write-Host 'This is the first run of this version, so we need to download the actual Amper distribution.'; ^
@@ -112,6 +113,9 @@ finally { ^
     $lock.ReleaseMutex(); ^
 }
 
+rem We reset the PSModulePath in case this batch script was called from PowerShell Core
+rem See https://github.com/PowerShell/PowerShell/issues/18108#issuecomment-2269703022
+set PSModulePath=
 set powershell=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 "%powershell%" -NonInteractive -NoProfile -NoLogo -Command %download_and_extract_ps1%
 if errorlevel 1 exit /b 1
@@ -146,7 +150,21 @@ REM adjust the position of the exit command, hence the padding placeholder.
 
 REM ********** Provision JRE for Amper **********
 
-if defined AMPER_JAVA_HOME goto jre_provisioned
+if defined AMPER_JAVA_HOME (
+    if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
+      echo Invalid AMPER_JAVA_HOME provided: cannot find %AMPER_JAVA_HOME%\bin\java.exe
+      goto fail
+    )
+    @rem If AMPER_JAVA_HOME contains "jbr-21", it means we're inheriting it from the old Amper's update command.
+    @rem We must ignore it because Amper needs 25.
+    if "%AMPER_JAVA_HOME%"=="%AMPER_JAVA_HOME:jbr-21=%" (
+        set effective_amper_java_home=%AMPER_JAVA_HOME%
+        goto jre_provisioned
+    ) else (
+        echo WARN: AMPER_JAVA_HOME will be ignored because it points to a JBR 21, which is not valid for Amper anymore.
+        echo If you're updating from an Amper version older than 0.8.0, please ignore this message.
+    )
+)
 
 @rem Auto-updated from syncVersions.main.kts, do not modify directly here
 set zulu_version=25.28.85
@@ -172,9 +190,9 @@ set jre_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\zulu%zulu_version%-ca-%pkg_type%%
 call :download_and_extract "Amper runtime v%zulu_version%" "%jre_url%" "%jre_target_dir%" "%jre_sha256%" "256" "false"
 if errorlevel 1 goto fail
 
-set AMPER_JAVA_HOME=
-for /d %%d in ("%jre_target_dir%\*") do if exist "%%d\bin\java.exe" set AMPER_JAVA_HOME=%%d
-if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
+set effective_amper_java_home=
+for /d %%d in ("%jre_target_dir%\*") do if exist "%%d\bin\java.exe" set effective_amper_java_home=%%d
+if not exist "%effective_amper_java_home%\bin\java.exe" (
   echo Unable to find java.exe under %jre_target_dir%
   goto fail
 )
@@ -182,7 +200,7 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
 
 REM ********** Launch Amper **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" ^
+"%effective_amper_java_home%\bin\java.exe" ^
   @"%amper_target_dir%\amper.args" ^
   "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
   "-Damper.dist.path=%amper_target_dir%" ^

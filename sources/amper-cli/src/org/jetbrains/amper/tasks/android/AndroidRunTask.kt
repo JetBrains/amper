@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -40,7 +40,6 @@ import org.jetbrains.amper.util.BuildType
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -163,7 +162,7 @@ class AndroidRunTask(
         androidTarget: Int,
         emulatorExecutable: Path
     ): IDevice {
-        val androidVersion = AndroidVersion(androidTarget)
+        val androidVersion = AndroidVersion(androidTarget, 0)
         val selectedDevice = devices.firstOrNull { it.version.canRun(androidVersion) }
         return selectedDevice ?: run {
             val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)

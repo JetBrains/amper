@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -50,7 +50,7 @@ class JvmReloadClassesTask(override val taskName: TaskName) : Task {
                 changedClassFiles[change.path.toAbsolutePath().toFile()] = changeType
             }
             logger.info("Sending reload classes request to the IDE: $changedClassFiles")
-            client.sendBlocking(ReloadClassesRequest(changedClassFiles))
+            client.send(ReloadClassesRequest(changedClassFiles))
         }
 
         return EmptyTaskResult

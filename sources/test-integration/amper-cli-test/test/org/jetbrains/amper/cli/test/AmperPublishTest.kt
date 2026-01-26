@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -7,7 +7,7 @@ package org.jetbrains.amper.cli.test
 import com.sun.net.httpserver.BasicAuthenticator
 import org.jetbrains.amper.cli.test.utils.assertContainsRelativeFiles
 import org.jetbrains.amper.cli.test.utils.runSlowTest
-import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.test.assertEqualsWithDiff
 import org.jetbrains.amper.test.server.Request
 import org.jetbrains.amper.test.server.RequestHistory
@@ -118,7 +118,7 @@ class AmperPublishTest : AmperCliTestBase() {
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.defaultKotlinVersion}</version>
+                  <version>${DefaultVersions.kotlin}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>
@@ -182,7 +182,7 @@ class AmperPublishTest : AmperCliTestBase() {
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>${UsedVersions.defaultKotlinVersion}</version>
+                  <version>${DefaultVersions.kotlin}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>

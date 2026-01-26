@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -15,10 +16,12 @@ import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
@@ -40,6 +43,7 @@ abstract class AbstractJvmRunTask(
     protected val runSettings: JvmMainRunSettings,
     protected val incrementalCache: IncrementalCache?,
     protected val jdkProvider: JdkProvider,
+    private val processRunner: ProcessRunner,
 ) : RunTask {
     override val platform = Platform.JVM
     protected val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
@@ -51,7 +55,8 @@ abstract class AbstractJvmRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>, executionContext: TaskGraphExecutionContext): TaskResult {
         DeadLockMonitor.disable()
 
-        val result = getJdk().runJava(
+        val result = processRunner.runJava(
+            jdk = getJdk(),
             workingDir = runSettings.workingDir,
             mainClass = getMainClass(dependenciesResult),
             classpath = getClasspath(dependenciesResult),
@@ -73,7 +78,7 @@ abstract class AbstractJvmRunTask(
         return EmptyTaskResult
     }
 
-    protected open suspend fun getJdk(): Jdk = jdkProvider.getJdk()
+    protected open suspend fun getJdk(): Jdk = jdkProvider.getJdkOrUserError(module.jdkSettings)
 
     protected open suspend fun getJvmArgs(dependenciesResult: List<TaskResult>): List<String> = buildList {
         if (fragments.any { it.settings.ktor.enabled }) {

@@ -1,15 +1,14 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver
 
-import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics.UnspecifiedDependencyVersion
 import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
@@ -23,7 +22,7 @@ class BomTest: BaseModuleDrTest() {
      * Version of a direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of a direct dependency from BOM`() = runTest {
+    fun `resolving version of a direct dependency from BOM`() = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support", testDataRoot)
 
         val jvmAppDeps = doTest(
@@ -51,8 +50,8 @@ class BomTest: BaseModuleDrTest() {
                 │              ╰─── com.fasterxml.jackson.core:jackson-annotations:2.18.3 (c)
                 ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
                 │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3 (*)
-                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}, implicit
-                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${UsedVersions.defaultKotlinVersion}
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
                           ╰─── org.jetbrains:annotations:13.0
             """.trimIndent(),
         )
@@ -61,9 +60,55 @@ class BomTest: BaseModuleDrTest() {
             listOf(
                 "annotations-13.0.jar",
                 "jackson-annotations-2.18.3.jar",
-                "kotlin-stdlib-${UsedVersions.defaultKotlinVersion}.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
             ),
             jvmAppDeps
+        )
+    }
+
+    /**
+     * Version of a direct dependency is resolved from BOM if it was left unspecified
+     * in non-transitive resolution mode ([ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES])
+     */
+    @Test
+    fun `resolving version of a direct dependency from BOM non-transitive case`() = runModuleDependenciesTest {
+        val aom = getTestProjectModel("jvm-bom-support-override-direct", testDataRoot)
+
+        val jvmAppDirectOnlyDeps = doTest(
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.ClassPathType(
+                    ResolutionScope.COMPILE,
+                    setOf(ResolutionPlatform.JVM),
+                    false),
+
+                ResolutionDepth.GRAPH_WITH_DIRECT_DEPENDENCIES,
+
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot),
+            ),
+            verifyMessages = false,
+            module = "app",
+            expected = """
+                Module app
+                │ - main
+                │ - scope = COMPILE
+                │ - platforms = [jvm]
+                ├─── app:main:com.fasterxml.jackson.core:jackson-core:2.18.2
+                │    ╰─── com.fasterxml.jackson.core:jackson-core:2.18.2 -> 2.18.3
+                ├─── app:main:com.fasterxml.jackson:jackson-bom:2.18.3
+                │    ╰─── com.fasterxml.jackson:jackson-bom:2.18.3
+                │         ╰─── com.fasterxml.jackson.core:jackson-core:2.18.3 (c)
+                ╰─── app:main:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
+                     ╰─── org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}
+            """.trimIndent(),
+        )
+
+        assertFiles(
+            listOf(
+                "jackson-core-2.18.3.jar",
+                "kotlin-stdlib-${DefaultVersions.kotlin}.jar",
+            ),
+            jvmAppDirectOnlyDeps
         )
     }
 
@@ -71,7 +116,7 @@ class BomTest: BaseModuleDrTest() {
      * Version of an exported direct dependency is resolved from BOM if it was left unspecified.
      */
     @Test
-    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) = runTest {
+    fun `resolving version of an exported direct dependency from BOM`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support-exported", testDataRoot)
 
         val jvmAppDeps = doTestByFile(
@@ -103,14 +148,14 @@ class BomTest: BaseModuleDrTest() {
      *
      * Published metadata of the library 'io.github.dokar3:sonner-android:0.3.8' doesn't specify
      * a version of 'androidx.compose.ui:ui-tooling-preview'.
-     * Consumer of the library have no way to resolve the version without specifying it either explicitly or by using BOM.
+     * Consumers of the library have no way to resolve the version without specifying it either explicitly or by using BOM.
      *
      * This tests checks that a version of the dependency 'androidx.compose.ui:ui-tooling-preview'
      * is successfully resolved from the BOM 'androidx.compose:compose-bom:2025.05.00'
      * directly declared along with the dependency on 'io.github.dokar3:sonner:0.3.8' itself.
      */
     @Test
-    fun `resolving version of a transitive dependency from BOM`(testInfo: TestInfo) = runTest {
+    fun `resolving version of a transitive dependency from BOM`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-bom-support-unspecified-transitive", testDataRoot)
 
         val androidAppDeps = doTestByFile(
@@ -148,7 +193,7 @@ class BomTest: BaseModuleDrTest() {
      * and DR reports a corresponding error.
      */
     @Test
-    fun `reporting unspecified version of a transitive dependency`(testInfo: TestInfo) = runTest {
+    fun `reporting unspecified version of a transitive dependency`(testInfo: TestInfo) = runModuleDependenciesTest {
         val aom = getTestProjectModel("jvm-unspecified-transitive", testDataRoot)
 
         val androidAppDeps = doTestByFile(

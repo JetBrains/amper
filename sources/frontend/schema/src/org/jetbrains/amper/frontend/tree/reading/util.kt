@@ -5,39 +5,50 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.tree.ErrorValue
-import org.jetbrains.amper.frontend.tree.ListValue
-import org.jetbrains.amper.frontend.tree.MapLikeChildren
-import org.jetbrains.amper.frontend.tree.MapLikeValue
-import org.jetbrains.amper.frontend.tree.NullValue
-import org.jetbrains.amper.frontend.tree.Owned
-import org.jetbrains.amper.frontend.tree.ReferenceValue
-import org.jetbrains.amper.frontend.tree.ScalarValue
-import org.jetbrains.amper.frontend.tree.StringInterpolationValue
-import org.jetbrains.amper.frontend.tree.TreeState
-import org.jetbrains.amper.frontend.tree.TreeValue
-import org.jetbrains.amper.frontend.tree.copy
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
+import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import java.nio.file.Path
 
 context(contexts: Contexts)
-internal fun scalarValue(origin: YamlValue.Scalar, type: SchemaType.ScalarType, value: Any) =
-    ScalarValue<TreeState>(value, type, origin.asTrace(), contexts)
+internal fun booleanNode(origin: YamlValue.Scalar, type: SchemaType.BooleanType, value: Boolean) =
+    BooleanNode(value, type, origin.asTrace(), contexts)
 
 context(contexts: Contexts)
-internal fun mapLikeValue(
+internal fun stringNode(origin: YamlValue.Scalar, type: SchemaType.StringType, value: String) =
+    StringNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun intNode(origin: YamlValue.Scalar, type: SchemaType.IntType, value: Int) =
+    IntNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun enumNode(origin: YamlValue.Scalar, type: SchemaType.EnumType, value: String) =
+    EnumNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun pathNode(origin: YamlValue.Scalar, type: SchemaType.PathType, value: Path) =
+    PathNode(value, type, origin.asTrace(), contexts)
+
+context(contexts: Contexts)
+internal fun mappingNode(
     origin: YamlValue,
     type: SchemaType.MapLikeType,
-    children: MapLikeChildren<TreeState>,
-) = Owned(
+    children: List<KeyValue>,
+) = MappingNode(
     children = children,
     type = type,
     trace = origin.asTrace(),
@@ -102,18 +113,6 @@ internal fun PsiElement.allChildren(): Sequence<PsiElement> = sequence {
     while (current != null) {
         yield(current)
         current = current.nextSibling
-    }
-}
-
-internal fun <T : TreeState> TreeValue<T>.copyWithTrace(trace: Trace): TreeValue<T> {
-    return when (this) {
-        is ListValue<T> -> copy(trace = trace)
-        is MapLikeValue<T> -> copy(trace = trace)
-        is ErrorValue -> ErrorValue(trace = trace)
-        is ReferenceValue<T> -> copy(trace = trace)
-        is StringInterpolationValue<T> -> copy(trace = trace)
-        is ScalarValue<T> -> copy(trace = trace)
-        is NullValue<T> -> copy(trace = trace)
     }
 }
 

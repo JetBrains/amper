@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 import org.eclipse.jgit.api.Git
@@ -13,11 +13,11 @@ import org.eclipse.jgit.util.SystemReader
  *
  * Any git operation (most importantly [Git.open]) within the given block will disregard the global git config of the machine.
  */
-internal fun runWithoutGlobalGitConfig(block: () -> Unit) {
+internal fun <T> runWithoutGlobalGitConfig(block: () -> T): T {
     val oldSystemReader = SystemReader.getInstance()
     try {
         SystemReader.setInstance(EmptyConfigSystemReader(oldSystemReader))
-        block()
+        return block()
     } finally {
         SystemReader.setInstance(oldSystemReader)
     }

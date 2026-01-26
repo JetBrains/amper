@@ -8,16 +8,13 @@ import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.engine.requireSingleDependency
@@ -29,9 +26,11 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
@@ -46,7 +45,6 @@ import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 import kotlin.io.path.setPosixFilePermissions
 
-
 class IosBuildTask(
     override val platform: Platform,
     override val module: AmperModule,
@@ -54,6 +52,7 @@ class IosBuildTask(
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val processRunner: ProcessRunner,
 ) : BuildTask {
     init {
         require(platform.isDescendantOf(Platform.IOS)) { "Invalid iOS platform: $platform" }
@@ -118,7 +117,7 @@ class IosBuildTask(
                 .setAmperModule(module)
                 .setListAttribute("args", xcodebuildArgs)
                 .use { span ->
-                    val result = BuildPrimitives.runProcessAndGetOutput(
+                    val result = processRunner.runProcessAndGetOutput(
                         workingDir = workingDir,
                         command = xcodebuildArgs,
                         span = span,
@@ -146,7 +145,7 @@ class IosBuildTask(
     }
 
     private suspend fun prepareLogParsingUtility(): Path {
-        val archString = when(DefaultSystemInfo.detect().arch) {
+        val archString = when(Arch.current) {
             Arch.X64 -> "x86_64"
             Arch.Arm64 -> "arm64"
         }

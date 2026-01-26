@@ -2,4 +2,4 @@ product: jvm/app
 
 settings:
   kotlin:
-    <![Error] Invalid Kotlin compiler version 123. Should be in the format 'x.y.*'.!>version: 123<!>
+    version: <![Error] Invalid Kotlin compiler version 123. Should be in the format 'x.y.*'.!>123<!>

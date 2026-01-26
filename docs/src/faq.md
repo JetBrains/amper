@@ -1,4 +1,5 @@
 ---
+description: Frequently asked questions about Amper.
 hide:
   - navigation
 ---
@@ -25,20 +26,22 @@ Libraries can be created for all Kotlin Multiplatform targets.
 ### Does Amper support Compose Multiplatform?
 
 Yes, you can configure Compose for Android, iOS, and desktop.
+Check out our [Compose Multiplatform guide](user-guide/builtin-tech/compose-multiplatform.md).
 
 ### Does Amper support Kotlin/JS or Kotlin/Wasm projects?
 
 Yes, but it doesn't provide tooling to work on full stack web projects yet. For instance, Amper doesn't install any 
-browser or Node.js runtime, doesn't generate or process any HTML entrypoint, and cannot run `js/app` modules on its own.
+browser or Node.js runtime, doesn't generate or process any HTML entry point, and cannot run `js/app` modules on its own.
 
 ### What functionality do you plan to support?
 
-We’re working on the project library catalogs, publication, and extensibility.
+We plan to cover all the common use cases based on demand.
+At the moment, we’re working on extensibility, publication, and exploring Maven migration and integration.
 
 ### Will Amper be open source?
 
-Yes, Amper is already open source. The default branch is the latest stable release branch, but you can also take a look
-at the [main branch](https://github.com/JetBrains/amper/tree/main) to see what's cooking!
+Amper is already open source. Check out our [GitHub repository](https://github.com/JetBrains/amper) to see what we're 
+up to!
 
 ### When will Amper be released as stable?
 
@@ -58,9 +61,10 @@ still in the experimental phase, and we cannot guarantee that all scenarios can 
 
 ### How do I report a bug?
 
-Please report problems to [our issue tracker](https://youtrack.jetbrains.com/issues/AMPER). Since this project is in the
-experimental phase, we would also greatly appreciate feedback and suggestions regarding the configuration experience –
-join our [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussion.
+Please report problems to our [:jetbrains-youtrack: YouTrack issue tracker](https://youtrack.jetbrains.com/issues/AMPER).
+Since this project is in the experimental phase, we would also greatly appreciate feedback and suggestions regarding 
+the configuration experience – join our 
+[:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussion.
 
 ### Why don’t you use Kotlin for Amper's configuration files?
 
@@ -94,8 +98,8 @@ Gradle support in our IDEs and Gradle itself.
 
 ### What about Gradle extensibility and plugins?
 
-We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box 
-and offer a reasonable level of extensibility.
+We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box and offer a reasonable level of
+extensibility.
 
 ### How do Amper and Declarative Gradle relate to each other?
 
@@ -111,21 +115,23 @@ While both projects are still experimental, it's important that you provide your
 
 ### What are the requirements to use Amper?
 
-To learn about the required plugins in IntelliJ IDEA, see the [IDE setup instructions](getting-started/ide-setup.md).
-
 The Amper command line tool doesn't require any software preinstallation, except the Xcode toolchain if you want to 
-build iOS applications. See the [CLI instructions](getting-started/cli.md).
+build iOS applications. See the [CLI instructions](cli/index.md).
 
-The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) is advised to work with Amper projects.
+We recommend using the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) to make the most out of
+Amper. Our focus on the tooling and UX really pays off in IntelliJ IDEA. To learn about the required and optional 
+plugins in IntelliJ IDEA, see the [IDE setup instructions](getting-started/ide-setup.md).
 
 ### How do I create a new Amper project?
 
 You have several options:
 
+* Open IntelliJ IDEA and create a new Kotlin project with the Amper build tool
+
 * Kick-start your project using one of the [examples]({{ examples_base_url }})
 
-* Download the Amper script by following the [usage instructions](getting-started/cli.md), and generate a project 
-  from a template using the `amper init` command.
+* Download the Amper script by following the [CLI instructions](cli/index.md), and generate a project 
+  from a template using the `./amper init` command.
 
 ### How do I create a multi-module project in Amper?
 
@@ -137,13 +143,15 @@ Not currently, but it's certainly something we’re looking into.
 
 ### Feature X is not yet supported, what can I do?
 
-We plan to expand the list of supported use cases based on demand. Please submit your requests and suggestions in
-the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join
-the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
+Please let us know about it! We're eager to hear what you're trying to do, because we plan to expand the list of
+supported use cases based on demand.
+Please submit your requests and sugg estions in the
+[:jetbrains-youtrack: YouTrack issue tracker](https://youtrack.jetbrains.com/issues/AMPER) or join the
+[:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility is not currently implemented in Amper, but we are working on it.
+Yes! Amper now includes a preview of a plugin system. See the dedicated [docs](user-guide/plugins/overview.md).
 
 ### How can I use C-interop in Amper?
 

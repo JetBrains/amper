@@ -9,39 +9,39 @@ import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.contexts.MinimalModule
-import org.jetbrains.amper.frontend.diagnostics.helpers.visitScalarProperties
+import org.jetbrains.amper.frontend.diagnostics.helpers.visitStringProperties
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.KotlinCompilerVersionPattern
 import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.tree.MergedTree
+import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
-object KotlinCompilerVersionDiagnosticsFactory : MergedTreeDiagnostic {
+object KotlinCompilerVersionDiagnosticsFactory : TreeDiagnostic {
 
     private val MinimumSupportedKotlinVersion = ComparableVersion("2.1.10")
 
     // TODO remove this entire property everywhere, it's unused
     override val diagnosticId: BuildProblemId = "kotlin.compiler.version.diagnostics"
 
-    override fun analyze(root: MergedTree, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
+    override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace>() // somehow the computed properties lead to duplicate reports
-        root.visitScalarProperties<KotlinSettings, String>(KotlinSettings::version) { prop, value ->
+        root.visitStringProperties<KotlinSettings>(KotlinSettings::version) { prop, value ->
             val versionTrace = prop.value.trace
             if (!KotlinCompilerVersionPattern.matches(value) && reportedPlaces.add(versionTrace)) {
                 problemReporter.reportMessage(
                     InvalidKotlinCompilerVersion(
-                        element = versionTrace.extractPsiElementOrNull() ?: return@visitScalarProperties,
+                        element = versionTrace.extractPsiElementOrNull() ?: return@visitStringProperties,
                         actualVersion = value,
                     )
                 )
             } else if (ComparableVersion(value) < MinimumSupportedKotlinVersion && reportedPlaces.add(versionTrace)) {
                 problemReporter.reportMessage(
                     KotlinCompilerVersionTooLow(
-                        element = versionTrace.extractPsiElementOrNull() ?: return@visitScalarProperties,
+                        element = versionTrace.extractPsiElementOrNull() ?: return@visitStringProperties,
                         actualVersion = value,
                         minVersion = MinimumSupportedKotlinVersion.toString(),
                     )

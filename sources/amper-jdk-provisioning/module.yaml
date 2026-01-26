@@ -2,11 +2,25 @@ product: jvm/lib
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-idea.module-template.yaml # the IDE needs to provision JDKs to set them in the workspace model
 
 dependencies:
+  - ../amper-problem-reporting: exported
   - ../core
+  - ../frontend-api: exported
+  - ../libraries/concurrency
+  - ../libraries/incremental-cache: exported
+  - ../libraries/jetbrains-jdk-list
+  - ../libraries/serialization-extended
+  - ../libraries/system-info
+  - ../libraries/telemetry
+  - $libs.kotlinx.coroutines.core
+  - $libs.slf4j.api
 
 test-dependencies:
   - ../test-base
-  - $libs.kotlinx.coroutines.core
-  - $libs.kotlinx.coroutines.test
+  - $libs.junit.jupiter.params
+
+settings:
+  kotlin:
+    serialization: json

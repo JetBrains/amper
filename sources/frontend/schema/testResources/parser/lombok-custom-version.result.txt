@@ -7,6 +7,15 @@ Fragments:
       src
     Fragment dependencies:
     Settings: {
+      java: <default> {
+        annotationProcessing: <default> {
+          processors: <default> [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
+          ]
+        }
+      }
       lombok: {
         enabled: true
         version: 1.18.35
@@ -23,6 +32,15 @@ Fragments:
     Fragment dependencies:
       common (FRIEND)
     Settings: {
+      java: <default> {
+        annotationProcessing: <default> {
+          processors: <default> [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
+          ]
+        }
+      }
       lombok: {
         enabled: true
         version: 1.18.35
@@ -38,6 +56,15 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Settings: {
+      java: <default> {
+        annotationProcessing: <default> {
+          processors: <default> [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
+          ]
+        }
+      }
       lombok: {
         enabled: true
         version: 1.18.35
@@ -55,6 +82,15 @@ Fragments:
       commonTest (REFINE)
       jvm (FRIEND)
     Settings: {
+      java: <default> {
+        annotationProcessing: <default> {
+          processors: <default> [
+            - {
+                coordinates: org.projectlombok:lombok:1.18.35
+              }
+          ]
+        }
+      }
       lombok: {
         enabled: true
         version: 1.18.35
@@ -79,12 +115,6 @@ Repositories:
     password: null
   - id: https://maven.google.com
     url: https://maven.google.com
-    publish: false
-    resolve: true
-    username: null
-    password: null
-  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
-    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
     publish: false
     resolve: true
     username: null

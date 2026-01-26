@@ -19,19 +19,24 @@ dependencies:
   - $kotlin.test.junit5
   - $libs.jna
   - $libs.jna.platform
-  - ../amper-jdk-provisioning
   - ../amper-build-info
+  - ../amper-jdk-provisioning
   - ../amper-problem-reporting
   - ../core
   - ../dependency-resolution
   - ../libraries/async-processes: exported # for ProcessResult in the API
   - ../libraries/incremental-cache
   - ../libraries/stdlib-extended
+  - ../libraries/system-info
   - ../libraries/telemetry
 
 apply:
   - ../common.module-template.yaml
 
+test-dependencies:
+  - ../amper-telemetry
+
 settings:
   kotlin:
     serialization: enabled
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]

@@ -79,7 +79,7 @@ class Context internal constructor(
      * Note: the caller should specify the parent node after this method is called
      */
     fun toMavenDependencyNode(coordinates: MavenCoordinates, isBom: Boolean = false): MavenDependencyNodeWithContext {
-        val mavenDependency = createOrReuseDependency(coordinates.groupId, coordinates.artifactId, coordinates.version, isBom = isBom)
+        val mavenDependency = createOrReuseDependency(coordinates, isBom = isBom)
         return getOrCreateNode(mavenDependency,null)
     }
 
@@ -130,6 +130,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
     var dependenciesBlocklist: Set<MavenGroupAndArtifact> = setOf()
     var verifyChecksumsLocally: Boolean = true
+    var jdkVersion: JavaVersion? = null // todo (AB) : Check that it is correctly set in all places.
 
     init {
         apply(init)
@@ -147,6 +148,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             conflictResolutionStrategies,
             dependenciesBlocklist,
             verifyChecksumsLocally,
+            jdkVersion
         )
 }
 
@@ -168,8 +170,8 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
      * The local repositories to use as extra sources to speed up resolution.
      *
      * Their purpose is only to improve download speeds. This has important implications:
-     * 1. the local artifacts are never returned directly, they are first copied to the configured [localRepository]
-     * 2. the artifacts must exist in one of the remote repositories and we'll check their checksums online first
+     * 1. The local artifacts are never returned directly, they are first copied to the configured [localRepository]
+     * 2. The artifacts must exist in one of the remote repositories, and we'll check their checksums online first
      */
     var readOnlyExternalRepositories: List<LocalRepository> = defaultReadOnlyExternalRepositories()
 
@@ -203,8 +205,8 @@ fun getDefaultFileCacheBuilder(cacheRoot: Path): FileCacheBuilder.() -> Unit = {
 }
 
 // todo (AB) : Should it be emptyList by default?
-private fun FileCacheBuilder.defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository.Default)
-private fun FileCacheBuilder.defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
+private fun defaultReadOnlyExternalRepositories() = listOf(GradleLocalRepository(), MavenLocalRepository.Default)
+private fun defaultLocalRepository(cacheRoot: Path) = MavenLocalRepository(cacheRoot.resolve(".m2.cache"))
 
 /**
  * Intended to define a resolution session.
@@ -224,6 +226,7 @@ data class Settings(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
     val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
     val verifyChecksumsLocally: Boolean,
+    var jdkVersion: JavaVersion? = null
 ): ResolutionConfig {
     val spanBuilder: SpanBuilderSource
         get() = { openTelemetry
@@ -315,3 +318,25 @@ data object MavenLocal : Repository{
 typealias SpanBuilderSource = (String) -> SpanBuilder
 
 fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
+
+/**
+ * The string representation of the jdk version.
+ * It is used for evaluating of Maven Profiles jdk activation condition.
+ *
+ * Notes:
+ *   Maven Profiles support "1.x" notation for java major versions before 9 (..., "1.6", "1.7", "1.8")
+ *   and just a release number for versions starting from 9 ("9", "10", ..., "25", ...)
+ */
+data class JavaVersion(
+    /**
+     * Notes:
+     *  Maven Profiles support "1.x" notation for java major versions before 9 (..., "1.6", "1.7", "1.8")
+     *  and just a release number for versions starting from 9 ("9", "10", ..., "25", ...)
+     */
+    val value: String,
+) {
+
+    constructor(releaseNumber: Int) : this(
+        value = if (releaseNumber <= 8) "1.$releaseNumber" else releaseNumber.toString()
+    )
+}

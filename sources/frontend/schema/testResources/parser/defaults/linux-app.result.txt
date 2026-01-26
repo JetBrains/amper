@@ -66,6 +66,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -88,6 +95,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -113,6 +123,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -216,6 +232,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -238,6 +261,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -263,6 +289,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -364,6 +396,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -386,6 +425,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -411,6 +453,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -512,6 +560,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -534,6 +589,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -559,6 +617,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -663,6 +727,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -685,6 +756,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -710,6 +784,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -814,6 +894,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -836,6 +923,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -861,6 +951,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -962,6 +1058,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -984,6 +1087,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -1009,6 +1115,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -1113,6 +1225,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1135,6 +1254,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -1160,6 +1282,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -1261,6 +1389,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1283,6 +1418,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -1308,6 +1446,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -1412,6 +1556,13 @@ Fragments:
       }
       junit: <default> junit-5
       jvm: <default> {
+        jdk: <default> {
+          acknowledgedLicenses: <default> [
+          ]
+          distributions: <default> null
+          selectionMode: <default> auto
+          version: <default> 21
+        }
         mainClass: <default> null
         release: <default> 21
         runtimeClasspathMode: <default> jars
@@ -1434,6 +1585,9 @@ Fragments:
         apiVersion: <default> null
         debug: <default> null
         freeCompilerArgs: <default> null
+        jsPlainObjects: <default> {
+          enabled: <default> false
+        }
         ksp: <default> {
           processorOptions: <default> {
           }
@@ -1459,6 +1613,12 @@ Fragments:
           ]
         }
         progressiveMode: <default> false
+        rpc: <default> {
+          annotationTypeSafetyEnabled: <default> true
+          applyBom: <default> true
+          enabled: <default> false
+          version: <default> 0.10.1
+        }
         serialization: <default> {
           enabled: <default> false
           format: <default> null
@@ -1518,12 +1678,6 @@ Repositories:
     password: null
   - id: https://maven.google.com
     url: https://maven.google.com
-    publish: false
-    resolve: true
-    username: null
-    password: null
-  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
-    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
     publish: false
     resolve: true
     username: null

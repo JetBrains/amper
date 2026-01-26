@@ -13,6 +13,7 @@ apply:
 dependencies:
   - ../libraries/concurrency
   - ../libraries/nio-filechannels
+  - ../libraries/system-info
   - ../libraries/telemetry: exported
   - ../libraries/incremental-cache: exported
   - $libs.xmlutil.serialization
@@ -22,15 +23,14 @@ dependencies:
 
 test-dependencies:
   - ../test-base
-  - $libs.opentelemetry.exporterLoggingOtlp
+  - $libs.opentelemetry.sdkTesting
   - $libs.tinylog.api
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
-  - uk.org.webcompere:system-stubs-jupiter:2.1.7
+  - $libs.system.stubs.jupiter
 
 settings:
   kotlin:
     serialization:
       format: json
-      version: 1.7.3 # Should be aligned with the version of serialization used in the IntelliJ

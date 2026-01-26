@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.dependency.resolution
 
@@ -15,13 +15,16 @@ import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.DependencyGraph.Companion.toGraph
 import org.jetbrains.amper.dependency.resolution.diagnostics.Message
-import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.dependency.resolution.diagnostics.Severity
+import org.jetbrains.amper.incrementalcache.ResultWithSerializable
+import org.jetbrains.amper.incrementalcache.execute
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.pathString
+import kotlin.time.Clock
 import kotlin.time.Instant
 
 private val logger = LoggerFactory.getLogger("dr/resolver.kt")
@@ -115,9 +118,9 @@ class Resolver {
      * @param unspecifiedVersionResolver instance of the [UnspecifiedVersionResolver] to resolve version of dependencies
      * that don't have a version specified in the input graph (or transitive dependencies with an unspecified version as well)
      *
-     * @param postProcessDeserializedGraph callback to be called after the graph is resolved and deserialized from the cache.
-     * It is useful if some data in the nput graph can't be serialized and thus is marked as [kotlinx.serialization.Transient],
-     * but still has to be populated from the input graph to the restored one before it is started using.
+     * @param postProcessGraph a callback that is called after the graph is resolved (and potentially deserialized from
+     * the cache). It should generally be used to restore [kotlinx.serialization.Transient] data from the graph, which
+     * would be absent when the graph is deserialized from the cache.
      *
      * @return resolved dependencies graph
      */
@@ -127,8 +130,8 @@ class Resolver {
         downloadSources: Boolean = false,
         transitive: Boolean = true,
         incrementalCacheUsage: IncrementalCacheUsage = IncrementalCacheUsage.USE,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null,
-        postProcessDeserializedGraph: (SerializableDependencyNode) -> Unit = {},
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
+        postProcessGraph: (SerializableDependencyNode) -> Unit = {},
     ): ResolvedGraph {
         return root.context.spanBuilder("DR.graph:resolveDependencies").use {
             val resolutionId = getContextAwareRootCacheEntryKey(root, transitive, downloadSources, resolutionLevel)
@@ -147,98 +150,65 @@ class Resolver {
                     root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                     root.toResolvedGraph()
                 } else {
-                    var graphResolvedInsideCache: ResolvedGraph? = null
-
                     val cacheInputValues = mapOf(
                         "userCacheRoot" to root.context.settings.fileCache.amperCache.pathString,
                         "dependencies" to graphEntryKeys.joinToString("|") { "${ it.computeKey() }" },
                     )
 
-                    val resolvedGraph = try {
-                        incrementalCache.execute(
-                            key = resolutionId,
-                            cacheInputValues,
-                            forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
-                            inputFiles = listOf(),
-                        ) {
-                            root.context.spanBuilder("DR.graph:resolution")
-                                .setAttribute(
-                                    "configuration",
-                                    cacheInputValues["dependencies"]
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute(
-                                    "userCacheRoot",
-                                    cacheInputValues["userCacheRoot"]
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .setAttribute(
-                                    "resolutionId",
-                                    resolutionId
-                                ) // todo (AB) : Remove it (was added for debugging purposes))
-                                .use {
-                                    root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
-                                    graphResolvedInsideCache = root.toResolvedGraph()
+                    incrementalCache.execute(
+                        key = resolutionId,
+                        inputValues = cacheInputValues,
+                        inputFiles = emptyList(),
+                        serializer = DependencyGraph.serializer(),
+                        json = GraphJson.json,
+                        forceRecalculation = (incrementalCacheUsage == IncrementalCacheUsage.REFRESH_AND_USE),
+                    ) {
+                        root.context.spanBuilder("DR.graph:resolution")
+                            .setAttribute(
+                                "configuration",
+                                cacheInputValues["dependencies"]
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .setAttribute(
+                                "userCacheRoot",
+                                cacheInputValues["userCacheRoot"]
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .setAttribute(
+                                "resolutionId",
+                                resolutionId
+                            ) // todo (AB) : Remove it (was added for debugging purposes))
+                            .use {
+                                root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
+                                val resolvedGraph = root.toResolvedGraph()
+                                val serializableGraph = resolvedGraph.root.toGraph()
 
-                                    val serializableGraph = graphResolvedInsideCache.root.toGraph()
-                                    val serialized = GraphJson.json.encodeToString(serializableGraph)
-                                    IncrementalCache.ExecutionResult(
-                                        graphResolvedInsideCache.root.dependencyPaths(),
-                                        mapOf("graph" to serialized),
-                                        expirationTime = graphResolvedInsideCache.expirationTime
-                                    )
-                                }
-                        }.let {
-                            if (graphResolvedInsideCache != null) {
-                                graphResolvedInsideCache
-                            } else {
-                                val serialized = it.outputValues["graph"]!!
-                                val deserializedGraph: DependencyGraph = root.context.spanBuilder("DR.graph:deserialization").use {
-                                    GraphJson.json.decodeFromString<DependencyGraph>(serialized)
-                                }
-                                val resolvedGraph = deserializedGraph.root
-
-                                // Post-process deserialized graph enriching it with the state from the input graph.
-                                // Any exception thrown during this phase results in fallback to non-cached resolution of the input graph
-                                postProcessDeserializedGraph(resolvedGraph)
-
-                                ResolvedGraph(resolvedGraph, it.expirationTime)
+                                ResultWithSerializable(
+                                    outputValue = serializableGraph,
+                                    outputFiles = resolvedGraph.root.dependencyPaths(),
+                                    expirationTime = resolvedGraph.expirationTime,
+                                )
                             }
-                        }
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        logger.error(
-                            "Unable to calculate dependency graph based on incremental cache, " +
-                                    "falling back to non-cached resolution: ${e.toString()}",
-                            e
-                        )
-                        if (graphResolvedInsideCache != null) {
-                            graphResolvedInsideCache
-                        } else {
-                            // todo (AB) : Invalidate cache entry manually on any failure
-                            // todo (AB) : (might be not needed though if cache.codeVersion is properly specified)
-
-                            // Fallback to non-cached resolution
+                    }.let { result ->
+                        try {
+                            postProcessGraph(result.outputValue.root)
+                            ResolvedGraph(result.outputValue.root, result.expirationTime)
+                        } catch (e: Exception) {
+                            logger.error("Unable to post-process the serializable dependency graph. " +
+                                    "Falling back to uncached resolution", e)
                             root.resolveDependencies(resolutionLevel, transitive, downloadSources, unspecifiedVersionResolver)
                             root.toResolvedGraph()
                         }
                     }
-
-                    resolvedGraph
                 }
             }
         }
     }
 
-    private suspend fun DependencyNodeWithContext.toResolvedGraph() =
-        ResolvedGraph(this, calculateGraphExpirationTime())
-
-    // todo (AB): If node was not resolved due to network error and has ERROR diagnostic assigned,
-    // todo (AB): such a node should be recalculated next time and thus providing expirationTime as NOW.
     /**
-     * Expiration time of the graph represented with this node.
+     * Calculate the expiration time of the graph represented with this node,
+     * and wrap it together with the root node into resulting [ResolvedGraph]
      *
      * Note:
-     * Among others, it is calculated based on the expiration time of the snapshot files,
+     * Among others, a graph expiration is calculated based on the expiration time of the snapshot files,
      * those times are absent in the serialized graph,
      * therefore, calculation of the expiration time of arbitrary DependencyNode is not possible
      * (nodes restored from cache don't know about expiration time).
@@ -247,28 +217,46 @@ class Resolver {
      * in that case dependency node expiration time should be started serializing and taken into account when
      * deciding whether to use the nodes restored from cache or not.
      */
-    private suspend fun DependencyNodeWithContext.calculateGraphExpirationTime(): Instant? {
-        return try {
+    private suspend fun DependencyNodeWithContext.toResolvedGraph(): ResolvedGraph {
+        val expirationTime = try {
             distinctBfsSequence()
-                .filterIsInstance<MavenDependencyNodeWithContext>()
-                .flatMap {
-                    it.dependency.files(false).filterIsInstance<SnapshotDependencyFileImpl>()
-                }
                 .toSet()
-                .mapNotNull { it.getExpirationTime() }
+                .mapNotNull { it.calculateNodeExpirationTime() }
                 .minByOrNull { it }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             logger.error("Unable to calculate expiration time of the dependency graph", e)
-            return null
+            null
+        }
+
+        return ResolvedGraph(this, expirationTime)
+    }
+
+    private suspend fun DependencyNode.calculateNodeExpirationTime(): Instant? {
+        val snapshotExpirationTime: Instant? =
+            (this as? MavenDependencyNodeWithContext)?.let { node ->
+                node.dependency.files(false)
+                    .filterIsInstance<SnapshotDependencyFileImpl>()
+                    .mapNotNull { it.getExpirationTime() }
+                    .minByOrNull { it }
+            }
+
+        val isNotCacheable = this.messages.any { it.severity >= Severity.ERROR && !it.cacheable }
+        val expirationDueToRecoverableErrorTime = if (isNotCacheable) Clock.System.now() else null
+
+        return if (snapshotExpirationTime != null && expirationDueToRecoverableErrorTime != null) {
+            listOf(snapshotExpirationTime, expirationDueToRecoverableErrorTime)
+                .minByOrNull { it }
+        } else {
+            snapshotExpirationTime ?: expirationDueToRecoverableErrorTime
         }
     }
 
     // todo (AB) : Add test (dependencies order matters, moving dependency from one module to another matters as well)
-    internal fun getDependenciesGraphInput(node: DependencyNodeWithContext): Set<CacheEntryKey> {
-        val cacheEntryKeys: MutableSet<CacheEntryKey> = mutableSetOf()
-        node.distinctBfsSequence().forEach {
+    internal fun getDependenciesGraphInput(node: DependencyNodeWithContext): List<CacheEntryKey> {
+        val cacheEntryKeys: MutableList<CacheEntryKey> = mutableListOf()
+        node.bfsSequence(includeDuplicates = true).forEach {
             // skip the parent node, its cacheEntryKey is used as a cache entry identifier
             // and is not a part of cache configuration that affects entry invalidation
             if (it == node) return@forEach
@@ -322,7 +310,7 @@ class Resolver {
             this,
             level = resolutionLevel,
             transitive = transitive,
-            unspecifiedVersionResolver = unspecifiedVersionResolver
+            unspecifiedVersionResolver = unspecifiedVersionResolver,
         )
         resolver.downloadDependencies(this, downloadSources)
     }
@@ -340,7 +328,7 @@ class Resolver {
         root: DependencyNodeWithContext,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
         transitive: Boolean = true,
-        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = null
+        unspecifiedVersionResolver: UnspecifiedVersionResolver<MavenDependencyNodeWithContext>? = MavenDependencyUnspecifiedVersionResolverBase(),
     ) {
         root.context.spanBuilder("Resolver.buildGraph").use {
             val conflictResolver =
@@ -400,7 +388,7 @@ class Resolver {
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
-        transitive: Boolean
+        transitive: Boolean,
     ) {
         if (this in resolvedNodes) {
             // Register this node and its children to the conflictResolver,
@@ -665,7 +653,7 @@ private class UnspecifiedMavenDependencyVersionHelper(val unspecifiedVersionProv
             val resolvedNodes = unspecifiedVersionProvider.resolveVersions(nodes)
 
             resolvedNodes.forEach { (node, resolvedVersion) ->
-                node.dependency = node.context.createOrReuseDependency(node.group, node.module, resolvedVersion)
+                node.dependency = node.context.createOrReuseDependency(node.dependency.coordinates.copy(version = resolvedVersion))
                 node.versionFromBom = resolvedVersion
                 nodes.remove(node)
             }
@@ -763,7 +751,7 @@ class ResolvedGraph(
  * @see ResolutionLevel
  */
 enum class ResolutionState {
-    INITIAL, UNSURE, RESOLVED
+    INITIAL, UNSURE, RESOLVED_WITHOUT_CHILDREN, RESOLVED
 }
 
 /**
@@ -789,6 +777,55 @@ enum class ResolutionLevel(val state: ResolutionState) {
 interface UnspecifiedVersionResolver<T> {
     fun isApplicable(node: T): Boolean
     fun resolveVersions(nodes: Set<T>): Map<T, String>
+}
+
+open class MavenDependencyUnspecifiedVersionResolverBase: UnspecifiedVersionResolver<MavenDependencyNodeWithContext> {
+
+    override fun isApplicable(node: MavenDependencyNodeWithContext): Boolean {
+        return node.originalVersion() == null
+    }
+
+    override fun resolveVersions(nodes: Set<MavenDependencyNodeWithContext>): Map<MavenDependencyNodeWithContext, String> {
+        return nodes.mapNotNull { node ->
+            if (!isApplicable(node)) {
+                null
+            } else {
+                resolveVersionFromBom(node)?.let { node to it }
+            }
+        }.toMap()
+    }
+
+    /**
+     * Resolve an unspecified dependency version from the BOM imported in the same module.
+     * Unspecified dependency version of direct dependency should not be taken from transitive dependencies or constraints.
+     */
+    private fun resolveVersionFromBom(node: MavenDependencyNodeWithContext): String? {
+        val boms = getBomNodes(node)
+
+        boms.forEach { bom ->
+            val resolvedVersion = bom.children
+                .filterIsInstance<MavenDependencyConstraintNode>()
+                .firstOrNull { it.key == node.key }
+                ?.originalVersion()
+
+            if (resolvedVersion != null) {
+                return resolvedVersion
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * Raw maven dependencies case without grouping by module/fragments.
+     * Maven nodes are attached to some holders,
+     * a BOM attached to a holder might be used for resolving versions of other siblings inside this holder.
+     */
+    protected open fun getBomNodes(node: MavenDependencyNodeWithContext): List<MavenDependencyNode> = node.parents.map { parent ->
+        parent.children
+            .filterIsInstance<MavenDependencyNode>()
+            .filter { it.isBom }
+    }.flatten()
 }
 
 class Progress

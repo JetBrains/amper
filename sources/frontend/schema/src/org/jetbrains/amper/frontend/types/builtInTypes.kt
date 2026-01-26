@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.api.PathMark
 import org.jetbrains.amper.frontend.api.PlatformAgnostic
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
+import org.jetbrains.amper.frontend.api.ReadOnly
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
@@ -189,13 +190,13 @@ internal abstract class BuiltInTypingContext protected constructor(
             if (enumOrderSensitive?.reverse == true) entries.asReversed() else entries
         }
 
-        override fun toEnumConstant(name: String): Any = enumConstants.first { it.name == name }
+        override fun toEnumConstant(name: String): Enum<*>? = enumConstants.first { it.name == name }
 
         override fun toString() = "enum declaration `${qualifiedName}`"
     }
 
-    protected open inner class BuiltinClassDeclaration(
-        override val backingReflectionClass: KClass<out SchemaNode>,
+    protected open inner class BuiltinClassDeclaration<T : SchemaNode>(
+        override val backingReflectionClass: KClass<T>,
     ) : SchemaObjectDeclaration, ReflectionBasedTypeDeclaration, SchemaObjectDeclarationBase() {
 
         override val properties by lazy { parseBuiltInProperties() }
@@ -212,7 +213,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                             .addStringSemanticsIfAny(prop),
                         documentation = prop.findAnnotation<SchemaDoc>()?.doc,
                         misnomers = prop.findAnnotation<Misnomers>()?.values?.toSet().orEmpty(),
-                        default = prop.schemaDelegate(exampleInstance)?.default,
+                        default = prop.schemaDelegate(exampleInstance).default,
                         isModifierAware = prop.hasAnnotation<ModifierAware>(),
                         isFromKeyAndTheRestNested = prop.hasAnnotation<FromKeyAndTheRestIsNested>(),
                         specificToPlatforms = prop.findAnnotation<PlatformSpecific>()?.platforms?.toSet().orEmpty(),
@@ -224,6 +225,7 @@ internal abstract class BuiltInTypingContext protected constructor(
                         inputOutputMark = prop.findAnnotation<PathMark>()?.type,
                         isHiddenFromCompletion = prop.hasAnnotation<HiddenFromCompletion>(),
                         canBeReferenced = prop.hasAnnotation<CanBeReferenced>(),
+                        isUserSettable = !prop.hasAnnotation<ReadOnly>(),
                         origin = SchemaOrigin.Builtin,
                     )
                 }
@@ -252,7 +254,7 @@ internal abstract class BuiltInTypingContext protected constructor(
             return this
         }
 
-        override fun createInstance(): SchemaNode =
+        override fun createInstance(): T =
             backingReflectionClass.createInstance().apply {
                 schemaType = this@BuiltinClassDeclaration
             }

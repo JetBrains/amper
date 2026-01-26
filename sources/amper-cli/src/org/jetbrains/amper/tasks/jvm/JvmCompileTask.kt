@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.jvm
 import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -27,7 +28,6 @@ import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.core.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
@@ -35,9 +35,11 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.javaAnnotationProcessingGeneratedSourcesPath
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.AdditionalClasspathProvider
@@ -52,7 +54,9 @@ import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
 import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.java.JavaAnnotationProcessorClasspathTask
+import org.jetbrains.amper.tasks.maven.MavenPhaseResult
 import org.jetbrains.amper.telemetry.setListAttribute
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
@@ -86,6 +90,7 @@ internal class JvmCompileTask(
     private val jdkProvider: JdkProvider,
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
+    private val processRunner: ProcessRunner,
 ): ArtifactTaskBase(), BuildTask {
 
     init {
@@ -155,12 +160,19 @@ internal class JvmCompileTask(
         val classpath =
             compileModuleDependencies.flatMap { it.classesOutputRoots } + mavenDependencies.compileClasspath + additionalClasspath
 
-        val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
+        // Collect additional source roots.
+        val additionalArtifactSources = additionalKotlinJavaSourceDirs.map { artifact ->
             SourceRoot(
                 fragmentName = artifact.fragmentName,
                 path = artifact.path,
             )
         }
+        val additionalSourceRootsFromMaven = dependenciesResult
+            .filterIsInstance<MavenPhaseResult>()
+            .flatMap { it.sourceRoots }
+            .distinctBy { it.path } // Need to remove duplicates, because a same path can be provided by multiple providers.
+        
+        val additionalSources = additionalArtifactSources + additionalSourceRootsFromMaven
 
         val additionalResources = additionalResourcesDirs.map { artifact ->
             SourceRoot(
@@ -169,8 +181,7 @@ internal class JvmCompileTask(
             )
         }
 
-        // TODO settings
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(jdkSettings = module.jdkSettings)
 
         val javaAnnotationProcessorsGeneratedDir =
             fragments.singleLeafFragment().javaAnnotationProcessingGeneratedSourcesPath(buildOutputRoot.path)
@@ -420,6 +431,7 @@ internal class JvmCompileTask(
             val jicJavacArgs = commonArgs + freeCompilerArgs
             javacSpanBuilder(jicJavacArgs, jdk, incremental = true).use {
                 compileJavaWithJic(
+                    processRunner,
                     jdk,
                     module,
                     isTest,
@@ -469,7 +481,7 @@ internal class JvmCompileTask(
 
         val exitCode = withJavaArgFile(tempRoot, plainJavacArgs) { argsFile ->
             val result = javacSpanBuilder(plainJavacArgs, jdk, incremental = false).use { span ->
-                BuildPrimitives.runProcessAndGetOutput(
+                processRunner.runProcessAndGetOutput(
                     workingDir = jdk.homeDir,
                     command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),
                     span = span,

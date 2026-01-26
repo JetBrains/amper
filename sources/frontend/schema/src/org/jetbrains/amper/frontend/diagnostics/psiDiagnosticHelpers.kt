@@ -6,16 +6,17 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.frontend.aomBuilder.BuildCtx
 import org.jetbrains.amper.frontend.aomBuilder.readModuleMergedTree
 import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.tree.Merged
+import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.system.info.SystemInfo
 
 @UsedInIdePlugin
 data class MergedTreeHolder(
-    val mergedTree: Merged,
+    val mergedTree: MappingNode,
     val refiner: TreeRefiner,
 )
 
@@ -25,7 +26,8 @@ data class MergedTreeHolder(
 context(problemReporter: ProblemReporter)
 @UsedInIdePlugin
 fun AmperProjectContext.readAmperModuleTree(moduleFile: VirtualFile): MergedTreeHolder? {
-    val buildCtx = BuildCtx(pathResolver = frontendPathResolver, problemReporter = problemReporter)
-    val moduleBuildCtx = buildCtx.readModuleMergedTree(moduleFile, projectVersionsCatalog) ?: return null
+    val moduleBuildCtx = context(frontendPathResolver, SchemaTypingContext(), SystemInfo.CurrentHost) {
+        readModuleMergedTree(moduleFile, projectVersionsCatalog) ?: return null
+    }
     return MergedTreeHolder(moduleBuildCtx.mergedTree, moduleBuildCtx.refiner)
 }

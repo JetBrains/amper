@@ -4,16 +4,8 @@
 
 package org.jetbrains.amper.jic
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.pathString
+import org.jetbrains.amper.serialization.paths.SerializablePath
 
 /**
  * This special request data structure is used to pass data via the STDIN to the external process that
@@ -24,21 +16,11 @@ import kotlin.io.path.pathString
 @Serializable
 class JicCompilationRequest(
     val amperModuleName: String,
-    val amperModuleDir: PathAsString,
+    val amperModuleDir: SerializablePath,
     val isTest: Boolean,
-    val javaSourceFiles: List<PathAsString>,
+    val javaSourceFiles: List<SerializablePath>,
     val jicJavacArgs: List<String>,
-    val javaCompilerOutputRoot: PathAsString,
-    val jicDataDir: PathAsString,
-    val classpath: List<PathAsString>,
+    val javaCompilerOutputRoot: SerializablePath,
+    val jicDataDir: SerializablePath,
+    val classpath: List<SerializablePath>,
 )
-
-typealias PathAsString = @Contextual @Serializable(PathSerializer::class) Path
-
-object PathSerializer : KSerializer<Path> {
-    override val descriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: Path) {
-        encoder.encodeString(value.pathString)
-    }
-    override fun deserialize(decoder: Decoder): Path = Path(decoder.decodeString())
-}

@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.tasks.artifacts.PureArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.Selectors
 import org.jetbrains.amper.tasks.artifacts.api.Quantifier
@@ -17,9 +18,10 @@ import kotlin.io.path.isDirectory
 
 class MergePreparedComposeResourcesTask(
     buildOutputRoot: AmperBuildOutputRoot,
+    incrementalCache: IncrementalCache,
     fragment: LeafFragment,
     packagingDir: String,
-) : PureArtifactTaskBase(buildOutputRoot) {
+) : PureArtifactTaskBase(buildOutputRoot, incrementalCache) {
     private val packagingDir by extraInput(packagingDir)
 
     private val preparedDirs by Selectors.fromFragmentWithDependencies(

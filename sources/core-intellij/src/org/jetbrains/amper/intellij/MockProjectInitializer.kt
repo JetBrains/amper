@@ -24,10 +24,11 @@ import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
+import com.intellij.util.ui.EDT
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.core.telemetry.spanBuilder
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
@@ -36,6 +37,8 @@ import org.toml.lang.TomlLanguage
 import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
+import java.lang.invoke.MethodHandles
+import java.util.function.Supplier
 
 open class IntelliJApplicationConfigurator {
     open fun registerApplicationExtensions(application: MockApplication) {}
@@ -84,6 +87,8 @@ object MockProjectInitializer {
         return spanBuilder("Init mock IntelliJ project").useWithoutCoroutines {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
+            disableEdtChecks()
+
             val disposable = Disposer.newDisposable()
             val appEnv = CoreApplicationEnvironment(disposable)
             ourDisposable = disposable
@@ -102,6 +107,13 @@ object MockProjectInitializer {
             latestConfigurator = intelliJApplicationConfigurator
             projectEnv.project
         }
+    }
+
+    private fun disableEdtChecks() {
+        val edt = EDT::class.java
+        val disableCheck = MethodHandles.privateLookupIn(edt, MethodHandles.lookup())
+            .findStaticVarHandle(edt, "ourDisableEdtChecks", Boolean::class.java)
+        disableCheck.set(true)
     }
 
     private fun CoreApplicationEnvironment.registerLangAppServices() {

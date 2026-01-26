@@ -16,8 +16,10 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
+import org.jetbrains.amper.frontend.jdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.jvm.getJdkOrUserError
 import org.jetbrains.amper.processes.GradleDaemonShutdownHook
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -74,7 +76,7 @@ abstract class AndroidDelegatedGradleTask(
             if (servicesJsonPath.exists()) servicesJsonPath else null
         }
 
-        val jdk = jdkProvider.getJdk()
+        val jdk = jdkProvider.getJdkOrUserError(module.jdkSettings)
 
         val executionResult = incrementalCache.execute(
             key = taskName.name,
