@@ -348,6 +348,30 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that incorrectly declared arguments of maven-compiler-plugin don't prevent pom.xml
+     * from parsing.
+     *
+     * The following declaration is invalid because `Xlint:` got recognized as a namespace prefix by vanilla XML parser,
+     * which is unexpected by library authors.
+     * Maven parser relaxes restriction here on the consumer side and allows such tag names.
+     * So does Amper. Although it is not a generic behavior, but a case-by-case support (rare/unique examples).
+     * See [pomResolver.sanitizePom] for more details.
+     *
+     * ```
+     * <compilerArguments>
+     *   <Xlint/>
+     * 	 <Xlint:-unchecked/>
+     *   <Xmaxwarns>9999</Xmaxwarns>
+     * </compilerArguments>
+     * ```
+     */
+    @Test
+    fun `ch_cern_hadoop hadoop-dist 3_2_1`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that multiple properties used in the same string are substituted correctly.
      * In particular, the library 'org.nd4j:nd4j-cuda-10_2-platform:1_0_0-beta6' declares dependency on
      * 'org.bytedeco:cuda' of the version
