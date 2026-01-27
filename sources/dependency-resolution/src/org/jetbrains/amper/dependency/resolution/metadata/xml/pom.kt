@@ -443,8 +443,13 @@ internal fun String.expandTemplate(project: Project): String {
 
     val key = substring(keyStarts + "\${".length, keyEnds)
 
-    val value = if (key.startsWith("project.")) {
-        when (key.removePrefix("project.")) {
+    // Maven resolves built-in properties prefixed with 'pom.'
+    // the same way it resolves built-in properties prefixed with 'project.'
+    val builtInPrefix = "project.".takeIf { key.startsWith(it) }
+        ?: "pom.".takeIf { key.startsWith(it) }
+
+    val value = if (builtInPrefix != null) {
+        when (key.removePrefix(builtInPrefix)) {
             "groupId" -> project.groupId
             "artifactId" -> project.artifactId
             "version" -> project.version

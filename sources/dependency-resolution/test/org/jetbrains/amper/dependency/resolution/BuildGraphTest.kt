@@ -52,6 +52,25 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that project built-in properties are resolvable through alias pom.
+     *
+     *
+     * In particular, pom.xml of library 'org.apache.maven.wagon:wagon-http-lightweight:1.0-beta-2'
+     * declares the following dependency:
+     *
+     * <dependency>
+     *   <groupId>${pom.groupId}</groupId>
+     *   <artifactId>wagon-http-shared</artifactId>
+     *   <version>1.0-beta-2</version>
+     * </dependency>
+     */
+    @Test
+    fun `org_apache_maven_wagon wagon-http-lightweight 1_0-beta-2`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that the variable ${project.parent.version} from pom.xml
      * is resolved and substituted.
      */
