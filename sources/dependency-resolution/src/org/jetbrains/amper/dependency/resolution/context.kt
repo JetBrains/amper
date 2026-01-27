@@ -7,6 +7,8 @@ package org.jetbrains.amper.dependency.resolution
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.dependency.resolution.telemetry.debugSpanBuilder
+import org.jetbrains.amper.dependency.resolution.telemetry.infoSpanBuilder
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import java.io.Closeable
 import java.nio.file.Path
@@ -226,14 +228,8 @@ data class Settings(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
     val dependenciesBlocklist: Set<MavenGroupAndArtifact>,
     val verifyChecksumsLocally: Boolean,
-    var jdkVersion: JavaVersion? = null
-): ResolutionConfig {
-    val spanBuilder: SpanBuilderSource
-        get() = { openTelemetry
-            .getTracer("org.jetbrains.amper.dr")
-            .spanBuilder(it)
-        }
-}
+    var jdkVersion: JavaVersion? = null,
+): ResolutionConfig
 
 interface ResolutionConfig {
     val scope: ResolutionScope
@@ -250,7 +246,7 @@ data class MavenGroupAndArtifact(
 data class ResolutionConfigPlain(
     override val scope: ResolutionScope,
     override val platforms: Set<ResolutionPlatform>,
-    override val repositories: List<Repository>
+    override val repositories: List<Repository>,
 ): ResolutionConfig {
     constructor(other: ResolutionConfig) : this(other.scope, other.platforms, other.repositories)
 }
@@ -317,7 +313,9 @@ data object MavenLocal : Repository{
 
 typealias SpanBuilderSource = (String) -> SpanBuilder
 
-fun Context.spanBuilder(scope: String) = settings.spanBuilder(scope)
+val Context.infoSpanBuilder get() = settings.infoSpanBuilder
+
+val Context.debugSpanBuilder get() = settings.debugSpanBuilder
 
 /**
  * The string representation of the jdk version.

@@ -24,7 +24,7 @@ import org.jetbrains.amper.dependency.resolution.SerializableDependencyNode
 import org.jetbrains.amper.dependency.resolution.SerializableDependencyNodeConverter
 import org.jetbrains.amper.dependency.resolution.SerializableRootDependencyNode
 import org.jetbrains.amper.dependency.resolution.filterGraph
-import org.jetbrains.amper.dependency.resolution.spanBuilder
+import org.jetbrains.amper.dependency.resolution.infoSpanBuilder
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.Classpath
 import org.jetbrains.amper.frontend.dr.resolver.flow.IdeSync
@@ -57,7 +57,7 @@ internal class ModuleDependenciesResolverImpl: ModuleDependenciesResolver {
         downloadSources: Boolean,
         incrementalCacheUsage: IncrementalCacheUsage
     ): ResolvedGraph {
-        return context.spanBuilder("DR.graph:resolveDependencies").use {
+        return context.infoSpanBuilder("DR.graph:resolveDependencies").use {
             when (resolutionDepth) {
                 ResolutionDepth.GRAPH_ONLY -> {
                     /* Do nothing, graph is already given */

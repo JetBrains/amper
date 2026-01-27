@@ -43,10 +43,7 @@ import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.nio.file.Path
 import java.util.concurrent.CancellationException
-import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import kotlin.time.Instant
@@ -157,10 +154,6 @@ class ResolveExternalDependenciesTask(
             return onParametersErrorResult
         }
 
-        // We capture these nodes bypassing the incremental result because we can
-        // rely on the plain paths list of the dependencies to act as an indicator
-        // for incrementality.
-        // Also, `DependencyNode` generally is not serializable.
         val platformOnlyDependencies = moduleDependencies.forPlatform(platform, isTest)
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
@@ -177,8 +170,6 @@ class ResolveExternalDependenciesTask(
                     it.setAttribute("wasm-target", target)
                 }
             }
-            .setAttribute("native-target", resolvedPlatform.type.value)
-            .setAttribute("user-cache-root", userCacheRoot.path.pathString)
             .use {
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
@@ -209,6 +200,7 @@ class ResolveExternalDependenciesTask(
                                 module = module,
                                 platform = platform,
                                 isTest = isTest,
+                                // Pass all module dependencies at once to align versions across all module platforms
                                 moduleDependencies = moduleDependenciesForResolution,
                             )
 

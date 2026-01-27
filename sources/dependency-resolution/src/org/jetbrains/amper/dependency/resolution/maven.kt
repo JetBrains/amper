@@ -231,7 +231,7 @@ class MavenDependencyNodeWithContext internal constructor(
     }
 
     override suspend fun downloadDependencies(downloadSources: Boolean) =
-        context.spanBuilder("MavenDependencyNode.downloadDependencies")
+        context.debugSpanBuilder("MavenDependencyNode.downloadDependencies")
             .setAttribute("coordinates", dependency.toString())
             .use {
                 dependency.downloadDependencies(context, downloadSources)
@@ -757,7 +757,7 @@ class MavenDependencyImpl internal constructor(
         if (state < getTargetState(level, transitive)) {
             mutex.withLock {
                 if (state < getTargetState(level, transitive)) {
-                    context.spanBuilder("MavenDependencyNode.resolveChildren")
+                    context.debugSpanBuilder("MavenDependencyNode.resolveChildren")
                         .setAttribute("coordinates", this.toString())
                         .use {
                             resolve(context, level, transitive)
@@ -1563,13 +1563,13 @@ class MavenDependencyImpl internal constructor(
         val module = kmpMetadataFile.dependency.module
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
-        val sha1 = context.spanBuilder("toDependencyFile -> getExpectedHash")
+        val sha1 = context.debugSpanBuilder("toDependencyFile -> getExpectedHash")
             .setAttribute("fileName", kmpMetadataFile.fileName)
             .use {
                 kmpMetadataFile.getExpectedHash(getSha1Algorithm())
             }
             ?: kmpMetadataFile.getPath()?.let { path ->
-                context.spanBuilder("toDependencyFile -> computeHash")
+                context.debugSpanBuilder("toDependencyFile -> computeHash")
                     .setAttribute("fileName", kmpMetadataFile.fileName)
                     .use {
                         computeHash(path, getSha1Algorithm()).hash
@@ -1584,7 +1584,7 @@ class MavenDependencyImpl internal constructor(
                 )
                 return null
             }
-        val kmpLibraryWithSourceSet = context.spanBuilder("resolveKmpLibraryWithSourceSet")
+        val kmpLibraryWithSourceSet = context.debugSpanBuilder("resolveKmpLibraryWithSourceSet")
             .use {
                 resolveKmpLibraryWithSourceSet(
                     sourceSetName,
@@ -1632,7 +1632,7 @@ class MavenDependencyImpl internal constructor(
             .resolve(sha1)
             .resolve(targetFileName)
 
-        context.spanBuilder("produceFileWithDoubleLockAndHash").use {
+        context.debugSpanBuilder("produceFileWithDoubleLockAndHash").use {
             produceFileWithDoubleLockAndHash(
                 target = targetPath,
                 tempDir = { sourceSetFile.getTempDir() },
@@ -1987,14 +1987,14 @@ class MavenDependencyImpl internal constructor(
         ) {
             // repackage KMP library sources.
             val kmpSourcesFile = this
-            val sourceSetsSources = context.spanBuilder("repackageKmpLibrarySources")
+            val sourceSetsSources = context.debugSpanBuilder("repackageKmpLibrarySources")
                 .setAttribute("fileName", fileName)
                 .use {
                     coroutineScope {
                         sourceSetsFiles
                             .map { sourceSetsFile ->
                                 async(Dispatchers.IO) {
-                                    context.spanBuilder("toDependencyFile")
+                                    context.debugSpanBuilder("toDependencyFile")
                                         .use {
                                             val sourceSetName =
                                                 sourceSetsFile.settings[KmpSourceSetName] ?: return@use null

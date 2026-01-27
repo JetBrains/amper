@@ -38,6 +38,7 @@ import org.jetbrains.amper.dependency.resolution.files.produceResultWithTempFile
 import org.jetbrains.amper.dependency.resolution.files.readTextWithRetry
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
+import org.jetbrains.amper.dependency.resolution.telemetry.debugSpanBuilder
 import org.jetbrains.amper.filechannels.writeFrom
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
@@ -416,14 +417,13 @@ open class DependencyFileImpl(
         filePath: Path,
         level: ResolutionLevel = ResolutionLevel.NETWORK,
     ): Boolean {
-        return settings.spanBuilder("hasMatchingChecksumLocally")
+        return settings.debugSpanBuilder("hasMatchingChecksumLocally")
             .setAttribute("fileName", fileName)
             .use {
-                val computedHashes = settings.spanBuilder("Computing hashes").use { filePath.computeHash() }
+                val computedHashes = settings.debugSpanBuilder("Computing hashes").use { filePath.computeHash() }
 
-                val result = settings.spanBuilder("verifyHashes").use {
-                    verifyHashes(computedHashes, diagnosticsReporter, level)
-                }
+                val result = verifyHashes(computedHashes, diagnosticsReporter, level)
+
                 when (result) {
                     VerificationResult.PASSED -> true
                     VerificationResult.FAILED -> false
@@ -447,7 +447,7 @@ open class DependencyFileImpl(
             context.settings.repositories.ensureFirst(dependency.repository),
             context.settings.progress,
             context.resolutionCache,
-            context.settings.spanBuilder,
+            context.debugSpanBuilder,
             true,
             diagnosticsReporter,
         )
