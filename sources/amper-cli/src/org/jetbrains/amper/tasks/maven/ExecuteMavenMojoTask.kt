@@ -81,8 +81,8 @@ class ExecuteMavenMojoTask(
         executionContext: TaskGraphExecutionContext,
     ): TaskResult {
         val projectEmbryo = dependenciesResult
-            .filterIsInstance<MavenPhaseResult>()
-            .singleOrNull()?.embryo
+            .filterIsInstance<MavenProjectEmbryo>()
+            .singleOrNull()
             ?: MavenProjectEmbryo()
         val localRepoPath = MavenLocalRepository.Default.repository
         val repoSession = plexus.createRepositorySession(localRepoPath)

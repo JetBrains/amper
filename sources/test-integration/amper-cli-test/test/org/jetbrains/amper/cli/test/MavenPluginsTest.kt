@@ -142,7 +142,7 @@ class MavenPluginsTest : AmperCliTestBase() {
 
     private fun assertExists(path: Path) = assertTrue(path.exists()) { 
         val existingParent = generateSequence(path) { it.parent }.first { it.exists() }
-        "Expected \"$path\" was not found. The first existing parent is: \"${path.parent}\"." +
+        "Expected \"$path\" was not found. The first existing parent is: \"${existingParent.parent}\"." +
                 "\nIts children are: ${existingParent.listDirectoryEntries().joinToString { "\"${it.name}\"" }}."
     }
 

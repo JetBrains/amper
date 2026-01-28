@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ModuleSequenceCtx
+import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
@@ -27,52 +28,53 @@ fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
 
 context(taskBuilder: ProjectTasksBuilder)
 private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
-    // Helper functions.
-    fun TaskName.dependsOn(vararg dependsOn: KnownMavenPhase) =
-        dependsOn.forEach { taskBuilder.tasks.registerDependency(this, it.taskName) }
+    // Convenient helper, since we operate only for the JVM platform and specific module.
+    operator fun PlatformTaskType.invoke(isTest: Boolean) = getTaskName(module, Platform.JVM, isTest)
 
-    fun TaskName.dependencyOf(vararg dependsOn: KnownMavenPhase) =
-        dependsOn.forEach { taskBuilder.tasks.registerDependency(it.taskName, this) }
-
-    // Register an umbrella task for each phase.
+    // Register "before" and "after" tasks for each phase.
     KnownMavenPhase.entries.forEach { phase ->
+        // Register before task
         taskBuilder.tasks.registerTask(
-            task = phase.createTask(),
-            dependsOn = listOfNotNull(phase.dependsOn?.taskName),
+            task = phase.createBeforeTask(),
+            dependsOn = listOfNotNull(phase.dependsOn?.afterTaskName),
+        )
+
+        // Register after task (depends on before task)
+        taskBuilder.tasks.registerTask(
+            task = AfterMavenPhaseTask(
+                taskName = phase.afterTaskName,
+                module = module,
+                isTest = phase.isTest,
+            ),
+            dependsOn = listOfNotNull(phase.beforeTaskName, phase.dependsOn?.afterTaskName),
         )
     }
 
     // Our source generation is aware of external module dependencies, so we
     // shall provide a corresponding task dependency for maven phases as well.
-    CommonTaskType.Dependencies.getTaskName(module, Platform.JVM, isTest = false)
-        .dependencyOf(KnownMavenPhase.`generate-sources`)
-    CommonTaskType.Dependencies.getTaskName(module, Platform.JVM, isTest = true)
-        .dependencyOf(KnownMavenPhase.`generate-test-sources`)
+    KnownMavenPhase.`generate-sources`.beforeTaskName dependsOn CommonTaskType.Dependencies(isTest = false)
+    KnownMavenPhase.`generate-test-sources`.beforeTaskName dependsOn CommonTaskType.Dependencies(isTest = true)
 
     // Generated sources/resources procession.
-    CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = false)
-        .dependsOn(KnownMavenPhase.`process-sources`, KnownMavenPhase.`process-resources`)
+    CommonTaskType.Compile(isTest = false) dependsOn KnownMavenPhase.`process-sources`.afterTaskName
+    CommonTaskType.Compile(isTest = false) dependsOn KnownMavenPhase.`process-resources`.afterTaskName
 
     // Compilation.
-    CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = false)
-        .dependencyOf(KnownMavenPhase.compile)
+    KnownMavenPhase.compile.beforeTaskName dependsOn CommonTaskType.Compile(isTest = false)
 
     // Before we will return classes or jars, we need to run maven compile phase plugins.
-    CommonTaskType.Classes.getTaskName(module, Platform.JVM, isTest = false)
-        .dependsOn(KnownMavenPhase.compile)
-    CommonTaskType.Jar.getTaskName(module, Platform.JVM, isTest = false)
-        .dependsOn(KnownMavenPhase.compile)
+    CommonTaskType.Classes(isTest = false) dependsOn KnownMavenPhase.compile.afterTaskName
+    CommonTaskType.Jar(isTest = false) dependsOn KnownMavenPhase.compile.afterTaskName
 
     // Generated test sources/resources procession.
-    CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = true)
-        .dependsOn(KnownMavenPhase.`process-test-sources`, KnownMavenPhase.`process-test-resources`)
+    CommonTaskType.Compile(isTest = true) dependsOn KnownMavenPhase.`process-test-sources`.afterTaskName
+    CommonTaskType.Compile(isTest = true) dependsOn KnownMavenPhase.`process-test-resources`.afterTaskName
 
-    CommonTaskType.Compile.getTaskName(module, Platform.JVM, isTest = true)
-        .dependencyOf(KnownMavenPhase.`test-compile`)
+    // Test compilation.
+    KnownMavenPhase.`test-compile`.beforeTaskName dependsOn CommonTaskType.Compile(isTest = true)
 
-    // Before we will run tests, we need to run maven test compile phase plugins.
-    CommonTaskType.Test.getTaskName(module, Platform.JVM)
-        .dependsOn(KnownMavenPhase.`test-compile`)
+    // Before we will run tests, we need to run maven `test-compile` phase plugins.
+    CommonTaskType.Test(isTest = false) dependsOn KnownMavenPhase.`test-compile`.afterTaskName
 }
 
 context(taskBuilder: ProjectTasksBuilder)
@@ -82,7 +84,7 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         //  amper classes? Should classes be shared between different maven mojos/plugins?
         //  Even instances of plexus beans that are discovered on the classpath?
         val container = createPlexusContainer(KnownMavenPhase::class.java.classLoader)
-        
+
         // Adjust the Maven API class loader (that is used as a "parent" for plugin classloaders) 
         // so that classes that are already on the Amper classpath won't be loaded twice for 
         // plugins that depend on these classes.
@@ -147,9 +149,15 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
         mojoTasks.forEach { mojoTask ->
             taskBuilder.tasks.registerTask(mojoTask)
             // Set the verify phase as default, so it will set up basic knowledge about the project for maven.
-            val phase = KnownMavenPhase.entries.singleOrNull { it.name == mojoTask.mojo.phase } ?: KnownMavenPhase.verify
-            taskBuilder.tasks.registerDependency(phase.taskName, mojoTask.taskName)
-            phase.dependsOn?.let { taskBuilder.tasks.registerDependency(mojoTask.taskName, it.taskName) }
+            val phase = mojoTask.mojo.phase?.let(KnownMavenPhase::get) ?: KnownMavenPhase.verify
+
+            mojoTask.taskName dependsOn phase.beforeTaskName
+            phase.afterTaskName dependsOn mojoTask.taskName
         }
     }
 }
+
+// Helper functions.
+context(taskBuilder: ProjectTasksBuilder, _: ModuleSequenceCtx)
+infix fun TaskName.dependsOn(dependsOn: TaskName) =
+    taskBuilder.tasks.registerDependency(this, dependsOn)

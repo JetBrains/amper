@@ -12,6 +12,7 @@ import org.jetbrains.amper.dependency.resolution.module
 import org.jetbrains.amper.dependency.resolution.version
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -36,11 +37,13 @@ import kotlin.io.path.absolute
 
 /**
  * An order-sensitive list of maven phases that are supported by the maven compatibility layer.
+ * 
+ * **Important!** Names should be equal to the actual maven phases names.
  */
 @Suppress("EnumEntryName")
 enum class KnownMavenPhase(
-    private val taskCtor: (PhaseTaskParameters) -> BaseUmbrellaMavenPhaseTask = ::BaseUmbrellaMavenPhaseTask,
-    private val isTest: Boolean = false,
+    val beforeTask: (PhaseTaskParameters) -> ArtifactTaskBase = ::BeforeMavenPhaseTask,
+    val isTest: Boolean = false,
 ) {
     validate(::InitialMavenPhaseTask),
     initialize,
@@ -70,20 +73,33 @@ enum class KnownMavenPhase(
     ;
 
     context(moduleCtx: ModuleSequenceCtx)
-    val taskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name))
+    val beforeTaskName
+        get() = TaskName.fromHierarchy(
+            listOf(
+                moduleCtx.module.userReadableName,
+                "maven",
+                name,
+                "before"
+            )
+        )
+
+    context(moduleCtx: ModuleSequenceCtx)
+    val afterTaskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name, "after"))
 
     val dependsOn get() = entries.getOrNull(entries.indexOf(this) - 1)
 
     context(moduleCtx: ModuleSequenceCtx, taskBuilder: ProjectTasksBuilder)
-    fun createTask() = taskCtor(
+    fun createBeforeTask() = beforeTask(
         PhaseTaskParameters(
-            taskName = taskName,
+            taskName = beforeTaskName,
             module = moduleCtx.module,
             isTest = isTest,
             incrementalCache = taskBuilder.context.incrementalCache,
             cacheRoot = taskBuilder.context.userCacheRoot,
         )
     )
+
+    companion object Index : EnumMap<KnownMavenPhase, String>(KnownMavenPhase::values, KnownMavenPhase::name)
 }
 
 data class MavenPhaseResult(
@@ -119,7 +135,7 @@ data class MavenProjectEmbryo(
     val resourcesPaths: List<Path> = emptyList(),
     val testResourcesPaths: List<Path> = emptyList(),
     val artifacts: Set<MavenArtifact> = emptySet(),
-) {
+) : TaskResult {
     /**
      * Merges this embryo with another one with this's embryo properties taking precedence.
      */
@@ -157,14 +173,14 @@ class PhaseTaskParameters(
 )
 
 /**
- * Empty task that serves for grouping maven plugin tasks
- * that should be bound to the existing amper jvm tasks.
+ * Task that collects all the information to mock the Maven model before mojo executions.
+ * Therefore, it depends on the corresponding Amper tasks and previous phases tasks.
  */
-open class BaseUmbrellaMavenPhaseTask(
+open class BeforeMavenPhaseTask(
     protected val parameters: PhaseTaskParameters,
 ) : ArtifactTaskBase() {
 
-    val targetFragment = parameters.module.leafFragments.singleOrNull {
+    protected val targetFragment = parameters.module.leafFragments.singleOrNull {
         it.platform == Platform.JVM && it.isTest == parameters.isTest
     } ?: error("No relevant JVM fragment was found. This task should be created only for modules with JVM platform.")
 
@@ -180,31 +196,80 @@ open class BaseUmbrellaMavenPhaseTask(
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
-    ): MavenPhaseResult {
+    ): MavenProjectEmbryo {
+        // Collect all the model information to pass to mojo executions.
         val previousPhasesResults = dependenciesResult.filterIsInstance<MavenPhaseResult>()
-        val currentPhaseModelChanges = dependenciesResult.filterIsInstance<ModelChange>()
-
-        // Collect all the model information to pass to the next phase task.
         val currentEmbryo = parameters.embryo(dependenciesResult)
-        val embryoFromChanges = MavenProjectEmbryo(
-            sourcesPaths = currentPhaseModelChanges.flatMap { it.additionalSources },
-            testSourcesPaths = currentPhaseModelChanges.flatMap { it.additionalTestSources },
-        )
-        val cumulativeEmbryo = (previousPhasesResults.map { it.embryo } + embryoFromChanges + currentEmbryo)
+        return (previousPhasesResults.map { it.embryo } + currentEmbryo)
             .reversed().reduce(MavenProjectEmbryo::merge)
-
-        // Aggregate model changes to pass to the dependent Amper tasks through task results.
-        val previousChanges = previousPhasesResults.flatMap { it.modelChanges }
-        return MavenPhaseResult(targetFragment, cumulativeEmbryo, previousChanges + currentPhaseModelChanges)
     }
 }
 
 /**
- * Aggregating task for [`generate-sources`] and [`generate-test-sources`] phases.
+ * After phase task that aggregates model changes from mojo executions.
+ * This task depends on:
+ * 1. Previous phase after task.
+ * 2. Corresponding before task.
+ * 3. All mojo tasks for this phase.
+ * 
+ * It merges previous phase results with the mojo-generated sources/resources into the final [MavenPhaseResult],
+ * so that next Amper tasks/Maven phases will have access both to cumulative [ModelChange]s and [MavenPhaseResult].
+ */
+class AfterMavenPhaseTask(
+    override val taskName: TaskName,
+    module: AmperModule,
+    isTest: Boolean,
+) : ArtifactTaskBase() {
+
+    private val targetFragment = module.leafFragments.singleOrNull {
+        it.platform == Platform.JVM && it.isTest == isTest
+    } ?: error("No relevant JVM fragment was found. This task should be created only for modules with JVM platform.")
+
+    override suspend fun run(
+        dependenciesResult: List<TaskResult>,
+        executionContext: TaskGraphExecutionContext,
+    ): MavenPhaseResult {
+        // Get the before task result (should be exactly one, or non for the first phase)
+        val previousPhasesResults = dependenciesResult
+            .filterIsInstance<MavenPhaseResult>()
+            .singleOrNull()
+
+        // Get model changes from mojos
+        val mojoExecutionsModelChanges = dependenciesResult
+            .filterIsInstance<ModelChange>()
+
+        // Get adjustment for the current phase
+        val currentPhaseEmbryo = dependenciesResult
+            .filterIsInstance<MavenProjectEmbryo>()
+        
+        // Merge model changes into embryo
+        val embryoFromMojoChanges = MavenProjectEmbryo(
+            allClassesOutputPaths = emptyList(),
+            allTestClassesOutputPaths = emptyList(),
+            sourcesPaths = mojoExecutionsModelChanges.flatMap { it.additionalSources },
+            testSourcesPaths = mojoExecutionsModelChanges.flatMap { it.additionalTestSources },
+            resourcesPaths = emptyList(),
+            testResourcesPaths = emptyList(),
+            artifacts = emptySet(),
+        )
+
+        val finalEmbryo = (currentPhaseEmbryo + listOfNotNull(previousPhasesResults?.embryo, embryoFromMojoChanges))
+            .reduce(MavenProjectEmbryo::merge)
+
+        return MavenPhaseResult(
+            fragment = targetFragment,
+            embryo = finalEmbryo,
+            modelChanges = previousPhasesResults?.modelChanges.orEmpty() + mojoExecutionsModelChanges,
+        )
+    }
+}
+
+/**
+ * Aggregating task for [KnownMavenPhase.`generate-sources`] and [KnownMavenPhase.`generate-test-sources`] phases.
  * It is adding additional sources to the embryo that should
  * be accessible to the maven model.
  */
-class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenPhaseTask(parameters) {
 
     private val additionalSourceDirs by Selectors.fromMatchingFragments(
         KotlinJavaSourceDirArtifact::class,
@@ -222,7 +287,7 @@ class GeneratedSourcesMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbr
 /**
  * Maven phase task that is aware of sources generation.
  */
-class AdditionalResourcesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+class AdditionalResourcesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenPhaseTask(parameters) {
 
     private val additionalResourceDirs by Selectors.fromMatchingFragments(
         type = JvmResourcesDirArtifact::class,
@@ -240,7 +305,7 @@ class AdditionalResourcesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : 
 /**
  * Maven phase task that is aware of compiled classes.
  */
-class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenPhaseTask(parameters) {
 
     private val compiledJvmClassesDirs by Selectors.fromModuleOnly(
         type = CompiledJvmArtifact::class,
@@ -263,7 +328,7 @@ class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrella
  *  - resolved external artifacts
  *  - initial source and resource paths
  */
-class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BaseUmbrellaMavenPhaseTask(parameters) {
+class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenPhaseTask(parameters) {
 
     private val mavenResolver by lazy {
         CliReportingMavenResolver(parameters.cacheRoot, parameters.incrementalCache)
