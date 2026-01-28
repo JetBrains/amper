@@ -105,8 +105,8 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
 }
 
 /**
- * Executes the given [cancellableBlock], and waits for the process termination. When this function terminates (normally
- * or exceptionally), the process is guaranteed to be terminated:
+ * Executes the given [cancellableBlock], and waits for the process's termination.
+ * When this function terminates (normally or exceptionally), the process is guaranteed to be terminated:
  *
  * * If [cancellableBlock] completes successfully, this function simply waits for the termination of this process
  *   **without destroying it**.
@@ -118,7 +118,7 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
  * * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **destroys the process** and waits for its
  *   termination.
  *
- * In cases where the process is destroyed, a normal destruction is requested first, and if this process doesn't
+ * In cases where the process is destroyed, normal destruction is requested first, and if this process doesn't
  * terminate within the given [gracePeriod], it is then _forcibly destroyed_.
  *
  * > Forcible process destruction is defined as the immediate termination of a process, whereas normal termination
@@ -182,21 +182,30 @@ internal inline fun <T> Process.withDestructionHook(
     contract {
         callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
     }
-    // If the JVM is shut down (e.g. via Ctrl+C) while this child process is running, we don't want to leak the process.
-    // We also want to wait for the process termination (even if slow) to ensure all output is printed, and also to
-    // show to the caller if the process actually hangs.
-    return withShutdownHook(onJvmShutdown = { killAndAwaitTermination(gracePeriod) }) {
+    val command = try {
+        info().commandLine().orElse("")
+    } catch (_: UnsupportedOperationException) {
+        "" // it's ok if the Process doesn't support providing info(), we can just omit the command name
+    }
+    return withShutdownHook(
+        name = "Destroyer for PID=${pid()}: $command",
+        onJvmShutdown = { killAndAwaitTermination(gracePeriod) },
+    ) {
         block(this)
     }
 }
 
 @OptIn(ExperimentalContracts::class)
 @PublishedApi
-internal inline fun <T> withShutdownHook(crossinline onJvmShutdown: () -> Unit, block: () -> T): T {
+internal inline fun <T> withShutdownHook(name: String, crossinline onJvmShutdown: () -> Unit, block: () -> T): T {
     contract {
         callsInPlace(block, kind = InvocationKind.EXACTLY_ONCE)
     }
-    val hookThread = Thread { onJvmShutdown() }
+    val hookThread = Thread(
+        /* group = */ null,
+        /* task = */ { onJvmShutdown() },
+        /* name = */ name,
+    )
     val runtime = Runtime.getRuntime()
     try {
         runtime.addShutdownHook(hookThread)
@@ -250,8 +259,7 @@ internal fun Process.killAndAwaitTermination(gracePeriod: Duration = DefaultGrac
  * Forcible process destruction is defined as the immediate termination of the process, whereas normal
  * termination allows the process to shut down cleanly.
  */
-@PublishedApi
-internal fun Process.destroyHierarchy() {
+private fun Process.destroyHierarchy() {
     descendants().forEach { it.destroy() }
     destroy()
 }
