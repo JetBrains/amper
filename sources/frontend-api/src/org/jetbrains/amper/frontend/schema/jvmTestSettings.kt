@@ -16,6 +16,10 @@ class JvmTestSettings : SchemaNode() {
     @SchemaDoc("Pass JVM system properties to set for the test process.")
     val systemProperties by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 
+    @SchemaDoc("Additional environment variables that should be passed to the test process, in addition to the inherited " +
+            "system environment. Note: the values passed here take precedence over the inherited environment.")
+    val extraEnvironment by value<Map<TraceableString, TraceableString>>(default = emptyMap())
+
     @SchemaDoc("Pass any JVM command line arguments to the test process.")
     val freeJvmArgs by value<List<String>>(default = emptyList())
 }

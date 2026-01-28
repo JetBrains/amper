@@ -45,6 +45,7 @@ settings@android:
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
+      extraEnvironment: {}  # default
       freeJvmArgs: []  # default
       junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
@@ -129,6 +130,7 @@ settings@jvm:
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
+      extraEnvironment: {}  # default
       freeJvmArgs: []  # default
       junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
@@ -225,6 +227,7 @@ settings@jvm+android:
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
+      extraEnvironment: {}  # default
       freeJvmArgs: []  # default
       junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
@@ -311,6 +314,7 @@ settings@jvm:
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
+      extraEnvironment: {}  # default
       freeJvmArgs: []  # default
       junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default
@@ -406,6 +410,7 @@ settings@android:
     runtimeClasspathMode: jars  # default
     storeParameterNames: false  # default
     test:
+      extraEnvironment: {}  # default
       freeJvmArgs: []  # default
       junitPlatformVersion: 6.0.1  # default
       systemProperties: {}  # default

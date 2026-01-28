@@ -469,11 +469,12 @@ Values for `selectionMode`:
 `settings.jvm.test` configures the test settings on the JVM and Android platforms.
 Read more about [testing support](../user-guide/testing.md).
 
-| Value                          | Description                                   |
-|--------------------------------|-----------------------------------------------|
-| `junitPlatformVersion: string` | The JUnit platform version used to run tests. |
-| `systemProperties: map`        | JVM system properties for the test process.   |
-| `freeJvmArgs: string list`     | Free JVM arguments for the test process.      |
+| Value                          | Description                                      |
+|--------------------------------|--------------------------------------------------|
+| `junitPlatformVersion: string` | The JUnit platform version used to run tests.    |
+| `systemProperties: map`        | JVM system properties for the test process.      |
+| `environmentVariables: map`    | Environment variables for the test process.      |
+| `freeJvmArgs: string list`     | Free JVM arguments for the test process.         |
 
 ### `settings.kotlin`
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -177,6 +177,10 @@ class JvmTestTask(
         // the project root is a somewhat safe choice.
         val workingDirectory = module.source.moduleDir
 
+        val environment = jvmTestSettings.extraEnvironment
+            .map { (k, v) -> k.value to v.value }
+            .toMap()
+
         return spanBuilder("junit-platform-console-standalone")
             .setAttribute("junit-platform-console-standalone", junitConsole.pathString)
             .setAttribute("working-dir", workingDirectory.pathString)
@@ -196,6 +200,7 @@ class JvmTestTask(
                     programArgs = listOf("execute") + junitArgs,
                     argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
                     jvmArgs = jvmArgs,
+                    environment = environment,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -7,9 +7,12 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.test.utils.assertLogStartsWith
 import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
+import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
+import org.jetbrains.amper.telemetry.getListAttribute
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.WindowsOnly
+import org.jetbrains.amper.test.spans.spansNamed
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.slf4j.event.Level
@@ -17,6 +20,9 @@ import kotlin.io.path.readText
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 // CONCURRENT is here to test that multiple concurrent amper processes work correctly.
 @Execution(ExecutionMode.CONCURRENT)
@@ -153,12 +159,14 @@ class AmperTestBasicTest : AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-        result.assertStderrContains("""
+        result.assertStderrContains(
+            """
             Unable to run requested platform(s) on the current system.
 
             Requested unsupported platforms: mingwX64
             Runnable platforms on the current system: android iosSimulatorArm64 jvm macosArm64 tvosSimulatorArm64 watchosSimulatorArm64
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @Test
@@ -189,7 +197,10 @@ class AmperTestBasicTest : AmperCliTestBase() {
     fun `should warn on no test sources (jvm)`() = runSlowTest {
         // Testing a module should not fail if there are no test sources at all but warn about it
         val result = runCli(projectRoot = testProject("jvm-kotlin-test-no-test-sources"), "test")
-        result.assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
+        result.assertLogStartsWith(
+            "No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'",
+            Level.WARN
+        )
     }
 
     @Test
@@ -198,7 +209,10 @@ class AmperTestBasicTest : AmperCliTestBase() {
     fun `should warn on no test sources (native)`() = runSlowTest {
         // Testing a module should not fail if there are no test sources at all but warn about it
         val result = runCli(projectRoot = testProject("native-test-no-test-sources"), "test", "--platform=mingwX64")
-        result.assertLogStartsWith("No test classes, skipping test execution for module 'native-test-no-test-sources'", Level.WARN)
+        result.assertLogStartsWith(
+            "No test classes, skipping test execution for module 'native-test-no-test-sources'",
+            Level.WARN
+        )
     }
 
     @Test
@@ -252,6 +266,18 @@ class AmperTestBasicTest : AmperCliTestBase() {
         result.assertStdoutContains("Started DemoApplicationTests")
         result.assertStdoutContains("Passed contextLoads")
         result.assertStdoutContains("Completed DemoApplicationTests")
+        result.assertStdoutContains("1 tests successful")
+    }
+
+    @Test
+    fun `jvm test with environment variables`() = runSlowTest {
+        val result = runCli(testProject("jvm-kotlin-test-envvars"), "test")
+
+        val span = result.readTelemetrySpans().spansNamed("java-exec").assertSingle()
+        assertEquals(
+            listOf("MY_TEST_ENV_FROM_SETTINGS=hello-from-settings"),
+            span.getListAttribute("env-vars")
+        )
         result.assertStdoutContains("1 tests successful")
     }
 }

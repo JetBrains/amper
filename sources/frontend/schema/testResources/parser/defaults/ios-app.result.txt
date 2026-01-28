@@ -79,6 +79,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -246,6 +248,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -409,6 +413,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -575,6 +581,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -739,6 +747,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -903,6 +913,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1070,6 +1082,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1234,6 +1248,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1401,6 +1417,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1568,6 +1586,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1732,6 +1752,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -1899,6 +1921,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -2063,6 +2087,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
@@ -2230,6 +2256,8 @@ Fragments:
         runtimeClasspathMode: <default> jars
         storeParameterNames: <default> false
         test: <default> {
+          extraEnvironment: <default> {
+          }
           freeJvmArgs: <default> [
           ]
           junitPlatformVersion: <default> 6.0.1
