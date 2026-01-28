@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.processes
@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -89,7 +88,7 @@ private suspend inline fun InputStream.consumeLinesBlockingCancellable(onEachLin
                 // We cooperate with cancellation by checking for it between each line read.
                 // Using yield() instead of ensureActive() between reads could hurt performance, and wouldn't solve
                 // the problem, because we could still block indefinitely on a read that never comes.
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
             }
         } catch (e: IOException) {
             // If the process is killed externally on unix systems, the stream is eagerly closed,
