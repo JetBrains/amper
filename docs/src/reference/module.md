@@ -473,7 +473,7 @@ Read more about [testing support](../user-guide/testing.md).
 |--------------------------------|--------------------------------------------------|
 | `junitPlatformVersion: string` | The JUnit platform version used to run tests.    |
 | `systemProperties: map`        | JVM system properties for the test process.      |
-| `environmentVariables: map`    | Environment variables for the test process.      |
+| `extraEnvironment: map`        | Environment variables for the test process.      |
 | `freeJvmArgs: string list`     | Free JVM arguments for the test process.         |
 
 ### `settings.kotlin`
