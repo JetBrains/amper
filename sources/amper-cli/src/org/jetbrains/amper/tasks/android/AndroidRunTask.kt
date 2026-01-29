@@ -11,6 +11,7 @@ import com.android.ddmlib.IShellOutputReceiver
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.repository.api.ConsoleProgressIndicator
 import com.android.sdklib.AndroidVersion
+import com.android.sdklib.AndroidVersion.VersionCodes.UPSIDE_DOWN_CAKE
 import com.android.sdklib.devices.DeviceManager
 import com.android.sdklib.internal.avd.AvdManager
 import com.android.sdklib.repository.AndroidSdkHandler
@@ -31,6 +32,7 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.schema.AndroidVersion.VERSION_23
 import org.jetbrains.amper.frontend.singleSourceRoot
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.startLongLivedProcess
@@ -74,7 +76,7 @@ class AndroidRunTask(
         val device = run {
             runSettings.deviceId?.let { deviceId ->
                 adb.devices.find { it.serialNumber == deviceId } ?: userReadableError(
-                    "Unable to find the device with the serial = `$deviceId`"
+                    "Unable to find the device with the serial = `$deviceId`, available devices: ${adb.devices.joinToString { it.serialNumber }}"
                 )
             } ?: adb.selectOrCreateVirtualDevice(
                 androidTarget = androidFragment.settings.android.targetSdk.versionNumber,
@@ -84,7 +86,17 @@ class AndroidRunTask(
 
         val apk = dependenciesResult.filterIsInstance<AndroidDelegatedGradleTask.Result>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
-        device.installPackage(apk.pathString, true, "--bypass-low-target-sdk-block")
+
+        // https://developer.android.com/about/versions/14/behavior-changes-all
+        val unsupportedMinSdk = androidFragment.settings.android.minSdk.versionNumber <= VERSION_23.versionNumber
+        val modernAndroidVersion = device.version >= AndroidVersion(UPSIDE_DOWN_CAKE, null)
+        val extraArgs = if (unsupportedMinSdk && modernAndroidVersion) {
+            arrayOf("--bypass-low-target-sdk-block")
+        } else {
+            emptyArray<String>()
+        }
+
+        device.installPackage(apk.pathString, true, *extraArgs)
 
         val activityName = findActivityToLaunch(androidFragment) ?: userReadableError("Could not find activity to launch")
 

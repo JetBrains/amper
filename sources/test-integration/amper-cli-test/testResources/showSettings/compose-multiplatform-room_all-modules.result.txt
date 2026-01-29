@@ -5,7 +5,7 @@ settings@android:
     applicationId: org.example.namespace  # default, from ${namespace}
     compileSdk: 36  # default
     maxSdk: null  # default
-    minSdk: 21  # default
+    minSdk: 23  # default
     namespace: org.example.namespace  # default
     parcelize:
       additionalAnnotations: []  # default
@@ -195,7 +195,7 @@ settings@jvm+android:
   android:
     compileSdk: 36  # default
     maxSdk: null  # default
-    minSdk: 21  # default
+    minSdk: 23  # default
     namespace: org.example.namespace  # default
     parcelize:
       additionalAnnotations: []  # default
@@ -379,7 +379,7 @@ settings@android:
   android:
     compileSdk: 36  # default
     maxSdk: null  # default
-    minSdk: 21  # default
+    minSdk: 23  # default
     namespace: org.example.namespace  # default
     parcelize:
       additionalAnnotations: []  # default

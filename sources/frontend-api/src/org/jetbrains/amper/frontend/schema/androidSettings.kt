@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -105,7 +105,7 @@ class AndroidSettings : SchemaNode() {
     @Misnomers("minApiLevel")
     @SchemaDoc("Minimum API level needed to run the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    val minSdk by value(AndroidVersion.VERSION_21)
+    val minSdk by value(AndroidVersion.VERSION_23)
 
     @Misnomers("maxApiLevel")
     @SchemaDoc("Maximum API level on which the application can run. " +

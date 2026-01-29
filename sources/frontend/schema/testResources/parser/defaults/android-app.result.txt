@@ -12,7 +12,7 @@ Fragments:
         applicationId: <default> org.example.namespace
         compileSdk: <default> 36
         maxSdk: <default> null
-        minSdk: <default> 21
+        minSdk: <default> 23
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
@@ -181,7 +181,7 @@ Fragments:
         applicationId: <default> org.example.namespace
         compileSdk: <default> 36
         maxSdk: <default> null
-        minSdk: <default> 21
+        minSdk: <default> 23
         namespace: <default> org.example.namespace
         parcelize: <default> {
           additionalAnnotations: <default> [
