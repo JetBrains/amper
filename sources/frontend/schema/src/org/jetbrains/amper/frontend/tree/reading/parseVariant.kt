@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.plugins.TaskAction
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependency
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyCatalog
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
@@ -31,7 +32,7 @@ import org.jetbrains.amper.frontend.types.SchemaVariantDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import kotlin.reflect.KClass
 
-context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
+context(_: Contexts, _: ParsingConfig, reporter: ProblemReporter)
 internal fun parseVariant(
     value: YamlValue,
     type: SchemaType.VariantType,
@@ -92,25 +93,31 @@ internal fun parseVariant(
         '$' -> parseObject(value, type.leafType(ShadowDependencyCatalog::class))
         else -> parseObject(value, type.leafType(ShadowDependencyMaven::class))
     }
-    else -> {
-        // Generic approach: deduce the type based on the explicit type tag.
-        val possibleTagsString by lazy { type.declaration.variants.joinToString { '!' + it.qualifiedName } }
-        when(val tag = value.tag) {
-            null -> {
-                reportParsing(value, "validation.types.missing.tag", possibleTagsString)
-                null
-            }
-            else -> {
-                val requestedName = tag.text.removePrefix("!")
-                when(val variant = type.declaration.variants.find { it.qualifiedName == requestedName }) {
-                    null -> {
-                        reportParsing(tag, "validation.types.unknown.tag", possibleTagsString)
-                        null
-                    }
-                    else -> parseObject(value, variant.toType(), allowTypeTag = true)
-                }
-            }
+    TaskAction::class.qualifiedName -> {
+        val tag = value.tag
+        if (tag == null) {
+            reporter.reportMessage(MissingTaskActionType(element = value.psi, taskActionType = type.declaration))
+            return null
         }
+        val requestedTypeName = tag.text.removePrefix("!")
+        val variant = type.declaration.variants.find { it.qualifiedName == requestedTypeName }
+        if (variant == null) {
+            reporter.reportMessage(
+                InvalidTaskActionType(
+                    element = tag,
+                    invalidType = requestedTypeName,
+                    taskActionType = type.declaration,
+                )
+            )
+            null
+        } else {
+            parseObject(value, variant.toType(), allowTypeTag = true)
+        }
+    }
+    else -> {
+        // NOTE: When (if) we support user-defined sealed classes based on type tags,
+        // replace the error with a meaningful description
+        error("Unhandled variant type: ${type.declaration.qualifiedName}")
     }
 }
 

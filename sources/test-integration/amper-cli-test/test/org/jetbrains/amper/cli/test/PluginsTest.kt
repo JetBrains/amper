@@ -401,12 +401,13 @@ class PluginsTest : AmperCliTestBase() {
             )
             assertErrors(
                 "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:2:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:16: Unexpected custom YAML type tag",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:3:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:22: Unexpected custom YAML type tag",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:3: Expected a value",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:13: Unexpected type specified. Expected one of: []",
-                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: Unexpected type specified. Expected one of: []",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:5:16: Unexpected custom YAML type tag",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:5:3: Expected a value",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:22: Unexpected custom YAML type tag",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:6:3: Expected a value",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:8:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:10:13: The task action function specifier 'com.example.nonExistentTask' doesn't correspond to any available `@TaskAction`-annotated top-level functions. Available task action functions: <none>",
+                "${projectRoot / "invalid-plugin-yaml" / "plugin.yaml"}:4:13: Missing task action function specifier. Add the `!<fully-qualified-task-action-function-name>` YAML type tag to the mapping. Available task action functions: <none>",
             )
         }
     }

@@ -1,5 +1,7 @@
 tasks:
   empty-task:
+  empty-task1:
+    action: {}
   empty-task2: !com.example.nonExistentTask
   empty-task2-space: !com.example.nonExistentTask # trailing space
   empty-task3-space:
