@@ -255,7 +255,24 @@ class NativeSettings : SchemaNode() {
 
     // TODO other options from NativeApplicationPart
     @SchemaDoc("The fully-qualified name of the application's entry point function")
-    val entryPoint by nullableValue<String>()
+    var entryPoint by nullableValue<String>()
+
+    @SchemaDoc("C/Objective-C interop settings for native targets")
+    val cinterop: Map<String, CinteropModule> by value(default = emptyMap())
+}
+
+class CinteropModule : SchemaNode() {
+    @SchemaDoc("Path to the .def file for cinterop generation.")
+    var defFile by nullableValue<Path>()
+
+    @SchemaDoc("The package name for the generated bindings.")
+    var packageName by nullableValue<String>()
+
+    @SchemaDoc("Options to be passed to the C compiler.")
+    var compilerOpts: List<String> by value(default = emptyList())
+
+    @SchemaDoc("Options to be passed to the linker, and C/C++ source files to be compiled.")
+    var linkerOpts: List<String> by value(default = emptyList())
 }
 
 class KtorSettings: SchemaNode() {
