@@ -668,15 +668,18 @@ settings:
     entryPoint: com.example.MainKt.main
 ```
 
-##### 'settings.cinterop'
+##### 'settings.native.cinterop'
 
 `settings:native:cinterop` configures C/Objective-C interop for native targets.
 
-| Attribute      | Description                               | Default |
-|----------------|-------------------------------------------|---------|
-| `defs: list`   | A list of `.def` files for cinterop generation. | (empty) |
+Each cinterop module is defined by a name and supports the following attributes:
 
-By convention, Amper automatically discovers all `.def` files located in the `resources/cinterop` directory of a native fragment. The `defs` property can be used to include `.def` files from other locations.
+| Attribute      | Description                               |
+|----------------|-------------------------------------------|
+| `defFile`      | Path to the Kotlin/Native definition (`.def`) file. |
+| `packageName`  | The Kotlin package name for the generated bindings. |
+| `compilerOpts` | A list of flags to be passed to the C compiler (e.g., `-I/path/to/includes`). |
+| `linkerOpts`   | A list of C/C++ source files (`.c`, `.cpp`) to be compiled and/or flags to be passed to the linker (e.g., `-lm`). |
 
 Example:
 
@@ -685,8 +688,18 @@ Example:
 settings:
   native:
     cinterop:
-      defs:
-        - src/native/cinterop/libfoo.def
+      hello:
+        defFile: cinterop/hello.def
+        packageName: com.example.hello
+        linkerOpts:
+          - cinterop/hello.c
+      libfoo:
+        defFile: external/libfoo/api.def
+        packageName: com.example.libfoo
+        compilerOpts:
+          - -I/usr/local/include
+        linkerOpts:
+          - -lfoo
 ```
 
 ### `settings.springBoot`
