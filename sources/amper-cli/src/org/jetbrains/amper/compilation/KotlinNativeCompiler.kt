@@ -73,7 +73,7 @@ class KotlinNativeCompiler(
                 logger.debug("konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                    val result = runNativeCommand("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
+                    val result = processRunner.runNativeCommand("konanc", listOf("@$argFile"), ArgsMode.ArgFile(tempRoot))
                     // TODO this is redundant with the java span of the external process run. Ideally, we
                     //  should extract higher-level information from the raw output and use that in this span.
                     span.setProcessResultAttributes(result)
@@ -91,6 +91,7 @@ class KotlinNativeCompiler(
     }
 
     suspend fun cinterop(
+        processRunner: ProcessRunner,
         args: List<String>,
         module: AmperModule,
     ) {
@@ -101,7 +102,7 @@ class KotlinNativeCompiler(
             .use { span ->
                 logger.debug("cinterop ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
-                val result = runNativeCommand("cinterop", args, ArgsMode.CommandLine)
+                val result = processRunner.runNativeCommand("cinterop", args, ArgsMode.CommandLine)
                 span.setProcessResultAttributes(result)
 
                 if (result.exitCode != 0) {
@@ -115,7 +116,7 @@ class KotlinNativeCompiler(
             }
     }
 
-    private suspend fun runNativeCommand(
+    private suspend fun ProcessRunner.runNativeCommand(
         commandName: String,
         commandArgs: List<String>,
         argsMode: ArgsMode
@@ -125,7 +126,7 @@ class KotlinNativeCompiler(
         // We call konanc via java because the konanc command line doesn't support spaces in paths:
         // https://youtrack.jetbrains.com/issue/KT-66952
         // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
-        return processRunner.runJava(
+        return runJava(
             jdk = jdk,
             workingDir = kotlinNativeHome,
             mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",

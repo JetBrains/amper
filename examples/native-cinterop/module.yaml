@@ -8,3 +8,4 @@ settings:
     cinterop:
       hello:
         defFile: 'resources/cinterop/hello.def'
+        packageName: 'org.jetbrains.amper.samples.cinterop.hello'

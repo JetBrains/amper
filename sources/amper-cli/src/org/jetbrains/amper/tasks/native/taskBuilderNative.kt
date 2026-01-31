@@ -46,7 +46,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                 .singleLeafFragment()
 
             val cinteropTasks = fragment.settings.native?.cinterop?.map { (moduleName, cinteropModule) ->
-                val defFile = cinteropModule.defFile ?: Path("resources/cinterop/$moduleName.def")
+                val defFile = cinteropModule.defFile
                 val cinteropTaskName = NativeTaskType.Cinterop.getTaskName(module, platform, isTest, buildType)
                     .let { TaskName(it.name + "-" + moduleName) }
                 CinteropTask(
@@ -54,15 +54,16 @@ fun ProjectTasksBuilder.setupNativeTasks() {
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(cinteropTaskName),
-                    incrementalCache = incrementalCache,
+                    incrementalCache = context.incrementalCache,
                     taskName = cinteropTaskName,
-                    tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     buildType = buildType,
+                    jdkProvider = context.jdkProvider,
                     defFile = module.source.moduleDir.resolve(defFile),
                     packageName = cinteropModule.packageName,
                     compilerOpts = cinteropModule.compilerOpts,
                     linkerOpts = cinteropModule.linkerOpts,
+                    processRunner = context.processRunner
                 ).also { tasks.registerTask(it) }
             }
 

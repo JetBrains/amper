@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.intellij.util.applyIf
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.tasks.native.CinteropTask
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
@@ -103,7 +103,11 @@ internal class NativeCompileKlibTask(
             .filterIsInstance<CinteropTask.Result>()
             .mapNotNull { it.compiledKlib }
 
-        val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
+        val kotlinUserSettings = fragments.singleLeafFragment()
+            .serializableKotlinSettings()
+            .applyIf(cinteropKlibs.isNotEmpty()) {
+                copy(optIns = optIns + "kotlinx.cinterop.ExperimentalForeignApi")
+            }
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 

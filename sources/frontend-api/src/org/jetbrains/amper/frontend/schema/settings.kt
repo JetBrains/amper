@@ -255,7 +255,7 @@ class NativeSettings : SchemaNode() {
 
     // TODO other options from NativeApplicationPart
     @SchemaDoc("The fully-qualified name of the application's entry point function")
-    var entryPoint by nullableValue<String>()
+    val entryPoint by nullableValue<String>()
 
     @SchemaDoc("C/Objective-C interop settings for native targets")
     val cinterop: Map<String, CinteropModule> by value(default = emptyMap())
@@ -263,16 +263,16 @@ class NativeSettings : SchemaNode() {
 
 class CinteropModule : SchemaNode() {
     @SchemaDoc("Path to the .def file for cinterop generation.")
-    var defFile by nullableValue<Path>()
+    val defFile by value<Path>()
 
     @SchemaDoc("The package name for the generated bindings.")
-    var packageName by nullableValue<String>()
+    val packageName by nullableValue<String>()
 
     @SchemaDoc("Options to be passed to the C compiler.")
-    var compilerOpts: List<String> by value(default = emptyList())
+    val compilerOpts: List<String> by value(default = emptyList())
 
     @SchemaDoc("Options to be passed to the linker, and C/C++ source files to be compiled.")
-    var linkerOpts: List<String> by value(default = emptyList())
+    val linkerOpts: List<String> by value(default = emptyList())
 }
 
 class KtorSettings: SchemaNode() {
@@ -302,7 +302,7 @@ class SpringBootSettings: SchemaNode() {
 }
 
 class LombokSettings: SchemaNode() {
-    
+
     @Shorthand
     @SchemaDoc("Enables Lombok")
     val enabled by value(default = false)

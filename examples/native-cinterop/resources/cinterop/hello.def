@@ -1,2 +1,1 @@
 headers = src/c/hello.c
-package = org.jetbrains.amper.samples.cinterop.hello
