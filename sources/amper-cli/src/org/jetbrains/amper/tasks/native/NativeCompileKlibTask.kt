@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.intellij.util.applyIf
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -98,11 +99,19 @@ internal class NativeCompileKlibTask(
 
         // todo native resources are what exactly?
 
-        val kotlinUserSettings = fragments.singleLeafFragment().serializableKotlinSettings()
+        val cinteropKlibs = dependenciesResult
+            .filterIsInstance<CinteropTask.Result>()
+            .mapNotNull { it.compiledKlib }
+
+        val kotlinUserSettings = fragments.singleLeafFragment()
+            .serializableKotlinSettings()
+            .applyIf(cinteropKlibs.isNotEmpty()) {
+                copy(optIns = optIns + "kotlinx.cinterop.ExperimentalForeignApi")
+            }
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
-        val libraryPaths = compiledModuleDependencies + externalDependencies
+        val libraryPaths = compiledModuleDependencies + externalDependencies + cinteropKlibs
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
             SourceRoot(
