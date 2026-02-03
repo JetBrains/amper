@@ -32,12 +32,19 @@ internal val xml = XML {
     }
 }
 
-internal fun String.parsePom(): Project =
-    xml.decodeFromString(this.replace("<project>", "<project xmlns=\"$POM_XML_NAMESPACE\">"))
+internal fun String.parsePom(): Project {
+    // Normalize 4.1.0 namespace to 4.0.0 for compatibility with annotations
+    val xmlString = this
+        .replace(POM_XML_NAMESPACE_4_1_0,POM_XML_NAMESPACE_4_0_0)
+        .replace("<project>", "<project xmlns=\"$POM_XML_NAMESPACE_4_0_0\">")
+
+    return xml.decodeFromString(xmlString)
+}
 
 internal fun Project.serialize(): String = xml.encodeToString(this)
 
-private const val POM_XML_NAMESPACE = "http://maven.apache.org/POM/4.0.0"
+private const val POM_XML_NAMESPACE_4_0_0 = "http://maven.apache.org/POM/4.0.0"
+private const val POM_XML_NAMESPACE_4_1_0 = "http://maven.apache.org/POM/4.1.0"
 
 object MavenPomPropertiesXmlSerializer : KSerializer<Properties> {
 
@@ -54,13 +61,13 @@ object MavenPomPropertiesXmlSerializer : KSerializer<Properties> {
         get() = (this as? XML.XmlOutput)?.target
 
     private fun XmlWriter.encodeProperties(properties: Map<String, String?>) {
-        startTag(POM_XML_NAMESPACE, "properties", "")
+        startTag(POM_XML_NAMESPACE_4_0_0, "properties", "")
         properties.forEach { (k, v) ->
-            startTag(POM_XML_NAMESPACE, k, "")
+            startTag(POM_XML_NAMESPACE_4_0_0, k, "")
             v?.let { text(v) }
-            endTag(POM_XML_NAMESPACE, k, "")
+            endTag(POM_XML_NAMESPACE_4_0_0, k, "")
         }
-        endTag(POM_XML_NAMESPACE, "properties", "")
+        endTag(POM_XML_NAMESPACE_4_0_0, "properties", "")
     }
 
     private fun XmlBufferedReader.decodeProperties(): Map<String, String?> = buildMap {
@@ -108,7 +115,7 @@ object MavenPomPropertiesXmlSerializer : KSerializer<Properties> {
 }
 
 @Serializable
-@XmlSerialName("project", POM_XML_NAMESPACE)
+@XmlSerialName("project", POM_XML_NAMESPACE_4_0_0)
 data class Project(
     @XmlElement(true)
     val modelVersion: String? = null,
@@ -153,7 +160,7 @@ data class Project(
 )
 
 @Serializable
-@XmlSerialName("parent", POM_XML_NAMESPACE)
+@XmlSerialName("parent", POM_XML_NAMESPACE_4_0_0)
 data class Parent(
     @XmlElement(true)
     val groupId: String,
@@ -164,7 +171,7 @@ data class Parent(
 )
 
 @Serializable
-@XmlSerialName("organization", POM_XML_NAMESPACE)
+@XmlSerialName("organization", POM_XML_NAMESPACE_4_0_0)
 data class Organization(
     @XmlElement(true)
     val name: String? = null,
@@ -173,14 +180,14 @@ data class Organization(
 )
 
 @Serializable
-@XmlSerialName("licenses", POM_XML_NAMESPACE)
+@XmlSerialName("licenses", POM_XML_NAMESPACE_4_0_0)
 data class Licenses(
     @XmlElement(true)
     val licenses: List<License>
 )
 
 @Serializable
-@XmlSerialName("license", POM_XML_NAMESPACE)
+@XmlSerialName("license", POM_XML_NAMESPACE_4_0_0)
 data class License(
     @XmlElement(true)
     val name: String? = null,
@@ -191,14 +198,14 @@ data class License(
 )
 
 @Serializable
-@XmlSerialName("developers", POM_XML_NAMESPACE)
+@XmlSerialName("developers", POM_XML_NAMESPACE_4_0_0)
 data class Developers(
     @XmlElement(true)
     val developers: List<Developer>
 )
 
 @Serializable
-@XmlSerialName("developer", POM_XML_NAMESPACE)
+@XmlSerialName("developer", POM_XML_NAMESPACE_4_0_0)
 data class Developer(
     @XmlElement(true)
     val id: String? = null,
@@ -211,20 +218,20 @@ data class Developer(
     @XmlElement(true)
     val organizationUrl: String? = null,
     @XmlElement(true)
-    @XmlSerialName("roles", POM_XML_NAMESPACE)
-    @XmlChildrenName("role", POM_XML_NAMESPACE)
+    @XmlSerialName("roles", POM_XML_NAMESPACE_4_0_0)
+    @XmlChildrenName("role", POM_XML_NAMESPACE_4_0_0)
     val roles: List<String>? = null,
 )
 
 @Serializable
-@XmlSerialName("contributors", POM_XML_NAMESPACE)
+@XmlSerialName("contributors", POM_XML_NAMESPACE_4_0_0)
 data class Contributors(
     @XmlElement(true)
     val contributors: List<Contributor>
 )
 
 @Serializable
-@XmlSerialName("contributor", POM_XML_NAMESPACE)
+@XmlSerialName("contributor", POM_XML_NAMESPACE_4_0_0)
 data class Contributor(
     @XmlElement(true)
     val name: String? = null,
@@ -235,20 +242,20 @@ data class Contributor(
     @XmlElement(true)
     val url: String? = null,
     @XmlElement(true)
-    @XmlSerialName("roles", POM_XML_NAMESPACE)
-    @XmlChildrenName("role", POM_XML_NAMESPACE)
+    @XmlSerialName("roles", POM_XML_NAMESPACE_4_0_0)
+    @XmlChildrenName("role", POM_XML_NAMESPACE_4_0_0)
     val roles: List<String>? = null,
 )
 
 @Serializable
-@XmlSerialName("prerequisites", POM_XML_NAMESPACE)
+@XmlSerialName("prerequisites", POM_XML_NAMESPACE_4_0_0)
 data class Prerequisites(
     @XmlElement(true)
     val maven: String = "2.0",
 )
 
 @Serializable
-@XmlSerialName("dependencyManagement", POM_XML_NAMESPACE)
+@XmlSerialName("dependencyManagement", POM_XML_NAMESPACE_4_0_0)
 data class DependencyManagement(
     @XmlElement(true)
     val dependencies: Dependencies? = null,
@@ -267,7 +274,7 @@ operator fun DependencyManagement.plus(other: DependencyManagement?): Dependency
 }
 
 @Serializable(with = MavenPomPropertiesXmlSerializer::class)
-@XmlSerialName("Properties", POM_XML_NAMESPACE)
+@XmlSerialName("Properties", POM_XML_NAMESPACE_4_0_0)
 data class Properties(
     val properties: Map<String, String?> = mapOf(),
 )
@@ -278,7 +285,7 @@ operator fun Properties?.plus(other: Properties?): Properties? {
 }
 
 @Serializable
-@XmlSerialName("dependencies", POM_XML_NAMESPACE)
+@XmlSerialName("dependencies", POM_XML_NAMESPACE_4_0_0)
 data class Dependencies(
     @XmlElement(true)
     val dependencies: List<Dependency>
@@ -300,7 +307,7 @@ operator fun Dependencies.plus(other: Dependencies?): Dependencies {
 }
 
 @Serializable
-@XmlSerialName("scm", POM_XML_NAMESPACE)
+@XmlSerialName("scm", POM_XML_NAMESPACE_4_0_0)
 data class Scm(
     @XmlElement(true)
     val connection: String? = null,
@@ -313,7 +320,7 @@ data class Scm(
 )
 
 @Serializable
-@XmlSerialName("dependency", POM_XML_NAMESPACE)
+@XmlSerialName("dependency", POM_XML_NAMESPACE_4_0_0)
 data class Dependency(
     @XmlElement(true)
     val groupId: String,
@@ -334,14 +341,14 @@ data class Dependency(
 )
 
 @Serializable
-@XmlSerialName("exclusions", POM_XML_NAMESPACE)
+@XmlSerialName("exclusions", POM_XML_NAMESPACE_4_0_0)
 data class Exclusions(
     @XmlElement(true)
     val exclusions: List<Exclusion>,
 )
 
 @Serializable
-@XmlSerialName("exclusion", POM_XML_NAMESPACE)
+@XmlSerialName("exclusion", POM_XML_NAMESPACE_4_0_0)
 data class Exclusion(
     @XmlElement(true)
     val groupId: String,
@@ -350,7 +357,7 @@ data class Exclusion(
 )
 
 @Serializable
-@XmlSerialName("profiles", POM_XML_NAMESPACE)
+@XmlSerialName("profiles", POM_XML_NAMESPACE_4_0_0)
 data class Profiles(
     @XmlElement(true)
     val profiles: List<Profile>? = null
@@ -358,7 +365,7 @@ data class Profiles(
 
 
 @Serializable
-@XmlSerialName("profile", POM_XML_NAMESPACE)
+@XmlSerialName("profile", POM_XML_NAMESPACE_4_0_0)
 data class Profile(
     @XmlElement(true)
     val id: String? = null,
@@ -373,7 +380,7 @@ data class Profile(
 )
 
 @Serializable
-@XmlSerialName("activation", POM_XML_NAMESPACE)
+@XmlSerialName("activation", POM_XML_NAMESPACE_4_0_0)
 data class ProfileActivation(
     @XmlElement(true)
     val activeByDefault: Boolean? = null,
@@ -388,7 +395,7 @@ data class ProfileActivation(
 )
 
 @Serializable
-@XmlSerialName("property", POM_XML_NAMESPACE)
+@XmlSerialName("property", POM_XML_NAMESPACE_4_0_0)
 data class ActivationProperty(
     @XmlElement(true)
     val name: String? = null,
@@ -397,7 +404,7 @@ data class ActivationProperty(
 )
 
 @Serializable
-@XmlSerialName("file", POM_XML_NAMESPACE)
+@XmlSerialName("file", POM_XML_NAMESPACE_4_0_0)
 data class ActivationFile(
     @XmlElement(true)
     val missing: String? = null,
@@ -406,7 +413,7 @@ data class ActivationFile(
 )
 
 @Serializable
-@XmlSerialName("os", POM_XML_NAMESPACE)
+@XmlSerialName("os", POM_XML_NAMESPACE_4_0_0)
 data class ActivationOS(
     @XmlElement(true)
     val name: String? = null,
@@ -450,9 +457,9 @@ internal fun String.expandTemplate(project: Project): String {
 
     val value = if (builtInPrefix != null) {
         when (key.removePrefix(builtInPrefix)) {
-            "groupId" -> project.groupId
-            "artifactId" -> project.artifactId
-            "version" -> project.version
+            "groupId" -> project.groupId ?: project.parent?.groupId
+            "artifactId" -> project.artifactId ?: project.parent?.artifactId
+            "version" -> project.version ?: project.parent?.version
             "prerequisites.maven" -> project.prerequisites?.maven
             "parent.groupId" -> project.parent?.groupId
             "parent.artifactId" -> project.parent?.artifactId

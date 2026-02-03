@@ -1,0 +1,48 @@
+root
+╰─── org.roboquant:roboquant-jupyter:3.0.0
+     ├─── org.roboquant:roboquant:3.0.0
+     │    ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2
+     │    │    ╰─── org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2
+     │    │         ├─── org.jetbrains:annotations:23.0.0
+     │    │         ├─── org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2
+     │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.0 -> 2.2.0
+     │    │              ╰─── org.jetbrains:annotations:13.0 -> 23.0.0
+     │    ├─── de.siegmar:fastcsv:3.2.0
+     │    ├─── org.hipparchus:hipparchus-stat:3.0
+     │    │    ╰─── org.hipparchus:hipparchus-core:3.0
+     │    ├─── com.tictactec:ta-lib:0.4.0
+     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 (*)
+     │    ╰─── org.slf4j:slf4j-api:2.0.17
+     ├─── org.roboquant:roboquant-charts:3.0.0
+     │    ├─── org.roboquant:roboquant:3.0.0 (*)
+     │    ├─── com.google.code.gson:gson:2.11.0
+     │    │    ╰─── com.google.errorprone:error_prone_annotations:2.27.0
+     │    ├─── org.icepear.echarts:echarts-java:1.0.7
+     │    │    ├─── com.google.code.gson:gson:2.8.9 -> 2.11.0 (*)
+     │    │    ├─── com.github.jknack:handlebars:4.2.1
+     │    │    │    ╰─── org.slf4j:slf4j-api:1.7.30 -> 2.0.17
+     │    │    ╰─── org.slf4j:slf4j-simple:1.7.25 -> 2.0.17
+     │    │         ╰─── org.slf4j:slf4j-api:2.0.17
+     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 (*)
+     │    ╰─── org.slf4j:slf4j-api:2.0.17
+     ├─── org.roboquant:roboquant-avro:3.0.0
+     │    ├─── org.roboquant:roboquant:3.0.0 (*)
+     │    ├─── org.xerial.snappy:snappy-java:1.1.10.5
+     │    ├─── org.apache.avro:avro:1.12.1
+     │    │    ├─── com.fasterxml.jackson.core:jackson-core:2.20.0
+     │    │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.20.0
+     │    │    ├─── com.fasterxml.jackson.core:jackson-databind:2.20.0
+     │    │    │    ├─── com.fasterxml.jackson.core:jackson-annotations:2.20
+     │    │    │    ├─── com.fasterxml.jackson.core:jackson-core:2.20.0 (*)
+     │    │    │    ╰─── com.fasterxml.jackson:jackson-bom:2.20.0
+     │    │    ├─── org.apache.commons:commons-compress:1.28.0
+     │    │    │    ├─── commons-codec:commons-codec:1.19.0
+     │    │    │    ├─── commons-io:commons-io:2.20.0
+     │    │    │    ╰─── org.apache.commons:commons-lang3:3.18.0
+     │    │    ╰─── org.slf4j:slf4j-api:2.0.17
+     │    ├─── com.fasterxml.jackson.core:jackson-core:2.17.2 -> 2.20.0 (*)
+     │    ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 (*)
+     │    ╰─── org.slf4j:slf4j-api:2.0.17
+     ├─── org.slf4j:slf4j-simple:2.0.17 (*)
+     ├─── org.jetbrains.kotlin:kotlin-stdlib:2.2.0 (*)
+     ╰─── org.slf4j:slf4j-api:2.0.17

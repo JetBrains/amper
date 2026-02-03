@@ -34,6 +34,27 @@ class PomTest {
     @Test
     fun `javafx-24-ea+5`(testInfo: TestInfo) = doTest(testInfo)
 
+    /**
+     * This test checks that pom.xml targeting namespace 4.1.0 (https://maven.apache.org/xsd/maven-4.1.0.xsd)
+     * is successfully parsed to the data classes used for version 4.0.0
+     */
+    @Test
+    fun `roboquant-parent-3_0_0`(testInfo: TestInfo) = doTest(testInfo) {
+        it.replace("<repositories>.*?</repositories>".toRegex(), "")
+            // packaging tag is parsed correctly, but the order of tags in re-generated XML differs, and it fails the test, so it is disabled here
+            .replace("<packaging>pom</packaging>", "")
+            // dependencyManagement tag is parsed correctly, but the order of tags in re-generated XML differs, and it fails the test, so it is disabled here
+            .replace("<dependencyManagement>.*?</dependencyManagement>".toRegex(), "")
+            .replace("<build>.*?</build>".toRegex(), "")
+            .replace("<modules>.*?</modules>".toRegex(), "")
+            .replace("<scm>.*?</scm>".toRegex(), "")
+            .replace("<url>.*?</url>".toRegex(), "")
+            .replace("<distributionManagement>.*?</distributionManagement>".toRegex(), "")
+            // Add if needed: Normalize namespace in test comparison
+            .replace("http://maven.apache.org/POM/4.1.0", "http://maven.apache.org/POM/4.0.0")
+            .replace("https://maven.apache.org/xsd/maven-4.1.0.xsd", "https://maven.apache.org/xsd/maven-4.0.0.xsd")
+    }
+
     @Test
     fun `junit-4_13_2`(testInfo: TestInfo) = doTest(testInfo) {
         it.replace("<issueManagement>.*</distributionManagement>".toRegex(), "")
@@ -115,22 +136,26 @@ class PomTest {
 
     private fun sanitize(text: String) =
         text.replace("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "")
-            .replace(
-                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\"",
-                ""
-            )
-            .replace(
-                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"",
-                ""
-            ).replace(
-                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\"",
-                ""
-            )
-            .replace("https://maven.apache.org/xsd/maven-4.0.0.xsd\"", "")
+            .sanitizeNamespace("4.0.0")
+            .sanitizeNamespace("4.1.0")
             // non-greedy (*?) match any symbol ([\S\s]) including new lines
             .replace("<!--[\\S\\s]*?-->".toRegex(), "")
             .replace("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>\\s*".toRegex(), "")
             .replace(">\\s+".toRegex(), ">")
             .replace("\"\\s+".toRegex(), "\"")
             .replace("\\s+".toRegex(), " ")
+
+    private fun String.sanitizeNamespace(version: String) =
+        replace(
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/${version} https://maven.apache.org/xsd/maven-${version}.xsd\"",
+                ""
+            )
+            .replace(
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/${version} http://maven.apache.org/xsd/maven-${version}.xsd\"",
+                ""
+            ).replace(
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/${version} http://maven.apache.org/maven-v4_0_0.xsd\"",
+                ""
+            )
+            .replace("https://maven.apache.org/xsd/maven-${version}.xsd\"", "")
 }

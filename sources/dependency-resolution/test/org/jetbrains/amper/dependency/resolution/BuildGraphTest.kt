@@ -52,6 +52,17 @@ class BuildGraphTest : BaseDRTest() {
     }
 
     /**
+     * This test checks that dependencies with pom.xml using both namespace versions 4.0.0 and 4.1.0
+     * (https://maven.apache.org/xsd/maven-4.0.0.xsd and https://maven.apache.org/xsd/maven-4.1.0.xsd)
+     * are resolved successfully.
+     */
+    @Test
+    fun `org_roboquant roboquant-jupyter 3_0_0`(testInfo: TestInfo) = runDrTest {
+        val root = doTestByFile(testInfo)
+        assertFiles(testInfo, root)
+    }
+
+    /**
      * This test checks that project built-in properties are resolvable through alias pom.
      *
      *
