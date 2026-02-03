@@ -1,55 +1,14 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("PROCESS_BUILDER_START_LEAK")
 
 package org.jetbrains.amper.processes
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-
-/**
- * The result of a completed process.
- */
-class ProcessResult(
-    /**
-     * The command line that was executed.
-     */
-    val command: List<String>,
-    /**
-     * The ID identifying this process when it was alive.
-     */
-    val pid: Long,
-    /**
-     * The exit code of the process.
-     */
-    val exitCode: Int,
-    /**
-     * If [errorStreamRedirected] is false, [stdout] contains the whole standard output of the process, decoded as
-     * UTF-8 text.
-     * If [errorStreamRedirected] is true, [stdout] contains both the merged stdout and stderr of the process,
-     * interlaced as they were written by the process.
-     */
-    val stdout: String,
-    /**
-     * The whole standard error stream of the process, decoded as UTF-8 text, or the empty string if
-     * [errorStreamRedirected] is true (in that case, the stderr content is in [stdout], interlaced with the standard
-     * output).
-     */
-    val stderr: String,
-    /**
-     * Whether the error stream was redirected to the standard output of the process.
-     * If true, [stderr] is empty and [stdout] contains both streams interlaced together.
-     */
-    val errorStreamRedirected: Boolean,
-)
 
 /**
  * Starts a new process with the given [command] in [workingDir], and awaits the result.
@@ -77,27 +36,8 @@ suspend fun runProcessAndCaptureOutput(
     redirectErrorStream: Boolean = false,
     input: ProcessInput = ProcessInput.Empty,
     outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
-): ProcessResult {
-    val capture = ProcessOutputListener.InMemoryCapture()
-    val pid: Long
-    val exitCode = runProcess(
-        workingDir = workingDir,
-        command = command,
-        environment = environment,
-        redirectErrorStream = redirectErrorStream,
-        outputListener = outputListener + capture,
-        input = input,
-        onStart = { pid = it },
-    )
-    return ProcessResult(
-        command = command,
-        exitCode = exitCode,
-        pid = pid,
-        stdout = capture.stdout,
-        stderr = capture.stderr,
-        errorStreamRedirected = redirectErrorStream,
-    )
-}
+): ProcessResult = process(workingDir, command, environment, redirectErrorStream)
+    .runAndCaptureOutput(input, outputListener, redirectErrorStream)
 
 /**
  * Starts a new process with the given [command] in [workingDir], and awaits its completion.
@@ -117,7 +57,6 @@ suspend fun runProcessAndCaptureOutput(
  * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but doesn't
  * wait for its completion (we mustn't block the JVM shutdown).
  */
-@OptIn(ExperimentalContracts::class)
 suspend fun runProcess(
     workingDir: Path? = null,
     command: List<String>,
@@ -130,22 +69,7 @@ suspend fun runProcess(
     contract {
         callsInPlace(onStart, InvocationKind.EXACTLY_ONCE)
     }
-    require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
-
-    val exitCode = withContext(Dispatchers.IO) {
-        process(workingDir, command, environment, redirectErrorStream)
-            .redirectInput(input.stdinRedirection)
-            .start()
-            .withGuaranteedTermination { process ->
-                onStart(process.pid())
-                launch {
-                    // input writing is asynchronous
-                    input.writeTo(process.outputStream)
-                }
-                process.awaitListening(outputListener)
-            }
-    }
-    return exitCode
+    return process(workingDir, command, environment, redirectErrorStream).run(outputListener, input, onStart)
 }
 
 /**
@@ -162,7 +86,6 @@ suspend fun runProcess(
  * If the JVM is terminated gracefully (Ctrl+C / SIGINT), this function **requests the process destruction** but doesn't
  * wait for its completion (we mustn't block the JVM shutdown).
  */
-@OptIn(ExperimentalContracts::class)
 suspend fun runProcessWithInheritedIO(
     workingDir: Path? = null,
     command: List<String>,
@@ -173,18 +96,7 @@ suspend fun runProcessWithInheritedIO(
     contract {
         callsInPlace(onStart, InvocationKind.EXACTLY_ONCE)
     }
-    require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
-
-    val exitCode = withContext(Dispatchers.IO) {
-        process(workingDir, command, environment, redirectErrorStream)
-            .inheritIO()
-            .start()
-            .withGuaranteedTermination { process ->
-                onStart(process.pid())
-                process.onExit().await().exitValue()
-            }
-    }
-    return exitCode
+    return process(workingDir, command, environment, redirectErrorStream).runWithInheritedIO(onStart)
 }
 
 @RequiresOptIn("Using this API causes the child process to leak and outlive the execution of the current JVM. " +
@@ -238,13 +150,3 @@ private fun process(
         .also { it.environment().putAll(environment) }
         .redirectErrorStream(redirectErrorStream)
 }
-
-private val ProcessInput.stdinRedirection: ProcessBuilder.Redirect
-    get() = when (this) {
-        ProcessInput.Inherit -> ProcessBuilder.Redirect.INHERIT
-        ProcessInput.Empty,
-        is ProcessInput.Text,
-        is ProcessInput.Pipe,
-            -> ProcessBuilder.Redirect.PIPE
-    }
-
