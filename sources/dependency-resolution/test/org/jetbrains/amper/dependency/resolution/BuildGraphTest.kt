@@ -2181,6 +2181,26 @@ class BuildGraphTest : BaseDRTest() {
         )
     }
 
+    /**
+     * This test checks that graph is resolved successfully
+     * if transitive dependency version is represented by range and it lower bound is absent in repository,
+     * but is overridden to by some version presented there.
+     *
+     * todo (AB) : "org.eclipse.platform:org.eclipse.e4.ui.workbench:1.18.100" should be resolved successful even
+     * todo (AB) : if "org.eclipse.platform:org.eclipse.e4.ui.workbench:1.18.100" is not provided explicitly.
+     * todo (AB) : Existing version should be resolved from range instead of missing version corresponding to the lower bound.
+     */
+    @Test
+    fun `dependency with version missing in repository but overridden by existing version is resolved successfully`(testInfo: TestInfo) = runDrTest {
+        doTestByFile(
+            testInfo,
+            dependency = listOf(
+                "org.eclipse.platform:org.eclipse.e4.ui.workbench:1.18.100",
+                "org.eclipse.emf:org.eclipse.emf.ecore.change:2.11.0",
+            ),
+        )
+    }
+
     @Test
     fun `huge dependency graph with reused subgraphs`(testInfo: TestInfo) = runDrTest {
         val root = doTestByFile(

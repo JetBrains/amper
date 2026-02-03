@@ -1,0 +1,108 @@
+root
+├─── org.eclipse.platform:org.eclipse.e4.ui.workbench:1.18.100
+│    ├─── org.eclipse.platform:org.eclipse.e4.ui.model.workbench:2.4.700
+│    │    ├─── org.eclipse.platform:org.eclipse.core.runtime:3.34.100
+│    │    │    ├─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.core.jobs:3.15.700
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.200 -> 3.20.300 (*)
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.23.200 -> 3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.registry:3.12.600
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.preferences:3.12.100
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    │    │    ├─── org.osgi:org.osgi.service.prefs:1.1.2
+│    │    │    │    │    ╰─── org.osgi:osgi.annotation:8.0.1
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.core.contenttype:3.9.800
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.preferences:3.12.100 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.registry:3.12.600 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    │    ╰─── org.eclipse.platform:org.eclipse.equinox.app:1.7.500
+│    │    │         ├─── org.eclipse.platform:org.eclipse.equinox.registry:3.12.500 -> 3.12.600 (*)
+│    │    │         ╰─── org.eclipse.platform:org.eclipse.equinox.common:3.20.200 -> 3.20.300 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.services:2.5.300
+│    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.preferences:3.12.100 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.core.jobs:3.15.700 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di.annotations:1.8.400
+│    │    │    │    │    ╰─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    │    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    │    │    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.23.200 -> 3.24.0
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    │    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.osgi:3.23.200 -> 3.24.0
+│    │    │    │    ╰─── org.osgi:org.osgi.service.event:1.4.1
+│    │    │    │         ├─── org.osgi:osgi.annotation:8.0.1
+│    │    │    │         ╰─── org.osgi:org.osgi.namespace.implementation:1.0.0
+│    │    │    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    │    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.core.commands:3.12.500
+│    │    │    ╰─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    ├─── org.eclipse.emf:org.eclipse.emf.ecore:2.35.0 -> 2.37.0
+│    │    │    ╰─── org.eclipse.emf:org.eclipse.emf.common:2.31.0
+│    │    ╰─── org.eclipse.platform:org.eclipse.e4.emf.xpath:0.6.100
+│    │         ├─── org.eclipse.emf:org.eclipse.emf.ecore:2.35.0 -> 2.37.0 (*)
+│    │         ├─── org.eclipse.platform:org.eclipse.core.runtime:3.34.100 (*)
+│    │         ╰─── org.eclipse.emf:org.eclipse.emf.ecore.xmi:2.38.0
+│    │              ╰─── org.eclipse.emf:org.eclipse.emf.ecore:2.37.0 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.ui.services:1.6.600
+│    │    ├─── org.eclipse.platform:org.eclipse.core.commands:3.12.500 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.services:2.5.300 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.ui.di:1.5.700
+│    │    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di.annotations:1.8.400 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di.extensions.supplier:0.17.900
+│    │    │    │    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.equinox.preferences:3.12.0 -> 3.12.100 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di.annotations:1.8.400 (*)
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di.extensions:0.18.300
+│    │    │    │    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    │    │    │    ╰─── org.eclipse.platform:org.eclipse.osgi:3.20.0 -> 3.24.0
+│    │    │    │    ├─── org.eclipse.platform:org.eclipse.osgi:3.23.200 -> 3.24.0
+│    │    │    │    ├─── org.osgi:org.osgi.service.event:1.4.1 (*)
+│    │    │    │    ╰─── org.osgi:org.osgi.service.prefs:1.1.2 (*)
+│    │    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    │    ╰─── org.osgi:org.osgi.service.event:1.4.1 (*)
+│    │    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    ├─── org.eclipse.platform:org.eclipse.osgi:3.24.0
+│    │    ╰─── org.osgi:org.osgi.service.event:1.4.1 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.core.services:2.5.300 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    ├─── org.eclipse.platform:org.eclipse.core.commands:3.12.500 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.core.commands:1.1.700
+│    │    ├─── org.eclipse.platform:org.eclipse.equinox.common:3.20.300 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.di:1.9.700 (*)
+│    │    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    │    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    │    ├─── org.eclipse.platform:org.eclipse.core.commands:3.12.500 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.core.expressions:3.9.500
+│    │    │    ╰─── org.eclipse.platform:org.eclipse.core.runtime:3.34.0 -> 3.34.100 (*)
+│    │    ├─── org.eclipse.platform:org.eclipse.e4.core.contexts:1.13.200 (*)
+│    │    ╰─── org.eclipse.platform:org.eclipse.e4.core.services:2.5.300 (*)
+│    ├─── org.eclipse.emf:org.eclipse.emf.ecore.change:2.5.0 -> 2.11.0
+│    ├─── org.eclipse.platform:org.eclipse.core.expressions:3.9.500 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.ui.di:1.5.700 (*)
+│    ├─── org.eclipse.emf:org.eclipse.emf.ecore.xmi:2.7.0 -> 2.38.0 (*)
+│    ├─── org.eclipse.platform:org.eclipse.e4.core.di.extensions:0.18.300 (*)
+│    ├─── org.eclipse.platform:org.eclipse.core.runtime:3.34.100 (*)
+│    ├─── jakarta.annotation:jakarta.annotation-api:2.1.1
+│    ├─── jakarta.inject:jakarta.inject-api:2.0.1
+│    ╰─── org.osgi:org.osgi.service.event:1.4.1 (*)
+╰─── org.eclipse.emf:org.eclipse.emf.ecore.change:2.11.0
