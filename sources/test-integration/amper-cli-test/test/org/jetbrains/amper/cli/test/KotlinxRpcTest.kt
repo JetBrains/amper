@@ -17,4 +17,15 @@ class KotlinxRpcTest : AmperCliTestBase() {
 
         result.assertStdoutContains("Build successful")
     }
+
+    @Test
+    fun `kotlinx-rpc compiler error on non-annotated service`() = runSlowTest {
+        val result = runCli(
+            testProject(name = "kotlin-rpc-error"),
+            "build",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        result.stderr.contains("1st type argument is marked with @Rpc annotation, but inferred type is class Any")
+    }
 }
