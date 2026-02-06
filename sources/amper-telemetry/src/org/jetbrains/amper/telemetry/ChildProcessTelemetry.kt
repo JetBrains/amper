@@ -53,7 +53,9 @@ object ChildProcessTelemetry {
         check(!telemetryFile.exists()) { "Telemetry file $telemetryFile should not exist" }
 
         val openTelemetry = TelemetrySetup.createOpenTelemetry(
-            telemetryFile.outputStream(), telemetryResource(processName))
+            jsonLinesOutputStream = telemetryFile.outputStream().buffered(),
+            resource = telemetryResource(processName),
+        )
         GlobalOpenTelemetry.set(openTelemetry)
         TelemetrySetup.closeTelemetryOnShutdown(openTelemetry) { error ->
             LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${error.message}", error)

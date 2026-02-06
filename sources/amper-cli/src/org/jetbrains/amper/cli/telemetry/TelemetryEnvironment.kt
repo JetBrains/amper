@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.telemetry
@@ -72,7 +72,7 @@ object TelemetryEnvironment {
     fun setup(defaultCacheRoot: AmperUserCacheRoot) {
         val outputStream = MovableFileOutputStream(initialPath = userLevelTracesPath(defaultCacheRoot))
         movableFileOutputStream = outputStream
-        val openTelemetry = TelemetrySetup.createOpenTelemetry(outputStream, resource)
+        val openTelemetry = TelemetrySetup.createOpenTelemetry(outputStream.buffered(), resource)
         GlobalOpenTelemetry.set(openTelemetry)
         TelemetrySetup.closeTelemetryOnShutdown(openTelemetry) { error ->
             LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${error.message}", error)

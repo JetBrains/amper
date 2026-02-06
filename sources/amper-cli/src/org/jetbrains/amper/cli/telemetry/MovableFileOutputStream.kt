@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.telemetry
@@ -15,11 +15,20 @@ import kotlin.io.path.outputStream
  * An output stream to a file that can be moved concurrently with the writes.
  *
  * The stream initially writes to [initialPath], and then [moveTo] can be used to change the path.
+ *
+ * This implementation is thread-safe. It is safe to concurrently [write], [flush], or [close] this stream, or even move
+ * the underlying file with [moveTo]. Writes will always go to the correct stream.
+ *
+ * Like [Path.outputStream], this stream implementation is not buffered. It's the responsibility of the caller
+ * to wrap this stream in a buffered stream if needed.
+ *
+ * Whether the returned stream is *asynchronously closeable* and/or *interruptible* is highly file system provider
+ * specific and therefore not specified.
  */
 internal class MovableFileOutputStream(initialPath: Path) : OutputStream() {
 
     private var currentPath = initialPath
-    private var fileStream = initialPath.outputStream().buffered()
+    private var fileStream = initialPath.outputStream()
 
     /**
      * Moves the destination file of this [MovableFileOutputStream] to the given [newPath].
@@ -43,7 +52,7 @@ internal class MovableFileOutputStream(initialPath: Path) : OutputStream() {
             StandardOpenOption.WRITE,
             StandardOpenOption.CREATE, // in case nothing had been written yet (the file was never created so far)
             StandardOpenOption.APPEND, // we want to append to the existing (moved) file, so not TRUNCATE_EXISTING
-        ).buffered()
+        )
     }
 
     @Synchronized

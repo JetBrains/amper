@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.jar
@@ -100,7 +100,7 @@ data class ZipInput(
  * Files and directories are added to the archive in an order that depends on [ZipConfig.reproducibleFileOrder].
  */
 fun Path.writeZip(inputs: List<ZipInput>, config: ZipConfig = ZipConfig()) {
-    ZipOutputStream(outputStream()).use { out ->
+    ZipOutputStream(outputStream().buffered()).use { out ->
         out.writeZip(inputs, config)
     }
 }
