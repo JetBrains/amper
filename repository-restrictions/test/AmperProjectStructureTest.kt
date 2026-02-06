@@ -60,12 +60,12 @@ class AmperProjectStructureTest {
     }
 
     @Test
-    fun `UsedVersions is alphabetically sorted`() {
-        val usedVersionsKt = Dirs.amperSourcesRoot.resolve("core/src/org/jetbrains/amper/core/UsedVersions.kt")
+    fun `DefaultVersions is alphabetically sorted`() {
+        val usedVersionsKt = Dirs.amperSourcesRoot.resolve("frontend-api/src/org/jetbrains/amper/frontend/schema/DefaultVersions.kt")
         val versionLines = usedVersionsKt.readLines()
             .map { it.trim() }
             .filter { it.startsWith("/*magic_replacement*/ val ") }
-        assertAlphabeticalOrder(versionLines, "Used versions")
+        assertAlphabeticalOrder(versionLines, "Default versions")
     }
 
     @Test
