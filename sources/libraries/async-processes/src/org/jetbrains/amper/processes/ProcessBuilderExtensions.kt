@@ -139,7 +139,6 @@ internal suspend fun ProcessBuilder.run(
     contract {
         callsInPlace(onStart, InvocationKind.EXACTLY_ONCE)
     }
-    currentCoroutineContext()[ContinuationInterceptor.Key] as CoroutineDispatcher
     return withContext(Dispatchers.IO) {
         redirectOutput(ProcessBuilder.Redirect.PIPE)
         redirectError(ProcessBuilder.Redirect.PIPE)
