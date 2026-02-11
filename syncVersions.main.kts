@@ -25,13 +25,13 @@ The source of truth is the list of versions at the top of this file.
 val bootstrapAmperVersion = "0.10.0-dev-3670" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
 /**
- * This is the version of the JetBrains Runtime that Amper wrappers use to run the Amper dist.
+ * This is the version of the Zulu JRE that Amper wrappers use to run the Amper dist.
  *
- * See glibc compatibility: https://youtrack.jetbrains.com/issue/JBR-7511/Centos-7-support-is-over
- * We need the JBR for 2024.2 to be compatible with glibc 2.17.
- * Check https://github.com/JetBrains/JetBrainsRuntime?tab=readme-ov-file#releases-based-on-jdk-21
+ * To find the latest version, check:
+ * https://api.azul.com/metadata/v1/zulu/packages/?java_version=25&java_package_type=jre&latest=true&release_status=ga&page=1&page_size=1
  */
-val amperInternalJbrVersion = "21.0.8b1038.68"
+val amperJreZuluVersion = "25.32.21"
+val amperJreJavaVersion = "25.0.2"
 
 /**
  * The Kotlin version used in Amper projects (not customizable yet).
@@ -141,22 +141,20 @@ fun Path.forEachWrapperFile(action: (Path) -> Unit) {
 }
 
 fun updateWrapperTemplates() {
-    val jbrVersionRegex = Regex("""(?<version>\d+\.\d+\.\d+)-?(?<build>b.*)""")
-    val match = jbrVersionRegex.matchEntire(amperInternalJbrVersion) ?: error("Invalid JBR version '$jbrVersionRegex'")
-    val jvmVersion = match.groups["version"]!!.value
-    val jbrBuild = match.groups["build"]!!.value
+    val zuluVersion = amperJreZuluVersion
+    val javaVersion = amperJreJavaVersion
 
-    val jbrs = getJbrChecksums(jvmVersion, jbrBuild)
+    val jres = getJreChecksums(zuluVersion, javaVersion)
 
     sequenceOf(
         amperWrapperModuleDir / "resources/wrappers/amper.template.sh",
         amperRootDir / "amper-from-sources",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
-            .replaceRegexGroup1(Regex("""\bjbr_version=(\S+)"""), jvmVersion)
-            .replaceRegexGroup1(Regex("""\bjbr_build=(\S+)"""), jbrBuild)
-        jbrs.fold(textWithVersion) { text, (os, arch, checksum) ->
-            text.replaceRegexGroup1(Regex(""""$os $arch"\)\s+jbr_sha512=(\S+)\s*;;"""), checksum)
+            .replaceRegexGroup1(Regex("""^\s*zulu_version=(\S+)""", RegexOption.MULTILINE), zuluVersion)
+            .replaceRegexGroup1(Regex("""^\s*java_version=(\S+)""", RegexOption.MULTILINE), javaVersion)
+        jres.fold(textWithVersion) { text, (os, arch, checksum) ->
+            text.replaceRegexGroup1(Regex(""""${os.filenameValue} ${arch.filenameValue}"\)\s+jre_sha256=(\w+)"""), checksum)
         }
     }
 
@@ -165,27 +163,80 @@ fun updateWrapperTemplates() {
         amperRootDir / "amper-from-sources.bat",
     ).replaceEachFileText { initialText ->
         val textWithVersion = initialText
-            .replaceRegexGroup1(Regex("""\bset\s+jbr_version=(\S+)"""), jvmVersion)
-            .replaceRegexGroup1(Regex("""\bset\s+jbr_build=(\S+)"""), jbrBuild)
-        jbrs.filter { it.os == "windows" }.fold(textWithVersion) { text, (_, arch, checksum) ->
-            text.replaceRegexGroup1(Regex("""set jbr_arch=$arch\s+set jbr_sha512=(\S+)""", RegexOption.MULTILINE), checksum)
+            .replaceRegexGroup1(Regex("""^\s*set\s+zulu_version=(\S+)""", RegexOption.MULTILINE), zuluVersion)
+            .replaceRegexGroup1(Regex("""^\s*set\s+java_version=(\S+)""", RegexOption.MULTILINE), javaVersion)
+        jres.filter { it.os == Os.Windows }.fold(textWithVersion) { text, (_, arch, checksum) ->
+            text.replaceRegexGroup1(Regex("""set jre_arch=${arch.filenameValue}\s+set jre_sha256=(\S+)""", RegexOption.MULTILINE), checksum)
         }
     }
 }
 
-data class Jbr(val os: String, val arch: String, val sha512: String)
+// archive types should match what we do in Amper wrappers
+enum class Os(val azulApiName: String, val filenameValue: String, val archiveType: String) {
+    Windows(azulApiName = "windows", filenameValue = "win", archiveType = "zip"),
+    Linux(azulApiName = "linux-glibc", filenameValue = "linux", archiveType = "tar.gz"),
+    MacOs(azulApiName = "osx", filenameValue = "macosx", archiveType = "tar.gz"),
+}
 
-fun getJbrChecksums(jvmVersion: String, jbrBuild: String): List<Jbr> = listOf("windows", "linux", "osx").flatMap { os ->
-    listOf("aarch64", "x64").map { arch ->
-        Jbr(
+enum class Arch(val azulApiName: String, val filenameValue: String) {
+    Aarch64(azulApiName = "aarch64", filenameValue = "aarch64"),
+    X64(azulApiName = "x64", filenameValue = "x64"),
+}
+
+data class Jre(val os: Os, val arch: Arch, val sha256: String)
+
+fun getJreChecksums(zuluVersion: String, javaVersion: String): List<Jre> = Os.entries.flatMap { os ->
+    Arch.entries.map { arch ->
+        Jre(
             os = os,
             arch = arch,
-            sha512 = fetchContent("https://cache-redirector.jetbrains.com/intellij-jbr/jbr-$jvmVersion-$os-$arch-$jbrBuild.tar.gz.checksum")
-                .trim()
-                .split(" ")
-                .first()
+            sha256 = fetchJreChecksum(zuluVersion, javaVersion, os, arch),
         )
     }
+}
+
+fun fetchJreChecksum(zuluVersion: String, javaVersion: String, os: Os, arch: Arch): String {
+    val uuid = fetchJreUuid(zuluVersion, javaVersion, os, arch)
+    val packageMetadataUrl = "https://api.azul.com/metadata/v1/zulu/packages/$uuid"
+    val downloadUrl = fetchJsonField(url = packageMetadataUrl, fieldName = "download_url")
+    val expectedDownloadUrl = downloadUrlFor(zuluVersion, javaVersion, os, arch)
+    check(downloadUrl == expectedDownloadUrl) {
+        "Incorrect package found, download URL is not as expected:\nExpected: $expectedDownloadUrl\nBut was:  $downloadUrl"
+    }
+    return fetchJsonField(
+        url = packageMetadataUrl,
+        fieldName = "sha256_hash",
+    )
+}
+
+fun downloadUrlFor(zuluVersion: String, javaVersion: String, os: Os, arch: Arch): String =
+    "https://cdn.azul.com/zulu/bin/zulu$zuluVersion-ca-jre$javaVersion-${os.filenameValue}_${arch.filenameValue}.${os.archiveType}"
+
+fun fetchJreUuid(zuluVersion: String, javaVersion: String, os: Os, arch: Arch): String = fetchJsonField(
+    url = "https://api.azul.com/metadata/v1/zulu/packages/?" +
+            "java_version=$javaVersion" +
+            "&distro_version=$zuluVersion" +
+            "&os=${os.azulApiName}" +
+            "&arch=${arch.azulApiName}" +
+            "&archive_type=${os.archiveType}" +
+            "&java_package_type=jre" +
+            "&javafx_bundled=false" +
+            "&crac_supported=false" +
+            "&latest=true" +
+            "&release_status=ga" +
+            "&page=1" +
+            "&page_size=1",
+    fieldName = "package_uuid",
+)
+
+fun fetchJsonField(url: String, fieldName: String): String {
+    val json = fetchContent(url)
+    val matches = Regex(""""$fieldName"\s*:\s*"(?<value>[^"]+)"""").findAll(json).toList()
+    check(matches.isNotEmpty()) { "Could not find $fieldName in the contents of $url:\n$json" }
+    check(matches.size == 1) { "$fieldName was found multiple times in the contents of $url:\n$json" }
+    val match = matches.single()
+    return match.groups["value"]?.value
+        ?: error("$fieldName was matched by the regex but cannot be extracted. Groups: ${match.groups}")
 }
 
 fun fetchContent(url: String): String {
