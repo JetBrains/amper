@@ -22,26 +22,6 @@ import org.jetbrains.amper.tasks.rootFragment
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-internal class MockedMavenProject(other: MavenProject) : MavenProject(other) {
-    constructor() : this(MavenProject())
-
-    private val _newSourceRoots = mutableListOf<String>()
-    val newSourceRoots: List<String> get() = _newSourceRoots
-
-    private val _newTestSourceRoots = mutableListOf<String>()
-    val newTestSourceRoots: List<String> get() = _newTestSourceRoots
-
-    override fun addCompileSourceRoot(path: String?) {
-        super.addCompileSourceRoot(path)
-        path?.let { _newSourceRoots.add(it) }
-    }
-
-    override fun addTestCompileSourceRoot(path: String?) {
-        super.addTestCompileSourceRoot(path)
-        path?.let { _newTestSourceRoots.add(it) }
-    }
-}
-
 // Various maven services.
 internal val PlexusContainer.mavenPluginManager: MavenPluginManager get() = lookup(MavenPluginManager::class.java)
 internal val PlexusContainer.buildPluginManager get() = lookup(BuildPluginManager::class.java)

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.maven
 
+import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.tree.BooleanNode
@@ -23,13 +24,17 @@ fun ProjectTasksBuilder.setupMavenCompatibilityTasks() {
     if (context.projectContext.externalMavenPlugins.isEmpty()) return
 
     allModules().alsoPlatforms(Platform.JVM).withEach {
-        setupUmbrellaMavenTasks()
-        setupMavenPluginTasks()
+        // We create a Maven project once for every Amper run. This Maven project
+        // then is shared between all mojo executions, so that any changes
+        // done by one of them will be visible to others.
+        val sharedMavenProject = DelegatedMavenProject(MavenProject())
+        setupUmbrellaMavenTasks(sharedMavenProject)
+        setupMavenPluginTasks(sharedMavenProject)
     }
 }
 
 context(taskBuilder: ProjectTasksBuilder)
-private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
+private fun ModuleSequenceCtx.setupUmbrellaMavenTasks(sharedMavenProject: MavenProject) {
     // Convenient helper, since we operate only for the JVM platform and specific module.
     operator fun PlatformTaskType.invoke(isTest: Boolean) = getTaskName(module, Platform.JVM, isTest)
 
@@ -37,11 +42,11 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
     KnownMavenPhase.entries.forEach { phase ->
         // Register before task
         taskBuilder.tasks.registerTask(
-            task = phase.createBeforeTask(),
+            task = phase.createBeforeTask(sharedMavenProject),
             dependsOn = listOfNotNull(phase.dependsOn?.afterTaskName),
         )
 
-        // Register after task (depends on before task)
+        // Register after task (depends on before task and previous phase after task)
         taskBuilder.tasks.registerTask(
             task = AfterMavenPhaseTask(
                 taskName = phase.afterTaskName,
@@ -80,7 +85,7 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks() {
 }
 
 context(taskBuilder: ProjectTasksBuilder)
-private fun ModuleSequenceCtx.setupMavenPluginTasks() {
+private fun ModuleSequenceCtx.setupMavenPluginTasks(sharedMavenProject: MavenProject) {
     module.amperMavenPluginsDescriptions.forEach plugin@{ pluginDescription ->
         // TODO What actual classloader to place here? Do we even need maven mojos to be aware of
         //  amper classes? Should classes be shared between different maven mojos/plugins?
@@ -95,8 +100,6 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
             importFrom(container.containerRealm, "org.apache.maven.reporting")
             importFrom(container.containerRealm, "org.apache.velocity")
         }
-
-        val moduleMavenProject = MockedMavenProject()
 
         val mavenPlugin = MavenPlugin().apply {
             artifactId = pluginDescription.artifactId
@@ -142,7 +145,7 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
                 plexus = container,
                 mavenPlugin = mavenPlugin,
                 mojo = mojo,
-                mavenProject = moduleMavenProject,
+                mavenProject = sharedMavenProject,
                 configString = configString,
             )
         }

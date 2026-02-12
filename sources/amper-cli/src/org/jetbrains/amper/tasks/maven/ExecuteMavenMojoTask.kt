@@ -80,10 +80,6 @@ class ExecuteMavenMojoTask(
         dependenciesResult: List<TaskResult>,
         executionContext: TaskGraphExecutionContext,
     ): TaskResult {
-        val projectEmbryo = dependenciesResult
-            .filterIsInstance<MavenProjectEmbryo>()
-            .singleOrNull()
-            ?: MavenProjectEmbryo()
         val localRepoPath = MavenLocalRepository.Default.repository
         val repoSession = plexus.createRepositorySession(localRepoPath)
         val request = plexus.mavenRepositorySystem.createMavenExecutionRequest(localRepoPath).apply request@{
@@ -103,30 +99,15 @@ class ExecuteMavenMojoTask(
             }
         }
 
+        // We are adding only the delegate layer here to track Amper sensitive changes that
+        // Maven plugin may perform. All [MavenProject] changes are applied to
+        // the shared project that is created once for execution for each Amper module.
         val newMavenProject = MockedMavenProject(mavenProject).apply {
             file = module.source.buildFile.toFile()
+            
             // Use a Maven-specific subdirectory to avoid clashing with Amper actions
             build.directory = mavenBuildDir.absolutePathString()
-            artifact = module.asMavenArtifact("runtime")
             model.dependencyManagement = MavenDependencyManagement()
-
-            // Get all collected configurations from the embryo.
-            projectEmbryo.configureProject(this)
-
-            // Aggregate classes directories if there are multiple (maven does not support multiple classes directories).
-            val aggregatedClassesDir = aggregateClassDirectoriesOrNull(
-                projectEmbryo.allClassesOutputPaths,
-                buildOutputRoot.path / "aggregatedClasses"
-            )
-
-            val aggregatedTestClassesDir = aggregateClassDirectoriesOrNull(
-                projectEmbryo.allTestClassesOutputPaths,
-                buildOutputRoot.path / "aggregatedTestClasses"
-            )
-
-            // Set the aggregated directories.
-            build.outputDirectory = aggregatedClassesDir.absolutePathString()
-            build.testOutputDirectory = aggregatedTestClassesDir.absolutePathString()
 
             // Set artifact repositories that are usually being set within the model building listener.
             remoteArtifactRepositories = request.remoteRepositories
@@ -322,18 +303,6 @@ class ExecuteMavenMojoTask(
     } catch (e: SiteToolException) {
         throw MojoExecutionException("Failed to obtain site model", e)
     }
-
-    /**
-     * Copy all files from source directories to the target directory.
-     * If the same file exists in multiple source directories, the last one wins (overwrites).
-     */
-    private fun aggregateClassDirectoriesOrNull(sourceDirs: List<Path>, targetDir: Path): Path =
-        if (sourceDirs.isEmpty()) targetDir
-        else targetDir.createDirectories().also {
-            for (sourceDir in sourceDirs.map(Path::absolute).distinct())
-                if (sourceDir.exists() && sourceDir.isDirectory())
-                    sourceDir.copyToRecursively(targetDir, followLinks = false, overwrite = true)
-        }
 
     /**
      * Safe wrapper for session scope enter/exit.
