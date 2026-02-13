@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -444,6 +444,65 @@ class MavenConvertTest : AmperCliTestBase() {
         )
 
         buildResult.assertStderrContains("ERROR: pom.xml file not found")
+    }
+
+    @Test
+    fun `surefire-plugin`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/surefire-plugin")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectRoot / "project.yaml").exists())
+        assertTrue((buildResult.projectRoot / "module.yaml").exists())
+
+        assertEquals(
+            """
+            product: jvm/app
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: surefire-demo
+                group: com.example
+                version: 0.0.1-SNAPSHOT
+              jvm:
+                storeParameterNames: true
+              springBoot:
+                enabled: true
+                version: 4.0.0
+
+            dependencies:
+              - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
+              - org.springframework.boot:spring-boot-starter:4.0.0: exported
+
+            test-settings:
+              jvm:
+                test:
+                  extraEnvironment:
+                    MY_TEST_ENV: test-value
+                    ANOTHER_ENV: another-value
+                  freeJvmArgs:
+                    - -Xmx512m
+                    - -ea
+                  systemProperties:
+                    my.test.prop: prop-value
+                    another.prop: another-prop-value
+                  # WARNING: The following configuration is not supported in Amper:
+                  # <includes>
+                  #   <include>**/*Test.java</include>
+                  # </includes>
+
+            test-dependencies:
+              - org.springframework.boot:spring-boot-starter-test:4.0.0
+
+        """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
+        )
+
+        val converted = testProject(buildResult.projectRoot.pathString)
+
+        runCli(converted, "test")
     }
 
     @Test

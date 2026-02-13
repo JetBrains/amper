@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -38,6 +38,7 @@ private val pluginsToIgnore = setOf(
     // plugins we process
     PluginId("org.jetbrains.kotlin", "kotlin-maven-plugin"),
     PluginId("org.springframework.boot", "spring-boot-maven-plugin"),
+    PluginId("org.apache.maven.plugins", "maven-surefire-plugin"),
 )
 
 private data class PluginId(val groupId: String, val artifactId: String)

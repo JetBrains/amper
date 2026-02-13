@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -11,10 +11,11 @@ import org.jetbrains.amper.maven.contributor.contributeCompilerPlugin
 import org.jetbrains.amper.maven.contributor.contributeCoreModule
 import org.jetbrains.amper.maven.contributor.contributeDependencies
 import org.jetbrains.amper.maven.contributor.contributeKotlinPlugin
-import org.jetbrains.amper.maven.contributor.contributeMavenPlugins
+import org.jetbrains.amper.maven.contributor.contributeProjectMavenPlugins
 import org.jetbrains.amper.maven.contributor.contributeProjects
 import org.jetbrains.amper.maven.contributor.contributeRepositories
-import org.jetbrains.amper.maven.contributor.contributeSpringBoot
+import org.jetbrains.amper.maven.contributor.contributeSpringBootPlugin
+import org.jetbrains.amper.maven.contributor.contributeSurefirePlugin
 import org.jetbrains.amper.maven.contributor.contributeUnknownPlugins
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
@@ -68,18 +69,22 @@ object MavenProjectConvertor {
         val amperProjectPath = potentialRoots.first().basedir.toPath() / "project.yaml"
 
         val builder = amperProjectTreeBuilder(amperProjectPath) {
+            // core
             contributeProjects(reactorProjects)
             contributeCoreModule(reactorProjects)
             contributeRepositories(reactorProjects)
             contributeDependencies(reactorProjects)
+
+            // plugins
             contributeCompilerPlugin(reactorProjects)
             contributeKotlinPlugin(reactorProjects)
-            contributeSpringBoot(reactorProjects)
+            contributeSpringBootPlugin(reactorProjects)
+            contributeSurefirePlugin(reactorProjects)
         }
 
         val unknownPluginXmls = reactorProjects.extractUnknownPluginXmls(userCacheRoot, codeVersion)
         val unknownPluginBuilder = amperProjectTreeBuilder(amperProjectPath, unknownPluginXmls) {
-            contributeMavenPlugins(unknownPluginXmls)
+            contributeProjectMavenPlugins(unknownPluginXmls)
             contributeUnknownPlugins(reactorProjects, unknownPluginXmls)
         }
 

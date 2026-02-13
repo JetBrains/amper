@@ -24,7 +24,7 @@ internal fun ProjectTreeBuilder.contributeProjects(reactorProjects: Set<MavenPro
     }
 }
 
-internal fun ProjectTreeBuilder.contributeMavenPlugins(pluginXmls: List<MavenPluginXml>) {
+internal fun ProjectTreeBuilder.contributeProjectMavenPlugins(pluginXmls: List<MavenPluginXml>) {
     if (pluginXmls.isEmpty()) return
 
     project {

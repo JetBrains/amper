@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -23,8 +23,9 @@ internal typealias YamlComments = Map<YamlKeyPath, YamlComment>
 
 internal data class YamlComment(
     val path: List<String>,
-    val beforeKeyComment: String?,
-    val afterValueComment: String?,
+    val beforeKeyComment: String? = null,
+    val afterValueComment: String? = null,
+    val test: Boolean = false,
 )
 
 internal data class ModuleWithComments(

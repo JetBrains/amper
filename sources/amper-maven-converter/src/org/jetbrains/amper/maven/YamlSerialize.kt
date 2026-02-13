@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven
@@ -39,10 +39,13 @@ internal fun MappingNode.serializeToYaml(comments: YamlComments = emptyMap()): S
     }
     val test = refinedTest.filterByContext(TestCtx, main)
 
-    append(main?.serializeToYaml(0, emptyList(), comments) ?: "")
+    val mainComments = comments.filterValues { !it.test }
+    val testComments = comments.filterValues { it.test }
+
+    append(main?.serializeToYaml(0, emptyList(), mainComments) ?: "")
     if (test != null) {
         appendLine()
-        append(test.serializeToYaml(0, emptyList(), comments))
+        append(test.serializeToYaml(0, emptyList(), testComments))
     }
 }
 

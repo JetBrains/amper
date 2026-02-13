@@ -13,6 +13,7 @@ dependencies:
   - ../frontend/schema
   - ../libraries/incremental-cache
   - ../libraries/maven-plugin-xml-parser
+  - ../libraries/stdlib-extended
   - $libs.maven.compat: runtime-only
   - $libs.maven.core
   - $libs.slf4j.api

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven.contributor
@@ -17,17 +17,17 @@ import org.jetbrains.amper.maven.ProjectTreeBuilder
 import kotlin.io.path.div
 
 
-internal fun ProjectTreeBuilder.contributeSpringBoot(reactorProjects: Set<MavenProject>) {
+internal fun ProjectTreeBuilder.contributeSpringBootPlugin(reactorProjects: Set<MavenProject>) {
     for (project in reactorProjects.filterJarProjects()) {
         module(project.basedir.toPath() / "module.yaml") {
             project.model.build.plugins
                 .filter { it.groupId == "org.springframework.boot" && it.artifactId == "spring-boot-maven-plugin" }
-                .forEach { plugin -> contributeSpringBoot(project, plugin) }
+                .forEach { plugin -> contributeSpringBootPlugin(project, plugin) }
         }
     }
 }
 
-private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSpringBoot(
+private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSpringBootPlugin(
     reactorProject: MavenProject,
     plugin: Plugin,
 ) {

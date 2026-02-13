@@ -534,6 +534,84 @@ class RenderToYamlTest {
     }
 
     @Test
+    fun `yaml comments in main section`() = withTypeContext {
+        val tree = syntheticBuilder(DefaultTrace) {
+            `object`<Module> {
+                Module::product {
+                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
+                }
+                Module::settings {
+                    Settings::jvm {
+                        JvmSettings::release setTo scalar("17")
+                    }
+                }
+            }
+        }
+
+        val comments = mapOf(
+            listOf("settings", "jvm") to YamlComment(
+                path = listOf("settings", "jvm"),
+                beforeKeyComment = "This is a comment before jvm",
+                test = false,
+            )
+        )
+
+        val yaml = tree.serializeToYaml(comments)
+        assertEquals("""
+            product: jvm/app
+
+            settings:
+              # This is a comment before jvm
+              jvm:
+                release: 17
+
+        """.trimIndent(), yaml)
+    }
+
+    @Test
+    fun `yaml comments in test section`() = withTypeContext {
+        val main = syntheticBuilder(DefaultTrace) {
+            `object`<Module> {
+                Module::product {
+                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
+                }
+            }
+        }
+
+        val test = syntheticBuilder(DefaultTrace, listOf(TestCtx)) {
+            `object`<Module> {
+                Module::settings {
+                    Settings::jvm {
+                        JvmSettings::release setTo scalar("21")
+                    }
+                }
+            }
+        }
+
+        val merged = mergeTrees(listOf(main, test))
+
+        val comments = mapOf(
+            listOf("settings", "jvm") to YamlComment(
+                path = listOf("settings", "jvm"),
+                beforeKeyComment = "This comment appears only in test",
+                test = true,
+            )
+        )
+
+        val yaml = merged.serializeToYaml(comments)
+
+        assertEquals("""
+            product: jvm/app
+
+            test-settings:
+              # This comment appears only in test
+              jvm:
+                release: 21
+
+        """.trimIndent(), yaml)
+    }
+
+    @Test
     fun `same option same value for default and test contexts 1`() = withTypeContext {
         val tree = syntheticBuilder(dummyTransformedTrace) {
             `object`<Module> {
