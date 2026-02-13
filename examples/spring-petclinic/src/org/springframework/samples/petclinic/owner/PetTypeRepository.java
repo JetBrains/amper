@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.samples.petclinic.system;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+package org.springframework.samples.petclinic.owner;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
- * Controller used to showcase what happens when an exception is thrown
+ * Repository class for <code>PetType</code> domain objects.
  *
- * @author Michael Isvy
- * <p/>
- * Also see how a view that resolves to "error" has been added ("error.html").
+ * @author Patrick Baumgartner
  */
-@Controller
-class CrashController {
 
-    @GetMapping("/oups")
-    public String triggerException() {
-        throw new RuntimeException(
-                "Expected: controller used to showcase what " + "happens when an exception is thrown");
-    }
+public interface PetTypeRepository extends JpaRepository<PetType, Integer> {
+
+    /**
+     * Retrieve all {@link PetType}s from the data store.
+     *
+     * @return a Collection of {@link PetType}s.
+     */
+    @Query("SELECT ptype FROM PetType ptype ORDER BY ptype.name")
+    List<PetType> findPetTypes();
 
 }

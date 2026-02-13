@@ -48,6 +48,10 @@ class ExampleProjectsTest: AmperCliTestBase() {
             // Maybe this can be fixed with iOS project configuration
             // https://youtrack.jetbrains.com/issue/AMPER-4757/iOS-warning-in-compose-multiplatform-example-project-All-interface-orientations-must-be-supported
             "All interface orientations must be supported unless the app requires full screen",
+
+            // this is the reason why we don't see it in Gradle:
+            // https://youtrack.jetbrains.com/projects/KT/issues/KT-76197/Write-Kotlin-compiler-warnings-and-errors-to-Problems-API
+            "static fun deserialize(bytes: ByteArray?): Any?' is deprecated. Deprecated in Java.",
         )
 
         // Linking and xcodebuild produce some warnings on stderr (said warnings are ignored specifically)

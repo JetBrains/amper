@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,34 +35,34 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "visits")
 public class Visit extends BaseEntity {
 
-	@Column(name = "visit_date")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate date;
+    @Column(name = "visit_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
 
-	@NotBlank
-	private String description;
+    @NotBlank
+    private String description;
 
-	/**
-	 * Creates a new instance of Visit for the current date
-	 */
-	public Visit() {
-		this.date = LocalDate.now();
-	}
+    /**
+     * Creates a new instance of Visit for the current date
+     */
+    public Visit() {
+        this.date = LocalDate.now();
+    }
 
-	public LocalDate getDate() {
-		return this.date;
-	}
+    public LocalDate getDate() {
+        return this.date;
+    }
 
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
-	public String getDescription() {
-		return this.description;
-	}
+    public String getDescription() {
+        return this.description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }

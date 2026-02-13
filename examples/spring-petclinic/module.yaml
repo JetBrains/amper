@@ -29,6 +29,10 @@ dependencies:
 
 test-dependencies:
   - $spring.boot.starter.test
+  - $spring.boot.starter.test.webmvc
+  - $spring.boot.starter.test.restclient
+  - $spring.boot.starter.test.jdbc
+  - $spring.boot.starter.test.data.jpa
   - $spring.boot.testcontainers
   - $spring.boot.docker.compose
   - $libs.testcontainers.junitJupiter

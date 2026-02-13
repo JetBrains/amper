@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,41 +45,41 @@ import jakarta.persistence.Table;
 @Table(name = "pets")
 public class Pet extends NamedEntity {
 
-	@Column(name = "birth_date")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate birthDate;
+    @Column
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthDate;
 
-	@ManyToOne
-	@JoinColumn(name = "type_id")
-	private PetType type;
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private PetType type;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "pet_id")
-	@OrderBy("date ASC")
-	private final Set<Visit> visits = new LinkedHashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "pet_id")
+    @OrderBy("date ASC")
+    private final Set<Visit> visits = new LinkedHashSet<>();
 
-	public void setBirthDate(LocalDate birthDate) {
-		this.birthDate = birthDate;
-	}
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 
-	public LocalDate getBirthDate() {
-		return this.birthDate;
-	}
+    public LocalDate getBirthDate() {
+        return this.birthDate;
+    }
 
-	public PetType getType() {
-		return this.type;
-	}
+    public PetType getType() {
+        return this.type;
+    }
 
-	public void setType(PetType type) {
-		this.type = type;
-	}
+    public void setType(PetType type) {
+        this.type = type;
+    }
 
-	public Collection<Visit> getVisits() {
-		return this.visits;
-	}
+    public Collection<Visit> getVisits() {
+        return this.visits;
+    }
 
-	public void addVisit(Visit visit) {
-		getVisits().add(visit);
-	}
+    public void addVisit(Visit visit) {
+        getVisits().add(visit);
+    }
 
 }

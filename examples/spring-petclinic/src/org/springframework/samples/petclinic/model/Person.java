@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,28 +27,28 @@ import jakarta.validation.constraints.NotBlank;
 @MappedSuperclass
 public class Person extends BaseEntity {
 
-	@Column(name = "first_name")
-	@NotBlank
-	private String firstName;
+    @Column
+    @NotBlank
+    private String firstName;
 
-	@Column(name = "last_name")
-	@NotBlank
-	private String lastName;
+    @Column
+    @NotBlank
+    private String lastName;
 
-	public String getFirstName() {
-		return this.firstName;
-	}
+    public String getFirstName() {
+        return this.firstName;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public String getLastName() {
-		return this.lastName;
-	}
+    public String getLastName() {
+        return this.lastName;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
 }

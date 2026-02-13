@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -48,36 +48,102 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.DockerClientFactory;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = { "spring.docker.compose.skip.in-tests=false", //
-		"spring.docker.compose.start.arguments=--force-recreate,--renew-anon-volumes,postgres" })
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"spring.docker.compose.skip.in-tests=false", //
+        "spring.docker.compose.start.arguments=--force-recreate,--renew-anon-volumes,postgres"})
 @ActiveProfiles("postgres")
 @DisabledInNativeImage
 public class PostgresIntegrationTests {
 
-	@LocalServerPort
-	int port;
+    @LocalServerPort
+    int port;
 
-	@Autowired
-	private VetRepository vets;
+    @Autowired
+    private VetRepository vets;
 
-	@Autowired
-	private RestTemplateBuilder builder;
+    @Autowired
+    private RestTemplateBuilder builder;
 
-	@BeforeAll
-	static void available() {
-		assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
-	}
+    @BeforeAll
+    static void available() {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+    }
 
-	@Test
-	void testFindAll() throws Exception {
-		vets.findAll();
-		vets.findAll(); // served from cache
-	}
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(PetClinicApplication.class) //
+                .profiles("postgres") //
+                .properties( //
+                        "spring.docker.compose.start.arguments=postgres" //
+                ) //
+                .listeners(new PropertiesLogger()) //
+                .run(args);
+    }
 
-	@Test
-	void testOwnerDetails() {
-		RestTemplate template = builder.rootUri("http://localhost:" + port).build();
-		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
-		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-	}
+    @Test
+    void testFindAll() throws Exception {
+        vets.findAll();
+        vets.findAll(); // served from cache
+    }
+
+    @Test
+    void testOwnerDetails() {
+        RestTemplate template = builder.rootUri("http://localhost:" + port).build();
+        ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    static class PropertiesLogger implements ApplicationListener<ApplicationPreparedEvent> {
+
+        private static final Log log = LogFactory.getLog(PropertiesLogger.class);
+
+        private ConfigurableEnvironment environment;
+
+        private boolean isFirstRun = true;
+
+        @Override
+        public void onApplicationEvent(ApplicationPreparedEvent event) {
+            if (isFirstRun) {
+                environment = event.getApplicationContext().getEnvironment();
+                printProperties();
+            }
+            isFirstRun = false;
+        }
+
+        public void printProperties() {
+            for (EnumerablePropertySource<?> source : findPropertiesPropertySources()) {
+                log.info("PropertySource: " + source.getName());
+                String[] names = source.getPropertyNames();
+                Arrays.sort(names);
+                for (String name : names) {
+                    String resolved = environment.getProperty(name);
+
+                    assertNotNull(resolved, "resolved environment property: " + name + " is null.");
+
+                    Object sourceProperty = source.getProperty(name);
+
+                    assertNotNull(sourceProperty, "source property was expecting an object but is null.");
+
+                    assertNotNull(sourceProperty.toString(), "source property toString() returned null.");
+
+                    String value = sourceProperty.toString();
+                    if (resolved.equals(value)) {
+                        log.info(name + "=" + resolved);
+                    } else {
+                        log.info(name + "=" + value + " OVERRIDDEN to " + resolved);
+                    }
+                }
+            }
+        }
+
+        private List<EnumerablePropertySource<?>> findPropertiesPropertySources() {
+            List<EnumerablePropertySource<?>> sources = new LinkedList<>();
+            for (PropertySource<?> source : environment.getPropertySources()) {
+                if (source instanceof EnumerablePropertySource enumerable) {
+                    sources.add(enumerable);
+                }
+            }
+            return sources;
+        }
+
+    }
+
 }

@@ -84,4 +84,4 @@ settings@jvm:
   springBoot:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.5.5  # default
+    version: 4.0.2  # default

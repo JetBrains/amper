@@ -10,7 +10,7 @@ dependencies:
   - $spring.boot.starter.cache
   - $spring.boot.starter.data.jpa
   - $spring.boot.starter.validation
-  - $spring.boot.starter.web
+  - $spring.boot.starter.webmvc
   - $spring.boot.starter.thymeleaf
   - com.fasterxml.jackson.module:jackson-module-kotlin
   - org.glassfish.jaxb:jaxb-runtime
@@ -29,6 +29,8 @@ dependencies:
 test-dependencies:
   - $spring.boot.starter.test
   - $spring.boot.starter.webflux
+  - $spring.boot.starter.test.webmvc
+  - $spring.boot.starter.test.data.jpa
 
 test-settings:
   kotlin:

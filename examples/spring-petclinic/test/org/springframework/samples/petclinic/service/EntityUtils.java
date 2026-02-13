@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,27 +27,28 @@ import java.util.Collection;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see org.springframework.samples.petclinic.model.BaseEntity
+ * @see BaseEntity
  * @since 29.10.2003
  */
 public abstract class EntityUtils {
 
-	/**
-	 * Look up the entity of the given class with the given id in the given collection.
-	 * @param entities the collection to search
-	 * @param entityClass the entity class to look up
-	 * @param entityId the entity id to look up
-	 * @return the found entity
-	 * @throws ObjectRetrievalFailureException if the entity was not found
-	 */
-	public static <T extends BaseEntity> T getById(Collection<T> entities, Class<T> entityClass, int entityId)
-			throws ObjectRetrievalFailureException {
-		for (T entity : entities) {
-			if (entity.getId() == entityId && entityClass.isInstance(entity)) {
-				return entity;
-			}
-		}
-		throw new ObjectRetrievalFailureException(entityClass, entityId);
-	}
+    /**
+     * Look up the entity of the given class with the given id in the given collection.
+     *
+     * @param entities    the collection to search
+     * @param entityClass the entity class to look up
+     * @param entityId    the entity id to look up
+     * @return the found entity
+     * @throws ObjectRetrievalFailureException if the entity was not found
+     */
+    public static <T extends BaseEntity> T getById(Collection<T> entities, Class<T> entityClass, int entityId)
+            throws ObjectRetrievalFailureException {
+        for (T entity : entities) {
+            if (entity.getId() != null && entity.getId() == entityId && entityClass.isInstance(entity)) {
+                return entity;
+            }
+        }
+        throw new ObjectRetrievalFailureException(entityClass, entityId);
+    }
 
 }

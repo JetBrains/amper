@@ -1,11 +1,10 @@
 [versions]
-jakarta-xmlBind = "4.0.2"
 webjars-bootstrap = "5.3.8"
 webjars-fontawesome = "4.7.0"
-webjars-locator-lite = "1.1.2"
+webjars-locator-lite = "1.1.3"
 
 [libraries]
-jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakarta-xmlBind" }
+jakarta-xml-bindApi = { module = "jakarta.xml.bind:jakarta.xml.bind-api" }
 webjars-locatorLite = { module = "org.webjars:webjars-locator-lite", version.ref = "webjars-locator-lite" }
 webjarsNpm-bootstrap = { module = "org.webjars.npm:bootstrap", version.ref = "webjars-bootstrap" }
 webjarsNpm-fontawesome = { module = "org.webjars.npm:font-awesome", version.ref = "webjars-fontawesome" }
