@@ -6,7 +6,9 @@ package org.jetbrains.amper.tasks.maven
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -116,16 +118,16 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks() {
             val mavenCompatPluginId = amperMavenPluginId(pluginDescription, mojo)
 
             // There must be a node, at least to read "enabled" property.
-            val correspondingNode = module.pluginSettings.valueHolders[mavenCompatPluginId]?.value
+            val correspondingNode = module.pluginSettings.backingTree[mavenCompatPluginId]
                 ?: return@mapNotNull null
-            if (correspondingNode !is SchemaNode) return@mapNotNull null
+            if (correspondingNode !is CompleteObjectNode) return@mapNotNull null
 
-            val isEnabled = correspondingNode.valueHolders["enabled"]?.value as? Boolean ?: false
+            val isEnabled = (correspondingNode["enabled"] as? BooleanNode)?.value ?: false
             if (!isEnabled) return@mapNotNull null
 
             // TODO Handle enabled property more delicately, since it can be defined both in Amper
             //  and in the plugin configuration.
-            val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key, _ ->
+            val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key ->
                 key != "enabled"
             }.prependIndent("  ")
 

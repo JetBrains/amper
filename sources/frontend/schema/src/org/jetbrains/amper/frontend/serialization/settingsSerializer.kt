@@ -8,14 +8,11 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
-import org.jetbrains.amper.frontend.api.PlatformSpecific
-import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
-import kotlin.reflect.full.findAnnotation
+import org.jetbrains.amper.frontend.tree.CompletePropertyKeyValue
 
 /**
  * Serializes these [Settings] to a YAML string that looks like how it would appear in Amper files.
@@ -40,18 +37,19 @@ private class SettingsFilter(
     private val printDerivedDefaults: Boolean = true,
 ) : SchemaValueFilter {
 
-    override fun shouldInclude(valueDelegate: SchemaValueDelegate<*>): Boolean {
-        val productTypeSpecific = valueDelegate.property.findAnnotation<ProductTypeSpecific>()
-        if (productTypeSpecific != null && productType !in productTypeSpecific.productTypes.toSet()) {
+    override fun shouldInclude(keyValue: CompletePropertyKeyValue): Boolean {
+        val productTypes = keyValue.propertyDeclaration.specificToProducts
+        if (productTypes.isNotEmpty() && productType !in productTypes) {
             return false
         }
-        val platformSpecific = valueDelegate.property.findAnnotation<PlatformSpecific>()
-        if (platformSpecific != null && contexts.intersect(platformSpecific.platforms.toSet()).isEmpty()) {
+        val specificToPlatforms = keyValue.propertyDeclaration.specificToPlatforms
+        if (specificToPlatforms.isNotEmpty() && contexts.intersect(specificToPlatforms).isEmpty()) {
             return false
         }
-        val isUnset = valueDelegate.trace.isDefault
+        val valueTrace = keyValue.value.trace
+        val isUnset = valueTrace.isDefault
         if (isUnset) {
-            return when (valueDelegate.trace) {
+            return when (valueTrace) {
                 is DerivedValueTrace -> printDerivedDefaults
                 DefaultTrace -> printStaticDefaults
                 is BuiltinCatalogTrace, // should never happen, because we should only see the reference in this case

@@ -110,16 +110,7 @@ class TaskFromPlugin(
             key = taskName.name,
             inputValues = mapOf(
                 "action" to description.actionClassJvmName + '.' + description.actionFunctionJvmName,
-                "arguments" to description.actionArguments.entries.joinToString(
-                    separator = "\n",
-                    transform = { (arg, value) ->
-                        val valueRepresentation = when (value) {
-                            is SchemaNode -> value.toStableJsonLikeString()
-                            else -> value.toString()
-                        }
-                        "$arg = $valueRepresentation;"
-                    },
-                ),
+                "arguments" to description.actionArguments.toStableJsonLikeString(),
             ),
             inputFiles = buildList {
                 addAll(taskCode.jvmRuntimeClasspath)
@@ -154,11 +145,10 @@ class TaskFromPlugin(
         val actionFacade = classLoader.loadClass(description.actionClassJvmName)
         val actionMethod = actionFacade.methods.first { it.name == description.actionFunctionJvmName }.kotlinFunction!!
         val marshaller = ValueMarshaller(classLoader)
-        val argumentsMap = description.actionArguments.mapKeys { (name, _) ->
-            actionMethod.parameters.first { it.name == name }
-        }.mapValues { (parameter, value) ->
-            marshaller.marshallValue(value, parameter.type.javaType)
-        }
+        val argumentsMap = description.actionArguments.refinedChildren.entries.associateBy(
+            keySelector = { (name, _) -> actionMethod.parameters.first { it.name == name } },
+            valueTransform = { (_, kv) -> marshaller.marshallValue(kv.value) },
+        )
 
         try {
             StandardStreamsCapture.capturing(

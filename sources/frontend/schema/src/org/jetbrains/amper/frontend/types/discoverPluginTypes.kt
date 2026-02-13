@@ -192,9 +192,7 @@ private class ExternalObjectDeclaration(
         Defaults.Null -> null
     }
 
-    override fun createInstance(): SchemaNode = instantiationStrategy().apply {
-        schemaType = this@ExternalObjectDeclaration
-    }
+    override fun createInstance(): SchemaNode = instantiationStrategy()
     override fun toString() = qualifiedName
 }
 

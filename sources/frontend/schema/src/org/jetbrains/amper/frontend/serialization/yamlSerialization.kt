@@ -6,24 +6,29 @@ package org.jetbrains.amper.frontend.serialization
 
 import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
-import org.jetbrains.amper.frontend.api.HiddenFromCompletion
-import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.TraceableValue
-import org.jetbrains.amper.frontend.api.propertyDelegates
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import java.nio.file.Path
-import kotlin.reflect.full.hasAnnotation
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.CompleteListNode
+import org.jetbrains.amper.frontend.tree.CompleteMapNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.CompletePropertyKeyValue
+import org.jetbrains.amper.frontend.tree.CompleteTreeNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.schemaValue
 
 internal fun interface SchemaValueFilter {
-    fun shouldInclude(valueDelegate: SchemaValueDelegate<*>): Boolean
+    fun shouldInclude(keyValue: CompletePropertyKeyValue): Boolean
 }
 
 interface YamlTheme {
@@ -50,88 +55,70 @@ internal fun SchemaNode.serializeAsAmperYaml(
     indent: String = "  ",
     filter: SchemaValueFilter = SchemaValueFilter { true },
     theme: YamlTheme = YamlTheme.NoColor,
-): String = YamlSerializer(indent = indent, filter = filter, theme = theme).serialize(this, trace = trace)
+): String = YamlSerializer(indent = indent, filter = filter, theme = theme).serialize(this.backingTree)
 
 internal class YamlSerializer(
     private val indent: String = "  ",
     private val filter: SchemaValueFilter = SchemaValueFilter { true },
     private val theme: YamlTheme = YamlTheme.NoColor,
 ) {
-    fun serialize(value: Any?, trace: Trace?): String = when (value) {
-        is SchemaEnum -> serializeEnum(value, trace) // must be before Enum to be taken into account
-        null,
-        is Boolean,
-        is Short,
-        is Int,
-        is Long,
-        is Float,
-        is Double,
-        is String,
-        is Enum<*> -> serializeScalar(text = value.toString(), trace)
-        is Path -> serializeScalar(text = value.joinToString("/"), trace) // OS-agnostic
-        is Collection<*> -> serializeList(value, trace)
-        is Map<*, *> -> serializeMap(value, trace)
-        is SchemaNode -> serialize(value)
-        is TraceableValue<*> -> serializeTraceableValue(value)
-        else -> error("Unsupported type: ${value::class}")
+    fun serialize(value: CompleteTreeNode): String = when (value) {
+        is CompleteListNode -> serializeList(value)
+        is CompleteMapNode -> serializeMap(value)
+        is CompleteObjectNode -> serialize(value)
+        is NullLiteralNode -> serializeScalar(text = "null", value.trace)
+        is BooleanNode -> serializeScalar(text = value.value.toString(), value.trace)
+        is EnumNode -> serializeScalar(text = value.schemaValue, value.trace)
+        is IntNode -> serializeScalar(text = value.value.toString(), value.trace)
+        is PathNode -> serializeScalar(text = value.value.joinToString("/"), value.trace) // OS-agnostic
+        is StringNode -> serializeScalar(text = value.value, value.trace)
     }
 
-    private fun serializeEnum(value: SchemaEnum, trace: Trace?): String = serializeScalar(value.schemaValue, trace)
+    private fun serializeScalar(text: String, trace: Trace): String = text + traceComment(trace)
 
-    private fun serializeScalar(text: String, trace: Trace?): String = text + traceComment(trace)
-
-    private fun serializeList(list: Collection<*>, trace: Trace?): String {
-        if (list.isEmpty()) {
-            return "[]" + traceComment(trace)
+    private fun serializeList(list: CompleteListNode): String {
+        if (list.children.isEmpty()) {
+            return "[]" + traceComment(list.trace)
         }
-        return list.joinToString("\n") { item ->
-            // we don't know the trace of specific items here, hopefully they are Traceable themselves
-            val serializedItem = serialize(item, trace = null)
+        return list.children.joinToString("\n") { item ->
+            val serializedItem = serialize(item)
             val indentedItem = serializedItem.prependIndent("  ") // this is the size of "- " not an indent level
             "- ${indentedItem.drop(2)}" // we replace the 2 spaces of the first line to use "- " instead
         }
     }
 
-    private fun serializeMap(map: Map<*, *>, trace: Trace?): String {
-        if (map.isEmpty()) {
-            return "{}" + traceComment(trace)
+    private fun serializeMap(map: CompleteMapNode): String {
+        if (map.refinedChildren.isEmpty()) {
+            return "{}" + traceComment(map.trace)
         }
-        return map.entries.joinToString("\n") { (key, value) ->
-            val keyText = when (key) {
-                is CharSequence -> key
-                is TraceableValue<*> -> key.value
-                else -> error("Unsupported key type in map: ${key?.let { it::class.qualifiedName }}")
-            }
+        return map.refinedChildren.entries.joinToString("\n") { (key, kv) ->
             serializeKeyValue(
-                key = "\"$keyText\"", // we quote map keys to distinguish them from property names and avoid escaping
-                value = value,
-                trace = null, // we don't know the trace of specific entries here, hopefully they are Traceable
+                key = "\"$key\"", // we quote map keys to distinguish them from property names and avoid escaping
+                value = kv.value,
             )
         }
     }
 
-    private fun serialize(value: SchemaNode): String {
-        val filteredDelegates = value.propertyDelegates.filter {
-            !it.property.hasAnnotation<HiddenFromCompletion>()
-                    && !it.property.hasAnnotation<IgnoreForSchema>()
+    private fun serialize(value: CompleteObjectNode): String {
+        val filteredDelegates = value.refinedChildren.values.filter {
+            !it.propertyDeclaration.isHiddenFromCompletion
                     && filter.shouldInclude(it)
         }
         if (filteredDelegates.isEmpty()) {
             return "{}" + traceComment(value.trace)
         }
-        return filteredDelegates.sortedBy { it.property.name }.joinToString("\n") { delegate ->
+        return filteredDelegates.sortedBy { it.key }.joinToString("\n") { kv ->
             serializeKeyValue(
-                key = theme.colorize(delegate.property.name, YamlTheme.SpecialElementType.PropertyName),
-                value = delegate.value,
-                trace = delegate.trace,
+                key = theme.colorize(kv.key, YamlTheme.SpecialElementType.PropertyName),
+                value = kv.value,
             )
         }
     }
 
-    private fun serializeKeyValue(key: String, value: Any?, trace: Trace?) = buildString {
+    private fun serializeKeyValue(key: String, value: CompleteTreeNode) = buildString {
         append(key)
         append(':')
-        val serializedValue = serialize(value, trace = trace)
+        val serializedValue = serialize(value)
         if (value.isScalarLike() || serializedValue.startsWith("[]") || serializedValue.startsWith("{}")) {
             append(' ')
             append(serializedValue)
@@ -141,31 +128,18 @@ internal class YamlSerializer(
         }
     }
 
-    private fun serializeTraceableValue(value: TraceableValue<*>): String = serialize(value.value, value.trace)
-
-    private fun traceComment(trace: Trace?): String {
-        val traceDescription = trace?.traceDescription() ?: return ""
+    private fun traceComment(trace: Trace): String {
+        val traceDescription = trace.traceDescription()
         return theme.colorize("  # $traceDescription", YamlTheme.SpecialElementType.Comment)
     }
 
-    private fun Any?.isScalarLike(): Boolean = when (this) {
-        null,
-        is Boolean,
-        is Short,
-        is Int,
-        is Long,
-        is Float,
-        is Double,
-        is String,
-        is Enum<*>,
-        is SchemaEnum,
-        is Path -> true
-        is TraceableValue<*> -> value.isScalarLike()
+    private fun CompleteTreeNode.isScalarLike(): Boolean = when (this) {
+        is ScalarNode, is NullLiteralNode -> true
         else -> false
     }
 }
 
-private fun Trace.traceDescription(): String? = when (this) {
+private fun Trace.traceDescription(): String = when (this) {
     is PsiTrace -> psiElement.containingFilename()
     is DefaultTrace -> "default"
     is BuiltinCatalogTrace -> "from built-in catalog"

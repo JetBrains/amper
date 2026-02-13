@@ -38,7 +38,7 @@ internal fun applyPlugins(
         ) ?: continue
         for ((name, task) in appliedPlugin.tasks) {
             val taskInfo = task.action.taskInfo
-            val pathsCollector = InputOutputCollector(task.action)
+            val pathsCollector = InputOutputCollector(task.action.backingTree)
             val outputMarks = task.markOutputsAs.distinctBy(
                 selector = { it.path },
                 onDuplicates = { path, duplicateMarks ->
@@ -78,7 +78,7 @@ internal fun applyPlugins(
                 backendTaskName = plugin.taskNameFor(moduleBuildCtx.module, name),
                 actionFunctionJvmName = taskInfo.jvmFunctionName,
                 actionClassJvmName = taskInfo.jvmFunctionClassName,
-                actionArguments = task.action.valueHolders.mapValues { (_, v) -> v.value },
+                actionArguments = task.action.backingTree,
                 inputs = pathsCollector.allInputPaths.map { (path, inferTaskDependency) ->
                     TaskFromPluginDescription.InputPath(path, inferTaskDependency)
                 },

@@ -24,6 +24,14 @@ private fun <R> RefinedTreeVisitor<R>.accept(node: RefinedTreeNode): R = when (n
     is ErrorNode -> visitError(node)
 }
 
+private fun <R> CompleteTreeVisitor<R>.accept(node: CompleteTreeNode): R = when (node) {
+    is CompleteListNode -> visitList(node)
+    is CompleteMapNode -> visitMap(node)
+    is CompleteObjectNode -> visitObject(node)
+    is ScalarNode -> visitScalar(node)
+    is NullLiteralNode -> visitNull(node)
+}
+
 /**
  * A generic [TreeNode] visitor capable of returning a result of type [R].
  */
@@ -50,6 +58,15 @@ interface RefinedTreeVisitor<R> {
     fun visitStringInterpolation(node: StringInterpolationNode): R
     fun visitList(node: RefinedListNode): R
     fun visitMap(node: RefinedMappingNode): R
+}
+
+interface CompleteTreeVisitor<R> {
+    fun visit(node: CompleteTreeNode): R = accept(node)
+    fun visitNull(node: NullLiteralNode): R
+    fun visitScalar(node: ScalarNode): R
+    fun visitList(node: CompleteListNode): R
+    fun visitMap(node: CompleteMapNode): R
+    fun visitObject(node: CompleteObjectNode): R
 }
 
 /**

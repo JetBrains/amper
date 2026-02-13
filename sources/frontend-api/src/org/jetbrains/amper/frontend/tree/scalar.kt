@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.tree
 
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.types.SchemaType
 import java.nio.file.Path
@@ -50,6 +51,8 @@ class PathNode(
     override val trace: Trace,
     override val contexts: Contexts,
 ) : ScalarNode
+
+val PathNode.traceableValue get() = TraceablePath(value, trace)
 
 /**
  * A [ScalarNode] with enum value, defined by the [entryName].

@@ -9,15 +9,20 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
+import org.jetbrains.amper.frontend.tree.CompleteListNode
+import org.jetbrains.amper.frontend.tree.CompleteMapNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.CompleteTreeNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.traceableValue
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
-import java.nio.file.Path
 
 /**
  * Collects @Input/@Output marked Path values from the [value].
  * The result is accessible via the [allInputPaths] and [allOutputPaths] properties.
  */
 internal class InputOutputCollector(
-    value: Any?,
+    value: CompleteObjectNode,
 ) {
     private val _allInputPaths = mutableListOf<InputPath>()
     private val _allOutputPaths = mutableListOf<TraceablePath>()
@@ -58,39 +63,36 @@ internal class InputOutputCollector(
     }
 
     private fun gatherPaths(
-        value: Any?,
+        value: CompleteTreeNode,
         mark: InputOutputMark?,
         location: List<String>,
     ) {
         when(value) {
-            is SchemaNode -> value.valueHolders.forEach { (name, holder) ->
-                val property = value.schemaType.getProperty(name)
+            is CompleteObjectNode -> value.refinedChildren.forEach { (name, keyValue) ->
                 gatherPaths(
-                    value = holder.value,
-                    mark = property?.inputOutputMark ?: mark,
+                    value = keyValue.value,
+                    mark = keyValue.propertyDeclaration.inputOutputMark ?: mark,
                     location = location + name,
                 )
-                when (value) {
-                    is ShadowClasspath -> _classpathNodes.add(NodeWithPropertyLocation(value, location))
-                    is ShadowModuleSources -> _moduleSourcesNodes.add(NodeWithPropertyLocation(value, location))
-                    is ShadowCompilationArtifact -> _compilationArtifactNodes.add(value)
+                when (val instance = value.instance) {
+                    is ShadowClasspath -> _classpathNodes.add(NodeWithPropertyLocation(instance, location))
+                    is ShadowModuleSources -> _moduleSourcesNodes.add(NodeWithPropertyLocation(instance, location))
+                    is ShadowCompilationArtifact -> _compilationArtifactNodes.add(instance)
                 }
             }
-            is Map<*, *> -> value.forEach { (key, value) ->
-                gatherPaths(value = value, mark = mark, location = location + key.toString())
+            is CompleteMapNode-> value.refinedChildren.forEach { (key, keyValue) ->
+                gatherPaths(value = keyValue.value, mark = mark, location = location + key)
             }
-            is Collection<*> -> value.forEachIndexed { i, value ->
+            is CompleteListNode -> value.children.forEachIndexed { i, value ->
                 gatherPaths(value = value, mark = mark, location = location + i.toString())
             }
-            is Path -> if (mark != InputOutputMark.ValueOnly && mark != null) {
-                error("Not reached: untraceable marked path")
-            }
-            is TraceablePath -> when (mark) {
-                InputOutputMark.Input -> _allInputPaths.add(InputPath(value))
-                InputOutputMark.InputNoDependencyInference -> _allInputPaths.add(InputPath(value, false))
-                InputOutputMark.Output -> _allOutputPaths.add(value)
+            is PathNode -> when (mark) {
+                InputOutputMark.Input -> _allInputPaths.add(InputPath(value.traceableValue))
+                InputOutputMark.InputNoDependencyInference -> _allInputPaths.add(InputPath(value.traceableValue, false))
+                InputOutputMark.Output -> _allOutputPaths.add(value.traceableValue)
                 InputOutputMark.ValueOnly, null -> {}
             }
+            else -> {}
         }
     }
 }

@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
 import org.jetbrains.amper.plugins.schema.model.PluginData
 
 /**
@@ -54,18 +55,12 @@ class TaskFromPluginDescription(
     val actionFunctionJvmName: String,
 
     /**
-     * Action argument values that are supplied by the *frontend*.
+     * Action arguments that are supplied by the *frontend* in the form of an object node.
+     * Arguments are [properties][CompleteObjectNode.refinedChildren] within the object.
      *
-     * The values are:
-     * - primitive
-     * - Path
-     * - `SchemaNode` objects
-     * - String (for enums also)
-     *
-     * Backend may need
-     * to convert some arguments before passing it to the [action method][actionFunctionJvmName].
+     * Backend will need to convert arguments before passing it to the [action method][actionFunctionJvmName].
      */
-    val actionArguments: Map<String, Any?>,
+    val actionArguments: CompleteObjectNode,
 
     /**
      * Paths (from the [actionArguments]) that are to be considered as inputs to the task action.

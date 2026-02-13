@@ -80,9 +80,7 @@ class ModuleDataForPlugin : SchemaNode() {
 
 class TaskAction(
     @IgnoreForSchema val taskInfo: PluginData.TaskInfo,
-) : SchemaNode() {
-    operator fun get(key: String) = valueHolders[key]?.value
-}
+) : SchemaNode()
 
 class Task : SchemaNode() {
     @SchemaDoc("The task action definition. Requires a type specifier in the form of `!com.example.myTaskAction`, " +

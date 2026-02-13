@@ -45,13 +45,19 @@ interface RefinedKeyValue : KeyValue {
 }
 
 /**
+ * A key-value pair in [CompleteMappingNode].
+ */
+interface CompleteKeyValue : RefinedKeyValue {
+    override val value: CompleteTreeNode
+}
+
+/**
  * A key-value pair in [CompleteMapNode].
  *
  * [propertyDeclaration] is always `null`.
  */
-interface CompleteKeyValue : RefinedKeyValue {
+interface CompleteMapKeyValue : CompleteKeyValue {
     override val propertyDeclaration: Nothing?
-    override val value: CompleteTreeNode
 }
 
 /**
@@ -59,9 +65,8 @@ interface CompleteKeyValue : RefinedKeyValue {
  *
  * [propertyDeclaration] is always present.
  */
-interface CompletePropertyKeyValue : RefinedKeyValue {
+interface CompletePropertyKeyValue : CompleteKeyValue {
     override val propertyDeclaration: SchemaObjectDeclaration.Property
-    override val value: CompleteTreeNode
 }
 
 /**
@@ -128,7 +133,7 @@ fun KeyValue.copyWithValue(
  */
 fun KeyValue.asCompleteForMap(
     value: CompleteTreeNode,
-) : CompleteKeyValue = CompleteKeyValueImpl(key, keyTrace, value, trace).also {
+) : CompleteMapKeyValue = CompleteMapKeyValueImpl(key, keyTrace, value, trace).also {
     require(propertyDeclaration == null) { "`propertyDeclaration` is not null" }
 }
 
@@ -157,12 +162,12 @@ private data class RefinedKeyValueImpl(
     override val trace: Trace,
 ) : RefinedKeyValue, WithContexts by value
 
-private data class CompleteKeyValueImpl(
+private data class CompleteMapKeyValueImpl(
     override val key: String,
     override val keyTrace: Trace,
     override val value: CompleteTreeNode,
     override val trace: Trace,
-) : CompleteKeyValue, WithContexts by value {
+) : CompleteMapKeyValue, WithContexts by value {
     override val propertyDeclaration: Nothing? get() = null
 }
 

@@ -5,14 +5,20 @@
 package org.jetbrains.amper.tasks.custom
 
 import com.android.utils.associateByNotNull
-import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.TraceableValue
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.CompleteListNode
+import org.jetbrains.amper.frontend.tree.CompleteMapNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.CompleteTreeNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
-import java.lang.reflect.Type
 import java.util.*
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaMethod
@@ -28,40 +34,44 @@ import kotlin.reflect.jvm.javaMethod
 class ValueMarshaller(
     private val publicClassLoader: ClassLoader,
 ) {
-    private val valueCache = IdentityHashMap<Any?, Any?>()
+    private val valueCache = IdentityHashMap<CompleteTreeNode, Any?>()
 
-    fun marshallValue(value: Any?, type: Type): Any? {
+    fun marshallValue(value: CompleteTreeNode): Any? {
         return when (value) {
-            is String if type is Class<*> && type.isEnum -> {
-                // Do not use valueCache on String instances
-                // and because resulting enum constants already preserve identity when called multiple times.
-                type.enumConstants.first { (it as Enum<*>).name == value }
+            is NullLiteralNode -> null
+            is BooleanNode -> value.value
+            is IntNode -> value.value
+            is PathNode -> value.value
+            is StringNode -> value.value
+            is EnumNode -> withValueCache(value) {
+                val enumClass = publicClassLoader.loadClass(value.type.declaration.publicInterfaceReflectionName)
+                enumClass.enumConstants.first { (it as Enum<*>).name == value.entryName }
             }
-            is SchemaNode -> withValueCache(value) {
-                val publicInterfaceName = value.schemaType.publicInterfaceReflectionName
-                    ?: error("No public interface reflection name for $value")
-                createProxy(value, publicInterfaceName)
+            is CompleteListNode -> withValueCache(value) {
+                value.children.map(::marshallValue)
             }
-            is List<*> -> withValueCache(value) {
-                value.map { marshallValue(it, (type as ParameterizedType).actualTypeArguments.first()) }
+            is CompleteMapNode -> withValueCache(value) {
+                value.refinedChildren.mapValues { (_, v) -> marshallValue(v.value) }
             }
-            is Map<*, *> -> withValueCache(value) {
-                value.mapValues { marshallValue(it.value, (type as ParameterizedType).actualTypeArguments.last()) }
+            is CompleteObjectNode -> withValueCache(value) {
+                createProxy(
+                    value = value,
+                    interfaceName = value.type.declaration.publicInterfaceReflectionName
+                        ?: error("No public interface reflection name for $value"),
+                )
             }
-            is TraceableValue<*> -> value.value
-            else -> value
         }
     }
 
     private fun createProxy(
-        value: SchemaNode,
+        value: CompleteObjectNode,
         interfaceName: String,
     ): Any {
         val publicInterfaceClass = publicClassLoader.loadClass(interfaceName)
         val publicMethodsToProperties = publicInterfaceClass.kotlin.memberProperties.associateByNotNull {
             it.getter.javaMethod
         }
-        val internalPropertiesByName = value.javaClass.kotlin.memberProperties.associateByNotNull { it.name }
+        val internalPropertiesByName = value.instance.javaClass.kotlin.memberProperties.associateByNotNull { it.name }
         val handler = InvocationHandler { proxy: Any, method: Method, args: Array<out Any?>? ->
             when (method.name) {
                 "toString" -> value.toStableJsonLikeString()
@@ -70,14 +80,14 @@ class ValueMarshaller(
                 else -> {
                     val property = publicMethodsToProperties[method]
                         ?: error("Unhandled method $method: not a property getter")
-                    val valueHolder = value.valueHolders[property.name]
-                    if (valueHolder != null) {
-                        marshallValue(valueHolder.value, method.genericReturnType)
+                    val keyValue = value.refinedChildren[property.name]
+                    if (keyValue != null) {
+                        marshallValue(keyValue.value)
                     } else {
                         // Public property may be backed by an internal one for @Provided things.
                         val internalProperty = internalPropertiesByName[property.name]
                             ?: error("Unhandled method $method: no value and no backing property found")
-                        internalProperty.get(value)
+                        internalProperty.get(value.instance)
                     }
                 }
             }
@@ -85,7 +95,7 @@ class ValueMarshaller(
         return Proxy.newProxyInstance(publicClassLoader, arrayOf(publicInterfaceClass), handler)
     }
 
-    private fun <T> withValueCache(value: T, mapping: (T) -> Any?): Any? = synchronized(valueCache) {
-        valueCache.getOrPut(value) { mapping(value) }
+    private fun withValueCache(value: CompleteTreeNode, mapping: () -> Any?): Any? = synchronized(valueCache) {
+        valueCache.getOrPut(value) { mapping() }
     }
 }

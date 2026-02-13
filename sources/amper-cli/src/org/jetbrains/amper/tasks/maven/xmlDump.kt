@@ -4,8 +4,17 @@
 
 package org.jetbrains.amper.tasks.maven
 
-import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.CompleteListNode
+import org.jetbrains.amper.frontend.tree.CompleteMappingNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.CompleteTreeNode
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.relativeTo
@@ -13,60 +22,49 @@ import kotlin.io.path.relativeTo
 /**
  * Dumps the provided tree in XML format for maven plugins usage.
  */
-fun SchemaNode.mavenXmlDump(
+fun CompleteObjectNode.mavenXmlDump(
     root: Path,
-    propFilter: (String, Any?) -> Boolean = { _, _ -> true },
+    propFilter: (String) -> Boolean = { _ -> true },
 ): String {
     val normalizedRoot = root.absolute().normalize()
     fun Path.normalizedPath(): String = absolute().relativeTo(normalizedRoot).joinToString("/")
     val sb = StringBuilder()
 
-    fun Any.doXmlDump(indent: String, parentPropName: String? = null): Boolean {
+    fun CompleteTreeNode.doXmlDump(indent: String, parentPropName: String? = null): Boolean {
         val newIdent = "$indent  "
         return when (this) {
-            is SchemaNode -> {
-                valueHolders
-                    .filter { it.value.value != null }
-                    // Unwrap value holders.
-                    .map { it.key to it.value.value!! }
-                    .filter { propFilter(it.first, it.second) }
-                    .forEach {
-                        sb.append("\n$indent<${it.first}>")
-                        val withNewLine = it.second.doXmlDump(newIdent, it.first)
-                        if (withNewLine) sb.append("\n$indent")
-                        sb.append("</${it.first}>")
-                    }
-                true
-            }
-
-            is Map<*, *> -> {
-                filter { propFilter(it.key?.toString() ?: return@filter false, it.value) }.forEach {
-                    sb.append("\n$indent<${it.key}>")
-                    val withNewLine = it.value?.doXmlDump(newIdent, it.key.toString()) ?: false
+            is CompleteMappingNode -> {
+                for ((k, kv) in refinedChildren) {
+                    if (kv.value is NullLiteralNode || !propFilter(k)) continue
+                    sb.append("\n$indent<$k>")
+                    val withNewLine = kv.value.doXmlDump(newIdent, k)
                     if (withNewLine) sb.append("\n$indent")
-                    sb.append("</${it.key}>")
+                    sb.append("</$k>")
                 }
                 true
             }
-
-            is List<*> -> {
+            is CompleteListNode -> {
                 // TODO Rework dump.
                 // Ugly maven convention for naming list elements.
                 val elementName = parentPropName?.removeSuffix("s") ?: return false
-                forEach {
+                for (it in children) {
+                    if (it is NullLiteralNode) continue
                     sb.append("\n$indent<$elementName>")
-                    val withNewLine = it?.doXmlDump(newIdent, null) ?: false
+                    val withNewLine = it.doXmlDump(newIdent, null)
                     if (withNewLine) sb.append("\n$indent")
                     sb.append("</$elementName>")
                 }
-                isNotEmpty()
+                children.isNotEmpty()
             }
-
-            else -> {
-                val asPath = (this as? Path) ?: (this as? TraceablePath)?.value
-                val asNormalizedPath = asPath?.normalizedPath()
-                if (asNormalizedPath != null) sb.append(asNormalizedPath)
-                else sb.append(this)
+            is NullLiteralNode -> false
+            is ScalarNode -> {
+                sb.append(when (this) {
+                    is BooleanNode -> value
+                    is EnumNode -> entryName
+                    is IntNode -> value
+                    is PathNode -> value.normalizedPath()
+                    is StringNode -> value
+                })
                 false
             }
         }

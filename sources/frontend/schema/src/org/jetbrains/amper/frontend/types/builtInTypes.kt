@@ -254,10 +254,7 @@ internal abstract class BuiltInTypingContext protected constructor(
             return this
         }
 
-        override fun createInstance(): T =
-            backingReflectionClass.createInstance().apply {
-                schemaType = this@BuiltinClassDeclaration
-            }
+        override fun createInstance(): T = backingReflectionClass.createInstance()
 
         override fun toString() = "class declaration `${qualifiedName}`"
     }

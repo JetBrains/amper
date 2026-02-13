@@ -8,14 +8,24 @@ import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
-import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.SchemaValueDelegate
-import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.isDefault
+import org.jetbrains.amper.frontend.tree.BooleanNode
+import org.jetbrains.amper.frontend.tree.CompleteListNode
+import org.jetbrains.amper.frontend.tree.CompleteMapNode
+import org.jetbrains.amper.frontend.tree.CompleteObjectNode
+import org.jetbrains.amper.frontend.tree.CompletePropertyKeyValue
+import org.jetbrains.amper.frontend.tree.CompleteTreeVisitor
+import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.IntNode
+import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.PathNode
+import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.schemaValue
 import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
-import kotlin.reflect.full.hasAnnotation
 
 /**
  * Prints a human-readable string representation of this module, for comparison with gold files.
@@ -86,8 +96,8 @@ internal fun AmperModule.prettyPrintForGoldFile(printDefaults: Boolean = false):
     }
 }
 
-private fun prettyPrintForGoldFile(value: Any, printDefaults: Boolean): String = buildString {
-    HumanReadableSerializerVisitor(builder = this@buildString, indent = "  ", printDefaults).visit(value)
+private fun prettyPrintForGoldFile(value: SchemaNode, printDefaults: Boolean): String = buildString {
+    HumanReadableSerializerVisitor(builder = this@buildString, indent = "  ", printDefaults).visit(value.backingTree)
 }
 
 // Invariants
@@ -99,13 +109,13 @@ private class HumanReadableSerializerVisitor(
     private val builder: StringBuilder,
     private val indent: String,
     private val printDefaults: Boolean,
-) : SchemaValuesVisitor() {
+) : CompleteTreeVisitor<Unit> {
 
     private var currentIndent: String = ""
 
-    override fun visitCollection(collection: Collection<*>) {
+    override fun visitList(node: CompleteListNode) {
         appendBlock(start = "[", end = "]") {
-            collection.forEach {
+            node.children.forEach {
                 builder.append("- ")
                 currentIndent += "  " // that's the dimension of "- ", not the indent
                 visit(it)
@@ -115,21 +125,21 @@ private class HumanReadableSerializerVisitor(
         }
     }
 
-    override fun visitMap(map: Map<*, *>) {
+    override fun visitMap(node: CompleteMapNode) {
         appendBlock(start = "{", end = "}") {
-            map.forEach { (k, v) ->
+            node.refinedChildren.forEach { (k, kv) ->
                 builder.append('"')
-                builder.append(k.toString())
+                builder.append(k)
                 builder.append('"')
                 builder.append(": ")
-                visit(v)
+                visit(kv.value)
             }
         }
     }
 
-    override fun visitSchemaNode(node: SchemaNode) {
+    override fun visitObject(node: CompleteObjectNode) {
         appendBlock(start = "{", end = "}") {
-            super.visitSchemaNode(node)
+            node.refinedChildren.values.forEach(::visitProperty)
         }
     }
 
@@ -143,12 +153,13 @@ private class HumanReadableSerializerVisitor(
         builder.appendLine(end).append(currentIndent)
     }
 
-    override fun visitSchemaValueDelegate(schemaValue: SchemaValueDelegate<*>) {
+    private fun visitProperty(keyValue: CompletePropertyKeyValue) {
         // We don't care about such properties
-        if (schemaValue.property.hasAnnotation<HiddenFromCompletion>()) return
+        if (keyValue.propertyDeclaration.isHiddenFromCompletion) return
 
-        val isSetToDefault = schemaValue.trace.isDefault
-        val isDerived = schemaValue.trace is DerivedValueTrace
+        val valueTrace = keyValue.value.trace
+        val isSetToDefault = valueTrace.isDefault
+        val isDerived = valueTrace is DerivedValueTrace
 
         /*
         We still want to print derived properties because if the logic of its calculation is changed we want to notice
@@ -171,15 +182,25 @@ private class HumanReadableSerializerVisitor(
         */
         if (isSetToDefault && !isDerived && !printDefaults) return
 
-        builder.append(schemaValue.property.name)
+        builder.append(keyValue.key)
         builder.append(": ")
         if (isSetToDefault) {
             builder.append("<default> ")
         }
-        visit(schemaValue.value)
+        visit(keyValue.value)
     }
 
-    override fun visitPrimitiveLike(other: Any?) {
+    override fun visitNull(node: NullLiteralNode) = visitPrimitiveLike("null")
+
+    override fun visitScalar(node: ScalarNode): Unit = when (node) {
+        is BooleanNode -> visitPrimitiveLike(node.value)
+        is IntNode -> visitPrimitiveLike(node.value)
+        is PathNode -> visitPrimitiveLike(node.value.pathString)
+        is StringNode -> visitPrimitiveLike(node.value)
+        is EnumNode -> visitPrimitiveLike(node.schemaValue)
+    }
+
+    private fun visitPrimitiveLike(other: Any) {
         builder.appendLine(other).append(currentIndent)
     }
 }
