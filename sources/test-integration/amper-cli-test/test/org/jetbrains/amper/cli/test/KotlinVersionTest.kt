@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -73,15 +73,15 @@ class KotlinVersionTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `run jvm with language version 2_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("jvm-language-version-2.0"), "run")
+    fun `run jvm with language version 2_2`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("jvm-language-version-2.2"), "run")
 
         result.assertStdoutContains("Hello, world!")
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version=2.0")
-            hasAmperModule("jvm-language-version-2.0")
+            hasCompilerArgument("-language-version=2.2")
+            hasAmperModule("jvm-language-version-2.2")
         }
     }
 
@@ -95,11 +95,11 @@ class KotlinVersionTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build native with language version 2_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.0"), "build")
+    fun `build native with language version 2_2`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("native-language-version-2.2"), "build")
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version=2.0")
+            hasCompilerArgument("-language-version=2.2")
         }
     }
 
@@ -118,14 +118,14 @@ class KotlinVersionTest : AmperCliTestBase() {
 
     @Test
     @WindowsOnly
-    fun `run native with language version 2_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("native-language-version-2.0"), "run")
+    fun `run native with language version 2_2`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("native-language-version-2.2"), "run")
 
         result.assertStdoutContains("Hello, native!")
         result.assertLogStartsWith("Process exited with exit code 0", level = Level.INFO)
 
         result.readTelemetrySpans().assertEachKotlinNativeCompilationSpan {
-            hasCompilerArgument("-language-version=2.0")
+            hasCompilerArgument("-language-version=2.2")
         }
     }
 
@@ -144,15 +144,15 @@ class KotlinVersionTest : AmperCliTestBase() {
     }
 
     @Test
-    fun `build multiplatform with language version 2_0`() = runSlowTest {
-        val result = runCli(projectRoot = testProject("multiplatform-language-version-2.0"), "build")
+    fun `build multiplatform with language version 2_2`() = runSlowTest {
+        val result = runCli(projectRoot = testProject("multiplatform-language-version-2.2"), "build")
 
         result.withTelemetrySpans {
             assertEachKotlinJvmCompilationSpan {
-                hasCompilerArgument("-language-version=2.0")
+                hasCompilerArgument("-language-version=2.2")
             }
             assertEachKotlinNativeCompilationSpan {
-                hasCompilerArgument("-language-version=2.0")
+                hasCompilerArgument("-language-version=2.2")
             }
         }
     }

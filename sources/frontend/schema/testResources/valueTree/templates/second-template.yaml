@@ -2,4 +2,4 @@
 settings:
   kotlin:
     debug: false
-    languageVersion: 1.5
+    languageVersion: 2.1

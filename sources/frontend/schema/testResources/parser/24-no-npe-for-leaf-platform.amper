@@ -54,8 +54,8 @@ settings {
   }
   junit = "none"
   kotlin {
-    apiVersion = 1.8
-    languageVersion = 1.8
+    apiVersion = 2.2
+    languageVersion = 2.2
     allWarningsAsErrors = false
     debug = false
     progressiveMode = false

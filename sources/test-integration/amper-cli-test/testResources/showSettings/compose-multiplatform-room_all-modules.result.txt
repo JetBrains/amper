@@ -85,7 +85,7 @@ settings@android:
       version: 1.9.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
-    version: 2.2.21  # default
+    version: 2.3.10  # default
   kover: null  # default
   ktor:
     applyBom: true  # default
@@ -170,7 +170,7 @@ settings@jvm:
       version: 1.9.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
-    version: 2.2.21  # default
+    version: 2.3.10  # default
   kover: null  # default
   ktor:
     applyBom: true  # default
@@ -268,7 +268,7 @@ settings@jvm+android:
       version: 1.9.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
-    version: 2.2.21  # default
+    version: 2.3.10  # default
   kover: null  # default
   ktor:
     applyBom: true  # default
@@ -356,7 +356,7 @@ settings@jvm:
       version: 1.9.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
-    version: 2.2.21  # default
+    version: 2.3.10  # default
   kover: null  # default
   ktor:
     applyBom: true  # default
@@ -452,7 +452,7 @@ settings@android:
       version: 1.9.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
-    version: 2.2.21  # default
+    version: 2.3.10  # default
   kover: null  # default
   ktor:
     applyBom: true  # default

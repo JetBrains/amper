@@ -3,5 +3,5 @@ product:
 
 settings:
   kotlin:
-    languageVersion: 2.0
+    languageVersion: 2.2
     freeCompilerArgs: [ "-Werror" ]

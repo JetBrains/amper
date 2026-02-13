@@ -33,10 +33,10 @@ kotlin-stdlib-#kotlinVersion.jar
 kotlin-stdlib-commonMain-#kotlinVersion.klib
 kotlin-stdlib-jdk7-#kotlinVersion.jar
 kotlin-stdlib-jdk8-#kotlinVersion.jar
-kotlin-test-2.2.21.jar
-kotlin-test-annotationsCommonMain-2.2.21.klib
-kotlin-test-assertionsCommonMain-2.2.21.klib
-kotlin-test-junit5-2.2.21.jar
+kotlin-test-2.3.10.jar
+kotlin-test-annotationsCommonMain-2.3.10.klib
+kotlin-test-assertionsCommonMain-2.3.10.klib
+kotlin-test-junit5-2.3.10.jar
 kotlinx-coroutines-android-1.8.1.jar
 kotlinx-coroutines-core-commonMain-1.8.1.klib
 kotlinx-coroutines-core-concurrentMain-1.8.1.klib

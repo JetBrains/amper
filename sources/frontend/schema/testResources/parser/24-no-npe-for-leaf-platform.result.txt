@@ -3,9 +3,9 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.compose.animation:animation-graphics:1.4.3, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@android
     Fragment dependencies:
@@ -29,12 +29,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -57,9 +57,9 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=androidx.compose.animation:animation-graphics:1.4.3, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@android
@@ -85,12 +85,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -112,7 +112,7 @@ Fragments:
   apple
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@apple
     Fragment dependencies:
@@ -136,12 +136,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -163,8 +163,8 @@ Fragments:
   appleTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@apple
@@ -190,12 +190,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -217,7 +217,7 @@ Fragments:
   common
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src
     Fragment dependencies:
@@ -240,12 +240,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -267,8 +267,8 @@ Fragments:
   commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test
@@ -293,12 +293,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -320,7 +320,7 @@ Fragments:
   ios
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@ios
     Fragment dependencies:
@@ -344,12 +344,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -371,7 +371,7 @@ Fragments:
   iosArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@iosArm64
     Fragment dependencies:
@@ -395,12 +395,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -422,8 +422,8 @@ Fragments:
   iosArm64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@iosArm64
@@ -449,12 +449,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -476,8 +476,8 @@ Fragments:
   iosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@ios
@@ -503,12 +503,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -532,7 +532,7 @@ Fragments:
       MavenDependency(coordinates=io.ktor:ktor-server-core:2.3.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@jvm
     Fragment dependencies:
@@ -556,12 +556,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -583,7 +583,7 @@ Fragments:
   jvmAndAndroid
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@jvmAndAndroid
     Fragment dependencies:
@@ -607,12 +607,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -634,8 +634,8 @@ Fragments:
   jvmAndAndroidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@jvmAndAndroid
@@ -661,12 +661,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -690,7 +690,7 @@ Fragments:
       MavenDependency(coordinates=io.ktor:ktor-server-core:2.3.2, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@jvm
@@ -716,12 +716,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -743,7 +743,7 @@ Fragments:
   native
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src@native
     Fragment dependencies:
@@ -767,12 +767,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]
@@ -794,8 +794,8 @@ Fragments:
   nativeTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.10.1, trace=TransformedValueTrace(description=because Compose is enabled, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.ComposeSettings.enabled, value = true), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, trace=PsiTrace(psiElement=YAML plain scalar text, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test@native
@@ -821,12 +821,12 @@ Fragments:
       }
       kotlin: {
         allWarningsAsErrors: false
-        apiVersion: 1.8
+        apiVersion: 2.2
         debug: false
         freeCompilerArgs: [
           - -Xinline-classes
         ]
-        languageVersion: 1.8
+        languageVersion: 2.2
         optIns: [
           - kotlinx.Experimental
         ]

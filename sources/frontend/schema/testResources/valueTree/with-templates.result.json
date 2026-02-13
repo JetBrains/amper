@@ -14,8 +14,8 @@
   "settings(with-templates.yaml)" : {
     "kotlin(with-templates.yaml)" : {
       "debug(with-templates.yaml)" : "true(with-templates.yaml)",
-      "apiVersion(templates/first-template.yaml)" : "1.5(templates/first-template.yaml)",
-      "languageVersion(templates/second-template.yaml)" : "1.5(templates/second-template.yaml)"
+      "apiVersion(templates/first-template.yaml)" : "2.1(templates/first-template.yaml)",
+      "languageVersion(templates/second-template.yaml)" : "2.1(templates/second-template.yaml)"
     }
   }
 }

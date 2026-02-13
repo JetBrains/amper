@@ -2,7 +2,7 @@ Fragments:
   main
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.amper:amper-extensibility-api:1.0-SNAPSHOT, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
     Src folders:
       src
     Fragment dependencies:
@@ -139,7 +139,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.21
+        version: <default> 2.3.10
       }
       kover: <default> null
       ktor: <default> {
@@ -168,8 +168,8 @@ Fragments:
   test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.amper:amper-extensibility-api:1.0-SNAPSHOT, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.2.21, trace=DefaultTrace, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.2.21, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.Settings.junit, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.3.10, trace=DefaultTrace, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit5:2.3.10, trace=TransformedValueTrace(description=because the test engine is junit-5, sourceValue=SchemaValue(property = org.jetbrains.amper.frontend.schema.Settings.junit, value = JUNIT5), definitionTrace=DefaultTrace, precedingValue=null), compile=true, runtime=true, exported=false)
     Src folders:
       test
     Fragment dependencies:
@@ -307,7 +307,7 @@ Fragments:
         }
         suppressWarnings: <default> false
         verbose: <default> false
-        version: <default> 2.2.21
+        version: <default> 2.3.10
       }
       kover: <default> null
       ktor: <default> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -23,6 +23,7 @@ import kotlin.io.path.absolutePathString
  * The [ProjectId] for the Kotlin compiler needs to be unique per "root" project (not per module).
  * This is why the absolute path seems reasonable at the moment.
  */
+@OptIn(ExperimentalBuildToolsApi::class)
 internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
     val rootProjectLocallyUniqueName = path.absolutePathString()
     return ProjectId.ProjectUUID(UUID.nameUUIDFromBytes(rootProjectLocallyUniqueName.toByteArray()))
@@ -33,6 +34,7 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
  * necessary. This operation is thread-safe so that the same compiler version is never downloaded twice, even if
  * requested concurrently.
  */
+@Suppress("DEPRECATION") // https://youtrack.jetbrains.com/issue/AMPER-5113/Switch-to-the-new-Build-Tools-API
 @OptIn(ExperimentalBuildToolsApi::class)
 internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
     kotlinVersion: String,
