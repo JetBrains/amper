@@ -258,15 +258,16 @@ private fun RefinedTreeNode.cast(
         return this
 
     return when (targetType) {
-        is SchemaType.EnumType if this is EnumNode && type.declaration == targetType.declaration -> this
+        is SchemaType.EnumType if this is EnumNode && type.declaration == targetType.declaration ->
+            EnumNode(entryName, targetType, trace, contexts)
         is SchemaType.PathType -> when (this) {
-            is PathNode -> this
+            is PathNode -> PathNode(value, targetType, trace, contexts)
             is StringNode -> PathNode(Path(value), targetType, trace, contexts)
             else -> null
         }
         is SchemaType.StringType if this is ScalarNode &&
                 type.stringSemantics() assignableTo targetType.semantics -> when (this) {
-            is StringNode -> this
+            is StringNode -> StringNode(value, targetType, trace, contexts)
             is PathNode -> StringNode(value.pathString, targetType, trace, contexts)
             is IntNode -> StringNode(value.toString(), targetType, trace, contexts)
             is EnumNode -> StringNode(entryName, targetType, trace, contexts)

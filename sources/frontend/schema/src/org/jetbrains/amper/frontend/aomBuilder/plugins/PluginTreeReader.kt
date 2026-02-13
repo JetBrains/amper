@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
-import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -35,6 +35,7 @@ import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
@@ -143,7 +144,7 @@ internal class PluginTreeReader(
                 PluginYamlRoot::tasks setToMap {
                     for ((taskName, taskBuildRoot) in taskDirs) {
                         taskName setTo `object`<Task> {
-                            Task::taskOutputDir setTo scalar(taskBuildRoot)
+                            Task::taskOutputDir setTo traceableScalar(taskBuildRoot)
                         }
                     }
                 }
@@ -152,8 +153,8 @@ internal class PluginTreeReader(
 
         val mergedTree = mergeTrees(pluginTree, referenceValuesTree)
             .substituteCatalogDependencies(pluginModule.usedCatalog)
-        val refinedTree = treeRefiner.refineTree(mergedTree, EmptyContexts)
-        createSchemaNode<PluginYamlRoot>(refinedTree)
+        treeRefiner.refineTree(mergedTree, EmptyContexts)
+            .completeTree()?.instance<PluginYamlRoot>()
     }
 
     fun taskNameFor(module: AmperModule, name: String) =

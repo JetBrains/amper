@@ -28,13 +28,13 @@ class ErrorNode(
 class NullLiteralNode(
     override val trace: Trace,
     override val contexts: Contexts,
-) : LeafTreeNode
+) : LeafTreeNode, CompleteTreeNode
 
 /**
  * This is a scalar value tree node.
  * See the sealed inheritors for type-safe access to the actual value.
  */
-sealed interface ScalarNode : LeafTreeNode {
+sealed interface ScalarNode : LeafTreeNode, CompleteTreeNode {
     val type: SchemaType.ScalarType
 }
 

@@ -14,6 +14,8 @@ import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.completeTree
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -34,9 +36,9 @@ fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFil
         )
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.
-        // NOTE: That will change when nested templated are allowed.
-        val noContextsTree = refiner.refineTree(templateTree, EmptyContexts)
-        val noContextsTemplate = createSchemaNode<Template>(noContextsTree)
+        // NOTE: That will change when nested templates are allowed.
+        val noContextsTemplate = refiner.refineTree(templateTree, EmptyContexts)
+            .completeTree()?.instance<Template>()
         val builtinCatalog = noContextsTemplate?.settings?.builtInCatalog() ?: EmptyVersionCatalog
         builtinCatalog + projectVersionsCatalog
     }

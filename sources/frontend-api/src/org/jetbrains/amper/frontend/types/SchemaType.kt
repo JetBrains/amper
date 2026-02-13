@@ -99,6 +99,7 @@ sealed interface SchemaType {
     companion object {
         val StringType = StringType()
         val TraceableStringType = StringType(isTraceableWrapped = true)
+        val TraceablePathType = PathType(isTraceableWrapped = true)
         val PathType = PathType()
         val BooleanType = BooleanType()
     }

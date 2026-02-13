@@ -87,4 +87,7 @@ class SyntheticBuilder(
     // TODO: remove this `traceable*` variation when the `isTraceableWrapped` is removed from the type-system.
     fun traceableScalar(value: String, trace: Trace = this.trace) =
         StringNode(value, SchemaType.TraceableStringType, trace, contexts)
+
+    fun traceableScalar(value: Path, trace: Trace = this.trace) =
+        PathNode(value, SchemaType.TraceablePathType, trace, contexts)
 }

@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.StringSemantics
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
@@ -61,8 +62,8 @@ fun parsePluginManifestFromModuleFile(
             reportUnknowns = false,
             parseContexts = false,
         )
-        val noContextsTree = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
-        val moduleHeader = createSchemaNode<MinimalPluginModule>(noContextsTree)
+        val moduleHeader = TreeRefiner().refineTree(pluginModuleTree, EmptyContexts)
+            .completeTree()?.instance<MinimalPluginModule>()
             ?: return null
 
         if (moduleHeader.product.type != ProductType.JVM_AMPER_PLUGIN)

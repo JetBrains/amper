@@ -7,8 +7,8 @@ package org.jetbrains.amper.frontend.contexts
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.aomBuilder.MissingPropertiesHandler
-import org.jetbrains.amper.frontend.aomBuilder.createSchemaNode
+import org.jetbrains.amper.frontend.tree.MissingPropertiesHandler
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.api.Misnomers
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.getDeclaration
@@ -84,7 +85,7 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
                 }
             }
         }
-        createSchemaNode<MinimalModule>(refined, delegate)
+        refined.completeTree(delegate)?.instance<MinimalModule>()
     }
     if (minimalModule == null) {
         // Replay errors to the original reporter if we couldn't even create the minimal module.

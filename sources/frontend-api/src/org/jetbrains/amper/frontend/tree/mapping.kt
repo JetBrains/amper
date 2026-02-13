@@ -4,11 +4,15 @@
 
 package org.jetbrains.amper.frontend.tree
 
+import org.jetbrains.amper.frontend.api.InternalTraceSetter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.ValueHolder
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
+import java.nio.file.Path
 import kotlin.reflect.KProperty1
 
 /**
@@ -35,6 +39,38 @@ interface RefinedMappingNode : MappingNode, RefinedTreeNode {
     val refinedChildren : Map<String, RefinedKeyValue>
 }
 
+/**
+ * A complete tree node of a [SchemaType.MapType] type.
+ * All child nodes are complete.
+ */
+interface CompleteMapNode : RefinedMappingNode, CompleteTreeNode {
+    override val type: SchemaType.MapType
+    override val children : List<CompleteKeyValue>
+    override val refinedChildren : Map<String, CompleteKeyValue>
+}
+
+/**
+ * A complete tree node of a [SchemaType.ObjectType] type.
+ * Every [keyValue][CompletePropertyKeyValue] ([children]/[refinedChildren]) is guaranteed to have a
+ * [property declaration][CompletePropertyKeyValue.propertyDeclaration].
+ * All child nodes are complete.
+ */
+interface CompleteObjectNode : RefinedMappingNode, CompleteTreeNode {
+    override val type: SchemaType.ObjectType
+    override val children : List<CompletePropertyKeyValue>
+    override val refinedChildren : Map<String, CompletePropertyKeyValue>
+
+    /**
+     * A cached [SchemaNode] instance, created on demand.
+     */
+    val instance: SchemaNode
+}
+
+/**
+ * Helper function to access a [CompleteObjectNode.instance] in a typed manner.
+ */
+inline fun <reified T : SchemaNode> CompleteObjectNode.instance(): T = instance as T
+
 fun MappingNode(
     children: List<KeyValue>,
     type: SchemaType.MapLikeType,
@@ -48,6 +84,20 @@ fun RefinedMappingNode(
     trace: Trace,
     contexts: Contexts,
 ) : RefinedMappingNode = RefinedMappingNodeImpl(refinedChildren, type, trace, contexts)
+
+fun CompleteMapNode(
+    refinedChildren: Map<String, CompleteKeyValue>,
+    type: SchemaType.MapType,
+    trace: Trace,
+    contexts: Contexts,
+) : CompleteMapNode = CompleteMapNodeImpl(refinedChildren, type, trace, contexts)
+
+fun CompleteObjectNode(
+    refinedChildren: Map<String, CompletePropertyKeyValue>,
+    type: SchemaType.ObjectType,
+    trace: Trace,
+    contexts: Contexts,
+) : CompleteObjectNode = CompleteObjectNodeImpl(refinedChildren, type, trace, contexts)
 
 /**
  * NOTE: Doesn't check given [children] for key uniqueness criteria.
@@ -105,3 +155,76 @@ private class RefinedMappingNodeImpl(
 ) : RefinedMappingNode {
     override val children = refinedChildren.values.toList()
 }
+
+private class CompleteMapNodeImpl(
+    override val refinedChildren: Map<String, CompleteKeyValue>,
+    override val type: SchemaType.MapType,
+    override val trace: Trace,
+    override val contexts: Contexts,
+) : CompleteMapNode {
+    override val children = refinedChildren.values.toList()
+}
+
+private class CompleteObjectNodeImpl(
+    override val refinedChildren: Map<String, CompletePropertyKeyValue>,
+    override val type: SchemaType.ObjectType,
+    override val trace: Trace,
+    override val contexts: Contexts,
+) : CompleteObjectNode {
+    override val children = refinedChildren.values.toList()
+
+    override val instance: SchemaNode by lazy {
+        createObjectNode(this)
+    }
+}
+
+private fun createSchemaNode(
+    node: CompleteTreeNode,
+    // FIXME: property type is sometimes different from the node type.
+    //  this may influence the wrapTraceableBehavior
+): Any? = when (node) {
+    is BooleanNode -> node.value
+    is IntNode -> node.value
+    is EnumNode -> node.enumConstantIfAvailable?.wrapTraceable(node.type, node.trace)
+        ?: node.entryName //TODO: error("Not reached: enum ${node.type} cannot be instantiated for internal Amper use.")
+    is StringNode -> node.value.wrapTraceable(node.type, node.trace)
+    is PathNode -> node.value.wrapTraceable(node.type, node.trace)
+    is CompleteListNode -> createListNode(node)
+    is CompleteMapNode -> createMapNode(node)
+    is CompleteObjectNode -> createObjectNode(node)
+    is NullLiteralNode -> null
+}
+
+private fun createListNode(value: CompleteListNode): List<Any?> =
+    value.children.map { createSchemaNode(it) }
+
+private fun createMapNode(value: CompleteMapNode): Map<Any, Any?> =
+    value.children.associate {
+        it.key.wrapTraceable(value.type.keyType, it.keyTrace) to createSchemaNode(it.value)
+    }
+
+private fun createObjectNode(node: CompleteObjectNode): SchemaNode {
+    // TODO: No node creation when no backing class.
+    val newInstance = node.type.declaration.createInstance()
+    @OptIn(InternalTraceSetter::class)
+    newInstance.trace = node.trace
+    for (keyValue in node.refinedChildren.values) {
+        val schemaNode = createSchemaNode(keyValue.value)
+        // TODO: Make instantiation lazy here - SchemaNode must cooperate
+        newInstance.valueHolders[keyValue.key] = ValueHolder(
+            value = schemaNode,
+            valueTrace = keyValue.value.trace,
+            keyValueTrace = keyValue.trace,
+        )
+    }
+    return newInstance
+}
+
+private fun Enum<*>.wrapTraceable(type: SchemaType.EnumType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this
+
+private fun Path.wrapTraceable(type: SchemaType.PathType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this
+
+private fun String.wrapTraceable(type: SchemaType.StringType, trace: Trace) =
+    if (type.isTraceableWrapped) asTraceable(trace) else this

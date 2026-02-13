@@ -31,6 +31,17 @@ sealed interface TreeNode : WithContexts, Traceable
 sealed interface RefinedTreeNode : TreeNode
 
 /**
+ * The complete tree node sealed interface.
+ *
+ * A *complete* tree is free of inconsistencies or errors and has all references resolved.
+ * Thus, the hierarchy doesn't include [ErrorNode], [ReferenceNode] and [StringInterpolationNode].
+ *
+ * The type-safe wrapper [org.jetbrains.amper.frontend.api.SchemaNode] can be obtained
+ * from a complete object node using [instance] helper function.
+ */
+sealed interface CompleteTreeNode : RefinedTreeNode
+
+/**
  * A leaf tree value that cannot have any children.
  * As such, it can be used both in refined and non-refined trees.
  */

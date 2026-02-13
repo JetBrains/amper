@@ -21,6 +21,9 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.enabled
+import org.jetbrains.amper.frontend.tree.MissingPropertiesHandler
+import org.jetbrains.amper.frontend.tree.completeTree
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
@@ -225,7 +228,7 @@ internal fun createFragments(
                 else -> Unit  // ignoring; was already reported in the `ctx.moduleCtxModule`.
             }
         }
-        val refinedModule = createSchemaNode<Module>(refinedTree, handler)
+        val refinedModule = refinedTree.completeTree(handler)?.instance<Module>()
             ?: return null
         val fragmentCtor = if (isLeaf) ::DefaultLeafFragment else ::DefaultFragment
         return fragmentCtor(

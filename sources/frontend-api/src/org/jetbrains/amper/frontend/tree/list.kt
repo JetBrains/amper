@@ -32,6 +32,14 @@ interface RefinedListNode : ListNode, RefinedTreeNode {
 }
 
 /**
+ * This is a complete list node of a value tree.
+ * Does not contain any [ErrorNode], [ReferenceNode] or [StringInterpolationNode] children.
+ */
+interface CompleteListNode : RefinedListNode, CompleteTreeNode {
+    override val children: List<CompleteTreeNode>
+}
+
+/**
  * Creates the [org.jetbrains.amper.frontend.tree.ListNode] instance.
  */
 fun ListNode(
@@ -50,6 +58,16 @@ fun RefinedListNode(
     trace: Trace,
     contexts: Contexts,
 ) : RefinedListNode = RefinedListNodeImpl(children, type, contexts, trace)
+
+/**
+ * Creates the [org.jetbrains.amper.frontend.tree.CompleteListNode] instance.
+ */
+fun CompleteListNode(
+    children: List<CompleteTreeNode>,
+    type: SchemaType.ListType,
+    trace: Trace,
+    contexts: Contexts,
+) : CompleteListNode = CompleteListNodeImpl(children, type, contexts, trace)
 
 /**
  * Copies the list node instance.
@@ -71,6 +89,16 @@ fun RefinedListNode.copy(
     contexts: Contexts = this.contexts,
 ): RefinedListNode = RefinedListNode(children, type, trace, contexts)
 
+/**
+ * Copies the complete list node instance.
+ */
+fun CompleteListNode.copy(
+    children: List<CompleteTreeNode> = this.children,
+    type: SchemaType.ListType = this.type,
+    trace: Trace = this.trace,
+    contexts: Contexts = this.contexts,
+): CompleteListNode = CompleteListNode(children, type, trace, contexts)
+
 private class ListNodeImpl(
     override val children: List<TreeNode>,
     override val type: SchemaType.ListType,
@@ -84,3 +112,10 @@ private class RefinedListNodeImpl(
     override val contexts: Contexts,
     override val trace: Trace,
 ) : RefinedListNode
+
+private class CompleteListNodeImpl(
+    override val children: List<CompleteTreeNode>,
+    override val type: SchemaType.ListType,
+    override val contexts: Contexts,
+    override val trace: Trace,
+) : CompleteListNode

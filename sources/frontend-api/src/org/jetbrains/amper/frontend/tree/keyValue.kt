@@ -45,6 +45,26 @@ interface RefinedKeyValue : KeyValue {
 }
 
 /**
+ * A key-value pair in [CompleteMapNode].
+ *
+ * [propertyDeclaration] is always `null`.
+ */
+interface CompleteKeyValue : RefinedKeyValue {
+    override val propertyDeclaration: Nothing?
+    override val value: CompleteTreeNode
+}
+
+/**
+ * A key-value pair in [CompleteObjectNode].
+ *
+ * [propertyDeclaration] is always present.
+ */
+interface CompletePropertyKeyValue : RefinedKeyValue {
+    override val propertyDeclaration: SchemaObjectDeclaration.Property
+    override val value: CompleteTreeNode
+}
+
+/**
  * Creates a [org.jetbrains.amper.frontend.tree.KeyValue] instance, fetching the property from the [parentType].
  */
 fun KeyValue(
@@ -103,6 +123,24 @@ fun KeyValue.copyWithValue(
     value: RefinedTreeNode,
 ) : RefinedKeyValue = RefinedKeyValueImpl(key, keyTrace, value, propertyDeclaration, trace)
 
+/**
+ * Copies the key-value as a *complete* one designated for [CompleteMapNode], using the supplied [value].
+ */
+fun KeyValue.asCompleteForMap(
+    value: CompleteTreeNode,
+) : CompleteKeyValue = CompleteKeyValueImpl(key, keyTrace, value, trace).also {
+    require(propertyDeclaration == null) { "`propertyDeclaration` is not null" }
+}
+
+/**
+ * Copies the key-value as a *complete* one designated for [CompleteObjectNode], using the supplied [value].
+ */
+fun KeyValue.asCompleteForObject(
+    value: CompleteTreeNode,
+): CompletePropertyKeyValue = CompletePropertyKeyValueImpl(key, keyTrace, value, checkNotNull(propertyDeclaration) {
+    "`propertyDeclaration` is null"
+}, trace)
+
 private data class KeyValueImpl(
     override val key: String,
     override val keyTrace: Trace,
@@ -118,3 +156,20 @@ private data class RefinedKeyValueImpl(
     override val propertyDeclaration: SchemaObjectDeclaration.Property?,
     override val trace: Trace,
 ) : RefinedKeyValue, WithContexts by value
+
+private data class CompleteKeyValueImpl(
+    override val key: String,
+    override val keyTrace: Trace,
+    override val value: CompleteTreeNode,
+    override val trace: Trace,
+) : CompleteKeyValue, WithContexts by value {
+    override val propertyDeclaration: Nothing? get() = null
+}
+
+private data class CompletePropertyKeyValueImpl(
+    override val key: String,
+    override val keyTrace: Trace,
+    override val value: CompleteTreeNode,
+    override val propertyDeclaration: SchemaObjectDeclaration.Property,
+    override val trace: Trace,
+) : CompletePropertyKeyValue, WithContexts by value
