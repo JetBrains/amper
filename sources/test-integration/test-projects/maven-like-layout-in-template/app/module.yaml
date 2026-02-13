@@ -1,0 +1,7 @@
+product: jvm/app
+
+apply:
+  - ../base.module-template.yaml
+
+dependencies:
+  - ../lib

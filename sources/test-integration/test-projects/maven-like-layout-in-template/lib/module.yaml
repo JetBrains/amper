@@ -1,0 +1,4 @@
+product: jvm/lib
+
+apply:
+  - ../base.module-template.yaml

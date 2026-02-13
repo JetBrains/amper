@@ -43,6 +43,9 @@ abstract class Base : SchemaNode() {
     @HiddenFromCompletion
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
     val tasks by nullableValue<Map<String, TaskSettings>>()
+
+    @SchemaDoc("File layout of the module. [Read more]($userGuideUrl/advanced/maven-like-layout)")
+    val layout by value(AmperLayout.AMPER)
 }
 
 class Template : Base()
@@ -59,9 +62,6 @@ class Module : Base() {
     @Misnomers("templates")
     @SchemaDoc("Lists the templates applied to the module. [Read more]($userGuideUrl/templates/)")
     val apply by nullableValue<List<TraceablePath>>()
-
-    @SchemaDoc("File layout of the module. [Read more]($userGuideUrl/advanced/maven-like-layout)")
-    val layout by value(AmperLayout.AMPER)
 
     @ProductTypeSpecific(ProductType.JVM_AMPER_PLUGIN)
     val pluginInfo by nullableValue<PluginDeclarationSchema>()

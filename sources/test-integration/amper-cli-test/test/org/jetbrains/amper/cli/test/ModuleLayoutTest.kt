@@ -40,4 +40,9 @@ class ModuleLayoutTest : AmperCliTestBase() {
 
         result.assertStderrContains("Module layout maven-like is only supported in JVM modules (jvm/app or jvm/lib)")
     }
+
+    @Test
+    fun `maven-like layout from template`() = runSlowTest {
+        runCli(projectRoot = testProject("maven-like-layout-in-template"), "test")
+    }
 }
