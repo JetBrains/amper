@@ -268,7 +268,8 @@ class ModuleDependenciesGraphMultiplatformTest : BaseModuleDrTest() {
                 "org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}" to "org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}",
                 "org.jetbrains.compose.runtime:runtime:${DefaultVersions.compose}" to "org.jetbrains.compose.runtime:runtime-desktop:${DefaultVersions.compose}",
                 "org.jetbrains.compose.foundation:foundation:${DefaultVersions.compose}" to "org.jetbrains.compose.foundation:foundation-desktop:${DefaultVersions.compose}",
-                "org.jetbrains.compose.material3:material3:${DefaultVersions.compose}" to "org.jetbrains.compose.material3:material3-desktop:${DefaultVersions.compose}",
+                // Note: this has to be updated when changing the compose version. See composeMaterial3VersionForCMPVersion() in catalog.kt
+                "org.jetbrains.compose.material3:material3:1.10.0-alpha05" to "org.jetbrains.compose.material3:material3-desktop:1.10.0-alpha05",
             )
         )
     }

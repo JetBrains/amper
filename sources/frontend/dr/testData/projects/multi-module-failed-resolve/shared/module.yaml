@@ -7,7 +7,7 @@ apply:
 
 dependencies:
   - $compose.foundation: exported
-  - $compose.material3: exported
+  - $compose.ui: exported
   - $kotlin.serialization.core: exported
 
 settings:

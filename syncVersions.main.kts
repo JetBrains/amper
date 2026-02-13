@@ -41,7 +41,7 @@ val amperInternalJbrVersion = "21.0.8b1038.68"
 val kotlinVersion = "2.2.21" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 
 val composeHotReloadVersion = "1.0.0-rc01"
-val composeVersion = "1.8.2"
+val composeVersion = "1.10.1"
 val jdkVersion = "21" // TODO bump to 25 when Kotlin supports it
 val junitPlatformVersion = "6.0.1"
 val kotlinxRpcVersion = "0.10.1"

@@ -312,12 +312,12 @@ settings:
 `settings.compose` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 framework. Read more about [Compose configuration](../user-guide/builtin-tech/compose-multiplatform.md).
 
-| Attribute              | Description                                                    | Default |
-|------------------------|----------------------------------------------------------------|---------|
-| `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
-| `version: string`      | The Compose plugin version to use.                             | `1.8.2` |
-| `resources: object`    | Compose Resources settings.                                    |         |
-| `experimental: object` | Experimental Compose settings.                                 |         |
+| Attribute              | Description                                                    | Default  |
+|------------------------|----------------------------------------------------------------|----------|
+| `enabled: boolean`     | Enable Compose runtime, dependencies and the compiler plugins. | `false`  |
+| `version: string`      | The Compose plugin version to use.                             | `1.10.1` |
+| `resources: object`    | Compose Resources settings.                                    |          |
+| `experimental: object` | Experimental Compose settings.                                 |          |
 
 `settings.compose.resources` configures Compose Resources settings.
 

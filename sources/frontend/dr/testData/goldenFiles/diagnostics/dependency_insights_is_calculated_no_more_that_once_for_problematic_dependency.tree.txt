@@ -11,8 +11,8 @@ root
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion
 │    │         ├─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
 │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
-│    ├─── android-app:main:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+│    ├─── android-app:main:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
 │    │         ╰─── androidx.compose.runtime:runtime:1.9.3
 │    │              ╰─── androidx.compose.runtime:runtime-android:1.9.3
 │    │                   ├─── androidx.annotation:annotation-experimental:1.4.1
@@ -74,15 +74,15 @@ root
 │    │              │    ├─── org.junit:junit-bom:5.10.1
 │    │              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
 │    │              ╰─── org.apiguardian:apiguardian-api:1.1.2
-│    ├─── android-app:test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── android-app:test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ╰─── android-app:test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │         ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 ├─── module:ios-app
 │    ├─── ios-app:native:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│    ├─── ios-app:native:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+│    ├─── ios-app:native:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
 │    │         ╰─── androidx.compose.runtime:runtime:1.9.3
 │    │              ├─── org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1
 │    │              │    ├─── org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.27.0
@@ -122,14 +122,14 @@ root
 │    ├─── ios-app:nativeTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
-│    ├─── ios-app:nativeTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:nativeTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:nativeTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│    ├─── ios-app:apple:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:apple:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:apple:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:appleTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -138,14 +138,14 @@ root
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
 │    ├─── ios-app:appleTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-│    ├─── ios-app:appleTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:appleTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:appleTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│    ├─── ios-app:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:ios:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:ios:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:iosTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -154,14 +154,14 @@ root
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
 │    ├─── ios-app:iosTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-│    ├─── ios-app:iosTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:iosTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:iosTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-│    ├─── ios-app:common:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:common:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:common:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:commonTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -170,15 +170,15 @@ root
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
 │    ├─── ios-app:commonTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-│    ├─── ios-app:commonTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:commonTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:commonTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-│    ├─── ios-app:iosArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+│    ├─── ios-app:iosArm64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
 │    │         ╰─── org.jetbrains.compose.runtime:runtime-uikitarm64:1.9.1
 │    │              ╰─── androidx.compose.runtime:runtime:1.9.3
 │    │                   ╰─── androidx.compose.runtime:runtime-iosarm64:1.9.3
@@ -229,15 +229,15 @@ root
 │    ├─── ios-app:iosArm64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-│    ├─── ios-app:iosArm64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:iosArm64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:iosArm64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:iosSimulatorArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-│    ├─── ios-app:iosSimulatorArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+│    ├─── ios-app:iosSimulatorArm64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
 │    │         ╰─── org.jetbrains.compose.runtime:runtime-uikitsimarm64:1.9.1
 │    │              ╰─── androidx.compose.runtime:runtime:1.9.3
 │    │                   ╰─── androidx.compose.runtime:runtime-iossimulatorarm64:1.9.3
@@ -288,15 +288,15 @@ root
 │    ├─── ios-app:iosSimulatorArm64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-│    ├─── ios-app:iosSimulatorArm64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:iosSimulatorArm64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ├─── ios-app:iosSimulatorArm64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │    │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 │    ├─── ios-app:iosX64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-stdlib-common:#kotlinVersion (c)
-│    ├─── ios-app:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+│    ├─── ios-app:iosX64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
 │    │         ╰─── org.jetbrains.compose.runtime:runtime-uikitx64:1.9.1
 │    │              ╰─── androidx.compose.runtime:runtime:1.9.3
 │    │                   ╰─── androidx.compose.runtime:runtime-iosx64:1.9.3
@@ -347,8 +347,8 @@ root
 │    ├─── ios-app:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
 │    │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
 │    │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
-│    ├─── ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-│    │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+│    ├─── ios-app:iosX64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+│    │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
 │    ╰─── ios-app:iosX64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
 │         ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
 ├─── module:jvm-app
@@ -406,8 +406,8 @@ root
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:native:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-     ├─── shared:native:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:native:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:nativeTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:nativeTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -416,14 +416,14 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
      ├─── shared:nativeTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ├─── shared:nativeTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:nativeTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:apple:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:apple:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-     ├─── shared:apple:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:apple:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:appleTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:appleTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -432,14 +432,14 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
      ├─── shared:appleTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ├─── shared:appleTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:appleTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:ios:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:ios:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-     ├─── shared:ios:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:ios:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -448,8 +448,8 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
      ├─── shared:iosTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ├─── shared:iosTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:common:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │         ├─── androidx.lifecycle:lifecycle-runtime-compose:2.9.4
@@ -480,8 +480,8 @@ root
      │              ╰─── androidx.compose.runtime:runtime:1.9.3 (*)
      ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion
-     ├─── shared:common:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:common:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:commonTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -492,14 +492,14 @@ root
      ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion
      │         ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
-     ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:commonTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:jvm:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-     ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1
+     ├─── shared:jvm:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1
      │         ╰─── org.jetbrains.compose.runtime:runtime-desktop:1.9.1
      │              ╰─── androidx.compose.runtime:runtime:1.9.3 (*)
      ├─── shared:jvmTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
@@ -508,8 +508,8 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
      ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
      │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion (*)
-     ├─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:jvmTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
      ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
@@ -523,8 +523,8 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk7:#kotlinVersion (*)
      ├─── shared:android:org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion (*)
-     ├─── shared:android:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:android:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:androidTest:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:androidTest:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -535,8 +535,8 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib-jdk8:#kotlinVersion (*)
      ├─── shared:androidTest:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
      │    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion (*)
-     ├─── shared:androidTest:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:androidTest:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:androidTest:org.jetbrains.kotlin:kotlin-test:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion (*)
      ├─── shared:androidTest:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
@@ -546,8 +546,8 @@ root
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-     ├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosArm64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosArm64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosArm64Test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -556,14 +556,14 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
      ├─── shared:iosArm64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ├─── shared:iosArm64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosArm64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosSimulatorArm64:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosSimulatorArm64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-     ├─── shared:iosSimulatorArm64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosSimulatorArm64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosSimulatorArm64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosSimulatorArm64Test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -572,14 +572,14 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
      ├─── shared:iosSimulatorArm64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ├─── shared:iosSimulatorArm64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosSimulatorArm64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosX64:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosX64:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion (*)
-     ├─── shared:iosX64:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-     │    ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ├─── shared:iosX64:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+     │    ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)
      ├─── shared:iosX64Test:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5
      │    ╰─── org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5 (*)
      ├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
@@ -588,5 +588,5 @@ root
      │    ╰─── org.jetbrains.kotlin:kotlin-test:#kotlinVersion
      ├─── shared:iosX64Test:org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion, implicit
      │    ╰─── org.jetbrains.kotlin:kotlin-test-annotations-common:#kotlinVersion (*)
-     ╰─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:#composeDefaultVersion, implicit (because Compose is enabled)
-          ╰─── org.jetbrains.compose.runtime:runtime:#composeDefaultVersion -> 1.9.1 (*)
+     ╰─── shared:iosX64Test:org.jetbrains.compose.runtime:runtime:1.8.2, implicit (because Compose is enabled)
+          ╰─── org.jetbrains.compose.runtime:runtime:1.8.2 -> 1.9.1 (*)

@@ -57,8 +57,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 module:shared
                 ├─── shared:common:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                ├─── shared:common:org.jetbrains.compose.material3:material3:12.12.12
-                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:common:org.jetbrains.compose.ui:ui:12.12.12
+                │    ╰─── org.jetbrains.compose.ui:ui:12.12.12
                 ├─── shared:common:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:common:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
@@ -68,8 +68,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:commonTest:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                ├─── shared:commonTest:org.jetbrains.compose.material3:material3:12.12.12
-                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:commonTest:org.jetbrains.compose.ui:ui:12.12.12
+                │    ╰─── org.jetbrains.compose.ui:ui:12.12.12
                 ├─── shared:commonTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:commonTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
@@ -89,8 +89,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvm:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                ├─── shared:jvm:org.jetbrains.compose.material3:material3:12.12.12
-                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:jvm:org.jetbrains.compose.ui:ui:12.12.12
+                │    ╰─── org.jetbrains.compose.ui:ui:12.12.12
                 ├─── shared:jvm:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:jvm:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
@@ -99,8 +99,8 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 │    ╰─── org.jetbrains.compose.runtime:runtime:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.compose.foundation:foundation:12.12.12
                 │    ╰─── org.jetbrains.compose.foundation:foundation:12.12.12
-                ├─── shared:jvmTest:org.jetbrains.compose.material3:material3:12.12.12
-                │    ╰─── org.jetbrains.compose.material3:material3:12.12.12
+                ├─── shared:jvmTest:org.jetbrains.compose.ui:ui:12.12.12
+                │    ╰─── org.jetbrains.compose.ui:ui:12.12.12
                 ├─── shared:jvmTest:org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 │    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:13.13.13
                 ├─── shared:jvmTest:org.jetbrains.kotlin:kotlin-stdlib:${DefaultVersions.kotlin}, implicit
@@ -112,7 +112,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
                 """.trimIndent(),
             messagesCheck = { node ->
                 if (!assertDependencyError(node, "org.jetbrains.compose.foundation", "foundation")
-                    && !assertDependencyError(node, "org.jetbrains.compose.material3", "material3")
+                    && !assertDependencyError(node, "org.jetbrains.compose.ui", "ui")
                     && !assertDependencyError(node, "org.jetbrains.compose.runtime", "runtime")
                     && !assertDependencyError(node, "org.jetbrains.kotlinx", "kotlinx-serialization-core")
                 ) {
@@ -157,7 +157,7 @@ class DiagnosticsTest : BaseModuleDrTest() {
         )
         checkBuiltInDependencyBuildProblem(
             buildProblems, 4,
-            "org.jetbrains.compose.material3", "material3",
+            "org.jetbrains.compose.ui", "ui",
             Path("module.yaml"), 16, 14
         )
 
