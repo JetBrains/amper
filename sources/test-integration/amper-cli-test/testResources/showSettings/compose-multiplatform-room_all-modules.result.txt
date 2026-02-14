@@ -82,7 +82,7 @@ settings@android:
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
-      version: 1.9.0  # default
+      version: 1.10.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
     version: 2.3.10  # default
@@ -167,7 +167,7 @@ settings@jvm:
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
-      version: 1.9.0  # default
+      version: 1.10.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
     version: 2.3.10  # default
@@ -265,7 +265,7 @@ settings@jvm+android:
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
-      version: 1.9.0  # default
+      version: 1.10.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
     version: 2.3.10  # default
@@ -353,7 +353,7 @@ settings@jvm:
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
-      version: 1.9.0  # default
+      version: 1.10.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
     version: 2.3.10  # default
@@ -449,7 +449,7 @@ settings@android:
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
-      version: 1.9.0  # default
+      version: 1.10.0  # default
     suppressWarnings: false  # default
     verbose: false  # default
     version: 2.3.10  # default
