@@ -131,7 +131,7 @@ Fragments:
           annotationTypeSafetyEnabled: <default> true
           applyBom: <default> true
           enabled: <default> false
-          version: <default> 0.10.1
+          version: <default> 0.10.2
         }
         serialization: <default> {
           enabled: <default> false
@@ -300,7 +300,7 @@ Fragments:
           annotationTypeSafetyEnabled: <default> true
           applyBom: <default> true
           enabled: <default> false
-          version: <default> 0.10.1
+          version: <default> 0.10.2
         }
         serialization: <default> {
           enabled: <default> false

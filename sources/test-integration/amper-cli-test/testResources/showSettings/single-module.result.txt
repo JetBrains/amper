@@ -59,7 +59,7 @@ settings@jvm:
       annotationTypeSafetyEnabled: true  # default
       applyBom: true  # default
       enabled: false  # default
-      version: 0.10.1  # default
+      version: 0.10.2  # default
     serialization:
       enabled: false  # default, based on ${format}: enabled when specified
       format: null  # default
