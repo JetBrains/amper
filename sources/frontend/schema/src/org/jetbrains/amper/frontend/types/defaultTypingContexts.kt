@@ -55,13 +55,14 @@ fun PluginYamlTypingContext(
         }
 
         if (pluginSettingsDeclarationKey != null) {
+            val declaration = getDeclaration(pluginSettingsDeclarationKey)
             addCustomProperty(
                 PluginYamlRoot::class.builtInKey,
                 CustomPropertyDescriptor(
                     propertyName = PluginYamlRoot.PLUGIN_SETTINGS,
-                    propertyType = getDeclaration(pluginSettingsDeclarationKey).toType(),
+                    propertyType = declaration.toType(),
                     documentation = "Plugin settings as configured in the module",
-                    origin = SchemaOrigin.Builtin,
+                    origin = declaration.origin,
                     isUserSettable = false,
                     canBeReferenced = true,
                 ),
