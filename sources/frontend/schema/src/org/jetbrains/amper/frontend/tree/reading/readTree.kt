@@ -8,12 +8,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.childrenOfType
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.asPsi
 import org.jetbrains.amper.frontend.api.asTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.contexts.Context
 import org.jetbrains.amper.frontend.contexts.Contexts
+import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
@@ -24,6 +26,42 @@ import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLFile
 import java.nio.file.Path
 import kotlin.io.path.absolute
+
+/**
+ * Read a tree from the given [file], using the [type] as the schema.
+ *
+ * @param reportUnknowns whether to report unknown properties inside object mappings.
+ *  If `false`, such properties are silently ignored.
+ * @param referenceParsingMode how to treat Amper references (`${...}) syntax in the file. See [ReferencesParsingMode].
+ * @param parseContexts whether to treat `@<id>` at the end of the object keys as contexts.
+ * @param contexts the contexts of the whole file, e.g., a template context.
+ */
+@UsedInIdePlugin
+context(_: ProblemReporter, _: FrontendPathResolver)
+fun readTree(
+    file: YAMLFile,
+    type: SchemaType.ObjectType,
+    vararg contexts: Context,
+    reportUnknowns: Boolean = true,
+    referenceParsingMode: ReferencesParsingMode = ReferencesParsingMode.IgnoreButWarn,
+    parseContexts: Boolean = true,
+): MappingNode {
+    val rootContexts = contexts.toSet()
+    return file.childrenOfType<YAMLDocument>().firstOrNull()?.topLevelValue?.let {
+        val config = ParsingConfig(
+            basePath = checkNotNull(file.originalFilePath).parent.absolute(),
+            skipUnknownProperties = !reportUnknowns,
+            supportContexts = parseContexts,
+            referenceParsingMode = referenceParsingMode,
+        )
+        context(config, rootContexts) {
+            parseFile(
+                file = file,
+                type = type,
+            )
+        }
+    } ?: MappingNode(emptyList(), type, file.asTrace(), rootContexts)
+}
 
 context(_: ProblemReporter, _: FrontendPathResolver)
 internal fun readTree(
@@ -37,23 +75,14 @@ internal fun readTree(
     val psiFile = file.asPsi()
     return ApplicationManager.getApplication().runReadAction(Computable {
         when (psiFile.language) {
-            is YAMLLanguage -> {
-                val rootContexts = contexts.toSet()
-                psiFile.childrenOfType<YAMLDocument>().firstOrNull()?.topLevelValue?.let {
-                    val config = ParsingConfig(
-                        basePath = file.parent.toNioPath().absolute(),
-                        skipUnknownProperties = !reportUnknowns,
-                        supportContexts = parseContexts,
-                        referenceParsingMode = referenceParsingMode,
-                    )
-                    context(config, rootContexts) {
-                        parseFile(
-                            file = psiFile as YAMLFile,
-                            type = declaration.toType(),
-                        )
-                    }
-                } ?: MappingNode(emptyList(), declaration.toType(), psiFile.asTrace(), rootContexts)
-            }
+            is YAMLLanguage -> readTree(
+                file = psiFile as YAMLFile,
+                type = declaration.toType(),
+                contexts = contexts,
+                reportUnknowns = reportUnknowns,
+                referenceParsingMode = referenceParsingMode,
+                parseContexts = parseContexts,
+            )
             else -> error("Unsupported language: ${psiFile.language}")
         }
     })
@@ -82,7 +111,7 @@ private fun parseFile(
     return parseNode(YamlValue(value), type) as? MappingNode?
 }
 
-internal enum class ReferencesParsingMode {
+enum class ReferencesParsingMode {
     /**
      * Neither parse/nor diagnose references.
      */
