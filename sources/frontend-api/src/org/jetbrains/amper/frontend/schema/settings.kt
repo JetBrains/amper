@@ -144,7 +144,6 @@ class ComposeExperimentalSettings: SchemaNode() {
 }
 
 class ComposeExperimentalHotReloadSettings: SchemaNode() {
-    @HiddenFromCompletion
     @SchemaDoc("The version of the Compose Hot Reload toolchain to use.")
     val version by value(default = DefaultVersions.composeHotReload)
 }

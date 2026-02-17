@@ -106,7 +106,8 @@ settings@jvm:
   compose:
     enabled: true  # module.yaml
     experimental:
-      hotReload: {}  # default
+      hotReload:
+        version: 1.0.0-rc01  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default
@@ -204,7 +205,8 @@ settings@jvm+android:
   compose:
     enabled: true  # module.yaml
     experimental:
-      hotReload: {}  # default
+      hotReload:
+        version: 1.0.0-rc01  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default
@@ -291,7 +293,8 @@ settings@jvm:
   compose:
     enabled: true  # module.yaml
     experimental:
-      hotReload: {}  # default
+      hotReload:
+        version: 1.0.0-rc01  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default
