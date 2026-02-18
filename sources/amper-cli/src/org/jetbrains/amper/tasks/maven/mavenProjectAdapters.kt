@@ -40,11 +40,14 @@ import java.io.File
 import java.io.Writer
 import java.util.*
 
+/**
+ * Best attempt of delegating [MavenProject] methods.
+ */
 @Suppress("OVERRIDE_DEPRECATION")
 open class DelegatedMavenProject(private val delegate: MavenProject) : MavenProject() {
     // This method is commented out since it is used in the [MavenProject] constructor.
 //    override fun setModel(model: Model?) { delegate.model = model }
-    
+
     override fun getParentFile(): File? = delegate.parentFile
     override fun setParentFile(parentFile: File?) { delegate.parentFile = parentFile }
     override fun getArtifact(): Artifact? = delegate.artifact
@@ -154,11 +157,9 @@ open class DelegatedMavenProject(private val delegate: MavenProject) : MavenProj
     override fun getOriginalModel(): Model? = delegate.originalModel
     override fun setManagedVersionMap(map: Map<String?, Artifact?>?) { delegate.managedVersionMap = map }
     override fun getManagedVersionMap(): Map<String?, Artifact?>? = delegate.managedVersionMap
-    override fun equals(other: Any?): Boolean = delegate.equals(other)
-    override fun hashCode(): Int = delegate.hashCode()
     override fun getBuildExtensions(): List<Extension?>? = delegate.buildExtensions
     override fun addProjectReference(project: MavenProject?) = delegate.addProjectReference(project)
-    override fun getProperties(): Properties? = delegate.properties
+    override fun getProperties(): Properties = delegate.properties
     override fun getFilters(): List<String?>? = delegate.filters
     override fun getProjectReferences(): Map<String?, MavenProject?>? = delegate.projectReferences
     override fun isExecutionRoot(): Boolean = delegate.isExecutionRoot
@@ -166,7 +167,6 @@ open class DelegatedMavenProject(private val delegate: MavenProject) : MavenProj
     override fun getDefaultGoal(): String? = delegate.defaultGoal
     override fun getPlugin(pluginKey: String?): Plugin? = delegate.getPlugin(pluginKey)
     override fun toString(): String = delegate.toString()
-    override fun clone(): MavenProject = delegate.clone()
     override fun setAttachedArtifacts(attachedArtifacts: List<Artifact?>?) = super.setAttachedArtifacts(attachedArtifacts)
     override fun setCompileSourceRoots(compileSourceRoots: List<String?>?) = super.setCompileSourceRoots(compileSourceRoots)
     override fun setTestCompileSourceRoots(testCompileSourceRoots: List<String?>?) = super.setTestCompileSourceRoots(testCompileSourceRoots)
@@ -216,9 +216,17 @@ open class DelegatedMavenProject(private val delegate: MavenProject) : MavenProj
 
 class MockedMavenProject(other: MavenProject) : DelegatedMavenProject(other) {
     private val _newSourceRoots = mutableListOf<String>()
+
+    /**
+     * Source roots that were added during mojo execution.
+     */
     val newSourceRoots: List<String> get() = _newSourceRoots
 
     private val _newTestSourceRoots = mutableListOf<String>()
+
+    /**
+     * Test source roots that were added during mojo execution.
+     */
     val newTestSourceRoots: List<String> get() = _newTestSourceRoots
 
     override fun addCompileSourceRoot(path: String?) {

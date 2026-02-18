@@ -1,0 +1,6 @@
+modules:
+  - app
+
+mavenPlugins:
+  - org.apache.maven.plugins:maven-surefire-plugin:3.5.3
+  - org.jacoco:jacoco-maven-plugin:0.8.10

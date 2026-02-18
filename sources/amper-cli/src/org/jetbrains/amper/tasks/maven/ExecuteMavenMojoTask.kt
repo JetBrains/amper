@@ -28,6 +28,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.reporting.MavenReport
 import org.apache.maven.reporting.exec.MavenReportExecution
 import org.apache.maven.session.scope.internal.SessionScope
+import org.apache.maven.shared.utils.cli.CommandLineUtils
 import org.codehaus.plexus.PlexusContainer
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder
 import org.eclipse.aether.RepositorySystemSession
@@ -50,14 +51,13 @@ import org.jetbrains.amper.telemetry.use
 import java.io.File
 import java.nio.file.Path
 import java.util.*
+import javax.annotation.Nonnull
+import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 
 typealias MavenPlugin = Plugin
 typealias MojoDesc = AmperMavenPluginMojo
@@ -74,7 +74,7 @@ class ExecuteMavenMojoTask(
     val configString: String,
 ) : Task {
     private val pluginCoordinates = "${mavenPlugin.groupId}:${mavenPlugin.artifactId}:${mavenPlugin.version}"
-    private val mavenBuildDir = (buildOutputRoot.path / "maven-build").absolute()
+    private val mavenBuildDir get() = Path(mavenProject.build.directory)
 
     override suspend fun run(
         dependenciesResult: List<TaskResult>,
@@ -101,12 +101,11 @@ class ExecuteMavenMojoTask(
 
         // We are adding only the delegate layer here to track Amper sensitive changes that
         // Maven plugin may perform. All [MavenProject] changes are applied to
-        // the shared project that is created once for execution for each Amper module.
-        val newMavenProject = MockedMavenProject(mavenProject).apply {
+        // the shared project created once for execution for each Amper module.
+        val mockedMavenProject = MockedMavenProject(mavenProject).apply {
             file = module.source.buildFile.toFile()
             
             // Use a Maven-specific subdirectory to avoid clashing with Amper actions
-            build.directory = mavenBuildDir.absolutePathString()
             model.dependencyManagement = MavenDependencyManagement()
 
             // Set artifact repositories that are usually being set within the model building listener.
@@ -121,7 +120,7 @@ class ExecuteMavenMojoTask(
         val mojoDesc = plexus.mavenPluginManager.getMojoDescriptor(
             /* plugin = */ mavenPlugin,
             /* goal = */ mojo.goal,
-            /* repositories = */ newMavenProject.remotePluginRepositories,
+            /* repositories = */ mockedMavenProject.remotePluginRepositories,
             /* session = */ repoSession,
         )
 
@@ -130,7 +129,7 @@ class ExecuteMavenMojoTask(
             /* repositorySession = */ repoSession,
             /* request = */ request,
             /* result = */ DefaultMavenExecutionResult()
-        ).apply { currentProject = newMavenProject }
+        ).apply { currentProject = mockedMavenProject }
 
         val mojoExecution = MojoExecution(
             /* mojoDescriptor = */ mojoDesc,
@@ -155,10 +154,17 @@ class ExecuteMavenMojoTask(
                 )
             }
         }
-
+        
+        // Since we are passing empty properties initially - we are sure that all the changes are
+        // coming from mojo executions only.
+        val argLine = mockedMavenProject.properties.getProperty("argLine")
+        val interpolated = mockedMavenProject.interpolateArgLineWithPropertyExpressions(argLine)
+        val splitArgLine = CommandLineUtils.translateCommandline(interpolated)
+        
         return ModelChange(
-            newMavenProject.newSourceRoots.map(::relativeToBase),
-            newMavenProject.newTestSourceRoots.map(::relativeToBase),
+            additionalSources = mockedMavenProject.newSourceRoots.map(::relativeToBase),
+            additionalTestSources = mockedMavenProject.newTestSourceRoots.map(::relativeToBase),
+            additionalTestJvmArgs = splitArgLine?.toList().orEmpty(),
         )
     }
 
@@ -225,7 +231,7 @@ class ExecuteMavenMojoTask(
         )
 
         // Finally, render the report.
-        val reportFile = (mavenBuildDir / "${mojo.outputName}.html")
+        val reportFile = (mavenBuildDir / "reports" / "${mojo.outputName}.html")
             .apply { parent?.createDirectories() }
             .apply { if (!exists()) createFile() }
             .toFile()
@@ -317,4 +323,19 @@ class ExecuteMavenMojoTask(
     }
 
     private fun relativeToBase(relative: String): Path = (module.source.moduleDir / relative).absolute()
+}
+
+// Slightly modified copy-paste from [DefaultForkConfiguration.interpolateArgLineWithPropertyExpressions()].
+// It is unfortunately private.
+@Nonnull
+private fun MavenProject.interpolateArgLineWithPropertyExpressions(argLine: String?): String? {
+    var resolvedArgLine = argLine?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+    properties.stringPropertyNames().forEach {
+        val field = "@{$it}"
+        if (argLine.contains(field)) {
+            val replacement = properties.getProperty(it, "")
+            resolvedArgLine = resolvedArgLine.replace(field, replacement)
+        }
+    }
+    return resolvedArgLine
 }

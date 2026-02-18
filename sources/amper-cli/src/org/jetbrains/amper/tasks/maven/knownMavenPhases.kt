@@ -37,8 +37,6 @@ enum class KnownMavenPhase(
     `test-compile`(::ClassesAwareMavenPhaseTask, isTest = true),
     `process-test-classes`(isTest = true),
     test,
-
-    // We don't know how to bind these to the existing Amper tasks yet.
     `prepare-package`,
     `package`,
     `pre-integration-test`,
@@ -50,15 +48,7 @@ enum class KnownMavenPhase(
     ;
 
     context(moduleCtx: ModuleSequenceCtx)
-    val beforeTaskName
-        get() = TaskName.fromHierarchy(
-            listOf(
-                moduleCtx.module.userReadableName,
-                "maven",
-                name,
-                "before"
-            )
-        )
+    val beforeTaskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name, "before"))
 
     context(moduleCtx: ModuleSequenceCtx)
     val afterTaskName get() = TaskName.fromHierarchy(listOf(moduleCtx.module.userReadableName, "maven", name, "after"))
@@ -69,12 +59,12 @@ enum class KnownMavenPhase(
     fun createBeforeTask(sharedMavenProject: MavenProject) = beforeTask(
         PhaseTaskParameters(
             taskName = beforeTaskName,
-            outputRoot = taskBuilder.context.getTaskOutputPath(beforeTaskName),
             module = moduleCtx.module,
             isTest = isTest,
             incrementalCache = taskBuilder.context.incrementalCache,
             cacheRoot = taskBuilder.context.userCacheRoot,
             sharedMavenProject = sharedMavenProject,
+            amperBuildRoot = taskBuilder.context.buildOutputRoot.path,
         )
     )
 

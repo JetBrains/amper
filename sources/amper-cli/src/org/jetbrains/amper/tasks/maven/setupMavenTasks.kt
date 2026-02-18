@@ -82,6 +82,9 @@ private fun ModuleSequenceCtx.setupUmbrellaMavenTasks(sharedMavenProject: MavenP
 
     // Before we will run tests, we need to run maven `test-compile` phase plugins.
     CommonTaskType.Test(isTest = false) dependsOn KnownMavenPhase.`test-compile`.afterTaskName
+
+    // All Amper tests should be finished before maven packaging phase.
+    KnownMavenPhase.`prepare-package`.beforeTaskName dependsOn CommonTaskType.Test(isTest = false)
 }
 
 context(taskBuilder: ProjectTasksBuilder)

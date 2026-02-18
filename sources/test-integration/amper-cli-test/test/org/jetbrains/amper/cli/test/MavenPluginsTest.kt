@@ -68,6 +68,32 @@ class MavenPluginsTest : AmperCliTestBase() {
     }
 
     @Test
+    fun `surefire with jacoco test goal executes with argLine passing`() = runSlowTest {
+        val result = runTask(
+            projectWithMavenPath = "surefire-plugin-with-jacoco",
+            taskName = "jacoco-maven-plugin.report"
+        )
+
+        result.assertStdoutContains("Hello from surefire execution")
+        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        assertExists(mavenBuildDir / "jacoco.exec")
+        assertExists(mavenBuildDir / "reports" / "jacoco" / "index.html")
+    }
+
+    @Test
+    fun `only jacoco executes with argLine passing to amper tests`() = runSlowTest {
+        val result = runTask(
+            projectWithMavenPath = "only-jacoco",
+            taskName = "jacoco-maven-plugin.report"
+        )
+
+        result.assertStdoutContains("Hello from Amper test")
+        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        assertExists(mavenBuildDir / "jacoco.exec")
+        assertExists(mavenBuildDir / "reports" / "jacoco" / "index.html")
+    }
+
+    @Test
     @DisabledOnOs(
         OS.WINDOWS,
         disabledReason = "Need to support long executable paths or shorten them for Win: " +
@@ -102,7 +128,7 @@ class MavenPluginsTest : AmperCliTestBase() {
             "test"
         ).assertStdoutContains("Hello from the proto test! Request value is 47")
     }
-    
+
     @Test
     fun `checkstyle plugin performs a report`() = runSlowTest {
         val testProject = "checkstyle-plugin"
@@ -110,20 +136,20 @@ class MavenPluginsTest : AmperCliTestBase() {
             projectWithMavenPath = testProject,
             taskName = "maven-checkstyle-plugin.checkstyle",
         )
-        
-        val checkstyleTaskOutput = result.buildOutputRoot / "tasks" / "_app_maven-checkstyle-plugin.checkstyle/maven-build"
-        assertExists(checkstyleTaskOutput / "checkstyle.html")
-        
-        val checkstyleResult = checkstyleTaskOutput / "checkstyle-result.xml"
+
+        val mavenBuildDir = result.buildOutputRoot / "maven-target"
+        assertExists(mavenBuildDir / "reports" / "checkstyle.html")
+
+        val checkstyleResult = mavenBuildDir / "checkstyle-result.xml"
         assertExists(checkstyleResult)
-        
+
         val checkstyleResultText = checkstyleResult.readText()
         val pathToJavaFile = emptyPath / testProject / "app" / "src" / "Foo.java"
         assertContains(checkstyleResultText, pathToJavaFile.toString())
         assertContains(checkstyleResultText, "File does not end with a newline.")
         assertContains(checkstyleResultText, "Missing package-info.java file.")
-    }    
-    
+    }
+
     @Test
     fun `checkstyle plugin with nohttp dependency performs a report`() = runSlowTest {
         val testProject = "checkstyle-plugin-with-dependency"
@@ -131,8 +157,8 @@ class MavenPluginsTest : AmperCliTestBase() {
             projectWithMavenPath = testProject,
             taskName = "maven-checkstyle-plugin.checkstyle",
         )
-        
-        val checkstyleResult = result.buildOutputRoot / "tasks" / "_app_maven-checkstyle-plugin.checkstyle" / "maven-build" / "checkstyle-result.xml"
+
+        val checkstyleResult = result.buildOutputRoot / "maven-target" / "checkstyle-result.xml"
         assertExists(checkstyleResult)
         val checkstyleResultText = checkstyleResult.readText()
         val pathToJavaFile = emptyPath / testProject / "app" / "src" / "dummy.txt"
@@ -140,7 +166,7 @@ class MavenPluginsTest : AmperCliTestBase() {
         assertContains(checkstyleResultText, "http:// URLs are not allowed but got &apos;http://not.allowed.com&apos;")
     }
 
-    private fun assertExists(path: Path) = assertTrue(path.exists()) { 
+    private fun assertExists(path: Path) = assertTrue(path.exists()) {
         val existingParent = generateSequence(path) { it.parent }.first { it.exists() }
         "Expected \"$path\" was not found. The first existing parent is: \"${existingParent.parent}\"." +
                 "\nIts children are: ${existingParent.listDirectoryEntries().joinToString { "\"${it.name}\"" }}."
@@ -150,7 +176,7 @@ class MavenPluginsTest : AmperCliTestBase() {
      * An empty path for convenient construction with [Path.div]
      */
     private val emptyPath = Path("")
-    
+
     /**
      * Run `:app:maven-surefire-plugin.test` task for the specified project from `extensibility-maven` directory.
      */

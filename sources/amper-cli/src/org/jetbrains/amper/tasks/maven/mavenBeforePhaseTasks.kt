@@ -44,13 +44,15 @@ import kotlin.io.path.isDirectory
  */
 class PhaseTaskParameters(
     val taskName: TaskName,
-    val outputRoot: TaskOutputRoot,
     val module: AmperModule,
     val isTest: Boolean,
     val incrementalCache: IncrementalCache,
     val cacheRoot: AmperUserCacheRoot,
     val sharedMavenProject: MavenProject,
-)
+    amperBuildRoot: Path,
+) {
+    val sharedMavenProjectBuildDir = amperBuildRoot / "maven-target"
+}
 
 /**
  * Task that collects all the information to mock the Maven model before mojo executions.
@@ -138,12 +140,12 @@ class ClassesAwareMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenP
         // Aggregate classes directories into the target one (maven does not support multiple classes directories).
         val aggregatedClassesDir = aggregateClassDirectoriesOrNull(
             allClasses,
-            outputRoot.path / "aggregatedClasses",
+            sharedMavenProjectBuildDir / "classes",
         )
 
         val aggregatedTestClassesDir = aggregateClassDirectoriesOrNull(
             allClasses,
-            outputRoot.path / "aggregatedTestClasses",
+            sharedMavenProjectBuildDir / "test-classes",
         )
 
         // Set the aggregated directories.
@@ -234,9 +236,10 @@ class InitialMavenPhaseTask(parameters: PhaseTaskParameters) : BeforeMavenPhaseT
         val externalArtifacts = getExternalAetherArtifacts(false) + getExternalAetherArtifacts(true)
         
         if (!isTest) {
-            // Add artifacts and module artifact only once.
             // Since test execution of this task will happen after the main execution - thus
-            // all artifacts will be already set in the maven project.
+            // we can initialize things here that are needed to be initialized only once.
+            sharedMavenProject.build.directory = sharedMavenProjectBuildDir.absolutePathString()
+            
             sharedMavenProject.artifacts = classesArtifacts + externalArtifacts
             sharedMavenProject.artifact = module.asMavenArtifact("runtime")
             

@@ -23,6 +23,10 @@ data class MavenPhaseResult(
      */
     val modelChanges: List<ModelChange>,
 ) : TaskResult {
+    val additionalTestJvmArgs: List<String>
+        get() = modelChanges
+            .last().additionalTestJvmArgs
+    
     val sourceRoots: List<SourceRoot>
         get() = modelChanges
             .flatMap { if (!fragment.isTest) it.additionalSources else it.additionalTestSources }
@@ -36,6 +40,7 @@ data class MavenPhaseResult(
 data class ModelChange(
     val additionalSources: List<Path>,
     val additionalTestSources: List<Path>,
+    val additionalTestJvmArgs: List<String>,
 ) : TaskResult
 
 /**
