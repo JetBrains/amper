@@ -4,12 +4,18 @@
 
 package org.jetbrains.amper.tasks.maven
 
+import org.jetbrains.amper.frontend.MavenCoordinates
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.traceableString
+import org.jetbrains.amper.frontend.schema.MavenMojoSettings
+import org.jetbrains.amper.frontend.schema.MavenPluginSettings
+import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.frontend.tree.BooleanNode
 import org.jetbrains.amper.frontend.tree.CompleteObjectNode
 import org.jetbrains.amper.frontend.tree.get
+import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -104,40 +110,41 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks(sharedMavenProject: MavenPro
             importFrom(container.containerRealm, "org.apache.velocity")
         }
 
-        val mavenPlugin = MavenPlugin().apply {
-            artifactId = pluginDescription.artifactId
-            groupId = pluginDescription.groupId
-            version = pluginDescription.version
-            dependencies = pluginDescription.dependencies.map {
-                MavenDependency(
-                    groupId = it.groupId,
-                    artifactId = it.artifactId,
-                    version = it.version,
-                    type = "jar",
-                    scope = MavenArtifact.SCOPE_RUNTIME,
-                )
-            }
-        }
-
         // Create mojo execution tasks.
         val mojoTasks = pluginDescription.mojos.mapNotNull { mojo ->
             val mavenCompatPluginId = amperMavenPluginId(pluginDescription, mojo)
 
             // There must be a node, at least to read "enabled" property.
-            val correspondingNode = module.pluginSettings.backingTree[mavenCompatPluginId]
+            val mojoSettings = module.mavenPluginSettings.backingTree[mavenCompatPluginId]
+                ?.let { it as? CompleteObjectNode }
+                ?.instance<MavenMojoSettings>()
                 ?: return@mapNotNull null
-            if (correspondingNode !is CompleteObjectNode) return@mapNotNull null
 
-            val isEnabled = (correspondingNode["enabled"] as? BooleanNode)?.value ?: false
-            if (!isEnabled) return@mapNotNull null
+            if (!mojoSettings.enabled) return@mapNotNull null
 
-            // TODO Handle enabled property more delicately, since it can be defined both in Amper
-            //  and in the plugin configuration.
-            val dumpedProperties = correspondingNode.mavenXmlDump(module.source.moduleDir) { key ->
+            val configurationNode = mojoSettings.backingTree["configuration"]?.let { it as? CompleteObjectNode }
+            val dumpedProperties = configurationNode?.mavenXmlDump(module.source.moduleDir) { key ->
                 key != "enabled"
-            }.prependIndent("  ")
+            }?.prependIndent("  ") ?: ""
 
             val configString = "<properties>\n$dumpedProperties\n</properties>"
+
+            val mavenPlugin = MavenPlugin().apply {
+                artifactId = pluginDescription.artifactId
+                groupId = pluginDescription.groupId
+                version = pluginDescription.version
+                dependencies = mojoSettings.dependencies
+                    ?.map { it::coordinates.traceableString().toMavenCoordinates() }
+                    ?.map {
+                        MavenDependency(
+                            groupId = it.groupId,
+                            artifactId = it.artifactId,
+                            version = it.version,
+                            type = "jar",
+                            scope = MavenArtifact.SCOPE_RUNTIME,
+                        )
+                    }.orEmpty()
+            }
 
             val taskName = TaskName.moduleTask(module, mavenCompatPluginId)
             ExecuteMavenMojoTask(

@@ -56,7 +56,7 @@ import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.generated.*
-import org.jetbrains.amper.frontend.types.maven.toAmperDescription
+import org.jetbrains.amper.frontend.types.maven.MavenPluginDescriptionAdapter
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -66,10 +66,6 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.name
 import kotlin.io.path.relativeTo
-
-// Convenience grouping, until we need a separate class for this.
-@UsedInIdePlugin
-typealias MavenPluginWithXml = Pair<MavenPlugin, MavenPluginXml>
 
 /**
  * Parses the configuration files of this [AmperProjectContext] and builds the project model.
@@ -87,8 +83,8 @@ typealias MavenPluginWithXml = Pair<MavenPlugin, MavenPluginXml>
 context(problemReporter: ProblemReporter)
 fun AmperProjectContext.readProjectModel(
     pluginData: List<PluginData>,
-    mavenPluginsWithXmls: List<MavenPluginWithXml>,
-): Model = doReadProjectModel(pluginData, mavenPluginsWithXmls)
+    mavenPluginXmls: List<MavenPluginXml>,
+): Model = doReadProjectModel(pluginData, mavenPluginXmls)
 
 /**
  * Testable version of [readProjectModel].
@@ -96,11 +92,11 @@ fun AmperProjectContext.readProjectModel(
 context(problemReporter: ProblemReporter)
 internal fun AmperProjectContext.doReadProjectModel(
     pluginData: List<PluginData>,
-    mavenPluginsWithXmls: List<MavenPluginWithXml>,
+    mavenPluginXmls: List<MavenPluginXml>,
     systemInfo: SystemInfo = SystemInfo.CurrentHost,
 ): Model = context(
     frontendPathResolver, 
-    SchemaTypingContext(pluginData, mavenPluginsWithXmls.map { it.second }), 
+    SchemaTypingContext(pluginData, mavenPluginXmls), 
     systemInfo,
 ) {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
@@ -124,7 +120,7 @@ internal fun AmperProjectContext.doReadProjectModel(
     
     // Add read maven plugin xmls.
     modules.forEach { 
-        it.module.amperMavenPluginsDescriptions = mavenPluginsWithXmls.map(MavenPluginWithXml::toAmperDescription) 
+        it.module.amperMavenPluginsDescriptions = mavenPluginXmls.map(::MavenPluginDescriptionAdapter) 
     }
 
     // Perform diagnostics.
@@ -241,6 +237,7 @@ private fun buildAmperModules(
 
         module.module.apply {
             pluginSettings = module.moduleCtxModule.plugins
+            mavenPluginSettings = module.moduleCtxModule.mavenPlugins
             fragments = moduleFragments
             artifacts = createArtifacts(false, module.module.type, leaves) +
                     createArtifacts(true, module.module.type, testLeaves)

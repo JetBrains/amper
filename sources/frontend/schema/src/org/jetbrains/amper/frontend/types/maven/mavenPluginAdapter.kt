@@ -4,19 +4,13 @@
 
 package org.jetbrains.amper.frontend.types.maven
 
-import org.jetbrains.amper.frontend.MavenCoordinates
-import org.jetbrains.amper.frontend.aomBuilder.MavenPluginWithXml
-import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
-import org.jetbrains.amper.frontend.schema.toMavenCoordinates
-import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
 
 class MavenPluginDescriptionAdapter(
     private val xml: MavenPluginXml,
-    override val dependencies: List<MavenCoordinates>,
 ) : AmperMavenPluginDescription {
     override val groupId: String get() = xml.groupId
     override val artifactId: String get() = xml.artifactId
@@ -30,10 +24,3 @@ class MojoAdapter(private val mojo: Mojo) : AmperMavenPluginMojo {
     override val phase: String? get() = mojo.phase
     override val requiresDependencyResolution: String? get() = mojo.requiresDependencyResolution
 }
-
-fun MavenPluginWithXml.toAmperDescription(): AmperMavenPluginDescription = MavenPluginDescriptionAdapter(
-    xml = second,
-    dependencies = first.dependencies.orEmpty().map { 
-        it.coordinatesDelegate.asTraceableValue().toMavenCoordinates()
-    },
-)

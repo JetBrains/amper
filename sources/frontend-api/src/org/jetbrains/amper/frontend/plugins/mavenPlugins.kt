@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.plugins
 
-import org.jetbrains.amper.frontend.MavenCoordinates
-
 /**
  * Interface representing the maven "plugin.xml" structure that is used to:
  * 1. Generate schema types, accessible in the module file.
@@ -18,7 +16,6 @@ interface AmperMavenPluginDescription {
     val version: String
     val goalPrefix: String
     val mojos: List<AmperMavenPluginMojo>
-    val dependencies: List<MavenCoordinates>
 }
 
 interface AmperMavenPluginMojo {

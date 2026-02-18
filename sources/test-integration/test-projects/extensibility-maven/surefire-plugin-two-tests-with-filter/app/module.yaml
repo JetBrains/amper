@@ -1,8 +1,9 @@
 product: 
   type: jvm/app
 
-plugins:
+mavenPlugins:
   maven-surefire-plugin.test:
     enabled: true
-    includes:
-      - "*First*"
+    configuration:
+      includes:
+        - "*First*"

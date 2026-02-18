@@ -1,8 +1,11 @@
 product:
   type: jvm/app
 
-plugins:
+mavenPlugins:
   maven-checkstyle-plugin.checkstyle:
     enabled: true
-    includes: "**/*"
-    configLocation: ./nohttp-checkstyle.xml
+    dependencies:
+      - io.spring.nohttp:nohttp-checkstyle:0.0.11
+    configuration:
+      includes: "**/*"
+      configLocation: ./nohttp-checkstyle.xml

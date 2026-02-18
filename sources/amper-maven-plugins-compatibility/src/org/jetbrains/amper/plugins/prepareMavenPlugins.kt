@@ -10,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.withJarEntry
-import org.jetbrains.amper.frontend.aomBuilder.MavenPluginWithXml
+import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.download.downloadSingleArtifactJar
 import org.jetbrains.amper.maven.parseMavenPluginXml
 import org.slf4j.LoggerFactory
@@ -31,7 +32,7 @@ import java.nio.file.Path
 suspend fun prepareMavenPlugins(
     projectContext: AmperProjectContext,
     incrementalCache: IncrementalCache,
-): List<MavenPluginWithXml> = coroutineScope prepare@{
+): List<MavenPluginXml> = coroutineScope prepare@{
     val userCacheRoot = AmperUserCacheRoot.fromCurrentUserResult() as? AmperUserCacheRoot ?: return@prepare emptyList()
     
     val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
@@ -41,7 +42,7 @@ suspend fun prepareMavenPlugins(
             val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, traceableCoordinates) ?: return@async null
             withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") {
                 try {
-                    mavenPlugin to parseMavenPluginXml(it)
+                    parseMavenPluginXml(it)
                 } catch (e: Exception) {
                     logger.warn("Failed to parse plugin.xml for ${mavenPlugin.coordinates}", e)
                     null

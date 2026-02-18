@@ -5,13 +5,18 @@
 package org.jetbrains.amper.frontend.types.maven
 
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
+import org.jetbrains.amper.frontend.schema.MavenMojoSettings
+import org.jetbrains.amper.frontend.schema.MavenPluginSettings
+import org.jetbrains.amper.frontend.types.BuiltInKey
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
 import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.types.getType
 import org.jetbrains.amper.frontend.types.withNullability
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
@@ -23,6 +28,8 @@ private typealias StringType = SchemaType.StringType
 
 internal fun discoverMavenPluginXmlTypes(pluginXmls: List<MavenPluginXml>) =
     pluginXmls.flatMap { discoverMavenPluginXmlTypes(it) }
+
+val mavenPluginSettingsKey = BuiltInKey(MavenPluginSettings::class)
 
 internal fun discoverMavenPluginXmlTypes(plugin: MavenPluginXml) =
     plugin.mojos.map { mojo ->
@@ -37,33 +44,56 @@ internal fun discoverMavenPluginXmlTypes(plugin: MavenPluginXml) =
             else if (propertyConfig?.defaultValue != null) Default.Static(defaultValue)
             else null
 
+            // Populating [MavenMojoConfiguration] with fields.
             SchemaObjectDeclaration.Property(
                 name = parameter.name,
                 type = type,
                 documentation = parameter.description,
-                default = finalDefault,
                 origin = SchemaOrigin.MavenPlugin,
+                default = finalDefault,
             )
         }
 
-        val enabledProperty = SchemaObjectDeclaration.Property(
-            name = "enabled",
-            type = SchemaType.BooleanType(),
-            default = Default.Static(false),
-            hasShorthand = true,
-            origin = SchemaOrigin.MavenPlugin,
-        )
-        val mavenDeclaration = MavenSchemaObjectDeclaration(
-            mojo.implementation,
-            properties + enabledProperty,
-        )
+        // Qualified names for types identification. These won't be instantiated.
+        val mojoSettingsQualified = mojo.implementation
+        val mojoConfigQualified = $$"$${mojoSettingsQualified}$Configuration"
 
-        SchemaObjectDeclaration.Property(
-            name = amperMavenPluginId(plugin, mojo),
-            type = mavenDeclaration.toType().withNullability(isMarkedNullable = true),
-            documentation = mojo.description,
+        // Register a new type for mojo configuration. See [MavenMojoSettings].
+        val mojoConfigDeclarationKey = MavenDeclarationKey(plugin.artifactId, mojoConfigQualified)
+        val mojoConfigDeclaration = MavenSchemaObjectDeclaration(mojoConfigQualified, properties)
+        registeredDeclarations[mojoConfigDeclarationKey] = mojoConfigDeclaration
+
+        // Register a new type for maven mojo settings. See [MavenPluginSettings].
+        val mojoSettingsTemplate = getType<MavenMojoSettings>()
+            .let { it as SchemaType.TypeWithDeclaration }
+            .declaration as SchemaObjectDeclaration
+
+        val mojoSettingsKey = MavenDeclarationKey(plugin.artifactId, mojoSettingsQualified)
+        val configProperty = SchemaObjectDeclaration.Property(
+            name = "configuration",
+            type = mojoConfigDeclaration.toType().withNullability(isMarkedNullable = true),
+            documentation = "Configuration for the respective mojo execution",
             origin = SchemaOrigin.MavenPlugin,
             default = Default.Static(null),
+        )
+        val mojoSettings = MavenSchemaObjectDeclaration(
+            mojoImplementation = mojoSettingsQualified,
+            properties = mojoSettingsTemplate.properties + configProperty,
+            constructor = ::MavenMojoSettings,
+        )
+        registeredDeclarations[mojoSettingsKey] = mojoSettings
+
+        // Adding [MavenPluginsSettings.${amperMavenPluginId(plugin, mojo)}] field.
+        addCustomProperty(
+            mavenPluginSettingsKey,
+            ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
+                // TODO Think about uniqueness of mojos goal identifiers.
+                propertyName = amperMavenPluginId(plugin, mojo),
+                propertyType = mojoSettings.toType().withNullability(isMarkedNullable = true),
+                documentation = mojo.description,
+                origin = SchemaOrigin.MavenPlugin,
+                default = Default.NestedObject,
+            )
         )
     }
 
@@ -103,8 +133,9 @@ fun amperMavenPluginId(plugin: MavenPluginXml, mojo: Mojo): String =
 internal class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,
     override val properties: List<SchemaObjectDeclaration.Property>,
-    override val origin: SchemaOrigin = SchemaOrigin.MavenPlugin,
+    private val constructor: () -> SchemaNode = { ExtensionSchemaNode() },
 ) : SchemaObjectDeclarationBase() {
+    override val origin: SchemaOrigin = SchemaOrigin.MavenPlugin
     override val qualifiedName by ::mojoImplementation
-    override fun createInstance() = ExtensionSchemaNode()
+    override fun createInstance() = constructor()
 }

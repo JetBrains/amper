@@ -2,6 +2,4 @@ modules:
   - app
 
 mavenPlugins:
-  - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:
-      dependencies:
-        - io.spring.nohttp:nohttp-checkstyle:0.0.11
+  - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0

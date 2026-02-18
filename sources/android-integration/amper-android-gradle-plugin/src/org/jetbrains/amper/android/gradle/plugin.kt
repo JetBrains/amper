@@ -291,7 +291,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
                 // as it currently can't influence project configuration (besides tasks)
                 // Any "unknown property" errors are going to be ignored here.
                 pluginData = emptyList(),
-                mavenPluginsWithXmls = emptyList(),
+                mavenPluginXmls = emptyList(),
             )
         }
 

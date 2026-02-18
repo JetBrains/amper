@@ -39,6 +39,10 @@ abstract class Base : SchemaNode() {
     @PlatformAgnostic
     @SchemaDoc("Plugins applied in `project.yaml` can be enabled and configured here")
     val plugins: PluginSettings by nested()
+    
+    @PlatformAgnostic
+    @SchemaDoc("Maven plugin mojos (from maven plugins applied in `project.yaml`) can be enabled and configured here")
+    val mavenPlugins: MavenPluginSettings by nested()
 
     @HiddenFromCompletion
     @SchemaDoc("Tasks settings. Experimental and will be replaced")

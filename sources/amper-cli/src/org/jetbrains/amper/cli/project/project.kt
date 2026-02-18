@@ -76,7 +76,7 @@ internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
         with(CliProblemReporter) {
             projectContext.readProjectModel(
                 pluginData = pluginData,
-                mavenPluginsWithXmls = mavenPluginsWithXmls,
+                mavenPluginXmls = mavenPluginsWithXmls,
             )
         }
     }

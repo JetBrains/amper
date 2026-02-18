@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.schema.JdkSettings
+import org.jetbrains.amper.frontend.schema.MavenPluginSettings
 import org.jetbrains.amper.frontend.schema.PluginSettings
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
@@ -123,6 +124,8 @@ interface AmperModule {
     val amperMavenPluginsDescriptions: List<AmperMavenPluginDescription>
 
     val pluginSettings: PluginSettings
+    
+    val mavenPluginSettings: MavenPluginSettings
 }
 
 /**
