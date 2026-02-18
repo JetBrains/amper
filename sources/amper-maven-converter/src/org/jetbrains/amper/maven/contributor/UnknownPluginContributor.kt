@@ -171,21 +171,21 @@ private fun SyntheticBuilder.mapConfigurationValue(
                     element.name setTo scalar(value)
                 }
             }
-            "java.lang.String[]", "java.util.List" -> {
-                element.name setTo list(SchemaType.ListType(SchemaType.StringType)) {
-                    element.children.forEach { child ->
-                        if (child is Xpp3Dom) {
-                            child.value()?.let { add(scalar(it)) }
-                        }
-                    }
-                }
-            }
+            "java.lang.String[]", "java.util.List",
             "java.io.File[]", "java.nio.Path[]" -> {
-                element.name setTo list(SchemaType.ListType(SchemaType.PathType())) {
-                    element.children.forEach { child ->
-                        if (child is Xpp3Dom) {
-                            child.value()?.let { add(scalar(it)) }
+                val itemType = if (type in arrayOf("java.io.File[]", "java.nio.Path[]"))
+                    SchemaType.ListType(SchemaType.PathType())
+                else
+                    SchemaType.ListType(SchemaType.StringType)
+                element.name setTo list(itemType) {
+                    if (element.childCount > 0) {
+                        element.children.forEach { child ->
+                            if (child is Xpp3Dom) {
+                                child.value()?.let { add(scalar(it)) }
+                            }
                         }
+                    } else {
+                        element.value()?.let { add(scalar(it)) }
                     }
                 }
             }

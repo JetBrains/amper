@@ -126,10 +126,10 @@ class MavenConvertTest : AmperCliTestBase() {
                 storeParameterNames: true
                 release: 17
               kotlin:
+                version: 2.2.21
                 freeCompilerArgs:
                   - -Xjsr305=strict
                   - -Xannotation-default-target=param-property
-                version: 2.2.21
               springBoot:
                 enabled: true
                 version: 4.0.0
@@ -236,6 +236,8 @@ class MavenConvertTest : AmperCliTestBase() {
               maven-checkstyle-plugin.check:
                 enabled: true
                 configLocation: src/checkstyle/nohttp-checkstyle.xml
+                sourceDirectories:
+                  - ${'$'}{basedir}
                 includes: '**/*'
                 excludes: '**/.git/**/*,**/.idea/**/*,**/target/**/,**/.flattened-pom.xml,**/*.class'
                 propertyExpansion: config_loc=${'$'}{basedir}/src/checkstyle/
@@ -480,12 +482,12 @@ class MavenConvertTest : AmperCliTestBase() {
             test-settings:
               jvm:
                 test:
-                  extraEnvironment:
-                    MY_TEST_ENV: test-value
-                    ANOTHER_ENV: another-value
                   freeJvmArgs:
                     - -Xmx512m
                     - -ea
+                  extraEnvironment:
+                    MY_TEST_ENV: test-value
+                    ANOTHER_ENV: another-value
                   systemProperties:
                     my.test.prop: prop-value
                     another.prop: another-prop-value
