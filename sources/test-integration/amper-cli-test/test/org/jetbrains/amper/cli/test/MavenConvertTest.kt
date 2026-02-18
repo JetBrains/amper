@@ -166,11 +166,11 @@ class MavenConvertTest : AmperCliTestBase() {
         assertTrue((buildResult.projectRoot / "project.yaml").exists())
         assertEquals("""
             mavenPlugins:
-              - org.apache.maven.plugins:maven-enforcer-plugin:3.6.1
+              - org.apache.maven.plugins:maven-enforcer-plugin:3.6.2
               - io.spring.javaformat:spring-javaformat-maven-plugin:0.0.47
               - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0
-              - org.graalvm.buildtools:native-maven-plugin:0.11.0
-              - org.jacoco:jacoco-maven-plugin:0.8.13
+              - org.graalvm.buildtools:native-maven-plugin:0.11.3
+              - org.jacoco:jacoco-maven-plugin:0.8.14
               - io.github.git-commit-id:git-commit-id-maven-plugin:9.0.2
               - org.cyclonedx:cyclonedx-maven-plugin:2.9.1
 
@@ -181,54 +181,46 @@ class MavenConvertTest : AmperCliTestBase() {
             product: jvm/app
 
             layout: maven-like
-
+            
             settings:
               publishing:
                 enabled: true
                 name: spring-petclinic
                 group: org.springframework.samples
                 version: 4.0.0-SNAPSHOT
-              java:
-                freeCompilerArgs:
-                  - -XDcompilePolicy=simple
-                  - --should-stop=ifError=FLOW
-                  - -Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:CustomContractAnnotations=org.springframework.lang.Contract -XepOpt:NullAway:JSpecifyMode=true
-                annotationProcessing:
-                  processors:
-                    - com.google.errorprone:error_prone_core:2.42.0
-                    - com.uber.nullaway:nullaway:0.12.10
               jvm:
                 storeParameterNames: true
               springBoot:
                 enabled: true
-                version: 4.0.0-M3
-
+                version: 4.0.1
+            
             dependencies:
-              - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0-M3
-              - org.springframework.boot:spring-boot-starter-actuator:4.0.0-M3: exported
-              - org.springframework.boot:spring-boot-starter-cache:4.0.0-M3: exported
-              - org.springframework.boot:spring-boot-starter-data-jpa:4.0.0-M3: exported
-              - org.springframework.boot:spring-boot-starter-web:4.0.0-M3: exported
-              - org.springframework.boot:spring-boot-starter-validation:4.0.0-M3: exported
-              - org.springframework.boot:spring-boot-starter-thymeleaf:4.0.0-M3: exported
-              - com.h2database:h2:2.3.232: runtime-only
-              - com.mysql:mysql-connector-j:9.4.0: runtime-only
-              - org.postgresql:postgresql:42.7.7: runtime-only
+              - bom: org.springframework.boot:spring-boot-starter-parent:4.0.1
+              - org.springframework.boot:spring-boot-starter-actuator:4.0.1: exported
+              - org.springframework.boot:spring-boot-starter-cache:4.0.1: exported
+              - org.springframework.boot:spring-boot-starter-data-jpa:4.0.1: exported
+              - org.springframework.boot:spring-boot-starter-thymeleaf:4.0.1: exported
+              - org.springframework.boot:spring-boot-starter-validation:4.0.1: exported
+              - org.springframework.boot:spring-boot-starter-webmvc:4.0.1: exported
               - javax.cache:cache-api:1.1.1: exported
-              - com.github.ben-manes.caffeine:caffeine:3.2.2: exported
-              - org.webjars:webjars-locator-lite:1.1.1: exported
-              - org.webjars.npm:bootstrap:5.3.8: exported
-              - org.webjars.npm:font-awesome:4.7.0: exported
-              - jakarta.xml.bind:jakarta.xml.bind-api:4.0.2: exported
-
+              - jakarta.xml.bind:jakarta.xml.bind-api:4.0.4: exported
+              - com.h2database:h2:2.4.240: runtime-only
+              - com.github.ben-manes.caffeine:caffeine:3.2.3: runtime-only
+              - com.mysql:mysql-connector-j:9.5.0: runtime-only
+              - org.postgresql:postgresql:42.7.8: runtime-only
+              - org.webjars:webjars-locator-lite:1.1.2: runtime-only
+              - org.webjars.npm:bootstrap:5.3.8: runtime-only
+              - org.webjars.npm:font-awesome:4.7.0: runtime-only
+              - org.springframework.boot:spring-boot-devtools:4.0.1: exported
+            
             plugins:
               maven-enforcer-plugin.display-info: enabled
               maven-enforcer-plugin.enforce:
                 enabled: true
                 rules:
                   requireJavaVersion:
-                    message: This build requires at least Java 25, update your JVM, and run the build again
-                    version: 25
+                    message: This build requires at least Java 17, update your JVM, and run the build again
+                    version: 17
               maven-enforcer-plugin.help: enabled
               spring-javaformat-maven-plugin.apply: enabled
               spring-javaformat-maven-plugin.help: enabled
@@ -281,23 +273,27 @@ class MavenConvertTest : AmperCliTestBase() {
                 outputName: application.cdx
               cyclonedx-maven-plugin.makeBom: enabled
               cyclonedx-maven-plugin.makePackageBom: enabled
-
+            
             test-dependencies:
-              - org.springframework.boot:spring-boot-starter-test:4.0.0-M3
-              - org.springframework.boot:spring-boot-starter-restclient:4.0.0-M3
-              - com.h2database:h2:2.3.232: exported
-              - com.mysql:mysql-connector-j:9.4.0: exported
-              - org.postgresql:postgresql:42.7.7: exported
-              - org.springframework.boot:spring-boot-devtools:4.0.0-M3
-              - org.springframework.boot:spring-boot-testcontainers:4.0.0-M3
-              - org.springframework.boot:spring-boot-docker-compose:4.0.0-M3
-              - org.testcontainers:junit-jupiter:1.21.3
-              - org.testcontainers:mysql:1.21.3
+              - com.h2database:h2:2.4.240: exported
+              - com.github.ben-manes.caffeine:caffeine:3.2.3: exported
+              - com.mysql:mysql-connector-j:9.5.0: exported
+              - org.postgresql:postgresql:42.7.8: exported
+              - org.webjars:webjars-locator-lite:1.1.2: exported
+              - org.webjars.npm:bootstrap:5.3.8: exported
+              - org.webjars.npm:font-awesome:4.7.0: exported
+              - org.springframework.boot:spring-boot-starter-data-jpa-test:4.0.1
+              - org.springframework.boot:spring-boot-starter-restclient-test:4.0.1
+              - org.springframework.boot:spring-boot-starter-webmvc-test:4.0.1
+              - org.springframework.boot:spring-boot-testcontainers:4.0.1
+              - org.springframework.boot:spring-boot-docker-compose:4.0.1
+              - org.testcontainers:testcontainers-junit-jupiter:2.0.3
+              - org.testcontainers:testcontainers-mysql:2.0.3
 
         """.trimIndent(), (buildResult.projectRoot / "module.yaml").readText()
         )
 
-        // TODO: until we support error_prone annotation processor
+        // TODO: until we fix AMPER-5023 PlexusConfiguration type isn't supported
 //        val converted = testProject(buildResult.projectRoot.pathString)
 //
 //        runCli(
