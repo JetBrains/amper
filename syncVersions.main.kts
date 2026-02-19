@@ -46,7 +46,7 @@ val jdkVersion = "21" // TODO bump to 25 when Kotlin supports it
 val junitPlatformVersion = "6.0.1"
 val kotlinxRpcVersion = "0.10.2"
 val kotlinxSerializationVersion = "1.10.0"
-val kspVersion = "2.3.0"
+val kspVersion = "2.3.6"
 val ktorVersion = "3.2.3"
 val springBootVersion = "4.0.2"
 

@@ -44,7 +44,7 @@ settings@jvm:
     ksp:
       processorOptions: {}  # default
       processors: []  # default
-      version: 2.3.0  # default
+      version: 2.3.6  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
