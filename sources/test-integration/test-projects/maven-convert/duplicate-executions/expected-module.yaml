@@ -1,0 +1,56 @@
+product: jvm/app
+
+layout: maven-like
+
+settings:
+  publishing:
+    enabled: true
+    name: demo
+    group: com.example
+    version: 0.0.1-SNAPSHOT
+  jvm:
+    storeParameterNames: true
+  springBoot:
+    enabled: true
+    version: 4.0.0
+
+dependencies:
+  - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
+  - org.springframework.boot:spring-boot-starter:4.0.0: exported
+
+mavenPlugins:
+  # WARNING: Plugin io.github.git-commit-id:git-commit-id-maven-plugin has goals [revision] configured in multiple executions.
+  # Execution [default] was translated to Amper, but manual configuration may be required for other executions.
+  git-commit-id-maven-plugin.revision:
+    enabled: true
+    configuration:
+      verbose: true
+      generateGitPropertiesFile: true
+      generateGitPropertiesFilename: ${project.build.outputDirectory}/git.properties
+    # The following executions were not translated automatically (only a single one was):
+    # Reference: $pom:56:32
+    # <execution>
+    #   <id>git-full</id>
+    #   <goals>
+    #     <goal>revision</goal>
+    #   </goals>
+    #   <configuration>
+    #     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+    #     <commitIdGenerationMode>full</commitIdGenerationMode>
+    #   </configuration>
+    # </execution>
+    # Reference: $pom:66:32
+    # <execution>
+    #   <id>git-flat</id>
+    #   <goals>
+    #     <goal>revision</goal>
+    #   </goals>
+    #   <configuration>
+    #     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+    #     <commitIdGenerationMode>flat</commitIdGenerationMode>
+    #   </configuration>
+    # </execution>
+  git-commit-id-maven-plugin.validateRevision: enabled
+
+test-dependencies:
+  - org.springframework.boot:spring-boot-starter-test:4.0.0

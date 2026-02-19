@@ -1,0 +1,8 @@
+mavenPlugins:
+  - org.apache.maven.plugins:maven-enforcer-plugin:3.6.2
+  - io.spring.javaformat:spring-javaformat-maven-plugin:0.0.47
+  - org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0
+  - org.graalvm.buildtools:native-maven-plugin:0.11.3
+  - org.jacoco:jacoco-maven-plugin:0.8.14
+  - io.github.git-commit-id:git-commit-id-maven-plugin:9.0.2
+  - org.cyclonedx:cyclonedx-maven-plugin:2.9.1

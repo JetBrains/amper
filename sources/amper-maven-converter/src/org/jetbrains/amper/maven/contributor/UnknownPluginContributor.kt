@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven.contributor
@@ -9,8 +9,10 @@ import org.apache.maven.model.Plugin
 import org.apache.maven.model.PluginExecution
 import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.jetbrains.amper.frontend.tree.invoke
-import org.jetbrains.amper.frontend.types.generated.*
+import org.jetbrains.amper.frontend.schema.MavenMojoSettings
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.SyntheticBuilder
+import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.maven.MavenConverterBundle
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
@@ -122,15 +124,21 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
             false
         }
     }
-
+    
     withDefaultContext {
-        val pluginsConfiguration = context(SimpleTreeNodeFactory(trace, contexts)) {
-            mapping {
+        val stringMapType = SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)
+        `object`<Module> {
+            Module::mavenPlugins {
                 if (hasConfiguration) {
-                    put(pluginKey, mapping {
-                        put("enabled", scalar("true"))
-                        mapConfiguration(configuration, mojo)
-                    })
+                    // Unfortunately, cannot reuse [MavenMojoSettings] here, since
+                    // it is not really used within schema - instead it is used as
+                    // a template for dynamically created types.
+                    pluginKey setTo map(stringMapType) {
+                        MavenMojoSettings::enabled setTo scalar(true)
+                        "configuration" setTo map(stringMapType) {
+                            mapConfiguration(this, configuration, mojo)
+                        }
+                    }
                 } else {
                     put(pluginKey, scalar("enabled")) // shorthand
                 }
@@ -305,7 +313,7 @@ private fun createDuplicateExecutionComment(
     convertedExecutionId: String?,
     skippedExecutions: List<PluginExecution>,
 ): YamlComment {
-    val path = listOf("plugins", "${plugin.artifactId}.$goal")
+    val path = listOf(Module::mavenPlugins.name, "${plugin.artifactId}.$goal")
 
     val beforeComment = MavenConverterBundle.message(
         "duplicate.execution.warning",
