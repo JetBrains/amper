@@ -528,6 +528,15 @@ class PluginsTest : AmperCliTestBase() {
         }
     }
 
+    @Test
+    fun `consistent classloader`() = runSlowTest {
+        runCli(
+            projectRoot = testProject("extensibility/consistent-classloader"),
+            "task", ":app:test@plugin",
+            copyToTempDir = true,
+        ).assertStdoutContains("Everything is in order")
+    }
+
     private fun AmperCliResult.assertErrors(
         vararg expectedErrors: String,
     ) {

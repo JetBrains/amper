@@ -150,7 +150,10 @@ class TaskFromPlugin(
             valueTransform = { (_, kv) -> marshaller.marshallValue(kv.value) },
         )
 
+        val currentThread = Thread.currentThread()
+        val oldClassloader = currentThread.contextClassLoader
         try {
+            currentThread.contextClassLoader = classLoader
             StandardStreamsCapture.capturing(
                 onStderrLine = { logger.error(it) },
                 onStdoutLine = { logger.info(it) },
@@ -164,6 +167,8 @@ class TaskFromPlugin(
             }
 
             userReadableError(targetException.stackTraceToString())
+        } finally {
+            currentThread.contextClassLoader = oldClassloader
         }
     }
 
