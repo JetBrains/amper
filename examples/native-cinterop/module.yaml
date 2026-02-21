@@ -1,0 +1,11 @@
+product:
+  type: linux/app
+  platforms: [ linuxX64 ]
+
+settings:
+  native:
+    entryPoint: 'org.jetbrains.amper.samples.cinterop.main'
+    cinterop:
+      hello:
+        defFile: 'resources/cinterop/hello.def'
+        packageName: 'org.jetbrains.amper.samples.cinterop.hello'

@@ -669,6 +669,40 @@ settings:
     entryPoint: com.example.MainKt.main
 ```
 
+##### 'settings.native.cinterop'
+
+`settings:native:cinterop` configures C/Objective-C interop for native targets.
+
+Each cinterop module is defined by a name and supports the following attributes:
+
+| Attribute      | Description                               |
+|----------------|-------------------------------------------|
+| `defFile`      | Path to the Kotlin/Native definition (`.def`) file. |
+| `packageName`  | The Kotlin package name for the generated bindings. |
+| `compilerOpts` | A list of flags to be passed to the C compiler (e.g., `-I/path/to/includes`). |
+| `linkerOpts`   | A list of C/C++ source files (`.c`, `.cpp`) to be compiled and/or flags to be passed to the linker (e.g., `-lm`). |
+
+Example:
+
+```yaml
+# Configure cinterop for a native module
+settings:
+  native:
+    cinterop:
+      hello:
+        defFile: cinterop/hello.def
+        packageName: com.example.hello
+        linkerOpts:
+          - cinterop/hello.c
+      libfoo:
+        defFile: external/libfoo/api.def
+        packageName: com.example.libfoo
+        compilerOpts:
+          - -I/usr/local/include
+        linkerOpts:
+          - -lfoo
+```
+
 ### `settings.springBoot`
 
 `settings.springBoot` configures the Spring Boot framework (JVM platform only).
