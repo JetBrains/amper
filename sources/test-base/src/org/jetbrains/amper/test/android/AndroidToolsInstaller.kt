@@ -10,10 +10,13 @@ import org.jetbrains.amper.core.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.frontend.schema.DefaultVersions
+import org.jetbrains.amper.frontend.schema.JdkSelectionMode
 import org.jetbrains.amper.incrementalcache.IncrementalCache
+import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
 import org.jetbrains.amper.jdk.provisioning.orThrow
+import org.jetbrains.amper.problems.reporting.NoopProblemReporter
 import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.test.processes.PrefixPrintOutputListener
@@ -83,9 +86,7 @@ internal object AndroidToolsInstaller {
             extractZip(archiveFile = commandLineToolsZip, target = androidSdkHome / "cmdline-tools", stripRoot = true)
 
             // we need a JDK to run the Java-based Android command line tools
-            val jdk = JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache)
-                .provisionJdk(JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk))
-                .orThrow()
+            val jdk = getSomeJdk(androidSetupCacheDir, incrementalCache)
 
             AndroidTools(androidSdkHome, androidUserHomeParent, jdk.homeDir).installToolsAndAcceptLicenses()
 
@@ -104,6 +105,18 @@ internal object AndroidToolsInstaller {
             androidUserHomeParent = androidUserHomeParent,
             javaHome = result.outputFiles[1],
         )
+    }
+
+    private suspend fun getSomeJdk(
+        androidSetupCacheDir: Path,
+        incrementalCache: IncrementalCache,
+    ): Jdk = with(NoopProblemReporter) {
+        JdkProvider(AmperUserCacheRoot(androidSetupCacheDir), incrementalCache = incrementalCache)
+            .getJdk(
+                criteria = JdkProvisioningCriteria(majorVersion = DefaultVersions.jdk),
+                selectionMode = JdkSelectionMode.auto,
+            )
+            .orThrow()
     }
 
     private suspend fun downloadCommandLineToolsZip(androidSetupCacheDir: Path): Path {
