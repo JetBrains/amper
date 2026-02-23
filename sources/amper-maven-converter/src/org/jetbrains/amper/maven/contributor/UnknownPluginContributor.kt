@@ -9,14 +9,18 @@ import org.apache.maven.model.Plugin
 import org.apache.maven.model.PluginExecution
 import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.tree.SyntheticBuilder
-import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.MavenConverterBundle
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
 import org.jetbrains.amper.maven.ProjectTreeBuilder
+import org.jetbrains.amper.maven.SimpleMappingBuilder
+import org.jetbrains.amper.maven.SimpleTreeNodeFactory
 import org.jetbrains.amper.maven.YamlComment
+import org.jetbrains.amper.maven.list
+import org.jetbrains.amper.maven.mapping
+import org.jetbrains.amper.maven.scalar
 import org.slf4j.LoggerFactory
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants.CDATA
@@ -101,6 +105,7 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeUnknownPlugin(
     }
 }
 
+
 private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
     pluginXml: MavenPluginXml,
     mojo: Mojo,
@@ -119,23 +124,25 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
     }
 
     withDefaultContext {
-        `object`<Module> {
-            Module::plugins {
+        val pluginsConfiguration = context(SimpleTreeNodeFactory(trace, contexts)) {
+            mapping {
                 if (hasConfiguration) {
-                    pluginKey setTo map(SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)) {
-                        "enabled" setTo scalar(true)
-                        mapConfiguration(this, configuration, mojo)
-                    }
+                    put(pluginKey, mapping {
+                        put("enabled", scalar("true"))
+                        mapConfiguration(configuration, mojo)
+                    })
                 } else {
-                    pluginKey setTo scalar("enabled") // shorthand
+                    put(pluginKey, scalar("enabled")) // shorthand
                 }
             }
         }
+
+        plugins(pluginsConfiguration, unsafe = true)
     }
 }
 
-private fun SyntheticBuilder.mapConfiguration(
-    builder: SyntheticBuilder.MapLikeValueBuilder,
+context(_: SimpleTreeNodeFactory)
+private fun SimpleMappingBuilder.mapConfiguration(
     configuration: Xpp3Dom,
     mojo: Mojo,
 ) {
@@ -143,64 +150,58 @@ private fun SyntheticBuilder.mapConfiguration(
         if (child is Xpp3Dom) {
             val parameter = mojo.parameters.find { it.name == child.name }
             if (parameter != null && parameter.editable) {
-                mapConfigurationValue(builder, child, parameter.type)
+                mapConfigurationValue(child, parameter.type)
             }
         }
     }
 }
 
-private fun SyntheticBuilder.mapConfigurationValue(
-    builder: SyntheticBuilder.MapLikeValueBuilder,
+context(_: SimpleTreeNodeFactory)
+private fun SimpleMappingBuilder.mapConfigurationValue(
     element: Xpp3Dom,
     type: String,
 ) {
-    builder.apply {
-        when (type) {
-            "boolean" -> {
-                element.value?.let { value ->
-                    element.name setTo scalar(value.toBoolean())
-                }
+    when (type) {
+        "boolean" -> {
+            element.value?.let { value ->
+                put(element.name, scalar(value))
             }
-            "int", "java.lang.Integer" -> {
-                element.value?.let { value ->
-                    element.name setTo scalar(value)
-                }
+        }
+        "int", "java.lang.Integer" -> {
+            element.value?.let { value ->
+                put(element.name, scalar(value))
             }
-            "java.lang.String", "java.io.File", "java.nio.Path" -> {
-                element.value()?.let { value ->
-                    element.name setTo scalar(value)
-                }
+        }
+        "java.lang.String", "java.io.File", "java.nio.Path" -> {
+            element.value()?.let { value ->
+                put(element.name, scalar(value))
             }
-            "java.lang.String[]", "java.util.List",
-            "java.io.File[]", "java.nio.Path[]" -> {
-                val itemType = if (type in arrayOf("java.io.File[]", "java.nio.Path[]"))
-                    SchemaType.ListType(SchemaType.PathType())
-                else
-                    SchemaType.ListType(SchemaType.StringType)
-                element.name setTo list(itemType) {
-                    if (element.childCount > 0) {
-                        element.children.forEach { child ->
-                            if (child is Xpp3Dom) {
-                                child.value()?.let { add(scalar(it)) }
-                            }
-                        }
-                    } else {
-                        element.value()?.let { add(scalar(it)) }
-                    }
-                }
-            }
-            "java.util.Map" -> {
-                element.name setTo map(SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)) {
+        }
+        "java.lang.String[]", "java.util.List",
+        "java.io.File[]", "java.nio.Path[]" -> {
+            put(element.name, list {
+                if (element.childCount > 0) {
                     element.children.forEach { child ->
-                        if (child is Xpp3Dom && child.value != null) {
-                            child.name setTo scalar(child.value)
+                        if (child is Xpp3Dom) {
+                            child.value()?.let { add(scalar(it)) }
                         }
                     }
+                } else {
+                    element.value()?.let { add(scalar(it)) }
                 }
-            }
-            else -> {
-                mapPlexusConfiguration(this@mapConfigurationValue, builder, element)
-            }
+            })
+        }
+        "java.util.Map" -> {
+            put(element.name, mapping {
+                element.children.forEach { child ->
+                    if (child is Xpp3Dom && child.value != null) {
+                        put(child.name, scalar(child.value))
+                    }
+                }
+            })
+        }
+        else -> {
+            mapPlexusConfiguration(element)
         }
     }
 }
@@ -215,39 +216,33 @@ private fun Xpp3Dom.value(): String? {
     }
 }
 
-private fun mapPlexusConfiguration(
-    syntheticBuilder: SyntheticBuilder,
-    builder: SyntheticBuilder.MapLikeValueBuilder,
+context(_: SimpleTreeNodeFactory)
+private fun SimpleMappingBuilder.mapPlexusConfiguration(
     element: Xpp3Dom,
 ) {
-    with(syntheticBuilder) {
-        builder.apply {
-            if (element.value != null) {
-                element.name setTo scalar(element.value)
-            } else if (element.childCount > 0) {
-                val childNames = element.children.filterIsInstance<Xpp3Dom>().map { it.name }.distinct()
+    if (element.value != null) {
+        put(element.name, scalar(element.value))
+    } else if (element.childCount > 0) {
+        val childNames = element.children.filterIsInstance<Xpp3Dom>().map { it.name }.distinct()
 
-                if (childNames.size == 1 && element.childCount > 1) {
-                    element.name setTo list(SchemaType.ListType(SchemaType.StringType)) {
-                        element.children.forEach { child ->
-                            if (child is Xpp3Dom) {
-                                if (child.value != null) {
-                                    add(scalar(child.value))
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    element.name setTo map(SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)) {
-                        element.children.forEach { child ->
-                            if (child is Xpp3Dom) {
-                                mapPlexusConfiguration(syntheticBuilder, this, child)
-                            }
+        if (childNames.size == 1 && element.childCount > 1) {
+            put(element.name, list {
+                element.children.forEach { child ->
+                    if (child is Xpp3Dom) {
+                        if (child.value != null) {
+                            add(scalar(child.value))
                         }
                     }
                 }
-            }
-
+            })
+        } else {
+            put(element.name, mapping {
+                element.children.forEach { child ->
+                    if (child is Xpp3Dom) {
+                        mapPlexusConfiguration(child)
+                    }
+                }
+            })
         }
     }
 }

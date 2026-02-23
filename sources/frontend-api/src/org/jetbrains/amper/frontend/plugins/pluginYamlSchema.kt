@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.plugins
 
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.CanBeReferenced
+import org.jetbrains.amper.frontend.api.CustomSchemaDeclaration
 import org.jetbrains.amper.frontend.api.IgnoreForSchema
 import org.jetbrains.amper.frontend.api.ReadOnly
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -28,17 +29,13 @@ class PluginYamlRoot : SchemaNode() {
     @SchemaDoc("Data from the module the plugin is applied to")
     val module by value<ModuleDataForPlugin>()
 
-    companion object {
-
-        /**
-         * Reference-only plugin settings property name.
-         *
-         * NOTE: Can't be expressed via the `@ReadOnly` property because its exact type is plugin-dependent.
-         * If a plugin doesn't define the settings type, then this property is not present at all.
-         */
-        const val PLUGIN_SETTINGS = "pluginSettings"
-    }
+    @ReadOnly
+    @CanBeReferenced
+    val pluginSettings: PluginSettingsPlaceholder? by nullableValue()
 }
+
+@CustomSchemaDeclaration
+class PluginSettingsPlaceholder : SchemaNode()
 
 /**
  * NOTE: We do not mark all the properties here as [ReadOnly] because the [PluginYamlRoot.module] is already marked.
@@ -78,7 +75,9 @@ class ModuleDataForPlugin : SchemaNode() {
     val self by value<ShadowDependencyLocal>()
 }
 
+@CustomSchemaDeclaration
 class TaskAction(
+    // TODO: Remove @IgnoreForSchema here?
     @IgnoreForSchema val taskInfo: PluginData.TaskInfo,
 ) : SchemaNode()
 

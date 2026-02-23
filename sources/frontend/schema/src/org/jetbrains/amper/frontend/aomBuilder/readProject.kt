@@ -12,16 +12,15 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.generated.DeclarationOfProject
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 context(problemReporter: ProblemReporter)
 internal fun readProject(
     resolver: FrontendPathResolver,
     projectFile: VirtualFile,
-): Project = context(resolver, problemReporter, SchemaTypingContext()) {
-    val projectTree = readTree(projectFile, contextOf<SchemaTypingContext>().getDeclaration<Project>())
+): Project = context(resolver, problemReporter) {
+    val projectTree = readTree(projectFile, DeclarationOfProject)
     TreeRefiner().refineTree(projectTree, EmptyContexts)
         .completeTree()?.instance<Project>()
         ?: error("No required values must be in the project schema!")

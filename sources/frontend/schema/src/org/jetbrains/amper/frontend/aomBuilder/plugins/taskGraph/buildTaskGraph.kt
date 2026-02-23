@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.isDefault
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.GeneratedPathKind
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowResolutionScope
 import org.jetbrains.amper.frontend.plugins.generated.ShadowSourcesKind
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.types.generated.includeGeneratedDelegate
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -91,7 +91,7 @@ internal fun buildTaskGraph(
                     ShadowSourcesKind.KotlinJavaSources -> TaskGraph.Node.SourceGeneration(request.from)
                     ShadowSourcesKind.Resources -> TaskGraph.Node.ResourceGeneration(request.from)
                 }
-                dependencies += TaskGraph.Edge(generation, request.node::includeGenerated.schemaDelegate.trace) {
+                dependencies += TaskGraph.Edge(generation, request.node.includeGeneratedDelegate.trace) {
                     FrontendTaskGraphBundle.message(
                         when (request.node.kind) {
                             ShadowSourcesKind.KotlinJavaSources -> "task.graph.reasons.generated.sources"

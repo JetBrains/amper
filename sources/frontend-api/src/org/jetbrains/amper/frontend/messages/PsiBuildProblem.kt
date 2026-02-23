@@ -8,20 +8,18 @@ import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import java.nio.file.Path
-import kotlin.reflect.KProperty0
 
 abstract class PsiBuildProblem(
     override val level: Level,
@@ -31,14 +29,9 @@ abstract class PsiBuildProblem(
     override val source: BuildProblemSource by lazy { PsiBuildProblemSource(element) }
 }
 
-fun KProperty0<*>.extractPsiElement(): PsiElement = schemaDelegate.extractPsiElement()
+fun SchemaValueDelegate<*>.extractKeyValuePsiElement(): PsiElement = keyValueTrace.extractPsiElement()
 
-fun KProperty0<*>.extractKeyValuePsiElement(): PsiElement = schemaDelegate.keyValueTrace.extractPsiElement()
-
-@UsedInIdePlugin
-fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? = schemaDelegate.extractPsiElementOrNull()
-
-fun KProperty0<*>.extractKeyValuePsiElementOrNull(): PsiElement? = schemaDelegate.keyValueTrace.extractPsiElementOrNull()
+fun SchemaValueDelegate<*>.extractKeyValuePsiElementOrNull(): PsiElement? = keyValueTrace.extractPsiElementOrNull()
 
 fun Trace.extractPsiElementOrNull(): PsiElement? = when(this) {
     is PsiTrace -> psiElement

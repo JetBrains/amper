@@ -5,19 +5,18 @@
 package org.jetbrains.amper.maven.contributor
 
 import org.apache.maven.project.MavenProject
-import org.jetbrains.amper.frontend.schema.MavenPlugin
-import org.jetbrains.amper.frontend.schema.Project
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 
 internal fun ProjectTreeBuilder.contributeProjects(reactorProjects: Set<MavenProject>) {
     project {
-        `object`<Project> {
-            if (reactorProjects.size != 1 || reactorProjects.first().basedir.toPath() != projectPath.parent) {
-                Project::modules {
-                    reactorProjects.filter { it.packaging != "pom" }.forEach { reactorProject ->
-                        add(scalar(reactorProject.basedir.name))
-                    }
+        if (reactorProjects.size != 1 || reactorProjects.first().basedir.toPath() != projectPath.parent) {
+            modules {
+                reactorProjects.filter { it.packaging != "pom" }.forEach { reactorProject ->
+                    add(reactorProject.basedir.name)
                 }
             }
         }
@@ -28,13 +27,10 @@ internal fun ProjectTreeBuilder.contributeProjectMavenPlugins(pluginXmls: List<M
     if (pluginXmls.isEmpty()) return
 
     project {
-        `object`<Project> {
-            Project::mavenPlugins {
-                pluginXmls.forEach { pluginXml ->
-                    val coordinates = "${pluginXml.groupId}:${pluginXml.artifactId}:${pluginXml.version}"
-                    this += `object`<MavenPlugin> { 
-                        MavenPlugin::coordinates setTo scalar(coordinates) 
-                    }
+        mavenPlugins {
+            pluginXmls.forEach { pluginXml ->
+                add {
+                    coordinates("${pluginXml.groupId}:${pluginXml.artifactId}:${pluginXml.version}")
                 }
             }
         }

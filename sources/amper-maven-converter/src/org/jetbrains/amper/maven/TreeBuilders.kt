@@ -7,17 +7,18 @@ package org.jetbrains.amper.maven
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
-import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.contexts.TestCtx
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.tree.MappingNode
-import org.jetbrains.amper.frontend.tree.SyntheticBuilder
+import org.jetbrains.amper.frontend.tree.ObjectBuilderBlock
+import org.jetbrains.amper.frontend.tree.buildTree
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.generated.DeclarationOfModule
+import org.jetbrains.amper.frontend.types.generated.DeclarationOfProject
 import java.nio.file.Path
 
-internal typealias MapBlock = SyntheticBuilder.() -> MappingNode
+internal typealias ModuleBuilderBlock = ObjectBuilderBlock<DeclarationOfModule>
+internal typealias ProjectBuilderBlock = ObjectBuilderBlock<DeclarationOfProject>
 internal typealias YamlKeyPath = List<String>
 internal typealias YamlComments = Map<YamlKeyPath, YamlComment>
 
@@ -54,16 +55,13 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
         TraceableString("dummy", DefaultTrace),
     )
 
-    private val syntheticBuilderDefault = SyntheticBuilder(
-        SchemaTypingContext(emptyList(), mavenPlugins),
-        dummyTransformedTrace,
-        listOf(DefaultContext.ReactivelySet)
-    )
-    private val syntheticBuilderTest = SyntheticBuilder(
-        SchemaTypingContext(emptyList(), mavenPlugins),
-        dummyTransformedTrace,
-        listOf(TestCtx)
-    )
+    private val types = SchemaTypingContext(emptyList(), mavenPlugins)
+
+    private fun buildModuleDefault(block: ModuleBuilderBlock) =
+        buildTree(types.moduleDeclaration, dummyTransformedTrace, block = block)
+
+    private fun buildModuleTest(block: ModuleBuilderBlock) =
+        buildTree(types.moduleDeclaration, dummyTransformedTrace, listOf(TestCtx), block = block)
 
     private var projectTree: MappingNode? = null
 
@@ -74,13 +72,13 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
         private var testTree: MappingNode? = null
         private val yamlComments: MutableMap<YamlKeyPath, YamlComment> = mutableMapOf()
 
-        fun withDefaultContext(block: MapBlock) {
-            val newTree = syntheticBuilderDefault.block()
+        fun withDefaultContext(block: ObjectBuilderBlock<DeclarationOfModule>) {
+            val newTree = buildModuleDefault(block)
             defaultTree = defaultTree?.let { mergeTrees(listOf(it, newTree)) } ?: newTree
         }
 
-        fun withTestContext(block: MapBlock) {
-            val newTree = syntheticBuilderTest.block()
+        fun withTestContext(block: ObjectBuilderBlock<DeclarationOfModule>) {
+            val newTree = buildModuleTest(block)
             testTree = testTree?.let { mergeTrees(listOf(it, newTree)) } ?: newTree
         }
 
@@ -101,8 +99,8 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
         fun build(): ModuleWithComments = ModuleWithComments(
             tree = mergeTrees(
                 listOf(
-                    defaultTree ?: syntheticBuilderDefault.`object`<Module> { },
-                    testTree ?: syntheticBuilderTest.`object`<Module> { }
+                    defaultTree ?: buildModuleDefault { },
+                    testTree ?: buildModuleTest { },
                 )
             ),
             comments = yamlComments.toMap()
@@ -118,8 +116,8 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
         }
     }
 
-    fun project(block: MapBlock) {
-        val newTree = syntheticBuilderDefault.block()
+    fun project(block: ProjectBuilderBlock) {
+        val newTree = buildTree(DeclarationOfProject, dummyTransformedTrace, block = block)
         projectTree = projectTree?.let { mergeTrees(listOf(it, newTree)) } ?: newTree
     }
 
@@ -144,7 +142,7 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
 
     fun build(): AmperForest = AmperForest(
         projectPath = projectPath,
-        projectTree = projectTree ?: syntheticBuilderDefault.`object`<Project> { },
+        projectTree = projectTree ?: buildTree(DeclarationOfProject) { },
         modules = modules.mapValues { (_, builder) ->
             builder.build()
         }

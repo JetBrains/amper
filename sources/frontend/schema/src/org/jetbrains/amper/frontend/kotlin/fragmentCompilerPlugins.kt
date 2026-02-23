@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.kotlin
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.kotlin.CompilerPluginConfig.*
 import org.jetbrains.amper.frontend.schema.AllOpenPreset
 import org.jetbrains.amper.frontend.schema.NoArgPreset
@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.schema.UnscopedCatalogDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 
 /**
  * Returns the Kotlin compiler plugins configurations defined by these [Settings].
@@ -101,8 +102,8 @@ fun Settings.compilerPluginsConfigurations(): List<CompilerPluginConfig> = build
 }
 
 private fun UnscopedExternalDependency.toMavenCoordinates(): CompilerPluginConfig.MavenCoordinates = when (this) {
-    is UnscopedExternalMavenDependency -> coordinates
-        .asTraceable(::coordinates.schemaDelegate.trace)
+    is UnscopedExternalMavenDependency -> coordinatesDelegate
+        .asTraceableValue()
         .toMavenCoordinates()
         .toPluginMavenCoordinates()
     is UnscopedCatalogDependency -> error("Catalog dependencies should be substituted earlier")

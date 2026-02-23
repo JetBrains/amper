@@ -11,12 +11,13 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.dependency.resolution.withJarEntry
 import org.jetbrains.amper.frontend.aomBuilder.MavenPluginWithXml
-import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.dr.resolver.MavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.maven.download.downloadSingleArtifactJar
 import org.jetbrains.amper.maven.parseMavenPluginXml
@@ -36,7 +37,7 @@ suspend fun prepareMavenPlugins(
     val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
     projectContext.externalMavenPlugins.map { mavenPlugin ->
         async {
-            val traceableCoordinates = mavenPlugin::coordinates.traceableString()
+            val traceableCoordinates = mavenPlugin.coordinatesDelegate.asTraceableValue()
             val pluginJarFile = downloadPluginAndDirectDependencies(mavenResolver, traceableCoordinates) ?: return@async null
             withJarEntry(pluginJarFile, "META-INF/maven/plugin.xml") {
                 try {

@@ -8,18 +8,18 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.api.isSetInTemplate
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.types.generated.versionDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
-import kotlin.reflect.KProperty0
 
 object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "serialization.version.without.serialization"
@@ -28,11 +28,11 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
         val reportedPlaces = mutableSetOf<Trace?>()
         module.fragments.forEach { fragment ->
             val settings = fragment.settings.kotlin.serialization
-            val versionProp = settings::version
+            val versionProp = settings.versionDelegate
             // We don't want to report anything if the version is set in a template, because users might just want
             // to set a central version for all modules (like a catalog) regardless of whether they use it.
             if (versionProp.isExplicitlySet && !versionProp.isSetInTemplate && !settings.enabled) {
-                if (!reportedPlaces.add(versionProp.schemaDelegate.trace)) return@forEach
+                if (!reportedPlaces.add(versionProp.trace)) return@forEach
                 problemReporter.reportMessage(SerializationVersionWithoutSerialization(versionProp))
             }
         }
@@ -41,7 +41,7 @@ object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnostic
 
 class SerializationVersionWithoutSerialization(
     @UsedInIdePlugin
-    val versionProp: KProperty0<String?>,
+    val versionProp: SchemaValueDelegate<String>,
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement
         get() = versionProp.extractPsiElement()

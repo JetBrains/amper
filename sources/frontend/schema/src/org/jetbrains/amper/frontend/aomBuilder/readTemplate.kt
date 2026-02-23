@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -26,13 +25,13 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
  *
  * This is a combination of the project catalog and the built-in catalogs provided by the enabled toolchains.
  */
-context(problemReporter: ProblemReporter)
 @UsedInIdePlugin
+context(_: ProblemReporter)
 fun AmperProjectContext.readEffectiveCatalogForTemplate(templateFile: VirtualFile): VersionCatalog =
-    context(frontendPathResolver, SchemaTypingContext(), problemReporter) {
+    context(frontendPathResolver) {
         val templateTree = readTree(
             file = templateFile,
-            declaration = contextOf<SchemaTypingContext>().getDeclaration<Template>(),
+            declaration = SchemaTypingContext().templateDeclaration,
         )
         val refiner = TreeRefiner()
         // We can cast here, since we are not merging templates for now.

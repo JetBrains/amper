@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.CanBeReferenced
+import org.jetbrains.amper.frontend.api.CustomSchemaDeclaration
 import org.jetbrains.amper.frontend.api.GradleSpecific
 import org.jetbrains.amper.frontend.api.HiddenFromCompletion
 import org.jetbrains.amper.frontend.api.KnownStringValues
@@ -19,6 +20,8 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.RefinedTreeNode
 import org.jetbrains.amper.frontend.userGuideUrl
 import java.nio.file.Path
 
@@ -100,6 +103,7 @@ class Settings : SchemaNode() {
  *
  * @see org.jetbrains.amper.plugins.schema.model.PluginData
  */
+@CustomSchemaDeclaration
 class PluginSettings : SchemaNode()
 
 class ComposeSettings : SchemaNode() {
@@ -149,13 +153,16 @@ class ComposeExperimentalHotReloadSettings: SchemaNode() {
 }
 
 class SerializationSettings : SchemaNode() {
+    class EnabledTransform : ReferenceNode.TransformFunction<Boolean> {
+        override fun transform(node: RefinedTreeNode): Boolean = node !is NullLiteralNode
+    }
 
     @Shorthand
     @SchemaDoc("Enables the kotlinx.serialization compiler plugin, which generates code based on " +
             "@Serializable annotations. This also automatically adds the kotlinx-serialization-core library to " +
             "provide the annotations and facilities for serialization, but no specific serialization format.")
     // if a format is specified, we need to enable serialization (mostly to be backwards compatible)
-    val enabled: Boolean by referenceValue(::format, "enabled when specified") { it !is NullLiteralNode }
+    val enabled: Boolean by referenceValue(::format, "enabled when specified", EnabledTransform())
 
     @CanBeReferenced
     @Shorthand

@@ -16,8 +16,8 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraphExecutionContext
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.dr.resolver.CliReportingMavenResolver
 import org.jetbrains.amper.frontend.dr.resolver.flow.toRepository
 import org.jetbrains.amper.frontend.dr.resolver.toDrMavenCoordinates
@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
@@ -92,10 +93,10 @@ internal abstract class AbstractResolveJvmExternalDependenciesTask(
                             children = externalUnscopedDependencies.map {
                                 when(it) {
                                     is UnscopedExternalMavenDependency -> {
-                                        context.parseCoordinates(it::coordinates.traceableString(), false)
+                                        context.parseCoordinates(it.coordinatesDelegate.asTraceableValue(), false)
                                     }
                                     is UnscopedExternalMavenBomDependency -> {
-                                        context.parseCoordinates(it::coordinates.traceableString(), true)
+                                        context.parseCoordinates(it.coordinatesDelegate.asTraceableValue(), true)
                                     }
                                     else -> error("Unexpected dependency type: ${it::class.qualifiedName}")
                                 }

@@ -16,10 +16,10 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Shorthand
 import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.tree.EnumNode
+import org.jetbrains.amper.frontend.tree.ReferenceNode
+import org.jetbrains.amper.frontend.tree.RefinedTreeNode
 import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
 import org.jetbrains.amper.frontend.userGuideUrl
 
@@ -140,18 +140,23 @@ class ModuleProduct : SchemaNode() {
     val type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    val platforms: List<TraceableEnum<Platform>> by referenceValue(::type, "default platform for this product type") {
-        val productType = (it as EnumNode).enumConstantIfAvailable as ProductType
-        productType.defaultPlatforms
-            ?.map { platform ->
-                platform.asTraceable(DefaultTrace)
-            }
+    val platforms: List<TraceableEnum<Platform>> by referenceValue(::type, "default platform for this product type",
+        PlatformTransform())
+
+    class PlatformTransform : ReferenceNode.TransformFunction<List<TraceableEnum<Platform>>> {
+        override fun transform(node: RefinedTreeNode): List<TraceableEnum<Platform>> {
+            val productType = (node as EnumNode).enumConstantIfAvailable as ProductType
+            return productType.defaultPlatforms
+                ?.map { platform ->
+                    platform.asTraceable(DefaultTrace)
+                }
             // Degenerate case when there are no default platforms but also platforms are not declared by the user.
             // It is reported as an error via diagnostics, so it will never reach AOM consumers, and thus it's better
             // to keep this type non-nullable.
             // Note that this empty list can still be obtained when running other diagnostics. This is actually
             // desirable because it correctly represents the fact that we have no platforms at all (thus aliases or
             // @Platform-specific property usages will be properly reported).
-            ?: emptyList()
+                ?: emptyList()
+        }
     }
 }

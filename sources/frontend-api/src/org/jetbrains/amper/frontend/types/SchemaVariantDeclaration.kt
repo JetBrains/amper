@@ -45,5 +45,6 @@ interface SchemaVariantDeclaration : SchemaTypeDeclaration {
      */
     val variants: List<SchemaObjectDeclaration>
 
-    override fun toType(): SchemaType.VariantType = SchemaType.VariantType(this)
+    override fun toType(isMarkedNullable: Boolean): SchemaType.VariantType =
+        SchemaType.VariantType(this, isMarkedNullable = isMarkedNullable)
 }

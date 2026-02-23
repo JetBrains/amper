@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
@@ -102,4 +103,4 @@ private fun AmperModule.jvmReleaseOrJdkVersion(): Int? =
 
 // We don't have to go through all fragments, this is marked @PlatformAgnostic so it must be consistent
 private fun AmperModule.jvmReleasePsiElement(): PsiElement? =
-    fragments.firstOrNull()?.settings?.jvm?.let { it::release }?.extractPsiElementOrNull()
+    fragments.firstOrNull()?.settings?.jvm?.releaseDelegate?.extractPsiElementOrNull()

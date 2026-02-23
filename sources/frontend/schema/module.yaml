@@ -11,6 +11,9 @@ settings:
       format: json
     optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
 
+plugins:
+  amper-schema-generator: enabled
+
 dependencies:
   - ../../amper-build-info
   - ../../amper-problem-reporting: exported
@@ -27,7 +30,6 @@ dependencies:
   - ../../libraries/system-info
   - ../../libraries/telemetry
   - ../../core-intellij
-  - $libs.kotlin.reflect
   - $libs.maven.artifact
   - $libs.intellij.platform.core: exported # because we expose Project in public API
   - $libs.intellij.platform.coreImpl

@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.api.isSetInTemplate
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import kotlin.reflect.KProperty0
 
 object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "compose.version.without.compose"
@@ -28,8 +28,8 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
         module.fragments.forEach { fragment ->
             val composeSettings = fragment.settings.compose
             if (!composeSettings.enabled) {
-                val versionProp = composeSettings::version
-                val trace = versionProp.schemaDelegate.trace
+                val versionProp = composeSettings.versionDelegate
+                val trace = versionProp.trace
                 // We don't want to report anything if the version is set in a template, because users might just want
                 // to set a central version for all modules (like a catalog) regardless of whether they use it.
                 if (versionProp.isExplicitlySet && !versionProp.isSetInTemplate && reportedPlaces.add(trace)) {
@@ -42,7 +42,7 @@ object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
 
 class ComposeVersionWithoutCompose(
     @UsedInIdePlugin
-    val versionProp: KProperty0<String?>,
+    val versionProp: SchemaValueDelegate<String>,
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement
         get() = versionProp.extractPsiElement()

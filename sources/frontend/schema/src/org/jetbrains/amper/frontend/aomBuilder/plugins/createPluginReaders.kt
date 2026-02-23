@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.generated.typeDelegate
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
@@ -70,7 +71,7 @@ internal fun createPluginReaders(
             if (!pluginFile.isRegularFile()) {
                 problemReporter.reportMessage(
                     PluginYamlMissing(
-                        element = product::type.extractKeyValuePsiElement(),
+                        element = product.typeDelegate.extractKeyValuePsiElement(),
                         expectedPluginYamlPath = pluginFile,
                     )
                 )
@@ -85,7 +86,7 @@ internal fun createPluginReaders(
             pluginFile = projectContext.frontendPathResolver.loadVirtualFile(pluginFile),
             pluginModule = pluginModule.module,
             problemReporter = problemReporter,
-            globalTypes = types,
+            types = types,
             pathResolver = pathResolver,
         )
     }

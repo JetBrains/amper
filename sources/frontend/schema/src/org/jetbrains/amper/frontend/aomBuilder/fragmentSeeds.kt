@@ -5,11 +5,10 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.isParentOfStrict
 import org.jetbrains.amper.frontend.messages.extractKeyValuePsiElementOrNull
-import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -73,7 +72,7 @@ fun Module.buildFragmentSeeds(): Set<FragmentSeed> {
     val declaredAliases = aliases ?: emptyMap()
 
     if (!product.type.supportsFragmentBamboos) {
-        val aliasesElement = this::aliases.extractKeyValuePsiElementOrNull()
+        val aliasesElement = aliasesDelegate.extractKeyValuePsiElementOrNull()
         if (aliasesElement != null) {
             problemReporter.reportMessage(AliasesAreNotSupportedInSinglePlatformModule(aliasesElement))
         }

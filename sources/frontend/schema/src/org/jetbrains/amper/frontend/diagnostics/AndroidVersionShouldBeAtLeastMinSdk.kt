@@ -8,21 +8,21 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.AndroidVersion
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
-import kotlin.reflect.KProperty0
 
 class AndroidVersionShouldBeAtLeastMinSdk(
     @UsedInIdePlugin
-    val versionProp: KProperty0<AndroidVersion?>,
+    val versionProp: SchemaValueDelegate<out AndroidVersion?>,
     @UsedInIdePlugin
     val minSdkVersion: AndroidVersion
 ) : PsiBuildProblem(Level.Error, BuildProblemType.InconsistentConfiguration) {
@@ -36,7 +36,7 @@ class AndroidVersionShouldBeAtLeastMinSdk(
         get() = SchemaBundle.message(
             messageKey = buildProblemId,
             versionProp.name,
-            versionProp.get()?.versionNumber,
+            versionProp.value?.versionNumber,
             minSdkVersion.versionNumber
         )
 }
@@ -48,12 +48,16 @@ object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFac
         val reportedPlaces = mutableSetOf<Trace?>()
         module.fragments.forEach { fragment ->
             val settings = fragment.settings.android
-            val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk).filter { it.get() != null }
+            val usedVersions = listOf(
+                settings.compileSdkDelegate,
+                settings.maxSdkDelegate,
+                settings.targetSdkDelegate,
+            ).filter { it.value != null }
             val minSdkVersion = settings.minSdk
             for (versionProp in usedVersions) {
-                val version = versionProp.get() ?: continue
+                val version = versionProp.value ?: continue
                 if (version >= minSdkVersion) continue
-                if (!reportedPlaces.add(versionProp.schemaDelegate.trace)) continue
+                if (!reportedPlaces.add(versionProp.trace)) continue
 
                 problemReporter.reportMessage(
                     AndroidVersionShouldBeAtLeastMinSdk(

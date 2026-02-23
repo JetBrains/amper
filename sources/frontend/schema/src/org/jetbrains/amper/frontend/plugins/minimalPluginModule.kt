@@ -6,38 +6,16 @@ package org.jetbrains.amper.frontend.plugins
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.tree.completeTree
-import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.StringSemantics
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toStableJsonLikeString
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
-import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.types.SchemaType.StringType.Semantics
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.NoopProblemReporter
-
-/**
- * Needed by the `preparePlugins` stage to read the plugin information from the local plugin module, before the full
- * schema for `module.yaml` is available. This is required because the full schema depends on the plugins schema.
- */
-class MinimalPluginModule : SchemaNode() {
-    val product by value<ModuleProduct>()
-
-    val pluginInfo: MinimalPluginDeclarationSchema by nested()
-}
-
-class MinimalPluginDeclarationSchema : SchemaNode() {
-    val id by nullableValue<TraceableString>()
-    val description by nullableValue<String>()
-    @StringSemantics(Semantics.PluginSettingsClass)
-    val settingsClass by nullableValue<TraceableString>()
-}
 
 interface PluginManifest {
     val id: String
@@ -58,7 +36,7 @@ fun parsePluginManifestFromModuleFile(
     context(NoopProblemReporter, frontendPathResolver, SchemaTypingContext()) {
         val pluginModuleTree = readTree(
             file = moduleFile,
-            declaration = contextOf<SchemaTypingContext>().getDeclaration<MinimalPluginModule>(),
+            declaration = DeclarationOfMinimalPluginModule,
             reportUnknowns = false,
             parseContexts = false,
         )

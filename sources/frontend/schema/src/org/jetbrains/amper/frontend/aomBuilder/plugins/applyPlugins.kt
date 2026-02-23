@@ -7,8 +7,8 @@ package org.jetbrains.amper.frontend.aomBuilder.plugins
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
-import org.jetbrains.amper.frontend.aomBuilder.traceableString
 import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -97,7 +98,7 @@ internal fun applyPlugins(
                         node = node,
                         localDependencies = localModules.distinct(),
                         externalDependencies = node.dependencies.filterIsInstance<ShadowDependencyMaven>()
-                            .map { it::coordinates.traceableString().toMavenCoordinates() },
+                            .map { it.coordinatesDelegate.asTraceableValue().toMavenCoordinates() },
                         propertyLocation = propertyLocation,
                     )
                 },

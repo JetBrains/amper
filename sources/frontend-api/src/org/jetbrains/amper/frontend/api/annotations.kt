@@ -212,3 +212,11 @@ annotation class CanBeReferenced
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ReadOnly
+
+/**
+ * If present on the [SchemaNode] inheritor, means that it has a custom, manually-provided
+ * [org.jetbrains.amper.frontend.types.SchemaTypeDeclaration], and no auto-generated one will be present.
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CustomSchemaDeclaration

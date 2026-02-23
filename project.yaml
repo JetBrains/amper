@@ -1,5 +1,6 @@
 modules:
   - build-sources/amper-distribution
+  - build-sources/amper-schema-generator
   - build-sources/binary-compatibility-validator
   - build-sources/detekt
   - build-sources/dokka
@@ -65,6 +66,7 @@ modules:
 
 plugins:
   - ./build-sources/amper-distribution
+  - ./build-sources/amper-schema-generator
   - ./build-sources/binary-compatibility-validator
   - ./build-sources/detekt
   - ./build-sources/dokka

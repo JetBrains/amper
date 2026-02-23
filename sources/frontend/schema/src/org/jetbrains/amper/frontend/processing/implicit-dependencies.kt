@@ -16,18 +16,18 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFragment
 import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
-import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.api.isExplicitlySet
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository.Companion.SpecialMavenLocalUrl
 import org.jetbrains.amper.frontend.schema.legacySerializationFormatNone
 import org.jetbrains.amper.frontend.toClassBasedSet
+import org.jetbrains.amper.frontend.types.generated.*
 
 private fun kotlinDependencyOf(artifactId: String, version: TraceableString, dependencyTrace: Trace) = MavenDependency(
     coordinates = coords("org.jetbrains.kotlin", artifactId, version),
@@ -145,7 +145,7 @@ private fun Fragment.allExternalMavenDependencies() = ancestralPath()
     .filterIsInstance<MavenDependencyBase>()
 
 private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> = buildList {
-    val kotlinVersion = settings.kotlin::version.schemaDelegate.asTraceableString()
+    val kotlinVersion = settings.kotlin.versionDelegate.asTraceableValue()
     add(kotlinDependencyOf("kotlin-stdlib", kotlinVersion, DefaultTrace))
 
     // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
@@ -161,10 +161,10 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         addAll(inferredTestDependencies())
     }
     if (settings.kotlin.serialization.enabled) {
-        val kotlinSerializationVersion = settings.kotlin.serialization::version.schemaDelegate.asTraceableString()
+        val kotlinSerializationVersion = settings.kotlin.serialization.versionDelegate.asTraceableValue()
         val serializationEnabledTrace = TransformedValueTrace(
             description = "because Kotlinx Serialization is enabled",
-            sourceValue = settings.kotlin.serialization::enabled.schemaDelegate,
+            sourceValue = settings.kotlin.serialization.enabledDelegate,
         )
 
         // if kotlinx.serialization plugin is enabled, we need the @Serializable annotation, which is in core
@@ -174,7 +174,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
         if (format != null && format != legacySerializationFormatNone) {
             val serializationFormatTrace = TransformedValueTrace(
                 description = "because kotlin.serialization.format=$format",
-                sourceValue = settings.kotlin.serialization::format.schemaDelegate,
+                sourceValue = settings.kotlin.serialization.formatDelegate,
             )
             add(kotlinxSerializationFormatDependency(
                 format = format,
@@ -186,7 +186,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (settings.kotlin.jsPlainObjects.enabled && setOf(Platform.JS) == platforms) {
         val jsPlainObjectsDependencyTrace = TransformedValueTrace(
             description = "because Kotlin JsPlainObjects is enabled",
-            sourceValue = settings.kotlin.jsPlainObjects::enabled.schemaDelegate,
+            sourceValue = settings.kotlin.jsPlainObjects.enabledDelegate,
         )
         add(kotlinDependencyOf(
             artifactId = "kotlin-js-plain-objects",
@@ -197,23 +197,23 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     if (settings.android.parcelize.enabled && setOf(Platform.JVM, Platform.ANDROID).containsAll(platforms)) {
         val parcelizeDependencyTrace = TransformedValueTrace(
             description = "because Android Parcelize is enabled",
-            sourceValue = settings.android.parcelize::enabled.schemaDelegate,
+            sourceValue = settings.android.parcelize.enabledDelegate,
         )
         add(kotlinDependencyOf("kotlin-parcelize-runtime", kotlinVersion, dependencyTrace = parcelizeDependencyTrace))
     }
     if (settings.lombok.enabled) {
-        val lombokVersion = settings.lombok::version.schemaDelegate.asTraceableString()
+        val lombokVersion = settings.lombok.versionDelegate.asTraceableValue()
         val lombokDependencyTrace = TransformedValueTrace(
             description = "because Lombok is enabled",
-            sourceValue = settings.lombok::enabled.schemaDelegate,
+            sourceValue = settings.lombok.enabledDelegate,
         )
         add(lombokDependency(lombokVersion, lombokDependencyTrace))
     }
     if (settings.compose.enabled) {
-        val composeVersion = settings.compose::version.schemaDelegate.asTraceableString()
+        val composeVersion = settings.compose.versionDelegate.asTraceableValue()
         val composeDependencyTrace = TransformedValueTrace(
             description = "because Compose is enabled",
-            sourceValue = settings.compose::enabled.schemaDelegate,
+            sourceValue = settings.compose.enabledDelegate,
         )
         add(composeRuntimeDependency(composeVersion, dependencyTrace = composeDependencyTrace))
 
@@ -224,20 +224,20 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 
     if (settings.kotlin.rpc.enabled) {
-        val kotlinxRpcVersion = settings.kotlin.rpc::version.schemaDelegate.asTraceableString()
+        val kotlinxRpcVersion = settings.kotlin.rpc.versionDelegate.asTraceableValue()
         val kotlinxRpcEnabledTrace = TransformedValueTrace(
             description = "because kotlinx.rpc is enabled",
-            sourceValue = settings.kotlin.rpc::enabled.schemaDelegate,
+            sourceValue = settings.kotlin.rpc.enabledDelegate,
         )
         add(kotlinxRpcCoreDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcEnabledTrace))
 
         if (settings.kotlin.rpc.applyBom) {
             val kotlinxRpcBomTrace = TransformedValueTrace(
                 description = "because kotlinx.rpc is enabled and kotlin.rpc.applyBom=true",
-                sourceValue = if (settings.kotlin.rpc::applyBom.isExplicitlySet) {
-                    settings.kotlin.rpc::applyBom.schemaDelegate
+                sourceValue = if (settings.kotlin.rpc.applyBomDelegate.isExplicitlySet) {
+                    settings.kotlin.rpc.applyBomDelegate
                 } else {
-                    settings.kotlin.rpc::enabled.schemaDelegate
+                    settings.kotlin.rpc.enabledDelegate
                 },
             )
             add(kotlinxRpcBomDependency(kotlinxRpcVersion, dependencyTrace = kotlinxRpcBomTrace))
@@ -245,26 +245,27 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
     }
 
     if (settings.ktor.enabled && settings.ktor.applyBom) {
-        val ktorVersion = settings.ktor::version.schemaDelegate.asTraceableString()
+        val ktorVersion = settings.ktor.versionDelegate.asTraceableValue()
         val ktorApplyBomTrace = TransformedValueTrace(
             description = "because Ktor is enabled and ktor.applyBom=true",
-            sourceValue = if (settings.ktor::applyBom.isExplicitlySet) {
-                settings.ktor::applyBom.schemaDelegate
+            sourceValue = if (settings.ktor.applyBomDelegate.isExplicitlySet) {
+                settings.ktor.applyBomDelegate
             } else {
-                settings.ktor::enabled.schemaDelegate
+                settings.ktor.enabledDelegate
             },
         )
         add(ktorBomDependency(ktorVersion, dependencyTrace = ktorApplyBomTrace))
     }
 
     if (settings.springBoot.enabled && settings.springBoot.applyBom) {
-        val springBootVersion = settings.springBoot::version.schemaDelegate.asTraceableString()
+        val springBootVersion = settings.springBoot.versionDelegate.asTraceableValue()
         val springBootApplyBomTrace = TransformedValueTrace(
             description = "because Spring Boot is enabled and springBoot.applyBom=true",
-            sourceValue = if (settings.springBoot::applyBom.isExplicitlySet) {
-                settings.ktor::applyBom.schemaDelegate
+            sourceValue = if (settings.springBoot.applyBomDelegate.isExplicitlySet) {
+                // TODO: Was there a copy-paste bug?
+                settings.springBoot.applyBomDelegate
             } else {
-                settings.springBoot::enabled.schemaDelegate
+                settings.springBoot.enabledDelegate
             },
         )
         add(springBootBomDependency(springBootVersion, dependencyTrace = springBootApplyBomTrace))
@@ -286,11 +287,11 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependencyBase> 
 }
 
 private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildList {
-    val kotlinVersion = settings.kotlin::version.schemaDelegate.asTraceableString()
+    val kotlinVersion = settings.kotlin.versionDelegate.asTraceableValue()
     if (platforms.size == 1 && platforms.single().supportsJvmTestFrameworks()) {
         val junitTrace = TransformedValueTrace(
             description = "because the test engine is ${settings.junit.schemaValue}",
-            sourceValue = settings::junit.schemaDelegate,
+            sourceValue = settings.junitDelegate,
         )
         when (settings.junit) {
             // TODO support kotlin-test-testng?
@@ -304,8 +305,6 @@ private fun Fragment.inferredTestDependencies(): List<MavenDependency> = buildLi
         add(kotlinDependencyOf("kotlin-test-annotations-common", kotlinVersion, DefaultTrace))
     }
 }
-
-private fun SchemaValueDelegate<String>.asTraceableString() = TraceableString(value, trace)
 
 private fun Platform.supportsJvmTestFrameworks() = this == Platform.JVM || this == Platform.ANDROID
 

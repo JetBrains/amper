@@ -10,20 +10,12 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
-import org.jetbrains.amper.frontend.tree.completeTree
-import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
-import org.jetbrains.amper.frontend.plugins.ModuleDataForPlugin
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
-import org.jetbrains.amper.frontend.plugins.Task
-import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
-import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
-import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
-import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
 import org.jetbrains.amper.frontend.plugins.generated.ShadowResolutionScope
 import org.jetbrains.amper.frontend.plugins.generated.ShadowSourcesKind
 import org.jetbrains.amper.frontend.project.AmperProjectContext
@@ -34,15 +26,18 @@ import org.jetbrains.amper.frontend.tree.ErrorNode
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.buildTree
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.instance
+import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.tree.mergeTrees
+import org.jetbrains.amper.frontend.tree.put
 import org.jetbrains.amper.frontend.tree.reading.ReferencesParsingMode
 import org.jetbrains.amper.frontend.tree.reading.readTree
-import org.jetbrains.amper.frontend.tree.syntheticBuilder
-import org.jetbrains.amper.frontend.types.PluginYamlTypingContext
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
@@ -54,18 +49,18 @@ internal class PluginTreeReader(
     val pluginModule: AmperModule,
     val pluginData: PluginData,
     pluginFile: VirtualFile,
-    globalTypes: SchemaTypingContext,
+    types: SchemaTypingContext,
     problemReporter: ProblemReporter,
     pathResolver: FrontendPathResolver,
 ) {
     private val treeRefiner = TreeRefiner()
 
-    private val pluginTypes = PluginYamlTypingContext(globalTypes, pluginData)
+    private val pluginYamlDeclaration = types.pluginYamlDeclaration(pluginData.id)
 
-    private val pluginTree: RefinedMappingNode = context(pluginTypes, problemReporter, pathResolver) {
+    private val pluginTree: RefinedMappingNode = context(problemReporter, pathResolver) {
         val tree = readTree(
             file = pluginFile,
-            declaration = pluginTypes.getDeclaration<PluginYamlRoot>(),
+            declaration = pluginYamlDeclaration,
             reportUnknowns = true,
             referenceParsingMode = ReferencesParsingMode.Parse,
             parseContexts = false,
@@ -92,7 +87,7 @@ internal class PluginTreeReader(
     context(problemReporter: ProblemReporter)
     fun asAppliedTo(
         module: ModuleBuildCtx,
-    ): PluginYamlRoot? = context(problemReporter, pluginTypes) {
+    ): PluginYamlRoot? = context(problemReporter) {
         val moduleRootDir = module.module.source.moduleDir
         val pluginConfiguration = module.pluginsTree[pluginData.id.value] as? RefinedMappingNode
             ?: return@context null
@@ -111,41 +106,35 @@ internal class PluginTreeReader(
             }.orEmpty()
 
         // Build a tree with computed "reference-only" values.
-        val referenceValuesTree = syntheticBuilder(DefaultTrace) {
-            `object`<PluginYamlRoot> {
-                if (pluginData.pluginSettingsSchemaName != null) {
-                    PluginYamlRoot.PLUGIN_SETTINGS setTo pluginConfiguration
+        val selfDependency = buildTree(DeclarationOfShadowDependencyLocal) {
+            modulePath(moduleRootDir)
+        }
+        val referenceValuesTree = buildTree(pluginYamlDeclaration) {
+            if (pluginData.pluginSettingsSchemaName != null) {
+                pluginSettings(pluginConfiguration)
+            }
+            module {
+                name(module.module.userReadableName)
+                rootDir(moduleRootDir)
+                self(selfDependency)
+                runtimeClasspath {
+                    dependencies { add(selfDependency) }
                 }
-                PluginYamlRoot::module setTo `object`<ModuleDataForPlugin> {
-                    ModuleDataForPlugin::name setTo scalar(module.module.userReadableName)
-                    ModuleDataForPlugin::rootDir setTo scalar(moduleRootDir)
-                    val selfDependency = `object`<ShadowDependencyLocal> {
-                        ShadowDependencyLocal::modulePath setTo scalar(moduleRootDir)
-                    }
-                    ModuleDataForPlugin::self setTo selfDependency
-                    ModuleDataForPlugin::runtimeClasspath setTo `object`<ShadowClasspath> {
-                        ShadowClasspath::dependencies setToList { add(selfDependency) }
-                    }
-                    ModuleDataForPlugin::compileClasspath setTo `object`<ShadowClasspath> {
-                        ShadowClasspath::dependencies setToList { add(selfDependency) }
-                        ShadowClasspath::scope setTo scalar(ShadowResolutionScope.Compile)
-                    }
-                    ModuleDataForPlugin::kotlinJavaSources setTo `object`<ShadowModuleSources> {
-                        ShadowModuleSources::from setTo selfDependency
-                    }
-                    ModuleDataForPlugin::resources setTo `object`<ShadowModuleSources> {
-                        ShadowModuleSources::from setTo selfDependency
-                        ShadowModuleSources::kind setTo scalar(ShadowSourcesKind.Resources)
-                    }
-                    ModuleDataForPlugin::jar setTo `object`<ShadowCompilationArtifact> {
-                        ShadowCompilationArtifact::from setTo selfDependency
-                    }
+                compileClasspath {
+                    dependencies { add(selfDependency) }
+                    scope(ShadowResolutionScope.Compile)
                 }
-                PluginYamlRoot::tasks setToMap {
-                    for ((taskName, taskBuildRoot) in taskDirs) {
-                        taskName setTo `object`<Task> {
-                            Task::taskOutputDir setTo traceableScalar(taskBuildRoot)
-                        }
+                kotlinJavaSources { from(selfDependency) }
+                resources {
+                    from(selfDependency)
+                    kind(ShadowSourcesKind.Resources)
+                }
+                jar { from(selfDependency) }
+            }
+            tasks {
+                for ((taskName, taskBuildRoot) in taskDirs) {
+                    put[taskName] {
+                        taskOutputDir(taskBuildRoot)
                     }
                 }
             }

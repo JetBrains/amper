@@ -11,14 +11,15 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.api.asTrace
-import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
-import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.buildTree
+import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.tree.mergeTrees
-import org.jetbrains.amper.frontend.tree.syntheticBuilder
+import org.jetbrains.amper.frontend.tree.withTrace
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.generated.*
 
 context(_: SchemaTypingContext)
 internal fun MappingNode.configurePluginDefaults(moduleDir: PsiDirectory, product: ModuleProduct): MappingNode =
@@ -42,12 +43,10 @@ internal fun MappingNode.configurePluginDefaults(moduleDir: PsiDirectory, produc
         this
     }
 
-context(_: SchemaTypingContext)
+context(types: SchemaTypingContext)
 private fun pluginIdDefaultsTree(moduleName: String, trace: Trace, idTrace: Trace) =
-    syntheticBuilder(trace) {
-        `object`<Module> {
-            Module::pluginInfo {
-                PluginDeclarationSchema::id setTo traceableScalar(moduleName, idTrace)
-            }
+    buildTree(types.moduleDeclaration, trace) {
+        pluginInfo {
+            withTrace(idTrace) { id(moduleName) }
         }
     }

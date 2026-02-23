@@ -51,6 +51,15 @@ class ReferenceNode(
     override val trace: Trace,
     override val contexts: Contexts,
 ) : LeafTreeNode {
+    /**
+     * Implementations must be **named classes**.
+     *
+     * @see [Transform.function]
+     */
+    interface TransformFunction<out T> {
+        fun transform(node: RefinedTreeNode): T
+    }
+
     class Transform @DefaultsReferenceTransform constructor(
         /**
          * Description for the transformed trace.
@@ -60,7 +69,7 @@ class ReferenceNode(
          * Transforms the refined node that was resolved from the [org.jetbrains.amper.frontend.tree.ReferenceNode].
          * The result is a value with the [org.jetbrains.amper.frontend.api.Default.Static.value] semantics.
          */
-        val function: (RefinedTreeNode) -> Any?,
+        val function: TransformFunction<Any?>,
     )
 
     init {

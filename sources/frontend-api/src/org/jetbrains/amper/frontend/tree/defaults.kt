@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree
@@ -40,7 +40,9 @@ internal fun Default.toTreeValue(type: SchemaType, trace: Trace): RefinedTreeNod
     is Default.Reference -> ReferenceNode(referencedPath, type, transform, trace, TypeLevelDefaultContexts)
 }
 
-internal fun Default.Static.toTreeValue(type: SchemaType, trace: Trace): RefinedTreeNode {
+fun Default.Static.toTreeValue(type: SchemaType, trace: Trace): RefinedTreeNode {
+    // TODO: Clean the `when` up here, because not all the values are possible now that the schema is generated.
+    //  or even better - get rid of the untyped `Any` in the `Static.value` at all.
     val value = value
     return if (value == null) {
         check(type.isMarkedNullable) { "Null default is specified for non-nullable $type" }

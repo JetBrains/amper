@@ -44,7 +44,8 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
      */
     fun getDefaultFor(property: Property): RefinedKeyValue?
 
-    override fun toType(): SchemaType.ObjectType = SchemaType.ObjectType(this)
+    override fun toType(isMarkedNullable: Boolean): SchemaType.ObjectType =
+        SchemaType.ObjectType(this, isMarkedNullable = isMarkedNullable)
 
     data class Property(
         val name: String,
@@ -63,7 +64,7 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
          * value inside. If the [default] is null itself, it means there is no default value (not even null), and thus
          * the property must be specfied explicitly (required).
          */
-        val default: Default?,
+        val default: Default? = null,
         val isModifierAware: Boolean = false,
         /**
          * @see org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
@@ -78,6 +79,6 @@ interface SchemaObjectDeclaration : SchemaTypeDeclaration {
         val inputOutputMark: InputOutputMark? = null,
         val canBeReferenced: Boolean = false,
         val isUserSettable: Boolean = true,
-        val origin: SchemaOrigin,
+        val origin: SchemaOrigin = SchemaOrigin.Builtin,
     )
 }
