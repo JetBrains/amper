@@ -107,3 +107,10 @@ settings:
     name: cli
   kotlin:
     serialization: json
+  internal:
+    excludeDependencies:
+      # This is excluded in the pom.xml of `doxia-integration-tools` but we don't yet support excludes in DR: AMPER-923
+      # TODO: Remove this when issue is solved.
+      # NOTE: The maven subsystem worked before even with the "wrong" dependency being present in the classpath,
+      #  but that relied on the Amper classpath ordering. And that ordering is not really stable atm: AMPER-5148
+      - org.codehaus.plexus:plexus-component-api
