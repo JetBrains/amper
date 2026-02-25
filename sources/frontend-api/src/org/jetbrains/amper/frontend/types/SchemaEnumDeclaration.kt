@@ -36,7 +36,8 @@ interface SchemaEnumDeclaration : SchemaTypeDeclaration {
      */
     fun getEntryByName(name: String): EnumEntry?
 
-    override fun toType(): SchemaType.EnumType = SchemaType.EnumType(this)
+    override fun toType(isMarkedNullable: Boolean): SchemaType.EnumType =
+        SchemaType.EnumType(this, isMarkedNullable = isMarkedNullable)
 
     data class EnumEntry(
         /**
@@ -51,6 +52,6 @@ interface SchemaEnumDeclaration : SchemaTypeDeclaration {
         val isOutdated: Boolean = false,
         val isIncludedIntoJsonSchema: Boolean = true,
         val documentation: String? = null,
-        val origin: SchemaOrigin,
+        val origin: SchemaOrigin = SchemaOrigin.Builtin,
     )
 }

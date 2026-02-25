@@ -81,7 +81,9 @@ class CatalogDependency : ScopedDependency() {
 // TODO See TODO on [Dependency].
 sealed class UnscopedDependency : Dependency()
 
-class UnscopedExternalMavenDependency : UnscopedDependency() {
+sealed class UnscopedExternalDependency : UnscopedDependency()
+
+class UnscopedExternalMavenDependency : UnscopedExternalDependency() {
     @FromKeyAndTheRestIsNested
     @StringSemantics(Semantics.MavenCoordinates)
     val coordinates by value<String>()
@@ -92,7 +94,7 @@ class UnscopedModuleDependency : UnscopedDependency() {
     val path by value<Path>()
 }
 
-class UnscopedCatalogDependency : UnscopedDependency() {
+class UnscopedCatalogDependency : UnscopedExternalDependency() {
     
     // Actual usage of this property is indirect and located within [CatalogVersionsSubstitutor] within the tree.
     // The value of this property is to provide the schema.

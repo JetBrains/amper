@@ -16,9 +16,8 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.plugins.buildPlugins
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTrace
-import org.jetbrains.amper.frontend.api.schemaDelegate
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.catalogs.builtInCatalog
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
 import org.jetbrains.amper.frontend.contexts.MinimalModuleHolder
@@ -46,7 +45,6 @@ import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
@@ -57,7 +55,7 @@ import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.frontend.types.maven.toAmperDescription
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -68,7 +66,6 @@ import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.name
 import kotlin.io.path.relativeTo
-import kotlin.reflect.KProperty0
 
 // Convenience grouping, until we need a separate class for this.
 @UsedInIdePlugin
@@ -213,12 +210,12 @@ internal fun readWithTemplates(
     moduleCtx: PathCtx,
     templatesCache: MutableMap<Path, MappingNode> = hashMapOf(),
 ): List<MappingNode> {
-    val moduleTree = readTree(mPath, types.getDeclaration<Module>(), moduleCtx)
+    val moduleTree = readTree(mPath, types.moduleDeclaration, moduleCtx)
     return listOf(moduleTree) + minimalModule.appliedTemplates.mapNotNull {
         templatesCache.getOrPut(it) {
             val templateVirtual = it.asVirtualOrNull() ?: return@mapNotNull null
             val psiFile = pathResolver.toPsiFile(templateVirtual) ?: return@mapNotNull null
-            readTree(templateVirtual, types.getDeclaration<Template>(), PathCtx(templateVirtual, psiFile.asTrace()))
+            readTree(templateVirtual, types.templateDeclaration, PathCtx(templateVirtual, psiFile.asTrace()))
         }
     }
 }
@@ -271,7 +268,7 @@ private fun Dependency.resolveInternalDependency(
     reportedUnresolvedModules: MutableSet<Trace>,
 ): Notation? = when (this) {
     is ExternalMavenDependency -> MavenDependency(
-        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
+        coordinates = coordinatesDelegate.asTraceableValue().toMavenCoordinates(),
         trace = trace,
         compile = scope.compile,
         runtime = scope.runtime,
@@ -279,15 +276,11 @@ private fun Dependency.resolveInternalDependency(
     )
     is InternalDependency -> resolveModuleDependency(moduleDir2module, reportedUnresolvedModules)
     is ExternalMavenBomDependency -> BomDependency(
-        coordinates = ::coordinates.traceableString().toMavenCoordinates(),
+        coordinates = coordinatesDelegate.asTraceableValue().toMavenCoordinates(),
         trace = trace,
     )
     is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     else -> error("Unknown dependency type: ${this::class}")
-}
-
-fun KProperty0<String>.traceableString(): TraceableString {
-    return TraceableString(get(), schemaDelegate.trace)
 }
 
 context(problemReporter: ProblemReporter)

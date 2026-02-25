@@ -9,7 +9,7 @@ dependencies:
   - ../amper-problem-reporting
   - ../core: exported
   - ../extensibility/amper-extensibility-schema-model: exported
-  - $libs.kotlin.reflect
+  - ../libraries/stdlib-extended
   - $libs.intellij.platform.core
   - $libs.intellij.platform.util
 

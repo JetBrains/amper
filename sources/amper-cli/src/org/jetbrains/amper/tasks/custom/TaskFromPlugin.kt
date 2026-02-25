@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.custom
@@ -139,7 +139,7 @@ class TaskFromPlugin(
         val classLoader = URLClassLoader(
             taskName.name,
             taskRuntimeClasspath.map { it.toUri().toURL() }.toTypedArray(),
-            null,
+            ClassLoader.getPlatformClassLoader(),
         )
 
         val actionFacade = classLoader.loadClass(description.actionClassJvmName)
@@ -150,7 +150,10 @@ class TaskFromPlugin(
             valueTransform = { (_, kv) -> marshaller.marshallValue(kv.value) },
         )
 
+        val currentThread = Thread.currentThread()
+        val oldClassloader = currentThread.contextClassLoader
         try {
+            currentThread.contextClassLoader = classLoader
             StandardStreamsCapture.capturing(
                 onStderrLine = { logger.error(it) },
                 onStdoutLine = { logger.info(it) },
@@ -164,6 +167,8 @@ class TaskFromPlugin(
             }
 
             userReadableError(targetException.stackTraceToString())
+        } finally {
+            currentThread.contextClassLoader = oldClassloader
         }
     }
 

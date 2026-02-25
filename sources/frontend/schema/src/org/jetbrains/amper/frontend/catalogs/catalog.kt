@@ -10,46 +10,46 @@ import org.jetbrains.amper.frontend.InMemoryVersionCatalog
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.DefaultTrace
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.system.info.SystemInfo
-import kotlin.reflect.KProperty0
 
 context(problemReporter: ProblemReporter)
 internal fun Settings.builtInCatalog(): VersionCatalog = BuiltInCatalog(
-    kotlinVersion = kotlin::version.asTraceableVersion(DefaultVersions.kotlin),
-    serializationVersion = kotlin.serialization::version.asTraceableVersion(DefaultVersions.kotlinxSerialization)
+    kotlinVersion = kotlin.versionDelegate.asTraceableVersion(DefaultVersions.kotlin),
+    serializationVersion = kotlin.serialization.versionDelegate.asTraceableVersion(DefaultVersions.kotlinxSerialization)
         .takeIf { kotlin.serialization.enabled },
-    rpcVersion = kotlin.rpc::version.asTraceableVersion(DefaultVersions.kotlinxRpc)
+    rpcVersion = kotlin.rpc.versionDelegate.asTraceableVersion(DefaultVersions.kotlinxRpc)
         .takeIf { kotlin.rpc.enabled },
-    composeVersion = compose::version.asTraceableVersion(DefaultVersions.compose)
+    composeVersion = compose.versionDelegate.asTraceableVersion(DefaultVersions.compose)
         .takeIf { compose.enabled },
-    ktorVersion = ktor::version.asTraceableVersion(DefaultVersions.ktor)
+    ktorVersion = ktor.versionDelegate.asTraceableVersion(DefaultVersions.ktor)
         .takeIf { ktor.enabled },
-    springBootVersion = springBoot::version.asTraceableVersion(DefaultVersions.springBoot)
+    springBootVersion = springBoot.versionDelegate.asTraceableVersion(DefaultVersions.springBoot)
         .takeIf { springBoot.enabled },
-    composeHotReloadVersion = compose.experimental.hotReload::version
+    composeHotReloadVersion = compose.experimental.hotReload.versionDelegate
         .asTraceableVersion(DefaultVersions.composeHotReload),
 )
 
 context(problemReporter: ProblemReporter)
 @OptIn(NonIdealDiagnostic::class)
-private fun KProperty0<String>.asTraceableVersion(fallbackVersion: String): TraceableVersion {
+private fun SchemaValueDelegate<String>.asTraceableVersion(fallbackVersion: String): TraceableVersion {
     // we validate the version only for emptiness because maven artifacts allow any string as a version
     //  that's why we cannot provide a precise validation for non-empty strings
-    return if (!schemaDelegate.value.isEmpty()) {
-        TraceableVersion(schemaDelegate.value, schemaDelegate.trace)
+    return if (!value.isEmpty()) {
+        TraceableVersion(value, trace)
     } else {
         problemReporter.reportBundleError(
-            source = schemaDelegate.trace.asBuildProblemSource(),
+            source = trace.asBuildProblemSource(),
             messageKey = "empty.version.string",
         )
         // TODO instead of this fallback, we could add a general @NonEmpty validation up front, so the schema

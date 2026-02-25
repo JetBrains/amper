@@ -45,9 +45,10 @@ class TreeRefiner(
         tree: MappingNode,
         selectedContexts: Contexts,
         resolveReferences: Boolean = true,
+        withDefaults: Boolean = true,
     ): RefinedMappingNode = RefineRequest(
         selectedContexts = selectedContexts,
-        withDefaults = true,
+        withDefaults = withDefaults,
         resolveReferences = resolveReferences,
         contextComparator = contextComparator,
     ).refineMapping(tree)

@@ -9,25 +9,13 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.DependencyScope
-import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
-import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.schema.MavenPlugin
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.schema.SerializationSettings
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.SpringBootSettings
-import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.buildTree
+import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.tree.mergeTrees
-import org.jetbrains.amper.frontend.tree.syntheticBuilder
-import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
+import org.jetbrains.amper.frontend.types.generated.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -40,21 +28,18 @@ class RenderToYamlTest {
 
     private inline fun withTypeContext(
         types: SchemaTypingContext = SchemaTypingContext(),
-        block: context (SchemaTypingContext) () -> Unit,
-    ) = context(types, block)
+        block: SchemaTypingContext.() -> Unit,
+    ) = types.block()
 
     @Test
     fun `product without platforms and basic settings`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::settings {
-                    Settings::jvm {
-                        JvmSettings::release setTo scalar("17")
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                jvm {
+                    release(17)
                 }
             }
         }
@@ -72,22 +57,19 @@ class RenderToYamlTest {
 
     @Test
     fun `java annotation processors are rendered`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::settings {
-                    Settings::java {
-                        JavaSettings::annotationProcessing {
-                            JavaAnnotationProcessingSettings::processors {
-                                this += `object`<UnscopedExternalMavenDependency> {
-                                    UnscopedExternalMavenDependency::coordinates setTo scalar("com.example:proc-one:1.0.0")
-                                }
-                                this += `object`<UnscopedExternalMavenDependency> {
-                                    UnscopedExternalMavenDependency::coordinates setTo scalar("com.acme:proc-two:2.1.3")
-                                }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                java {
+                    annotationProcessing {
+                        processors {
+                            add(DeclarationOfUnscopedExternalMavenDependency) {
+                                coordinates("com.example:proc-one:1.0.0")
+                            }
+                            add(DeclarationOfUnscopedExternalMavenDependency) {
+                                coordinates("com.acme:proc-two:2.1.3")
                             }
                         }
                     }
@@ -114,16 +96,13 @@ class RenderToYamlTest {
 
     @Test
     fun `spring boot shorthand example`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::settings {
-                    Settings::springBoot {
-                        SpringBootSettings::enabled setTo scalar(true)
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                springBoot {
+                    enabled(true)
                 }
             }
         }
@@ -140,17 +119,14 @@ class RenderToYamlTest {
 
     @Test
     fun `serialization shorthand example`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::serialization {
-                            SerializationSettings::format setTo scalar("json")
-                        }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                kotlin {
+                    serialization {
+                        format("json")
                     }
                 }
             }
@@ -169,18 +145,15 @@ class RenderToYamlTest {
 
     @Test
     fun `serialization shorthand example if there are 2 shorthand values`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::serialization {
-                            SerializationSettings::enabled setTo scalar(true)
-                            SerializationSettings::format setTo scalar("json")
-                        }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                kotlin {
+                    serialization {
+                        enabled(true)
+                        format("json")
                     }
                 }
             }
@@ -201,30 +174,24 @@ class RenderToYamlTest {
 
     @Test
     fun `settings and test-settings`() = withTypeContext {
-        val main = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
+        val main = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                java {
+                    freeCompilerArgs { add("-parameters") }
                 }
-                Module::settings {
-                    Settings::java {
-                        JavaSettings::freeCompilerArgs setTo list(SchemaType.ListType(SchemaType.StringType)) {
-                            add(scalar("-parameters"))
-                        }
-                    }
-                    Settings::jvm {
-                        JvmSettings::release setTo scalar("17")
-                    }
+                jvm {
+                    release(17)
                 }
             }
         }
 
-        val test = syntheticBuilder(DefaultTrace, listOf(TestCtx)) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::jvm {
-                        JvmSettings::release setTo scalar("21")
-                    }
+        val test = buildTree(moduleDeclaration, contexts = listOf(TestCtx)) {
+            settings {
+                jvm {
+                    release(21)
                 }
             }
         }
@@ -251,37 +218,30 @@ class RenderToYamlTest {
 
     @Test
     fun `dependencies and test-dependencies`() = withTypeContext {
-        val main = syntheticBuilder(dummyTransformedTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
+        val main = buildTree(moduleDeclaration, dummyTransformedTrace) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            dependencies {
+                add(DeclarationOfExternalMavenDependency) {
+                    coordinates("org.springframework.boot:spring-boot-starter")
                 }
-
-                Module::dependencies {
-                    this += `object`<ExternalMavenDependency> {
-                        ExternalMavenDependency::coordinates setTo scalar("org.springframework.boot:spring-boot-starter")
-                    }
-
-                    this += `object`<ExternalMavenDependency> {
-                        ExternalMavenDependency::coordinates setTo scalar("org.springframework.boot:spring-boot-web")
-                        ExternalMavenDependency::scope setTo scalar(DependencyScope.COMPILE_ONLY)
-                        ExternalMavenDependency::exported setTo scalar(true)
-                    }
-
-                    this += `object`<ExternalMavenDependency> {
-                        ExternalMavenDependency::coordinates setTo scalar("org.springframework.boot:spring-boot-devtools")
-                        ExternalMavenDependency::scope setTo scalar(DependencyScope.RUNTIME_ONLY)
-                    }
+                add(DeclarationOfExternalMavenDependency) {
+                    coordinates("org.springframework.boot:spring-boot-web")
+                    scope(DependencyScope.COMPILE_ONLY)
+                    exported(true)
+                }
+                add(DeclarationOfExternalMavenDependency) {
+                    coordinates("org.springframework.boot:spring-boot-devtools")
+                    scope(DependencyScope.RUNTIME_ONLY)
                 }
             }
         }
 
-        val test = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
-            `object`<Module> {
-                Module::dependencies {
-                    this += `object`<ExternalMavenDependency> {
-                        ExternalMavenDependency::coordinates setTo scalar("org.springframework.boot:spring-boot-starter-test")
-                    }
+        val test = buildTree(moduleDeclaration, dummyTransformedTrace, contexts = listOf(TestCtx)) {
+            dependencies {
+                add(DeclarationOfExternalMavenDependency) {
+                    coordinates("org.springframework.boot:spring-boot-starter-test")
                 }
             }
         }
@@ -308,16 +268,13 @@ class RenderToYamlTest {
 
     @Test
     fun `bom test`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::dependencies {
-                    this += `object`<ExternalMavenBomDependency> {
-                        ExternalMavenBomDependency::coordinates setTo scalar("org.springframework.boot:spring-boot-dependencies:3.5.7")
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            dependencies {
+                add(DeclarationOfExternalMavenBomDependency) {
+                    coordinates("org.springframework.boot:spring-boot-dependencies:3.5.7")
                 }
             }
         }
@@ -335,13 +292,11 @@ class RenderToYamlTest {
 
     @Test
     fun project() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Project> {
-                Project::modules {
-                    this += scalar("module1")
-                    this += scalar("module2")
-                    this += scalar("module3")
-                }
+        val tree = buildTree(DeclarationOfProject) {
+            modules {
+                add("module1")
+                add("module2")
+                add("module3")
             }
         }
 
@@ -358,19 +313,13 @@ class RenderToYamlTest {
 
     @Test
     fun `project with maven plugins`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Project> {
-                Project::modules {
-                    this += scalar("module1")
-                }
-                Project::mavenPlugins {
-                    this += `object`<MavenPlugin> {
-                        MavenPlugin::coordinates setTo scalar("org.apache.maven.plugins:maven-surefire-plugin:3.5.3")
-                    }
-                    this += `object`<MavenPlugin> {
-                        MavenPlugin::coordinates setTo scalar("org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0")
-                    }
-                }
+        val tree = buildTree(DeclarationOfProject) {
+            modules {
+                add("module1")
+            }
+            mavenPlugins {
+                add { coordinates("org.apache.maven.plugins:maven-surefire-plugin:3.5.3") }
+                add { coordinates("org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0") }
             }
         }
 
@@ -389,21 +338,20 @@ class RenderToYamlTest {
 
     @Test
     fun `maven plugins`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-
-                Module::plugins {
-                    "maven-surefire-plugin.test" setTo map(SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)) {
-                        "enabled" setTo scalar(true)
-                        "includes" setTo list(SchemaType.ListType(SchemaType.StringType)) {
-                            add(scalar("*First*"))
-                        }
-                    }
-                }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
             }
+            plugins(buildRawTree {
+                mapping {
+                    put("maven-surefire-plugin.test", mapping {
+                        put("enabled", scalar("true"))
+                        put("includes", list {
+                            add(scalar("*First*"))
+                        })
+                    })
+                }
+            }, unsafe = true)
         }
 
         val yaml = tree.serializeToYaml()
@@ -467,22 +415,18 @@ class RenderToYamlTest {
 
     @Test
     fun `write the same key several times and refine`() = withTypeContext {
-        val tree = syntheticBuilder(dummyTransformedTrace) {
-            `object`<Module> {
-                Module::dependencies {
-                    add(`object`<ExternalMavenBomDependency> {
-                        ExternalMavenBomDependency::coordinates setTo scalar("org.example:artifact1:version")
-                    })
+        val tree = buildTree(moduleDeclaration, dummyTransformedTrace) {
+            dependencies {
+                add(DeclarationOfExternalMavenBomDependency) {
+                    coordinates("org.example:artifact1:version")
                 }
             }
         }
 
-        val enhancedTree = syntheticBuilder(dummyTransformedTrace) {
-            `object`<Module> {
-                Module::dependencies {
-                    add(`object`<ExternalMavenBomDependency> {
-                        ExternalMavenBomDependency::coordinates setTo scalar("org.example:artifact2:version")
-                    })
+        val enhancedTree = buildTree(moduleDeclaration, dummyTransformedTrace) {
+            dependencies {
+                add(DeclarationOfExternalMavenBomDependency) {
+                    coordinates("org.example:artifact2:version")
                 }
             }
         }
@@ -501,22 +445,18 @@ class RenderToYamlTest {
 
     @Test
     fun `same option same value for default and test contexts`() = withTypeContext {
-        val tree = syntheticBuilder(dummyTransformedTrace) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::version setTo scalar("1.7.20")
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            settings {
+                kotlin {
+                    version("1.7.20")
                 }
             }
         }
 
-        val enhancedTree = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::version setTo scalar("1.7.20")
-                    }
+        val enhancedTree = buildTree(moduleDeclaration, contexts = listOf(TestCtx)) {
+            settings {
+                kotlin {
+                    version("1.7.20")
                 }
             }
         }
@@ -535,15 +475,13 @@ class RenderToYamlTest {
 
     @Test
     fun `yaml comments in main section`() = withTypeContext {
-        val tree = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
-                Module::settings {
-                    Settings::jvm {
-                        JvmSettings::release setTo scalar("17")
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            settings {
+                jvm {
+                    release(17)
                 }
             }
         }
@@ -570,20 +508,16 @@ class RenderToYamlTest {
 
     @Test
     fun `yaml comments in test section`() = withTypeContext {
-        val main = syntheticBuilder(DefaultTrace) {
-            `object`<Module> {
-                Module::product {
-                    ModuleProduct::type setTo scalar(ProductType.JVM_APP)
-                }
+        val main = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
             }
         }
 
-        val test = syntheticBuilder(DefaultTrace, listOf(TestCtx)) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::jvm {
-                        JvmSettings::release setTo scalar("21")
-                    }
+        val test = buildTree(moduleDeclaration, contexts = listOf(TestCtx)) {
+            settings {
+                jvm {
+                    release(21)
                 }
             }
         }
@@ -613,30 +547,24 @@ class RenderToYamlTest {
 
     @Test
     fun `same option same value for default and test contexts 1`() = withTypeContext {
-        val tree = syntheticBuilder(dummyTransformedTrace) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::version setTo scalar("1.7.20")
-                    }
-
-                    Settings::java {
-                        JavaSettings::compileIncrementally setTo scalar(true)
-                    }
+        val tree = buildTree(moduleDeclaration) {
+            settings {
+                kotlin {
+                    version("1.7.20")
+                }
+                java {
+                    compileIncrementally(true)
                 }
             }
         }
 
-        val enhancedTree = syntheticBuilder(dummyTransformedTrace, listOf(TestCtx)) {
-            `object`<Module> {
-                Module::settings {
-                    Settings::kotlin {
-                        KotlinSettings::version setTo scalar("1.7.20")
-                    }
-
-                    Settings::java {
-                        JavaSettings::compileIncrementally setTo scalar(false)
-                    }
+        val enhancedTree = buildTree(moduleDeclaration, contexts = listOf(TestCtx)) {
+            settings {
+                kotlin {
+                    version("1.7.20")
+                }
+                java {
+                    compileIncrementally(false)
                 }
             }
         }

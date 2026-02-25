@@ -1,0 +1,13 @@
+product: jvm/amper-plugin
+
+apply:
+  - ../../sources/common.module-template.yaml
+
+dependencies:
+  - $libs.kotlin.poet
+  - $libs.kotlin.reflect
+
+  # We depend directory on the `frontend-api` module to inspect its classes via reflection.
+  # Non-runtime reflection processing (KSP, AA) is at the moment not possible, as the schema defaults are runtime values
+  # accessible only via `SchemaValueDelegate.default` in runtime.
+  - ../../sources/frontend-api

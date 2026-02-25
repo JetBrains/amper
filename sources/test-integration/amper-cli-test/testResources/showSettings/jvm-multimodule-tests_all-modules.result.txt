@@ -4,7 +4,8 @@ settings@jvm:
   compose:
     enabled: false  # default
     experimental:
-      hotReload: {}  # default
+      hotReload:
+        version: 1.0.0-rc01  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default
@@ -38,11 +39,12 @@ settings@jvm:
       presets: null  # default
     allWarningsAsErrors: false  # default
     apiVersion: null  # default, from ${languageVersion}
+    compilerPlugins: []  # default
     freeCompilerArgs: null  # default
     ksp:
       processorOptions: {}  # default
       processors: []  # default
-      version: 2.3.0  # default
+      version: 2.3.6  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
@@ -92,7 +94,8 @@ settings@jvm:
   compose:
     enabled: false  # default
     experimental:
-      hotReload: {}  # default
+      hotReload:
+        version: 1.0.0-rc01  # default
     resources:
       enabled: false  # default
       exposedAccessors: false  # default
@@ -126,11 +129,12 @@ settings@jvm:
       presets: null  # default
     allWarningsAsErrors: false  # default
     apiVersion: null  # default, from ${languageVersion}
+    compilerPlugins: []  # default
     freeCompilerArgs: null  # default
     ksp:
       processorOptions: {}  # default
       processors: []  # default
-      version: 2.3.0  # default
+      version: 2.3.6  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:

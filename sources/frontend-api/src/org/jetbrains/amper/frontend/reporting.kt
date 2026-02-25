@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
@@ -21,7 +21,6 @@ import org.jetbrains.amper.problems.reporting.LineAndColumnRange
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-import kotlin.reflect.KProperty0
 
 object SchemaBundle : MessageBundle("messages.SchemaBundle")
 
@@ -49,11 +48,9 @@ fun ProblemReporter.reportBundleError(
     )
 }
 
-fun KProperty0<*>.asBuildProblemSource(): BuildProblemSource = schemaDelegate.trace.asBuildProblemSource()
-
-fun KProperty0<*>.keyValueAsBuildProblemSource(): BuildProblemSource = schemaDelegate.keyValueTrace.asBuildProblemSource()
-
 fun Traceable.asBuildProblemSource(): BuildProblemSource = trace.asBuildProblemSource()
+
+fun SchemaValueDelegate<*>.keyValueAsBuildProblemSource(): BuildProblemSource = keyValueTrace.asBuildProblemSource()
 
 @OptIn(NonIdealDiagnostic::class)
 fun Trace.asBuildProblemSource(): BuildProblemSource = extractPsiElementOrNull()?.asBuildProblemSource()

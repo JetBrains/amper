@@ -9,15 +9,18 @@ import org.jetbrains.amper.frontend.GitSourcesModulePart
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.types.generated.fileDelegate
+import org.jetbrains.amper.frontend.types.generated.passwordKeyDelegate
+import org.jetbrains.amper.frontend.types.generated.usernameKeyDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
 import kotlin.io.path.exists
-import kotlin.reflect.KProperty0
 
 // These converters are needed only to prevent major code changes in the [gradle-integration].
 // Parts should be replaced with schema model nodes in the future.
@@ -49,7 +52,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                 val credPair = repository.credentials?.let { credentials ->
                     if (!credentials.file.exists()) {
                         problemReporter.reportBundleError(
-                            source = credentials::file.asBuildProblemSource(),
+                            source = credentials.fileDelegate.asBuildProblemSource(),
                             messageKey = "credentials.file.does.not.exist",
                             credentials.file.normalize(),
                             problemType = BuildProblemType.UnresolvedReference,
@@ -58,14 +61,14 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                     } else {
                         val credentialProperties = credentials.file.readProperties()
 
-                        fun getCredProperty(keyProperty: KProperty0<String>): String? {
-                            val property = credentialProperties.getProperty(keyProperty.get())
+                        fun getCredProperty(keyProperty: SchemaValueDelegate<String>): String? {
+                            val property = credentialProperties.getProperty(keyProperty.value)
                             if (property == null) {
                                 problemReporter.reportBundleError(
                                     source = keyProperty.asBuildProblemSource(),
                                     messageKey = "credentials.file.does.not.have.key",
                                     credentials.file.normalize(),
-                                    keyProperty.get(),
+                                    keyProperty.value,
                                     credentialProperties.keys.joinToString(),
                                     problemType = BuildProblemType.UnresolvedReference,
                                 )
@@ -73,7 +76,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                             return property
                         }
 
-                        getCredProperty(credentials::usernameKey) to getCredProperty(credentials::passwordKey)
+                        getCredProperty(credentials.usernameKeyDelegate) to getCredProperty(credentials.passwordKeyDelegate)
                     }
                 }
                 RepositoriesModulePart.Repository(

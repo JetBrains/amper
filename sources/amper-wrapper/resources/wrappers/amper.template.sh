@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+# Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 #
 
 # Possible environment variables:
@@ -226,26 +226,25 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   esac
 
   # Auto-updated from syncVersions.main.kts, do not modify directly here
-  zulu_version=25.28.85
-  java_version=25.0.0
+  zulu_version=25.32.21
+  java_version=25.0.2
 
-  pkg_type=jre
   platform="$jre_os $jre_arch"
   case $platform in
-    "macosx x64")     jre_sha256=a73455c80413daa31af6b09589e3655bb8b8b91e4aa884ca7c91dc5552b9e974 ;;
-    "macosx aarch64") jre_sha256=37316ebea9709eb4f8bc58f0ddd2f58e53720d3e7df6f78c64125915b44d322d ;;
-    "linux x64")      jre_sha256=807e96e43db00af3390a591ed40f2c8c35f7f475fb14b6061dfb19db33702cba ;;
-    "linux aarch64")  jre_sha256=ad75e426e3f101cfa018f65fde07d82b10337d4f85250ca988474d59891c5f50 ;;
-    "win x64")        jre_sha256=d3c5db7864e6412ce3971c0b065def64942d7b0f3d02581f7f0472cac21fbba9 ;;
-    "win aarch64")    jre_sha256=f5f6d8a913695649e8e2607fe0dc79c81953b2583013ac1fb977c63cb4935bfb; pkg_type=jdk ;;
+    "macosx x64")     jre_sha256=cb23779ae726b160fdd6af58cb3a8db2dec8fc3f3c21e27dafa30cc148798346 ;;
+    "macosx aarch64") jre_sha256=5c3edffe2d3b9203d838ed0548035f08be2b9f672544bab2b9c1825c309d0be7 ;;
+    "linux x64")      jre_sha256=851e913928d968df05996c95f83a4a9567b463143ce9b84dd32b68035e22cf81 ;;
+    "linux aarch64")  jre_sha256=cc70d2d46851192288ed7c9de1d6aab07eedeac9a369d54f299202152e2b52ec ;;
+    "win x64")        jre_sha256=a4b7e3c3929d513cdc774583d375ce07fcb8671833258f468fd2fa0d8227ba48 ;;
+    "win aarch64")    jre_sha256=1106eec3bd166a117ccaf20f15bbec6537e27307be328b8a9e93a053c857fe7c ;;
     *) die "Unsupported platform $platform" ;;
   esac
 
   # URL for the JRE (see https://api.azul.com/metadata/v1/zulu/packages?release_status=ga&include_fields=java_package_features,os,arch,hw_bitness,abi,java_package_type,sha256_hash,size,archive_type,lib_c_type&java_version=25&os=macos,linux,win)
   # https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-macosx_aarch64.tar.gz
   # https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-linux_x64.tar.gz
-  jre_url="$AMPER_JRE_DOWNLOAD_ROOT/cdn.azul.com/zulu/bin/zulu$zulu_version-ca-$pkg_type$java_version-${jre_os}_$jre_arch.$jre_archive_type"
-  jre_target_dir="$amper_cache_dir/zulu$zulu_version-ca-$pkg_type$java_version-${jre_os}_$jre_arch"
+  jre_url="$AMPER_JRE_DOWNLOAD_ROOT/cdn.azul.com/zulu/bin/zulu$zulu_version-ca-jre$java_version-${jre_os}_$jre_arch.$jre_archive_type"
+  jre_target_dir="$amper_cache_dir/zulu$zulu_version-ca-jre$java_version-${jre_os}_$jre_arch"
 
   download_and_extract "Amper runtime v$zulu_version" "$jre_url" "$jre_sha256" 256 "$amper_cache_dir" "$jre_target_dir" "false"
 

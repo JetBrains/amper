@@ -1,0 +1,22 @@
+product: jvm/app
+
+dependencies:
+  - io.insert-koin:koin-core:4.2.0-RC1
+
+test-dependencies:
+  - io.insert-koin:koin-test:4.2.0-RC1
+  - io.insert-koin:koin-test-junit4:4.2.0-RC1
+  - org.mockito:mockito-inline:4.8.0
+
+settings:
+  jvm:
+    mainClass: org.koin.sample.UserApplicationKt
+    release: 17
+  kotlin:
+    version: 2.3.20-Beta1
+    compilerPlugins:
+      # The compiler plugin ID is found in the CommandLineInterface implementation of the compiler plugin, but this is
+      # actually coming from the build file in this case:
+      # https://github.com/InsertKoinIO/koin-compiler-plugin/blob/75d838fd3ddfabfe34170418573a08fb8766cab8/koin-compiler-plugin/build.gradle.kts#L55
+      - id: io.insert-koin.compiler.plugin
+        dependency: io.insert-koin:koin-compiler-plugin:0.3.0

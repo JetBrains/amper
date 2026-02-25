@@ -8,16 +8,12 @@ import org.apache.maven.model.ConfigurationContainer
 import org.apache.maven.model.Plugin
 import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.jetbrains.amper.frontend.schema.JavaAnnotationProcessingSettings
-import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.SyntheticBuilder
-import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.tree.ObjectBuilderContext
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 import kotlin.io.path.div
-
 
 internal fun ProjectTreeBuilder.contributeCompilerPlugin(reactorProjects: Set<MavenProject>) {
     for (project in reactorProjects.filterJarProjects()) {
@@ -36,8 +32,8 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeCompilerPlugin(plugin
         when (execution.id) {
             "default-compile" -> {
                 withDefaultContext {
-                    `object`<Module> {
-                        Module::settings { execution.configureCompilerExecution() }
+                    settings {
+                        configureCompilerExecution(execution)
                     }
                 }
             }
@@ -46,66 +42,63 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeCompilerPlugin(plugin
 
     if (plugin.configuration != null) {
         withDefaultContext {
-            `object`<Module> {
-                Module::settings { plugin.configureCompilerExecution() }
+            settings {
+                configureCompilerExecution(plugin)
             }
         }
     }
 }
 
-context(sb: SyntheticBuilder, mapLikeValueBuilder: SyntheticBuilder.MapLikeValueBuilder)
-private fun ConfigurationContainer.configureCompilerExecution() {
-    with(mapLikeValueBuilder) {
-        val config = configuration
-        if (config is Xpp3Dom) {
-            config.children.filterNotNull().forEach { child ->
-                when (child.name) {
-                    "compilerArgs" -> {
-                        val freeCompilerArgs = buildList { child.children.forEach { arg -> add(arg.value) } }
-                        Settings::java {
-                            JavaSettings::freeCompilerArgs setTo sb.list(SchemaType.ListType(SchemaType.StringType)) {
-                                freeCompilerArgs.forEach { add(sb.scalar(it)) }
-                            }
+private fun ObjectBuilderContext<DeclarationOfSettings>.configureCompilerExecution(container: ConfigurationContainer) {
+    val config = container.configuration
+    if (config is Xpp3Dom) {
+        config.children.filterNotNull().forEach { child ->
+            when (child.name) {
+                "compilerArgs" -> {
+                    java {
+                        freeCompilerArgs {
+                            child.children.forEach { arg -> add(arg.value) }
                         }
                     }
-                    "annotationProcessorPaths" -> {
-                        child.children.forEach { annotationProcessorPath ->
-                            val annotationProcessorCoordinates = buildString {
-                                if (annotationProcessorPath is Xpp3Dom) {
-                                    when (annotationProcessorPath.name) {
-                                        "path" -> {
-                                            annotationProcessorPath.children.forEach { path ->
-                                                if (path is Xpp3Dom) {
-                                                    when (path.name) {
-                                                        "groupId" -> append(path.value)
-                                                        "artifactId" -> append(":${path.value}")
-                                                        "version" -> append(":${path.value}")
-                                                    }
+                }
+                "annotationProcessorPaths" -> {
+                    child.children.forEach { annotationProcessorPath ->
+                        val annotationProcessorCoordinates = buildString {
+                            if (annotationProcessorPath is Xpp3Dom) {
+                                when (annotationProcessorPath.name) {
+                                    "path" -> {
+                                        annotationProcessorPath.children.forEach { path ->
+                                            if (path is Xpp3Dom) {
+                                                when (path.name) {
+                                                    "groupId" -> append(path.value)
+                                                    "artifactId" -> append(":${path.value}")
+                                                    "version" -> append(":${path.value}")
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-
-                            Settings::java {
-                                JavaSettings::annotationProcessing {
-                                    JavaAnnotationProcessingSettings::processors {
-                                        this += sb.scalar(annotationProcessorCoordinates)
+                        }
+                        java {
+                            annotationProcessing {
+                                processors {
+                                    add(DeclarationOfUnscopedExternalMavenDependency) {
+                                        coordinates(annotationProcessorCoordinates)
                                     }
                                 }
                             }
                         }
                     }
-                    "parameters" -> {
-                        Settings::jvm {
-                            JvmSettings::storeParameterNames setTo sb.scalar(child.value.toBoolean())
-                        }
+                }
+                "parameters" -> {
+                    jvm {
+                        storeParameterNames(child.value.toBoolean())
                     }
-                    "release" -> {
-                        Settings::jvm {
-                            JvmSettings::release setTo sb.scalar(child.value)
-                        }
+                }
+                "release" -> {
+                    jvm {
+                        release(child.value.toInt())
                     }
                 }
             }

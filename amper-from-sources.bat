@@ -122,26 +122,24 @@ REM ********** Provision JRE for Amper **********
 if defined AMPER_JAVA_HOME goto jre_provisioned
 
 @rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set zulu_version=25.28.85
-set java_version=25.0.0
+set zulu_version=25.32.21
+set java_version=25.0.2
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set pkg_type=jdk
     set jre_arch=aarch64
-    set jre_sha256=f5f6d8a913695649e8e2607fe0dc79c81953b2583013ac1fb977c63cb4935bfb
+    set jre_sha256=1106eec3bd166a117ccaf20f15bbec6537e27307be328b8a9e93a053c857fe7c
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set pkg_type=jre
     set jre_arch=x64
-    set jre_sha256=d3c5db7864e6412ce3971c0b065def64942d7b0f3d02581f7f0472cac21fbba9
+    set jre_sha256=a4b7e3c3929d513cdc774583d375ce07fcb8671833258f468fd2fa0d8227ba48
 ) else (
     echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail
 )
 
 @rem URL for the JRE (see https://api.azul.com/metadata/v1/zulu/packages?release_status=ga&include_fields=java_package_features,os,arch,hw_bitness,abi,java_package_type,sha256_hash,size,archive_type,lib_c_type&java_version=25&os=macos,linux,win)
-@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-win_x64.zip
-@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jdk25.0.0-win_aarch64.zip
-set jre_url=%AMPER_JRE_DOWNLOAD_ROOT%/cdn.azul.com/zulu/bin/zulu%zulu_version%-ca-%pkg_type%%java_version%-win_%jre_arch%.zip
-set jre_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\zulu%zulu_version%-ca-%pkg_type%%java_version%-win_%jre_arch%
+@rem https://cdn.azul.com/zulu/bin/zulu25.32.21-ca-jre25.0.2-win_x64.zip
+@rem https://cdn.azul.com/zulu/bin/zulu25.32.21-ca-jre25.0.2-win_aarch64.zip
+set jre_url=%AMPER_JRE_DOWNLOAD_ROOT%/cdn.azul.com/zulu/bin/zulu%zulu_version%-ca-jre%java_version%-win_%jre_arch%.zip
+set jre_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\zulu%zulu_version%-ca-jre%java_version%-win_%jre_arch%
 call :download_and_extract "Amper runtime v%zulu_version%" "%jre_url%" "%jre_target_dir%" "%jre_sha256%" "256" "false"
 if errorlevel 1 goto fail
 

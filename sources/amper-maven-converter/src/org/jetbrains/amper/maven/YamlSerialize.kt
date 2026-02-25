@@ -31,18 +31,25 @@ val treeRefiner = TreeRefiner()
 
 internal fun MappingNode.serializeToYaml(comments: YamlComments = emptyMap()): String = buildString {
     val refinedMain = context(NoopProblemReporter) {
-        treeRefiner.refineTree(this@serializeToYaml, listOf())
+        treeRefiner.refineTree(
+            this@serializeToYaml,
+            listOf(),
+            withDefaults = false,
+        )
     }
-    val main = refinedMain.filterByContext(DefaultContext.ReactivelySet)
     val refinedTest = context(NoopProblemReporter) {
-        treeRefiner.refineTree(this@serializeToYaml, listOf(TestCtx))
+        treeRefiner.refineTree(
+            this@serializeToYaml,
+            listOf(TestCtx),
+            withDefaults = false,
+        )
     }
-    val test = refinedTest.filterByContext(TestCtx, main)
+    val test = refinedTest.filterByContext(TestCtx, refinedMain)
 
     val mainComments = comments.filterValues { !it.test }
     val testComments = comments.filterValues { it.test }
 
-    append(main?.serializeToYaml(0, emptyList(), mainComments) ?: "")
+    append(refinedMain.serializeToYaml(0, emptyList(), mainComments) ?: "")
     if (test != null) {
         appendLine()
         append(test.serializeToYaml(0, emptyList(), testComments))

@@ -8,28 +8,22 @@ import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
 import org.jetbrains.amper.frontend.plugins.ExtensionSchemaNode
-import org.jetbrains.amper.frontend.types.DeclarationKey
-import org.jetbrains.amper.frontend.types.ExtensibleBuiltInTypingContext
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclarationBase
 import org.jetbrains.amper.frontend.types.SchemaOrigin
 import org.jetbrains.amper.frontend.types.SchemaType
-import org.jetbrains.amper.frontend.types.pluginSettingsTypeKey
 import org.jetbrains.amper.frontend.types.withNullability
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
 import java.io.File
 
-data class MavenDeclarationKey(val artifactId: String, val mojoImplementation: String) : DeclarationKey
-
 private typealias StringType = SchemaType.StringType
 
-internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(pluginXmls: List<MavenPluginXml>) = apply {
-    pluginXmls.forEach { discoverMavenPluginXmlTypes(it) }
-}
+internal fun discoverMavenPluginXmlTypes(pluginXmls: List<MavenPluginXml>) =
+    pluginXmls.flatMap { discoverMavenPluginXmlTypes(it) }
 
-internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: MavenPluginXml) = apply {
-    plugin.mojos.forEach { mojo ->
+internal fun discoverMavenPluginXmlTypes(plugin: MavenPluginXml) =
+    plugin.mojos.map { mojo ->
         val properties = mojo.parameters.filter { it.editable }.mapNotNull { parameter ->
             val isNullable = !parameter.required
             val (type, defaultValue) = when (parameter.type) {
@@ -53,7 +47,7 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
             val finalDefault = if (isNullable) Default.Static(null)
             else if (propertyConfig?.defaultValue != null) Default.Static(defaultValue)
             else null
-            
+
             SchemaObjectDeclaration.Property(
                 name = parameter.name,
                 type = type,
@@ -63,7 +57,6 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
             )
         }
 
-        val mavenDeclarationKey = MavenDeclarationKey(plugin.artifactId, mojo.implementation)
         val enabledProperty = SchemaObjectDeclaration.Property(
             name = "enabled",
             type = SchemaType.BooleanType(),
@@ -75,21 +68,15 @@ internal fun ExtensibleBuiltInTypingContext.discoverMavenPluginXmlTypes(plugin: 
             mojo.implementation,
             properties + enabledProperty,
         )
-        registeredDeclarations[mavenDeclarationKey] = mavenDeclaration
 
-        addCustomProperty(
-            pluginSettingsTypeKey,
-            ExtensibleBuiltInTypingContext.CustomPropertyDescriptor(
-                // TODO Think about uniqueness of mojos goal identifiers.
-                propertyName = amperMavenPluginId(plugin, mojo),
-                propertyType = mavenDeclaration.toType().withNullability(isMarkedNullable = true),
-                documentation = mojo.description,
-                origin = SchemaOrigin.MavenPlugin,
-                default = Default.Static(null),
-            )
+        SchemaObjectDeclaration.Property(
+            name = amperMavenPluginId(plugin, mojo),
+            type = mavenDeclaration.toType().withNullability(isMarkedNullable = true),
+            documentation = mojo.description,
+            origin = SchemaOrigin.MavenPlugin,
+            default = Default.Static(null),
         )
     }
-}
 
 /**
  * ID string of a Maven mojo that is applied as an Amper plugin.

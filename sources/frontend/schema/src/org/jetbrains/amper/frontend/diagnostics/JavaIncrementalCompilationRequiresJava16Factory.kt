@@ -7,8 +7,8 @@ package org.jetbrains.amper.frontend.diagnostics
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
@@ -30,15 +30,15 @@ object JavaIncrementalCompilationRequiresJava16Factory : AomSingleModuleDiagnost
             val compileIncrementally = fragment.settings.java.compileIncrementally
             if (compileIncrementally && fragment.settings.jvm.jdk.version < MinJavaVersionForJIC) {
                 val alreadyReported = !reportedPlaces.add(Pair(
-                    fragment.settings.java::compileIncrementally.schemaDelegate.trace,
-                    fragment.settings.jvm.jdk::version.schemaDelegate.trace,
+                    fragment.settings.java.compileIncrementallyDelegate.trace,
+                    fragment.settings.jvm.jdk.versionDelegate.trace,
                 ))
                 if (!alreadyReported) {
                     problemReporter.reportMessage(
                         JavaIncrementalCompilationRequiresJava16(
-                            incrementalCompilationTrace = fragment.settings.java::compileIncrementally.schemaDelegate.trace,
+                            incrementalCompilationTrace = fragment.settings.java.compileIncrementallyDelegate.trace,
                             actualJdkVersion = fragment.settings.jvm.jdk.version,
-                            actualJdkVersionTrace = fragment.settings.jvm.jdk::version.schemaDelegate.trace,
+                            actualJdkVersionTrace = fragment.settings.jvm.jdk.versionDelegate.trace,
                             minJdkVersion = MinJavaVersionForJIC,
                         )
                     )

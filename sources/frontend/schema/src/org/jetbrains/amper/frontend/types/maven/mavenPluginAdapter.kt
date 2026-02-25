@@ -6,10 +6,11 @@ package org.jetbrains.amper.frontend.types.maven
 
 import org.jetbrains.amper.frontend.MavenCoordinates
 import org.jetbrains.amper.frontend.aomBuilder.MavenPluginWithXml
-import org.jetbrains.amper.frontend.aomBuilder.traceableString
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginDescription
 import org.jetbrains.amper.frontend.plugins.AmperMavenPluginMojo
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
+import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
 
@@ -33,6 +34,6 @@ class MojoAdapter(private val mojo: Mojo) : AmperMavenPluginMojo {
 fun MavenPluginWithXml.toAmperDescription(): AmperMavenPluginDescription = MavenPluginDescriptionAdapter(
     xml = second,
     dependencies = first.dependencies.orEmpty().map { 
-        it::coordinates.traceableString().toMavenCoordinates()
+        it.coordinatesDelegate.asTraceableValue().toMavenCoordinates()
     },
 )

@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.types.generated.pathDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -28,7 +29,7 @@ class UnresolvedModuleDependency(
     }
 
     override val element: PsiElement
-        get() = dependency::path.extractPsiElement()
+        get() = dependency.pathDelegate.extractPsiElement()
 
     override val buildProblemId: BuildProblemId = ID
 

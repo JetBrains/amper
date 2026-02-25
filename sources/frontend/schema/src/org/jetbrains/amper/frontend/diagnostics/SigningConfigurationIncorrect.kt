@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -15,6 +16,8 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.storeFile
+import org.jetbrains.amper.frontend.types.generated.propertiesFileDelegate
+import org.jetbrains.amper.frontend.types.generated.signingDelegate
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -26,7 +29,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
-import kotlin.reflect.KProperty0
 
 abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
 
@@ -48,7 +50,7 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
      */
     protected abstract fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter)
 
-    protected val AndroidSettings.targetProperty: KProperty0<*>
+    protected val AndroidSettings.targetProperty: SchemaValueDelegate<*>
         get() {
             val psiElement = signing.extractPsiElement()
             val shortForm = if (psiElement.children.size == 1) {
@@ -56,12 +58,12 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
             } else {
                 false
             }
-            val targetProperty: KProperty0<*> = if (shortForm) {
-                this::signing
+            val targetProperty: SchemaValueDelegate<*> = if (shortForm) {
+                signingDelegate
             } else {
-                signing::propertiesFile.extractPsiElementOrNull()?.let {
-                    signing::propertiesFile
-                } ?: this::signing
+                signing.propertiesFileDelegate.extractPsiElementOrNull()?.let {
+                    signing.propertiesFileDelegate
+                } ?: signingDelegate
             }
             return targetProperty
         }
@@ -153,7 +155,7 @@ object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
 }
 
 class SigningEnabledWithoutPropertiesFile(
-    val targetProperty: KProperty0<*>, val propertiesFilePath: Path
+    val targetProperty: SchemaValueDelegate<*>, val propertiesFilePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = SigningEnabledWithoutPropertiesFileFactory.diagnosticId
@@ -164,7 +166,7 @@ class SigningEnabledWithoutPropertiesFile(
 }
 
 class KeystorePropertiesDoesNotContainKey(
-    val targetProperty: KProperty0<*>,
+    val targetProperty: SchemaValueDelegate<*>,
     val key: String,
     val propertiesFilePath: Path,
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
@@ -177,7 +179,7 @@ class KeystorePropertiesDoesNotContainKey(
 }
 
 class MandatoryFieldInPropertiesFileMustBePresent(
-    val targetProperty: KProperty0<*>, val key: String, val propertiesFilePath: Path
+    val targetProperty: SchemaValueDelegate<*>, val key: String, val propertiesFilePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = MandatoryFieldInPropertiesFileMustBePresentFactory.diagnosticId
@@ -188,7 +190,7 @@ class MandatoryFieldInPropertiesFileMustBePresent(
 }
 
 class KeystoreFileDoesNotExist(
-    val targetProperty: KProperty0<*>, val keystorePath: Path
+    val targetProperty: SchemaValueDelegate<*>, val keystorePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.UnresolvedReference) {
     override val element: PsiElement get() = targetProperty.extractPsiElement()
     override val buildProblemId: BuildProblemId = KeystoreMustExistFactory.diagnosticId

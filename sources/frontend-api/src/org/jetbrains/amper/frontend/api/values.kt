@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.tree.IntNode
 import org.jetbrains.amper.frontend.tree.NullLiteralNode
 import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.ReferenceNode
-import org.jetbrains.amper.frontend.tree.RefinedTreeNode
 import org.jetbrains.amper.frontend.tree.StringNode
 import org.jetbrains.amper.frontend.tree.declaration
 import org.jetbrains.amper.frontend.tree.enumConstantIfAvailable
@@ -27,12 +26,13 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * Class to collect all values registered within it.
  */
 abstract class SchemaNode : Traceable {
+    private val delegates = mutableMapOf<String, SchemaValueDelegate<*>>()
+
     @IgnoreForSchema
     lateinit var backingTree: CompleteObjectNode
         private set
@@ -40,17 +40,17 @@ abstract class SchemaNode : Traceable {
     /**
      * Register a required value (without default).
      */
-    fun <T> value() = SchemaValueDelegateProvider<T>()
+    fun <T> value() = delegateProvider<T>(default = null)
 
     /**
      * Register a value with a default.
      */
-    fun <T> value(default: T) = SchemaValueDelegateProvider<T>(Default.Static(default))
+    fun <T> value(default: T) = delegateProvider<T>(Default.Static(default))
 
     /**
      * Register a nested object value with a default-constructed instance by default.
      */
-    fun <T : SchemaNode> nested() = SchemaValueDelegateProvider<T>(Default.NestedObject)
+    fun <T : SchemaNode> nested() = delegateProvider<T>(Default.NestedObject)
 
     /**
      * Register a value with a default referencing another property.
@@ -59,7 +59,7 @@ abstract class SchemaNode : Traceable {
      * The name is resolved using regular reference resolution rules: ${<name>}
      */
     fun <T> referenceValue(property: KProperty0<T>) =
-        SchemaValueDelegateProvider<T>(Default.Reference(listOf(property.name)))
+        delegateProvider<T>(Default.Reference(listOf(property.name)))
 
     /**
      * Register a value with a default referencing another property from the same type.
@@ -68,7 +68,7 @@ abstract class SchemaNode : Traceable {
      * The name is resolved using regular reference resolution rules: `${<firstName>.<secondName>}`
      */
     fun <T1, T2> referenceValue(first: KProperty0<T1>, second: KProperty1<T1, T2>) =
-        SchemaValueDelegateProvider<T2>(Default.Reference(listOf(first.name, second.name)))
+        delegateProvider<T2>(Default.Reference(listOf(first.name, second.name)))
 
     /**
      * Register a value with a default depending on another property
@@ -77,8 +77,8 @@ abstract class SchemaNode : Traceable {
     fun <T> referenceValue(
         property: KProperty0<*>,
         description: String,
-        transformValue: (RefinedTreeNode) -> T,
-    ) = SchemaValueDelegateProvider<T>(
+        transformValue: ReferenceNode.TransformFunction<T>,
+    ) = delegateProvider<T>(
         Default.Reference(
             referencedPath = listOf(property.name),
             transform = ReferenceNode.Transform(
@@ -104,6 +104,25 @@ abstract class SchemaNode : Traceable {
         check(!::backingTree.isInitialized) { "initialize can't be called twice" }
         backingTree = tree
     }
+
+    fun getDelegate(propertyName: String) = checkNotNull(delegates[propertyName]) {
+        "Property `$propertyName` is not found in ${backingTree.declaration.qualifiedName}"
+    }
+
+    private fun <T> delegateProvider(
+        default: Default?,
+    ): PropertyDelegateProvider<SchemaNode, SchemaValueDelegate<T>> =
+        SchemaValueDelegateProvider(default)
+
+    private inner class SchemaValueDelegateProvider<T>(
+        val default: Default?,
+    ) : PropertyDelegateProvider<SchemaNode, SchemaValueDelegate<T>> {
+        override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): SchemaValueDelegate<T> {
+            return SchemaValueDelegate<T>(property.name, default, thisRef).also {
+                delegates[property.name] = it
+            }
+        }
+    }
 }
 
 sealed interface Default {
@@ -128,22 +147,12 @@ sealed interface Default {
     ) : Default
 }
 
-class SchemaValueDelegateProvider<T>(
-    val default: Default? = null,
-) : PropertyDelegateProvider<SchemaNode, SchemaValueDelegate<T>> {
-    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): SchemaValueDelegate<T> {
-        // Make sure that we can access delegates from reflection.
-        property.isAccessible = true
-        return SchemaValueDelegate(property, default, thisRef)
-    }
-}
-
 /**
  * Abstract value that can have a default value.
  */
 class SchemaValueDelegate<T>(
-    val property: KProperty<*>,
-    val default: Default?,
+    val name: String,
+    val default: Default?, // Only accessed at the instrumentation stage
     val owner: SchemaNode,
 ) : Traceable, ReadOnlyProperty<SchemaNode, T> {
     @Suppress("UNCHECKED_CAST") // asValue() reads the SchemaType which knows the runtime type.
@@ -163,43 +172,29 @@ class SchemaValueDelegate<T>(
         get() = keyValue.trace
 
     override fun toString(): String =
-        "SchemaValue(property = ${owner.backingTree.declaration.qualifiedName}.${property.name}, value = $value)"
+        "SchemaValue(property = ${owner.backingTree.declaration.qualifiedName}.${name}, value = $value)"
 
     private val keyValue: CompletePropertyKeyValue
-        get() = checkNotNull(owner.backingTree.refinedChildren[property.name]) {
-            "Not reached: value for property '${property.name}' is not set"
+        get() = checkNotNull(owner.backingTree.refinedChildren[name]) {
+            "Not reached: value for property '${name}' is not set"
         }
 }
 
-private fun <T : KProperty<*>> T.setAccessible() = apply { isAccessible = true }
+fun SchemaValueDelegate<String>.asTraceableValue() = TraceableString(value, trace)
 
-fun <R, V> KProperty1<R, V>.schemaDelegate(receiver: R): SchemaValueDelegate<V> =
-    setAccessible().getDelegate(receiver)?.let {
-        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be V by definition of SchemaValueDelegate
-        it as SchemaValueDelegate<V>
-    } ?: error("Property $this should have a traceable schema delegate")
+fun SchemaValueDelegate<Path>.asTraceableValue() = TraceablePath(value, trace)
 
 /**
- * Returns the traceable [SchemaValueDelegate] of this property, or throws if this property isn't defined with such
- * a delegate. This should be used when this property is a schema property defined with a schema delegate.
+ * Whether this was explicitly set in config files.
  */
-val <T> KProperty0<T>.schemaDelegate: SchemaValueDelegate<T>
-    get() = setAccessible().getDelegate()?.let {
-        @Suppress("UNCHECKED_CAST") // we know the delegate type can only be T by definition of SchemaValueDelegate
-        it as SchemaValueDelegate<T>
-    } ?: error("Property $this should have a traceable schema delegate")
+val Traceable.isExplicitlySet: Boolean
+    get() = !trace.isDefault
 
 /**
- * Whether this property is explicitly set in config files.
+ * Whether this was set in a template file.
  */
-val <T> KProperty0<T>.isExplicitlySet: Boolean
-    get() = !schemaDelegate.trace.isDefault
-
-/**
- * Whether this property is set in a template file.
- */
-val <T> KProperty0<T>.isSetInTemplate: Boolean
-    get() = schemaDelegate.trace.isFromTemplate
+val Traceable.isSetInTemplate: Boolean
+    get() = trace.isFromTemplate
 
 private fun CompleteTreeNode.asValue(): Any? = when (this) {
     is BooleanNode -> value

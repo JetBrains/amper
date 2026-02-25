@@ -10,8 +10,8 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableValue
-import org.jetbrains.amper.frontend.api.schemaDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
@@ -34,19 +34,19 @@ object JUnitRequiresHigherJdkVersionFactory : AomSingleModuleDiagnosticFactory {
             val minJdkVersionForJunit = minJdkVersionForJunit(junitPlatformVersion)
             if (fragment.settings.jvm.jdk.version < minJdkVersionForJunit) {
                 val alreadyReported = !reportedPlaces.add(Pair(
-                    fragment.settings.jvm.test::junitPlatformVersion.schemaDelegate.trace,
-                    fragment.settings.jvm.jdk::version.schemaDelegate.trace,
+                    fragment.settings.jvm.test.junitPlatformVersionDelegate.trace,
+                    fragment.settings.jvm.jdk.versionDelegate.trace,
                 ))
                 if (!alreadyReported) {
                     problemReporter.reportMessage(
                         JUnitRequiresHigherJdkVersion(
                             junitPlatformVersion = TraceableString(
                                 value = junitPlatformVersion,
-                                trace = fragment.settings.jvm.test::junitPlatformVersion.schemaDelegate.trace,
+                                trace = fragment.settings.jvm.test.junitPlatformVersionDelegate.trace,
                             ),
                             actualJdkVersion = TraceableValue(
                                 value = fragment.settings.jvm.jdk.version,
-                                trace = fragment.settings.jvm.jdk::version.schemaDelegate.trace,
+                                trace = fragment.settings.jvm.jdk.versionDelegate.trace,
                             ),
                             minJdkVersion = minJdkVersionForJunit,
                         )

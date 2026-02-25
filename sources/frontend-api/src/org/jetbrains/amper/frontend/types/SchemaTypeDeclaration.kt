@@ -27,9 +27,10 @@ interface SchemaTypeDeclaration {
      * Where the declaration comes from.
      */
     val origin: SchemaOrigin
+        get() = SchemaOrigin.Builtin
 
     /**
-     * Creates a non-nullable type with this declaration.
+     * Creates a type with this declaration.
      */
-    fun toType(): SchemaType
+    fun toType(isMarkedNullable: Boolean = false): SchemaType
 }

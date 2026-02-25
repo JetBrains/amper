@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.tree.refineTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.test.golden.trimTrailingWhitespacesAndEmptyLines
 import java.nio.file.Path
@@ -153,7 +152,7 @@ internal open class DiagnosticsTreeTestRun(
 }
 
 context(types: SchemaTypingContext)
-private val ModuleDeclaration get() = types.getDeclaration<Module>()
+private val ModuleDeclaration get() = types.moduleDeclaration
 
 // Helper function to just read the module.
 internal val readModule: TreeBuilderFunction = { readTree(it, ModuleDeclaration) }

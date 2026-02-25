@@ -100,7 +100,7 @@ private class TreeReferencesResolver(
         var resolved = resolve(node, node.referencedPath) ?: return node
         val trace = node.transform?.let { transform ->
             node.transformedTrace(resolved, transform).also { trace ->
-                resolved = Default.Static(transform.function(resolved)).toTreeValue(node.type, trace)
+                resolved = Default.Static(transform.function.transform(resolved)).toTreeValue(node.type, trace)
             }
         } ?: node.resolvedTrace(resolved)
 

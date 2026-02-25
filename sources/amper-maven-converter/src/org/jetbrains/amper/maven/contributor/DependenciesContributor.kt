@@ -7,15 +7,13 @@ package org.jetbrains.amper.maven.contributor
 import org.apache.maven.model.Dependency
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.frontend.schema.DependencyScope
-import org.jetbrains.amper.frontend.schema.ExternalMavenBomDependency
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.relativeTo
-
 
 internal fun ProjectTreeBuilder.contributeDependencies(reactorProjects: Set<MavenProject>) {
     val jarProjects = reactorProjects.filterJarProjects()
@@ -29,11 +27,9 @@ internal fun ProjectTreeBuilder.contributeDependencies(reactorProjects: Set<Mave
             }
 
             withDefaultContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        add(`object`<ExternalMavenBomDependency> {
-                            ExternalMavenBomDependency::coordinates setTo scalar("${parent.groupId}:${parent.artifactId}:${parent.version}")
-                        })
+                dependencies {
+                    add(DeclarationOfExternalMavenBomDependency) {
+                        coordinates("${parent.groupId}:${parent.artifactId}:${parent.version}")
                     }
                 }
             }
@@ -54,18 +50,16 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeDependency(
     when (dependency.scope) {
         "compile" -> {
             withDefaultContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        if (localPath != null) {
-                            add(`object`<InternalDependency> {
-                                InternalDependency::path setTo scalar(localPath)
-                                InternalDependency::exported setTo scalar(true)
-                            })
-                        } else {
-                            add(`object`<ExternalMavenDependency> {
-                                ExternalMavenDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                                ExternalMavenDependency::exported setTo scalar(true)
-                            })
+                dependencies {
+                    if (localPath != null) {
+                        add(DeclarationOfInternalDependency) {
+                            path(localPath)
+                            exported(true)
+                        }
+                    } else {
+                        add(DeclarationOfExternalMavenDependency) {
+                            coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
+                            exported(true)
                         }
                     }
                 }
@@ -73,36 +67,32 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeDependency(
         }
         "runtime" -> {
             withDefaultContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        if (localPath != null) {
-                            add(`object`<InternalDependency> {
-                                InternalDependency::path setTo scalar(localPath)
-                                InternalDependency::scope setTo scalar(DependencyScope.RUNTIME_ONLY)
-                            })
-                        } else {
-                            add(`object`<ExternalMavenDependency> {
-                                ExternalMavenDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                                ExternalMavenDependency::scope setTo scalar(DependencyScope.RUNTIME_ONLY)
-                            })
+                dependencies {
+                    if (localPath != null) {
+                        add(DeclarationOfInternalDependency) {
+                            path(localPath)
+                            scope(DependencyScope.RUNTIME_ONLY)
+                        }
+                    } else {
+                        add(DeclarationOfExternalMavenDependency) {
+                            coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
+                            scope(DependencyScope.RUNTIME_ONLY)
                         }
                     }
                 }
             }
 
             withTestContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        if (localPath != null) {
-                            add(`object`<InternalDependency> {
-                                InternalDependency::path setTo scalar(localPath)
-                                InternalDependency::exported setTo scalar(true)
-                            })
-                        } else {
-                            add(`object`<ExternalMavenDependency> {
-                                ExternalMavenDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                                ExternalMavenDependency::exported setTo scalar(true)
-                            })
+                dependencies {
+                    if (localPath != null) {
+                        add(DeclarationOfInternalDependency) {
+                            path(localPath)
+                            exported(true)
+                        }
+                    } else {
+                        add(DeclarationOfExternalMavenDependency) {
+                            coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
+                            exported(true)
                         }
                     }
                 }
@@ -110,18 +100,16 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeDependency(
         }
         "provided" -> {
             withDefaultContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        if (localPath != null) {
-                            add(`object`<InternalDependency> {
-                                InternalDependency::path setTo scalar(localPath)
-                                InternalDependency::scope setTo scalar(DependencyScope.COMPILE_ONLY)
-                            })
-                        } else {
-                            add(`object`<ExternalMavenDependency> {
-                                ExternalMavenDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                                ExternalMavenDependency::scope setTo scalar(DependencyScope.COMPILE_ONLY)
-                            })
+                dependencies {
+                    if (localPath != null) {
+                        add(DeclarationOfInternalDependency) {
+                            path(localPath)
+                            scope(DependencyScope.COMPILE_ONLY)
+                        }
+                    } else {
+                        add(DeclarationOfExternalMavenDependency) {
+                            coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
+                            scope(DependencyScope.COMPILE_ONLY)
                         }
                     }
                 }
@@ -129,16 +117,14 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeDependency(
         }
         "test" -> {
             withTestContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        if (localPath != null) {
-                            add(`object`<InternalDependency> {
-                                InternalDependency::path setTo scalar(localPath)
-                            })
-                        } else {
-                            add(`object`<ExternalMavenDependency> {
-                                ExternalMavenDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                            })
+                dependencies {
+                    if (localPath != null) {
+                        add(DeclarationOfInternalDependency) {
+                            path(localPath)
+                        }
+                    } else {
+                        add(DeclarationOfExternalMavenDependency) {
+                            coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
                         }
                     }
                 }
@@ -149,11 +135,9 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeDependency(
         }
         "import" -> {
             withDefaultContext {
-                `object`<Module> {
-                    Module::dependencies {
-                        add(`object`<ExternalMavenBomDependency> {
-                            ExternalMavenBomDependency::coordinates setTo scalar("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
-                        })
+                dependencies {
+                    add(DeclarationOfExternalMavenBomDependency) {
+                        coordinates("${dependency.groupId}:${dependency.artifactId}:${dependency.version}")
                     }
                 }
             }

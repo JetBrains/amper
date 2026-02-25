@@ -8,12 +8,14 @@ import org.apache.maven.model.Plugin
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.utils.cli.CommandLineUtils
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.JvmTestSettings
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.tree.SyntheticBuilder
-import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.tree.ObjectBuilderContext
+import org.jetbrains.amper.frontend.tree.TypeDescriptor
+import org.jetbrains.amper.frontend.tree.ValueSinkPoint
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.tree.put
+import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.MavenConverterBundle
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 import org.jetbrains.amper.maven.YamlComment
@@ -36,12 +38,10 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSurefirePlugin(plugin
     val config = plugin.configuration as? Xpp3Dom ?: return
 
     withTestContext {
-        `object`<Module> {
-            Module::settings {
-                Settings::jvm {
-                    JvmSettings::test {
-                        contributeTestSettings(this@withTestContext, config)
-                    }
+        settings {
+            jvm {
+                test {
+                    contributeTestSettings(config)
                 }
             }
         }
@@ -50,64 +50,46 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSurefirePlugin(plugin
     addUnsupportedParameterComments(config)
 }
 
-context(mapLikeValueBuilder: SyntheticBuilder.MapLikeValueBuilder)
-private fun contributeTestSettings(
-    syntheticBuilder: SyntheticBuilder,
+private fun ObjectBuilderContext<DeclarationOfJvmTestSettings>.contributeTestSettings(
     config: Xpp3Dom,
 ) {
-    with(mapLikeValueBuilder) {
-        config.children.forEach { child ->
-            when (child.name) {
-                "argLine" -> {
-                    handleList(child, syntheticBuilder, JvmTestSettings::freeJvmArgs)
+    config.children.forEach { child ->
+        when (child.name) {
+            "argLine" -> {
+                child.value?.let { argLineValue ->
+                    // Unfortunately, the Maven surefire plugin docs don't specify the contract for the argLine parameter.
+                    // In order to respect the contract, we had to look at the implementation, and this function is
+                    // exactly what that plugin calls, so we use the same function here to match their behavior.
+                    val args = CommandLineUtils.translateCommandline(argLineValue)
+                    if (args.isNotEmpty()) {
+                        freeJvmArgs {
+                            args.forEach { arg -> add(arg) }
+                        }
+                    }
                 }
-                "environmentVariables" -> {
-                    handleMap(child, syntheticBuilder, JvmTestSettings::extraEnvironment)
-                }
-                "systemPropertyVariables" -> {
-                    handleMap(child, syntheticBuilder, JvmTestSettings::systemProperties)
-                }
+            }
+            "environmentVariables" -> {
+                handleMap(child, extraEnvironment)
+            }
+            "systemPropertyVariables" -> {
+                handleMap(child, systemProperties)
             }
         }
     }
 }
 
-private fun SyntheticBuilder.MapLikeValueBuilder.handleList(
+context(_: ObjectBuilderContext<*>)
+private fun handleMap(
     child: Xpp3Dom,
-    syntheticBuilder: SyntheticBuilder,
-    targetProperty: kotlin.reflect.KProperty1<JvmTestSettings, *>,
-) {
-    child.value?.let { argLineValue ->
-        // Unfortunately, the Maven surefire plugin docs don't specify the contract for the argLine parameter.
-        // In order to respect the contract, we had to look at the implementation, and this function is
-        // exactly what that plugin calls, so we use the same function here to match their behavior.
-        val args = CommandLineUtils.translateCommandline(argLineValue)
-        if (args.isNotEmpty()) {
-            targetProperty setTo syntheticBuilder.list(
-                SchemaType.ListType(SchemaType.StringType)
-            ) {
-                args.forEach { arg ->
-                    add(syntheticBuilder.scalar(arg))
-                }
-            }
-        }
-    }
-}
-
-private fun SyntheticBuilder.MapLikeValueBuilder.handleMap(
-    child: Xpp3Dom,
-    syntheticBuilder: SyntheticBuilder,
-    targetProperty: kotlin.reflect.KProperty1<JvmTestSettings, *>,
+    targetProperty: ValueSinkPoint<TypeDescriptor.Map<TypeDescriptor.String>, SchemaObjectDeclaration.Property>,
 ) {
     val envVars = child.children.filterIsInstance<Xpp3Dom>()
         .filter { it.value != null }
         .associate { it.name to it.value }
     if (envVars.isNotEmpty()) {
-        targetProperty setTo syntheticBuilder.map(
-            SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)
-        ) {
+        targetProperty {
             envVars.forEach { (key, value) ->
-                key setTo syntheticBuilder.scalar(value)
+                put[key](value)
             }
         }
     }

@@ -5,35 +5,36 @@
 package org.jetbrains.amper.maven.contributor
 
 import org.apache.maven.project.MavenProject
-import org.jetbrains.amper.frontend.schema.Base
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.tree.add
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 import kotlin.io.path.div
-
 
 internal fun ProjectTreeBuilder.contributeRepositories(reactorProjects: Set<MavenProject>) {
     for (project in reactorProjects.filterJarProjects()) {
         module(project.basedir.toPath() / "module.yaml") {
             withDefaultContext {
-                `object`<Module> {
+                repositories(skipIfEmpty = true) {
                     project.distributionManagement?.repository?.let { repo ->
-                        Repository::id setTo scalar(repo.id)
-                        Repository::url setTo scalar(repo.url)
-                        Repository::publish setTo scalar(true)
+                        add {
+                            id(repo.id)
+                            url(repo.url)
+                            publish(true)
+                        }
                     }
                     project.distributionManagement?.snapshotRepository?.let { repo ->
-                        Repository::id setTo scalar(repo.id)
-                        Repository::url setTo scalar(repo.url)
-                        Repository::publish setTo scalar(true)
+                        add {
+                            id(repo.id)
+                            url(repo.url)
+                            publish(true)
+                        }
                     }
                     project.remoteProjectRepositories.forEach { repo ->
                         if (repo.id == "central") return@forEach
-                        Base::repositories {
-                            add(`object`<Repository> {
-                                Repository::id setTo scalar(repo.id)
-                                Repository::url setTo scalar(repo.url)
-                            })
+                        add {
+                            id(repo.id)
+                            url(repo.url)
                         }
                     }
                 }

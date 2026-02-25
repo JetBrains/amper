@@ -7,15 +7,11 @@ package org.jetbrains.amper.maven.contributor
 import org.apache.maven.model.Plugin
 import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.SpringBootSettings
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
 import kotlin.io.path.div
-
 
 internal fun ProjectTreeBuilder.contributeSpringBootPlugin(reactorProjects: Set<MavenProject>) {
     for (project in reactorProjects.filterJarProjects()) {
@@ -32,30 +28,28 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeSpringBootPlugin(
     plugin: Plugin,
 ) {
     withDefaultContext {
-        `object`<Module> {
-            Module::product {
-                ModuleProduct::type setTo scalar(ProductType.JVM_APP)
+        product {
+            type(ProductType.JVM_APP)
+        }
+        settings {
+            springBoot {
+                enabled(true)
+                version(plugin.version)
             }
-            Module::settings {
-                Settings::springBoot {
-                    SpringBootSettings::enabled setTo scalar(true)
-                    SpringBootSettings::version setTo scalar(plugin.version)
-                }
 
-                val pluginConfig = plugin.configuration
-                if (pluginConfig is Xpp3Dom) {
-                    pluginConfig.children.forEach { child ->
-                        if (child.name == "mainClass") {
-                            if (child.value.startsWith("$")) {
-                                reactorProject.properties[child.value.substring(2, child.value.length - 1)]?.let { propertyValue ->
-                                    Settings::jvm {
-                                        JvmSettings::mainClass setTo scalar(propertyValue.toString())
-                                    }
+            val pluginConfig = plugin.configuration
+            if (pluginConfig is Xpp3Dom) {
+                pluginConfig.children.forEach { child ->
+                    if (child.name == "mainClass") {
+                        if (child.value.startsWith("$")) {
+                            reactorProject.properties[child.value.substring(2, child.value.length - 1)]?.let { propertyValue ->
+                                jvm {
+                                    mainClass(propertyValue.toString())
                                 }
-                            } else {
-                                Settings::jvm {
-                                    JvmSettings::mainClass setTo scalar(child.value)
-                                }
+                            }
+                        } else {
+                            jvm {
+                                mainClass(child.value)
                             }
                         }
                     }

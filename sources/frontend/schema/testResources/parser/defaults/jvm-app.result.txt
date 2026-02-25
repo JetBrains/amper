@@ -37,6 +37,7 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
+            version: <default> 1.0.0-rc01
           }
         }
         resources: <default> {
@@ -95,6 +96,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {
@@ -105,7 +108,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.3.0
+          version: <default> 2.3.6
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -204,6 +207,7 @@ Fragments:
         enabled: <default> false
         experimental: <default> {
           hotReload: <default> {
+            version: <default> 1.0.0-rc01
           }
         }
         resources: <default> {
@@ -262,6 +266,8 @@ Fragments:
         }
         allWarningsAsErrors: <default> false
         apiVersion: <default> null
+        compilerPlugins: <default> [
+        ]
         debug: <default> null
         freeCompilerArgs: <default> null
         jsPlainObjects: <default> {
@@ -272,7 +278,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.3.0
+          version: <default> 2.3.6
         }
         languageFeatures: <default> null
         languageVersion: <default> null

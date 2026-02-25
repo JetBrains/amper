@@ -7,13 +7,8 @@ package org.jetbrains.amper.frontend.contexts
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.tree.MissingPropertiesHandler
-import org.jetbrains.amper.frontend.tree.completeTree
-import org.jetbrains.amper.frontend.api.Misnomers
-import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableEnum
-import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.keyValueAsBuildProblemSource
@@ -22,30 +17,19 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.tree.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.tree.TreeRefiner
+import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.getDeclaration
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 import org.jetbrains.yaml.psi.YAMLPsiElement
-
-/**
- * Internal schema to read fields, which are crucial for contexts generation.
- * Must be fully compatible with [org.jetbrains.amper.frontend.schema.Module].
- */
-class MinimalModule : SchemaNode() {
-    val product by value<ModuleProduct>()
-
-    val aliases by nullableValue<Map<String, List<TraceableEnum<Platform>>>>()
-
-    @Misnomers("templates")
-    val apply by nullableValue<List<TraceablePath>>()
-}
 
 val MinimalModule.unwrapAliases get() = aliases?.mapValues { it.value.leaves }.orEmpty()
 
@@ -60,7 +44,7 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
     val minimalModule = context(collectingReporter) {
         val moduleTree = readTree(
             moduleFilePath,
-            declaration = types.getDeclaration<MinimalModule>(),
+            declaration = DeclarationOfMinimalModule,
             reportUnknowns = false,
         )
 
@@ -102,14 +86,14 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
         return null
     }
 
-    if (minimalModule.product.type == ProductType.LIB && !minimalModule.product::platforms.isExplicitlySet) {
+    if (minimalModule.product.type == ProductType.LIB && !minimalModule.product.platformsDelegate.isExplicitlySet) {
         problemReporter.reportMissingExplicitPlatforms(minimalModule.product)
         return null
     }
 
     if (minimalModule.product.platforms.isEmpty()) {
         problemReporter.reportBundleError(
-            source = minimalModule.product::platforms.asBuildProblemSource(),
+            source = minimalModule.product.platformsDelegate.asBuildProblemSource(),
             messageKey = "product.platforms.should.not.be.empty",
         )
         return null
@@ -142,9 +126,9 @@ private fun ProblemReporter.reportUnsupportedPlatform(
 }
 
 private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduct) {
-    val isYaml = product::type.extractPsiElementOrNull()?.parent is YAMLPsiElement
+    val isYaml = product.typeDelegate.extractPsiElementOrNull()?.parent is YAMLPsiElement
     reportBundleError(
-        source = product::type.keyValueAsBuildProblemSource(),
+        source = product.typeDelegate.keyValueAsBuildProblemSource(),
         messageKey = if (isYaml) {
             "product.type.does.not.have.default.platforms"
         } else {
