@@ -9,14 +9,16 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.annotations.Nls
 
 internal class JdkProvisioner(
     private val openTelemetry: OpenTelemetry,
     private val userCacheRoot: AmperUserCacheRoot,
+    incrementalCache: IncrementalCache,
 ) {
-    private val jdkListProvider = JdkListProvider(openTelemetry)
+    private val jdkListProvider = JdkListProvider(openTelemetry, userCacheRoot, incrementalCache)
 
     /**
      * Finds a JDK matching the given [criteria], downloads/extracts it to the cache, and returns the corresponding

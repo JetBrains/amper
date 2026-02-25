@@ -31,7 +31,7 @@ class JdkProvider(
     private val incrementalCache: IncrementalCache,
 ) {
     private val javaHomeInfoProvider = JavaHomeInfoProvider(openTelemetry)
-    private val jdkProvisioner = JdkProvisioner(openTelemetry, userCacheRoot)
+    private val jdkProvisioner = JdkProvisioner(openTelemetry, userCacheRoot, incrementalCache)
 
     private val provisioningCache = AsyncConcurrentMap<JdkProvisioningCriteria, JdkResult>()
 
