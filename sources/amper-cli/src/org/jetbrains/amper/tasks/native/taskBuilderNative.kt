@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import build.kargo.tasks.native.NativeLinkTask
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.dependency.resolution.ResolutionScope

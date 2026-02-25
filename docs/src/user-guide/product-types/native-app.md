@@ -51,6 +51,20 @@ settings:
 
 1. The fully qualified name of the entry point function.
 
+## Output configuration
+
+By default, Amper generates your native binary inside the `bin/` directory relative to your module. You can customize this by providing a specific `output` directory or file name path in the `settings`:
+
+```yaml
+product: linux/app
+
+settings:
+  native:
+    output: dist/myapp
+```
+
+Any path ending with a `/` will be evaluated as a directory configuration. Paths ending with characters will be evaluated as customized names, preserving the auto-determined extensions (`.exe`, `.kexe`).
+
 The entry point function must either have **no parameters or one `Array<String>` parameter** (representing the command
 line arguments).
 

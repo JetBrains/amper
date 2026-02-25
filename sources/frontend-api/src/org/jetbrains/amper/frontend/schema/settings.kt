@@ -266,6 +266,9 @@ class NativeSettings : SchemaNode() {
     @SchemaDoc("The fully-qualified name of the application's entry point function")
     val entryPoint by nullableValue<String>()
 
+    @SchemaDoc("Output directory or path for the final distributable binary, relative to the module root. Defaults to 'bin/'.")
+    val output by value<String>(default = "bin/")
+
     @SchemaDoc("C/Objective-C interop settings for native targets")
     val cinterop: Map<String, CinteropModule> by value(default = emptyMap())
 }

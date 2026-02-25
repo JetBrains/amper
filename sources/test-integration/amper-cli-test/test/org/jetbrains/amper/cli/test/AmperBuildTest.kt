@@ -205,6 +205,20 @@ class AmperBuildTest : AmperCliTestBase() {
         }
     }
 
+    @Test
+    fun `native output directory configuration is respected`() = runSlowTest {
+        val projectRoot = testProject("native-output-directory")
+        // We compile for linuxX64 explicitly in case the host is Mac/Windows, to ensure predictable extensions.
+        // Wait, cross-compilation on Native is not supported generally unless on Mac for iOS/Linux.
+        // Actually, simple multiplatform cli test used --platform=mingwX64. We will just 'build'.
+        val result = runCli(projectRoot = projectRoot, "build")
+
+        assertTrue("build must generate a 'myapp.kexe' file inside 'dist' directory") {
+            val distDir = projectRoot.resolve("dist")
+            distDir.exists() && distDir.walk().any { it.name == "myapp.kexe" || it.name == "myapp.exe" }
+        }
+    }
+
     private suspend fun runCliWithOrWithoutJps(
         projectRoot: Path,
         vararg args: String,

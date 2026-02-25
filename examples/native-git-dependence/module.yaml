@@ -5,6 +5,7 @@ product:
 settings:
   native:
     entryPoint: 'build.kargo.samples.gitdependence.main'
+    output: dist/application
 
 sources:
   - github: kargo-build/kargo-native-git-lib

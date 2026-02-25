@@ -659,6 +659,7 @@ settings:
 | Attribute            | Description                                                        | Default |
 |----------------------|--------------------------------------------------------------------|---------|
 | `entryPoint: string` | The fully-qualified name of the application's entry point function | `null`  |
+| `output: string`     | Output directory or path for the final distributable binary        | `bin/`  |
 
 Example:
 
@@ -667,6 +668,7 @@ Example:
 settings:
   native:
     entryPoint: com.example.MainKt.main
+    output: dist/myapp
 ```
 
 ##### 'settings.native.cinterop'
