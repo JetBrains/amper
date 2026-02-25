@@ -1,0 +1,4 @@
+product: jvm/app
+
+plugins:
+  "plugin-invalid-references": enabled

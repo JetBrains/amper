@@ -130,6 +130,10 @@ internal class PluginTreeReader(
                     kind(ShadowSourcesKind.Resources)
                 }
                 jar { from(selfDependency) }
+
+                // TODO: This will not include non-common non-main configuration.
+                settings(module.moduleCtxModule.settings.backingTree)
+                // TODO: Maybe at include test-settings here also?
             }
             tasks {
                 for ((taskName, taskBuildRoot) in taskDirs) {

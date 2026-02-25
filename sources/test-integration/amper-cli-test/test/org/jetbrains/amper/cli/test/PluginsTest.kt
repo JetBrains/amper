@@ -537,6 +537,64 @@ class PluginsTest : AmperCliTestBase() {
         ).assertStdoutContains("Everything is in order")
     }
 
+    @Test
+    fun `module settings reference`() {
+        val projectRoot = testProject("extensibility/settings-reference")
+        runSlowTest {
+            runCli(
+                projectRoot = projectRoot,
+                "task", ":app:check-settings@plugin",
+            ).assertCustomTaskStdoutContains(
+                taskName = ":app:check-settings@plugin",
+                output = """
+                    kotlinVersion: 2.1.10
+                    kotlinLanguageVersion: 2.1
+                    kotlinWarningsAsErrors: true
+                    jvmRelease: 17
+                    jvmRuntimeClasspathMode: jars
+                    jdkVersion: 17
+                    junitVersion: junit-4
+                    publishingGav: com.example:app:1.0-SNAPSHOT
+                    kotlinArgs: [-Xfoo.bar]
+                """.trimIndent()
+            )
+
+            runCli(
+                projectRoot = projectRoot,
+                "task", ":app-default:check-settings@plugin",
+            ).assertCustomTaskStdoutContains(
+                taskName = ":app-default:check-settings@plugin",
+                output = """
+                    kotlinVersion: ${DefaultVersions.kotlin}
+                    kotlinLanguageVersion: null
+                    kotlinWarningsAsErrors: false
+                    jvmRelease: ${DefaultVersions.jdk}
+                    jvmRuntimeClasspathMode: jars
+                    jdkVersion: ${DefaultVersions.jdk}
+                    junitVersion: junit-5
+                    publishingGav: null:null:null
+                    kotlinArgs: null
+                """.trimIndent()
+            )
+        }
+    }
+
+    @Test
+    fun `plugin invalid references`() = runSlowTest {
+        val projectRoot = testProject("extensibility/settings-invalid-reference")
+        val pluginYaml = projectRoot.resolve("plugin-invalid-references/plugin.yaml")
+        runCli(
+            projectRoot = projectRoot,
+            "show", "tasks",
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        ).assertErrors(
+            "${pluginYaml}:6:19: Referencing `processors` is not allowed",
+            "${pluginYaml}:5:24: Referencing `publishing` is not allowed",
+            "${pluginYaml}:4:21: Referencing `settings` is not allowed",
+        )
+    }
+
     private fun AmperCliResult.assertErrors(
         vararg expectedErrors: String,
     ) {

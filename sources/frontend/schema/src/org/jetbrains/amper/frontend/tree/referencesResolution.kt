@@ -270,7 +270,7 @@ private fun RefinedTreeNode.cast(
             is StringNode -> StringNode(value, targetType, trace, contexts)
             is PathNode -> StringNode(value.pathString, targetType, trace, contexts)
             is IntNode -> StringNode(value.toString(), targetType, trace, contexts)
-            is EnumNode -> StringNode(entryName, targetType, trace, contexts)
+            is EnumNode -> StringNode(schemaValue, targetType, trace, contexts)
             else -> null
         }
         is SchemaType.BooleanType if this is BooleanNode -> this

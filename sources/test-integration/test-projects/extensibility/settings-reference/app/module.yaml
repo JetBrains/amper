@@ -1,0 +1,22 @@
+product: jvm/app
+
+plugins:
+  "plugin": enabled
+
+settings:
+  kotlin:
+    version: "2.1.10"
+    languageVersion: "2.1"
+    allWarningsAsErrors: true
+    freeCompilerArgs:
+      - -Xfoo.bar
+  jvm:
+    release: 17
+    runtimeClasspathMode: jars
+    jdk:
+        version: "17"
+  junit: junit-4
+  publishing:
+    version: 1.0-SNAPSHOT
+    group: com.example
+    name: app

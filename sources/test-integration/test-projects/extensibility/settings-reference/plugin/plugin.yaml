@@ -1,0 +1,14 @@
+tasks:
+  check-settings:
+    action: !org.jetbrains.amper.plugins.settings.reference.checkSettings
+      kotlinVersion: ${module.settings.kotlin.version}
+      kotlinLanguageVersion: ${module.settings.kotlin.languageVersion} # enum to string conversion
+      kotlinWarningsAsErrors: ${module.settings.kotlin.allWarningsAsErrors}
+      jvmRelease: ${module.settings.jvm.release}
+      jvmRuntimeClasspathMode: ${module.settings.jvm.runtimeClasspathMode} # enum to string conversion
+      jdkVersion: ${module.settings.jvm.jdk.version}
+      junitVersion: ${module.settings.junit}
+      group: ${module.settings.publishing.group}
+      name: ${module.settings.publishing.name}
+      version: ${module.settings.publishing.version}
+      kotlinArgs: ${module.settings.kotlin.freeCompilerArgs}

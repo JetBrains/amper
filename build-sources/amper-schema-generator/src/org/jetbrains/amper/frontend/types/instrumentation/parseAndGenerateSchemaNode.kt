@@ -118,7 +118,9 @@ internal fun <T : SchemaNode> parseAndGenerateSchemaNode(clazz: KClass<T>): Pars
                 if (prop.hasAnnotation<PlatformAgnostic>()) add("isPlatformAgnostic = true,\n")
                 if (prop.hasAnnotation<Shorthand>()) add("hasShorthand = true,\n")
                 if (prop.hasAnnotation<HiddenFromCompletion>()) add("isHiddenFromCompletion = true,\n")
-                if (prop.hasAnnotation<CanBeReferenced>()) add("canBeReferenced = true,\n")
+                if (prop.hasAnnotation<CanBeReferenced>() || parsedType.descriptor.canBeReferenced()) {
+                    add("canBeReferenced = true,\n")
+                }
                 if (prop.hasAnnotation<ReadOnly>()) add("isUserSettable = false,\n")
                 prop.findAnnotation<PlatformSpecific>()?.let {
                     val list = CodeBlock.builder().apply {
@@ -303,6 +305,26 @@ private fun ParsedTypeDescriptor.toBuilderDescriptorCreationExpression(
         }
     }
     is ParsedTypeDescriptor.Variant -> CodeBlock.of("%T(%T)", TypeDescriptor.Variant::class, declaration)
+}
+
+private fun ParsedTypeDescriptor.canBeReferenced(): Boolean = when (this) {
+    // Scalars can be referenced because they can be easily denoted in plugins.
+    ParsedTypeDescriptor.Boolean,
+    ParsedTypeDescriptor.Path,
+    ParsedTypeDescriptor.Int,
+    ParsedTypeDescriptor.String,
+        -> true
+    // Builtin enum types can't be denoted directly, but they can be assigned to a string.
+    is ParsedTypeDescriptor.Enum -> true
+
+    // Collections are referenceable if their element type is referenceable.
+    is ParsedTypeDescriptor.List -> element.canBeReferenced()
+    is ParsedTypeDescriptor.Map -> element.canBeReferenced()
+
+    // Object types are not referenceable.
+    is ParsedTypeDescriptor.Object,
+    is ParsedTypeDescriptor.Variant,
+    ParsedTypeDescriptor.CustomObject -> false
 }
 
 // Can't use class reference because it's a typealias.

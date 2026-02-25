@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowClasspath
 import org.jetbrains.amper.frontend.plugins.generated.ShadowCompilationArtifact
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowModuleSources
+import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import java.nio.file.Path
 
@@ -73,6 +74,9 @@ class ModuleDataForPlugin : SchemaNode() {
     @CanBeReferenced
     @SchemaDoc("Dependency on the module itself")
     val self by value<ShadowDependencyLocal>()
+
+    @SchemaDoc("Module's `settings` configuration")
+    val settings by value<Settings>()
 }
 
 @CustomSchemaDeclaration

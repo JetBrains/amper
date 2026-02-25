@@ -1,0 +1,6 @@
+tasks:
+  check-settings:
+    action: !org.jetbrains.amper.plugins.settings.reference.checkSettings
+      likeSettings: ${module.settings}
+      likePublication: ${module.settings.publishing}
+      listString: ${module.settings.kotlin.ksp.processors}

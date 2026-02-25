@@ -1,0 +1,6 @@
+modules:
+  - app
+  - plugin-invalid-references
+
+plugins:
+  - ./plugin-invalid-references
