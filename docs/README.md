@@ -78,7 +78,7 @@ All the generated HTML resides in the `gh-pages` branch in git.
 The docs have a version selector in the header.
 This is effectively a master switch that chooses between entirely different copies of the website.
 The different copies are actually different directories in the `gh-pages` branch, and it's reflected in the URL 
-(`https://kargo.org/<version>/<path-in-docs>`).
+(`https://kargo.build/<version>/<path-in-docs>`).
 
 We have one copy of the website for the main branch, and one copy for each release/* branch as well.
 Any update to the `docs/` folder made in one of these branches will trigger a build that will update the corresponding

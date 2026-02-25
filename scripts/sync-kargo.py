@@ -185,8 +185,8 @@ def rebrand_documentation(repo_root):
                     content = re.sub(r'\bJetBrains Amper\b', 'Kargo', content)
                     
                     # Manual deterministic replacements
-                    content = content.replace('amper.org', 'kargo.org')
-                    content = content.replace('amper.dev', 'kargo.org')
+                    content = content.replace('amper.org', 'kargo.build')
+                    content = content.replace('amper.dev', 'kargo.build')
                     content = content.replace('https://github.com/JetBrains/amper', 'https://github.com/kargo-build/kargo')
                     
                     # mkdocs internal refs
