@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.core.downloader
@@ -10,9 +10,15 @@ import io.ktor.client.plugins.compression.*
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-const val AmperUserAgent = "JetBrains Amper"
+private const val AmperUserAgent = "JetBrains Amper"
 
-val httpClient: HttpClient by lazy {
+/**
+ * A shared [HttpClient] instance used in various places for basic HTTP.
+ *
+ * This is meant to be used to fetch (small) content and use it directly in memory.
+ * For file downloads, use [Downloader] instead, and the shared cache.
+ */
+val amperHttpClient: HttpClient by lazy {
     HttpClient {
         expectSuccess = true
 

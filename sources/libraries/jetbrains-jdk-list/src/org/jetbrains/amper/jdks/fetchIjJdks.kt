@@ -4,6 +4,12 @@
 
 package org.jetbrains.amper.jdks
 
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,22 +17,26 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.tukaani.xz.SingleXZInputStream
 import java.io.InputStream
-import java.net.URI
 
 private const val JetBrainsJdksJsonUrl = "https://download.jetbrains.com/jdk/feed/v1/jdks.json.xz"
 
-private val json = Json {
+private val IjJdkJson = Json {
     ignoreUnknownKeys = true
     useAlternativeNames = false // improves perf when not using @JsonNames (especially with ignoreUnknownKeys)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-fun fetchIjJdks(): List<IjJdkFamily> = URI(JetBrainsJdksJsonUrl).toURL()
-    .openStream()
-    .xzUncompressed()
-    .use { json.decodeFromStream<IjJdksJsonRoot>(it).jdks }
+suspend fun HttpClient.fetchIjJdks(): List<IjJdkFamily> = get(JetBrainsJdksJsonUrl)
+    .bodyAsChannel()
+    .toInputStream()
+    .use {
+        withContext(Dispatchers.IO) {
+            it.readIjJdks()
+        }
+    }
 
-private fun InputStream.xzUncompressed() = SingleXZInputStream(this)
+@OptIn(ExperimentalSerializationApi::class)
+private fun InputStream.readIjJdks(): List<IjJdkFamily> =
+    IjJdkJson.decodeFromStream<IjJdksJsonRoot>(SingleXZInputStream(this)).jdks
 
 @Serializable
 private data class IjJdksJsonRoot(

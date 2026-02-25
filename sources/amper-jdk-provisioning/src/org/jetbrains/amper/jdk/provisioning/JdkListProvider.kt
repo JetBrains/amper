@@ -10,6 +10,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import org.jetbrains.amper.core.downloader.amperHttpClient
 import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.jdks.IjJdkArchitecture
 import org.jetbrains.amper.jdks.IjJdkFamily
@@ -30,17 +31,15 @@ internal class JdkListProvider(
      */
     suspend fun getOrFetch(): List<JdkPackage> = openTelemetry.tracer.spanBuilder("Get JDK list").use {
         jdkPackages ?: mutex.withLock {
-            jdkPackages ?: withContext(Dispatchers.IO) {
-                fetchAndConvertWithTelemetry().also { packages ->
-                    jdkPackages = packages
-                }
+            jdkPackages ?: fetchAndConvertWithTelemetry().also { packages ->
+                jdkPackages = packages
             }
         }
     }
 
     private suspend fun fetchAndConvertWithTelemetry(): List<JdkPackage> {
         val jdks = openTelemetry.tracer.spanBuilder("Fetch JDK list").use {
-            fetchIjJdks()
+            amperHttpClient.fetchIjJdks()
         }
         return openTelemetry.tracer.spanBuilder("Convert JDK packages metadata").use {
             jdks.toJdkPackages()

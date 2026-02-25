@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.android
@@ -23,7 +23,7 @@ import org.jetbrains.amper.concurrency.FileMutexGroup
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
-import org.jetbrains.amper.core.downloader.httpClient
+import org.jetbrains.amper.core.downloader.amperHttpClient
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.extract.extractFileToCacheLocation
 import org.slf4j.LoggerFactory
@@ -134,12 +134,12 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
 
     suspend fun packages(): Repository {
         val url = androidRepositoryUrlBuilder.appendPathSegments("/repository2-3.xml").build()
-        return httpClient.getRepository(url)
+        return amperHttpClient.getRepository(url)
     }
 
     suspend fun systemImages(): Repository {
         val url = androidSystemImagesRepositoryUrlBuilder.appendPathSegments("/sys-img2-3.xml").build()
-        return httpClient.getRepository(url)
+        return amperHttpClient.getRepository(url)
     }
 
     private suspend fun HttpClient.getRepository(url: Url): Repository =
