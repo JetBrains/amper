@@ -30,6 +30,7 @@ import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.SourceRoot
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.artifacts.ArtifactTaskBase
 import org.jetbrains.amper.tasks.artifacts.KotlinJavaSourceDirArtifact
 import org.jetbrains.amper.tasks.artifacts.Selectors
@@ -97,6 +98,10 @@ internal class NativeCompileKlibTask(
             .mapNotNull { it.compiledKlib }
             .toList()
 
+        val additionalClasspath = dependenciesResult
+            .filterIsInstance<AdditionalClasspathProvider>()
+            .flatMap { it.compileClasspath }
+
         // todo native resources are what exactly?
 
         val cinteropKlibs = dependenciesResult
@@ -111,7 +116,7 @@ internal class NativeCompileKlibTask(
 
         logger.debug("native compile klib '${module.userReadableName}' -- ${fragments.joinToString(" ") { it.name }}")
 
-        val libraryPaths = compiledModuleDependencies + externalDependencies + cinteropKlibs
+        val libraryPaths = compiledModuleDependencies + externalDependencies + additionalClasspath + cinteropKlibs
 
         val additionalSources = additionalKotlinJavaSourceDirs.map { artifact ->
             SourceRoot(

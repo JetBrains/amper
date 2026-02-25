@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
+import build.kargo.tasks.git.setupGitTasks
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
@@ -94,6 +95,7 @@ class ProjectTasksBuilder(
         setupJsTasks()
         setupIosTasks()
         setupKspTasks()
+        setupGitTasks()
         setupJavaAnnotationProcessingTasks()
         setupComposeTasks()
         setupCustomTaskDependencies()

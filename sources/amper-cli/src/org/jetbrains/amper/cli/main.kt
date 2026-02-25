@@ -22,6 +22,7 @@ import java.time.Instant
 import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
+    // val args = args + arrayOf("--root=/home/leodouglas/Projects/kargo-build/kargo/examples/native-git-dependence", "build")
     try {
         // We don't use RuntimeMXBean.startTime because it might give incorrect results if the system time changes.
         // The uptime value used to have a bug because of this, but now uses a more precise OS-provided value.

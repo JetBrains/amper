@@ -1,4 +1,5 @@
 .DS_Store
+.agent
 
 .fleet/scratches
 .obsidian
@@ -7,9 +8,10 @@
 .gradle
 .kotlin
 androidTestProjects
-build
+build/**
 build-from-sources
 shared test caches/
+!build/kargo/**
 
 local.properties
 keystore.properties

@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.tree.completeTree
 import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import build.kargo.frontend.schema.gitSourceCheckoutDirs
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -124,6 +125,9 @@ open class DefaultFragment(
             add(composeResourcesGeneratedCollectorsPath(buildOutputRoot))
             add(composeResourcesGeneratedCommonResClassPath(buildOutputRoot))
         }
+
+        // Git sources: expose checkout directories for IDE navigation
+        addAll(module.gitSourceCheckoutDirs())
 
         // TODO add custom-task-generated sources here
     }

@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.fragmentsTargeting
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -107,6 +108,10 @@ internal class NativeLinkTask(
         val compiledKLibs = compileKLibDependencies.mapNotNull { it.compiledKlib }
         val exportedKLibs = exportedKLibDependencies.mapNotNull { it.compiledKlib }
 
+        val additionalClasspath = dependenciesResult
+            .filterIsInstance<AdditionalClasspathProvider>()
+            .flatMap { it.compileClasspath }
+
         val cinteropKLibs = dependenciesResult
             .filterIsInstance<CinteropTask.Result>()
             .mapNotNull { it.compiledKlib }
@@ -174,7 +179,7 @@ internal class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = compiledKLibs + externalKLibs + cinteropKLibs,
+                libraryPaths = compiledKLibs + externalKLibs + additionalClasspath + cinteropKLibs,
                 exportedLibraryPaths = exportedKLibs,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),

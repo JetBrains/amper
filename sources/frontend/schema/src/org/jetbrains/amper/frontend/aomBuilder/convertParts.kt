@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.ClassBasedSet
+import org.jetbrains.amper.frontend.GitSourcesModulePart
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
@@ -92,6 +93,10 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
         settings = tasks
             ?.mapValues { (_, value) -> ModuleTasksPart.TaskSettings(dependsOn = value.dependsOn?.map { it.value } ?: emptyList()) }
             ?: emptyMap(),
+    )
+
+    parts += GitSourcesModulePart(
+        gitSources = sources ?: emptyList()
     )
 
     return parts

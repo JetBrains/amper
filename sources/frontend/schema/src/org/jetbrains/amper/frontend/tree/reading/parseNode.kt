@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.tree.reading
 
+import build.kargo.frontend.tree.reading.parseVariant
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts

@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import org.jetbrains.amper.frontend.userGuideUrl
+import build.kargo.frontend.schema.GitSource
 import java.nio.file.Path
 
 abstract class Base : SchemaNode() {
@@ -31,6 +32,9 @@ abstract class Base : SchemaNode() {
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module. [Read more]($userGuideUrl/dependencies)")
     val dependencies by nullableValue<List<Dependency>>()
+
+    @SchemaDoc("Git-backed source dependencies to build locally and inject as dependencies")
+    val sources by nullableValue<List<GitSource>>()
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process. [Read more]($userGuideUrl/basics/#settings)")

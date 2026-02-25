@@ -1,0 +1,11 @@
+product:
+  type: linux/app
+  platforms: [ linuxX64 ]
+
+settings:
+  native:
+    entryPoint: 'build.kargo.samples.gitdependence.main'
+
+sources:
+  - github: kargo-build/kargo-native-git-lib
+    version: main
