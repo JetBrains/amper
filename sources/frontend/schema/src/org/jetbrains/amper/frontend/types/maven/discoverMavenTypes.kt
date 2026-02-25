@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.types.maven
@@ -15,7 +15,9 @@ import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.withNullability
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
-import java.io.File
+import org.jetbrains.amper.maven.Parameter
+import java.nio.file.Path
+import kotlin.io.path.Path
 
 private typealias StringType = SchemaType.StringType
 
@@ -26,25 +28,12 @@ internal fun discoverMavenPluginXmlTypes(plugin: MavenPluginXml) =
     plugin.mojos.map { mojo ->
         val properties = mojo.parameters.filter { it.editable }.mapNotNull { parameter ->
             val isNullable = !parameter.required
-            val (type, defaultValue) = when (parameter.type) {
-                "boolean" -> SchemaType.BooleanType(isNullable) to false
-                "int" -> SchemaType.IntType(isNullable) to 0
-                "java.lang.String" -> StringType(isNullable) to ""
-                "java.lang.String[]" -> SchemaType.ListType(StringType(), isNullable) to emptyArray<String>()
-                "java.io.File" -> SchemaType.PathType(isNullable) to File(".")
-                "java.io.File[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable) to emptyArray<File>()
-                "java.nio.Path" -> SchemaType.PathType(isNullable) to File(".")
-                "java.nio.Path[]" -> SchemaType.ListType(SchemaType.PathType(), isNullable) to emptyArray<File>()
-                "java.util.Map" -> SchemaType.MapType(
-                    StringType(),
-                    StringType(),
-                    isNullable
-                ) to emptyMap<String, String>()
-                "java.util.List" -> SchemaType.ListType(StringType(), isNullable) to emptyList<String>()
-                else -> return@mapNotNull null
-            }
+            val (type, defaultValue) = parameter.calculateTypeWithDefault() ?: return@mapNotNull null
+
             val propertyConfig = mojo.configuration.parameterValues.singleOrNull { it.parameterName == parameter.name }
             val finalDefault = if (isNullable) Default.Static(null)
+            // Here default value is set only to calm Amper validation, since actual defaults
+            // will be calculated by Maven code.
             else if (propertyConfig?.defaultValue != null) Default.Static(defaultValue)
             else null
 
@@ -78,6 +67,30 @@ internal fun discoverMavenPluginXmlTypes(plugin: MavenPluginXml) =
         )
     }
 
+internal const val PlexusConfigurationFqn = "org.codehaus.plexus.configuration.PlexusConfiguration"
+
+internal fun Parameter.calculateTypeWithDefault(): Pair<SchemaType, Any>? = when (type) {
+    "boolean" -> return SchemaType.BooleanType(!required) to false
+    "int" -> return SchemaType.IntType(!required) to 0
+    "java.lang.String" -> return StringType(!required) to ""
+    "java.lang.String[]" -> return SchemaType.ListType(StringType(), !required) to emptyList<String>()
+    "java.io.File" -> return SchemaType.PathType(!required) to Path(".")
+    "java.io.File[]" -> return SchemaType.ListType(SchemaType.PathType(), !required) to emptyList<Path>()
+    "java.nio.Path" -> return SchemaType.PathType(!required) to Path(".")
+    "java.nio.Path[]" -> return SchemaType.ListType(SchemaType.PathType(), !required) to emptyList<Path>()
+    "java.util.Map" -> return SchemaType.MapType(
+        StringType(),
+        StringType(),
+        !required
+    ) to emptyMap<String, String>()
+    "java.util.List" -> return SchemaType.ListType(StringType(), !required) to emptyList<String>()
+    PlexusConfigurationFqn -> StringType(
+        isMarkedNullable = !required,
+        semantics = SchemaType.StringType.Semantics.MavenPlexusConfigXml,
+    ) to ""
+    else -> return null
+}
+
 /**
  * ID string of a Maven mojo that is applied as an Amper plugin.
  */
@@ -87,7 +100,7 @@ fun amperMavenPluginId(plugin: AmperMavenPluginDescription, mojo: AmperMavenPlug
 fun amperMavenPluginId(plugin: MavenPluginXml, mojo: Mojo): String =
     "${plugin.artifactId}.${mojo.goal}"
 
-private class MavenSchemaObjectDeclaration(
+internal class MavenSchemaObjectDeclaration(
     private val mojoImplementation: String,
     override val properties: List<SchemaObjectDeclaration.Property>,
     override val origin: SchemaOrigin = SchemaOrigin.MavenPlugin,

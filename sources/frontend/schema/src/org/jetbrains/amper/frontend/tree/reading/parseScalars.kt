@@ -36,6 +36,7 @@ internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType):
             when (type.semantics) {
                 SchemaType.StringType.Semantics.JvmMainClass,
                 SchemaType.StringType.Semantics.PluginSettingsClass,
+                SchemaType.StringType.Semantics.MavenPlexusConfigXml,
                 null -> true
                 SchemaType.StringType.Semantics.MavenCoordinates -> validateAndReportMavenCoordinates(
                     origin = scalar.psi,

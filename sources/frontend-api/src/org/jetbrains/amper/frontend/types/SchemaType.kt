@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.types
@@ -61,6 +61,13 @@ sealed interface SchemaType {
              * FQN that references a class marked with `@Configurable` annotation used as plugin settings class.
              */
             PluginSettingsClass,
+
+            /**
+             * Valid XML block used explicitly for configuring
+             * a Maven Plexus component that is passed to the Mojo execution
+             * and doesn't have a type safe description.
+             */
+            MavenPlexusConfigXml,
         }
     }
 

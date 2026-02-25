@@ -24,7 +24,7 @@ interface TreeDiagnosticFactory {
  * Get all registered [TreeDiagnosticFactory]s.
  */
 // suppressed the unused warning because it's necessary for the disabled diagnostic that we'll put back eventually
-fun treeDiagnosticFactories(@Suppress("unused") refiner: TreeRefiner) = listOf(
+fun treeDiagnosticFactories(@Suppress("unused") refiner: TreeRefiner) = listOf<TreeDiagnosticFactory>(
     AndroidTooOldVersionFactory,
     IncorrectSettingsSectionFactory,
     KotlinCompilerVersionDiagnosticsFactory,
@@ -32,6 +32,7 @@ fun treeDiagnosticFactories(@Suppress("unused") refiner: TreeRefiner) = listOf(
     TemplateNameWithoutPostfix,
     UnknownQualifiers,
     UnsupportedLayoutDiagnosticFactory,
+    ValidXmlValidation,
     // TODO fix it if we want to restore it: AMPER-4489, AMPER-4490
     //  see the comment near the diagnostic class for some technical details
     //UselessSettingValue(refiner),

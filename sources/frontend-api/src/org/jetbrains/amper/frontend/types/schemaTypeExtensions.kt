@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.types
@@ -49,6 +49,7 @@ fun SchemaType.render(
             SchemaType.StringType.Semantics.MavenCoordinates -> append("maven-coordinates")
             SchemaType.StringType.Semantics.JvmMainClass -> append("jvm-main-class")
             SchemaType.StringType.Semantics.PluginSettingsClass -> append("plugin-settings-class")
+            SchemaType.StringType.Semantics.MavenPlexusConfigXml -> append("valid-xml")
         }
         is SchemaType.ListType -> append("sequence [${elementType.render(false)}]")
         is SchemaType.MapType -> append("mapping {${keyType.render(false)} : ${valueType.render(false)}}")

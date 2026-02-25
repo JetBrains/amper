@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.maven
@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.tree.NullLiteralNode
 import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.types.SchemaType
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.relativeTo
@@ -35,11 +36,16 @@ fun CompleteObjectNode.mavenXmlDump(
         return when (this) {
             is CompleteMappingNode -> {
                 for ((k, kv) in refinedChildren) {
-                    if (kv.value is NullLiteralNode || !propFilter(k)) continue
-                    sb.append("\n$indent<$k>")
-                    val withNewLine = kv.value.doXmlDump(newIdent, k)
-                    if (withNewLine) sb.append("\n$indent")
-                    sb.append("</$k>")
+                    if ((kv.propertyDeclaration?.type as? SchemaType.StringType)?.semantics == SchemaType.StringType.Semantics.MavenPlexusConfigXml) {
+                        val stringValue = kv.value as? StringNode ?: continue
+                        sb.append(stringValue.value.replaceIndent(indent).trim())
+                    } else {
+                        if (kv.value is NullLiteralNode || !propFilter(k)) continue
+                        sb.append("\n$indent<$k>")
+                        val withNewLine = kv.value.doXmlDump(newIdent, k)
+                        if (withNewLine) sb.append("\n$indent")
+                        sb.append("</$k>")
+                    }
                 }
                 true
             }
@@ -58,13 +64,15 @@ fun CompleteObjectNode.mavenXmlDump(
             }
             is NullLiteralNode -> false
             is ScalarNode -> {
-                sb.append(when (this) {
-                    is BooleanNode -> value
-                    is EnumNode -> entryName
-                    is IntNode -> value
-                    is PathNode -> value.normalizedPath()
-                    is StringNode -> value
-                })
+                sb.append(
+                    when (this) {
+                        is BooleanNode -> value
+                        is EnumNode -> entryName
+                        is IntNode -> value
+                        is PathNode -> value.normalizedPath()
+                        is StringNode -> value
+                    }
+                )
                 false
             }
         }

@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -166,7 +167,29 @@ class MavenPluginsTest : AmperCliTestBase() {
         assertContains(checkstyleResultText, "http:// URLs are not allowed but got &apos;http://not.allowed.com&apos;")
     }
 
-    private fun assertExists(path: Path) = assertTrue(path.exists()) {
+    @Test
+    fun `maven enforcer plugin invalid XML is validated`() = runSlowTest {
+        val testProject = "enforce-plugin-invalid-rules"
+        val result = runTask(
+            projectWithMavenPath = testProject,
+            taskName = "maven-enforcer-plugin.enforce",
+            expectedExitCode = 1,
+        )
+        result.assertStderrContains("app${File.separator}module.yaml:7:12: Expected a valid XML object for `PlexusConfiguration`, but the provided value is not valid XML")
+    }
+    
+    @Test
+    fun `maven enforcer plugin always fail rule`() = runSlowTest {
+        val testProject = "enforce-plugin"
+        val result = runTask(
+            projectWithMavenPath = testProject,
+            taskName = "maven-enforcer-plugin.enforce",
+            expectedExitCode = 1,
+        )
+        result.assertStderrContains("This rule should fail")
+    }
+
+    private fun assertExists(path: Path) = assertTrue(path.exists()) { 
         val existingParent = generateSequence(path) { it.parent }.first { it.exists() }
         "Expected \"$path\" was not found. The first existing parent is: \"${existingParent.parent}\"." +
                 "\nIts children are: ${existingParent.listDirectoryEntries().joinToString { "\"${it.name}\"" }}."

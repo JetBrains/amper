@@ -24,8 +24,7 @@ data class MavenPhaseResult(
     val modelChanges: List<ModelChange>,
 ) : TaskResult {
     val additionalTestJvmArgs: List<String>
-        get() = modelChanges
-            .last().additionalTestJvmArgs
+        get() = modelChanges.lastOrNull()?.additionalTestJvmArgs.orEmpty()
     
     val sourceRoots: List<SourceRoot>
         get() = modelChanges
