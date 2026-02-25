@@ -9,7 +9,7 @@ Often, you need to depend on a library that is not published to a Maven reposito
 Instead of declaring these in the `dependencies` block, Git dependencies are declared in a `sources` block in your `module.yaml`. Kargo will automatically clone the repository, check out the requested version, build the project locally, and link the resulting binaries into your compilation.
 
 !!! note "Supported Build Systems"
-    Kargo's source resolver natively builds projects configured with **Kargo** (`module.yaml`). However, it maintains full backward compatibility and is seamlessly capable of compiling libraries that still use the original **JetBrains Amper**. Both formats are compiled using the same embedded Kargo engine on the fly.
+    Kargo's source resolver natively builds projects configured with **Kargo** (`module.yaml`). However, it maintains full backward compatibility and is seamlessly capable of compiling libraries that still use the original **JetBrains Kargo**. Both formats are compiled using the same embedded Kargo engine on the fly.
 
 ## Declaring Git dependencies
 

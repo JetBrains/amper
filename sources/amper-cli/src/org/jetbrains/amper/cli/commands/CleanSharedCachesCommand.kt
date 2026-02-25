@@ -10,7 +10,7 @@ import kotlin.io.path.deleteRecursively
 
 internal class CleanSharedCachesCommand : AmperSubcommand(name = "clean-shared-caches") {
 
-    override fun help(context: Context): String = "Remove the Amper caches that are shared between projects"
+    override fun help(context: Context): String = "Remove the Kargo caches that are shared between projects"
 
     override suspend fun run() {
         val root = commonOptions.sharedCachesRoot

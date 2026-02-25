@@ -22,13 +22,13 @@ import kotlin.io.path.exists
 
 internal class ConvertProjectCommand : AmperSubcommand(name = "convert-project") {
 
-    override fun help(context: Context): String = "Convert an existing Maven project to an Amper project."
+    override fun help(context: Context): String = "Convert an existing Maven project to an Kargo project."
 
     val pathToPomXml by option("--pom", help = "The path to the pom.xml of the project to convert.")
         .path(mustExist = true, canBeFile = true, canBeDir = false)
         .default(Path(System.getProperty("user.dir")) / "pom.xml")
 
-    val overwriteExisting: Boolean by option("--overwrite-existing", help = "Overwrite existing Amper files")
+    val overwriteExisting: Boolean by option("--overwrite-existing", help = "Overwrite existing Kargo files")
         .flag(default = false)
 
     override suspend fun run() {

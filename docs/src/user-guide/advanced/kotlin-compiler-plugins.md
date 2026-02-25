@@ -4,7 +4,7 @@ description: This page describes how to add Kotlin compiler plugins to your modu
 # Kotlin compiler plugins
 
 Compiler plugins are a powerful feature of Kotlin that allow you to extend the language with new features.
-There is a handful of bundled compiler plugins that can be enabled in Amper.
+There is a handful of bundled compiler plugins that can be enabled in Kargo.
 
 !!! warning "Third-party compiler plugins are not supported at the moment"
 

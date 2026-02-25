@@ -1,10 +1,10 @@
-site_name: Amper
+site_name: Kargo
 site_description: "An experimental build tool for the Kotlin and Java languages, with a focus on UX and tooling."
-site_url: https://amper.org
-site_author: JetBrains Amper team
+site_url: https://kargo.org
+site_author: JetBrains Kargo team
 
 repo_name: JetBrains/amper
-repo_url: https://github.com/JetBrains/amper
+repo_url: https://github.com/kargo-build/kargo
 edit_uri: !ENV [MKDOCS_GIT_EDIT_URL, "edit/HEAD/docs/src/"]
 
 copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
@@ -145,6 +145,7 @@ nav:
           - 'References': user-guide/plugins/topics/references.md
           - 'Tasks': user-guide/plugins/topics/tasks.md
       - 'Advanced topics':
+          - 'Native Interoperability with C': user-guide/advanced/native-interop.md
           - 'JDK provisioning': user-guide/advanced/jdk-provisioning.md
           - 'Java annotation processing': user-guide/advanced/java-annotation-processing.md
           - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
@@ -158,7 +159,7 @@ nav:
     - 'project.yaml': reference/project.md
     - 'module.yaml': reference/module.md
   - 'FAQ': faq.md
-  - 'Releases ↗': https://github.com/JetBrains/amper/releases
+  - 'Releases ↗': https://github.com/kargo-build/kargo/releases
 
 extra_css:
   - stylesheets/extra.css

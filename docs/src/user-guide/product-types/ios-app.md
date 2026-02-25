@@ -43,26 +43,26 @@ This is not customizable at the moment.
 
 ## Xcode Project
 
-Currently, an Xcode project is required to build an iOS application in Amper.
+Currently, an Xcode project is required to build an iOS application in Kargo.
 It has to be named `module.xcodeproj` and located in the `ios/app` module root directory.
 
-Normally, when the Amper project is created via `amper init` or via the IDE's Wizard, the appropriate Xcode project is
+Normally, when the Kargo project is created via `amper init` or via the IDE's Wizard, the appropriate Xcode project is
 already there. This is currently the recommended way of creating projects that have an iOS app module.
 
-However, if the Amper project is created from scratch, the default buildable Xcode project will be created automatically
+However, if the Kargo project is created from scratch, the default buildable Xcode project will be created automatically
 after the first project build.
 This project can later be customized and checked into a VCS.
 
-If you want to migrate an existing Xcode project so it has Amper support, you must manually ensure that:
+If you want to migrate an existing Xcode project so it has Kargo support, you must manually ensure that:
 
 1. it is named `module.xcodeproj` and is located in the root of the `ios/app` module
 2. it has a single iOS application target
 3. the target has `Debug` & `Release` build configurations, each containing `AMPER_WRAPPER_PATH = <relative path to amper wrapper script>`.
-   The path is relative to the Amper module root.
-4. the target has a script build phase called `Build Kotlin with Amper` with the code:
+   The path is relative to the Kargo module root.
+4. the target has a script build phase called `Build Kotlin with Kargo` with the code:
    ```bash
     # !AMPER KMP INTEGRATION STEP!
-    # This script is managed by Amper, do not edit manually!
+    # This script is managed by Kargo, do not edit manually!
     "${AMPER_WRAPPER_PATH}" tool xcode-integration
    ```
 5. The _Framework Search Paths_ (`FRAMEWORK_SEARCH_PATHS`) option contains the `$(TARGET_BUILD_DIR)/AmperFrameworks` value

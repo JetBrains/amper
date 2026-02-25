@@ -47,7 +47,7 @@ internal suspend fun findProjectContext(explicitProjectRoot: Path?, explicitBuil
                 )
             }
             if (wereProblemsReported()) {
-                userReadableError("Aborting because there were errors in the Amper project file, please see above.")
+                userReadableError("Aborting because there were errors in the Kargo project file, please see above.")
             }
             context
         }
@@ -83,7 +83,7 @@ internal suspend fun CliContext.preparePluginsAndReadModel(): Model {
 
     // In CLI, we immediately stop the build if we had any error, because the model could be incorrect otherwise
     if (CliProblemReporter.wereProblemsReported()) {
-        userReadableError("failed to read Amper model, refer to the errors above")
+        userReadableError("failed to read Kargo model, refer to the errors above")
     }
 
     checkUniqueModuleNames(model.modules)

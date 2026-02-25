@@ -34,7 +34,7 @@ You can run your application using the `./amper run` command.
 
 ??? tip "Run in IntelliJ IDEA"
 
-    IntelliJ IDEA with the Amper plugin automatically detects the `android/app` product type and provides a run
+    IntelliJ IDEA with the Kargo plugin automatically detects the `android/app` product type and provides a run
     configuration for it:
 
     ![](../../images/ij-run-config-android.png)
@@ -48,7 +48,7 @@ See the dedicated [signing](#signing) and [code shrinking](#code-shrinking) sect
 
 ### Code shrinking
 
-When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled.
+When creating a release build with Kargo, R8 will be used automatically, with minification and shrinking enabled.
 This is equivalent to the following Gradle configuration:
 
 ```kotlin
@@ -67,7 +67,7 @@ You can create a `proguard-rules.pro` file in the module folder to add custom ru
 ╰─ module.yaml
 ```
 
-It is automatically used by Amper if present.
+It is automatically used by Kargo if present.
 
 An example of how to add custom R8 rules can be found [in the android-app module]({{ examples_base_url }}/compose-multiplatform/android-app/proguard-rules.pro) of the `compose-multiplatform` example project.
 

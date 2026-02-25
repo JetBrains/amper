@@ -66,7 +66,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private val repository by option(
         "-r", "--repository",
-        help = "The URL of the maven repository to download the Amper scripts from",
+        help = "The URL of the maven repository to download the Kargo scripts from",
     ).default("https://packages.jetbrains.team/maven/p/amper/amper")
 
     private val desiredVersion by mutuallyExclusiveOptions(
@@ -80,10 +80,10 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         .single() // fail if both --dev and --target-version are used at the same time
         .default(DesiredVersion.Latest(includeDevVersions = false))
 
-    private val create by option("-c", "--create", help = "Create the Amper scripts if they don't exist yet")
+    private val create by option("-c", "--create", help = "Create the Kargo scripts if they don't exist yet")
         .flag()
 
-    override fun help(context: Context): String = "Update Amper to the latest version"
+    override fun help(context: Context): String = "Update Kargo to the latest version"
 
     private val runningWrapper by lazy { Path(System.getProperty("amper.wrapper.path")).absolute() }
 
@@ -94,8 +94,8 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         // break amper-from-sources.
         // Also, we would still have to respect an explicit --root option to allow users to update other projects.
         val targetDir = commonOptions.explicitProjectRoot ?: Path(".")
-        val amperBashPath = targetDir.resolve("amper")
-        val amperBatPath = targetDir.resolve("amper.bat")
+        val amperBashPath = targetDir.resolve("kargo")
+        val amperBatPath = targetDir.resolve("kargo.bat")
         checkNotDirectories(amperBashPath, amperBatPath)
         if (!create) {
             confirmCreateIfMissingWrappers(amperBashPath, amperBatPath)
@@ -103,14 +103,14 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
         val version = desiredVersion.resolve()
 
-        terminal.println("Downloading Amper scripts...")
+        terminal.println("Downloading Kargo scripts...")
         val newBashPath = downloadWrapper(version = version, extension = "").apply { setReadExecPermissions() }
         val newBatPath = downloadWrapper(version = version, extension = ".bat").apply { setReadExecPermissions() }
         terminal.println("Download complete.")
 
         if (amperBashPath.exists() && newBashPath.readText() == amperBashPath.readText() &&
             amperBatPath.exists() && newBatPath.readText() == amperBatPath.readText()) {
-            terminal.println("Amper is already in version $version, nothing to update")
+            terminal.println("Kargo is already in version $version, nothing to update")
             return
         }
 
@@ -119,7 +119,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
             runAmperVersionFirstRun(newBatPath, newBashPath)
         }
         if (exitCode != 0) {
-            userReadableError("Couldn't run the new Amper version. Please check the errors above.")
+            userReadableError("Couldn't run the new Kargo version. Please check the errors above.")
         }
 
         // Replacing a bash script while it's running is possible. We use move commands to ensure the physical file on
@@ -194,7 +194,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
 
     private suspend fun getLatestVersion(includeDevVersions: Boolean): String =
         spanBuilder("Fetch latest Amper version").use {
-            terminal.println("Fetching latest Amper version info...")
+            terminal.println("Fetching latest Kargo version info...")
             // TODO use the latest-version.txt file instead when we update it from our builds
             val oldMetadataXml = fetchMavenMetadataXml("cli")
             val newMetadataXml = fetchMavenMetadataXml("amper-cli")
@@ -207,13 +207,13 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                     val versionMoniker = if (includeDevVersions) "dev version of Amper" else "Amper version"
                     terminal.println("Latest $versionMoniker is ${terminal.theme.info(it)}")
                 }
-                ?: userReadableError("Couldn't read Amper versions from maven-metadata.xml:\n\n$newMetadataXml\n\n$oldMetadataXml")
+                ?: userReadableError("Couldn't read Kargo versions from maven-metadata.xml:\n\n$newMetadataXml\n\n$oldMetadataXml")
         }
 
     private suspend fun fetchMavenMetadataXml(artifactId: String): String = try {
         httpClient.get("$repository/org/jetbrains/amper/$artifactId/maven-metadata.xml").bodyAsText()
     } catch (e: Exception) {
-        userReadableError("Couldn't fetch the latest Amper version:\n$e")
+        userReadableError("Couldn't fetch the latest Kargo version:\n$e")
     }
 
     private val firstVersionWithNewArtifact = ComparableVersion("0.7.0-dev-2809")
@@ -232,7 +232,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
             )
         }
     } catch (e: Exception) {
-        userReadableError("Couldn't fetch Amper script version $version:\n$e")
+        userReadableError("Couldn't fetch Kargo script version $version:\n$e")
     }
 
     private suspend fun runAmperVersionFirstRun(batWrapper: Path, bashWrapper: Path): Int {
@@ -300,7 +300,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
                 oldFileTemp.deleteIfExists()
             }
         } catch (e: Exception) {
-            userReadableError("Couldn't update Amper script: $e")
+            userReadableError("Couldn't update Kargo script: $e")
         }
     }
 

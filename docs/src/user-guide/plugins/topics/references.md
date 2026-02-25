@@ -1,14 +1,14 @@
 ---
-description: Learn how to use Amper references in YAML for effective plugin configuration wiring.
+description: Learn how to use Kargo references in YAML for effective plugin configuration wiring.
 ---
 # References
 
-Amper uses its own value‑reference system using the `${...}` syntax.
-Throughout the documentation this syntax is referred to as **Amper references** or simply **references**.
+Kargo uses its own value‑reference system using the `${...}` syntax.
+Throughout the documentation this syntax is referred to as **Kargo references** or simply **references**.
 Currently, its usage is limited to plugin configuration files (`plugin.yaml`).
 
 !!! info
-    Standard YAML anchors (`&`) and aliases (`*`) are not supported in Amper.
+    Standard YAML anchors (`&`) and aliases (`*`) are not supported in Kargo.
 
 ## Syntax
 
@@ -106,7 +106,7 @@ The resolved value's type must be assignable to the property's type:
 ## Reference-only properties
 
 The properties below are available for referencing in `plugin.yaml` and are read‑only.
-Their values are provided by Amper itself, and they are designed to provide the plugin author 
+Their values are provided by Kargo itself, and they are designed to provide the plugin author 
 with the necessary information to configure the plugin logic.
 
 ### Global

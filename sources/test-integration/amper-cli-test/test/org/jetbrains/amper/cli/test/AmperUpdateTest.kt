@@ -40,7 +40,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val result = runCli(projectDir, "update", stdin = ProcessInput.Text("y\n"))
 
         assertTrue(result.stdout.contains("Would you like to create"), "amper should ask for confirmation")
-        assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should be created")
+        assertEquals(listOf("kargo", "kargo.bat"), projectDir.relativeChildren(), "amper scripts should be created")
     }
 
     @Test
@@ -50,7 +50,7 @@ class AmperUpdateTest : AmperCliTestBase() {
         val result = runCli(projectDir, "update", "--create")
 
         assertFalse(result.stdout.contains("?"), "amper should not ask for confirmation")
-        assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should be created")
+        assertEquals(listOf("kargo", "kargo.bat"), projectDir.relativeChildren(), "amper scripts should be created")
     }
 
     @Test
@@ -169,7 +169,7 @@ class AmperUpdateTest : AmperCliTestBase() {
             "update", *options,
             customAmperScriptPath = projectDir.resolve(scriptNameForCurrentOs),
         )
-        assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should still be there")
+        assertEquals(listOf("kargo", "kargo.bat"), projectDir.relativeChildren(), "amper scripts should still be there")
 
         // On Windows, the bat script sometimes cannot be changed in-place, so we have to wait for the late replacement
         if (OsFamily.current.isWindows) {
@@ -200,10 +200,10 @@ class AmperUpdateTest : AmperCliTestBase() {
     }
 
     private fun Path.readVersionInBashScript(): String =
-        resolve("amper").readAmperVersionVariable(versionVariablePrefix = "amper_version=")
+        resolve("kargo").readAmperVersionVariable(versionVariablePrefix = "amper_version=")
 
     private suspend fun Path.readVersionInBatchScript(): String {
-        val batchWrapper = resolve("amper.bat")
+        val batchWrapper = resolve("kargo.bat")
         lateinit var exception: FileSystemException
         repeat(20) {
             try {

@@ -73,7 +73,7 @@ internal class ServerCommand : AmperModelAwareCommand(name = "server") {
         ).default(Level.INFO)
 
     override fun help(context: Context): String =
-        "Start a server that accepts tasks from Amper and runs them. The server runs on port $defaultPort by default."
+        "Start a server that accepts tasks from Kargo and runs them. The server runs on port $defaultPort by default."
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun run(cliContext: CliContext, model: Model) {

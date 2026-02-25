@@ -1,7 +1,7 @@
 ---
-description: A bird-eye view of the Amper plugins features and plans.
+description: A bird-eye view of the Kargo plugins features and plans.
 ---
-# Plugins in Amper
+# Plugins in Kargo
 
 !!! tip "Important"
     1. It is a preview, and things are guaranteed to change. Try it out and give us your feedback!
@@ -12,7 +12,7 @@ You can read this functionality summary or jump right into the [Quick Start guid
 
 ## Ideas at the core of the preview
 
-Conceptually, any Amper plugin consists of two parts:
+Conceptually, any Kargo plugin consists of two parts:
 
 1. A **configurable** part that is quick to read and fully exempt from arbitrary code execution:
     - `plugin.yaml`

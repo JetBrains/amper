@@ -1,9 +1,9 @@
 ---
-description: A brief introduction to the YAML language used in Amper configuration files.
+description: A brief introduction to the YAML language used in Kargo configuration files.
 ---
 # Brief YAML primer
 
-Amper uses (a subset of) the YAML language for configuration files.
+Kargo uses (a subset of) the YAML language for configuration files.
 
 YAML describes a tree of mappings and values.
 Mappings have key-value pairs and can be nested.

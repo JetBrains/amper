@@ -1,11 +1,11 @@
 ---
 description: |
-  Learn everything about Kotlin Multiplatform configuration in Amper module files: supported platforms, platform 
+  Learn everything about Kotlin Multiplatform configuration in Kargo module files: supported platforms, platform 
   qualifiers, module layout, and more.
 ---
 # Multiplatform modules
 
-Amper was built from the start with [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/kmp-overview.html)
+Kargo was built from the start with [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/kmp-overview.html)
 in mind. Kotlin Multiplatform is a technology that allows building a single module for different target platforms.
 
 ## Supported platforms
@@ -74,7 +74,7 @@ product:
 ## Platform qualifier
 
 In multiplatform modules, some source directories and sections in the configuration files can be platform-specific.
-Amper defines a special suffix, called the `@platform` qualifier, to mark such platform-specific things.
+Kargo defines a special suffix, called the `@platform` qualifier, to mark such platform-specific things.
 
 What follows the `@` sign is the name of a _platform_ or _platform family_. The available platforms and platform 
 families are described in the [Platforms hierarchy](#supported-platforms) section.

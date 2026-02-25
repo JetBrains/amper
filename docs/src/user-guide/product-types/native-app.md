@@ -1,5 +1,5 @@
 ---
-description: Learn how to build Kotlin/Native applications for the Linux, macOS, and Windows platforms using Amper.
+description: Learn how to build Kotlin/Native applications for the Linux, macOS, and Windows platforms using Kargo.
 ---
 # :fontawesome-solid-microchip: Kotlin/Native application
 
@@ -53,7 +53,7 @@ settings:
 
 ## Output configuration
 
-By default, Amper generates your native binary inside the `bin/` directory relative to your module. You can customize this by providing a specific `output` directory or file name path in the `settings`:
+By default, Kargo generates your native binary inside the `bin/` directory relative to your module. You can customize this by providing a specific `output` directory or file name path in the `settings`:
 
 ```yaml
 product: linux/app

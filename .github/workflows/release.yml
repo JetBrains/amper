@@ -1,0 +1,79 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Publish Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'zulu'
+
+      - name: Build Kargo Distribution
+        run: ./kargo task :amper-cli:build@amper-distribution
+
+      - name: Find Distribution Artifact
+        id: find_dist
+        run: |
+          DIST_DIR=$(find build/tasks -type d -name "_amper-cli_build@amper-distribution" | head -n 1)
+          if [ -z "$DIST_DIR" ]; then
+            echo "Error: Could not find distribution directory"
+            exit 1
+          fi
+          DIST_FILE="$DIST_DIR/cli.tgz"
+          if [ ! -f "$DIST_FILE" ]; then
+            echo "Error: Could not find cli.tgz in $DIST_DIR"
+            exit 1
+          fi
+          
+          # Extract version from tag (e.g. refs/tags/v0.10.0-dev -> 0.10.0-dev)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          NEW_FILE_NAME="amper-cli-${VERSION}-dist.tgz"
+          
+          # Compute SHA-256 sum
+          cd $DIST_DIR
+          SHA256=$(sha256sum cli.tgz | awk '{print $1}')
+          cd -
+          
+          # Rename for release
+          cp "$DIST_FILE" "${NEW_FILE_NAME}"
+          echo "DIST_TGZ_PATH=${NEW_FILE_NAME}" >> $GITHUB_ENV
+          echo "DIST_SHA256=${SHA256}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          
+          # We also need to package the wrapper scripts
+          WRAPPER_ZIP="amper-wrapper-${VERSION}.zip"
+          cd "$DIST_DIR/wrappers"
+          zip -r "../../${WRAPPER_ZIP}" *
+          cd -
+          echo "WRAPPER_ZIP_PATH=build/tasks/${WRAPPER_ZIP}" >> $GITHUB_ENV
+
+      - name: Generate Checksum File
+        run: |
+          echo "${DIST_SHA256} ${DIST_TGZ_PATH}" > checksums.txt
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: contains(github.ref, '-dev')
+          files: |
+            ${{ env.DIST_TGZ_PATH }}
+            ${{ env.WRAPPER_ZIP_PATH }}
+            checksums.txt
+          generate_release_notes: true

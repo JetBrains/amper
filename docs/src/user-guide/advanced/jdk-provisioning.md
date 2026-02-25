@@ -1,12 +1,12 @@
 ---
 description: |
   Our philosophy is that you should be able to run your project without manually installing anything on your machine, 
-  setting `JAVA_HOME`, or configuring anything. This is why Amper is able to provision a JDK automatically for you.
+  setting `JAVA_HOME`, or configuring anything. This is why Kargo is able to provision a JDK automatically for you.
   This page describes how this can be configured to suit your needs.
 ---
 # JDK provisioning
 
-Amper needs a JDK (Java Development Kit) for various things in your project:
+Kargo needs a JDK (Java Development Kit) for various things in your project:
 
 * compile Kotlin and Java sources
 * run tests
@@ -15,23 +15,23 @@ Amper needs a JDK (Java Development Kit) for various things in your project:
 * ...and more
 
 Our philosophy is that you should be able to run your project without manually installing anything on your machine, 
-setting `JAVA_HOME`, or configuring anything. This is why Amper is able to provision a JDK automatically for you.
+setting `JAVA_HOME`, or configuring anything. This is why Kargo is able to provision a JDK automatically for you.
 
 For many projects, it is important to be able to control the JDK version and sometimes even the distribution.
 This page describes how this can be configured. 
 
 ## Default behavior
 
-By default, Amper doesn't constrain the JDK distribution, but it expects a specific major version: **currently 21**.
+By default, Kargo doesn't constrain the JDK distribution, but it expects a specific major version: **currently 21**.
 
-Since the default [selectionMode](#jdk-selection-mode) is `auto`, Amper will look for a JDK 21 in 
+Since the default [selectionMode](#jdk-selection-mode) is `auto`, Kargo will look for a JDK 21 in 
 `JAVA_HOME`, and if not found, will provision one.
 
 ## JDK requirements
 
-Amper will always use a JDK that matches the requirements you configure in your module file, if it can't, the build 
+Kargo will always use a JDK that matches the requirements you configure in your module file, if it can't, the build 
 will fail.
-Even if nothing is explicitly configured, Amper will provision a JDK that matches the default requirements, or fail.
+Even if nothing is explicitly configured, Kargo will provision a JDK that matches the default requirements, or fail.
 
 You can currently customize 2 criteria:
 
@@ -76,34 +76,34 @@ settings:
 
 ## JDK selection mode
 
-Based on the requirements we've seen above, Amper will make sure that a matching JDK is available for the build.
+Based on the requirements we've seen above, Kargo will make sure that a matching JDK is available for the build.
 
 There are 3 ways it can do this, which you can choose from via `settings.jvm.jdk.selectionMode`:
 
-* `auto` (default): Amper will use the JDK from `JAVA_HOME` if it matches the requirements, otherwise it will 
+* `auto` (default): Kargo will use the JDK from `JAVA_HOME` if it matches the requirements, otherwise it will 
   provision a JDK.
-* `alwaysProvision`: Amper will always provision a JDK, even if `JAVA_HOME` matches the requirements.
+* `alwaysProvision`: Kargo will always provision a JDK, even if `JAVA_HOME` matches the requirements.
   This setting improves the consistency between builds across machines.
-* `javaHome`: Amper will exclusively use `JAVA_HOME`, and thus fail the build if `JAVA_HOME` does not match the
+* `javaHome`: Kargo will exclusively use `JAVA_HOME`, and thus fail the build if `JAVA_HOME` does not match the
   requirements. In this mode, auto-provisioning is effectively disabled.
 
 ### How requirements are checked
 
-When Amper is configured to attempt using `JAVA_HOME`, it reads the `release` file present in all modern JDKs, which
-contains the JDK version and vendor. From that file, Amper checks that the major version matches the requested one, and
+When Kargo is configured to attempt using `JAVA_HOME`, it reads the `release` file present in all modern JDKs, which
+contains the JDK version and vendor. From that file, Kargo checks that the major version matches the requested one, and
 that the vendor is in the allowed `distributions`.
 
 If the `release` file is not present (for instance, in an old JDK), the requirements are considered unsatisfied, and 
-the consequence depends on the selection mode (in `auto` mode, Amper will provision a JDK; in `javaHome` mode, the 
+the consequence depends on the selection mode (in `auto` mode, Kargo will provision a JDK; in `javaHome` mode, the 
 build will fail).
 
 ## Provisioning mechanism
 
-When Amper decides to provision a JDK, it uses the [Foojay Discovery API](https://github.com/foojayio/discoapi) to 
+When Kargo decides to provision a JDK, it uses the [Foojay Discovery API](https://github.com/foojayio/discoapi) to 
 find the latest available JDK for the requested major version on your current OS/architecture, for each of the accepted
 distributions (if specified).
 
-Among all JDKs found, Amper will prefer the distribution that appears first in `settings.jvm.jdk.distributions` or in
+Among all JDKs found, Kargo will prefer the distribution that appears first in `settings.jvm.jdk.distributions` or in
 the default list. The default list is ordered this way:
 
 - Eclipse Temurin, a.k.a. Adoptium
@@ -126,9 +126,9 @@ the default list. The default list is ordered this way:
 ## Licensing
 
 Some JDK vendors require a commercial license for using some of their distributions in production.
-Amper will let you know if you're trying to use such a distribution, and won't let you do it by accident.
+Kargo will let you know if you're trying to use such a distribution, and won't let you do it by accident.
 
-If you want to use Amper with such a distribution, you must make sure you understand the terms of the license, and have
+If you want to use Kargo with such a distribution, you must make sure you understand the terms of the license, and have
 the appropriate contracts or agreements with the vendor.
 
 If you do, acknowledge the license by adding the distribution name to `settings.jvm.jdk.acknowledgedLicenses`.
@@ -137,7 +137,7 @@ If you do, acknowledge the license by adding the distribution name to `settings.
 
 ### Specific major version
 
-With the following configuration, Amper will use the `JAVA_HOME` JDK if it's any JDK 17.
+With the following configuration, Kargo will use the `JAVA_HOME` JDK if it's any JDK 17.
 If not, it will find the latest patch of JDK 17 in the first distribution of the default list, which means it will find
 Temurin 17 (at least at the time of writing, when Temurin 17 is still available).
 
@@ -151,7 +151,7 @@ settings:
 
 ### Limited distributions
 
-With the following configuration, Amper will use the `JAVA_HOME` JDK if it's Amazon Corretto or Microsoft JDK 21.
+With the following configuration, Kargo will use the `JAVA_HOME` JDK if it's Amazon Corretto or Microsoft JDK 21.
 If not, provision the latest patch of Amazon Corretto 21, or fall back to Microsoft 21 if not found (for example on a
 Windows ARM64 machine).
 
@@ -179,7 +179,7 @@ settings:
 
 ### One specific full JDK version
 
-Manually place the specific `21.0.9+7-LTS-338` version of the Oracle JDK in `JAVA_HOME`, and ensures Amper uses it:
+Manually place the specific `21.0.9+7-LTS-338` version of the Oracle JDK in `JAVA_HOME`, and ensures Kargo uses it:
 
 ```yaml title="module.yaml"
 settings:
@@ -191,8 +191,8 @@ settings:
       acknowledgedLicenses: [oracle] # (2)!
 ```
 
-1.   Ensures Amper never provisions another JDK, just fail if the machine is misconfigured
-2.   Tell Amper that we know about Oracle's commercial license and accept it
+1.   Ensures Kargo never provisions another JDK, just fail if the machine is misconfigured
+2.   Tell Kargo that we know about Oracle's commercial license and accept it
 
 ### Ignoring `JAVA_HOME`
 

@@ -29,7 +29,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
         .choice(AmperProjectTemplates.availableTemplates.associateBy { it.id })
         .optional()
 
-    override fun help(context: Context): String = "Initialize a new Amper project based on a template"
+    override fun help(context: Context): String = "Initialize a new Kargo project based on a template"
 
     override suspend fun run() {
         val targetRootDir = commonOptions.explicitProjectRoot ?: Path(System.getProperty("user.dir"))
@@ -43,10 +43,10 @@ internal class InitCommand : AmperSubcommand(name = "init") {
 
         if (wrappersGenerated) {
             terminal.println()
-            val buildCommand = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
+            val buildCommand = if (OsFamily.current.isWindows) "kargo.bat build" else "./kargo build"
             terminal.println(
                 "Now you may build your project with ${terminal.theme.info(buildCommand)} or open this folder in an " +
-                        "IDE with the Amper plugin"
+                        "IDE with the Kargo plugin"
             )
         }
     }
@@ -70,7 +70,7 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     private fun generateWrapperScripts(targetRootDir: Path): Boolean {
         val sha256 = System.getProperty("amper.wrapper.dist.sha256")
         if (sha256.isNullOrEmpty()) {
-            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $targetRootDir")
+            logger.warn("Kargo was not run from kargo wrapper, skipping generating wrappers for $targetRootDir")
             return false
         }
         AmperWrappers.generate(

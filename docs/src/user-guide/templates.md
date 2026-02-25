@@ -6,7 +6,7 @@ description: This page describes how to use templates to share configuration bet
 In modularized projects, there is often a need to have a certain common configuration for all or some modules.
 Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
-Amper offers a way to extract whole sections or their parts into reusable template files. 
+Kargo offers a way to extract whole sections or their parts into reusable template files. 
 These files are named `<name>.module-template.yaml` and have the same structure as `module.yaml` files.
 
 A templates is applied to a `module.yaml` file by it to the `apply:` section:

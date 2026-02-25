@@ -70,7 +70,7 @@ internal class RunCommand : AmperModelAwareCommand(name = "run") {
 
     override fun help(context: Context): String = "Run your application"
 
-    override fun helpEpilog(context: Context): String = "Use `--` to separate the application's arguments from Amper options"
+    override fun helpEpilog(context: Context): String = "Use `--` to separate the application's arguments from Kargo options"
 
     override suspend fun run(cliContext: CliContext, model: Model) {
         withBackend(

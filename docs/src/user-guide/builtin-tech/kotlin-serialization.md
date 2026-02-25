@@ -1,7 +1,7 @@
 ---
 description: |
   Kotlin Serialization is the official multiplatform and multi-format serialization library for Kotlin.
-  Amper provides support for it out of the box.
+  Kargo provides support for it out of the box.
 ---
 # Kotlin Serialization
 

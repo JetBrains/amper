@@ -27,7 +27,7 @@ object AmperVersion {
         with(AmperBuild) {
             val commitDate = commitInstant.toLocalDateTimeInDefaultTimezone().date.format(LocalDate.Formats.ISO)
             val distInfoIfSnapshot = if (isSNAPSHOT) "\nDistribution hash: $distributionHash" else ""
-            "JetBrains Amper version $mavenVersion ($commitShortHash, $commitDate)$distInfoIfSnapshot"
+            "Kargo version $mavenVersion ($commitShortHash, $commitDate)$distInfoIfSnapshot"
         }
     }
 

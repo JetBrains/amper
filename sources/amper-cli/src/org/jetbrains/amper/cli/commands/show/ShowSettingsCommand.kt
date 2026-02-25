@@ -33,7 +33,7 @@ internal class ShowSettingsCommand : AmperModelAwareCommand(name = "settings") {
         allModulesOptionHelp = "Show settings for all modules.",
     )
 
-    override fun help(context: Context): String = "Print the effective Amper settings of each module"
+    override fun help(context: Context): String = "Print the effective Kargo settings of each module"
 
     override suspend fun run(cliContext: CliContext, model: Model) {
         val isMultimodule = model.modules.size

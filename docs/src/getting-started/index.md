@@ -1,9 +1,9 @@
 ---
-description: "Ready to try Amper? Choose the right approach for you: examples, tutorial, user guide..."
+description: "Ready to try Kargo? Choose the right approach for you: examples, tutorial, user guide..."
 ---
 # Getting started
 
-Ready to try Amper? Choose the right approach for you:
+Ready to try Kargo? Choose the right approach for you:
 
 <div class="grid cards" markdown>
 
@@ -23,17 +23,17 @@ Ready to try Amper? Choose the right approach for you:
 
     ---
 
-    Learn about Amper concepts, or deepen your knowledge about specific topics.
+    Learn about Kargo concepts, or deepen your knowledge about specific topics.
 
 -   :material-file-cog: Start from a template project
 
     ---
 
-    Use `./amper init` from the [CLI](../cli/index.md#installation), or create a new Amper project in IntelliJ IDEA.
+    Use `./amper init` from the [CLI](../cli/index.md#installation), or create a new Kargo project in IntelliJ IDEA.
 
 </div>
 
 !!! info "Good tooling rocks!"
 
-    If you choose to write code on your machine, we recommend using IntelliJ IDEA to make the most out of Amper.
+    If you choose to write code on your machine, we recommend using IntelliJ IDEA to make the most out of Kargo.
     Check our [IDE setup](ide-setup.md) page for more information. 

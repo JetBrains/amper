@@ -1,5 +1,5 @@
 ---
-description: This page describes how tests work in Amper.
+description: This page describes how tests work in Kargo.
 ---
 # Testing
 

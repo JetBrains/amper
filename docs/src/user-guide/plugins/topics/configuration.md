@@ -1,24 +1,24 @@
 ---
-description: A guide to Amper's plugin configuration system.
+description: A guide to Kargo's plugin configuration system.
 ---
 # Configuration
 
 This section provides details on how to configure tasks and plugin settings, how the schema works, default values and more.
 
 !!! question "YAML?"
-    Amper currently uses "Amper-flavored" YAML as the configuration language.
+    Kargo currently uses "Kargo-flavored" YAML as the configuration language.
     YAML is flexible, and it allowed us to move fast with prototyping solutions, plugins included.
     However, we are aware of YAML's shortcomings and are exploring the possibility of replacing YAML with a custom 
     language tailored for our needs in the future.  
 
 ## Configurable types
 
-**Configurable types** are types that Amper allows in plugin and task configurations.
+**Configurable types** are types that Kargo allows in plugin and task configurations.
 Their values are set in YAML configurations, and used in Kotlin _task actions_.
 
 The following table lists the configurable types and their Kotlin and YAML representations:
 
-| Amper type               | Kotlin type                         | YAML structure                         |
+| Kargo type               | Kotlin type                         | YAML structure                         |
 |--------------------------|-------------------------------------|----------------------------------------|
 | `string`                 | `kotlin.String`                     |scalar                                  |
 | `boolean (true | false)` | `kotlin.Boolean`                    |scalar                                  |
@@ -132,7 +132,7 @@ Task parameters use the regular default value syntax:
 ) { /*...*/ }
 ```
 
-| Amper type                     | Supported explicit default values                    |
+| Kargo type                     | Supported explicit default values                    |
 |--------------------------------|------------------------------------------------------|
 | `string`, `boolean`, `integer` | Kotlin constant expression of the appropriate type   |
 | `enum E`                       | enum constant references, e.g., `E.Constant`         |
@@ -155,7 +155,7 @@ Task parameters use the regular default value syntax:
     they are **not yet ready** to be used by plugin authors in their own Kotlin code.
 
 You may read the following sections at your leisure if you seek to better understand
-how dependency notation, task actions or "short forms" work in Amper.
+how dependency notation, task actions or "short forms" work in Kargo.
 
 ### Shorthand notation
 
@@ -185,7 +185,7 @@ For example, [plugin settings](#plugin-settings) have an implicit synthetic `ena
 
 On the Kotlin side, they are modeled as a `@Configurable` `sealed` interface.
 When a variant type is expected, there is a need to express which exact variant is being provided in the configuration.
-This ability to express the exact type is not yet designed in Amper and generally looks unintuitive in YAML.
+This ability to express the exact type is not yet designed in Kargo and generally looks unintuitive in YAML.
 
 An example of variant type is the built‑in `Dependency` type, which can be a local module dependency (`Dependency.Local`)
 or an external Maven dependency (`Dependency.Maven`). Each of these subtypes has a `@DependencyNotation`-annotated property.

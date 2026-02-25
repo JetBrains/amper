@@ -50,7 +50,7 @@ an entry point is unspecified.
 ## Packaging
 
 You can use the `build` command to compile your code to a JavaScript module file (`.mjs`) for your application.
-It cannot be run directly by Amper, but you can run it using Node.js or in a browser via an HTML page.
+It cannot be run directly by Kargo, but you can run it using Node.js or in a browser via an HTML page.
 
 The `.mjs` file is produced in the `build/tasks/_<module-name>_linkJs` folder at the moment, but this is subject to 
 change.
@@ -59,7 +59,7 @@ There is no extra packaging facilities at the moment, and the `package` command 
 
 ## Running your application
 
-!!! warning "Kotlin/JS applications cannot be run directly by Amper at the moment."
+!!! warning "Kotlin/JS applications cannot be run directly by Kargo at the moment."
 
 To run your application, you need to:
 

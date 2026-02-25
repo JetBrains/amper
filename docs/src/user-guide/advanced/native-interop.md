@@ -1,10 +1,10 @@
 # Native Interoperability with C
 
-Amper provides a powerful and flexible way to interoperate with C and Objective-C code in your native projects using the Kotlin/Native `cinterop` tool. This guide explains how to configure and use this feature.
+Kargo provides a powerful and flexible way to interoperate with C and Objective-C code in your native projects using the Kotlin/Native `cinterop` tool. This guide explains how to configure and use this feature.
 
 ## How it Works
 
-The `cinterop` process in Amper allows you to create Kotlin bindings for C libraries by defining modules in your `module.yaml` file. 
+The `cinterop` process in Kargo allows you to create Kotlin bindings for C libraries by defining modules in your `module.yaml` file. 
 Each module references a `.def` file that describes the C API and can include additional compiler and linker options.
 
 ## Configuration

@@ -69,7 +69,7 @@ abstract class AmperCliWithWrapperTestBase {
     protected val requestedFiles: List<Path>
         get() = httpServer.requestedFiles
 
-    protected val scriptNameForCurrentOs: String = if (OsFamily.current.isWindows) "amper.bat" else "amper"
+    protected val scriptNameForCurrentOs: String = if (OsFamily.current.isWindows) "kargo.bat" else "kargo"
 
     companion object {
 
@@ -119,7 +119,7 @@ abstract class AmperCliWithWrapperTestBase {
         check(workingDir.isDirectory()) { "Cannot run Amper: the specified working directory $workingDir is not a directory." }
 
         val isWindows = OsFamily.current.isWindows
-        val amperScript = customAmperScriptPath ?: workingDir.resolve(if (isWindows) "amper.bat" else "amper")
+        val amperScript = customAmperScriptPath ?: workingDir.resolve(if (isWindows) "kargo.bat" else "kargo")
         check(amperScript.exists()) {
             "Amper script not found at $amperScript\n" +
                     "You can use LocalAmperPublication.setupWrappersIn(dir) to copy wrappers into the test project dir."

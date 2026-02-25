@@ -31,7 +31,7 @@ internal class JdkToolCommand: AmperSubcommand(name = "jdk") {
         )
     }
 
-    override fun help(context: Context): String = "Run various tools from Amper's default JDK"
+    override fun help(context: Context): String = "Run various tools from Kargo's default JDK"
 
     override suspend fun run() = Unit
 }
@@ -40,7 +40,7 @@ private class JdkToolSubcommand(private val name: String) : AmperSubcommand(name
 
     private val toolArguments by argument(name = "tool_arguments").multiple()
 
-    override fun helpEpilog(context: Context): String = "Use `--` to separate `$name`'s arguments from Amper options"
+    override fun helpEpilog(context: Context): String = "Use `--` to separate `$name`'s arguments from Kargo options"
 
     @OptIn(DelicateAmperApi::class)
     override suspend fun run() {

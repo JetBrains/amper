@@ -1,0 +1,27 @@
+name: Verify Kargo Branding Sync
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  verify-sync:
+    name: Check Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          
+      - name: Run Kargo Sync Script
+        run: python3 scripts/sync-kargo.py
+        
+      - name: Fail if Wrappers or Docs are out of sync
+        run: |
+          git diff --exit-code || {
+            echo "::error::Kargo wrappers or documentation are out of sync with Amper. Please run 'python3 scripts/sync-kargo.py' locally and commit the resulting changes."
+            exit 1
+          }

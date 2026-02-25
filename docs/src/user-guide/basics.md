@@ -1,30 +1,30 @@
 ---
 description: |
-  If you have never used Amper before, this is the best place to start. In this section, we will learn about the basic
-  entities in Amper, the general project layout, and how configuration files look.
+  If you have never used Kargo before, this is the best place to start. In this section, we will learn about the basic
+  entities in Kargo, the general project layout, and how configuration files look.
 ---
 # Basic concepts
 
-If you have never used Amper before, this is the best place to start. In this section, we will learn about the basic
-entities in Amper, the general project layout, and how configuration files look.
+If you have never used Kargo before, this is the best place to start. In this section, we will learn about the basic
+entities in Kargo, the general project layout, and how configuration files look.
 
 ## Project and modules
 
-An Amper **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
+An Kargo **project** is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
 configuration. The folder with the `project.yaml` file is the **project root**. Modules can only be located under the 
 project root (at any depth). If there is only one module in the project, the `project.yaml` file is not required.
 
-An Amper **module** is a directory with a `module.yaml` configuration file, and optionally sources and resources.
+An Kargo **module** is a directory with a `module.yaml` configuration file, and optionally sources and resources.
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
 Each module describes a single product. Several modules can't share the same sources or resources, but they can depend 
 on each other.
-_How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine.
+_How_ to produce the desired product, that is, the build rules, is the responsibility of the Kargo build engine.
 
 ## Project layout
 
 ### Single-module project
 
-A single-module Amper project doesn't need a `project.yaml` file.
+A single-module Kargo project doesn't need a `project.yaml` file.
 Just create a single valid module, and it is also a valid project[^1]:
 [^1]: As long as it is not included in a `project.yaml` higher in the directory tree.
 
@@ -66,7 +66,7 @@ If there are multiple modules, the `project.yaml` file specifies the list of mod
 ```
 </div>
 
-1.   This hierarchy is arbitrary, it can be organized however you like. The structure is understood by Amper based on 
+1.   This hierarchy is arbitrary, it can be organized however you like. The structure is understood by Kargo based on 
      the list of module paths in `project.yaml` — there is no convention for multi-module projects.
 
 <div class="annotate">

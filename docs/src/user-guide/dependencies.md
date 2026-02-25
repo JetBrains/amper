@@ -1,6 +1,6 @@
 ---
 description: |
-  Learn everything about dependencies in Amper: maven coordinates, scopes, library catalogs, repository configuration,
+  Learn everything about dependencies in Kargo: maven coordinates, scopes, library catalogs, repository configuration,
   and more.
 ---
 # Dependencies
@@ -224,7 +224,7 @@ You should therefore mark `ktor-client-core` as `exported`.
 A library catalog associates keys to library coordinates (including the version), and allows adding the same libraries
 as dependencies to multiple modules without having to repeat the coordinates or the versions of the libraries.
 
-Amper currently supports the following library catalogs:
+Kargo currently supports the following library catalogs:
 
 - one project catalog (user-defined)
 - several toolchain catalogs (a.k.a built-in catalogs, such as Kotlin or Compose Multiplatform)
@@ -295,7 +295,7 @@ dependencies:
 
 ## Managing Maven repositories
 
-Amper needs to fetch Maven dependencies from a Maven repository to use them in your project.
+Kargo needs to fetch Maven dependencies from a Maven repository to use them in your project.
 This section describes the default repositories and how to configure more.
 
 ### Default repositories
@@ -324,7 +324,7 @@ repositories:
 ### Authentication
 
 Private Maven repositories require authentication.
-Amper only supports username/password authentication via a `.properties` file at the moment.
+Kargo only supports username/password authentication via a `.properties` file at the moment.
 You can configure it this way:
 
 <div class="grid" markdown>

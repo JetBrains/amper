@@ -42,7 +42,7 @@ import org.tinylog.Level
 import java.io.PrintStream
 import java.nio.file.Path
 
-internal class RootCommand : SuspendingCliktCommand(name = "amper") {
+internal class RootCommand : SuspendingCliktCommand(name = "kargo") {
 
     init {
         versionOption(
@@ -55,7 +55,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
             CleanCommand(),
             CleanSharedCachesCommand(),
             SuspendingCompletionCommand(
-                help = "Generate a tab-completion script for the Amper command for the given shell (bash, zsh, or fish)",
+                help = "Generate a tab-completion script for the Kargo command for the given shell (bash, zsh, or fish)",
             ),
             InitCommand(),
             PackageCommand(),
@@ -76,7 +76,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
         }
     }
 
-    private val root by option(help = "Amper project root")
+    private val root by option(help = "Kargo project root")
         .path(mustExist = true, canBeFile = false, canBeDir = true)
 
     private val consoleLogLevel by option(
@@ -94,7 +94,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 
     private val sharedCachesRoot by option(
         "--shared-caches-root",
-        help = "Path to the cache directory shared between all Amper projects",
+        help = "Path to the cache directory shared between all Kargo projects",
     )
         .path(canBeFile = false)
         .convert { AmperUserCacheRoot(it.toAbsolutePath()) }
@@ -193,7 +193,7 @@ internal class RootCommand : SuspendingCliktCommand(name = "amper") {
 private class DebuggingOptions : OptionGroup(name = "Debugging options") {
     val profilerEnabled by option(
         "--profile",
-        help = "Profile Amper with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
+        help = "Profile Kargo with the [Async Profiler](https://github.com/async-profiler/async-profiler). " +
                 "The snapshot file is generated in the build logs."
     ).flag(default = false)
 

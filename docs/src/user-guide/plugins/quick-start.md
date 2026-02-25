@@ -1,18 +1,18 @@
 ---
-description: Get started with writing your own build plugins for Amper.
+description: Get started with writing your own build plugins for Kargo.
 ---
 # Quick Start
 
 ## How to write a plugin
 
-Here we are going to learn how to write a toy build plugin in Amper
+Here we are going to learn how to write a toy build plugin in Kargo
 that exposes some *external* build‑time data to the application by generating sources.
 
 Our plugin should be able to parse a `.properties` file and generate Kotlin properties out of it.
 Later we may implement additional features.
 We will name our plugin `build-config`.
 
-The sources of the plugin are available in the [amper-plugins-tutorial](https://github.com/JetBrains/amper-plugins-tutorial)
+The sources of the plugin are available in the [amper-plugins-tutorial](https://github.com/kargo-build/kargo-plugins-tutorial)
 repository on GitHub. You can clone it, checkout the initial revision, and follow the Git log to see the changes made step by step.
 
 ### Basic example
@@ -59,7 +59,7 @@ And the `build-config/module.yaml` looks like this:
 product: jvm/amper-plugin
 ```
 
-This is already a valid (although incomplete) Amper plugin.
+This is already a valid (although incomplete) Kargo plugin.
 
 It has a *plugin ID* which defaults to the plugin module name (`build-config`).
 The plugin ID is the string used to refer to the plugin throughout the project, e.g., to enable/configure it.
@@ -102,7 +102,7 @@ fun generateSources(
     }.toMap()
 
     // need to ensure the output directory structure exists: 
-    // Amper doesn't pre-create it for us
+    // Kargo doesn't pre-create it for us
     outputFile.createParentDirectories() 
     
     val code = buildString {
@@ -122,10 +122,10 @@ fun generateSources(
 
 The code can be written in any Kotlin file in any package – there's no convention here.
 `@TaskAction` is a marker for a top-level Kotlin function that can be registered as a task.
-`@Input`/`@Output` are marker annotations required for `Path`‑referencing action parameters to tell Amper how to treat these paths.
+`@Input`/`@Output` are marker annotations required for `Path`‑referencing action parameters to tell Kargo how to treat these paths.
 
 !!! info
-    Amper automatically uses task [execution avoidance](topics/tasks.md#execution-avoidance) based on the contents of `@Input`/`@Output`-annotated paths.
+    Kargo automatically uses task [execution avoidance](topics/tasks.md#execution-avoidance) based on the contents of `@Input`/`@Output`-annotated paths.
 
 Declaring a task action does nothing by itself yet.
 The task with the action must be _registered_ explicitly to become available in modules the plugin is enabled in.
@@ -144,12 +144,12 @@ tasks:
 
 Note that the task action's type is specified using the *type tag* — `!com.example.generateSources` — using the fully qualified function name.
 
-As we see here, the `plugin.yaml` file allows [Amper references](topics/references.md) with the syntax `${foo.bar.baz}`.
-Here we use the built‑in reference‑only property `taskOutputDir` to direct our output to the unique task‑associated output directory that Amper provides for us.
+As we see here, the `plugin.yaml` file allows [Kargo references](topics/references.md) with the syntax `${foo.bar.baz}`.
+Here we use the built‑in reference‑only property `taskOutputDir` to direct our output to the unique task‑associated output directory that Kargo provides for us.
 And `module.rootDir` is the directory of the module the plugin is applied to. 
-Learn more about [Amper-provided reference-only properties](topics/references.md#reference-only-properties).
+Learn more about [Kargo-provided reference-only properties](topics/references.md#reference-only-properties).
 
-But we need to make Amper aware that our output is, in fact, generated Kotlin sources,
+But we need to make Kargo aware that our output is, in fact, generated Kotlin sources,
 so the build tool can include them in the compilation, IDE can resolve symbols from them, etc.
 To do that, we'll use the `markOutputAs` clause in our task registration:
 
@@ -218,7 +218,7 @@ Now let's explore what else we can enhance about our plugin:
 ### Adding library dependencies
 
 We often don't implement a plugin from scratch but rather use the existing tool or a library and wrap around it.
-Amper plugins, being normal Amper modules, can depend on other modules and/or external libraries.
+Kargo plugins, being normal Kargo modules, can depend on other modules and/or external libraries.
 Let's use the `kotlin-poet` library to make our Kotlin code generation more robust and convenient.
 In addition to that, let's assume we have a `utils` module in the project.
 This module is a collection of some utilities that are used across the project – we'd like to use them in our plugin
@@ -238,8 +238,8 @@ dependencies:
 (For the sake of brevity, we are not going to list the code written with `kotlin‑poet` APIs here,
 as the exact code is largely irrelevant in our example.)
 
-??? info "Info: no meta‑build in Amper — plugins can depend on regular modules"
-    Amper doesn't have a notion of a _meta‑build_ (e.g., "included builds"/`buildSrc`, etc.). 
+??? info "Info: no meta‑build in Kargo — plugins can depend on regular modules"
+    Kargo doesn't have a notion of a _meta‑build_ (e.g., "included builds"/`buildSrc`, etc.). 
     Plugin modules are built inside the same build as the other "production" modules.
     This way, plugins can easily depend on any other project modules (like `utils` in our example),
     as long as there are no physical cyclic dependencies between internal actions.
@@ -260,7 +260,7 @@ as the exact code is largely irrelevant in our example.)
         ```
 
 !!! warning
-    Currently, Amper plugins can't depend on other plugins meaningfully,
+    Currently, Kargo plugins can't depend on other plugins meaningfully,
     other than to share some implementation pieces.
     This is not recommended anyway – use common utility modules instead.
 
@@ -303,7 +303,7 @@ Such an interface acts like a *YAML schema* to describe the configuration our pl
 For that we need the `@Configurable`-annotated public interface with the properties of [*configurable* types](topics/configuration.md#configurable-types) and
 optional [*default* values](topics/configuration.md#default-values), expressed as *default getter implementations*.
 
-Now we need to tell Amper which of our [`@Configurable` declarations](topics/configuration.md#configurable-interfaces)
+Now we need to tell Kargo which of our [`@Configurable` declarations](topics/configuration.md#configurable-interfaces)
 is the root of the plugin settings that users can configure in their module files.
 In our case, it's `com.example.Settings`:
 ```yaml hl_lines="5-6" title="build-config/module.yaml"
@@ -413,7 +413,7 @@ tasks:
 ```
 
 In the line `sourceDir: ${generate.action.generatedSourceDir}` we reference an `@Output` path of another task.
-In addition to automatic execution avoidance for individual tasks, Amper automatically infers task dependencies based on matching `@Input` paths with `@Output` paths.
+In addition to automatic execution avoidance for individual tasks, Kargo automatically infers task dependencies based on matching `@Input` paths with `@Output` paths.
 In our example it means that if the task `generate` has a path `/generated/sources` in the `@Output` position, and the task `print` has the *matching* path in the `@Input` position, then `print` will depend on the `generate`.
 More on [task dependencies here](topics/tasks.md).
 
@@ -430,15 +430,15 @@ So, to [run](topics/tasks.md#run-a-task) a task manually, one must use the follo
 ```
 
 That's it for this tutorial!
-You can study some specific topics about Amper plugins and/or go try to write one yourself.
+You can study some specific topics about Kargo plugins and/or go try to write one yourself.
 
 ## Learn more
 
-!!! info "_Consuming things from_ the Amper build"
+!!! info "_Consuming things from_ the Kargo build"
     See the dedicated documentation [section](topics/tasks.md#consuming-things-from-the-build) with examples.
 
 !!! tip
-    There are plugins that we ourselves have implemented and are already [using in Amper]({{ repo_filetree_url }}/build-sources).
+    There are plugins that we ourselves have implemented and are already [using in Kargo]({{ repo_filetree_url }}/build-sources).
     Feel free to take a look!
     
     - Protobuf

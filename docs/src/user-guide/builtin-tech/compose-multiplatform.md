@@ -1,7 +1,7 @@
 ---
 description: |
   Compose Multiplatform is a declarative UI framework developed by JetBrains for sharing Kotlin UI code across multiple
-  platforms. Amper provides support for it out of the box.
+  platforms. Kargo provides support for it out of the box.
 ---
 # :jetbrains-compose-multiplatform: Compose Multiplatform
 
@@ -82,7 +82,7 @@ settings:
 
 ## Using multiplatform resources
 
-Amper supports [Compose Multiplatform resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
+Kargo supports [Compose Multiplatform resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
 
 Place your resources in the `composeResources` folder at the root of your module:
 ```
@@ -99,7 +99,7 @@ my-kmp-module/
 
 1.   Your Kotlin code is here
 
-Amper then automatically generates the Kotlin accessors for these resources, and you can use them in your Kotlin code:
+Kargo then automatically generates the Kotlin accessors for these resources, and you can use them in your Kotlin code:
 
 ```kotlin
 import my_kmp_module.generated.resources.Res
@@ -134,7 +134,7 @@ settings:
 
 ## :jetbrains-compose-hot-reload: Compose Hot Reload (experimental)
 
-Amper supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload), allowing you to see UI changes in
+Kargo supports [Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload), allowing you to see UI changes in
 real-time without restarting the application. This significantly improves the developer experience by shortening the
 feedback loop during UI development.
 
@@ -151,7 +151,7 @@ feedback loop during UI development.
 
         Make sure that:
 
-          * you have installed and enabled the [Amper IDEA plugin](https://plugins.jetbrains.com/plugin/23076-amper)
+          * you have installed and enabled the [Kargo IDEA plugin](https://plugins.jetbrains.com/plugin/23076-amper)
           * your module has the `jvm` target (`jvm/app` product type, or a library module with `jvm` platform)
 
     In this mode, IDEA will recompile and hot-reload your application based on file system changes.
@@ -167,12 +167,12 @@ feedback loop during UI development.
 
     !!! warning "No file-system watch"
 
-        At the moment, the Amper CLI doesn't watch the file system for changes, so the only way to reap the benefits
+        At the moment, the Kargo CLI doesn't watch the file system for changes, so the only way to reap the benefits
         of Compose Hot Reload is to run the application from the IDE.
 
 When you run your application with Compose Hot Reload enabled:
 
-- Amper automatically downloads and runs [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime) to maximize
+- Kargo automatically downloads and runs [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime) to maximize
   hot-swap capabilities
 - The Java agent for Compose Hot Reload is attached during execution
 - A small Compose Hot Reload devtools icon appears next to the application window, indicating that the feature is active
@@ -227,7 +227,7 @@ A clickable gutter icon will appear on the left side of the composable.
 
 ### Custom Compose Hot Reload version
 
-You can optionally customize the version of Compose Hot Reload used by Amper this way:
+You can optionally customize the version of Compose Hot Reload used by Kargo this way:
 
 ```yaml
 settings:

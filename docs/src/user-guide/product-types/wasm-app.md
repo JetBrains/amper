@@ -57,7 +57,7 @@ There is no extra packaging facilities at the moment, and the `package` command 
 
 ## Running your application
 
-!!! warning "Kotlin/Wasm applications cannot be run directly by Amper at the moment."
+!!! warning "Kotlin/Wasm applications cannot be run directly by Kargo at the moment."
 
 To run your application, you need to:
 

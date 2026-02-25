@@ -40,8 +40,8 @@ internal abstract class AmperSubcommand(name: String) : SuspendingCliktCommand(n
             explicitProjectRoot = commonOptions.explicitProjectRoot,
             explicitBuildRoot = commonOptions.explicitBuildOutputRoot,
         ) ?: userReadableError(
-            "No Amper project found in the current directory or above. " +
-                    "Make sure you have a project file or a module file at the root of your Amper project, " +
+            "No Kargo project found in the current directory or above. " +
+                    "Make sure you have a project file or a module file at the root of your Kargo project, " +
                     "or specify --root explicitly to run tasks for a project located elsewhere."
         )
 

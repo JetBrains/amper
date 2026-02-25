@@ -21,7 +21,7 @@ internal class CleanCommand : AmperSubcommand(name = "clean") {
         val projectContext = findProjectContext(
             explicitProjectRoot = commonOptions.explicitProjectRoot,
             explicitBuildRoot = commonOptions.explicitBuildOutputRoot,
-        ) ?: userReadableError("No Amper project found, nothing to clean")
+        ) ?: userReadableError("No Kargo project found, nothing to clean")
 
         if (projectContext.projectBuildDir.exists()) {
             terminal.println("Deleting project build output and caches…")

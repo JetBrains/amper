@@ -46,9 +46,9 @@ object LocalAmperPublication {
         checkPublicationIntegrity()
         check(targetDir.exists()) { "Cannot setup wrapper scripts in non-existing directory: $targetDir" }
 
-        wrapperBat.copyTo(targetDir.resolve("amper.bat"), REPLACE_EXISTING)
+        wrapperBat.copyTo(targetDir.resolve("kargo.bat"), REPLACE_EXISTING)
 
-        val targetSh = targetDir.resolve("amper")
+        val targetSh = targetDir.resolve("kargo")
         wrapperSh.copyTo(targetSh, REPLACE_EXISTING)
         targetSh.toFile().setExecutable(true)
     }

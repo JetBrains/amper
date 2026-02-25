@@ -3,9 +3,9 @@ hide:
   - navigation
 ---
 
-# Amper
+# Kargo
 
-Amper is an experimental build tool for the Kotlin and Java languages, with a focus on user experience and tooling.
+Kargo is an experimental build tool for the Kotlin and Java languages, with a focus on user experience and tooling.
 
 It can build plain JVM console applications, Android and iOS mobile applications, server-side application like Spring
 or Ktor, multiplatform projects that share business logic and/or UI, and more.
@@ -15,7 +15,7 @@ or Ktor, multiplatform projects that share business logic and/or UI, and more.
 
 ## Philosophy
 
-Amper should be invisible when you're working on your code – nobody likes dealing with the build tool.
+Kargo should be invisible when you're working on your code – nobody likes dealing with the build tool.
 Ideally, you shouldn't have to leave your source files to adjust the build configuration.
 
 When you _do_ edit the build configuration by hand, we want the experience to be as smooth and enjoyable as possible.
@@ -34,7 +34,7 @@ In essence, we aim to achieve a similar well-thought-out and well-tested experie
 
 ## Project status [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://github.com/JetBrains#jetbrains-on-github)
 
-Amper is still in the experimental phase, but we encourage you to try it out and 
+Kargo is still in the experimental phase, but we encourage you to try it out and 
 [give us feedback](#issues-and-feedback).
 
 We’re currently looking at various aspects, including extensibility, publication, and Maven integration.
@@ -64,7 +64,7 @@ Future directions:
 
 ## Issues and feedback
 
-Amper uses [:jetbrains-youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
+Kargo uses [:jetbrains-youtrack: YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking,
 [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
 You can also join the [:material-slack: Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
@@ -79,7 +79,7 @@ Here is a very basic JVM "Hello, World!" project:
 
 
 The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them.
-The interesting part is `module.yaml`, which is the Amper module configuration file.
+The interesting part is `module.yaml`, which is the Kargo module configuration file.
 For the above project structure, it would simply be:
 
 ```yaml
@@ -153,7 +153,7 @@ the file layout. The qualifier organizes the code, dependencies, and settings fo
 
 ![](images/fleet-kmp-result.png)
 
-Naturally, these examples show only a limited set of Amper features.
+Naturally, these examples show only a limited set of Kargo features.
 To get more insight into design and functionality, look at the [user guide](user-guide/index.md),
 the [tutorial](getting-started/tutorial.md), and [example projects](#more-examples).
 

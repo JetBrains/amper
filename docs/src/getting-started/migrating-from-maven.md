@@ -1,11 +1,11 @@
 ---
-description: Let's migrate your Maven project to Amper with the help of our semi-automated converter.
+description: Let's migrate your Maven project to Kargo with the help of our semi-automated converter.
 ---
 # Migrating from Maven
 
-This section describes how to convert an existing Maven project to Amper.
+This section describes how to convert an existing Maven project to Kargo.
 
-Amper provides a semi-automated tool to do the bulk of the conversion for you.
+Kargo provides a semi-automated tool to do the bulk of the conversion for you.
 It works on a best-effort basis, so some projects require some additional tweaks
 after the converter runs.
 
@@ -17,7 +17,7 @@ cd /path/to/your/maven/project
 
 ```
 
-Download the [Amper wrapper script](../cli/provisioning.md/#whats-the-wrapper-script).
+Download the [Kargo wrapper script](../cli/provisioning.md/#whats-the-wrapper-script).
 
 --8<-- "includes/cli-install.md"
 
@@ -29,7 +29,7 @@ and then run:
 Path to `pom.xml` can be provided explicitly via `--pom` argument. `pom.xml` is a starting point. If it's a part 
 of the reactor, all related modules are converted.
 
-During the conversion, the tool puts Amper files into corresponding maven modules's folders. If `project.yaml` or one of
+During the conversion, the tool puts Kargo files into corresponding maven modules's folders. If `project.yaml` or one of
 the corresponding `module.yaml` files already exists, by default converter fails. To adjust this behavior, 
 `--overwrite-existing` flag can be used.
 

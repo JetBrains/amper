@@ -1,9 +1,9 @@
 ---
-description: Learn everything about the structure of Amper plugin modules and how to use them in your project.
+description: Learn everything about the structure of Kargo plugin modules and how to use them in your project.
 ---
 # Plugin structure
 
-A plugin is a standard Amper module with the `jvm/amper-plugin` product type. 
+A plugin is a standard Kargo module with the `jvm/amper-plugin` product type. 
 It has a regular `module.yaml` build file with an additional [`pluginInfo` section](../../../reference/module.md#plugininfo).
 
 In addition, a plugin has a `plugin.yaml` file, where [tasks](tasks.md) are registered and configured.
@@ -32,8 +32,8 @@ The **plugin ID** is used across the project to refer to the plugin, e.g., when 
 
 ## Making plugins available in the project
 
-Amper plugins are module-level plugins – they are enabled and applied per module.
-There is no such concept as a project-wide plugin in Amper.
+Kargo plugins are module-level plugins – they are enabled and applied per module.
+There is no such concept as a project-wide plugin in Kargo.
 
 To make a plugin available in the project,
 the dependency on it must be listed under the [`plugins`section](../../../reference/project.md#plugins) of the `project.yaml` file:
@@ -53,7 +53,7 @@ There may be cases where a plugin is developed as part of the project, but not n
 Then such a plugin is present in the `modules` list, but not included in the `plugins` list.
 
 ??? note "Similar to `apply false` in Gradle..."
-    Amper's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
+    Kargo's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
     recommended approach in Gradle. There one lists plugins at the project level with the `apply false` clause and
     then enables them where needed.
 

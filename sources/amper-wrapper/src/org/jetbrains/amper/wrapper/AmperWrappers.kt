@@ -17,13 +17,13 @@ object AmperWrappers {
 
     private val wrappers = listOf(
         AmperWrapper(
-            fileName = "amper",
-            resourceName = "wrappers/amper.template.sh",
+            fileName = "kargo",
+            resourceName = "wrappers/kargo.template.sh",
             executable = true,
         ),
         AmperWrapper(
-            fileName = "amper.bat",
-            resourceName = "wrappers/amper.template.bat",
+            fileName = "kargo.bat",
+            resourceName = "wrappers/kargo.template.bat",
             executable = false,
         ),
     )

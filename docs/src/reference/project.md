@@ -5,7 +5,7 @@ description: An exhaustive reference of the project file format.
 
 ## `modules`
 
-The `modules` section defines which modules are part of this Amper project.
+The `modules` section defines which modules are part of this Kargo project.
 
 Each list element must be the path to a module directory[^1], relative to the project root. 
 If a `module.yaml` is present in the project root, that root module is always included implicitly and doesn’t need to 
@@ -53,7 +53,7 @@ plugins:
 ```
 
 !!! info
-    Currently, only dependencies on **local** plugin modules are supported here (Amper doesn't support publishing 
+    Currently, only dependencies on **local** plugin modules are supported here (Kargo doesn't support publishing 
     plugins yet, ).
     Entries use the same notation as [module dependencies](../user-guide/dependencies.md#module-dependencies).
 

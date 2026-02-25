@@ -1,7 +1,7 @@
 ---
 description: |
   Spring Boot is a framework that simplifies the creation of stand-alone, Spring-based applications.
-  Amper provides support for it out of the box.
+  Kargo provides support for it out of the box.
 ---
 # :spring-boot: Spring Boot
 

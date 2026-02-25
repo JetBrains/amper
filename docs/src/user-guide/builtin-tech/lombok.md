@@ -1,20 +1,20 @@
 ---
 description: |
   Project Lombok is a Java library that generates getters, setters, builders, and other boilerplate code from 
-  annotations. Amper provides support for it out of the box.
+  annotations. Kargo provides support for it out of the box.
 ---
 # :intellij-lombok: Lombok
 
 [Project Lombok](https://projectlombok.org/) is a Java library that generates getters, setters, builders, 
 and other boilerplate code from annotations.
 
-Amper provides the `settings.lombok` option to configure Lombok conveniently in your project:
+Kargo provides the `settings.lombok` option to configure Lombok conveniently in your project:
 ```yaml
 settings:
   lombok: enabled
 ```
 
-When Lombok is enabled, Amper adds the `lombok` dependency, the annotation processor for Java, 
+When Lombok is enabled, Kargo adds the `lombok` dependency, the annotation processor for Java, 
 and the Kotlin compiler plugin.
 
 You can also customize the version of the Lombok library using the full form of the configuration:

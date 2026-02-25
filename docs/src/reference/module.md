@@ -460,11 +460,11 @@ By default, JUnit 5 is used.
 
 #### `settings.jvm.jdk`
 
-Configures how Amper selects or provisions a JDK for the module. If `JAVA_HOME` points to a suitable JDK, Amper can use it; otherwise it can download a matching JDK via the Foojay Discovery API and cache it. See the [JDK provisioning](../user-guide/advanced/jdk-provisioning.md) page for a deep dive.
+Configures how Kargo selects or provisions a JDK for the module. If `JAVA_HOME` points to a suitable JDK, Kargo can use it; otherwise it can download a matching JDK via the Foojay Discovery API and cache it. See the [JDK provisioning](../user-guide/advanced/jdk-provisioning.md) page for a deep dive.
 
 | Property               | Type               | Default                           | Description                                                                                                                                                      |
 |------------------------|--------------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `version`              | int                | Amper default JDK major version   | Major JDK version to use (e.g., 8, 11, 17, 21, 25). Amper prefers the latest update in that line.                                                                |
+| `version`              | int                | Kargo default JDK major version   | Major JDK version to use (e.g., 8, 11, 17, 21, 25). Kargo prefers the latest update in that line.                                                                |
 | `distributions`        | list<enum> or null | `null` (accept all distributions) | Allow‑list of acceptable JDK distributions (vendors). If `null`, any known distribution is acceptable.                                                           |
 | `selectionMode`        | enum               | `auto`                            | Strategy for choosing between `JAVA_HOME` and provisioning: `auto`                                                                                               | `alwaysProvision` | `javaHome`. |
 | `acknowledgedLicenses` | list<enum>         | `[]`                              | Distributions that require a commercial license and which you explicitly acknowledge. If you restrict `distributions` to any paid vendor, you must list it here. |

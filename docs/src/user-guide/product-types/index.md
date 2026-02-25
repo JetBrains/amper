@@ -1,6 +1,6 @@
 ---
 description: |
-  Learn about the different product types supported by Amper:
+  Learn about the different product types supported by Kargo:
   JVM, mobile, or native applications; JVM or KMP libraries, etc.
 ---
 # Product types
@@ -24,4 +24,4 @@ Here is the list of supported product types:
 | [`js/app`](js-app.md)                                | A JavaScript application using the Kotlin/JS technology                                        |
 | [`wasmJs/app`](wasm-app.md)                          | A WebAssembly application with browser APIs                                                    |
 | [`wasmWasi/app`](wasm-app.md)                        | A WebAssembly application with WASI APIs                                                       |
-| [`jvm/amper-plugin`](../plugins/topics/structure.md) | An [Amper plugin](../plugins/overview.md), to extend the Amper build with custom functionality |
+| [`jvm/amper-plugin`](../plugins/topics/structure.md) | An [Kargo plugin](../plugins/overview.md), to extend the Kargo build with custom functionality |
