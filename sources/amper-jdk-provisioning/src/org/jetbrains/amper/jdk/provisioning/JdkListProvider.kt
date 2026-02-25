@@ -10,18 +10,26 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import org.jetbrains.amper.core.downloader.amperHttpClient
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.frontend.schema.JvmDistribution
+import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdks.IjJdkArchitecture
 import org.jetbrains.amper.jdks.IjJdkFamily
 import org.jetbrains.amper.jdks.IjJdkOs
-import org.jetbrains.amper.jdks.fetchIjJdks
+import org.jetbrains.amper.jdks.JetBrainsJdksJsonUrl
+import org.jetbrains.amper.jdks.readIjJdks
 import org.jetbrains.amper.system.info.Arch
 import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.amper.telemetry.use
+import kotlin.io.path.inputStream
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 
 internal class JdkListProvider(
     private val openTelemetry: OpenTelemetry,
+    private val userCacheRoot: AmperUserCacheRoot,
+    private val incrementalCache: IncrementalCache,
 ) {
     private val mutex = Mutex()
     private var jdkPackages: List<JdkPackage>? = null
@@ -38,8 +46,30 @@ internal class JdkListProvider(
     }
 
     private suspend fun fetchAndConvertWithTelemetry(): List<JdkPackage> {
-        val jdks = openTelemetry.tracer.spanBuilder("Fetch JDK list").use {
-            amperHttpClient.fetchIjJdks()
+        val jdkListFile = incrementalCache.execute(
+            key = "jdk-list-download",
+            inputValues = emptyMap(),
+            inputFiles = emptyList(),
+        ) {
+            openTelemetry.tracer.spanBuilder("Fetch JDK list").use {
+                val jdkListFile = Downloader.downloadFileToCacheLocation(
+                    JetBrainsJdksJsonUrl,
+                    userCacheRoot,
+                    infoLog = false,
+                    // The Downloader doesn't have any concept of expiration, so we need to manually delete files.
+                    // We handle the caching mechanism ourselves via the project's incremental cache.
+                    forceOverwrite = true,
+                )
+                IncrementalCache.ExecutionResult(
+                    outputFiles = listOf(jdkListFile),
+                    expirationTime = Clock.System.now() + 24.hours,
+                )
+            }
+        }.outputFiles.single()
+        val jdks = openTelemetry.tracer.spanBuilder("Read JDK packages metadata").use {
+            withContext(Dispatchers.IO) {
+                jdkListFile.inputStream().use { it.readIjJdks() }
+            }
         }
         return openTelemetry.tracer.spanBuilder("Convert JDK packages metadata").use {
             jdks.toJdkPackages()

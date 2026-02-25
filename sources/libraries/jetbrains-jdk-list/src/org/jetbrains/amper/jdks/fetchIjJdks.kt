@@ -18,7 +18,7 @@ import kotlinx.serialization.json.decodeFromStream
 import org.tukaani.xz.SingleXZInputStream
 import java.io.InputStream
 
-private const val JetBrainsJdksJsonUrl = "https://download.jetbrains.com/jdk/feed/v1/jdks.json.xz"
+const val JetBrainsJdksJsonUrl = "https://download.jetbrains.com/jdk/feed/v1/jdks.json.xz"
 
 private val IjJdkJson = Json {
     ignoreUnknownKeys = true
@@ -35,7 +35,7 @@ suspend fun HttpClient.fetchIjJdks(): List<IjJdkFamily> = get(JetBrainsJdksJsonU
     }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun InputStream.readIjJdks(): List<IjJdkFamily> =
+fun InputStream.readIjJdks(): List<IjJdkFamily> =
     IjJdkJson.decodeFromStream<IjJdksJsonRoot>(SingleXZInputStream(this)).jdks
 
 @Serializable

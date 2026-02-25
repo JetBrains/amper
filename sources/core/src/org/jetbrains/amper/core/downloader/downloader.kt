@@ -69,10 +69,11 @@ object Downloader {
         url: String,
         userCacheRoot: AmperUserCacheRoot,
         infoLog: Boolean = true,
+        forceOverwrite: Boolean = false,
     ): Path {
         val target = getTargetFile(userCacheRoot, url)
         fileLocks.withLock(target) {
-            if (target.exists()) {
+            if (target.exists() && !forceOverwrite) {
                 Span.current().addEvent(
                     "use asset from cache", Attributes.of(
                         AttributeKey.stringKey("url"), url,
