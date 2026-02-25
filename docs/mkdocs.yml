@@ -117,6 +117,7 @@ nav:
       - user-guide/index.md
       - 'Basic concepts': user-guide/basics.md
       - 'Dependencies': user-guide/dependencies.md
+      - 'Git dependencies': user-guide/git-dependencies.md
       - 'Multiplatform modules': user-guide/multiplatform.md
       - 'Testing': user-guide/testing.md
       - 'Templates': user-guide/templates.md

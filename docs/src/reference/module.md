@@ -247,6 +247,38 @@ repositories:
   - mavenLocal # special URL that points to ~/.m2/repository
 ```
 
+## `sources`
+
+The `sources` section defines a list of external Git repositories that need to be resolved, built, and included as dependencies. 
+Read more in the [Git Dependencies](../user-guide/git-dependencies.md) section.
+
+| Attribute | Description | Default |
+|-----------|-------------|---------|
+| `git: string` | The full HTTP(s) or SSH URL of the Git repository | |
+| `github: string` | A shorthand for `git` pointing to a GitHub repo (`<owner>/<repo>`). Use this *instead* of `git` | |
+| `gitlab: string` | A shorthand for a GitLab repo (`<group>/<repo>`). | |
+| `bitbucket: string` | A shorthand for a Bitbucket repo (`<owner>/<repo>`). | |
+| `version: string` | The Git reference to check out (branch, tag, or commit SHA). | |
+| `path: string` | (Optional) The relative path inside the repository where the Kargo project is located. | (Root of the repo) |
+| `publishOnly: boolean` | (Optional) If true, build and publish artifacts without injecting them as dependencies. | `false` |
+| `platforms: list` | (Optional) Platforms to build. | (All platforms supported by the source) |
+
+Examples:
+
+```yaml title="GitHub shorthand"
+sources:
+  - github: kargo-build/kargo-native-git-lib
+    version: main
+```
+
+```yaml title="Full URL, custom path and publishOnly"
+sources:
+  - git: ssh://git@server.com/company/internal-library.git
+    version: develop
+    path: core-module
+    publishOnly: true
+```
+
 ## `settings` and `test-settings`
 
 The `settings` section configures the toolchains used in the build process.
