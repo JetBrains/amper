@@ -28,8 +28,7 @@ For more details about how docs are versioned and published see
 Use the `./mkdocs` script from this folder to build and serve the documentation locally at http://localhost:8000
 (don't try the advertised `0.0.0.0:8000` URL, it doesn't work through the Docker container).
 
-You will need to have Docker installed. Make sure you checked the `Need Docker subscription` checkbox in 
-[your Space profile](https://code.jetbrains.team/m/me/edit?tab=PersonalData) to avoid breaking any licensing agreements. 
+You will need to have Docker installed.
 
 > Alternatively, you can work without Docker if you have Python installed.
 > Use `uv` or virtual env to install the required Python packages:
@@ -58,7 +57,7 @@ To add a new page:
 ### Adding custom icons
 
 The `.icons` directory contains custom SVG icons used in the documentation as `:<subdir>-<icon name>:` 
-(e.g. `:jetbrains-amper:`, or `:intellij-run:`).
+(e.g. `:jetbrains-kotlin:`, or `:intellij-run:`).
 
 Subdirectories determine the prefix in the icon references in the docs, and is used for provenance as well:
 
