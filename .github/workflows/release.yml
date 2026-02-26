@@ -23,7 +23,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Build Kargo Distribution
-        run: ./kargo-from-sources task :amper-cli:build@amper-distribution
+        run: ./amper task :amper-cli:build@amper-distribution
 
       - name: Find Distribution Artifact
         id: find_dist

@@ -16,7 +16,7 @@ theme:
   name: material
   custom_dir: overrides
   logo: images/kargo-icon.svg
-  favicon: images/kargo-icon.png
+  favicon: images/kargo-icon.svg
   icon:
     annotation: material/information-slab-circle
     repo: fontawesome/brands/github
