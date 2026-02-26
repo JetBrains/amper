@@ -91,7 +91,7 @@ settings@android:
   ktor:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.2.3  # default
+    version: 3.4.0  # default
   lombok:
     enabled: false  # default
     version: 1.18.38  # default
@@ -178,7 +178,7 @@ settings@jvm:
   ktor:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.2.3  # default
+    version: 3.4.0  # default
   lombok:
     enabled: false  # default
     version: 1.18.38  # default
@@ -278,7 +278,7 @@ settings@jvm+android:
   ktor:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.2.3  # default
+    version: 3.4.0  # default
   lombok:
     enabled: false  # default
     version: 1.18.38  # default
@@ -368,7 +368,7 @@ settings@jvm:
   ktor:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.2.3  # default
+    version: 3.4.0  # default
   lombok:
     enabled: false  # default
     version: 1.18.38  # default
@@ -465,7 +465,7 @@ settings@android:
   ktor:
     applyBom: true  # default
     enabled: false  # default
-    version: 3.2.3  # default
+    version: 3.4.0  # default
   lombok:
     enabled: false  # default
     version: 1.18.38  # default

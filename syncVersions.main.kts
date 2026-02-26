@@ -47,7 +47,7 @@ val junitPlatformVersion = "6.0.1"
 val kotlinxRpcVersion = "0.10.2"
 val kotlinxSerializationVersion = "1.10.0"
 val kspVersion = "2.3.6"
-val ktorVersion = "3.2.3"
+val ktorVersion = "3.4.0"
 val springBootVersion = "4.0.2"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
