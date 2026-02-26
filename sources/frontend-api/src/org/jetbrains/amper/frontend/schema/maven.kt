@@ -34,8 +34,7 @@ class MavenMojoSettings : SchemaNode() {
     @Shorthand
     @SchemaDoc("Enabled corresponding maven mojo execution")
     val enabled by value(default = false)
-
-    @ModifierAware
+    
     @SchemaDoc("The list of dependencies added to the classpath of the maven mojo execution")
     val dependencies by nullableValue<List<UnscopedExternalMavenDependency>>(default = emptyList())
     
