@@ -19,7 +19,7 @@ import org.jetbrains.amper.engine.TestTask
 import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.jdkSettings
+import org.jetbrains.amper.frontend.testJdkSettings
 import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getJdkOrUserError
@@ -106,7 +106,7 @@ class JvmTestTask(
         // TODO use maven instead of packing this in the distribution?
         val amperJUnitListenersJars = extractJUnitListenersClasspath()
 
-        val jdk = jdkProvider.getJdkOrUserError(module.jdkSettings)
+        val jdk = jdkProvider.getJdkOrUserError(module.testJdkSettings)
 
         cleanDirectory(taskOutputRoot.path)
 
