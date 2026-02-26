@@ -5,7 +5,11 @@ apply:
   - ../../used-in-idea.module-template.yaml
 
 dependencies:
+  - $libs.ktor.client.core
   - $libs.xz
+
+test-dependencies:
+  - $libs.ktor.client.cio
 
 settings:
   kotlin:

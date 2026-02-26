@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.commands
@@ -20,7 +20,7 @@ import io.ktor.client.statement.*
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
-import org.jetbrains.amper.core.downloader.httpClient
+import org.jetbrains.amper.core.downloader.amperHttpClient
 import org.jetbrains.amper.processes.ProcessLeak
 import org.jetbrains.amper.processes.runProcessWithInheritedIO
 import org.jetbrains.amper.processes.startLongLivedProcess
@@ -211,7 +211,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
         }
 
     private suspend fun fetchMavenMetadataXml(artifactId: String): String = try {
-        httpClient.get("$repository/org/jetbrains/amper/$artifactId/maven-metadata.xml").bodyAsText()
+        amperHttpClient.get("$repository/org/jetbrains/amper/$artifactId/maven-metadata.xml").bodyAsText()
     } catch (e: Exception) {
         userReadableError("Couldn't fetch the latest Kargo version:\n$e")
     }
