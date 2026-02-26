@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 package org.jetbrains.amper.maven.publish
 
@@ -92,6 +92,7 @@ private fun generatePomModel(
     // However, but that's not what I found empirically in Maven Central in general. Rather, the module name is used.
     // TODO provide a way to override this in the frontend
     model.name = module.userReadableName
+    model.description = module.description
     
     model.groupId = coords.groupId
     model.artifactId = coords.artifactId
@@ -102,7 +103,6 @@ private fun generatePomModel(
         model.dependencyManagement = DependencyManagement().apply { dependencies.addAll(bomPomDependencies) }
     }
 
-    // TODO add description for Maven Central compatibility
     // TODO add url for Maven Central compatibility
     // TODO add licenses for Maven Central compatibility
     // TODO add developers for Maven Central compatibility

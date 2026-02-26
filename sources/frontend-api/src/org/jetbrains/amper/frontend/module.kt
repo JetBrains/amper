@@ -83,6 +83,11 @@ interface AmperModule {
      */
     val userReadableName: String
 
+    /**
+     * An optional description for this module.
+     */
+    val description: String?
+
     val type: ProductType
 
     val source: AmperModuleFileSource

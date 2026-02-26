@@ -17,11 +17,14 @@ import org.jetbrains.amper.frontend.types.SchemaType
 class MinimalPluginModule : SchemaNode() {
     val product by value<ModuleProduct>()
 
+    val description by nullableValue<String>()
+
     val pluginInfo: MinimalPluginDeclarationSchema by nested()
 }
 
 class MinimalPluginDeclarationSchema : SchemaNode() {
     val id by nullableValue<TraceableString>()
+    @Deprecated("Use the description from the plugin's module instead")
     val description by nullableValue<String>()
     @StringSemantics(SchemaType.StringType.Semantics.PluginSettingsClass)
     val settingsClass by nullableValue<TraceableString>()

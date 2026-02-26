@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.plugins
@@ -19,8 +19,12 @@ class PluginDeclarationSchema : SchemaNode() {
             "Module name is used by default.")
     val id by value<TraceableString>() // Defaults to the module name, is set on the tree level later.
 
+    @Deprecated("Use the plugin module's description instead.")
     @SchemaDoc("Plugin description. " +
-            "Can be used by tooling to provide documentation on plugin references in configuration files.")
+            "Can be used by tooling to provide documentation on plugin references in configuration files. " +
+            "DEPRECATED: superseded by the description of the module (at the top level of module.yaml). " +
+            "This `pluginInfo.description` field will be removed in a future version."
+    )
     val description by nullableValue<String>()
 
     @SchemaDoc("Fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. " +

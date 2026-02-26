@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.plugins
@@ -49,7 +49,8 @@ fun parsePluginManifestFromModuleFile(
 
         return object : PluginManifest {
             override val id: String = moduleHeader.pluginInfo.id?.value ?: moduleFile.parent.name
-            override val description: String? = moduleHeader.pluginInfo.description
+            @Suppress("DEPRECATION") // we fall back to the deprecated location for a transition period
+            override val description: String? = moduleHeader.description ?: moduleHeader.pluginInfo.description
             override val settingsClass: String? = moduleHeader.pluginInfo.settingsClass?.value
 
             override fun toString(): String {
