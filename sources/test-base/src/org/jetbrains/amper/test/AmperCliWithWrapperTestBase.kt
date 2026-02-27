@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test
@@ -31,6 +31,7 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
 import kotlin.test.assertEquals
@@ -177,9 +178,7 @@ abstract class AmperCliWithWrapperTestBase {
         val amperResult = AmperCliResult(
             projectRoot = workingDir,
             buildOutputRoot = buildOutputRoot,
-            // Logs dirs contain the date, so max() gives the latest.
-            // This should be correct because we don't run the CLI concurrently in a single test.
-            logsDir = (buildOutputRoot / "logs").takeIf { it.exists() }?.listDirectoryEntries()?.maxOrNull(),
+            logsDir = logsDirForExecution(buildOutputRoot, amperWrapperPid = result.pid),
             pid = result.pid,
             exitCode = result.exitCode,
             stdout = result.stdout,
@@ -246,6 +245,26 @@ abstract class AmperCliWithWrapperTestBase {
     }
 }
 
+private val logsDirRegex = Regex("""amper_(?<datetime>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_(?<pid>\d+)-(?<parentPid>\d+)_(?<command>.+)""")
+
+private fun logsDirForExecution(buildDir: Path, amperWrapperPid: Long): Path? =
+    (buildDir / "logs").takeIf { it.exists() }
+        ?.listDirectoryEntries()
+        ?.find { it.isLogsDirFor(amperWrapperPid) }
+
+private fun Path.isLogsDirFor(amperWrapperPid: Long): Boolean {
+    check(isDirectory()) { "Expected a directory, but got a file: $this" }
+    val match = logsDirRegex.matchEntire(name)
+        ?: error("The logs root dir contains an invalid logs directory name: $name")
+    val pid = match.groups["pid"]?.value?.toLong()
+        ?: error("The regex was matched but the 'pid' group is missing")
+    val parentPid = match.groups["parentPid"]?.value?.toLong()
+        ?: error("The regex was matched but the 'parentPid' group is missing")
+    // On Windows, the PID of the process we start (the wrapper) is the parent of the Amper Java process.
+    // On linux/macOS, the wrapper uses 'exec java' so the wrapper process is replaced with Java with the same PID.
+    return if (OsFamily.current.isWindows) parentPid == amperWrapperPid else pid == amperWrapperPid
+}
+
 /**
  * Defines how a test Amper process should get its JRE (especially when tests are run using Amper itself).
  */
@@ -270,7 +289,11 @@ sealed class JavaHomeMode {
 data class AmperCliResult(
     val projectRoot: Path,
     val buildOutputRoot: Path,
-    val logsDir: Path?, // null if it doesn't exist (e.g. the command didn't write logs)
+    /**
+     * The directory where the logs of this run are written, or `null` if it doesn't exist (most likely, the command
+     * didn't write logs).
+     */
+    val logsDir: Path?,
     val pid: Long,
     val exitCode: Int,
     val stdout: String,
