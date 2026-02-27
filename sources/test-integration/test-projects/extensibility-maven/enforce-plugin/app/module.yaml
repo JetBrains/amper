@@ -1,12 +1,13 @@
 product: 
   type: jvm/app
 
-plugins:
+mavenPlugins:
   maven-enforcer-plugin.enforce: 
     enabled: true
-    rules: "
-      <rules>
-        <alwaysFail>
-          <message>This rule should fail</message>
-        </alwaysFail>
-      </rules>"
+    configuration:
+      rules: "
+        <rules>
+          <alwaysFail>
+            <message>This rule should fail</message>
+          </alwaysFail>
+        </rules>"

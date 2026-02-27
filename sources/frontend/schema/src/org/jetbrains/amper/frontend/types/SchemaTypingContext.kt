@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.types
@@ -16,7 +16,7 @@ import org.jetbrains.amper.frontend.types.generated.DeclarationOfPluginYamlRoot
 import org.jetbrains.amper.frontend.types.generated.DeclarationOfTask
 import org.jetbrains.amper.frontend.types.generated.DeclarationOfTemplate
 import org.jetbrains.amper.frontend.types.generated.PublicInterfaceToDeclaration
-import org.jetbrains.amper.frontend.types.maven.discoverMavenPluginXmlTypes
+import org.jetbrains.amper.frontend.types.maven.createMavenPluginsSettingsDeclaration
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.Defaults
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -50,6 +50,8 @@ class SchemaTypingContext(
         )
     }
 
+    private val mavenPluginSettingsDeclaration = createMavenPluginsSettingsDeclaration(mavenPlugins)
+
     private val allPluginSettingsDeclaration = object : BuiltinSchemaObjectDeclarationBase<PluginSettings>() {
         override val qualifiedName get() = "org.jetbrains.amper.frontend.schema.PluginSettings"
         override fun createInstance() = PluginSettings()
@@ -61,14 +63,16 @@ class SchemaTypingContext(
                 origin = declarations.settingsClassDeclaration.origin,
                 default = Default.Static(null),
             )
-        } + discoverMavenPluginXmlTypes(mavenPlugins)
+        }
     }
 
     val moduleDeclaration = DeclarationOfModule(
+        mavenPluginSettingsDeclaration = mavenPluginSettingsDeclaration,
         pluginSettingsDeclaration = allPluginSettingsDeclaration,
     )
 
     val templateDeclaration = DeclarationOfTemplate(
+        mavenPluginSettingsDeclaration = mavenPluginSettingsDeclaration,
         pluginSettingsDeclaration = allPluginSettingsDeclaration,
     )
 

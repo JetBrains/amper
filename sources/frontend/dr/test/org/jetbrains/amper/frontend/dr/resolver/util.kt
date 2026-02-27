@@ -29,7 +29,7 @@ internal fun getTestProjectModel(testProjectName: String, testDataRoot: Path): M
     val aom = with(NoopProblemReporter) {
         val amperProjectContext = StandaloneAmperProjectContext.create(projectPath, null)
             ?: fail("Failed to create test project context")
-        amperProjectContext.readProjectModel(pluginData = emptyList(), mavenPluginsWithXmls = emptyList())
+        amperProjectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
     }
     return aom
 }

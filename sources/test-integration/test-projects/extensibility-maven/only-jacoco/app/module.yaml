@@ -4,6 +4,6 @@ product:
 settings:
   junit: junit-5
 
-plugins:
+mavenPlugins:
   jacoco-maven-plugin.prepare-agent: enabled
   jacoco-maven-plugin.report: enabled

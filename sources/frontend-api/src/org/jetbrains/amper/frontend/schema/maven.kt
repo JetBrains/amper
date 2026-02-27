@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.api.CustomSchemaDeclaration
 import org.jetbrains.amper.frontend.api.FromKeyAndTheRestIsNested
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -20,14 +21,8 @@ class MavenPlugin : SchemaNode() {
     val coordinates by value<String>()
 }
 
-class MavenPluginSettings : SchemaNode() {
-
-    // This field is added dynamically in the schema after loading of maven plugins.
-    // This is done because for every mojo schema definition for [MavenMojoSettings] differs.
-    // Keys are strictly defined as "${plugin.id}.${mojo.name}".
-    //
-    // val mojos by value<Map<String, MavenMojoSettings>>(default = emptyMap())
-}
+@CustomSchemaDeclaration(MavenMojoSettings::class)
+class MavenPluginSettings : SchemaNode()
 
 class MavenMojoSettings : SchemaNode() {
 
@@ -37,9 +32,11 @@ class MavenMojoSettings : SchemaNode() {
     
     @SchemaDoc("The list of dependencies added to the classpath of the maven mojo execution")
     val dependencies by nullableValue<List<UnscopedExternalMavenDependency>>(default = emptyList())
+
+    @SchemaDoc("The configuration for mojo execution")
+    val configuration by nullableValue<MavenMojoConfiguration>()
     
-    // This field is added dynamically in the schema after loading of maven plugins.
-    // This is done because for every mojo this type differs.
-    //
-    // val configuration by nullableValue<SchemaNode>()
 }
+
+@CustomSchemaDeclaration
+class MavenMojoConfiguration : SchemaNode()

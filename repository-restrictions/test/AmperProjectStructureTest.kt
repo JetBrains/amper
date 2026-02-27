@@ -251,7 +251,7 @@ class AmperProjectStructureTest {
     private fun readAmperProjectModel(): Model = with(NoopProblemReporter) {
         val projectContext = StandaloneAmperProjectContext.create(Dirs.amperCheckoutRoot, buildDir = null, project = null)
             ?: error("Invalid project root: ${Dirs.amperCheckoutRoot}")
-        projectContext.readProjectModel(pluginData = emptyList(), mavenPluginsWithXmls = emptyList())
+        projectContext.readProjectModel(pluginData = emptyList(), mavenPluginXmls = emptyList())
     }
 
     private fun AmperModule.nonLibraryDependencies(includeTestDeps: Boolean): List<String> =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.plugins.schema.model.InputOutputMark
+import kotlin.reflect.KClass
 
 /**
  * An annotation to specify documentation bundle entry.
@@ -219,4 +220,6 @@ annotation class ReadOnly
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class CustomSchemaDeclaration
+annotation class CustomSchemaDeclaration(
+    vararg val requiredReferences: KClass<out SchemaNode>
+)

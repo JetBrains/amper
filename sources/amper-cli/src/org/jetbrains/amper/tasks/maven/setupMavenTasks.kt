@@ -8,14 +8,13 @@ import org.jetbrains.amper.frontend.MavenCoordinates
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.aomBuilder.traceableString
+import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.schema.MavenMojoSettings
-import org.jetbrains.amper.frontend.schema.MavenPluginSettings
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
-import org.jetbrains.amper.frontend.tree.BooleanNode
 import org.jetbrains.amper.frontend.tree.CompleteObjectNode
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.instance
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.frontend.types.maven.amperMavenPluginId
 import org.jetbrains.amper.maven.publish.createPlexusContainer
 import org.jetbrains.amper.tasks.CommonTaskType
@@ -134,7 +133,7 @@ private fun ModuleSequenceCtx.setupMavenPluginTasks(sharedMavenProject: MavenPro
                 groupId = pluginDescription.groupId
                 version = pluginDescription.version
                 dependencies = mojoSettings.dependencies
-                    ?.map { it::coordinates.traceableString().toMavenCoordinates() }
+                    ?.map { it.coordinatesDelegate.asTraceableValue().toMavenCoordinates() }
                     ?.map {
                         MavenDependency(
                             groupId = it.groupId,

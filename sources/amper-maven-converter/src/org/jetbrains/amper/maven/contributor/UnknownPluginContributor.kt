@@ -11,8 +11,8 @@ import org.apache.maven.project.MavenProject
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.jetbrains.amper.frontend.schema.MavenMojoSettings
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.tree.SyntheticBuilder
-import org.jetbrains.amper.frontend.types.SchemaType
+import org.jetbrains.amper.frontend.tree.invoke
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.MavenConverterBundle
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.Mojo
@@ -107,7 +107,6 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributeUnknownPlugin(
     }
 }
 
-
 private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
     pluginXml: MavenPluginXml,
     mojo: Mojo,
@@ -124,28 +123,24 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
             false
         }
     }
-    
+
     withDefaultContext {
-        val stringMapType = SchemaType.MapType(SchemaType.StringType, SchemaType.StringType)
-        `object`<Module> {
-            Module::mavenPlugins {
+        val mavenPluginConfiguration = context(SimpleTreeNodeFactory(trace, contexts)) {
+            mapping {
                 if (hasConfiguration) {
-                    // Unfortunately, cannot reuse [MavenMojoSettings] here, since
-                    // it is not really used within schema - instead it is used as
-                    // a template for dynamically created types.
-                    pluginKey setTo map(stringMapType) {
-                        MavenMojoSettings::enabled setTo scalar(true)
-                        "configuration" setTo map(stringMapType) {
-                            mapConfiguration(this, configuration, mojo)
-                        }
-                    }
+                    put(pluginKey, mapping {
+                        put(MavenMojoSettings::enabled.name, scalar("true"))
+                        put(MavenMojoSettings::configuration.name, mapping {
+                            mapConfiguration(configuration, mojo)   
+                        })
+                    })
                 } else {
                     put(pluginKey, scalar("enabled")) // shorthand
                 }
             }
         }
-
-        plugins(pluginsConfiguration, unsafe = true)
+        
+        mavenPlugins(mavenPluginConfiguration, unsafe = true)
     }
 }
 
@@ -186,7 +181,8 @@ private fun SimpleMappingBuilder.mapConfigurationValue(
             }
         }
         "java.lang.String[]", "java.util.List",
-        "java.io.File[]", "java.nio.Path[]" -> {
+        "java.io.File[]", "java.nio.Path[]",
+            -> {
             put(element.name, list {
                 if (element.childCount > 0) {
                     element.children.forEach { child ->
@@ -213,7 +209,6 @@ private fun SimpleMappingBuilder.mapConfigurationValue(
         }
     }
 }
-
 
 private fun Xpp3Dom.value(): String? {
     val originalValue = (inputLocation as? InputLocation)?.originalValue()
@@ -254,7 +249,6 @@ private fun SimpleMappingBuilder.mapPlexusConfiguration(
         }
     }
 }
-
 
 internal fun InputLocation.originalValue(): String? {
     val sourcePath = source?.location ?: return null
@@ -297,7 +291,10 @@ private fun readElementText(reader: XMLStreamReader): String? {
     while (reader.hasNext() && depth >= 0) {
         when (reader.next()) {
             CHARACTERS,
-            CDATA -> if (depth == 0) { content.append(reader.text) }
+            CDATA,
+                -> if (depth == 0) {
+                content.append(reader.text)
+            }
             START_ELEMENT -> depth++
             END_ELEMENT -> depth--
         }
@@ -328,7 +325,14 @@ private fun createDuplicateExecutionComment(
             appendLine(MavenConverterBundle.message("duplicate.execution.not.translated"))
             skippedExecutions.forEach { execution ->
                 execution.getLocation("")?.let { location ->
-                    appendLine(MavenConverterBundle.message("duplicate.execution.reference", location.source.location, location.lineNumber, location.columnNumber))
+                    appendLine(
+                        MavenConverterBundle.message(
+                            "duplicate.execution.reference",
+                            location.source.location,
+                            location.lineNumber,
+                            location.columnNumber
+                        )
+                    )
                 }
                 appendLine("<execution>")
                 appendLine("  <id>${execution.id}</id>")

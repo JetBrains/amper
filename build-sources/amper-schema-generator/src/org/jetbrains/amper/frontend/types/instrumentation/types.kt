@@ -23,7 +23,6 @@ import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
 /**
  * Instrumentation-time mirror for [org.jetbrains.amper.frontend.tree.TypeDescriptor] hierarchy.
@@ -225,7 +224,12 @@ internal fun schemaTypeExpression(
                 descriptor = ParsedTypeDescriptor.Variant(classifier.asClassName(), parsed.declarationName),
             )
         } else {
-            if (classifier.hasAnnotation<CustomSchemaDeclaration>()) {
+            val customDeclaration = classifier.findAnnotation<CustomSchemaDeclaration>()
+            if (customDeclaration != null) {
+                // First, we need to ensure that all referenced types have their
+                // type definitions generated.
+                customDeclaration.requiredReferences.forEach { parseAndGenerateSchemaNode(it) }
+                
                 val parameter = ParsedDeclaration.SchemaNode.Parameter(
                     schemaNodeClass = classifier,
                     parameterType = SchemaTypeDeclaration::class.asTypeName(),

@@ -175,7 +175,7 @@ class MavenPluginsTest : AmperCliTestBase() {
             taskName = "maven-enforcer-plugin.enforce",
             expectedExitCode = 1,
         )
-        result.assertStderrContains("app${File.separator}module.yaml:7:12: Expected a valid XML object for `PlexusConfiguration`, but the provided value is not valid XML")
+        result.assertStderrContains("app${File.separator}module.yaml:8:14: Expected a valid XML object for `PlexusConfiguration`, but the provided value is not valid XML")
     }
     
     @Test
