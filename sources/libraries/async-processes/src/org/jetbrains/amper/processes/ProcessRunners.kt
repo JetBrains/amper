@@ -36,8 +36,9 @@ suspend fun runProcessAndCaptureOutput(
     redirectErrorStream: Boolean = false,
     input: ProcessInput = ProcessInput.Empty,
     outputListener: ProcessOutputListener = ProcessOutputListener.NOOP,
+    onStart: (pid: Long) -> Unit = {},
 ): ProcessResult = process(workingDir, command, environment, redirectErrorStream)
-    .runAndCaptureOutput(input, outputListener, redirectErrorStream)
+    .runAndCaptureOutput(input, outputListener, redirectErrorStream, onStart)
 
 /**
  * Starts a new process with the given [command] in [workingDir], and awaits its completion.
