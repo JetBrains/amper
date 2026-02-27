@@ -270,10 +270,10 @@ class NativeSettings : SchemaNode() {
 class KtorSettings: SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enables Ktor server")
+    @SchemaDoc("Enable the Ktor server framework. This is just a convenience to generate library catalog entries for Ktor libraries.")
     val enabled by value(default = false)
 
-    @SchemaDoc("The Ktor version, which is used for the BOM and in the generated library catalog entries")
+    @SchemaDoc("The Ktor version used for the BOM and in the generated library catalog entries")
     val version by value(default = DefaultVersions.ktor)
 
     @SchemaDoc("Whether to apply the Ktor BOM or not")
@@ -283,7 +283,7 @@ class KtorSettings: SchemaNode() {
 class SpringBootSettings: SchemaNode() {
 
     @Shorthand
-    @SchemaDoc("Enables Spring Boot")
+    @SchemaDoc("Enables the Spring Boot framework support. This configures some Kotlin compiler plugins with Spring presets, and generates a built-in catalog with ")
     val enabled by value(default = false)
 
     @SchemaDoc("The Spring Boot version, which is used for the BOM and in the generated library catalog entries")

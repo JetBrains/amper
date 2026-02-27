@@ -48,6 +48,7 @@ val kotlinxRpcVersion = "0.10.2"
 val kotlinxSerializationVersion = "1.10.0"
 val kspVersion = "2.3.6"
 val ktorVersion = "3.4.0"
+val lombokVersion = "1.18.38"
 val springBootVersion = "4.0.2"
 
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
@@ -94,6 +95,7 @@ fun updateDefaultVersionsKt() {
             .replaceDefaultVersionVariable(variableName = "kotlinxSerialization", newValue = kotlinxSerializationVersion)
             .replaceDefaultVersionVariable(variableName = "ksp", newValue = kspVersion)
             .replaceDefaultVersionVariable(variableName = "ktor", newValue = ktorVersion)
+            .replaceDefaultVersionVariable(variableName = "lombok", newValue = lombokVersion)
             .replaceDefaultVersionVariable(variableName = "springBoot", newValue = springBootVersion)
     }
 }
