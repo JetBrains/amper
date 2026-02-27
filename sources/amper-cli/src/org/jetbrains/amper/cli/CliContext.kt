@@ -22,6 +22,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
+import kotlin.jvm.optionals.getOrNull
 
 class CliContext(
     val commandName: String,
@@ -51,8 +52,17 @@ class CliContext(
      */
     val currentLogsRoot: AmperBuildLogsRoot by lazy {
         val currentTimestamp = LocalDateTime.nowInDefaultTimezone().format(DateTimeFormatForFilenames)
-        val pid = ProcessHandle.current().pid() // avoid clashes with concurrent Amper processes
-        val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}_$commandName")
+        val currentProcess = ProcessHandle.current()
+
+        val pid = currentProcess.pid() // avoid clashes with concurrent Amper processes
+
+        // On linux/macOS, the wrapper script uses 'exec java' to start Amper, which replaces the process and uses the
+        // same PID. On Windows, there is no equivalent, so a child process is created. Callers are only aware of the
+        // wrapper process ID, so to allow the automated discovery of the logs dir, we also record the parent process
+        // ID for Windows users.
+        val parentPid = currentProcess.parent().getOrNull()?.pid()
+
+        val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}-${parentPid}_$commandName")
         AmperBuildLogsRoot(currentLogsPath.createDirectories())
     }
 
