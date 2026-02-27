@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../images/amper-icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
   
@@ -2193,6 +2193,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2594,6 +2605,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2961,20 +2983,20 @@ Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>exported: boolean</code></td>
-<td>Whether a dependency should be <a href="../../user-guide/dependencies/#transitivity-and-scope">visible as a part of a published API</a>.</td>
 <td><code>false</code></td>
+<td>Whether a dependency should be <a href="../../user-guide/dependencies/#transitivity-and-scope">visible as a part of a published API</a>.</td>
 </tr>
 <tr>
 <td><code>scope: enum</code></td>
-<td>When the dependency should be used. Read more about the <a href="../../user-guide/dependencies/#transitivity-and-scope">dependency scopes</a>.</td>
 <td><code>all</code></td>
+<td>When the dependency should be used. Read more about the <a href="../../user-guide/dependencies/#transitivity-and-scope">dependency scopes</a>.</td>
 </tr>
 </tbody>
 </table>
@@ -3031,6 +3053,10 @@ Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.ktor:ktor-client-java:2.2.0</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
+<h2 id="description"><code>description</code><a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p>The description of the module.</p>
+<p>It can be used in CLI introspection commands (<code>./amper show modules</code>) or in UIs to show information about modules.
+For libraries, it also used as a description in published metadata by default.</p>
 <h2 id="layout"><code>layout</code><a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <p>The <code>layout</code> defines the module file structure. Valid values:</p>
 <ul>
@@ -3056,25 +3082,25 @@ It configures plugin-specific build settings.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>id: string</code></td>
-<td>The ID that is used to refer to the plugin in the configuration files.</td>
 <td>Module name</td>
+<td>The ID that is used to refer to the plugin in the configuration files.</td>
 </tr>
 <tr>
-<td><code>description: string</code></td>
-<td>The plugin description. Can be used by tooling to provide documentation on plugin references in configuration files.</td>
+<td>~~<code>description: string</code>~~</td>
 <td><code>null</code></td>
+<td><strong>Deprecated</strong>. Use the plugin module's top-level <code>description</code> instead.</td>
 </tr>
 <tr>
 <td><code>settingsClass: string</code></td>
+<td><code>null</code> (no plugin settings)</td>
 <td>The fully qualified name of the @Configurable-annotated interface to be used as plugin configuration. This interface can't come from a dependency, it must be declared in the source directory.</td>
-<td><code>null</code></td>
 </tr>
 </tbody>
 </table>
@@ -3085,17 +3111,20 @@ Read more about the <a href="../../user-guide/basics/#product-type">product type
 <thead>
 <tr>
 <th>Attribute</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>type: enum</code></td>
-<td>What type of product to generate.</td>
+<td><code>platform: enum list</code></td>
+<td>(derived from <code>type</code>)</td>
+<td>What platforms to generate the product for.</td>
 </tr>
 <tr>
-<td><code>platform: enum list</code></td>
-<td>What platforms to generate the product for.</td>
+<td><code>type: enum</code></td>
+<td>-</td>
+<td>What type of product to generate.</td>
 </tr>
 </tbody>
 </table>
@@ -3110,36 +3139,6 @@ Read more about the <a href="../../user-guide/basics/#product-type">product type
 </thead>
 <tbody>
 <tr>
-<td><code>lib</code></td>
-<td>A reusable multiplatform library that other modules can depend on.</td>
-<td>any (the list must be specified explicitly)</td>
-</tr>
-<tr>
-<td><code>jvm/lib</code></td>
-<td>A JVM library that other modules can depend on.</td>
-<td><code>jvm</code></td>
-</tr>
-<tr>
-<td><code>jvm/app</code></td>
-<td>A JVM console or desktop application.</td>
-<td><code>jvm</code></td>
-</tr>
-<tr>
-<td><code>linux/app</code></td>
-<td>A native Linux application.</td>
-<td><code>linuxX86</code>, <code>linuxArm64</code></td>
-</tr>
-<tr>
-<td><code>windows/app</code></td>
-<td>A native Windows application.</td>
-<td><code>mingwX64</code></td>
-</tr>
-<tr>
-<td><code>macos/app</code></td>
-<td>A native macOS application.</td>
-<td><code>macosX64</code>, <code>macosArm64</code></td>
-</tr>
-<tr>
 <td><code>android/app</code></td>
 <td>An Android VM application.</td>
 <td><code>android</code></td>
@@ -3147,12 +3146,42 @@ Read more about the <a href="../../user-guide/basics/#product-type">product type
 <tr>
 <td><code>ios/app</code></td>
 <td>An iOS application.</td>
-<td>device: <code>iosArm64</code>, simulators: <code>iosX64</code>, <code>iosSimulatorArm64</code></td>
+<td>device: <code>iosArm64</code><br> simulators: <code>iosX64</code>, <code>iosSimulatorArm64</code></td>
 </tr>
 <tr>
 <td><code>js/app</code></td>
 <td>A JavaScript application.</td>
 <td><code>js</code></td>
+</tr>
+<tr>
+<td><code>jvm/amper-plugin</code></td>
+<td>A plugin for Amper (see <a href="../../user-guide/plugins/quick-start/">Plugins</a>).</td>
+<td><code>jvm</code></td>
+</tr>
+<tr>
+<td><code>jvm/app</code></td>
+<td>A JVM application (console, desktop, server...).</td>
+<td><code>jvm</code></td>
+</tr>
+<tr>
+<td><code>jvm/lib</code></td>
+<td>A JVM library that other modules can depend on.</td>
+<td><code>jvm</code></td>
+</tr>
+<tr>
+<td><code>lib</code></td>
+<td>A reusable multiplatform library that other modules can depend on.</td>
+<td>any (the list must be specified explicitly)</td>
+</tr>
+<tr>
+<td><code>linux/app</code></td>
+<td>A native Linux application.</td>
+<td><code>linuxX86</code>, <code>linuxArm64</code></td>
+</tr>
+<tr>
+<td><code>macos/app</code></td>
+<td>A native macOS application.</td>
+<td><code>macosX64</code>, <code>macosArm64</code></td>
 </tr>
 <tr>
 <td><code>wasmJs/app</code></td>
@@ -3163,6 +3192,11 @@ Read more about the <a href="../../user-guide/basics/#product-type">product type
 <td><code>wasmWasi/app</code></td>
 <td>A Wasm (WASI) application.</td>
 <td><code>wasmWasi</code></td>
+</tr>
+<tr>
+<td><code>windows/app</code></td>
+<td>A native Windows application.</td>
+<td><code>mingwX64</code></td>
 </tr>
 </tbody>
 </table>
@@ -3187,25 +3221,25 @@ Read more about <a href="../../user-guide/dependencies/#managing-maven-repositor
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>url: string</code></td>
-<td>The URL of the repository.</td>
-<td></td>
+<td><code>credentials: object?</code></td>
+<td><code>null</code></td>
+<td>Credentials to connect to this repository (if needed).</td>
 </tr>
 <tr>
 <td><code>id: string</code></td>
+<td>(set from <code>url</code>)</td>
 <td>The ID of the repository, used to reference it.</td>
-<td>repository url</td>
 </tr>
 <tr>
-<td><code>credentials: object</code></td>
-<td>Credentials for the authenticated repositories.</td>
-<td>empty</td>
+<td><code>url: string</code></td>
+<td>-</td>
+<td>The URL of the repository.</td>
 </tr>
 </tbody>
 </table>
@@ -3223,12 +3257,12 @@ Read more about <a href="../../user-guide/dependencies/#managing-maven-repositor
 <td>A relative path to a file with the credentials. Currently, only <code>*.property</code> files are supported.</td>
 </tr>
 <tr>
-<td><code>usernameKey: string</code></td>
-<td>A key in the file that holds the username.</td>
-</tr>
-<tr>
 <td><code>passwordKey: string</code></td>
 <td>A key in the file that holds the password.</td>
+</tr>
+<tr>
+<td><code>usernameKey: string</code></td>
+<td>A key in the file that holds the username.</td>
 </tr>
 </tbody>
 </table>
@@ -3265,60 +3299,60 @@ Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>applicationId: string</code></td>
+<td>(set from <code>namespace</code>)</td>
 <td>The ID for the application on a device and in the Google Play Store. <a href="https://developer.android.com/build/configure-app-module#set-namespace">Read more</a>.</td>
-<td>(namespace)</td>
 </tr>
 <tr>
 <td><code>namespace: string</code></td>
+<td><code>org.example.namespace</code></td>
 <td>A Kotlin or Java package name for the generated <code>R</code> and <code>BuildConfig</code> classes. <a href="https://developer.android.com/build/configure-app-module#set-namespace">Read more</a>.</td>
-<td>org.example.namespace</td>
 </tr>
 <tr>
 <td><code>compileSdk: int</code></td>
-<td>The API level to compile the code. The code can use only the Android APIs up to that API level. <a href="https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()">Read more</a>.</td>
 <td>36</td>
+<td>The API level to compile the code. The code can use only the Android APIs up to that API level. <a href="https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()">Read more</a>.</td>
 </tr>
 <tr>
 <td><code>targetSdk: int</code></td>
+<td>(set from <code>compileSdk</code>)</td>
 <td>The target API level for the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
-<td>(compileSdk)</td>
 </tr>
 <tr>
 <td><code>minSdk: int</code></td>
-<td>Minimum API level needed to run the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
 <td>21</td>
+<td>Minimum API level needed to run the application. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
 </tr>
 <tr>
-<td><code>maxSdk: int</code></td>
+<td><code>maxSdk: int?</code></td>
+<td><code>null</code></td>
 <td>Maximum API level on which the application can run. <a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element.html">Read more</a>.</td>
-<td></td>
 </tr>
 <tr>
 <td><code>signing: object</code></td>
-<td>Android signing settings. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
 <td></td>
+<td>Android signing settings. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
 </tr>
 <tr>
 <td><code>versionCode: int</code></td>
-<td>Version code. <a href="https://developer.android.com/studio/publish/versioning">Read more</a>.</td>
 <td>1</td>
+<td>Version code. <a href="https://developer.android.com/studio/publish/versioning">Read more</a>.</td>
 </tr>
 <tr>
 <td><code>versionName: string</code></td>
+<td><code>unspecified</code></td>
 <td>Version name. <a href="https://developer.android.com/studio/publish/versioning">Read more</a>.</td>
-<td>unspecified</td>
 </tr>
 <tr>
 <td><code>parcelize: object \| string</code></td>
+<td>(disabled)</td>
 <td>Configure <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a>.</td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -3329,20 +3363,20 @@ platform in the module. The value can be the simple <code>enabled</code> string,
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
+<td><code>false</code></td>
 <td>Whether to enable <a href="https://developer.android.com/kotlin/parcelize">Parcelize</a>. When enabled, an implementation of the <code>Parcelable</code> interface is automatically generated for classes annotated with <code>@Parcelize</code>.</td>
-<td></td>
 </tr>
 <tr>
 <td><code>additionalAnnotations: string list</code></td>
+<td><code>[]</code></td>
 <td>The full-qualified names of additional annotations that should be considered as <code>@Parcelize</code>. This is useful if you need to annotate classes in common code shared between different platforms, where the real <code>@Parcelize</code> annotation is not available. In that case, create your own common annotation and add its fully-qualified name so that Parcelize recognizes it.</td>
-<td>(empty)</td>
 </tr>
 </tbody>
 </table>
@@ -3364,20 +3398,20 @@ platform in the module. The value can be the simple <code>enabled</code> string,
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
+<td><code>false</code></td>
 <td>Whether signing enabled or not. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
-<td>false</td>
 </tr>
 <tr>
 <td><code>propertiesFile: path</code></td>
+<td><code>./keystore.properties</code></td>
 <td>Location of properties file. <a href="https://developer.android.com/studio/publish/app-signing">Read more</a>.</td>
-<td>./keystore.properties</td>
 </tr>
 </tbody>
 </table>
@@ -3388,30 +3422,30 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable Compose runtime, dependencies and the compiler plugins.</td>
 <td><code>false</code></td>
+<td>Enable Compose runtime, dependencies and the compiler plugins.</td>
 </tr>
 <tr>
 <td><code>version: string</code></td>
-<td>The Compose plugin version to use.</td>
 <td><code>1.10.1</code></td>
+<td>The Compose plugin version to use.</td>
 </tr>
 <tr>
 <td><code>resources: object</code></td>
-<td>Compose Resources settings.</td>
 <td></td>
+<td>Compose Resources settings.</td>
 </tr>
 <tr>
 <td><code>experimental: object</code></td>
-<td>Experimental Compose settings.</td>
 <td></td>
+<td>Experimental Compose settings.</td>
 </tr>
 </tbody>
 </table>
@@ -3420,20 +3454,20 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>packageName: string</code></td>
-<td>A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact.</td>
 <td><code>""</code></td>
+<td>A unique identifier for the resources in the current module. Used as package for the generated Res class and for isolating resources in the final artifact.</td>
 </tr>
 <tr>
 <td><code>exposedAccessors: boolean</code></td>
-<td>Whether the generated resources accessors should be exposed to other modules (public) or internal.</td>
 <td><code>false</code></td>
+<td>Whether the generated resources accessors should be exposed to other modules (public) or internal.</td>
 </tr>
 </tbody>
 </table>
@@ -3442,15 +3476,15 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>hotReload: object</code></td>
-<td>Experimental Compose hot-reload settings.</td>
 <td></td>
+<td>Experimental Compose hot-reload settings.</td>
 </tr>
 </tbody>
 </table>
@@ -3459,15 +3493,15 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>version: string</code></td>
-<td>The Compose Hot Reload toolchain version to use.</td>
 <td><code>1.0.0-rc01</code></td>
+<td>The Compose Hot Reload toolchain version to use.</td>
 </tr>
 </tbody>
 </table>
@@ -3494,25 +3528,25 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>annotationProcessing: object</code></td>
+<td></td>
 <td>Java annotation processing settings</td>
-<td>(empty)</td>
-</tr>
-<tr>
-<td><code>freeCompilerArgs: string list</code></td>
-<td>Pass any compiler option directly to the Java compiler</td>
-<td>(empty)</td>
 </tr>
 <tr>
 <td><code>compileIncrementally: boolean</code></td>
-<td>Enables incremental compilation for Java sources</td>
 <td><code>false</code></td>
+<td>Enables incremental compilation for Java sources</td>
+</tr>
+<tr>
+<td><code>freeCompilerArgs: string list</code></td>
+<td><code>[]</code></td>
+<td>Pass any compiler option directly to the Java compiler</td>
 </tr>
 </tbody>
 </table>
@@ -3522,20 +3556,20 @@ framework. Read more about <a href="../../user-guide/builtin-tech/compose-multip
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>processors: list</code></td>
-<td>The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates</td>
-<td>(empty)</td>
+<td><code>processorOptions: map</code></td>
+<td><code>{}</code></td>
+<td>Options to pass to annotation processors</td>
 </tr>
 <tr>
-<td><code>processorOptions: map</code></td>
-<td>Options to pass to annotation processors</td>
-<td>(empty)</td>
+<td><code>processors: list</code></td>
+<td><code>[]</code></td>
+<td>The list of annotation processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates</td>
 </tr>
 </tbody>
 </table>
@@ -3586,35 +3620,35 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>release: enum</code></td>
-<td>The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.</td>
-<td>21</td>
-</tr>
-<tr>
 <td><code>jdk: object</code></td>
+<td></td>
 <td>Defines requirements for the JDK to use. These requirements are used to validate <code>JAVA_HOME</code> or to provision a matching JDK automatically. See details below and the <a href="../../user-guide/advanced/jdk-provisioning/">JDK provisioning</a> page.</td>
-<td>see below</td>
 </tr>
 <tr>
 <td><code>mainClass: string</code></td>
-<td>(Only for <code>jvm/app</code> <a href="../../user-guide/basics/#product-type">product type</a>) The fully-qualified name of the class used to run the application.</td>
 <td><a href="../../user-guide/product-types/jvm-app/">auto-detected</a></td>
+<td>(Only for <code>jvm/app</code> <a href="../../user-guide/basics/#product-type">product type</a>) The fully-qualified name of the class used to run the application.</td>
 </tr>
 <tr>
-<td><code>storeParameterNames: boolean</code></td>
-<td>Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.</td>
-<td>false</td>
+<td><code>release: enum</code></td>
+<td>(set from <code>jdk.version</code>)</td>
+<td>The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.</td>
 </tr>
 <tr>
 <td><code>runtimeClasspathMode: enum</code></td>
-<td>How the runtime classpath is constructed: <code>jars</code> (default) builds local module dependencies as jars; <code>classes</code> uses compiled classes for local modules on the runtime classpath.</td>
 <td><code>jars</code></td>
+<td>How the runtime classpath is constructed: <code>jars</code> (default) builds local module dependencies as jars; <code>classes</code> uses compiled classes for local modules on the runtime classpath.</td>
+</tr>
+<tr>
+<td><code>storeParameterNames: boolean</code></td>
+<td><code>false</code></td>
+<td>Enables storing formal parameter names of constructors and methods in the generated class files. These can later be accessed using reflection.</td>
 </tr>
 </tbody>
 </table>
@@ -3638,7 +3672,7 @@ about <a href="../../user-guide/testing/">testing support</a>.</p>
 </tr>
 <tr>
 <td><code>distributions</code></td>
-<td>list<enum> or null</td>
+<td>list<enum>?</td>
 <td><code>null</code> (accept all distributions)</td>
 <td>Allow‑list of acceptable JDK distributions (vendors). If <code>null</code>, any known distribution is acceptable.</td>
 </tr>
@@ -3691,25 +3725,30 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <thead>
 <tr>
 <th>Value</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>junitPlatformVersion: string</code></td>
+<td>6.0.1</td>
 <td>The JUnit platform version used to run tests.</td>
 </tr>
 <tr>
-<td><code>systemProperties: map</code></td>
-<td>JVM system properties for the test process.</td>
-</tr>
-<tr>
 <td><code>extraEnvironment: map</code></td>
+<td><code>{}</code></td>
 <td>Environment variables for the test process.</td>
 </tr>
 <tr>
 <td><code>freeJvmArgs: string list</code></td>
+<td><code>[]</code></td>
 <td>Free JVM arguments for the test process.</td>
+</tr>
+<tr>
+<td><code>systemProperties: map</code></td>
+<td><code>{}</code></td>
+<td>JVM system properties for the test process.</td>
 </tr>
 </tbody>
 </table>
@@ -3719,70 +3758,85 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>languageVersion: enum</code></td>
-<td>Provide source compatibility with the specified version of Kotlin.</td>
-<td>2.1</td>
-</tr>
-<tr>
-<td><code>apiVersion: enum</code></td>
-<td>Allow using declarations only from the specified version of Kotlin bundled libraries.</td>
-<td>(languageVersion)</td>
-</tr>
-<tr>
-<td><code>allWarningsAsErrors: boolean</code></td>
-<td>Turn any warnings into a compilation error.</td>
-<td><code>false</code></td>
-</tr>
-<tr>
-<td><code>suppressWarnings: boolean</code></td>
-<td>Suppress the compiler from displaying warnings during compilation.</td>
-<td><code>false</code></td>
-</tr>
-<tr>
-<td><code>verbose: boolean</code></td>
-<td>Enable verbose logging output which includes details of the compilation process.</td>
-<td><code>false</code></td>
-</tr>
-<tr>
-<td><code>progressiveMode: boolean</code></td>
-<td>Enable the <a href="https://kotlinlang.org/docs/compiler-reference.html#progressive">progressive mode for the compiler</a>.</td>
-<td><code>false</code></td>
-</tr>
-<tr>
-<td><code>optIns: enum list</code></td>
-<td>Enable usages of API that <a href="https://kotlinlang.org/docs/opt-in-requirements.html">requires opt-in</a> with a requirement annotation with the given fully qualified name.</td>
-<td>(empty)</td>
-</tr>
-<tr>
-<td><code>freeCompilerArgs: string list</code></td>
-<td>Pass any <a href="https://kotlinlang.org/docs/compiler-reference.html#compiler-options">compiler option</a> directly.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>debug: boolean</code></td>
-<td>(Only for <a href="https://kotlinlang.org/docs/native-target-support.html">native targets</a>) Enable emitting debug information.</td>
-<td><code>true</code></td>
-</tr>
-<tr>
-<td><code>serialization: object \| enum</code></td>
-<td>Configure <a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin serialization</a>.</td>
-<td></td>
+<td><code>version: string</code></td>
+<td>2.3.10</td>
+<td>The version of the Kotlin compiler and stdlib to use.</td>
 </tr>
 <tr>
 <td><code>allOpen: object</code></td>
-<td>Configure the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>.</td>
 <td></td>
+<td>Configure the <a href="https://kotlinlang.org/docs/all-open-plugin.html">Kotlin all-open compiler plugin</a>.</td>
+</tr>
+<tr>
+<td><code>allWarningsAsErrors: boolean</code></td>
+<td><code>false</code></td>
+<td>Turn any warnings into a compilation error.</td>
+</tr>
+<tr>
+<td><code>apiVersion: enum</code></td>
+<td>(set from <code>languageVersion</code>)</td>
+<td>Allow using declarations only from the specified version of Kotlin bundled libraries.</td>
+</tr>
+<tr>
+<td><code>compilerPlugins: object list</code></td>
+<td><code>[]</code></td>
+<td>Configure third-party Kotlin compiler plugins.</td>
+</tr>
+<tr>
+<td><code>debug: boolean</code></td>
+<td><code>true</code></td>
+<td>(Only for <a href="https://kotlinlang.org/docs/native-target-support.html">native targets</a>) Enable emitting debug information.</td>
+</tr>
+<tr>
+<td><code>freeCompilerArgs: string list</code></td>
+<td><code>[]</code></td>
+<td>Pass any <a href="https://kotlinlang.org/docs/compiler-reference.html#compiler-options">compiler option</a> directly.</td>
+</tr>
+<tr>
+<td><code>jsPlainObjects: object \| enum</code></td>
+<td></td>
+<td>Enable the Kotlin JS-plain-objects compiler plugin.</td>
+</tr>
+<tr>
+<td><code>languageVersion: enum</code></td>
+<td>(major.minor from <code>version</code>)</td>
+<td>Provide source compatibility with the specified version of Kotlin.</td>
 </tr>
 <tr>
 <td><code>noArg: object</code></td>
-<td>Configure the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>.</td>
 <td></td>
+<td>Configure the <a href="https://kotlinlang.org/docs/no-arg-plugin.html">Kotlin no-arg compiler plugin</a>.</td>
+</tr>
+<tr>
+<td><code>optIns: enum list</code></td>
+<td><code>[]</code></td>
+<td>Enable usages of API that <a href="https://kotlinlang.org/docs/opt-in-requirements.html">requires opt-in</a> with a requirement annotation with the given fully qualified name.</td>
+</tr>
+<tr>
+<td><code>progressiveMode: boolean</code></td>
+<td><code>false</code></td>
+<td>Enable the <a href="https://kotlinlang.org/docs/compiler-reference.html#progressive">progressive mode for the compiler</a>.</td>
+</tr>
+<tr>
+<td><code>serialization: object \| enum</code></td>
+<td></td>
+<td>Configure <a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin serialization</a>.</td>
+</tr>
+<tr>
+<td><code>suppressWarnings: boolean</code></td>
+<td><code>false</code></td>
+<td>Suppress the compiler from displaying warnings during compilation.</td>
+</tr>
+<tr>
+<td><code>verbose: boolean</code></td>
+<td><code>false</code></td>
+<td>Enable verbose logging output which includes details of the compilation process.</td>
 </tr>
 </tbody>
 </table>
@@ -3791,25 +3845,25 @@ Read more about <a href="../../user-guide/testing/">testing support</a>.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable the <code>@Serializable</code> annotation processing, and add the core serialization library. When enabled, a built-in catalog for kotlinx.serialization format dependencies is provided.</td>
 <td><code>false</code></td>
-</tr>
-<tr>
-<td><code>format: enum</code></td>
-<td>A shortcut for <code>enabled: true</code> and adding the given serialization format dependency. For instance, <code>json</code> adds the JSON format in addition to enabling serialization.</td>
-<td></td>
+<td>Enable the <code>@Serializable</code> annotation processing, and add the core serialization library. When enabled, a built-in catalog for kotlinx.serialization format dependencies is provided.</td>
 </tr>
 <tr>
 <td><code>version: string</code></td>
+<td><code>1.10.0</code></td>
 <td>The version to use for the core serialization library and the serialization formats.</td>
-<td><code>1.9.0</code></td>
+</tr>
+<tr>
+<td><code>format: enum</code></td>
+<td><code>none</code> (only core lib)</td>
+<td>A shortcut for <code>enabled: true</code> and adding the given serialization format dependency. For instance, <code>json</code> adds the JSON format in addition to enabling serialization.</td>
 </tr>
 </tbody>
 </table>
@@ -3860,25 +3914,25 @@ which makes classes annotated with specific annotations open automatically witho
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable the Kotlin all-open compiler plugin</td>
 <td><code>false</code></td>
+<td>Enable the Kotlin all-open compiler plugin</td>
 </tr>
 <tr>
 <td><code>annotations: string list</code></td>
+<td><code>[]</code></td>
 <td>List of annotations that trigger open class/method generation</td>
-<td>(empty)</td>
 </tr>
 <tr>
 <td><code>presets: enum list</code></td>
+<td><code>[]</code></td>
 <td>Predefined sets of annotations for common frameworks (available presets: <code>spring</code>, <code>micronaut</code>, and <code>quarkus</code>)</td>
-<td>(empty)</td>
 </tr>
 </tbody>
 </table>
@@ -3902,30 +3956,30 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable the Kotlin no-arg compiler plugin</td>
 <td><code>false</code></td>
+<td>Enable the Kotlin no-arg compiler plugin</td>
 </tr>
 <tr>
 <td><code>annotations: string list</code></td>
+<td><code>[]</code></td>
 <td>List of annotations that trigger no-arg constructor generation</td>
-<td>(empty)</td>
 </tr>
 <tr>
 <td><code>invokeInitializers: boolean</code></td>
-<td>Whether to call initializers in the synthesized constructor</td>
 <td><code>false</code></td>
+<td>Whether to call initializers in the synthesized constructor</td>
 </tr>
 <tr>
 <td><code>presets: enum list</code></td>
+<td><code>[]</code></td>
 <td>Predefined sets of annotations (currently only <code>jpa</code> preset for JPA entity annotations)</td>
-<td>(empty)</td>
 </tr>
 </tbody>
 </table>
@@ -3945,30 +3999,30 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <span class="w">      </span><span class="nt">invokeInitializers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="settingsktor"><code>settings.ktor</code><a class="headerlink" href="#settingsktor" title="Permanent link">&para;</a></h3>
-<p><code>settings.ktor</code> configures the Ktor.</p>
+<p><code>settings.ktor</code> configures the Ktor server framework.</p>
 <table>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable Ktor</td>
 <td><code>false</code></td>
+<td>Enable the Ktor server framework. This is just a convenience to generate library catalog entries for Ktor libraries.</td>
 </tr>
 <tr>
 <td><code>version: string</code></td>
-<td>Ktor version</td>
-<td><code>3.2.3</code></td>
+<td><code>3.4.0</code></td>
+<td>The Ktor version used for the <abbr title="Bill of materials">BOM</abbr> and in the generated library catalog entries</td>
 </tr>
 <tr>
 <td><code>applyBom: boolean</code></td>
-<td>Whether to apply the Ktor <abbr title="Bill of materials">BOM</abbr></td>
 <td><code>true</code></td>
+<td>Whether to apply the Ktor <abbr title="Bill of materials">BOM</abbr></td>
 </tr>
 </tbody>
 </table>
@@ -3984,20 +4038,20 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable Lombok</td>
 <td><code>false</code></td>
+<td>Enable Lombok</td>
 </tr>
 <tr>
 <td><code>version: string</code></td>
-<td>Lombok version for runtime and annotation processor</td>
 <td><code>1.18.38</code></td>
+<td>Lombok version for runtime and annotation processor</td>
 </tr>
 </tbody>
 </table>
@@ -4012,15 +4066,15 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>entryPoint: string</code></td>
-<td>The fully-qualified name of the application's entry point function</td>
 <td><code>null</code></td>
+<td>The fully-qualified name of the application's entry point function</td>
 </tr>
 </tbody>
 </table>
@@ -4036,25 +4090,25 @@ which generates no-arg constructors for classes with specific annotations.</p>
 <thead>
 <tr>
 <th>Attribute</th>
-<th>Description</th>
 <th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>enabled: boolean</code></td>
-<td>Enable Spring Boot</td>
 <td><code>false</code></td>
+<td>Enable Spring Boot</td>
 </tr>
 <tr>
 <td><code>version: string</code></td>
+<td><code>4.0.2</code></td>
 <td>Spring Boot version</td>
-<td><code>3.5.5</code></td>
 </tr>
 <tr>
 <td><code>applyBom: boolean</code></td>
-<td>Whether to apply the Spring Boot <abbr title="Bill of materials">BOM</abbr></td>
 <td><code>true</code></td>
+<td>Whether to apply the Spring Boot <abbr title="Bill of materials">BOM</abbr></td>
 </tr>
 </tbody>
 </table>
@@ -4084,7 +4138,7 @@ which generates no-arg constructors for classes with specific annotations.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 13, 2026 23:38:53 UTC">February 13, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 27, 2026 10:29:30 UTC">February 27, 2026</span>
   </span>
 
     
