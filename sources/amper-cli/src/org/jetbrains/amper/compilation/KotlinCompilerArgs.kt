@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.compilation
@@ -321,9 +321,14 @@ internal fun kotlinJsCompilerArgs(
     compilationType: KotlinCompilationType,
     include: Path?,
 ): List<String> = buildList {
+    add("-Xir-per-file")
     add("-Xir-minimized-member-names")
+    add("-Xir-generate-inline-anonymous-functions")
+    add("-Xgenerate-polyfills=false")
+    add("-Xgenerate-dts")
+    add("-Xes-long-as-bigint")
+    add("-target=es2015")
     add("-module-kind=es")
-    add("-Xir-dce")
 
     addAll(
         kotlinWebCompilerArgs(
