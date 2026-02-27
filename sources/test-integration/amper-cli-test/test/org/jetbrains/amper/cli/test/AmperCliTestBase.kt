@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli.test
@@ -117,6 +117,10 @@ abstract class AmperCliTestBase : AmperCliWithWrapperTestBase() {
         testReporter.publishEntry("Amper[${result.pid}] arguments", args.joinToString(" "))
         testReporter.publishEntry("Amper[${result.pid}] working dir", effectiveProjectRoot.pathString)
         testReporter.publishEntry("Amper[${result.pid}] exit code", result.exitCode.toString())
+        val logsDir = result.logsDir
+        if (logsDir != null) {
+            testReporter.publishDirectory(logsDir)
+        }
 
         return result
     }
