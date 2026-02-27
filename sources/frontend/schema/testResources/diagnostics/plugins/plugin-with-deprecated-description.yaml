@@ -1,0 +1,11 @@
+product:
+  type: jvm/amper-plugin
+
+pluginInfo:
+  id: build-konfig
+  <![Warning] This description property is deprecated. The description of the plugin should now be specified at the top level of the `module.yaml` file.!>description: |
+    Generates the Kotlin object with all the supplied properties (String)<!>
+  settingsClass: org.jetbrains.amper.plugins.buildkonfig.Schema1
+
+dependencies:
+  - com.squareup:kotlinpoet:2.2.0

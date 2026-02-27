@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -27,11 +27,12 @@ interface TreeDiagnostic {
  */
 // suppressed the unused warning because it's necessary for the disabled diagnostic that we'll put back eventually
 fun treeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
-    UnknownQualifiers,
-    IncorrectSettingsLocation,
     AndroidTooOldVersionFactory,
-    TemplateNameWithoutPostfix,
+    IncorrectSettingsLocation,
     KotlinCompilerVersionDiagnosticsFactory,
+    PluginInfoDescriptionIsDeprecatedFactory,
+    TemplateNameWithoutPostfix,
+    UnknownQualifiers,
     UnsupportedLayoutDiagnosticFactory,
     // TODO fix it if we want to restore it: AMPER-4489, AMPER-4490
     //  see the comment near the diagnostic class for some technical details
