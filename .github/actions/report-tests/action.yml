@@ -1,0 +1,16 @@
+name: 'Report test results'
+description: 'Reports the JUnit test results present in the Amper build directory'
+
+runs:
+  using: composite
+  steps:
+    - name: Report test results
+      uses: dorny/test-reporter@v2
+      with:
+        name: JUnit results               # Name of the check run that will be created
+        path: build/reports/(*)/jvm/TEST-*.xml # Path to test results
+        reporter: java-junit              # Format of test results
+        list-suites: failed
+        list-tests: failed
+        fail-on-empty: true
+        fail-on-error: true
