@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -21,8 +21,11 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 private const val MinJavaVersionForJIC = 16
 
 object JavaIncrementalCompilationRequiresJava16Factory : AomSingleModuleDiagnosticFactory {
-    override val diagnosticId: BuildProblemId
-        get() = "java.incremental.compilation.requires.higher.jdk"
+    @Deprecated(
+        message = "Use JavaIncrementalCompilationRequiresJava16.ID",
+        replaceWith = ReplaceWith("JavaIncrementalCompilationRequiresJava16.ID"),
+    )
+    val diagnosticId: BuildProblemId = JavaIncrementalCompilationRequiresJava16.ID
 
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Pair<Trace, Trace>>()
@@ -54,7 +57,11 @@ class JavaIncrementalCompilationRequiresJava16(
     val actualJdkVersionTrace: Trace,
     val minJdkVersion: Int,
 ) : BuildProblem {
-    override val buildProblemId = JavaIncrementalCompilationRequiresJava16Factory.diagnosticId
+    companion object {
+        const val ID = "java.incremental.compilation.requires.higher.jdk"
+    }
+
+    override val buildProblemId = ID
     override val message = SchemaBundle.message(buildProblemId, minJdkVersion, actualJdkVersion)
     override val level: Level = Level.Error
     override val type: BuildProblemType = BuildProblemType.InconsistentConfiguration

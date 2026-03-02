@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -21,12 +21,20 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
 
 class UnsupportedLayoutBuildProblem(override val element: PsiElement): PsiBuildProblem(Level.Error, BuildProblemType.InconsistentConfiguration) {
-    override val buildProblemId: BuildProblemId = UnsupportedLayoutDiagnosticFactory.diagnosticId
+    companion object {
+        const val ID = "module.layout.unsupported"
+    }
+
+    override val buildProblemId: BuildProblemId = ID
     override val message: @Nls String = SchemaBundle.message(buildProblemId)
 }
 
 object UnsupportedLayoutDiagnosticFactory: TreeDiagnostic {
-    override val diagnosticId: BuildProblemId = "module.layout.unsupported"
+    @Deprecated(
+        message = "Use UnsupportedLayoutBuildProblem.ID",
+        replaceWith = ReplaceWith("UnsupportedLayoutBuildProblem.ID"),
+    )
+    val diagnosticId: BuildProblemId = UnsupportedLayoutBuildProblem.ID
 
     override fun analyze(
         root: TreeNode,

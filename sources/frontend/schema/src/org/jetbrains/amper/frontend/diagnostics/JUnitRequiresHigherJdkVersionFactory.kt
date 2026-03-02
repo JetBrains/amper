@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -24,8 +24,11 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 private val JUnit6 = ComparableVersion("6.0.0")
 
 object JUnitRequiresHigherJdkVersionFactory : AomSingleModuleDiagnosticFactory {
-    override val diagnosticId: BuildProblemId
-        get() = "junit.platform.requires.higher.jdk"
+    @Deprecated(
+        message = "Use JUnitRequiresHigherJdkVersion.ID",
+        replaceWith = ReplaceWith("JUnitRequiresHigherJdkVersion.ID"),
+    )
+    val diagnosticId: BuildProblemId = JUnitRequiresHigherJdkVersion.ID
 
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Pair<Trace, Trace>>()
@@ -65,7 +68,11 @@ class JUnitRequiresHigherJdkVersion(
     val actualJdkVersion: TraceableValue<Int>,
     val minJdkVersion: Int,
 ) : BuildProblem {
-    override val buildProblemId = JUnitRequiresHigherJdkVersionFactory.diagnosticId
+    companion object {
+        const val ID = "junit.platform.requires.higher.jdk"
+    }
+
+    override val buildProblemId = ID
     override val message = SchemaBundle.message(
         messageKey = buildProblemId,
         junitPlatformVersion.value, minJdkVersion, actualJdkVersion.value,

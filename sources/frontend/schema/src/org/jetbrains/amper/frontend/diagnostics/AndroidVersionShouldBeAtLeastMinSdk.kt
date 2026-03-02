@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -26,11 +26,14 @@ class AndroidVersionShouldBeAtLeastMinSdk(
     @UsedInIdePlugin
     val minSdkVersion: AndroidVersion
 ) : PsiBuildProblem(Level.Error, BuildProblemType.InconsistentConfiguration) {
+    companion object {
+        const val ID = "android.version.should.be.at.least.min.sdk"
+    }
+
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 
-    override val buildProblemId: BuildProblemId =
-        AndroidVersionShouldBeAtLeastMinSdkFactory.diagnosticId
+    override val buildProblemId: BuildProblemId = ID
 
     override val message: @Nls String
         get() = SchemaBundle.message(
@@ -42,7 +45,11 @@ class AndroidVersionShouldBeAtLeastMinSdk(
 }
 
 object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFactory {
-    override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
+    @Deprecated(
+        message = "Use AndroidVersionShouldBeAtLeastMinSdk.ID",
+        replaceWith = ReplaceWith("AndroidVersionShouldBeAtLeastMinSdk.ID"),
+    )
+    val diagnosticId: BuildProblemId = AndroidVersionShouldBeAtLeastMinSdk.ID
 
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()

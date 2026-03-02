@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -16,8 +16,7 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.storeFile
-import org.jetbrains.amper.frontend.types.generated.propertiesFileDelegate
-import org.jetbrains.amper.frontend.types.generated.signingDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -70,6 +69,11 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
 }
 
 object SigningEnabledWithoutPropertiesFileFactory : SigningConfigurationIncorrect() {
+    @Deprecated(
+        message = "Use SigningEnabledWithoutPropertiesFile.ID",
+        replaceWith = ReplaceWith("SigningEnabledWithoutPropertiesFile.ID"),
+    )
+    val diagnosticId: BuildProblemId = SigningEnabledWithoutPropertiesFile.ID
 
     override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
@@ -83,10 +87,14 @@ object SigningEnabledWithoutPropertiesFileFactory : SigningConfigurationIncorrec
         }
     }
 
-    override val diagnosticId: BuildProblemId = "keystore.properties.does.not.exist"
 }
 
 object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrect() {
+    @Deprecated(
+        message = "Use KeystorePropertiesDoesNotContainKey.ID",
+        replaceWith = ReplaceWith("KeystorePropertiesDoesNotContainKey.ID"),
+    )
+    val diagnosticId: BuildProblemId = KeystorePropertiesDoesNotContainKey.ID
 
     override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
@@ -105,10 +113,14 @@ object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrec
         }
     }
 
-    override val diagnosticId: BuildProblemId = "keystore.properties.key.does.not.exist"
 }
 
 object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfigurationIncorrect() {
+    @Deprecated(
+        message = "Use MandatoryFieldInPropertiesFileMustBePresent.ID",
+        replaceWith = ReplaceWith("MandatoryFieldInPropertiesFileMustBePresent.ID"),
+    )
+    val diagnosticId: BuildProblemId = MandatoryFieldInPropertiesFileMustBePresent.ID
 
     override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
@@ -129,10 +141,14 @@ object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfiguration
         }
     }
 
-    override val diagnosticId: BuildProblemId = "keystore.properties.value.required"
 }
 
 object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
+    @Deprecated(
+        message = "Use KeystoreFileDoesNotExist.ID",
+        replaceWith = ReplaceWith("KeystoreFileDoesNotExist.ID"),
+    )
+    val diagnosticId: BuildProblemId = KeystoreFileDoesNotExist.ID
 
     override fun analyze(moduleDir: Path, android: AndroidSettings, problemReporter: ProblemReporter) {
         val signing = android.signing
@@ -151,14 +167,17 @@ object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
         }
     }
 
-    override val diagnosticId: BuildProblemId = "keystore.properties.file.does.not.exist"
 }
 
 class SigningEnabledWithoutPropertiesFile(
     val targetProperty: SchemaValueDelegate<*>, val propertiesFilePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
+    companion object {
+        const val ID = "keystore.properties.does.not.exist"
+    }
+
     override val element: PsiElement get() = targetProperty.extractPsiElement()
-    override val buildProblemId: BuildProblemId = SigningEnabledWithoutPropertiesFileFactory.diagnosticId
+    override val buildProblemId = ID
     override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath
@@ -170,8 +189,12 @@ class KeystorePropertiesDoesNotContainKey(
     val key: String,
     val propertiesFilePath: Path,
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
+    companion object {
+        const val ID = "keystore.properties.key.does.not.exist"
+    }
+
     override val element: PsiElement get() = targetProperty.extractPsiElement()
-    override val buildProblemId: BuildProblemId = KeystorePropertiesDoesNotContainKeyFactory.diagnosticId
+    override val buildProblemId = ID
     override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath, key
@@ -181,8 +204,12 @@ class KeystorePropertiesDoesNotContainKey(
 class MandatoryFieldInPropertiesFileMustBePresent(
     val targetProperty: SchemaValueDelegate<*>, val key: String, val propertiesFilePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.Generic) {
+    companion object {
+        const val ID = "keystore.properties.value.required"
+    }
+
     override val element: PsiElement get() = targetProperty.extractPsiElement()
-    override val buildProblemId: BuildProblemId = MandatoryFieldInPropertiesFileMustBePresentFactory.diagnosticId
+    override val buildProblemId = ID
     override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, propertiesFilePath, key
@@ -192,8 +219,12 @@ class MandatoryFieldInPropertiesFileMustBePresent(
 class KeystoreFileDoesNotExist(
     val targetProperty: SchemaValueDelegate<*>, val keystorePath: Path
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.UnresolvedReference) {
+    companion object {
+        const val ID = "keystore.properties.file.does.not.exist"
+    }
+
     override val element: PsiElement get() = targetProperty.extractPsiElement()
-    override val buildProblemId: BuildProblemId = KeystoreMustExistFactory.diagnosticId
+    override val buildProblemId = ID
     override val message: @Nls String
         get() = SchemaBundle.message(
             messageKey = buildProblemId, keystorePath

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -23,15 +23,22 @@ class AndroidTooOldVersion(
     used: AndroidVersion,
     minVersion: AndroidVersion,
 ) : PsiBuildProblem(Level.Error, BuildProblemType.Generic) {
-    override val buildProblemId = AndroidTooOldVersionFactory.diagnosticId
+    companion object {
+        const val ID = "too.old.android.version"
+    }
+
+    override val buildProblemId = ID
     override val message = SchemaBundle.message(buildProblemId, used.versionNumber, minVersion.versionNumber)
 }
 
 object AndroidTooOldVersionFactory : TreeDiagnostic {
 
     private val MINIMAL_ANDROID_VERSION = AndroidVersion.VERSION_21
-
-    override val diagnosticId: BuildProblemId = "too.old.android.version"
+    @Deprecated(
+        message = "Use AndroidTooOldVersion.ID",
+        replaceWith = ReplaceWith("AndroidTooOldVersion.ID"),
+    )
+    val diagnosticId: BuildProblemId = AndroidTooOldVersion.ID
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<PsiElement>() // somehow the computed properties lead to duplicate reports

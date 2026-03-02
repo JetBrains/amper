@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -34,7 +34,11 @@ import org.jetbrains.amper.stdlib.collections.joinToString
 private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
 object IncorrectSettingsLocation : TreeDiagnostic {
-    override val diagnosticId: BuildProblemId = "settings.incorrect.section"
+    @Deprecated(
+        message = "Use IncorrectSettingsSection.ID",
+        replaceWith = ReplaceWith("IncorrectSettingsSection.ID"),
+    )
+    val diagnosticId: BuildProblemId = IncorrectSettingsSection.ID
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) =
         root.visitMappingNodes { tree ->
@@ -132,8 +136,12 @@ class IncorrectSettingsSection internal constructor(
     level: Level,
     buildProblemType: BuildProblemType = BuildProblemType.Generic,
 ) : PsiBuildProblem(level, buildProblemType) {
+    companion object {
+        const val ID = "settings.incorrect.section"
+    }
+
     override val message = SchemaBundle.message(messageKey, *values)
-    override val buildProblemId: BuildProblemId = IncorrectSettingsLocation.diagnosticId
+    override val buildProblemId = ID
 
     // highlight only property keys
     override val element: PsiElement = trace.extractPsiElement().extractKeyElement()

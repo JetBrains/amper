@@ -1,11 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
 
 import org.jetbrains.amper.frontend.AmperModule
-import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
@@ -19,8 +18,6 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
  * Register instances of factory in [AomSingleModuleDiagnosticFactory].
  */
 interface AomSingleModuleDiagnosticFactory {
-    val diagnosticId: BuildProblemId
-
     /**
      * Analyzes the given [module] and reports any problems using the given [problemReporter].
      */

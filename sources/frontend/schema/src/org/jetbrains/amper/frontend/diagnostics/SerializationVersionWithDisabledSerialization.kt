@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.api.isSetInTemplate
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.types.generated.versionDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
@@ -22,7 +22,11 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
 
 object SerializationVersionWithDisabledSerialization : AomSingleModuleDiagnosticFactory {
-    override val diagnosticId: BuildProblemId = "serialization.version.without.serialization"
+    @Deprecated(
+        message = "Use SerializationVersionWithoutSerialization.ID",
+        replaceWith = ReplaceWith("SerializationVersionWithoutSerialization.ID"),
+    )
+    val diagnosticId: BuildProblemId = SerializationVersionWithoutSerialization.ID
 
     override fun analyze(module: AmperModule, problemReporter: ProblemReporter) {
         val reportedPlaces = mutableSetOf<Trace?>()
@@ -43,10 +47,14 @@ class SerializationVersionWithoutSerialization(
     @UsedInIdePlugin
     val versionProp: SchemaValueDelegate<String>,
 ) : PsiBuildProblem(Level.Warning, BuildProblemType.InconsistentConfiguration) {
+    companion object {
+        const val ID = "serialization.version.without.serialization"
+    }
+
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 
-    override val buildProblemId: BuildProblemId = SerializationVersionWithDisabledSerialization.diagnosticId
+    override val buildProblemId: BuildProblemId = ID
 
     override val message: @Nls String
         get() = SchemaBundle.message(messageKey = buildProblemId)

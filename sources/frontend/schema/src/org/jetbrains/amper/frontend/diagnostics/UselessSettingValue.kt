@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -14,15 +14,14 @@ import org.jetbrains.amper.frontend.diagnostics.helpers.collectScalarPropertiesW
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.tree.ScalarNode
-import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.TreeNode
+import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.valueEqualsTo
+import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
-
-private const val DiagnosticId = "setting.value.overrides.nothing"
 
 // FIXME: This diagnostic is not enabled.
 //  It relies on the fact, that an arbitrary configuration *sub*tree can be correctly refined.
@@ -31,10 +30,11 @@ private const val DiagnosticId = "setting.value.overrides.nothing"
 class UselessSettingValue(
     private val refiner: TreeRefiner,
 ) : TreeDiagnostic {
-    companion object {
-        const val diagnosticId = DiagnosticId
-    }
-    override val diagnosticId = DiagnosticId
+    @Deprecated(
+        message = "Use UselessSettingValue.ID",
+        replaceWith = ReplaceWith("UselessSetting.ID"),
+    )
+    val diagnosticId: BuildProblemId = UselessSetting.ID
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) {
         // TODO There an optimization can be made.
@@ -64,12 +64,16 @@ class UselessSettingValue(
     }
 }
 
-private class UselessSetting(
+class UselessSetting(
     trace: Trace,
     private val precedingTrace: PsiTrace,
 ) : PsiBuildProblem(Level.WeakWarning, BuildProblemType.RedundantDeclaration) {
+    companion object {
+        const val ID = "setting.value.overrides.nothing"
+    }
+
     override val element: PsiElement = trace.extractPsiElement()
-    override val buildProblemId = DiagnosticId
+    override val buildProblemId = ID
     override val message = SchemaBundle.message(
         messageKey = "setting.value.is.same.as.base",
         formatLocation(),
