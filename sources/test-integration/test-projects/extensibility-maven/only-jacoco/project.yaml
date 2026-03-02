@@ -2,4 +2,4 @@ modules:
   - app
 
 mavenPlugins:
-  - org.jacoco:jacoco-maven-plugin:0.8.10
+  - org.jacoco:jacoco-maven-plugin:0.8.14
