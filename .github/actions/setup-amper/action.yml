@@ -1,0 +1,73 @@
+name: 'Setup Amper'
+author: 'JetBrains'
+description: 'Configures caches and environment variables for your Amper builds'
+branding:
+  icon: settings
+  color: green
+
+inputs:
+  bootstrap-cache-dir:
+    description: "Path to the directory where the Amper distribution and JRE are downloaded. This also configures the environment so that subsequent Amper CLI calls respect this config."
+    required: false
+    default: "${{ runner.temp }}/.amper/boot-cache"
+
+  shared-cache-dir:
+    description: "Path to the shared cache (containing dependencies, toolchains, etc.). This also configures the environment so that subsequent Amper CLI calls respect this config."
+    required: false
+    default: "${{ runner.temp }}/.amper/shared-cache"
+
+runs:
+  using: composite
+  steps:
+    - name: Export Amper env vars
+      shell: bash
+      run: |
+        echo "AMPER_BOOTSTRAP_CACHE_DIR=${{ inputs.bootstrap-cache-dir }}" >> "$GITHUB_ENV"
+        echo "AMPER_CACHE_ROOT=${{ inputs.shared-cache-dir }}" >> "$GITHUB_ENV"
+        echo "AMPER_SHARED_CACHE_DIR=${{ inputs.shared-cache-dir }}" >> "$GITHUB_ENV"
+
+    - name: Cache Amper binaries
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.bootstrap-cache-dir }}
+        # The Amper distribution and JRE depends on the Amper version and is downloaded by the wrapper, so we hash wrappers.
+        # We don't use restore keys to avoid growing this cache. The Amper version changes rarely so it's ok to redownload
+        # the JRE when the Amper version changes even if the JRE version didn't change.
+        key: amper-boot-${{ runner.os }}-${{ hashFiles('amper', 'amper.bat') }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.shared-cache-dir }}/.m2.cache
+          ${{ inputs.shared-cache-dir }}/kotlin
+        # The dependencies can be shared between OS-es (even if some rare deps are OS-specific).
+        # Even if we download foo-windows.jar and foo-linux.jar on different hosts, they don't step on each other's toes.
+        # These deps are rare in the Java/Maven world, so it's still worth reusing all the other deps.
+        enableCrossOsArchive: true
+        key: amper-shared-dependencies-${{ hashFiles('project.yaml', '**/module.yaml', '**/plugin.yaml', 'amper', 'amper.bat', 'libs.versions.toml') }}
+        restore-keys: |
+          amper-shared-dependencies-
+
+    - name: Cache downloads (toolchains, JDK list, etc.)
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.shared-cache-dir }}/download.cache
+          ${{ inputs.shared-cache-dir }}/extract.cache
+        key: amper-shared-downloads-${{ runner.os }}-${{ hashFiles('project.yaml', '**/module.yaml', '**/plugin.yaml', 'amper', 'amper.bat', 'libs.versions.toml') }}
+        restore-keys: |
+          amper-shared-downloads-${{ runner.os }}-
+
+    - name: Cache project-specific data (incremental cache and task outputs)
+      uses: actions/cache@v4
+      with:
+        # We need to exclude the logs directory to avoid an ever-growing cache size.
+        # /!\ Exclusions can only work in specific ways.
+        # See https://github.com/actions/toolkit/issues/713#issuecomment-850321461
+        path: |
+          build/*
+          !build/logs
+        key: amper-project-${{ runner.os }}-${{ hashFiles('project.yaml', '**/module.yaml', '**/plugin.yaml', 'amper', 'amper.bat', 'libs.versions.toml') }}
+        restore-keys: |
+          amper-project-${{ runner.os }}-
