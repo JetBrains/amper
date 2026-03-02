@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading.maven
@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.tree.reading.maven
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.annotations.Nls
 
 class MavenCoordinatesHaveTooFewParts(
@@ -19,6 +21,8 @@ class MavenCoordinatesHaveTooFewParts(
         const val ID = "maven.coordinates.have.too.few.parts"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId get() = ID
+    override val diagnosticId: DiagnosticId = TreeDiagnosticId.MavenCoordinatesHaveTooFewParts
     override val message: @Nls String = SchemaBundle.message(ID, coordinates, partsSize)
 }

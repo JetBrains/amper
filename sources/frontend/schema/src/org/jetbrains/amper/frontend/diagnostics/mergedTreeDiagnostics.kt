@@ -25,7 +25,7 @@ interface TreeDiagnostic {
 // suppressed the unused warning because it's necessary for the disabled diagnostic that we'll put back eventually
 fun treeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
     AndroidTooOldVersionFactory,
-    IncorrectSettingsLocation,
+    IncorrectSettingsSectionFactory,
     KotlinCompilerVersionDiagnosticsFactory,
     PluginInfoDescriptionIsDeprecatedFactory,
     TemplateNameWithoutPostfix,

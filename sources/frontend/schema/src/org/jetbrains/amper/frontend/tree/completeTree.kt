@@ -160,6 +160,7 @@ interface MissingPropertiesHandler {
         ) {
             problemReporter.reportBundleError(
                 source = trace.asBuildProblemSource(),
+                diagnosticId = TreeDiagnosticId.NoValueForRequiredProperty,
                 messageKey = "validation.missing.value",
                 relativeValuePath.joinToString("."),
             )

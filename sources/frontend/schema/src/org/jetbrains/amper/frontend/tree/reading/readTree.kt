@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -103,7 +104,9 @@ private fun parseFile(
     val documents = file.childrenOfType<YAMLDocument>()
     if (documents.size > 1) {
         reporter.reportBundleError(
-            documents[1].asBuildProblemSource(), "validation.structure.unsupported.multiple.documents"
+            source = documents[1].asBuildProblemSource(),
+            diagnosticId = TreeDiagnosticId.MultipleYAMLDocumentsAreNotSupported,
+            messageKey = "validation.structure.unsupported.multiple.documents"
         )
     }
     val value = documents.first() // Safe - at least one document is always present

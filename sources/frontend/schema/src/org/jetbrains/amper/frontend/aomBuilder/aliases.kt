@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -10,12 +10,14 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -82,8 +84,10 @@ data class AliasesAreNotSupportedInSinglePlatformModule(override val element: Ps
         const val ID = "aliases.are.not.supported.in.single.platform.module"
     }
 
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasInSinglePlatformModule
     override val message: @Nls String
         get() = SchemaBundle.message(ID)
 }
@@ -100,8 +104,10 @@ data class AliasUsesNonLeafPlatform(
 
     override val element: PsiElement
         get() = nonLeafPlatform.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasUsesNonLeafPlatform
     override val message: @Nls String
         get() = SchemaBundle.message(ID, alias.value, nonLeafPlatform.value.pretty)
 }
@@ -116,8 +122,10 @@ data class AliasWithNonLeafPlatformExpandsToNothing(
 
     override val element: PsiElement
         get() = nonLeafPlatform.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasExpandsToNothing
     override val message: @Nls String
         get() = SchemaBundle.message(
             ID,
@@ -137,8 +145,10 @@ data class AliasUsesUndeclaredPlatform(
 
     override val element: PsiElement
         get() = undeclaredPlatform.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasUsesUndeclaredPlatform
     override val message: @Nls String
         get() = SchemaBundle.message(ID, alias.value, undeclaredPlatform.value.pretty)
 }
@@ -150,8 +160,10 @@ data class AliasIsEmpty(val alias: TraceableString) : PsiBuildProblem(Level.Erro
 
     override val element: PsiElement
         get() = alias.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasIsEmpty
     override val message: @Nls String
         get() = SchemaBundle.message(ID, alias.value)
 }
@@ -166,8 +178,10 @@ data class AliasIntersectsWithNaturalHierarchy(
 
     override val element: PsiElement
         get() = alias.extractPsiElement()
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId: BuildProblemId
         get() = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AliasIntersectsWithNaturalHierarchy
     override val message: @Nls String
         get() = SchemaBundle.message(ID, alias.value, existingPlatform.pretty)
 }

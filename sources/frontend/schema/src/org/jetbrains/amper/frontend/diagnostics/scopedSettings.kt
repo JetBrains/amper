@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.visitMappingNodes
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.collections.joinToString
@@ -33,7 +34,7 @@ import org.jetbrains.amper.stdlib.collections.joinToString
  */
 private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
-object IncorrectSettingsLocation : TreeDiagnostic {
+object IncorrectSettingsSectionFactory : TreeDiagnostic {
     @Deprecated(
         message = "Use IncorrectSettingsSection.ID",
         replaceWith = ReplaceWith("IncorrectSettingsSection.ID"),
@@ -141,7 +142,9 @@ class IncorrectSettingsSection internal constructor(
     }
 
     override val message = SchemaBundle.message(messageKey, *values)
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.IncorrectSettingsSection
 
     // highlight only property keys
     override val element: PsiElement = trace.extractPsiElement().extractKeyElement()

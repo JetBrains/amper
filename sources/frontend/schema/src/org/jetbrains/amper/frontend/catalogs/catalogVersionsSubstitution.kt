@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.catalogs
@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.api.ResolvedReferenceTrace
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.Changed
 import org.jetbrains.amper.frontend.tree.KeyValue
@@ -80,8 +81,13 @@ private fun VersionCatalog.findInCatalogWithReport(key: String, keyTrace: Trace?
     if (value == null && keyTrace is PsiTrace) {
         problemReporter.reportBundleError(
             source = keyTrace.psiElement.asBuildProblemSource(),
+            diagnosticId = FrontendDiagnosticId.NoCatalogValue,
             messageKey = when {
+                // TODO: This is incorrect, as Compose might be actually enabled, but the catalog reference is wrong.
+                //  AMPER-5177
                 key.startsWith("compose.") -> "compose.is.disabled"
+                // TODO: This is incorrect, as Serialization might be actually enabled, but the catalog reference is wrong.
+                //  AMPER-5177
                 key.startsWith("kotlin.serialization.") -> "kotlin.serialization.is.disabled"
                 else -> "no.catalog.value"
             },

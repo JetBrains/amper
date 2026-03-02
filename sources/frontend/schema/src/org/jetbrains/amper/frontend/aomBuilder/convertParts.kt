@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -11,11 +11,10 @@ import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.SchemaValueDelegate
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.classBasedSet
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.types.generated.fileDelegate
-import org.jetbrains.amper.frontend.types.generated.passwordKeyDelegate
-import org.jetbrains.amper.frontend.types.generated.usernameKeyDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
@@ -52,6 +51,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                     if (!credentials.file.exists()) {
                         problemReporter.reportBundleError(
                             source = credentials.fileDelegate.asBuildProblemSource(),
+                            diagnosticId = FrontendDiagnosticId.CredentialsFileDoesNotExist,
                             messageKey = "credentials.file.does.not.exist",
                             credentials.file.normalize(),
                             problemType = BuildProblemType.UnresolvedReference,
@@ -65,6 +65,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                             if (property == null) {
                                 problemReporter.reportBundleError(
                                     source = keyProperty.asBuildProblemSource(),
+                                    diagnosticId = FrontendDiagnosticId.CredentialsFileDoesNotHaveKey,
                                     messageKey = "credentials.file.does.not.have.key",
                                     credentials.file.normalize(),
                                     keyProperty.value,

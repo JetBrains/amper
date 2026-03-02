@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -26,6 +26,7 @@ object PublishingSettingsMissingInDependencies : AomModelDiagnosticFactory {
                     .forEach { dep ->
                         problemReporter.reportBundleError(
                             source = dep.asBuildProblemSource(),
+                            diagnosticId = FrontendDiagnosticId.PublishingSettingsMissingInDependencies,
                             messageKey = "published.module.0.depends.on.non.published.module.1",
                             module.userReadableName,
                             dep.module.userReadableName,

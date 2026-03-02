@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -54,8 +55,10 @@ class SerializationVersionWithoutSerialization(
     override val element: PsiElement
         get() = versionProp.extractPsiElement()
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.SerializationVersionWithoutSerialization
 
     override val message: @Nls String
-        get() = SchemaBundle.message(messageKey = buildProblemId)
+        get() = SchemaBundle.message(messageKey = "serialization.version.without.serialization")
 }

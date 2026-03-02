@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.tree.get
 import org.jetbrains.amper.frontend.tree.valueEqualsTo
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -73,7 +74,9 @@ class UselessSetting(
     }
 
     override val element: PsiElement = trace.extractPsiElement()
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.UselessSetting
     override val message = SchemaBundle.message(
         messageKey = "setting.value.is.same.as.base",
         formatLocation(),

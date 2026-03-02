@@ -1,16 +1,18 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph
 
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.plugins.PluginDiagnosticId
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -28,7 +30,9 @@ class TaskDependencyLoop(
     override val message: @Nls String = "$baseMessage\n$renderedLoop"
     override val level: Level get() = Level.Error
     override val type: BuildProblemType get() = BuildProblemType.Generic
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId get() = ID
+    override val diagnosticId: DiagnosticId = PluginDiagnosticId.TaskDependencyLoop
 
     companion object {
         const val ID = "plugin.tasks.dependency.loop"

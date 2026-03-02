@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -18,6 +18,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
@@ -60,7 +61,9 @@ class JvmReleaseTooLowForDependency(
     val dependency: LocalModuleDependency,
     val dependencyJvmRelease: Int,
 ) : BuildProblem {
-    override val buildProblemId get() = diagnosticId
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
+    override val buildProblemId get() = Companion.diagnosticId
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.JvmReleaseTooLowForDependency
 
     private val jvmReleaseElement = module.jvmReleasePsiElement()
     private val dependencyJvmReleaseElement = dependency.module.jvmReleasePsiElement()
@@ -71,7 +74,7 @@ class JvmReleaseTooLowForDependency(
             jvmReleaseElement?.asBuildProblemSource(),
             dependencyJvmReleaseElement?.asBuildProblemSource(),
         ),
-        groupingMessage = SchemaBundle.message("module.dependency.with.incompatible.jvm.release.grouping",)
+        groupingMessage = SchemaBundle.message("module.dependency.with.incompatible.jvm.release.grouping")
     )
     override val message = SchemaBundle.message(
         "module.dependency.with.incompatible.jvm.release",

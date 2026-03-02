@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.annotations.Nls
 
@@ -24,7 +25,9 @@ class UnknownProperty(
         const val ID = "unknown.property"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.UnknownProperty
     override val message: @Nls String
         get() = if (possibleIntendedNames.isEmpty()) {
             SchemaBundle.message("unknown.property", invalidName)

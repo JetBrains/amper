@@ -29,6 +29,7 @@ object TemplateNameWithoutPostfix : TreeDiagnostic {
                 ) {
                     problemReporter.reportBundleError(
                         source = tValue.trace.asBuildProblemSource(),
+                        diagnosticId = FrontendDiagnosticId.TemplateNameWithoutPostfix,
                         messageKey = diagnosticId,
                     )
                 }

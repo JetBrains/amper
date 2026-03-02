@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins
@@ -78,6 +78,7 @@ internal class PluginTreeReader(
                 source = tasks?.asBuildProblemSource() as? PsiBuildProblemSource
                     // If tasks are `{}` by *default*, then we need to use the whole tree trace.
                     ?: pluginTree.asBuildProblemSource(),
+                diagnosticId = PluginDiagnosticId.PluginDoesntRegisterAnyTasks,
                 messageKey = "plugin.missing.tasks",
                 level = Level.Warning,
             )
@@ -163,7 +164,9 @@ internal class PluginTreeReader(
                 groupingMessage = SchemaBundle.message("plugin.unexpected.configuration.when.disabled.grouping"),
             )
             problemReporter.reportBundleError(
-                source, "plugin.unexpected.configuration.when.disabled", pluginData.id.value,
+                source = source,
+                diagnosticId = PluginDiagnosticId.PluginNotEnabledButConfigured,
+                messageKey = "plugin.unexpected.configuration.when.disabled", pluginData.id.value,
                 level = Level.Warning,
             )
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins
@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.generated.typeDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
@@ -38,8 +38,11 @@ internal fun createPluginReaders(
         val product = pluginModule.moduleCtxModule.product
         if (product.type != ProductType.JVM_AMPER_PLUGIN) {
             problemReporter.reportBundleError(
-                product.asBuildProblemSource(),
-                "plugin.unexpected.product.type", ProductType.JVM_AMPER_PLUGIN.value, product.type
+                source = product.asBuildProblemSource(),
+                diagnosticId = PluginDiagnosticId.UnexpectedPluginProductType,
+                messageKey = "plugin.unexpected.product.type",
+                ProductType.JVM_AMPER_PLUGIN.value,
+                product.type,
             )
             return@mapPlugins null
         }
@@ -59,7 +62,8 @@ internal fun createPluginReaders(
             if (pluginData.declarations.classes.none { it.name.qualifiedName == settingsClass.value }) {
                 problemReporter.reportBundleError(
                     source = settingsClass.asBuildProblemSource(),
-                    "plugin.missing.schema.class", settingsClass,
+                    diagnosticId = PluginDiagnosticId.PluginMissingSchemaClass,
+                    messageKey = "plugin.missing.schema.class", settingsClass,
                     problemType = BuildProblemType.UnresolvedReference,
                 )
             }
@@ -97,7 +101,11 @@ internal fun createPluginReaders(
             sources = traceableIds.map { it.asBuildProblemSource() as FileBuildProblemSource },
             groupingMessage = SchemaBundle.message("plugin.id.duplicate.grouping", id)
         )
-        problemReporter.reportBundleError(source, "plugin.id.duplicate")
+        problemReporter.reportBundleError(
+            source = source,
+            diagnosticId = PluginDiagnosticId.PluginDuplicateId,
+            messageKey = "plugin.id.duplicate",
+        )
     }
 
     return pluginReaders

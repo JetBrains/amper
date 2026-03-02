@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.LineAndColumn
@@ -24,21 +25,19 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 object SchemaBundle : MessageBundle("messages.SchemaBundle")
 
-/**
- * Reports a problem using a localized message from the given [bundle] with the given [messageKey] and [arguments].
- * It will be reported at the given [source] location.
- */
 fun ProblemReporter.reportBundleError(
     source: BuildProblemSource,
+    diagnosticId: DiagnosticId,
     messageKey: String,
     vararg arguments: Any?,
     bundle: MessageBundle = SchemaBundle,
-    buildProblemId: String = messageKey,
     level: Level = Level.Error,
     problemType: BuildProblemType = BuildProblemType.Generic,
+    buildProblemId: String = messageKey,
 ) {
     reportMessage(
         BuildProblemImpl(
+            diagnosticId = diagnosticId,
             buildProblemId = buildProblemId,
             source = source,
             message = bundle.message(messageKey, *arguments),

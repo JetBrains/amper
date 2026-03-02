@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -7,11 +7,12 @@ package org.jetbrains.amper.frontend.tree.reading
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.tree.ErrorNode
-import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.KeyValue
+import org.jetbrains.amper.frontend.tree.ListNode
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.Level
@@ -54,11 +55,11 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseMapFromSequence(value: YamlValue.Sequence, type: SchemaType.MapType): MappingNode {
     fun parseSingleKeyValue(value: YamlValue): KeyValue? {
         if (value !is YamlValue.Mapping) {
-            reportParsing(value, "validation.types.expected.key.value")
+            reportParsing(value, TreeDiagnosticId.ExpectedKeyValue, "validation.types.expected.key.value")
             return null
         }
         val singlePair = value.keyValues.singleOrNull() ?: run {
-            reportParsing(value, "validation.types.expected.key.value.single")
+            reportParsing(value, TreeDiagnosticId.ExpectedSingleKeyValuePair, "validation.types.expected.key.value.single")
             return null
         }
         return parseKeyValueForMap(singlePair, type)
@@ -97,24 +98,24 @@ internal fun parseScalarKey(
 ): ScalarNode? {
     key.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {
-            reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+            reportParsing(tag, TreeDiagnosticId.TagsAreNotSupported, "validation.structure.unsupported.standard.tag", tag.text)
         } else {
-            reportParsing(tag, "validation.structure.unsupported.tag")
+            reportParsing(tag, TreeDiagnosticId.TagsAreNotSupported, "validation.structure.unsupported.tag")
         }
     }
     when (key) {
         is YamlValue.Missing -> {
-            reportParsing(key, "validation.structure.missing.key")
+            reportParsing(key, TreeDiagnosticId.MappingKeyIsMissing, "validation.structure.missing.key")
             return null
         }
         is YamlValue.Scalar -> {
             if (containsReferenceSyntax(key)) {
-                reportParsing(key, "validation.types.unsupported.reference.key", level = Level.Warning)
+                reportParsing(key, TreeDiagnosticId.ReferencesAreNotSupportedInKeys, "validation.types.unsupported.reference.key", level = Level.Warning)
             }
             return parseScalar(key, type)
         }
         else -> {
-            reportParsing(key, "validation.types.unexpected.compound.key")
+            reportParsing(key, TreeDiagnosticId.CompoundKeysAreNotSupported, "validation.types.unexpected.compound.key")
             return null
         }
     }

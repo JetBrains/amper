@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph
 
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.plugins.PluginDiagnosticId
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
@@ -13,8 +14,6 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 context(reporter: ProblemReporter)
 internal fun diagnoseConflictingTasksOutputs(
@@ -42,7 +41,11 @@ internal fun diagnoseConflictingTasksOutputs(
                     it.name, it.appliedTo.userReadableName, it.pluginId.value)
             }
             reporter.reportBundleError(
-                source, "plugin.tasks.output.produced.by.multiple", root, taskNames,
+                source = source,
+                diagnosticId = PluginDiagnosticId.TaskOutputProducedByMultipleTasks,
+                messageKey = "plugin.tasks.output.produced.by.multiple",
+                root,
+                taskNames,
             )
         }
     }

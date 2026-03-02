@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.problems.reporting
@@ -76,7 +76,9 @@ enum class BuildProblemType {
 }
 
 interface BuildProblem {
+    @Deprecated("Should be replaced with `diagnosticId` property", ReplaceWith("diagnosticId"))
     val buildProblemId: BuildProblemId
+    val diagnosticId: DiagnosticId
 
     /**
      * The part of the configuration that is causing this problem.
@@ -108,11 +110,13 @@ interface BuildProblem {
  * They can incorporate additional properties for the IDE to simplify quick-fixes implementation.
  */
 data class BuildProblemImpl(
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId,
     override val source: BuildProblemSource,
     override val message: @Nls String,
     override val level: Level,
     override val type: BuildProblemType,
+    override val diagnosticId: DiagnosticId,
 ) : BuildProblem
 
 data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {

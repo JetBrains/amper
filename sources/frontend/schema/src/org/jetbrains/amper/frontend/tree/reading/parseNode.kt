@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -8,6 +8,7 @@ import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.contexts.EmptyContexts
 import org.jetbrains.amper.frontend.tree.NullLiteralNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.problems.reporting.BuildProblemType
@@ -35,8 +36,8 @@ internal fun parseNode(
         if (!type.isMarkedNullable) {
             when (type) {
                 is SchemaType.EnumType, is SchemaType.PathType, is SchemaType.StringType,
-                    -> reportParsing(value, "validation.types.unexpected.null.stringlike", type = BuildProblemType.TypeMismatch)
-                else -> reportParsing(value, "validation.types.unexpected.null", type = BuildProblemType.TypeMismatch)
+                    -> reportParsing(value, TreeDiagnosticId.UnexpectedNull, "validation.types.unexpected.null.stringlike", type = BuildProblemType.TypeMismatch)
+                else -> reportParsing(value, TreeDiagnosticId.UnexpectedNull, "validation.types.unexpected.null", type = BuildProblemType.TypeMismatch)
             }
             return null // null means invalid in this function, not the null value
         }
@@ -44,15 +45,15 @@ internal fun parseNode(
     }
     value.tag?.let { tag ->
         if (tag.text.startsWith("!!")) {
-            reportParsing(tag, "validation.structure.unsupported.standard.tag", tag.text)
+            reportParsing(tag, TreeDiagnosticId.TagsAreNotSupported, "validation.structure.unsupported.standard.tag", tag.text)
         } else if (type !is SchemaType.VariantType && type !is SchemaType.ObjectType) {
-            reportParsing(tag, "validation.structure.unsupported.tag")
+            reportParsing(tag, TreeDiagnosticId.TagsAreNotSupported, "validation.structure.unsupported.tag")
         }
         // tags are allowed for variants sometimes.
     }
 
     value.psi.childrenOfType<YAMLAnchor>().forEach { anchor ->
-        reportParsing(anchor, "validation.structure.unsupported.alias")
+        reportParsing(anchor, TreeDiagnosticId.AliasesAreNotSupported, "validation.structure.unsupported.alias")
     }
 
     // This is required because all "inherited" contexts, that are not explicitly mentioned must not have any traces.
@@ -67,7 +68,7 @@ internal fun parseNode(
                 if (config.parseReferences) {
                     return parseReferenceOrInterpolation(value, type)
                 } else {
-                    reportParsing(value, "validation.types.unsupported.reference", level = Level.Warning)
+                    reportParsing(value, TreeDiagnosticId.ReferencesAreNotSupported, "validation.types.unsupported.reference", level = Level.Warning)
                 }
             }
         }

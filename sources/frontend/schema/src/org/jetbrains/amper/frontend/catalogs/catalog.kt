@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.TraceableVersion
 import org.jetbrains.amper.frontend.api.TransformedValueTrace
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.frontend.schema.Settings
@@ -50,6 +51,7 @@ private fun SchemaValueDelegate<String>.asTraceableVersion(fallbackVersion: Stri
     } else {
         problemReporter.reportBundleError(
             source = trace.asBuildProblemSource(),
+            diagnosticId = FrontendDiagnosticId.VersionCannotBeEmpty,
             messageKey = "empty.version.string",
         )
         // TODO instead of this fallback, we could add a general @NonEmpty validation up front, so the schema

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree
@@ -70,7 +70,11 @@ internal fun RefinedMappingNode.resolveReferences(): RefinedMappingNode {
                 .mapNotNull { it.trace.asBuildProblemSource() as? FileBuildProblemSource }.toList(),
             groupingMessage = SchemaBundle.message("validation.reference.resolution.loops.grouping")
         )
-        problemReporter.reportBundleError(source, "validation.reference.resolution.loops")
+        problemReporter.reportBundleError(
+            source = source,
+            diagnosticId = TreeDiagnosticId.ReferenceResolutionLoop,
+            messageKey = "validation.reference.resolution.loops"
+        )
     }
 
     return value
@@ -106,8 +110,11 @@ private class TreeReferencesResolver(
 
         val converted = resolved.cast(targetType = node.type) ?: run {
             reporter.reportBundleError(
-                node.trace.asBuildProblemSource(), "validation.reference.unexpected.type",
-                renderTypeOf(resolved), node.type.render(includeSyntax = false)
+                source = node.trace.asBuildProblemSource(),
+                diagnosticId = TreeDiagnosticId.ReferenceHasUnexpectedType,
+                messageKey = "validation.reference.unexpected.type",
+                renderTypeOf(resolved),
+                node.type.render(includeSyntax = false)
             )
             return node
         }
@@ -128,7 +135,9 @@ private class TreeReferencesResolver(
                     val resolved = resolve(node, part.referencePath) ?: return node
                     val converted = resolved.cast(SchemaType.StringType) ?: run {
                         reporter.reportBundleError(
-                            node.trace.asBuildProblemSource(), "validation.reference.unexpected.type.interpolation",
+                            source = node.trace.asBuildProblemSource(),
+                            diagnosticId = TreeDiagnosticId.ReferenceCannotBeUsedInStringInterpolation,
+                            messageKey = "validation.reference.unexpected.type.interpolation",
                             renderTypeOf(resolved),
                         )
                         return node
@@ -156,7 +165,12 @@ private class TreeReferencesResolver(
             is SchemaType.PathType -> try {
                 PathNode(Path(interpolated).normalize(), type, trace, node.contexts)
             } catch (e: InvalidPathException) {
-                reporter.reportBundleError(trace.asBuildProblemSource(), "validation.types.invalid.path", e.message)
+                reporter.reportBundleError(
+                    source = trace.asBuildProblemSource(),
+                    diagnosticId = TreeDiagnosticId.InvalidPath,
+                    messageKey = "validation.types.invalid.path",
+                    e.message
+                )
                 return node
             }
             is SchemaType.StringType -> {
@@ -190,8 +204,10 @@ private class TreeReferencesResolver(
 
         val resolutionRoot = reversedPath.find { it[firstElement] != null } ?: run {
             reporter.reportBundleError(
-                origin.trace.asBuildProblemSource(), "validation.reference.resolution.root.not.found",
-                arguments = arrayOf(firstElement),
+                origin.trace.asBuildProblemSource(),
+                diagnosticId = TreeDiagnosticId.ReferenceResolutionRootNotFound,
+                "validation.reference.resolution.root.not.found",
+                firstElement,
             )
             return null
         }
@@ -204,15 +220,18 @@ private class TreeReferencesResolver(
 
             if (newValue == null) {
                 reporter.reportBundleError(
-                    origin.trace.asBuildProblemSource(),
-                    "validation.reference.resolution.not.found", refPart
+                    source = origin.trace.asBuildProblemSource(),
+                    diagnosticId = TreeDiagnosticId.UnresolvedReference,
+                    messageKey = "validation.reference.resolution.not.found",
+                    refPart
                 )
                 return null
             }
             if (i != referencePath.lastIndex && newValue !is RefinedMappingNode) {
                 reporter.reportBundleError(
-                    origin.trace.asBuildProblemSource(),
-                    "validation.reference.resolution.not.a.mapping", refPart
+                    source = origin.trace.asBuildProblemSource(),
+                    diagnosticId = TreeDiagnosticId.ReferenceSegmentIsNotMapping,
+                    messageKey = "validation.reference.resolution.not.a.mapping", refPart
                 )
                 return null
             }
@@ -221,8 +240,9 @@ private class TreeReferencesResolver(
                 && propertyDeclaration != null && !propertyDeclaration.canBeReferenced
             ) {
                 reporter.reportBundleError(
-                    origin.trace.asBuildProblemSource(),
-                    "validation.reference.resolution.not.referencable", refPart,
+                    source = origin.trace.asBuildProblemSource(),
+                    diagnosticId = TreeDiagnosticId.NonReferenceableElement,
+                    messageKey = "validation.reference.resolution.not.referencable", refPart,
                 )
                 return null
             }

@@ -1,0 +1,12 @@
+/*
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.amper.problems.reporting
+
+/**
+ * Marker interface for diagnostic IDs.
+ *
+ * Prefer implementing as enumerations to let tooling know about the possible diagnostic values.
+ */
+interface DiagnosticId

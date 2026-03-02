@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.JvmDistribution
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -42,8 +43,10 @@ class JdkDistributionRequiresLicense(
         const val ID = "jdk.distribution.requires.license"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId, distribution.value.schemaValue)
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.JdkDistributionRequiresLicense
+    override val message = SchemaBundle.message("jdk.distribution.requires.license", distribution.value.schemaValue)
     override val element: PsiElement
         get() = distribution.trace.extractPsiElement()
 }

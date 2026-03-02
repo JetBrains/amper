@@ -1,11 +1,12 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
 
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ScalarNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.reading.maven.validateAndReportMavenCoordinates
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
@@ -18,14 +19,14 @@ context(_: Contexts, _: ParsingConfig, _: ProblemReporter)
 internal fun parseScalar(scalar: YamlValue.Scalar, type: SchemaType.ScalarType): ScalarNode? = when (type) {
     is SchemaType.BooleanType -> when(val boolean = scalar.textValue.toBooleanStrictOrNull()) {
         null -> {
-            reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar, TreeDiagnosticId.UnexpectedValue, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> booleanNode(scalar, type, boolean)
     }
     is SchemaType.IntType -> when(val int = scalar.textValue.toIntOrNull()) {
         null -> {
-            reportParsing(scalar, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
+            reportParsing(scalar, TreeDiagnosticId.UnexpectedValue, "validation.expected", type.render(), type = BuildProblemType.TypeMismatch)
             null
         }
         else -> intNode(scalar, type, int)
@@ -53,7 +54,7 @@ private fun parsePath(scalar: YamlValue.Scalar, type: SchemaType.PathType): Scal
     var path = try {
         Path(scalar.textValue)
     } catch (e: InvalidPathException) {
-        reportParsing(scalar, "validation.types.invalid.path", e.message)
+        reportParsing(scalar, TreeDiagnosticId.InvalidPath, "validation.types.invalid.path", e.message)
         return null
     }
     path = if (path.isAbsolute) path else config.basePath.resolve(path)
@@ -74,7 +75,8 @@ internal fun parseEnum(
             .filter { it.isIncludedIntoJsonSchema && !it.isOutdated }
             .map { it.schemaValue }
         reportParsing(
-            scalar, "validation.types.unknown.enum.value",
+            scalar, TreeDiagnosticId.UnknownEnumValue,
+            "validation.types.unknown.enum.value",
             textValue, suggestedValues.joinToString(),
             type = BuildProblemType.TypeMismatch,
         )

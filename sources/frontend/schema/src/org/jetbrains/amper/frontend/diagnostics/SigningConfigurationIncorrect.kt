@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.schema.storeFile
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.amper.stdlib.properties.readProperties
@@ -177,10 +178,12 @@ class SigningEnabledWithoutPropertiesFile(
     }
 
     override val element: PsiElement get() = targetProperty.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.SigningEnabledWithoutPropertiesFile
     override val message: @Nls String
         get() = SchemaBundle.message(
-            messageKey = buildProblemId, propertiesFilePath
+            messageKey = "keystore.properties.does.not.exist", propertiesFilePath
         )
 }
 
@@ -194,10 +197,13 @@ class KeystorePropertiesDoesNotContainKey(
     }
 
     override val element: PsiElement get() = targetProperty.extractPsiElement()
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.KeystorePropertiesDoesNotContainKey
+
     override val message: @Nls String
         get() = SchemaBundle.message(
-            messageKey = buildProblemId, propertiesFilePath, key
+            messageKey = "keystore.properties.key.does.not.exist", propertiesFilePath, key
         )
 }
 
@@ -209,10 +215,12 @@ class MandatoryFieldInPropertiesFileMustBePresent(
     }
 
     override val element: PsiElement get() = targetProperty.extractPsiElement()
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.MandatoryFieldInPropertiesFileMustBePresent
     override val message: @Nls String
         get() = SchemaBundle.message(
-            messageKey = buildProblemId, propertiesFilePath, key
+            messageKey = "keystore.properties.value.required", propertiesFilePath, key
         )
 }
 
@@ -224,9 +232,11 @@ class KeystoreFileDoesNotExist(
     }
 
     override val element: PsiElement get() = targetProperty.extractPsiElement()
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.KeystoreFileDoesNotExist
     override val message: @Nls String
         get() = SchemaBundle.message(
-            messageKey = buildProblemId, keystorePath
+            messageKey = "keystore.properties.file.does.not.exist", keystorePath
         )
 }

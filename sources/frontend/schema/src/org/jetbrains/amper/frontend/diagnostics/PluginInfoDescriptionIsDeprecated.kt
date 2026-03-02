@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.plugins.PluginDiagnosticId
 import org.jetbrains.amper.frontend.contexts.MinimalModule
 import org.jetbrains.amper.frontend.diagnostics.helpers.visitNullableStringProperties
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
@@ -15,6 +16,7 @@ import org.jetbrains.amper.frontend.plugins.PluginDeclarationSchema
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -25,8 +27,10 @@ class PluginInfoDescriptionIsDeprecated(
         const val ID = "plugin.description.should.be.top.level"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId)
+    override val diagnosticId: DiagnosticId = PluginDiagnosticId.PluginDescriptionShouldBeTopLevel
+    override val message = SchemaBundle.message("plugin.description.should.be.top.level")
 }
 
 object PluginInfoDescriptionIsDeprecatedFactory : TreeDiagnostic {

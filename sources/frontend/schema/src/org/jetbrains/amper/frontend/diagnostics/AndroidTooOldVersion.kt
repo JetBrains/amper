@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -27,8 +28,10 @@ class AndroidTooOldVersion(
         const val ID = "too.old.android.version"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId, used.versionNumber, minVersion.versionNumber)
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.AndroidVersionTooOld
+    override val message = SchemaBundle.message("too.old.android.version", used.versionNumber, minVersion.versionNumber)
 }
 
 object AndroidTooOldVersionFactory : TreeDiagnostic {

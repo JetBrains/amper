@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
@@ -57,8 +58,10 @@ class InvalidKotlinCompilerVersion(
     override val element: PsiElement,
     val actualVersion: String,
 ) : PsiBuildProblem(Level.Error, BuildProblemType.Generic) {
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId, actualVersion)
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.InvalidKotlinCompilerVersion
+    override val message = SchemaBundle.message("invalid.kotlin.compiler.version", actualVersion)
 
     companion object {
         const val ID = "invalid.kotlin.compiler.version"
@@ -70,8 +73,10 @@ class KotlinCompilerVersionTooLow(
     val actualVersion: String,
     val minVersion: String,
 ) : PsiBuildProblem(Level.Error, BuildProblemType.Generic) {
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId, actualVersion, minVersion)
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.KotlinCompilerVersionTooLow
+    override val message = SchemaBundle.message("kotlin.compiler.version.too.low", actualVersion, minVersion)
 
     companion object {
         const val ID = "kotlin.compiler.version.too.low"

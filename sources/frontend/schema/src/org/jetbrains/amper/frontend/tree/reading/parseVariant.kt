@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.schema.UnscopedExternalDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenBomDependency
 import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.UnscopedModuleDependency
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.tree.copyWithTrace
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -43,7 +44,7 @@ internal fun parseVariant(
         if (singleKeyValue != null && singleKeyValue.key.psi.text == "bom") {
             parseNode(singleKeyValue.value, type.subVariantType(BomDependency::class))
                 ?.copyWithTrace(trace = singleKeyValue.asTrace()) ?: run {
-                reportParsing(singleKeyValue.value, "unexpected.bom.dependency.structure")
+                reportParsing(singleKeyValue.value, TreeDiagnosticId.IncorrectBomDependencyStructure, "unexpected.bom.dependency.structure")
                 null
             }
         } else {
@@ -52,7 +53,7 @@ internal fun parseVariant(
     }
     BomDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> {
-            reportParsing(value, "unexpected.bom.local",)
+            reportParsing(value, TreeDiagnosticId.LocalBomAreNotSupported, "unexpected.bom.local")
             null
         }
         '$' -> parseObject(value, type.leafType(CatalogBomDependency::class))
@@ -70,7 +71,7 @@ internal fun parseVariant(
                 parseVariant(bomDependency, type.subVariantType(UnscopedBomDependency::class))
                     ?.copyWithTrace(trace = singleKeyValue.asTrace())
             } ?: run {
-                reportParsing(singleKeyValue.value, "unexpected.bom.dependency.structure")
+                reportParsing(singleKeyValue.value, TreeDiagnosticId.IncorrectBomDependencyStructure, "unexpected.bom.dependency.structure")
                 null
             }
         } else {
@@ -82,7 +83,7 @@ internal fun parseVariant(
     }
     UnscopedExternalDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> {
-            reportParsing(value, "unexpected.local.module")
+            reportParsing(value, TreeDiagnosticId.LocalBomAreNotSupported, "unexpected.local.module")
             null
         }
         '$' -> parseObject(value, type.leafType(UnscopedCatalogDependency::class))
@@ -90,7 +91,7 @@ internal fun parseVariant(
     }
     UnscopedBomDependency::class.qualifiedName -> when (peekValueAsKey(value)?.firstOrNull()) {
         '.' -> {
-            reportParsing(value, "unexpected.bom.local",)
+            reportParsing(value, TreeDiagnosticId.LocalBomAreNotSupported, "unexpected.bom.local")
             null
         }
         '$' -> parseObject(value, type.leafType(UnscopedCatalogBomDependency::class))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.ScalarNode
 import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.copy
 import org.jetbrains.amper.frontend.types.SchemaObjectDeclaration
 import org.jetbrains.amper.frontend.types.SchemaType
@@ -29,7 +30,7 @@ internal fun parseObject(
     if (!allowTypeTag) {
         value.tag?.let { tag ->
             if (!tag.text.startsWith("!!")) {  // Standard "!!" tags are reported in `parseValue`
-                reportParsing(tag, "validation.structure.unsupported.tag")
+                reportParsing(tag, TreeDiagnosticId.TagsAreNotSupported, "validation.structure.unsupported.tag")
             }
         }
     }
@@ -52,7 +53,7 @@ private fun parseObjectWithFromKeyProperty(
     return when (value) {
         is YamlValue.Mapping -> {
             val argKeyValue = value.keyValues.singleOrNull() ?: run {
-                reportParsing(value, "validation.types.invalid.ctor.arg.key", type.render())
+                reportParsing(value, TreeDiagnosticId.MappingShouldHaveSingleKeyValue, "validation.types.invalid.ctor.arg.key", type.render())
                 return null
             }
             val argumentValue = parseScalarKey(argKeyValue.key, argumentType)
@@ -130,7 +131,7 @@ private fun parseObjectFromMap(value: YamlValue.Mapping, type: SchemaType.Object
             } else null
         }
         if (!property.isUserSettable) {
-            reportParsing(key, "validation.property.not.settable", property.name)
+            reportParsing(key, TreeDiagnosticId.PropertyIsNotSettable, "validation.property.not.settable", property.name)
             return null
         }
         return KeyValue(
@@ -234,7 +235,7 @@ private fun parsePropertyKeyContexts(
         val keyWithoutContext = keyText.substringBefore('@')
         val context = if (keyWithoutContext === keyText) null else keyText.substringAfter('@')
         if (context != null && '+' in context) {
-            reportParsing(key, "multiple.qualifiers.are.unsupported")
+            reportParsing(key, TreeDiagnosticId.MultipleQualifiersAreNotSupported, "multiple.qualifiers.are.unsupported")
             return null
         }
         val (mappedName, requiresTestContext) = when (keyWithoutContext) {

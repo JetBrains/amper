@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph
 
 import org.jetbrains.amper.frontend.AmperModule
+import org.jetbrains.amper.frontend.aomBuilder.plugins.PluginDiagnosticId
 import org.jetbrains.amper.frontend.api.DefaultTrace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
@@ -14,7 +15,7 @@ import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowResolutionScope
 import org.jetbrains.amper.frontend.plugins.generated.ShadowSourcesKind
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.types.generated.includeGeneratedDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MessageBundle
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -137,8 +138,9 @@ internal fun buildTaskGraph(
             if (producedBy.isEmpty()) {
                 if (inputPath.path.value.mustBeProduced()) {
                     reporter.reportBundleError(
-                        inputPath.path.asBuildProblemSource(),
-                        "plugin.tasks.paths.unproduced.in.build.dir",
+                        source = inputPath.path.asBuildProblemSource(),
+                        diagnosticId = PluginDiagnosticId.UnproducedInputInBuildDirectory,
+                        messageKey = "plugin.tasks.paths.unproduced.in.build.dir",
                         inputPath.path.value.replaceKnownSuperpaths(),
                         level = Level.Warning,
                     )

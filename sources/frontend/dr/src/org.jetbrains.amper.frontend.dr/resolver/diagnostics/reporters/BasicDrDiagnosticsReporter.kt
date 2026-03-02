@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters
@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.api.DerivedValueTrace
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableVersion
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.dr.resolver.DirectFragmentDependencyNode
 import org.jetbrains.amper.frontend.dr.resolver.FrontendDrBundle
 import org.jetbrains.amper.frontend.dr.resolver.diagnostics.DrDiagnosticsReporter
@@ -31,6 +32,7 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemImpl
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
@@ -65,6 +67,7 @@ object BasicDrDiagnosticsReporter : DrDiagnosticsReporter {
             val msgLevel = message.mapSeverityToLevel()
             val buildProblem = BuildProblemImpl(
                 buildProblemId = "dependency.problem.no.psi",
+                diagnosticId = FrontendDiagnosticId.DependencyResolutionProblem,
                 source = GlobalBuildProblemSource,
                 message = message.detailedMessage,
                 level = msgLevel,
@@ -164,7 +167,9 @@ class DependencyBuildProblem(
     @field:UsedInIdePlugin
     val versionDefinition: VersionDefinition?,
 ) : PsiBuildProblem(level, BuildProblemType.Generic) {
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.DependencyResolutionProblem
 
     override val message: @Nls String
         get() = buildString {

@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder.plugins.taskGraph
 
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.aomBuilder.plugins.PluginDiagnosticId
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
@@ -28,7 +29,12 @@ internal fun diagnoseOverlappingPaths(
                     },
                     groupingMessage = SchemaBundle.message("plugin.tasks.paths.nested.reserved.grouping"),
                 )
-                reporter.reportBundleError(source, "plugin.tasks.paths.nested.reserved", root.replaceKnownSuperpaths())
+                reporter.reportBundleError(
+                    source = source,
+                    diagnosticId = PluginDiagnosticId.ConflictingPluginTaskPaths,
+                    messageKey = "plugin.tasks.paths.nested.reserved",
+                    root.replaceKnownSuperpaths()
+                )
             }
         }
     }

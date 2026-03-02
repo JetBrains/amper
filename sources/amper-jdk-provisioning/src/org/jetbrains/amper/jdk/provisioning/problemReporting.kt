@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 
@@ -9,6 +9,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MessageBundle
@@ -23,6 +24,7 @@ abstract class ProvisioningProblem(
     vararg val params: Any?,
 ) : BuildProblem {
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId
         get() = messageKey
 
@@ -45,4 +47,6 @@ class InvalidJavaHome(
     source = GlobalBuildProblemSource,
     messageKey = errorKey,
     params = params,
-)
+) {
+    override val diagnosticId: DiagnosticId = ProvisioningDiagnosticId.InvalidJavaHome
+}

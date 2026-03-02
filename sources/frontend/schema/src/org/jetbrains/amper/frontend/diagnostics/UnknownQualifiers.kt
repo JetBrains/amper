@@ -33,6 +33,7 @@ object UnknownQualifiers : TreeDiagnostic {
                     problemReporter.reportBundleError(
                         source = it.trace?.extractPsiElementOrNull()?.extractKeyElement()?.asBuildProblemSource()
                             ?: return@forEach, // Skip for unknown places.
+                        diagnosticId = FrontendDiagnosticId.UnknownQualifiers,
                         messageKey = "product.unknown.qualifier",
                         it.value,
                         problemType = BuildProblemType.UnknownSymbol,

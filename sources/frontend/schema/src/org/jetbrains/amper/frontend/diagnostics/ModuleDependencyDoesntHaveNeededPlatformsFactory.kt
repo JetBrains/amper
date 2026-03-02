@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import org.jetbrains.annotations.Nls
@@ -56,7 +57,9 @@ class ModuleDependencyDoesntHaveNeededPlatforms(
     override val element: PsiElement
         get() = dependency.extractPsiElement()
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId: BuildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.ModuleDependencyDoesntHaveNeededPlatforms
 
     override val message: @Nls String
         get() = SchemaBundle.message(

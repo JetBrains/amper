@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.problems.reporting
@@ -15,6 +15,7 @@ class ProblemReporterRenderingTest {
     fun `reporting problem without file`() {
         val problem = BuildProblemImpl(
             buildProblemId = "test.message",
+            diagnosticId = TestDiagnosticId,
             source = GlobalBuildProblemSource,
             message = "Test message",
             level = Level.Error,
@@ -27,6 +28,7 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file but no line`() {
         val problem = BuildProblemImpl(
             buildProblemId = "test.message",
+            diagnosticId = TestDiagnosticId,
             source = TestFileProblemSource(Path("test.txt")),
             message = "Test message",
             level = Level.Error,
@@ -39,6 +41,7 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file and line`() {
         val problem = BuildProblemImpl(
             buildProblemId = "test.message",
+            diagnosticId = TestDiagnosticId,
             source = TestFileWithRangesProblemSource(
                 Path("test.txt"), range = LineAndColumnRange(
                     LineAndColumn(10, 15, null), LineAndColumn.NONE
@@ -70,6 +73,7 @@ class ProblemReporterRenderingTest {
         )
         val problem = BuildProblemImpl(
             buildProblemId = "test.message",
+            diagnosticId = TestDiagnosticId,
             source = MultipleLocationsBuildProblemSource(
                 location1, location2, location3,
                 groupingMessage = "Encountered in:",
@@ -97,4 +101,6 @@ class ProblemReporterRenderingTest {
     ) : FileWithRangesBuildProblemSource {
         override val offsetRange: IntRange = IntRange.EMPTY
     }
+
+    private object TestDiagnosticId : DiagnosticId
 }

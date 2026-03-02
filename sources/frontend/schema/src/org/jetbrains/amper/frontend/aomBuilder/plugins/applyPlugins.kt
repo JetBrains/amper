@@ -10,13 +10,14 @@ import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.asTraceableValue
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.plugins.PluginYamlRoot
 import org.jetbrains.amper.frontend.plugins.TaskFromPluginDescription
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyLocal
 import org.jetbrains.amper.frontend.plugins.generated.ShadowDependencyMaven
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.toMavenCoordinates
-import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -47,14 +48,22 @@ internal fun applyPlugins(
                         sources = duplicateMarks.mapNotNull { it.asBuildProblemSource() as? FileBuildProblemSource },
                         groupingMessage = SchemaBundle.message("plugin.invalid.mark.output.as.duplicates.grouping"),
                     )
-                    problemReporter.reportBundleError(source, "plugin.invalid.mark.output.as.duplicates", path)
+                    problemReporter.reportBundleError(
+                        source = source,
+                        diagnosticId = PluginDiagnosticId.ConflictingMarkedPluginPaths,
+                        messageKey = "plugin.invalid.mark.output.as.duplicates",
+                        path
+                    )
                 }
             ).associateBy { it.path }
             val outputPathsSet = pathsCollector.allOutputPaths.mapTo(hashSetOf()) { it.value }
             outputMarks.forEach { (path, mark) ->
                 if (path !in outputPathsSet) {
                     problemReporter.reportBundleError(
-                        mark.asBuildProblemSource(), "plugin.invalid.mark.output.as.no.such.path", path
+                        source = mark.asBuildProblemSource(),
+                        diagnosticId = PluginDiagnosticId.UndeclaredMarkedOutputPath,
+                        messageKey = "plugin.invalid.mark.output.as.no.such.path",
+                        path
                     )
                 }
             }
@@ -128,7 +137,10 @@ private fun ShadowDependencyLocal.resolve(
         problemReporter.reportBundleError(
             // TODO: Relative path (as it was specified) would be better?
             //  blocker: that information is lost currently.
-            asBuildProblemSource(), "unresolved.module", modulePath.pathString,
+            source = asBuildProblemSource(),
+            diagnosticId = FrontendDiagnosticId.UnresolvedModuleDependency,
+            messageKey = "unresolved.module",
+            modulePath.pathString,
         )
         return null
     }

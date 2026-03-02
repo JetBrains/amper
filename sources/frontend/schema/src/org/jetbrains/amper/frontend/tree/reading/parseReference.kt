@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.tree.reading
 import org.jetbrains.amper.frontend.contexts.Contexts
 import org.jetbrains.amper.frontend.tree.ReferenceNode
 import org.jetbrains.amper.frontend.tree.StringInterpolationNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.TreeNode
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
@@ -26,21 +27,21 @@ internal fun parseReferenceOrInterpolation(
             val reference by match
             val closingBrace by match
             if (closingBrace == null) {
-                reportParsing(scalar, "validation.reference.missing.closing.brace")
+                reportParsing(scalar, TreeDiagnosticId.ReferenceMissesClosingBrace, "validation.reference.missing.closing.brace")
                 return null
             }
             val referenceText = reference
             if (referenceText.isNullOrBlank()) {
-                reportParsing(scalar, "validation.reference.empty")
+                reportParsing(scalar, TreeDiagnosticId.ReferenceIsEmpty, "validation.reference.empty")
                 return null
             }
             if ('$' in referenceText || '{' in referenceText) {
-                reportParsing(scalar, "validation.reference.nested")
+                reportParsing(scalar, TreeDiagnosticId.NestedReferencesAreNotSupported, "validation.reference.nested")
                 return null
             }
             val referencePath = referenceText.split('.')
             if (referencePath.any { it.isEmpty() }) {
-                reportParsing(scalar, "validation.reference.empty.element")
+                reportParsing(scalar, TreeDiagnosticId.ReferenceSegmentIsEmpty, "validation.reference.empty.element")
             }
             parts.add(StringInterpolationNode.Part.Reference(referencePath))
         },
@@ -53,7 +54,7 @@ internal fun parseReferenceOrInterpolation(
     return if (parts.size > 1) {
         if (type !is SchemaType.StringInterpolatableType) {
             // TODO: more granular range reporting
-            reportParsing(scalar, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
+            reportParsing(scalar, TreeDiagnosticId.TypeDoesNotSupportInterpolation, "validation.types.unsupported.interpolation", type.render(includeSyntax = false))
             return null
         }
         StringInterpolationNode(

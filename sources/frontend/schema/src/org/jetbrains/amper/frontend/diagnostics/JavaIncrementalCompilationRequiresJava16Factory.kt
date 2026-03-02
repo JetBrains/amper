@@ -13,6 +13,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
@@ -61,8 +62,10 @@ class JavaIncrementalCompilationRequiresJava16(
         const val ID = "java.incremental.compilation.requires.higher.jdk"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
-    override val message = SchemaBundle.message(buildProblemId, minJdkVersion, actualJdkVersion)
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.JavaIncrementalCompilationRequiresJava16
+    override val message = SchemaBundle.message("java.incremental.compilation.requires.higher.jdk", minJdkVersion, actualJdkVersion)
     override val level: Level = Level.Error
     override val type: BuildProblemType = BuildProblemType.InconsistentConfiguration
     override val source: BuildProblemSource = MultipleLocationsBuildProblemSource(

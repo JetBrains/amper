@@ -10,7 +10,6 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import io.opentelemetry.api.common.Attributes
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.aomBuilder.readProject
@@ -22,12 +21,12 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext.Compan
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.MavenPlugin
 import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.schema.UnscopedExternalMavenDependency
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.GlobalBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.NonIdealDiagnostic
 import org.jetbrains.amper.problems.reporting.ProblemReporter
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
@@ -175,6 +174,7 @@ class StandaloneAmperProjectContext(
             if (amperModuleFiles.isEmpty()) {
                 problemReporter.reportBundleError(
                     source = amperProject?.asBuildProblemSource() ?: GlobalBuildProblemSource,
+                    diagnosticId = ProjectDiagnosticId.ProjectHasNoModules,
                     messageKey = "project.has.no.modules",
                     rootDir.presentableUrl,
                     level = Level.Warning,
@@ -187,14 +187,18 @@ class StandaloneAmperProjectContext(
                 when (pluginModuleFile) {
                     null -> {
                         problemReporter.reportBundleError(
-                            dependency.trace.asBuildProblemSource(), "plugin.dependency.not.found",
+                            source = dependency.trace.asBuildProblemSource(),
+                            diagnosticId = ProjectDiagnosticId.PluginDependencyNotFound,
+                            messageKey = "plugin.dependency.not.found",
                             dependency.path.relativeTo(rootDir.toNioPath())
                         ); null
                     }
                     !in amperModuleFiles -> {
                         // TODO: Quickfix?
                         problemReporter.reportBundleError(
-                            dependency.trace.asBuildProblemSource(), "plugin.dependency.not.included",
+                            source = dependency.trace.asBuildProblemSource(),
+                            diagnosticId = ProjectDiagnosticId.PluginDependencyNotIncludedAsModule,
+                            messageKey = "plugin.dependency.not.included",
                             dependency.path.relativeTo(rootDir.toNioPath())
                         ); null
                     }
@@ -300,6 +304,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (!moduleDir.isDirectory) {
         problemReporter.reportBundleError(
             source = relativeModulePath.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.ModuleReferenceIsNotDirectory,
             messageKey = "project.module.path.0.is.not.a.directory",
             relativeModulePath.value,
             level = Level.Error,
@@ -311,6 +316,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (moduleFile == null) {
         problemReporter.reportBundleError(
             source = relativeModulePath.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.ModuleDirectoryHasNoModuleFile,
             messageKey = "project.module.dir.0.has.no.module.file",
             relativeModulePath.value,
             level = Level.Error,
@@ -320,6 +326,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (moduleDir.url == url) {
         problemReporter.reportBundleError(
             source = relativeModulePath.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.ModuleRootIsIncludedByDefault,
             messageKey = "project.module.root.is.included.by.default",
             level = Level.WeakWarning,
             problemType = BuildProblemType.RedundantDeclaration,
@@ -329,6 +336,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (!VfsUtilCore.isAncestor(this, moduleDir, false)) {
         problemReporter.reportBundleError(
             source = relativeModulePath.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.ModuleDirectoryIsNotUnderRoot,
             messageKey = "project.module.dir.0.is.not.under.root",
             relativeModulePath.value,
             level = Level.Error,
@@ -351,6 +359,7 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
     if ("**" in moduleDirGlob.value) {
         problemReporter.reportBundleError(
             source = moduleDirGlob.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.DoubleStarNotSupportedInGlobs,
             messageKey = "project.module.glob.0.double.star.not.supported",
             moduleDirGlob.value,
             level = Level.Error,
@@ -361,6 +370,7 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
     if (matchingModuleFiles.isEmpty()) {
         problemReporter.reportBundleError(
             source = moduleDirGlob.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.GlobMatchesNothing,
             messageKey = "project.module.glob.0.matches.nothing",
             moduleDirGlob.value,
             level = Level.WeakWarning,
@@ -380,6 +390,7 @@ private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFil
     } catch (e: PatternSyntaxException) {
         problemReporter.reportBundleError(
             source = moduleDirGlob.asBuildProblemSource(),
+            diagnosticId = ProjectDiagnosticId.InvalidGlobPattern,
             messageKey = "project.module.glob.0.is.invalid.1",
             moduleDirGlob.value,
             e.message ?: "(no additional information)",

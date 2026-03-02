@@ -16,6 +16,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.FileBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
@@ -72,9 +73,11 @@ class JUnitRequiresHigherJdkVersion(
         const val ID = "junit.platform.requires.higher.jdk"
     }
 
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = ID
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.JUnitRequiresHigherJdkVersion
     override val message = SchemaBundle.message(
-        messageKey = buildProblemId,
+        messageKey = "junit.platform.requires.higher.jdk",
         junitPlatformVersion.value, minJdkVersion, actualJdkVersion.value,
     )
     override val level: Level = Level.Error

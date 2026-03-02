@@ -23,6 +23,7 @@ import org.jetbrains.amper.plugins.schema.model.PluginDeclarationsRequest
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.replayProblemsTo
 import org.jetbrains.amper.processes.ArgsMode
@@ -127,8 +128,10 @@ internal suspend fun doPreparePlugins(
 
 private class SchemaDiagnostic(
     diagnostic: PluginDataResponse.Diagnostic,
-) : BuildProblem {
+) : BuildProblem, DiagnosticId {
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
     override val buildProblemId = diagnostic.diagnosticId
+    override val diagnosticId: DiagnosticId = this
     override val source = FileWithRangesBuildProblemSource(diagnostic.location.path, diagnostic.location.textRange)
     override val message = diagnostic.message
     override val level = when(diagnostic.kind) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.tree.reading
@@ -16,9 +16,11 @@ import org.jetbrains.amper.frontend.tree.KeyValue
 import org.jetbrains.amper.frontend.tree.MappingNode
 import org.jetbrains.amper.frontend.tree.PathNode
 import org.jetbrains.amper.frontend.tree.StringNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.render
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 import java.nio.file.Path
@@ -67,11 +69,11 @@ internal fun reportUnexpectedValue(
         is YamlValue.Sequence -> "sequence []"
         is YamlValue.UnknownCompound -> "compound value {}"
         is YamlValue.Missing -> {
-            reportParsing(unexpected, "validation.structure.missing.value")
+            reportParsing(unexpected, TreeDiagnosticId.MissingValue, "validation.structure.missing.value")
             return
         }
         is YamlValue.Alias -> {
-            reportParsing(unexpected, "validation.structure.unsupported.alias")
+            reportParsing(unexpected, TreeDiagnosticId.AliasesAreNotSupported, "validation.structure.unsupported.alias")
             return
         }
     }
@@ -79,7 +81,7 @@ internal fun reportUnexpectedValue(
         onlyNested = renderOnlyNestedTypeSyntax,
     )
     reportParsing(
-        unexpected, "validation.types.unexpected.value",
+        unexpected, TreeDiagnosticId.TypeMismatch, "validation.types.unexpected.value",
         typeString, valueForMessage,
         type = BuildProblemType.TypeMismatch,
     )
@@ -88,23 +90,39 @@ internal fun reportUnexpectedValue(
 context(reporter: ProblemReporter)
 internal fun reportParsing(
     psi: PsiElement,
+    diagnosticId: DiagnosticId,
     messageKey: String,
     vararg args: Any?,
     level: Level = Level.Error,
     type: BuildProblemType = BuildProblemType.Generic,
 ) {
-    reporter.reportBundleError(psi.asBuildProblemSource(), messageKey, *args, level = level, problemType = type)
+    reporter.reportBundleError(
+        source = psi.asBuildProblemSource(),
+        diagnosticId = diagnosticId,
+        messageKey = messageKey,
+        arguments = args,
+        level = level,
+        problemType = type
+    )
 }
 
 context(reporter: ProblemReporter)
 internal fun reportParsing(
     value: YamlValue,
+    diagnosticId: DiagnosticId,
     messageKey: String,
     vararg args: Any?,
     level: Level = Level.Error,
     type: BuildProblemType = BuildProblemType.Generic,
 ) {
-    reporter.reportBundleError(value.psi.asBuildProblemSource(), messageKey, *args, level = level, problemType = type)
+    reporter.reportBundleError(
+        source = value.psi.asBuildProblemSource(),
+        diagnosticId = diagnosticId,
+        messageKey = messageKey,
+        arguments = args,
+        level = level,
+        problemType = type
+    )
 }
 
 // guarantees to include non-compound child elements

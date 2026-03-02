@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.diagnostics
@@ -15,6 +15,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemSource
 import org.jetbrains.amper.problems.reporting.BuildProblemType
+import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.MultipleLocationsBuildProblemSource
 import org.jetbrains.amper.problems.reporting.ProblemReporter
@@ -24,7 +25,9 @@ import org.jetbrains.annotations.Nls
 class ModuleDependencyLoopProblem(
     val loop: List<Pair<AmperModule, LocalModuleDependency>>,
 ) : BuildProblem {
-    override val buildProblemId get() = diagnosticId
+    @Deprecated("Should be replaced with `problemId` property", replaceWith = ReplaceWith("problemId"))
+    override val buildProblemId get() = Companion.diagnosticId
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.ModuleDependencyLoopProblem
     override val message: @Nls String = SchemaBundle.message(
         "dependencies.modules.loop", loop.joinToString(
             separator = " -> ",
@@ -48,7 +51,9 @@ class ModuleDependencySelfProblem(
     val selfDependent: AmperModule,
     val selfDependency: LocalModuleDependency,
 ) : BuildProblem {
-    override val buildProblemId get() = diagnosticId
+    @Deprecated("Should be replaced with `diagnosticId` property", replaceWith = ReplaceWith("diagnosticId"))
+    override val buildProblemId get() = Companion.diagnosticId
+    override val diagnosticId: DiagnosticId = FrontendDiagnosticId.ModuleDependencySelfProblem
     override val source: BuildProblemSource = selfDependency.asBuildProblemSource()
     override val message = SchemaBundle.message("dependencies.modules.self", selfDependent.userReadableName)
     override val level: Level get() = Level.Error

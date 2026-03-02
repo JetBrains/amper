@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.contexts
@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.isExplicitlySet
 import org.jetbrains.amper.frontend.asBuildProblemSource
+import org.jetbrains.amper.frontend.diagnostics.FrontendDiagnosticId
 import org.jetbrains.amper.frontend.keyValueAsBuildProblemSource
 import org.jetbrains.amper.frontend.leaves
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
@@ -58,11 +59,13 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
                 when (valuePath) {
                     listOf("product") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
+                        diagnosticId = FrontendDiagnosticId.ProductNotDefined,
                         messageKey = "product.not.defined.empty",
                         buildProblemId = "product.not.defined",
                     )
                     listOf("product", "type") -> collectingReporter.reportBundleError(
                         source = trace.asBuildProblemSource(),
+                        diagnosticId = FrontendDiagnosticId.ProductNotDefined,
                         messageKey = "product.not.defined",
                     )
                     else -> super.onMissingRequiredPropertyValue(trace, valuePath, relativeValuePath)
@@ -94,6 +97,7 @@ internal fun tryReadMinimalModule(moduleFilePath: VirtualFile): MinimalModuleHol
     if (minimalModule.product.platforms.isEmpty()) {
         problemReporter.reportBundleError(
             source = minimalModule.product.platformsDelegate.asBuildProblemSource(),
+            diagnosticId = FrontendDiagnosticId.ProductPlatformsShouldNotBeEmpty,
             messageKey = "product.platforms.should.not.be.empty",
         )
         return null
@@ -117,6 +121,7 @@ private fun ProblemReporter.reportUnsupportedPlatform(
 ) {
     reportBundleError(
         source = unsupportedPlatform.trace.asBuildProblemSource(),
+        diagnosticId = FrontendDiagnosticId.ProductTypeDoesNotSupportPlatform,
         messageKey = "product.unsupported.platform",
         productType.schemaValue,
         unsupportedPlatform.value.pretty,
@@ -129,6 +134,7 @@ private fun ProblemReporter.reportMissingExplicitPlatforms(product: ModuleProduc
     val isYaml = product.typeDelegate.extractPsiElementOrNull()?.parent is YAMLPsiElement
     reportBundleError(
         source = product.typeDelegate.keyValueAsBuildProblemSource(),
+        diagnosticId = FrontendDiagnosticId.ProductTypeHasNoDefaultPlatforms,
         messageKey = if (isYaml) {
             "product.type.does.not.have.default.platforms"
         } else {
