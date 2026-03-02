@@ -18,6 +18,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
 
+      - name: Setup Amper caches
+        uses: ./.github/actions/setup-amper
+
       - name: Create local.properties with empty credentials
         shell: bash
         run: |
@@ -62,6 +65,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+
+      - name: Setup Amper caches
+        uses: ./.github/actions/setup-amper
 
       - name: Create local.properties with empty credentials
         shell: bash
