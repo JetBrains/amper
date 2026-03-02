@@ -36,14 +36,8 @@ jobs:
           archive: true
 
       - name: Report test results
-        uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}       # run this step even if previous step failed
-        with:
-          name: JUnit results               # Name of the check run which will be created
-          path: build/reports/**/TEST-*.xml # Path to test results
-          reporter: java-junit              # Format of test results
-          list-suites: failed
-          list-tests: failed
+        uses: ./.github/actions/report-tests
+        if: ${{ !cancelled() }} # run this step even if the previous step failed
 
   test-mobile:
     strategy:
@@ -95,9 +89,5 @@ jobs:
           archive: true
 
       - name: Report test results
-        uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}       # run this step even if previous step failed
-        with:
-          name: JUnit results            # Name of the check run which will be created
-          path: build/reports/**/TEST-*.xml # Path to test results
-          reporter: java-junit              # Format of test results
+        uses: ./.github/actions/report-tests
+        if: ${{ !cancelled() }} # run this step even if previous step failed
