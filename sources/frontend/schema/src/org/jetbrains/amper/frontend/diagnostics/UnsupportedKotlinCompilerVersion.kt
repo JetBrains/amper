@@ -21,7 +21,7 @@ import org.jetbrains.amper.problems.reporting.DiagnosticId
 import org.jetbrains.amper.problems.reporting.Level
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
-object KotlinCompilerVersionDiagnosticsFactory : TreeDiagnostic {
+object KotlinCompilerVersionDiagnosticsFactory : TreeDiagnosticFactory {
 
     private val MinimumSupportedKotlinVersion = ComparableVersion("2.1.10")
 

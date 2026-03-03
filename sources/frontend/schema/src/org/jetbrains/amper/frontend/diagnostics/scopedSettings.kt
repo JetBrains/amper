@@ -34,7 +34,7 @@ import org.jetbrains.amper.stdlib.collections.joinToString
  */
 private val naturalHierarchyExtStr = naturalHierarchyExt.mapKeys { it.key.schemaValue }
 
-object IncorrectSettingsSectionFactory : TreeDiagnostic {
+object IncorrectSettingsSectionFactory : TreeDiagnosticFactory {
     @Deprecated(
         message = "Use IncorrectSettingsSection.ID",
         replaceWith = ReplaceWith("IncorrectSettingsSection.ID"),

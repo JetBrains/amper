@@ -17,7 +17,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.pathString
 
-object TemplateNameWithoutPostfix : TreeDiagnostic {
+object TemplateNameWithoutPostfix : TreeDiagnosticFactory {
     const val diagnosticId: BuildProblemId = "template.name.without.postfix"
 
     override fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter) =

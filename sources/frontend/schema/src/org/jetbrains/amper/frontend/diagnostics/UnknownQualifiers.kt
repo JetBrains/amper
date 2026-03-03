@@ -17,7 +17,7 @@ import org.jetbrains.amper.problems.reporting.BuildProblemId
 import org.jetbrains.amper.problems.reporting.BuildProblemType
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
-object UnknownQualifiers : TreeDiagnostic {
+object UnknownQualifiers : TreeDiagnosticFactory {
     const val diagnosticId: BuildProblemId = "product.unknown.qualifier"
 
     private val knownPlatforms = Platform.values.map { it.schemaValue }

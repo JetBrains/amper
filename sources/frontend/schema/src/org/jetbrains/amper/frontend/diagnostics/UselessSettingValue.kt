@@ -30,7 +30,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
 //  So this diagnostic must do its own preprocessing
 class UselessSettingValue(
     private val refiner: TreeRefiner,
-) : TreeDiagnostic {
+) : TreeDiagnosticFactory {
     @Deprecated(
         message = "Use UselessSettingValue.ID",
         replaceWith = ReplaceWith("UselessSetting.ID"),

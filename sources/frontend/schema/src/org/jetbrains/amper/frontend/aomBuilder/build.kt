@@ -26,7 +26,7 @@ import org.jetbrains.amper.frontend.contexts.tryReadMinimalModule
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.UnresolvedModuleDependency
-import org.jetbrains.amper.frontend.diagnostics.treeDiagnostics
+import org.jetbrains.amper.frontend.diagnostics.treeDiagnosticFactories
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.messages.originalFilePath
 import org.jetbrains.amper.frontend.plus
@@ -55,7 +55,7 @@ import org.jetbrains.amper.frontend.tree.instance
 import org.jetbrains.amper.frontend.tree.mergeTrees
 import org.jetbrains.amper.frontend.tree.reading.readTree
 import org.jetbrains.amper.frontend.types.SchemaTypingContext
-import org.jetbrains.amper.frontend.types.generated.coordinatesDelegate
+import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.frontend.types.maven.toAmperDescription
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.plugins.schema.model.PluginData
@@ -187,8 +187,8 @@ internal fun readModuleMergedTree(
     // safe: `plugins` has a default
     val pluginsTree = processedCommonTree[Module::plugins] as RefinedMappingNode
 
-    treeDiagnostics(refiner).forEach { diagnostic ->
-        diagnostic.analyze(processedTree, minimalModule.module, problemReporter)
+    treeDiagnosticFactories(refiner).forEach { diagnosticFactory ->
+        diagnosticFactory.analyze(processedTree, minimalModule.module, problemReporter)
     }
 
     return ModuleBuildCtx(

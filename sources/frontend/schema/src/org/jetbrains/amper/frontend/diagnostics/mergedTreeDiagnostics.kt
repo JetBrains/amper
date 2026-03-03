@@ -10,20 +10,21 @@ import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.problems.reporting.ProblemReporter
 
 /**
- * Diagnostic, that want to analyze merged tree, focusing on specific scalar 
- * values instead of the tree structure..
- * 
- * See: [treeDiagnostics]
+ * Factory to provide diagnostics on a merged tree.
+ *
+ * Use this factory to focus on specific scalar values instead of the tree structure.
+ *
+ * @see [treeDiagnosticFactories]
  */
-interface TreeDiagnostic {
+interface TreeDiagnosticFactory {
     fun analyze(root: TreeNode, minimalModule: MinimalModule, problemReporter: ProblemReporter): Unit?
 }
 
 /**
- * Get all registered [TreeDiagnostic]s.
+ * Get all registered [TreeDiagnosticFactory]s.
  */
 // suppressed the unused warning because it's necessary for the disabled diagnostic that we'll put back eventually
-fun treeDiagnostics(@Suppress("unused") refiner: TreeRefiner) = listOf(
+fun treeDiagnosticFactories(@Suppress("unused") refiner: TreeRefiner) = listOf(
     AndroidTooOldVersionFactory,
     IncorrectSettingsSectionFactory,
     KotlinCompilerVersionDiagnosticsFactory,

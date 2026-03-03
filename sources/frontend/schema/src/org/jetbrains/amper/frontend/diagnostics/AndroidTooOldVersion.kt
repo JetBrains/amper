@@ -34,7 +34,7 @@ class AndroidTooOldVersion(
     override val message = SchemaBundle.message("too.old.android.version", used.versionNumber, minVersion.versionNumber)
 }
 
-object AndroidTooOldVersionFactory : TreeDiagnostic {
+object AndroidTooOldVersionFactory : TreeDiagnosticFactory {
 
     private val MINIMAL_ANDROID_VERSION = AndroidVersion.VERSION_21
     @Deprecated(

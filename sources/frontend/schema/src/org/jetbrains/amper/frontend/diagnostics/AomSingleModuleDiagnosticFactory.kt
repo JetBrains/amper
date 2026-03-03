@@ -12,7 +12,7 @@ import org.jetbrains.amper.problems.reporting.ProblemReporter
  *
  * Use this factory to analyze built AOM modules with propagated properties and resolved internal dependencies.
  *
- * For simpler cases where you don't need to check propagation use [TreeDiagnostic].
+ * For simpler cases where you don't need to check propagation use [TreeDiagnosticFactory].
  * For more complex cases where you need to analyze several modules at once use [AomModelDiagnosticFactory].
  *
  * Register instances of factory in [AomSingleModuleDiagnosticFactory].

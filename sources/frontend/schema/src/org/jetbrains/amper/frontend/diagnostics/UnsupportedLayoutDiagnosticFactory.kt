@@ -32,7 +32,7 @@ class UnsupportedLayoutBuildProblem(override val element: PsiElement): PsiBuildP
     override val message: @Nls String = SchemaBundle.message("module.layout.unsupported")
 }
 
-object UnsupportedLayoutDiagnosticFactory: TreeDiagnostic {
+object UnsupportedLayoutDiagnosticFactory: TreeDiagnosticFactory {
     @Deprecated(
         message = "Use UnsupportedLayoutBuildProblem.ID",
         replaceWith = ReplaceWith("UnsupportedLayoutBuildProblem.ID"),

@@ -33,7 +33,7 @@ class PluginInfoDescriptionIsDeprecated(
     override val message = SchemaBundle.message("plugin.description.should.be.top.level")
 }
 
-object PluginInfoDescriptionIsDeprecatedFactory : TreeDiagnostic {
+object PluginInfoDescriptionIsDeprecatedFactory : TreeDiagnosticFactory {
 
     @Deprecated(
         "Use PluginInfoDescriptionIsDeprecated.ID",
