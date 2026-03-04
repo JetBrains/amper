@@ -4,10 +4,12 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.test.utils.UpdatedAttribute
 import org.jetbrains.amper.cli.test.utils.readTelemetrySpans
 import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.cli.test.utils.xcodeProjectManagementSpans
 import org.jetbrains.amper.system.info.OsFamily
+import org.jetbrains.amper.telemetry.getAttribute
 import org.jetbrains.amper.test.AmperCliResult
 import org.jetbrains.amper.test.Dirs
 import org.jetbrains.amper.test.MacOnly
@@ -20,6 +22,7 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.expect
 
@@ -191,6 +194,6 @@ class ProjectTemplatesTest : AmperCliTestBase() {
 
     private fun SpansTestCollector.assertXcodeProjectIsValid() {
         // Xcode project should be generated correctly by `init` and thus not updated by the build.
-        xcodeProjectManagementSpans.assertNone()
+        assertFalse { xcodeProjectManagementSpans.assertSingle().getAttribute(UpdatedAttribute) }
     }
 }
