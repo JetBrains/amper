@@ -16,10 +16,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Amper caches
         uses: ./.github/actions/setup-amper
+
+      - name: Setup test caches
+        uses: ./.github/actions/test-caches
 
       - name: Create local.properties with empty credentials
         shell: bash
@@ -64,10 +67,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Amper caches
         uses: ./.github/actions/setup-amper
+
+      - name: Setup test caches
+        uses: ./.github/actions/test-caches
 
       - name: Create local.properties with empty credentials
         shell: bash

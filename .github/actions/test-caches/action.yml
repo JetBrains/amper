@@ -1,0 +1,13 @@
+name: 'Shared test caches'
+description: 'Saves shared test caches (especially slow Android tooling installation)'
+
+runs:
+  using: composite
+  steps:
+    - name: Cache shared test data
+      uses: actions/cache@v5
+      with:
+        path: build/shared test caches
+        key: amper-shared-test-data-${{ runner.os }}-${{ hashFiles('sources/test-base/**') }}
+        restore-keys: |
+          amper-shared-test-data-${{ runner.os }}
