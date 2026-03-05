@@ -41,6 +41,16 @@ jobs:
           path: build/logs/**
           archive: true
 
+      # In amper-cli-test, we start child Amper CLI processes we publish their logs as attachments of JUnit reports
+      - name: Report JUnit attachments
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }} # run this step even if the previous step failed
+        with:
+          name: junit-attachments-${{ runner.os }}
+          path: build/reports/*/jvm/junit-jupiter
+          archive: true
+          retention-days: 15
+
       - name: Report test results
         uses: ./.github/actions/report-tests
         if: ${{ !cancelled() }} # run this step even if the previous step failed
