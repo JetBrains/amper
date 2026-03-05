@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.ModuleBuildCtx
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.isDefault
 import org.jetbrains.amper.frontend.asBuildProblemSource
 import org.jetbrains.amper.frontend.catalogs.substituteCatalogDependencies
@@ -24,7 +25,9 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.tree.BooleanNode
 import org.jetbrains.amper.frontend.tree.ErrorNode
 import org.jetbrains.amper.frontend.tree.MappingNode
+import org.jetbrains.amper.frontend.tree.MissingPropertiesHandler
 import org.jetbrains.amper.frontend.tree.RefinedMappingNode
+import org.jetbrains.amper.frontend.tree.TreeDiagnosticId
 import org.jetbrains.amper.frontend.tree.TreeRefiner
 import org.jetbrains.amper.frontend.tree.add
 import org.jetbrains.amper.frontend.tree.buildTree
@@ -72,6 +75,11 @@ internal class PluginTreeReader(
     }
 
     init {
+        // Purely for reporting missing properties
+        // TODO: Maybe extract just properties reporting routine so we don't so unnecessary transform?
+        pluginTree.completeTree(TaskParameterAwareMissingPropertiesHandler(problemReporter))
+        // We don't need to save the result
+
         val tasks = pluginTree[PluginYamlRoot::tasks] as? MappingNode
         if (tasks == null || tasks.children.isEmpty()) {
             problemReporter.reportBundleError(
@@ -148,7 +156,7 @@ internal class PluginTreeReader(
         val mergedTree = mergeTrees(pluginTree, referenceValuesTree)
             .substituteCatalogDependencies(pluginModule.usedCatalog)
         treeRefiner.refineTree(mergedTree, EmptyContexts)
-            .completeTree()?.instance<PluginYamlRoot>()
+            .completeTree(MissingPropertiesHandler.Noop)?.instance<PluginYamlRoot>()
     }
 
     fun taskNameFor(module: AmperModule, name: String) =
@@ -169,6 +177,31 @@ internal class PluginTreeReader(
                 messageKey = "plugin.unexpected.configuration.when.disabled", pluginData.id.value,
                 level = Level.Warning,
             )
+        }
+    }
+}
+
+private class TaskParameterAwareMissingPropertiesHandler(
+    problemReporter: ProblemReporter,
+) : MissingPropertiesHandler.Default(problemReporter) {
+    override fun onMissingRequiredPropertyValue(
+        trace: Trace,
+        valuePath: List<String>,
+        relativeValuePath: List<String>,
+    ) {
+        if (valuePath.size == 4) {
+            // ["tasks", *, "action", *]
+            val (maybeTasks, _, maybeAction, maybeParameterName) = valuePath
+            if (maybeTasks == "tasks" && maybeAction == "action") {
+                problemReporter.reportBundleError(
+                    source = trace.asBuildProblemSource(),
+                    diagnosticId = TreeDiagnosticId.NoValueForRequiredProperty,
+                    messageKey = "validation.missing.task.parameter.value",
+                    maybeParameterName,
+                )
+            }
+        } else {
+            super.onMissingRequiredPropertyValue(trace, valuePath, relativeValuePath)
         }
     }
 }

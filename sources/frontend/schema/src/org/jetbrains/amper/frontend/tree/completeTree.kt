@@ -94,15 +94,16 @@ private fun ensureCompleteTreeNode(
                     propertyCheckDefaultIntegrity(property, mapLikePropertyValue)
                     if (mapLikePropertyValue == null) {
                         // Property is not mentioned at all
-                        // Find the last non-default trace in the path - that's the *base* trace for our missing value
-                        val baseTraceIndex = propertyValuePath.indexOfLast { (_, trace) -> !trace.isDefault }
-                        val baseTrace = propertyValuePath[baseTraceIndex].second
-
-                        missingPropertiesHandler.onMissingRequiredPropertyValue(
-                            trace = baseTrace,
-                            valuePath = propertyValuePath.map { (name, _) -> name },
-                            relativeValuePath = propertyValuePath.drop(baseTraceIndex).map { (name, _) -> name },
-                        )
+                        if (property.isUserSettable) {
+                            // Find the last non-default trace in the path - that's the *base* trace for our missing value
+                            val baseTraceIndex = propertyValuePath.indexOfLast { (_, trace) -> !trace.isDefault }
+                            val baseTrace = propertyValuePath[baseTraceIndex].second
+                            missingPropertiesHandler.onMissingRequiredPropertyValue(
+                                trace = baseTrace,
+                                valuePath = propertyValuePath.map { (name, _) -> name },
+                                relativeValuePath = propertyValuePath.drop(baseTraceIndex).map { (name, _) -> name },
+                            )
+                        }
                         hasMissingRequiredProps = true
                         continue
                     }
@@ -165,6 +166,14 @@ interface MissingPropertiesHandler {
                 relativeValuePath.joinToString("."),
             )
         }
+    }
+
+    object Noop : MissingPropertiesHandler {
+        override fun onMissingRequiredPropertyValue(
+            trace: Trace,
+            valuePath: List<String>,
+            relativeValuePath: List<String>,
+        )  = Unit // nothing here
     }
 }
 

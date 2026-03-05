@@ -519,7 +519,7 @@ class PluginsTest : AmperCliTestBase() {
                 "${pluginYaml}:6:17: The value of type `string` cannot be assigned to the type `boolean`",
                 "${pluginYaml}:9:13: The value of type `Settings` cannot be assigned to the type `path`",
                 "${pluginYaml}:7:23: The value of type `boolean` cannot be used in string interpolation",
-                "${pluginYaml}:4:13: No value for required property 'int'.",
+                "${pluginYaml}:4:13: No value for required task action parameter 'int'.",
                 "${pluginYaml}:4:13: No value for required property 'classpath.dependencies'.",
             )
             assertWarnings(
@@ -592,6 +592,23 @@ class PluginsTest : AmperCliTestBase() {
             "${pluginYaml}:6:19: Referencing `processors` is not allowed",
             "${pluginYaml}:5:24: Referencing `publishing` is not allowed",
             "${pluginYaml}:4:21: Referencing `settings` is not allowed",
+        )
+    }
+
+    // TODO: Test about missing mandatory property inside the `plugin.yaml`
+    @Test
+    fun `plugin is diagnosed on sync when applied to the project but not enabled anywhere`() = runSlowTest {
+        val projectDir = testProject("extensibility/pure-plugins-project")
+        val pluginYaml = projectDir.resolve("plugin1/plugin.yaml")
+        runCli(
+            projectDir = projectDir,
+            "show", "tasks",
+            assertEmptyStdErr = false,
+            expectedExitCode = 1,
+        ).assertErrors(
+            "${pluginYaml}:3:13: No value for required task action parameter 'booleanProp'.",
+            "${pluginYaml}:3:13: No value for required task action parameter 'enumProp'.",
+            "${pluginYaml}:3:13: No value for required task action parameter 'intProp'.",
         )
     }
 
