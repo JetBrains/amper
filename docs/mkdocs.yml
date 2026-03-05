@@ -7,7 +7,7 @@ repo_name: JetBrains/amper
 repo_url: https://github.com/JetBrains/amper
 edit_uri: !ENV [MKDOCS_GIT_EDIT_URL, "edit/HEAD/docs/src/"]
 
-copyright: Copyright &copy; 2000-2025 JetBrains s.r.o. and contributors
+copyright: Copyright &copy; 2000-2026 JetBrains s.r.o. and contributors
 
 # The default place for Markdown "source" files for the docs is "docs/", but that would result in docs/docs/ for us
 docs_dir: src
