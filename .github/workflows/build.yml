@@ -31,7 +31,10 @@ jobs:
           echo "space.password=" >> local.properties
 
       - name: Run regular tests
-        run: ./amper test --exclude-module=amper-mobile-test
+        run: ./amper test --exclude-module=amper-mobile-test --exclude-module=amper-cli-test
+
+      - name: Run CLI tests
+        run: ./amper test --include-module=amper-cli-test
 
       - name: Report Amper logs
         uses: actions/upload-artifact@v7
