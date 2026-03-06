@@ -38,8 +38,6 @@ dependencies:
   - $libs.bouncycastle.bcpkix # for keystore generation
   - $libs.intellij.amper.xcodemodel
   - $libs.intellij.parsing.core
-  - $libs.intellij.platform.core
-  - $libs.intellij.platform.coreImpl
   - $libs.intellij.platform.util
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - $libs.kotlin.buildToolsApi
