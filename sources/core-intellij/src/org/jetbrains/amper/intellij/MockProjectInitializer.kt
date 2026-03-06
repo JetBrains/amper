@@ -2,6 +2,8 @@
  * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package org.jetbrains.amper.intellij
 
 import com.intellij.amper.lang.AmperLanguage
@@ -158,7 +160,6 @@ object MockProjectInitializer {
     }
 
     // Copy-pasted from IDEA (lack of this service causes PSI Scalar elements textValue calculation failure)
-    @Suppress("UnstableApiUsage")
     private class ReadActionCacheImpl : ReadActionCache {
         private val threadProcessingContext: ThreadLocal<ProcessingContext> = ThreadLocal()
 
