@@ -1,0 +1,5 @@
+annotations-13.0.jar
+jna-5.9.0.jar
+jna-platform-5.9.0.jar
+kotlin-stdlib-#kotlinVersion.jar
+kotlinx-coroutines-debug-1.10.1-intellij-4.jar

@@ -858,13 +858,15 @@ internal fun DependencyNodeWithContext.getParentAwareCacheEntryKey(): CacheEntry
                 val skipContext = node.parents.isNotEmpty() && node.parents.all {
                     (it is DependencyNodeWithContext)
                             && ResolutionConfigPlain(node.context.settings) == ResolutionConfigPlain(it.context.settings)
+                            && node.context.settings.dependenciesBlocklist == it.context.settings.dependenciesBlocklist
                 }
                 if (skipContext)
                     cacheEntryKey
                 else
                     cacheEntryKey.copy(
-                        components = cacheEntryKey.components + listOf(
-                            ResolutionConfigPlain(node.context.settings)
+                        components = cacheEntryKey.components + listOfNotNull(
+                            ResolutionConfigPlain(node.context.settings),
+                            node.context.settings.dependenciesBlocklist.takeIf { it.isNotEmpty() }
                         )
                     )
             }

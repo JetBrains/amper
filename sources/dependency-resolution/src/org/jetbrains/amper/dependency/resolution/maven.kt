@@ -524,6 +524,8 @@ internal fun shouldIgnoreDependency(group: String, module: String, context: Cont
     return MavenGroupAndArtifact(group, module) in context.settings.dependenciesBlocklist
 }
 
+internal fun AvailableAt.shouldIgnoreDependency(context: Context) = shouldIgnoreDependency(group, module, context)
+
 /**
  * The name of the KMP source set represented by the given dependency file.
  */
@@ -1027,7 +1029,9 @@ class MavenDependencyImpl internal constructor(
                                         level,
                                         diagnosticsReporter,
                                     ) else emptyList()
-                                dependencies + listOfNotNull(it.`available-at`?.asDependency())
+                                dependencies + listOfNotNull(
+                                    it.`available-at`?.takeIf { !it.shouldIgnoreDependency(context) }?.asDependency()
+                                )
                             }.map {
                                 it.toMavenDependency(context, diagnosticsReporter)
                             }.let {

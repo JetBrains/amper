@@ -66,10 +66,11 @@ abstract class BaseModuleDrTest {
         verifyMessages: Boolean = true,
         module: String? = null,
         fragment: String? = null,
+        goldenFileName: String = testInfo.testMethod.get().name,
         messagesCheck: (DependencyNode) -> Unit = defaultMessagesCheck
     ): DependencyNode {
         val goldenFile = goldenFileOsAware(
-            "${testInfo.testMethod.get().name.replace(" ", "_")}.tree.txt")
+            "${goldenFileName.replace(" ", "_")}.tree.txt")
         val expected = getGoldenFileText(goldenFile, fileDescription = "Golden file for resolved tree")
         return withActualDump(goldenFile) {
             doTest(aom, resolutionInput, verifyMessages, expected, module, fragment, messagesCheck)
