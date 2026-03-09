@@ -95,7 +95,12 @@ class AmperProjectStructureTest {
             }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
 
-        assertTransitiveTemplateUsage("used-in-idea.module-template.yaml", ancestorsByModule, modules)
+        assertTransitiveTemplateUsage(
+            consumerMoniker = "IDEA",
+            templateFileName = "used-in-idea.module-template.yaml",
+            ancestorsByModule = ancestorsByModule,
+            allModules = modules,
+        )
     }
 
     @Test
@@ -109,33 +114,38 @@ class AmperProjectStructureTest {
             }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
 
-        assertTransitiveTemplateUsage("used-in-kotlin-notebook.module-template.yaml", ancestorsByModule, modules)
+        assertTransitiveTemplateUsage(
+            consumerMoniker = "Kotlin Notebooks",
+            templateFileName = "used-in-kotlin-notebook.module-template.yaml",
+            ancestorsByModule = ancestorsByModule,
+            allModules = modules,
+        )
     }
 
     private fun assertTransitiveTemplateUsage(
+        consumerMoniker: String,
         templateFileName: String,
         ancestorsByModule: Map<AmperModule, List<AmperModule>>,
         allModules: List<AmperModule>,
-
     ) {
         fun AmperModule.ancestorsWithTemplate(templateFileName: String) = ancestorsByModule
             .getOrElse(this) { emptyList() }
             .filter { it.hasTemplate(templateFileName) }
 
-        val modulesMissingIdeaTemplate = allModules.filter { module ->
+        val modulesMissingTemplate = allModules.filter { module ->
             !module.hasTemplate(templateFileName)
                     && module.ancestorsWithTemplate(templateFileName).isNotEmpty()
         }
 
-        if (modulesMissingIdeaTemplate.isNotEmpty()) {
-            val list = modulesMissingIdeaTemplate.joinToString("\n") { module ->
-                "  - ${module.userReadableName} (used in IDEA because of: " +
+        if (modulesMissingTemplate.isNotEmpty()) {
+            val list = modulesMissingTemplate.joinToString("\n") { module ->
+                "  - ${module.userReadableName} (used in $consumerMoniker because of: " +
                         "${
                             module.ancestorsWithTemplate(templateFileName)
                                 .joinToString(", ") { it.userReadableName }
                         })"
             }
-            fail("The following modules are used in IDEA but didn't apply $templateFileName:\n\n$list")
+            fail("The following modules are used in $consumerMoniker but didn't apply $templateFileName:\n\n$list")
         }
     }
 
