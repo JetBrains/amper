@@ -3,7 +3,7 @@
 agp = "8.10.1"
 android-tools = "31.13.0"
 apache-commons = "1.27.1"
-bouncycastle = "1.78.1"
+bouncycastle = "1.79"
 clikt = "5.0.3"
 compose-hot-reload-version = "1.0.0-rc01" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 eclipse-jgit = "7.2.1.202505142326-r"
