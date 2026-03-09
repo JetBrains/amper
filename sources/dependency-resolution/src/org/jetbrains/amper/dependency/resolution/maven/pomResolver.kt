@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.dependency.resolution.maven
 
 import org.codehaus.plexus.util.Os
@@ -37,7 +41,6 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.CancellationException
 import java.util.regex.Pattern
 import kotlin.io.path.Path
-import kotlin.text.replace
 
 private val logger = LoggerFactory.getLogger("dr/maven/pomResolver.kt")
 
@@ -158,11 +161,13 @@ private fun Project.getEffectiveDependencies(dependencyManagement: DependencyMan
     ?.dependencies
     ?.map { it.expandTemplates(this) } // expanding properties used in groupId/artifactId
     ?.map { dep ->
+        // Version and scope are set in the dependency itself
         if (dep.version != null && dep.scope != null) {
             return@map if (dep.version.resolveSingleVersion() != dep.version) {
                 dep.copy(version = dep.version.resolveSingleVersion())
             } else dep
         }
+        // Try extracting dependency version and scope from other dependencies with the same group and artifact ID
         dependencyManagement
             ?.dependencies
             ?.dependencies
@@ -179,7 +184,8 @@ private fun Project.getEffectiveDependencies(dependencyManagement: DependencyMan
                         else it
                     }
             }
-            ?: return@map dep
+        // Return the dependency as is if no source for version and scope is found
+        dep
     }
     ?.map { it.expandTemplates(this) }
 
