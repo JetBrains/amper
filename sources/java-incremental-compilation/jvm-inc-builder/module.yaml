@@ -25,10 +25,10 @@ dependencies:
 
   #  helper libraries
   - com.h2database:h2-mvstore:2.3.232
-  - com.dynatrace.hash4j:hash4j:0.22.0
+  - com.dynatrace.hash4j:hash4j:0.26.0
   - org.jetbrains.intellij.deps:asm-all:9.6.1
-  - org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0-RC
-  - com.github.ben-manes.caffeine:caffeine:3.2.0
+  - org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.20
+  - com.github.ben-manes.caffeine:caffeine:3.2.2
   - jaxen:jaxen:1.2.0
   - com.thoughtworks.qdox:qdox:2.2.0
   - $libs.intellij.deps.fastutil
