@@ -2,6 +2,8 @@
  * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.amper.tasks.maven
 
 import org.apache.maven.artifact.Artifact
@@ -43,7 +45,7 @@ import java.util.*
 /**
  * Best attempt of delegating [MavenProject] methods.
  */
-@Suppress("OVERRIDE_DEPRECATION")
+@Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class DelegatedMavenProject(private val delegate: MavenProject) : MavenProject() {
     // This method is commented out since it is used in the [MavenProject] constructor.
 //    override fun setModel(model: Model?) { delegate.model = model }

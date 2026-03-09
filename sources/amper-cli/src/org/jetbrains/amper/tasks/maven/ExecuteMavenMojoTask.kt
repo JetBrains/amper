@@ -2,6 +2,8 @@
  * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.amper.tasks.maven
 
 import com.github.ajalt.mordant.terminal.Terminal
@@ -124,7 +126,7 @@ class ExecuteMavenMojoTask(
             /* session = */ repoSession,
         )
 
-        val session = MavenSession(
+        @Suppress("DEPRECATION") val session = MavenSession(
             /* container = */ plexus,
             /* repositorySession = */ repoSession,
             /* request = */ request,
@@ -175,7 +177,7 @@ class ExecuteMavenMojoTask(
         session: MavenSession,
         repoSession: RepositorySystemSession,
         mojoExecution: MojoExecution,
-        remoteRepositories: List<ArtifactRepository>,
+        @Suppress("DEPRECATION") remoteRepositories: List<ArtifactRepository>,
     ) {
         // First, set appropriate class realms for descriptors (in other words, setup classloaders).
         val pluginDescriptor = mojoExecution.mojoDescriptor.pluginDescriptor
@@ -196,7 +198,7 @@ class ExecuteMavenMojoTask(
         session: MavenSession,
         mojoExecution: MojoExecution,
         repoSession: RepositorySystemSession,
-        remoteRepositories: List<ArtifactRepository>,
+        @Suppress("DEPRECATION") remoteRepositories: List<ArtifactRepository>,
     ) {
         val mojo = plexus.mavenPluginManager.getConfiguredMojo(Mojo::class.java, session, mojoExecution) as? MavenReport
             ?: error("Expected this mojo to be the instance of ${MavenReport::class.simpleName} class.")
@@ -216,6 +218,7 @@ class ExecuteMavenMojoTask(
             if (reportExecution.goal == null) null else "${reportExecution.plugin.id}:${reportExecution.goal}"
         // `outputName` is used here because it is used in `SiteMojo`. 
         // `getReportOutputDirectory` cannot be used because it needs to be set first.
+        @Suppress("DEPRECATION")
         val docRenderingContext = DocumentRenderingContext(
             /* basedir = */ module.source.moduleDir.toFile(),
             /* document = */ mojo.outputName,
@@ -231,6 +234,7 @@ class ExecuteMavenMojoTask(
         )
 
         // Finally, render the report.
+        @Suppress("DEPRECATION")
         val reportFile = (mavenBuildDir / "reports" / "${mojo.outputName}.html")
             .apply { parent?.createDirectories() }
             .apply { if (!exists()) createFile() }
