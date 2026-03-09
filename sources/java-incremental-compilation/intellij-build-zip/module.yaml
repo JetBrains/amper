@@ -6,5 +6,5 @@ apply:
 
 dependencies:
   - io.netty:netty-buffer:4.1.116.Final
-  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.16-jb1
+  - $libs.intellij.deps.fastutil
   - com.dynatrace.hash4j:hash4j:0.26.0

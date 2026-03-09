@@ -31,4 +31,4 @@ dependencies:
   - com.github.ben-manes.caffeine:caffeine:3.2.0
   - jaxen:jaxen:1.2.0
   - com.thoughtworks.qdox:qdox:2.2.0
-  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18
+  - $libs.intellij.deps.fastutil

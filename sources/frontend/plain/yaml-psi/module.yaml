@@ -6,4 +6,4 @@ apply:
 
 dependencies:
   - ../parserutil-stub
-  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18
+  - $libs.intellij.deps.fastutil
