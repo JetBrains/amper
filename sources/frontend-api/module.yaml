@@ -4,6 +4,7 @@ description: The Amper project model API, meant to be used by the CLI and IDEs.
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-gradle.module-template.yaml
   - ../used-in-idea.module-template.yaml
 
 dependencies:
@@ -24,3 +25,6 @@ settings:
   kotlin:
     optIns:
       - org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess # the frontend API is the intended place for it
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

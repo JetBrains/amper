@@ -4,5 +4,11 @@ description: Kotlin extensions for Java's `FileChannel`.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
   - ../../used-in-kotlin-notebook.module-template.yaml
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17), IDEA (max 21), and Notebooks (max 11), so we pick 11
+    release: 11

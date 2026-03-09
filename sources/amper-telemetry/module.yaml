@@ -4,7 +4,9 @@ description: Telemetry utilities for Amper modules and processes.
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-gradle.module-template.yaml
   - ../used-in-idea.module-template.yaml
+  - ../used-in-jic.module-template.yaml
 
 dependencies:
   - ../amper-build-info
@@ -19,3 +21,6 @@ dependencies:
 settings:
   kotlin:
     serialization: json
+  jvm:
+    # Used in IDEA (max 21), JIC (max 16), and Android Gradle builds (max 17), so we take the lowest version 16
+    release: 16

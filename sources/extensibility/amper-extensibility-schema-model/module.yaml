@@ -4,6 +4,7 @@ description: Data model to represent dynamic schemas brought by user-defined plu
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
 
 dependencies:
@@ -12,3 +13,6 @@ dependencies:
 settings:
   kotlin:
     serialization: enabled
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

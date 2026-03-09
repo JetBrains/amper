@@ -6,6 +6,7 @@ description: |
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-gradle.module-template.yaml
   - ../used-in-idea.module-template.yaml
 
 dependencies:
@@ -18,3 +19,11 @@ dependencies:
   - $libs.intellij.platform.util
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl
+
+settings:
+  jvm:
+    jdk:
+      # We cannot just use settings.jvm.release without settings.jvm.jdk.version because of KT-72880
+      version: 17
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

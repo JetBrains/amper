@@ -1,0 +1,6 @@
+settings:
+  jvm:
+    # We use Gradle 8.14 right now, and it can run on all JDKs from 8 to 24.
+    # Therefore, users could technically use JDK 8 and we should in theory respect that.
+    # However, because Gradle 9 now raised the minimum to JDK 17, let's be proactive and limit already.
+    release: 17

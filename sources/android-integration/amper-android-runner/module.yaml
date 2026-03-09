@@ -4,6 +4,7 @@ description: Utilities to run delegated Android Gradle builds from Amper.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
 
 dependencies:
   - ../../amper-build-info

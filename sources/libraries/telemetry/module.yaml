@@ -4,7 +4,9 @@ description: Kotlin extensions and coroutines integration for OpenTelemetry.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
+  - ../../used-in-jic.module-template.yaml
   - ../../used-in-kotlin-notebook.module-template.yaml
 
 dependencies:
@@ -17,3 +19,6 @@ settings:
   kotlin:
     serialization:
       format: json
+  jvm:
+    # Used in Android Gradle builds (max 17), JIC (max 16), IDEA (max 21), and Notebooks (max 11), so we pick 11
+    release: 11

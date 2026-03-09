@@ -85,54 +85,63 @@ class AmperProjectStructureTest {
     }
 
     @Test
-    fun `modules used in IDEA should apply the IDEA template`() = runTest {
-        val modules = readAmperProjectModel().modules
-
-        // module -> list of ancestors (dependent modules)
-        val ancestorsByModule = modules
-            .flatMap { m ->
-                m.localModulesTransitiveClosure(includeTestDeps = false).map { it to m }
-            }
-            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
-
+    fun `modules used in IDEA should apply the used-in-idea template`() = runTest {
         assertTransitiveTemplateUsage(
             consumerMoniker = "IDEA",
             templateFileName = "used-in-idea.module-template.yaml",
-            ancestorsByModule = ancestorsByModule,
-            allModules = modules,
         )
     }
 
     @Test
-    fun `modules used in kotlin jupiter should apply the kotlin-jupiter template`() = runTest {
-        val modules = readAmperProjectModel().modules
+    fun `modules used in the user's test JVM should apply the used-in-user-tests template`() = runTest {
+        assertTransitiveTemplateUsage(
+            consumerMoniker = "User test JVM",
+            templateFileName = "used-in-user-tests.module-template.yaml",
+        )
+    }
 
-        // module -> list of ancestors (dependent modules)
-        val ancestorsByModule = modules
-            .flatMap { m ->
-                m.localModulesTransitiveClosure(includeTestDeps = false).map { it to m }
-            }
-            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+    @Test
+    fun `modules used in Gradle should apply the used-in-gradle template`() = runTest {
+        assertTransitiveTemplateUsage(
+            consumerMoniker = "Android Gradle delegated builds",
+            templateFileName = "used-in-gradle.module-template.yaml",
+        )
+    }
 
+    @Test
+    fun `modules used in JIC process should apply the used-in-jic template`() = runTest {
+        assertTransitiveTemplateUsage(
+            consumerMoniker = "JIC process",
+            templateFileName = "used-in-jic.module-template.yaml",
+        )
+    }
+
+    @Test
+    fun `modules used in Kotlin Notebooks should apply the used-in-kotlin-notebook template`() = runTest {
         assertTransitiveTemplateUsage(
             consumerMoniker = "Kotlin Notebooks",
             templateFileName = "used-in-kotlin-notebook.module-template.yaml",
-            ancestorsByModule = ancestorsByModule,
-            allModules = modules,
         )
     }
 
     private fun assertTransitiveTemplateUsage(
         consumerMoniker: String,
         templateFileName: String,
-        ancestorsByModule: Map<AmperModule, List<AmperModule>>,
-        allModules: List<AmperModule>,
     ) {
+        val modules = readAmperProjectModel().modules
+
+        // module -> list of ancestors (dependent modules)
+        val ancestorsByModule = modules
+            .flatMap { m ->
+                m.localModulesTransitiveClosure(includeTestDeps = false).map { it to m }
+            }
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+
         fun AmperModule.ancestorsWithTemplate(templateFileName: String) = ancestorsByModule
             .getOrElse(this) { emptyList() }
             .filter { it.hasTemplate(templateFileName) }
 
-        val modulesMissingTemplate = allModules.filter { module ->
+        val modulesMissingTemplate = modules.filter { module ->
             !module.hasTemplate(templateFileName)
                     && module.ancestorsWithTemplate(templateFileName).isNotEmpty()
         }

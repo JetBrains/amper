@@ -4,7 +4,13 @@ description: PSI support for Amperlang files, copied from IntelliJ.
 
 apply:
   - ../../../common.module-template.yaml
+  - ../../../used-in-gradle.module-template.yaml
   - ../../../used-in-idea.module-template.yaml
 
 dependencies:
   - ../parserutil-stub
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

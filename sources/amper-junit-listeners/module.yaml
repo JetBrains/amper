@@ -4,6 +4,7 @@ description: JUnit listeners used by Amper test execution.
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-user-tests.module-template.yaml
 
 dependencies:
   - $libs.junit5.platform.engine: compile-only

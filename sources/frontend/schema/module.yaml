@@ -4,6 +4,7 @@ description: Amper model parser – the real Amper frontend. It contains impleme
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
 
 settings:
@@ -12,6 +13,9 @@ settings:
       enabled: true
       format: json
     optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17
 
 plugins:
   amper-schema-generator: enabled

@@ -4,7 +4,7 @@ description: Java incremental compilation implementation, mostly copy-pasted fro
 
 apply:
   - ../../common.module-template.yaml
-  - ../jps.module-template.yaml
+  - ../../used-in-jic.module-template.yaml
 
 repositories:
   - id: ijSnapshots

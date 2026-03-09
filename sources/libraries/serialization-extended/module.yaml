@@ -4,10 +4,15 @@ description: Additional serializers for kotlinx.serialization.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
+  - ../../used-in-jic.module-template.yaml
 
 settings:
   kotlin:
     # Just for the core library. This is not ideal, but we don't have a way to get a kotlinx-serialization-core
     # catalog entry that respects the serialization version from the settings.
     serialization: enabled
+  jvm:
+    # Used in IDEA (max 21), in JIC (max 16), and Gradle (max 17), so we take the lowest version 16
+    release: 16

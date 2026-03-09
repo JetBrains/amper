@@ -7,7 +7,7 @@ description: |
 
 apply:
   - ../../common.module-template.yaml
-  - ../jps.module-template.yaml
+  - ../../used-in-jic.module-template.yaml
 
 dependencies:
   - io.netty:netty-buffer:4.1.116.Final

@@ -2,6 +2,7 @@ product: jvm/lib
 
 apply:
   - ../common.module-template.yaml
+  - ../used-in-gradle.module-template.yaml
   - ../used-in-idea.module-template.yaml
 
 dependencies:
@@ -21,3 +22,8 @@ dependencies:
 
 test-dependencies:
   - $libs.system.stubs.jupiter
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

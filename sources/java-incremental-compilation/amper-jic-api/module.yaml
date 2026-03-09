@@ -4,6 +4,7 @@ description: Model to communicate between Amper and the Java incremental compila
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-jic.module-template.yaml
 
 dependencies:
   - $kotlin.serialization.core

@@ -4,6 +4,7 @@ description: Android SDK discovery utilities.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
 
 dependencies:
@@ -11,5 +12,7 @@ dependencies:
   - ../../libraries/system-info
 
 settings:
+  jvm:
+    release: 17
   publishing:
     enabled: true

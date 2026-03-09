@@ -4,6 +4,7 @@ description: Data model for communication between Amper and delegated Android Gr
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
 
 dependencies:
   - ../../frontend-api

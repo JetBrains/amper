@@ -1,0 +1,6 @@
+settings:
+  jvm:
+    # JPS libraries require at least JDK 16, so we have diagnostics to force the user to use at least 16.
+    # Therefore, there is no point is setting the release lower than 16 here, because we know it will run on 16+.
+    # Also, because the user can go as low as 16, we can't use a higher release than 16 here, so we choose exactly 16.
+    release: 16

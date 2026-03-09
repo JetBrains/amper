@@ -4,6 +4,7 @@ description: Minimum dependencies of PSI parsers, copied from IntelliJ IDEA.
 
 apply:
   - ../../../common.module-template.yaml
+  - ../../../used-in-gradle.module-template.yaml
   - ../../../used-in-idea.module-template.yaml
 
 dependencies:
@@ -11,3 +12,8 @@ dependencies:
   - $libs.intellij.platform.core: exported
   - $libs.intellij.platform.util: exported
   - $libs.intellij.platform.utilEx: exported
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

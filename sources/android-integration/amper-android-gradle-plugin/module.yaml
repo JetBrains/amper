@@ -4,6 +4,7 @@ description: A gradle plugin to handle Android builds that are delegated from Am
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
 
 dependencies:
   - ../amper-android-gradle-api

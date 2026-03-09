@@ -4,6 +4,7 @@ description: Cross-platform system information accessors.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
   - ../../used-in-kotlin-notebook.module-template.yaml
 

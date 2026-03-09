@@ -4,8 +4,14 @@ description: PSI support for YAML files, copied from IntelliJ.
 
 apply:
   - ../../../common.module-template.yaml
+  - ../../../used-in-gradle.module-template.yaml
   - ../../../used-in-idea.module-template.yaml
 
 dependencies:
   - ../parserutil-stub
   - $libs.intellij.deps.fastutil
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17

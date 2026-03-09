@@ -1,0 +1,5 @@
+settings:
+  jvm:
+    # TODO users could technically use JDK 8 and we should respect that
+    #   But for this we need to fix the usage of packageName in the TeamCity listener
+    release: 11

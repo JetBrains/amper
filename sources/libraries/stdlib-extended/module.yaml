@@ -4,7 +4,13 @@ description: General Kotlin standard library extensions.
 
 apply:
   - ../../common.module-template.yaml
+  - ../../used-in-gradle.module-template.yaml
   - ../../used-in-idea.module-template.yaml
+
+settings:
+  jvm:
+    # Used in Android Gradle builds (max 17) and IDEA (max 21), so we pick 17
+    release: 17
 
 # There should be no dependencies here, because this library is supposed to contain
 # possible additions to the Kotlin standard library.
