@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.maven
 
-import org.jetbrains.amper.frontend.contexts.DefaultContext
 import org.jetbrains.amper.frontend.contexts.TestCtx
 import org.jetbrains.amper.frontend.schema.BomDependency
 import org.jetbrains.amper.frontend.tree.BooleanNode
@@ -49,7 +48,7 @@ internal fun MappingNode.serializeToYaml(comments: YamlComments = emptyMap()): S
     val mainComments = comments.filterValues { !it.test }
     val testComments = comments.filterValues { it.test }
 
-    append(refinedMain.serializeToYaml(0, emptyList(), mainComments) ?: "")
+    append(refinedMain.serializeToYaml(0, emptyList(), mainComments))
     if (test != null) {
         appendLine()
         append(test.serializeToYaml(0, emptyList(), testComments))
