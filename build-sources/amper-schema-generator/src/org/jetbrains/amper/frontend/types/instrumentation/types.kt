@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.types.SchemaType
 import org.jetbrains.amper.frontend.types.SchemaTypeDeclaration
 import java.nio.file.Path
-import kotlin.collections.forEach
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -109,7 +108,7 @@ internal fun schemaTypeExpression(
     // TODO: Use pre-created type instances where possible, like `SchemaType.Boolean` or `SchemaType.StringNullable`
     Int::class -> {
         val knownValues = annotated?.findAnnotation<KnownIntValues>()?.values
-        CodeBlock.builder().apply {
+        val expression = CodeBlock.builder().apply {
             add("%T(%L", SchemaType.IntType::class, type.isMarkedNullable)
             if (knownValues != null) {
                 add(", knownValues = setOf(")
@@ -119,7 +118,7 @@ internal fun schemaTypeExpression(
             add(")")
         }.build()
         ParsedType(
-            schemaTypeCreationExpression = CodeBlock.of("%T(%L)", SchemaType.IntType::class, type.isMarkedNullable),
+            schemaTypeCreationExpression = expression,
             descriptor = ParsedTypeDescriptor.Int,
         )
     }
