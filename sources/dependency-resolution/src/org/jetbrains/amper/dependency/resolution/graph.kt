@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.dependency.resolution
@@ -503,7 +503,7 @@ class DependencyGraphContext(
     }
 }
 
-private class DependencyGraphContextSerializer: KSerializer<DependencyGraphContext> {
+class DependencyGraphContextSerializer: KSerializer<DependencyGraphContext> {
     private val allDependencyNodesSerializer: KSerializer<Map<SerializableDependencyNode, DependencyNodeIndex>> =
         MapSerializer(PolymorphicSerializer(SerializableDependencyNode::class), Int.serializer())
     private val allMavenDependenciesSerializer: KSerializer<Map<MavenDependencyPlain, MavenDependencyIndex>> =

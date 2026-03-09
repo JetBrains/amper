@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.test.otlp.proto
@@ -46,7 +46,7 @@ data class Span(
     val droppedLinksCount: Int = 0,
     val status: Status? = null,
 ) {
-    private object SpanKindSerializer : EnumToOrdinalSerializer<SpanKind>(SpanKind.entries)
+    object SpanKindSerializer : EnumToOrdinalSerializer<SpanKind>(SpanKind.entries)
 
     @Serializable(with = SpanKindSerializer::class)
     enum class SpanKind {
@@ -82,7 +82,7 @@ data class Status(
     val message: String? = null,
     val code: StatusCode = StatusCode.STATUS_CODE_UNSET,
 ) {
-    private object StatusCodeSerializer : EnumToOrdinalSerializer<StatusCode>(StatusCode.entries)
+    object StatusCodeSerializer : EnumToOrdinalSerializer<StatusCode>(StatusCode.entries)
 
     @Serializable(with = StatusCodeSerializer::class)
     enum class StatusCode {
