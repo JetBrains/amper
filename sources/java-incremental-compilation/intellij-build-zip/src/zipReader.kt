@@ -1,4 +1,6 @@
-// Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+/*
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.intellij.build.io
 
 import java.io.EOFException
@@ -50,8 +52,8 @@ suspend fun suspendAwareReadZipFile(file: Path, entryProcessor: suspend (String,
 private inline fun mapFileAndUse(file: Path, consumer: (ByteBuffer, fileSize: Int) -> Unit) {
   // FileChannel is strongly required because only FileChannel provides `read(ByteBuffer dst, long position)` method -
   // ability to read data without setting channel position, as setting channel position will require synchronization
-  var fileSize: Int
-  var mappedBuffer: ByteBuffer
+  val fileSize: Int
+  val mappedBuffer: ByteBuffer
   FileChannel.open(file, EnumSet.of(StandardOpenOption.READ)).use { fileChannel ->
     fileSize = fileChannel.size().toInt()
     mappedBuffer = try {
