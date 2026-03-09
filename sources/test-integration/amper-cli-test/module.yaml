@@ -25,6 +25,10 @@ settings:
         junit.jupiter.execution.parallel.config.strategy: fixed
         junit.jupiter.execution.parallel.config.fixed.parallelism: 4
 
+test-settings:
+  kotlin:
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
+
 tasks:
   testJvm:
     # To build&publish the amper-android-gradle-plugin and deps for gradle-backed Android builds

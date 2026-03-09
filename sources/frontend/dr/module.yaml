@@ -24,3 +24,7 @@ settings:
     serialization:
       format: json
 
+test-settings:
+  kotlin:
+    optIns: [ org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess ]
+

@@ -54,7 +54,3 @@ settings:
   java:
     compileIncrementally: false # Disabled because of AMPER-4868
 
-test-settings:
-  kotlin:
-    optIns:
-      - org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess
