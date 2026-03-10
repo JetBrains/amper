@@ -578,7 +578,12 @@ private class ConflictResolver(
      * Must not be called concurrently with [registerAndDetectConflicts].
      */
     suspend fun resolveConflicts(): Set<DependencyNodeWithContext> = coroutineScope {
-        conflictingNodes()
+        val bomResolvedNodes = unspecifiedVersionHelper?.resolveVersions() ?: emptyList()
+        bomResolvedNodes.forEach { node ->
+            registerAndDetectConflicts(node)
+        }
+
+        val conflictCandidatesWithOldChildren = conflictingNodes()
             .map { candidates ->
                 async {
                     val candidatesWithOldChildren = candidates.associateWith { it.children }
@@ -591,14 +596,14 @@ private class ConflictResolver(
                 }
             }
             .awaitAll()
-            .fold(emptyMap<DependencyNodeWithContext,List<DependencyNodeWithContext>>()) { acc, map ->  acc + map }
-            .also {
-                unregisterOrphanNodes(it)
-                conflictedKeys.clear()
-            }
-            .let {
-                it.keys + (unspecifiedVersionHelper?.resolveVersions() ?: emptyList())
-            }
+            .fold(emptyMap<DependencyNodeWithContext, List<DependencyNodeWithContext>>()) { acc, map -> acc + map }
+
+        unregisterOrphanNodes(conflictCandidatesWithOldChildren)
+        conflictedKeys.clear()
+
+        // nodes resolved from BOM might be from non-conflicting group
+        // and thus should be included explicitly to the input of the next resolution wave
+        conflictCandidatesWithOldChildren.keys + bomResolvedNodes
     }
 
     private fun conflictingNodes(): List<Set<DependencyNodeWithContext>> = conflictedKeys.map { key ->
