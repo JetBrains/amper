@@ -25,6 +25,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.Serializable
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runProcess
+import org.jetbrains.amper.system.info.OsFamily
 import org.jetbrains.compose.devtools.api.Recompiler
 import org.jetbrains.compose.devtools.api.RecompilerContext
 import org.jetbrains.compose.devtools.api.RecompilerExtension
@@ -64,6 +65,8 @@ class AmperRecompiler() : Recompiler, AutoCloseable {
         System.getenv()[ENV_AMPER_BUILD_TASK] ?: error("AMPER_BUILD_TASK env variable is not set")
     private val amperBuildRoot = System.getenv()[ENV_AMPER_BUILD_ROOT]
         ?.let { Path(it) } ?: error("AMPER_BUILD_ROOT env variable is not set")
+
+    private val amperCommand = if (OsFamily.current.isWindows) "amper.bat" else "./amper"
 
     override val name: String = "Amper Recompiler"
 
@@ -128,7 +131,7 @@ class AmperRecompiler() : Recompiler, AutoCloseable {
         coroutineScope.launch {
             val exitCode = runProcess(
                 workingDir = amperBuildRoot,
-                command = listOf("./amper", "server", "--compose-hot-reload-mode", "--port", amperServerPort),
+                command = listOf(amperCommand, "server", "--compose-hot-reload-mode", "--port", amperServerPort),
                 environment = mapOf(ENV_COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT to orchestrationPort.toString()),
                 outputListener = streamingOutputListener
             )
