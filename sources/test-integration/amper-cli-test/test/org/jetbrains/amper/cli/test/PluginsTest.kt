@@ -612,6 +612,18 @@ class PluginsTest : AmperCliTestBase() {
         )
     }
 
+    @Test
+    fun `multiple task execution`() = runSlowTest {
+        val projectDir = testProject("extensibility/multiple-local-plugins")
+        val result = runCli(
+            projectDir = projectDir,
+            "task", ":app:say@hello", ":app:print-generated-sources@build-konfig",
+            copyToTempDir = true,
+        )
+        result.assertStdoutContains("Hello!")
+        result.assertStdoutContains("Generating Build Konfig...")
+    }
+
     private fun AmperCliResult.assertErrors(
         vararg expectedErrors: String,
     ) {

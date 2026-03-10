@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -7,7 +7,6 @@ package org.jetbrains.amper.cli
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.options.UserJvmArgsOption
 import org.jetbrains.amper.cli.widgets.TaskProgressRenderer
-import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.engine.BuildTask
 import org.jetbrains.amper.engine.MaybeBuildTypeAware
 import org.jetbrains.amper.engine.PackageTask
@@ -33,6 +32,7 @@ import org.jetbrains.amper.tasks.compose.isComposeEnabledFor
 import org.jetbrains.amper.tasks.ios.IosPreBuildTask
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.tasks.jvm.JvmHotRunTask
+import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.useWithoutCoroutines
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
@@ -205,6 +205,15 @@ class AmperBackend(
      */
     suspend fun runTask(task: TaskName): TaskResult = taskExecutor.runTasksAndReportOnFailure(setOf(task))[task]
         ?: error("Task '$task' was successfully executed but is not in the results map")
+
+    /**
+     * Runs the given set of [tasks] and their dependencies, and throws an exception if any task fails.
+     * If all tasks are successful, the results of all tasks that were executed are returned as a map, including results
+     * of the task dependencies.
+     *
+     * @see runTasksAndReportOnFailure
+     */
+    suspend fun runTasks(tasks: Set<TaskName>): Map<TaskName, TaskResult> = taskExecutor.runTasksAndReportOnFailure(tasks)
 
     suspend fun publish(modules: Set<String>?, repositoryId: String) {
         require(modules == null || modules.isNotEmpty())
