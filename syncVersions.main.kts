@@ -51,6 +51,15 @@ val ktorVersion = "3.4.0"
 val lombokVersion = "1.18.38"
 val springBootVersion = "4.0.2"
 
+/**
+ * The minimum JUnit Platform version we should be compatible with.
+ * This is used as a compile time dependency in our JUnit listeners.
+ *
+ * We keep JUnit 5 here for now (so platform 1.14), because JUnit platform 6 requires Java 17, and we're not ready to
+ * lower our minimum supported JDK to 17 right now.
+ */
+val minJUnitPlatformVersion = "1.14.3"
+
 val amperMavenRepoUrl = "https://packages.jetbrains.team/maven/p/amper/amper"
 
 val amperRootDir: Path = __FILE__.toPath().absolute().parent // __FILE__ is this script
@@ -74,7 +83,7 @@ fun updateVersionsCatalog() {
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
             .replaceCatalogVersionVariable(variableName = "ksp", newValue = kspVersion)
             .replaceCatalogVersionVariable(variableName = "compose-hot-reload-version", newValue = composeHotReloadVersion)
-            .replaceCatalogVersionVariable(variableName = "junit-platform", newValue = junitPlatformVersion)
+            .replaceCatalogVersionVariable(variableName = "junit5-platform", newValue = minJUnitPlatformVersion)
     }
 }
 

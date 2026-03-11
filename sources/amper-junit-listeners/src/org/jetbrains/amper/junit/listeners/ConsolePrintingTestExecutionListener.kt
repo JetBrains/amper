@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.junit.listeners
@@ -9,7 +9,6 @@ import com.github.ajalt.mordant.rendering.TextStyle
 import com.github.ajalt.mordant.rendering.TextStyles.bold
 import com.github.ajalt.mordant.rendering.Theme
 import com.github.ajalt.mordant.terminal.Terminal
-import org.junit.platform.commons.util.ExceptionUtils.readStackTrace
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.reporting.ReportEntry
@@ -65,7 +64,7 @@ class ConsolePrintingTestExecutionListener(
         val event = TestEvent.forResult(testExecutionResult, testIdentifier.isContainer)
         printEvent(event = event, testIdentifier)
         testExecutionResult.throwable.ifPresent { t ->
-            printlnMessage(event.style, "Exception", readStackTrace(t))
+            printlnMessage(event.style, "Exception", t.stackTraceToString())
         }
     }
 

@@ -4,6 +4,7 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - $libs.junit.platform.launcher: compile-only
+  - $libs.junit5.platform.engine: compile-only
+  - $libs.junit5.platform.launcher: compile-only
   - $libs.mordant
   - $libs.teamcity.serviceMessages
