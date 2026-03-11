@@ -47,7 +47,11 @@ class OverriddenDirectModuleDependencies : DrDiagnosticsReporter {
 
         if (originalVersion != dependencyNode.resolvedVersion()) {
             // for every direct module dependency referencing this dependency node
-            val psiElement = node.notation.trace.extractPsiElementOrNull()
+
+            // We prefer trace of the coordinates to the trace of the notation as it's more specific.
+            // E.g., in case of implicit dependencies it prefers 'version' over 'enabled'.
+            val psiElement = node.notation.coordinates.extractPsiElementOrNull() ?: node.notation.extractPsiElementOrNull()
+            // TODO: This is somewhat bad, because if we messed up with traces, the override goes unnoticed and might leave a user perplexed in the runtime.
             if (psiElement != null) {
                 val insightsCache = context.cache.computeIfAbsent(insightsCacheKey) { mutableMapOf() }
                 val dependencyInsight = insightsCache.computeIfAbsent(dependencyNode.key) {

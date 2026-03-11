@@ -1,0 +1,24 @@
+module:kotlin-stdlib-override
+├─── kotlin-stdlib-override:main:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> 2.3.0
+│         ╰─── org.jetbrains:annotations:13.0
+├─── kotlin-stdlib-override:main:org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0, implicit (because Kotlinx Serialization is enabled)
+│    ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0
+│         ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.10.0
+│              ├─── org.jetbrains.kotlinx:kotlinx-serialization-bom:1.10.0
+│              ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.3.0 (*)
+├─── kotlin-stdlib-override:test:org.jetbrains.kotlin:kotlin-stdlib:2.1.10, implicit
+│    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> 2.3.0 (*)
+├─── kotlin-stdlib-override:test:org.jetbrains.kotlin:kotlin-test-junit5:2.1.10, implicit (because the test engine is junit-5)
+│    ╰─── org.jetbrains.kotlin:kotlin-test-junit5:2.1.10
+│         ├─── org.jetbrains.kotlin:kotlin-test:2.1.10
+│         │    ╰─── org.jetbrains.kotlin:kotlin-stdlib:2.1.10 -> 2.3.0 (*)
+│         ╰─── org.junit.jupiter:junit-jupiter-api:5.10.1
+│              ├─── org.junit:junit-bom:5.10.1
+│              ├─── org.opentest4j:opentest4j:1.3.0
+│              ├─── org.junit.platform:junit-platform-commons:1.10.1
+│              │    ├─── org.junit:junit-bom:5.10.1
+│              │    ╰─── org.apiguardian:apiguardian-api:1.1.2
+│              ╰─── org.apiguardian:apiguardian-api:1.1.2
+╰─── kotlin-stdlib-override:test:org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0, implicit (because Kotlinx Serialization is enabled)
+     ╰─── org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0 (*)

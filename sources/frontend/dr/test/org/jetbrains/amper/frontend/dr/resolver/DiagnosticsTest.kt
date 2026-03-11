@@ -17,9 +17,13 @@ import org.jetbrains.amper.frontend.dr.resolver.diagnostics.reporters.ModuleDepe
 import org.jetbrains.amper.frontend.schema.DefaultVersions
 import org.jetbrains.amper.problems.reporting.BuildProblem
 import org.jetbrains.amper.problems.reporting.CollectingProblemReporter
+import org.jetbrains.amper.problems.reporting.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.problems.reporting.Level
+import org.jetbrains.amper.problems.reporting.LineAndColumn
+import org.jetbrains.amper.problems.reporting.LineAndColumnRange
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.assertInstanceOf
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -322,6 +326,50 @@ class DiagnosticsTest : BaseModuleDrTest() {
         assertEquals(buildProblem.message,
             "Version 3.0.2 of dependency io.ktor:ktor-client-cio-jvm taken from BOM is overridden, the actual version is 3.1.2.",
             "Unexpected diagnostic message"
+        )
+    }
+
+    @Test
+    fun `overridden version for Kotlin stdlib is detected`(testInfo: TestInfo) = runModuleDependenciesTest {
+        val aom = getTestProjectModel("kotlin-stdlib-override", testDataRoot)
+        val deps = doTestByFile(
+            testInfo = testInfo,
+            aom,
+            ResolutionInput(
+                DependenciesFlowType.IdeSyncType(aom), ResolutionDepth.GRAPH_FULL,
+                fileCacheBuilder = getAmperFileCacheBuilder(amperUserCacheRoot)
+            ),
+            module = "kotlin-stdlib-override",
+            verifyMessages = false,
+        )
+
+        val diagnosticsReporter = CollectingProblemReporter()
+        collectBuildProblems(deps, diagnosticsReporter, Level.Warning)
+
+        val buildProblems = diagnosticsReporter.problems
+            .filterIsInstance<ModuleDependencyWithOverriddenVersion>()
+            .distinctBy { it.message }
+        assertEquals(
+            1,
+            buildProblems.size,
+            "One build problem should be reported for Kotlin stdlib, but got the following ${buildProblems.size} problem(s):\n" +
+                    buildProblems.joinToString("\n") { it.message }
+        )
+        val buildProblem = buildProblems.single()
+        assertEquals(
+            "org.jetbrains.kotlin:kotlin-stdlib",
+            buildProblem.dependencyNode.key.name,
+            "Expected override on Kotlin stdlib dependency, but got it on ${buildProblem.dependencyNode.key.name}"
+        )
+        val source = buildProblem.source
+        assertInstanceOf<FileWithRangesBuildProblemSource>(source)
+        assertEquals(
+            LineAndColumnRange(
+                LineAndColumn(7, 14, "    version: 2.1.10"),
+                LineAndColumn(7, 20, "    version: 2.1.10"),
+            ),
+            source.range,
+            "Unexpected source range for build problem. The Kotlin version value should be highlighted."
         )
     }
 
