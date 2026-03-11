@@ -33,17 +33,11 @@ val bootstrapAmperVersion = "0.10.0-dev-3715" // AUTO-UPDATED BY THE CI - DO NOT
 val amperJreZuluVersion = "25.32.21"
 val amperJreJavaVersion = "25.0.2"
 
-/**
- * The Kotlin version used in Amper projects (not customizable yet).
- * Make sure we respect the constraints of the Android Gradle plugin (used internally in delegated Gradle builds).
- * See the [compatiblity table](https://developer.android.com/build/kotlin-support).
- */
-val kotlinVersion = "2.3.10" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
-
 val composeHotReloadVersion = "1.0.0-rc01"
 val composeVersion = "1.10.1"
 val jdkVersion = "21" // TODO bump to 25 when Kotlin supports it
 val junitPlatformVersion = "6.0.1"
+val kotlinVersion = "2.3.10" // /!\ Remember to update the KotlinVersion enum with outdated/experimental versions
 val kotlinxRpcVersion = "0.10.2"
 val kotlinxSerializationVersion = "1.10.0"
 val kspVersion = "2.3.6"
@@ -80,6 +74,7 @@ fun syncVersions() {
 fun updateVersionsCatalog() {
     versionsCatalogToml.replaceFileText { text ->
         text
+            // we align our Kotlin BTA and AA version with the default Kotlin version
             .replaceCatalogVersionVariable(variableName = "kotlin", newValue = kotlinVersion)
             .replaceCatalogVersionVariable(variableName = "compose-hot-reload-version", newValue = composeHotReloadVersion)
             .replaceCatalogVersionVariable(variableName = "junit5-platform", newValue = minJUnitPlatformVersion)
