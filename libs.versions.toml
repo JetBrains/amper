@@ -34,7 +34,6 @@ mordant = "3.0.1"
 opentelemetry = "1.50.0"
 opentelemetry-ktor = "2.18.1-alpha"
 slf4j = "2.0.16"
-stacktrace-decoroutinator = "2.4.8"
 systemstubs = "2.1.8"
 teamcity-servicemessages = "2024.12"
 tinylog = "2.7.0"
@@ -136,7 +135,6 @@ opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", 
 org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
-stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
 system-stubs-jupiter = { module = "uk.org.webcompere:system-stubs-jupiter", version.ref = "systemstubs" }
 teamcity-serviceMessages = { module = "org.jetbrains.teamcity:serviceMessages", version.ref = "teamcity-servicemessages" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
