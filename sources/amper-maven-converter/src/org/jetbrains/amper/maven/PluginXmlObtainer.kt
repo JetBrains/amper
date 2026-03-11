@@ -64,11 +64,13 @@ internal suspend fun Set<MavenProject>.extractUnknownPluginXmls(
 
         val mavenResolver = MavenResolver(userCacheRoot, incrementalCache)
 
-        unknownPlugins.map { (_, plugin) ->
-            async {
-                logger.info("Downloading plugin ${plugin.groupId}:${plugin.artifactId}:${plugin.version}")
-                downloadAndParsePluginXml(mavenResolver, plugin)
-            }
+        unknownPlugins
+            .distinctBy { "${it.second.groupId}:${it.second.artifactId}" }
+            .map { (_, plugin) ->
+                async {
+                    logger.info("Downloading plugin ${plugin.groupId}:${plugin.artifactId}:${plugin.version}")
+                    downloadAndParsePluginXml(mavenResolver, plugin)
+                }
         }
             .awaitAll()
             .filterNotNull()

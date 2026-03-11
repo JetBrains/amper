@@ -7,6 +7,7 @@ package org.jetbrains.amper.maven
 import org.apache.maven.project.MavenProject
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.maven.contributor.MavenRootNotFoundException
+import org.jetbrains.amper.maven.contributor.collectReferencedPomProjects
 import org.jetbrains.amper.maven.contributor.contributeCompilerPlugin
 import org.jetbrains.amper.maven.contributor.contributeCoreModule
 import org.jetbrains.amper.maven.contributor.contributeDependencies
@@ -17,10 +18,12 @@ import org.jetbrains.amper.maven.contributor.contributeRepositories
 import org.jetbrains.amper.maven.contributor.contributeSpringBootPlugin
 import org.jetbrains.amper.maven.contributor.contributeSurefirePlugin
 import org.jetbrains.amper.maven.contributor.contributeUnknownPlugins
+import org.jetbrains.amper.maven.contributor.filterJarProjects
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.collections.plus
 import kotlin.io.path.div
 
 /**
@@ -68,18 +71,22 @@ object MavenProjectConvertor {
 
         val amperProjectPath = potentialRoots.first().basedir.toPath() / "project.yaml"
 
+        val referencedPomProjects = collectReferencedPomProjects(reactorProjects)
+
         val builder = amperProjectTreeBuilder(amperProjectPath) {
             // core
-            contributeProjects(reactorProjects)
-            contributeCoreModule(reactorProjects)
-            contributeRepositories(reactorProjects)
-            contributeDependencies(reactorProjects)
+            val jarProjects = reactorProjects.filterJarProjects()
+            val jarsAndReferencedPoms = jarProjects + referencedPomProjects
+            contributeProjects(jarsAndReferencedPoms)
+            contributeCoreModule(jarsAndReferencedPoms)
+            contributeRepositories(jarProjects)
+            contributeDependencies(reactorProjects, referencedPomProjects)
 
             // plugins
-            contributeCompilerPlugin(reactorProjects)
-            contributeKotlinPlugin(reactorProjects)
-            contributeSpringBootPlugin(reactorProjects)
-            contributeSurefirePlugin(reactorProjects)
+            contributeCompilerPlugin(jarProjects)
+            contributeKotlinPlugin(jarProjects)
+            contributeSpringBootPlugin(jarProjects)
+            contributeSurefirePlugin(jarProjects)
         }
 
         val unknownPluginXmls = reactorProjects.extractUnknownPluginXmls(userCacheRoot, codeVersion)
@@ -98,7 +105,7 @@ object MavenProjectConvertor {
             val queue = ArrayDeque(reactorProjects)
             while (queue.isNotEmpty()) {
                 val project = queue.removeFirst()
-                if (project.parent.basedir == null) {
+                if (project.parent == null || project.parent.basedir == null) {
                     add(project)
                     break
                 } else {

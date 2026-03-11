@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven.contributor
@@ -15,11 +15,10 @@ import org.jetbrains.amper.frontend.tree.add
 import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
-import kotlin.io.path.div
 
-internal fun ProjectTreeBuilder.contributeKotlinPlugin(reactorProjects: Set<MavenProject>) {
-    for (project in reactorProjects.filterJarProjects()) {
-        module(project.basedir.toPath() / "module.yaml") {
+internal fun ProjectTreeBuilder.contributeKotlinPlugin(jarProjects: Set<MavenProject>) {
+    for (project in jarProjects) {
+        module(project) {
             project.model.build.plugins
                 .filter { it.groupId == "org.jetbrains.kotlin" && it.artifactId == "kotlin-maven-plugin" }
                 .forEach { plugin -> contributeKotlinPlugin(plugin) }

@@ -10,13 +10,20 @@ import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.MavenPluginXml
 import org.jetbrains.amper.maven.ProjectTreeBuilder
+import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.relativeTo
 
-internal fun ProjectTreeBuilder.contributeProjects(reactorProjects: Set<MavenProject>) {
+internal fun ProjectTreeBuilder.contributeProjects(mavenProjects: Set<MavenProject>) {
     project {
-        if (reactorProjects.size != 1 || reactorProjects.first().basedir.toPath() != projectPath.parent) {
+        if (mavenProjects.size != 1 || mavenProjects.first().basedir.toPath() != projectPath.parent) {
             modules {
-                reactorProjects.filter { it.packaging != "pom" }.forEach { reactorProject ->
-                    add(reactorProject.basedir.name)
+                mavenProjects.forEach { reactorProject ->
+                    val relativePath = reactorProject
+                        .basedir
+                        .toPath()
+                        .relativeTo(projectPath.parent)
+                        .invariantSeparatorsPathString
+                    add(relativePath)
                 }
             }
         }

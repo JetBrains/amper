@@ -15,6 +15,7 @@ settings:
     version: 4.0.1
 
 dependencies:
+  - bom: org.springframework.boot:spring-boot-dependencies:4.0.1
   - bom: org.springframework.boot:spring-boot-starter-parent:4.0.1
   - org.springframework.boot:spring-boot-starter-actuator:4.0.1: exported
   - org.springframework.boot:spring-boot-starter-cache:4.0.1: exported
@@ -99,13 +100,6 @@ mavenPlugins:
   cyclonedx-maven-plugin.makePackageBom: enabled
 
 test-dependencies:
-  - com.h2database:h2:2.4.240: exported
-  - com.github.ben-manes.caffeine:caffeine:3.2.3: exported
-  - com.mysql:mysql-connector-j:9.5.0: exported
-  - org.postgresql:postgresql:42.7.8: exported
-  - org.webjars:webjars-locator-lite:1.1.2: exported
-  - org.webjars.npm:bootstrap:5.3.8: exported
-  - org.webjars.npm:font-awesome:4.7.0: exported
   - org.springframework.boot:spring-boot-starter-data-jpa-test:4.0.1
   - org.springframework.boot:spring-boot-starter-restclient-test:4.0.1
   - org.springframework.boot:spring-boot-starter-webmvc-test:4.0.1

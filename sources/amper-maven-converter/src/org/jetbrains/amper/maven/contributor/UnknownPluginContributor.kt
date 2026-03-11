@@ -31,13 +31,16 @@ import javax.xml.stream.XMLStreamConstants.END_ELEMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
 import kotlin.io.path.Path
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 
 private val logger = LoggerFactory.getLogger("UnknownPluginContributor")
 
-val unsupportedVariables = setOf($$"${basedir}", $$"${project.build.outputDirectory}")
+
+private val NETWORK_URL_PATTERN = Regex("""(https?|ftp|ftps|mailto|data)://[^\s]*""")
+private val UNIX_PATH_PATTERN = Regex("""(?<![/.\w-])/[^\s:/][^\s]*""")
+private val WINDOWS_DRIVE_PATTERN = Regex("""(?i)(?<!\w)[a-z]:[/\\]""")
+private val WINDOWS_UNC_PATTERN = Regex("""(?<!\\)\\\\[^\s\\]+""")
 
 internal fun ProjectTreeBuilder.contributeUnknownPlugins(
     reactorProjects: Set<MavenProject>,
@@ -46,7 +49,7 @@ internal fun ProjectTreeBuilder.contributeUnknownPlugins(
     val pluginXmlMap = pluginXmls.associateBy { "${it.groupId}:${it.artifactId}" }
 
     reactorProjects.filterJarProjects().forEach { project ->
-        module(project.basedir.toPath() / "module.yaml") {
+        module(project) {
             project.buildPlugins.forEach { plugin ->
                 val pluginXml = pluginXmlMap["${plugin.groupId}:${plugin.artifactId}"]
                 if (pluginXml != null) {
@@ -211,12 +214,27 @@ private fun SimpleMappingBuilder.mapConfigurationValue(
 }
 
 private fun Xpp3Dom.value(): String? {
-    val originalValue = (inputLocation as? InputLocation)?.originalValue()
-    return if (originalValue != null && unsupportedVariables.any { it in originalValue }) {
-        originalValue
-    } else {
-        value
+    val interpretedValue = value ?: return null
+
+    if (containsAbsolutePath(interpretedValue)) {
+        val originalValue = (inputLocation as? InputLocation)?.findElement { readElementText(it) }
+        if (originalValue != null) {
+            return originalValue
+        }
     }
+
+    return interpretedValue
+}
+
+
+internal fun containsAbsolutePath(value: String): Boolean {
+    val maskedValue = NETWORK_URL_PATTERN.replace(value, " ")
+
+    if (maskedValue.contains("file:")) return true
+
+    return UNIX_PATH_PATTERN.containsMatchIn(maskedValue) ||
+            WINDOWS_DRIVE_PATTERN.containsMatchIn(maskedValue) ||
+            WINDOWS_UNC_PATTERN.containsMatchIn(maskedValue)
 }
 
 context(_: SimpleTreeNodeFactory)

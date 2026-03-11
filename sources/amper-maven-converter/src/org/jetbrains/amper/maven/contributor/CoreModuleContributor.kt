@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven.contributor
@@ -10,11 +10,10 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
-import kotlin.io.path.div
 
 internal fun ProjectTreeBuilder.contributeCoreModule(reactorProjects: Set<MavenProject>) {
-    for (project in reactorProjects.filterJarProjects()) {
-        module(project.basedir.toPath() / "module.yaml") {
+    for (project in reactorProjects) {
+        module(project) {
             withDefaultContext {
                 product {
                     type(ProductType.JVM_LIB)

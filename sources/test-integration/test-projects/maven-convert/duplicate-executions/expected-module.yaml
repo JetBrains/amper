@@ -15,6 +15,7 @@ settings:
     version: 4.0.0
 
 dependencies:
+  - bom: org.springframework.boot:spring-boot-dependencies:4.0.0
   - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
   - org.springframework.boot:spring-boot-starter:4.0.0: exported
 

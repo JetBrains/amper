@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.maven.contributor
@@ -9,11 +9,10 @@ import org.jetbrains.amper.frontend.tree.add
 import org.jetbrains.amper.frontend.tree.invoke
 import org.jetbrains.amper.frontend.types.generated.*
 import org.jetbrains.amper.maven.ProjectTreeBuilder
-import kotlin.io.path.div
 
-internal fun ProjectTreeBuilder.contributeRepositories(reactorProjects: Set<MavenProject>) {
-    for (project in reactorProjects.filterJarProjects()) {
-        module(project.basedir.toPath() / "module.yaml") {
+internal fun ProjectTreeBuilder.contributeRepositories(jarProjects: Set<MavenProject>) {
+    for (project in jarProjects) {
+        module(project) {
             withDefaultContext {
                 repositories(skipIfEmpty = true) {
                     project.distributionManagement?.repository?.let { repo ->
@@ -30,6 +29,9 @@ internal fun ProjectTreeBuilder.contributeRepositories(reactorProjects: Set<Mave
                             publish(true)
                         }
                     }
+
+                    // remoteProjectRepositories is the effective (merged) list including repositories
+                    // inherited from all parent POMs, so parent repos are already covered here.
                     project.remoteProjectRepositories.forEach { repo ->
                         if (repo.id == "central") return@forEach
                         add {

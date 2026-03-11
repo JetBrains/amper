@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.test.utils.runSlowTest
 import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -17,6 +18,7 @@ import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -52,6 +54,7 @@ class MavenConvertTest : AmperCliTestBase() {
                 version: 4.0.0
 
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:4.0.0
               - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
               - org.springframework.boot:spring-boot-starter:4.0.0: exported
 
@@ -137,6 +140,7 @@ class MavenConvertTest : AmperCliTestBase() {
                 version: 4.0.0
 
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:4.0.0
               - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
               - org.springframework.boot:spring-boot-starter:4.0.0: exported
               - org.jetbrains.kotlin:kotlin-reflect:2.2.21: exported
@@ -184,7 +188,7 @@ class MavenConvertTest : AmperCliTestBase() {
         )
 
         // TODO: until we fix AMPER-5023 PlexusConfiguration type isn't supported
-//        val converted = testProject(buildResult.projectRoot.pathString)
+//        val converted = testProject(buildResult.projectDir.pathString)
 //
 //        runCli(
 //            converted,
@@ -226,6 +230,7 @@ class MavenConvertTest : AmperCliTestBase() {
                 version: 4.0.0
             
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:4.0.0
               - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
               - org.springframework.boot:spring-boot-starter:4.0.0: exported
               - org.projectlombok:lombok:1.18.42: exported
@@ -281,9 +286,10 @@ class MavenConvertTest : AmperCliTestBase() {
                 storeParameterNames: true
             
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:3.5.6
               - bom: org.springframework.boot:spring-boot-starter-parent:3.5.6
               - ../lib: exported
-            
+
             test-dependencies:
               - org.junit.jupiter:junit-jupiter:5.12.2
 
@@ -307,6 +313,7 @@ class MavenConvertTest : AmperCliTestBase() {
                 storeParameterNames: true
 
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:3.5.6
               - bom: org.springframework.boot:spring-boot-starter-parent:3.5.6
 
         """.trimIndent(), (buildResult.projectDir / "lib" / "module.yaml").readText()
@@ -317,6 +324,25 @@ class MavenConvertTest : AmperCliTestBase() {
         val converted = testProject(buildResult.projectDir.pathString)
 
         runCli(converted, "test")
+    }
+
+    @Test
+    fun `multi-module-nested`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/multi-module-nested")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertEquals(
+            """
+            modules:
+              - parent-only/nested-module
+
+            """.trimIndent(), (buildResult.projectDir / "project.yaml").readText()
+        )
+        assertTrue((buildResult.projectDir / "parent-only" / "nested-module" / "module.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").notExists())
+        assertTrue((buildResult.projectDir / "parent-only" / "module.yaml").notExists())
     }
 
     @Test
@@ -333,6 +359,105 @@ class MavenConvertTest : AmperCliTestBase() {
 
         buildResult.assertStderrContains("ERROR: pom.xml file not found")
     }
+
+    @Test
+    fun `pom-dependency-type-local`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/pom-dependency-type")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertEquals(
+            """
+            modules:
+              - app
+              - deps-pom
+
+            """.trimIndent(), (buildResult.projectDir / "project.yaml").readText()
+        )
+
+        assertTrue((buildResult.projectDir / "app" / "module.yaml").exists())
+        assertEquals(
+            """
+            product: jvm/lib
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: app
+                group: com.example
+                version: 1.0.0
+
+            dependencies:
+              - ../deps-pom: exported
+
+            """.trimIndent(), (buildResult.projectDir / "app" / "module.yaml").readText()
+        )
+
+        assertTrue((buildResult.projectDir / "deps-pom" / "module.yaml").exists())
+        assertEquals(
+            """
+            product: jvm/lib
+            
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: deps-pom
+                group: com.example
+                version: 1.0.0
+
+            dependencies:
+              - org.slf4j:slf4j-api:2.0.9: exported
+              - com.google.guava:guava:32.1.3-jre: runtime-only
+
+            """.trimIndent(), (buildResult.projectDir / "deps-pom" / "module.yaml").readText()
+        )
+    }
+
+    @Test
+    fun `pom-dependency-type-external`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/pom-dependency-type-external")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
+
+        val pomPath = buildResult.projectDir / "pom.xml"
+
+        assertEquals(
+            """
+            product: jvm/lib
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: pom-dependency-type-external-test
+                group: com.example
+                version: 1.0.0
+
+            dependencies:
+              - org.apache.commons:commons-lang3:3.20.0: exported
+              # WARNING: Amper does not support external POM dependencies with scopes different than import, manual configuration may be required.
+              # Reference: $pomPath:18:21
+              # <dependency>
+              #   <groupId>org.apache.hadoop</groupId>
+              #   <artifactId>hadoop-client-check-invariants</artifactId>
+              #   <version>3.3.6</version>
+              #   <type>pom</type>
+              #   <scope>compile</scope>
+              # </dependency>
+
+            """.trimIndent(), (buildResult.projectDir / "module.yaml").readText()
+        )
+    }
+
 
     @Test
     fun `surefire-plugin`() = runSlowTest {
@@ -362,6 +487,7 @@ class MavenConvertTest : AmperCliTestBase() {
                 version: 4.0.0
 
             dependencies:
+              - bom: org.springframework.boot:spring-boot-dependencies:4.0.0
               - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
               - org.springframework.boot:spring-boot-starter:4.0.0: exported
 
@@ -393,6 +519,36 @@ class MavenConvertTest : AmperCliTestBase() {
         runCli(converted, "test")
     }
 
+
+    @Test
+    fun `parent with repository`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/parent-with-repository")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertEquals(
+            """
+            product: jvm/lib
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: app
+                group: com.example
+                version: 1.0.0
+
+            repositories:
+              -
+                id: test-custom-repo
+                url: https://custom.example.com/maven
+
+        """.trimIndent(), (buildResult.projectDir / "app" / "module.yaml").readText()
+        )
+    }
+
     @Test
     fun `duplicate-executions`() = runSlowTest {
         val projectRoot = testProject("maven-convert/duplicate-executions")
@@ -411,4 +567,65 @@ class MavenConvertTest : AmperCliTestBase() {
             originalFile = expectedModuleFile,
         )
     }
+
+    @Test
+    fun `transitive compile classpath visibility`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/transitive-compile-classpath-visibility")
+
+        val buildResult = runCli(projectRoot, "tool", "convert-project", copyToTempDir = true)
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertEquals(
+            """
+            modules:
+              - core
+              - app
+
+            """.trimIndent(), (buildResult.projectDir / "project.yaml").readText()
+        )
+        assertTrue((buildResult.projectDir / "core" / "module.yaml").exists())
+        assertEquals(
+            """
+            product: jvm/lib
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: core
+                group: com.example
+                version: 1.0-SNAPSHOT
+
+            dependencies:
+              - com.fasterxml.jackson.core:jackson-databind:2.17.2: exported
+
+            """.trimIndent(), (buildResult.projectDir / "core" / "module.yaml").readText()
+        )
+        assertTrue((buildResult.projectDir / "app" / "module.yaml").exists())
+        assertEquals(
+            """
+            product: jvm/lib
+
+            layout: maven-like
+
+            settings:
+              publishing:
+                enabled: true
+                name: app
+                group: com.example
+                version: 1.0-SNAPSHOT
+
+            dependencies:
+              - ../core: exported
+
+            """.trimIndent(), (buildResult.projectDir / "app" / "module.yaml").readText()
+        )
+        assertTrue((buildResult.projectDir / "module.yaml").notExists())
+
+        val converted = testProject(buildResult.projectDir.pathString)
+
+        runCli(converted, "build")
+    }
+
 }

@@ -107,7 +107,7 @@ internal class ProjectTreeBuilder(val projectPath: Path, mavenPlugins: List<Mave
         )
     }
 
-    fun module(modulePath: Path, block: ModuleTreeBuilder.() -> Unit) {
+    inline fun module(modulePath: Path, block: ModuleTreeBuilder.() -> Unit) {
         val existing = modules[modulePath]
         if (existing != null) {
             existing.apply(block)
