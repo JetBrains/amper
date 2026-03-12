@@ -21,7 +21,7 @@ internal object YamlQuoting {
     )
 
     fun requiresQuoting(value: String): Boolean {
-        require(value.isNotBlank()) { "Blank strings are not allowed" }
+        if (value.isBlank()) return false
         val c0 = value.first()
         // Excludes `-`, `?`, `:` prefixes if not followed by space
         if (c0 in notFollowedBySpaceExceptions && (value.length == 1 || !value[1].isWhitespace())) return false
@@ -32,8 +32,8 @@ internal object YamlQuoting {
     }
 
     fun quote(value: String): String {
-        require(value.isNotBlank()) { "Blank strings are not allowed" }
-if (!requiresQuoting(value)) return value
+        if (value.isBlank()) return value
+        if (!requiresQuoting(value)) return value
         return "'${value.replace("'", "''")}'"
     }
 }

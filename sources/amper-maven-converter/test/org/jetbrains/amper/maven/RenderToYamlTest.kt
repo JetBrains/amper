@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.types.SchemaTypingContext
 import org.jetbrains.amper.frontend.types.generated.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RenderToYamlTest {
 
@@ -411,6 +412,30 @@ class RenderToYamlTest {
             Dependencies(emptyList())
         )
         return mavenPluginXml
+    }
+
+    @Test
+    fun `blank string in plugin configuration does not crash`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            plugins(buildRawTree {
+                mapping {
+                    put("maven-surefire-plugin.test", mapping {
+                        put("enabled", scalar("true"))
+                        put("includes", list {
+                            add(scalar(""))
+                        })
+                    })
+                }
+            }, unsafe = true)
+        }
+
+        val yaml = tree.serializeToYaml()
+
+        assertTrue(yaml.contains("product: jvm/app"))
+        assertTrue(yaml.contains("maven-surefire-plugin.test"))
     }
 
     @Test

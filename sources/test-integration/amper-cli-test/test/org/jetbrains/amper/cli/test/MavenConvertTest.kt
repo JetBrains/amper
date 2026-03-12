@@ -628,4 +628,37 @@ class MavenConvertTest : AmperCliTestBase() {
         runCli(converted, "build")
     }
 
+    @Test
+    fun `blank plugin config value`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/blank-plugin-config-value")
+
+        val buildResult = runCli(
+            projectRoot,
+            "tool",
+            "convert-project",
+            copyToTempDir = true,
+        )
+
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
+
+        val moduleYaml = (buildResult.projectDir / "module.yaml").readText()
+        assertTrue(moduleYaml.contains("product: jvm/lib"))
+    }
+
+    @Test
+    fun `commons-lang`() = runSlowTest {
+        val projectRoot = testProject("maven-convert/commons-lang")
+        val buildResult = runCli(
+            projectRoot, "tool", "convert-project",
+            copyToTempDir = true,
+        )
+        assertTrue((buildResult.projectDir / "project.yaml").exists())
+        assertTrue((buildResult.projectDir / "module.yaml").exists())
+        val moduleYaml = (buildResult.projectDir / "module.yaml").readText()
+        assertTrue(moduleYaml.contains("layout: maven-like"))
+        assertTrue(moduleYaml.contains("name: commons-lang3"))
+        assertTrue(moduleYaml.contains("group: org.apache.commons"))
+    }
+
 }
