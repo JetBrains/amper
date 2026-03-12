@@ -33,7 +33,7 @@ internal object YamlQuoting {
 
     fun quote(value: String): String {
         require(value.isNotBlank()) { "Blank strings are not allowed" }
-        if (!requiresQuoting(value)) return value
+if (!requiresQuoting(value)) return value
         return "'${value.replace("'", "''")}'"
     }
 }

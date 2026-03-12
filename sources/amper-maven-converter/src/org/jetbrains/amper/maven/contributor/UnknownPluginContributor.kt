@@ -24,15 +24,11 @@ import org.jetbrains.amper.maven.list
 import org.jetbrains.amper.maven.mapping
 import org.jetbrains.amper.maven.scalar
 import org.slf4j.LoggerFactory
-import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants.CDATA
 import javax.xml.stream.XMLStreamConstants.CHARACTERS
 import javax.xml.stream.XMLStreamConstants.END_ELEMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
-import kotlin.io.path.Path
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
 
 private val logger = LoggerFactory.getLogger("UnknownPluginContributor")
 
@@ -208,7 +204,10 @@ private fun SimpleMappingBuilder.mapConfigurationValue(
             })
         }
         else -> {
-            mapPlexusConfiguration(element)
+            val xmlString = element.toString()
+                .removePrefix("""<?xml version="1.0" encoding="UTF-8"?>""")
+                .trim()
+            put(element.name, scalar(xmlString))
         }
     }
 }
@@ -235,71 +234,6 @@ internal fun containsAbsolutePath(value: String): Boolean {
     return UNIX_PATH_PATTERN.containsMatchIn(maskedValue) ||
             WINDOWS_DRIVE_PATTERN.containsMatchIn(maskedValue) ||
             WINDOWS_UNC_PATTERN.containsMatchIn(maskedValue)
-}
-
-context(_: SimpleTreeNodeFactory)
-private fun SimpleMappingBuilder.mapPlexusConfiguration(
-    element: Xpp3Dom,
-) {
-    if (element.value != null) {
-        put(element.name, scalar(element.value))
-    } else if (element.childCount > 0) {
-        val childNames = element.children.filterIsInstance<Xpp3Dom>().map { it.name }.distinct()
-
-        if (childNames.size == 1 && element.childCount > 1) {
-            put(element.name, list {
-                element.children.forEach { child ->
-                    if (child is Xpp3Dom) {
-                        if (child.value != null) {
-                            add(scalar(child.value))
-                        }
-                    }
-                }
-            })
-        } else {
-            put(element.name, mapping {
-                element.children.forEach { child ->
-                    if (child is Xpp3Dom) {
-                        mapPlexusConfiguration(child)
-                    }
-                }
-            })
-        }
-    }
-}
-
-internal fun InputLocation.originalValue(): String? {
-    val sourcePath = source?.location ?: return null
-    val path = Path(sourcePath)
-    if (!path.exists()) return null
-
-    val targetLine = lineNumber
-    val targetColumn = columnNumber
-
-    try {
-        val factory = XMLInputFactory.newInstance()
-        path.inputStream().use { inputStream ->
-            val reader = factory.createXMLStreamReader(inputStream)
-            while (reader.hasNext()) {
-                val event = reader.next()
-                if (event == START_ELEMENT) {
-                    val location = reader.location
-                    if (location.lineNumber == targetLine) {
-                        val elementNameLength = reader.localName.length
-                        // <elementName>
-                        val expectedMavenColumn = location.columnNumber + elementNameLength + 2
-                        if (expectedMavenColumn == targetColumn) {
-                            return readElementText(reader)
-                        }
-                    }
-                }
-            }
-        }
-    } catch (e: Exception) {
-        logger.warn("Failed to read original value from $sourcePath at line $targetLine, column $targetColumn", e)
-    }
-
-    return null
 }
 
 private fun readElementText(reader: XMLStreamReader): String? {

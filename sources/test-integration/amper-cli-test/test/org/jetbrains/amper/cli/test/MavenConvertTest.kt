@@ -186,8 +186,7 @@ class MavenConvertTest : AmperCliTestBase() {
             actualContent = actualModuleFile.readText(),
             originalFile = expectedModuleFile,
         )
-
-        // TODO: until we fix AMPER-5023 PlexusConfiguration type isn't supported
+        // todo: uncomment when AMPER-5025 will be fixed
 //        val converted = testProject(buildResult.projectDir.pathString)
 //
 //        runCli(
@@ -196,6 +195,7 @@ class MavenConvertTest : AmperCliTestBase() {
 //            // warning about mockito loaded dynamically
 //            assertEmptyStdErr = false,
 //        )
+
     }
 
     @Test

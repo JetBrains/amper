@@ -39,10 +39,13 @@ mavenPlugins:
   maven-enforcer-plugin.enforce:
     enabled: true
     configuration:
-      rules:
-        requireJavaVersion:
-          message: This build requires at least Java 17, update your JVM, and run the build again
-          version: 17
+      rules: |-
+        <rules>
+          <requireJavaVersion>
+            <message>This build requires at least Java 17, update your JVM, and run the build again</message>
+            <version>17</version>
+          </requireJavaVersion>
+        </rules>
   maven-enforcer-plugin.help: enabled
   spring-javaformat-maven-plugin.apply: enabled
   spring-javaformat-maven-plugin.help: enabled

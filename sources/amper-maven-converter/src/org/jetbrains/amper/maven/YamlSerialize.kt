@@ -59,7 +59,7 @@ private fun TreeNode.serializeToYaml(indent: Int, currentPath: List<String>, com
     when (this@serializeToYaml) {
         is ListNode -> append(this@serializeToYaml.serializeToYaml(indent))
         is MappingNode -> append(this@serializeToYaml.serializeToYaml(indent, currentPath, comments))
-        is ScalarNode -> append(this@serializeToYaml.serializeToYaml())
+        is ScalarNode -> append(this@serializeToYaml.serializeToYaml(indent))
         else -> {}
     }
 }
@@ -162,7 +162,16 @@ private fun ListNode.serializeToYaml(indent: Int): String = buildString {
     }
 }
 
-private fun ScalarNode.serializeToYaml(): String = buildString {
+private fun ScalarNode.serializeToYaml(indent: Int): String = buildString {
+    if (this@serializeToYaml is StringNode && value.contains('\n')) {
+        appendLine(" |-")
+        val indentStr = "  ".repeat(indent)
+        for (line in value.lines()) {
+            append(indentStr)
+            appendLine(line)
+        }
+        return@buildString
+    }
     append(" ")
     when (this@serializeToYaml) {
         is BooleanNode -> append(value)
