@@ -46,6 +46,17 @@ internal fun ProjectTreeBuilder.contributeUnknownPlugins(
 
     reactorProjects.filterJarProjects().forEach { project ->
         module(project) {
+            val hasUnknownPlugins = project.buildPlugins.any { plugin ->
+                pluginXmlMap.containsKey("${plugin.groupId}:${plugin.artifactId}")
+            }
+
+            if (hasUnknownPlugins) {
+                addYamlComment(YamlComment(
+                    path = listOf(Module::mavenPlugins.name),
+                    beforeKeyComment = MavenConverterBundle.message("disabled.plugins.hint"),
+                ))
+            }
+
             project.buildPlugins.forEach { plugin ->
                 val pluginXml = pluginXmlMap["${plugin.groupId}:${plugin.artifactId}"]
                 if (pluginXml != null) {
@@ -128,13 +139,15 @@ private fun ProjectTreeBuilder.ModuleTreeBuilder.contributePluginMojo(
             mapping {
                 if (hasConfiguration) {
                     put(pluginKey, mapping {
-                        put(MavenMojoSettings::enabled.name, scalar("true"))
+                        put(MavenMojoSettings::enabled.name, scalar("false"))
                         put(MavenMojoSettings::configuration.name, mapping {
-                            mapConfiguration(configuration, mojo)   
+                            mapConfiguration(configuration, mojo)
                         })
                     })
                 } else {
-                    put(pluginKey, scalar("enabled")) // shorthand
+                    put(pluginKey, mapping {
+                        put(MavenMojoSettings::enabled.name, scalar("false"))
+                    })
                 }
             }
         }

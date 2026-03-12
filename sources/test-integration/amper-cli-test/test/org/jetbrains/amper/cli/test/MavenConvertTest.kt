@@ -186,16 +186,14 @@ class MavenConvertTest : AmperCliTestBase() {
             actualContent = actualModuleFile.readText(),
             originalFile = expectedModuleFile,
         )
-        // todo: uncomment when AMPER-5025 will be fixed
-//        val converted = testProject(buildResult.projectDir.pathString)
-//
-//        runCli(
-//            converted,
-//            "test",
-//            // warning about mockito loaded dynamically
-//            assertEmptyStdErr = false,
-//        )
+        val converted = testProject(buildResult.projectDir.pathString)
 
+        runCli(
+            converted,
+            "test",
+            // warning about mockito loaded dynamically
+            assertEmptyStdErr = false,
+        )
     }
 
     @Test

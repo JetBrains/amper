@@ -19,11 +19,12 @@ dependencies:
   - bom: org.springframework.boot:spring-boot-starter-parent:4.0.0
   - org.springframework.boot:spring-boot-starter:4.0.0: exported
 
+# Maven compatibility plugins are disabled by default. To enable a plugin mojo, set enabled: true.
 mavenPlugins:
   # WARNING: Plugin io.github.git-commit-id:git-commit-id-maven-plugin has goals [revision] configured in multiple executions.
   # Execution [default] was translated to Amper, but manual configuration may be required for other executions.
   git-commit-id-maven-plugin.revision:
-    enabled: true
+    enabled: false
     configuration:
       verbose: true
       generateGitPropertiesFile: true
@@ -51,7 +52,8 @@ mavenPlugins:
     #     <commitIdGenerationMode>flat</commitIdGenerationMode>
     #   </configuration>
     # </execution>
-  git-commit-id-maven-plugin.validateRevision: enabled
+  git-commit-id-maven-plugin.validateRevision:
+    enabled: false
 
 test-dependencies:
   - org.springframework.boot:spring-boot-starter-test:4.0.0

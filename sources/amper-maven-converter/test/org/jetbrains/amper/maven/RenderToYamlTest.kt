@@ -369,6 +369,38 @@ class RenderToYamlTest {
         """.trimIndent(), yaml)
     }
 
+    @Test
+    fun `maven plugins disabled`() = withTypeContext(SchemaTypingContext(emptyList(), listOf(mavenPluginXmlFixture()))) {
+        val tree = buildTree(moduleDeclaration) {
+            product {
+                type(ProductType.JVM_APP)
+            }
+            plugins(buildRawTree {
+                mapping {
+                    put("maven-surefire-plugin.test", mapping {
+                        put("enabled", scalar("false"))
+                        put("includes", list {
+                            add(scalar("*First*"))
+                        })
+                    })
+                }
+            }, unsafe = true)
+        }
+
+        val yaml = tree.serializeToYaml()
+
+        assertEquals("""
+        product: jvm/app
+
+        plugins:
+          maven-surefire-plugin.test:
+            enabled: false
+            includes:
+              - '*First*'
+
+        """.trimIndent(), yaml)
+    }
+
     private fun mavenPluginXmlFixture(): MavenPluginXml {
         val mavenPluginXml = MavenPluginXml(
             "maven-surefire-plugin",
