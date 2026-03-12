@@ -1,5 +1,12 @@
 product: jvm/lib
 
+description: |
+  Binary compatibility validation library.
+  
+  The code should ideally be kept in sync with the
+  [binary-compatibility-validator](https://github.com/Kotlin/binary-compatibility-validator/tree/master/src/main/kotlin/api)
+  plugin sources.
+
 apply:
   - ../../common.module-template.yaml
 

@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Data model for communication between Amper and delegated Android Gradle builds.
+
 apply:
   - ../../common.module-template.yaml
 

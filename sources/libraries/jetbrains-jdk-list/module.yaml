@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Library to download JDK metadata from the JetBrains JSON registry.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

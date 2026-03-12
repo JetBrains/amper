@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Maven publication support for Amper projects.
+
 apply:
   - ../common.module-template.yaml
 

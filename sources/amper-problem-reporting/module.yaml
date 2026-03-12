@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Problem reporting abstractions and utilities.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

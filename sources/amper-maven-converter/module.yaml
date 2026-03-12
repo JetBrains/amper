@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: A tool to convert Maven projects into Amper projects. The entrypoint is the `MavenProjectConvertor` class.
+
 apply:
   - ../common.module-template.yaml
 

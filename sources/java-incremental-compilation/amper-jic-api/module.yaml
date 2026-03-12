@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Model to communicate between Amper and the Java incremental compilation process.
+
 apply:
   - ../../common.module-template.yaml
 

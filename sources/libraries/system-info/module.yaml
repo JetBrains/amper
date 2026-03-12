@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Cross-platform system information accessors.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: General Kotlin standard library extensions.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

@@ -1,9 +1,14 @@
 product: jvm/amper-plugin
 
 description: |
-  A plugin to create and upload the Amper distribution. It creates an archive with all jars from the runtime classpath
-  of the Amper CLI, as well as some directories containing other independent classpaths (JUnit listeners, plugin 
-  processing, etc.). It then uploads the archive to our Maven repository.
+  A plugin to create and upload the Amper distribution.
+  
+  It creates an archive with:
+   - the runtime classpath of the Amper CLI
+   - other independent classpaths (JUnit listeners, plugin processing, etc.)
+   - shared Java arguments to run Amper
+  
+  It uploads the archive to our Maven repository or to the local repository (depending on the task that we call).
 
 apply:
   - ../../sources/common.module-template.yaml

@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: PSI support for Amperlang files, copied from IntelliJ.
+
 apply:
   - ../../../common.module-template.yaml
   - ../../../used-in-idea.module-template.yaml

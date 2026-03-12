@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Data model to represent dynamic schemas brought by user-defined plugins.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

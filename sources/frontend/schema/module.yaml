@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Amper model parser – the real Amper frontend. It contains implementations of the frontend-api.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

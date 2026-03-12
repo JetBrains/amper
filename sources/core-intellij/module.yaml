@@ -1,5 +1,9 @@
 product: jvm/lib
 
+description: |
+  A single place to call IntelliJ Platform APIs. 
+  Other modules should avoid calling IJ APIs directly, and avoid dependencies on IJ platform artifacts.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

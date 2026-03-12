@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Integration test utilities for the Amper backend.
+
 dependencies:
   - ../../amper-cli
   - ../../core

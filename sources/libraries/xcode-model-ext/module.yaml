@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Extensions for working with Xcode models.
+
 apply:
   - ../../common.module-template.yaml
 

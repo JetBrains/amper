@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Contains tests to enforce rules in the Amper project itself.
+
 apply:
   - ../sources/common.module-template.yaml
 

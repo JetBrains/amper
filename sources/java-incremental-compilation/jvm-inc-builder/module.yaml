@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Java incremental compilation implementation, mostly copy-pasted from IntelliJ sources.
+
 apply:
   - ../../common.module-template.yaml
   - ../jps.module-template.yaml

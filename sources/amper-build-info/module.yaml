@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Provides a generated `AmperBuild` class with build information such as version, date, git commit, etc.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

@@ -1,5 +1,10 @@
 product: jvm/lib
 
+description: |
+  An executable that runs Java incremental compilation.
+  
+  It runs the compilation in-process, so it's expected to be run as a separate process itself (using a JDK as runtime).
+
 apply:
   - ../../common.module-template.yaml
 

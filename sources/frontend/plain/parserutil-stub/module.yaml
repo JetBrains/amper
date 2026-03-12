@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Minimum dependencies of PSI parsers, copied from IntelliJ IDEA.
+
 apply:
   - ../../../common.module-template.yaml
   - ../../../used-in-idea.module-template.yaml

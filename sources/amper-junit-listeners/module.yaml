@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: JUnit listeners used by Amper test execution.
+
 apply:
   - ../common.module-template.yaml
 

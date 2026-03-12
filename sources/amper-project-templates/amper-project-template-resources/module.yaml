@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: A serializable Kotlin model for the JSON index of Amper project templates.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

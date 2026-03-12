@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Contains template definitions that can be used to generate Amper projects (e.g. in `./amper init`).
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

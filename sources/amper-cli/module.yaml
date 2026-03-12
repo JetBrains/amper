@@ -1,5 +1,7 @@
 product: jvm/app
 
+description: The Amper command-line application.
+
 apply:
   - ../common.module-template.yaml
 

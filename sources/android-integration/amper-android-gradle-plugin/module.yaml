@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: A gradle plugin to handle Android builds that are delegated from Amper.
+
 apply:
   - ../../common.module-template.yaml
 

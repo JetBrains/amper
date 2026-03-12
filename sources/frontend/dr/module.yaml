@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Amper-aware dependency resolution library, based on the Amper-agnostic resolver.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

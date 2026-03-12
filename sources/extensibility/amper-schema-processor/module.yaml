@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: An executable processor that generates plugin descriptors from plugin sources.
+
 apply:
   - ../../common.module-template.yaml
   - ../uses-aa.module-template.yaml

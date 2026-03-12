@@ -5,6 +5,8 @@
 
 product: jvm/lib
 
+description: Dependency resolution engine for Maven dependencies with Kotlin Multiplatform support.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

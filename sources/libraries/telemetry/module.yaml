@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Kotlin extensions and coroutines integration for OpenTelemetry.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

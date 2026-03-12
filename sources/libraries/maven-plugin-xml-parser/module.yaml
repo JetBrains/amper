@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Parser utilities for Maven plugin XML descriptors.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

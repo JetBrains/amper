@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Amper wrapper scripts generator.
+
 apply:
   - ../common.module-template.yaml
 

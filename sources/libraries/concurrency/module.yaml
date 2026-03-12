@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Coroutines-friendly concurrency and locking utilities.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

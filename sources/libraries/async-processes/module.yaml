@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Utilities for running processes with a coroutines-friendly API.
+
 apply:
   - ../../common.module-template.yaml
 

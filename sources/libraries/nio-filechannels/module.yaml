@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Kotlin extensions for Java's `FileChannel`.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

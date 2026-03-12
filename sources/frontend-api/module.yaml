@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: The Amper project model API, meant to be used by the CLI and IDEs.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

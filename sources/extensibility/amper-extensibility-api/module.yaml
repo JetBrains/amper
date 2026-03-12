@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Public API for extending Amper with custom plugins and tasks.
+
 apply:
   - ../../common.module-template.yaml
   - ../../detekt.module-template.yaml

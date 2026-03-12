@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Additional serializers for kotlinx.serialization.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

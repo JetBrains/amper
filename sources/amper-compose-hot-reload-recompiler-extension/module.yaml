@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Compose Hot Reload recompiler integration used by the Amper CLI.
+
 apply:
   - ../common.module-template.yaml
 

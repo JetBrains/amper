@@ -1,5 +1,10 @@
 product: jvm/lib
 
+description: |
+  Zip archiving and I/O utilies, mostly copy-pasted from IntelliJ sources.
+
+  This module is required by the Java incremental compiler but not published as a library yet.
+
 apply:
   - ../../common.module-template.yaml
   - ../jps.module-template.yaml

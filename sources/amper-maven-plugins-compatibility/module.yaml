@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Downloads and loads metadata of Maven plugins.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml

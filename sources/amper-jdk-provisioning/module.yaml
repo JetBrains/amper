@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: JDK provisioning and discovery support for Amper.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml # the IDE needs to provision JDKs to set them in the workspace model

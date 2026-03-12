@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Tests that verify the Amper bootstrap mechanism in the Amper wrapper scripts.
+
 apply:
   - ../../common.module-template.yaml
 

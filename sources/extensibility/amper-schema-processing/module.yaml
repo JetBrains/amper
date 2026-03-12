@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Utilities to extract the plugins' schemas from their Kotlin code.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

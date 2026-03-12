@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Incremental cache abstractions and utilities.
+
 apply:
   - ../../common.module-template.yaml
   - ../../used-in-idea.module-template.yaml

@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: Integration tests for the fully-packaged Amper CLI.
+
 apply:
   - ../../common.module-template.yaml
 

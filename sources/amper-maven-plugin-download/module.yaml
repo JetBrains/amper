@@ -1,5 +1,7 @@
 product: jvm/lib
 
+description: A simple utility to download Maven plugins based on their coordinates.
+
 apply:
   - ../common.module-template.yaml
   - ../used-in-idea.module-template.yaml
