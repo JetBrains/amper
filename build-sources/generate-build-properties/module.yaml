@@ -1,5 +1,7 @@
 product: jvm/amper-plugin
 
+description: A plugin to generate an `AmperBuild` class with build information such as version, date, git commit, etc.
+
 apply:
   - ../../sources/common.module-template.yaml
 

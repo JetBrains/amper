@@ -1,5 +1,7 @@
 product: jvm/amper-plugin
 
+description: A plugin to generate the Amper schema implementation from our frontend-api interfaces.
+
 apply:
   - ../../sources/common.module-template.yaml
 

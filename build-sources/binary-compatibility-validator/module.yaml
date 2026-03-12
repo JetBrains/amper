@@ -1,5 +1,7 @@
 product: jvm/amper-plugin
 
+description: A plugin to validate the binary compatibility of libraries.
+
 apply:
   - ../../sources/common.module-template.yaml
 

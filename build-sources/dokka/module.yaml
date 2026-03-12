@@ -1,17 +1,18 @@
 product: jvm/amper-plugin
 
+description: |
+  A plugin to run Dokka, similar to the Dokka Gradle plugin.
+  
+  Doesn't support KMP.
+  
+  Not all Dokka settings are exposed through the plugin settings; if you need to add other supported settings, refer to
+  the [official docs](https://kotlinlang.org/docs/dokka-cli.html#json-configuration).
+
 apply:
   - ../../sources/common.module-template.yaml
 
 pluginInfo:
   settingsClass: org.jetbrains.amper.plugins.dokka.DokkaSettings
-  description: |
-    Amper version of the Dokka plugin.
-    
-    Doesn't support KMP.
-    
-    Not all available settings are exposed here; if you need to expose some other supported settings, refer to
-    the [official docs](https://kotlinlang.org/docs/dokka-cli.html#json-configuration).
 
 settings:
   kotlin:

@@ -1,5 +1,7 @@
 product: jvm/amper-plugin
 
+description: A plugin to run the Detekt linter.
+
 apply:
   - ../../sources/common.module-template.yaml
 

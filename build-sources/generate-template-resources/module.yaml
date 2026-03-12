@@ -1,5 +1,9 @@
 product: jvm/amper-plugin
 
+description: |
+  A plugin to generate an index file for Amper project templates.
+  This can be used by the CLI and IDE to list the available templates.
+
 apply:
   - ../../sources/common.module-template.yaml
 
