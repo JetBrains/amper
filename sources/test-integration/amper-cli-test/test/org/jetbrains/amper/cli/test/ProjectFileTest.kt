@@ -21,7 +21,7 @@ class ProjectFileTest : AmperCliTestBase() {
 
     @Test
     fun modules() = runSlowTest {
-        val r = runCli(testProject("simple-multiplatform-cli"), "show", "modules")
+        val r = runCli(testProject("simple-multiplatform-cli"), "show", "modules", "--format=plain")
 
         assertModulesList(r, listOf(
             "js-cli",
@@ -38,10 +38,10 @@ class ProjectFileTest : AmperCliTestBase() {
 
     @Test
     fun `single-module project under an unrelated project`() = runSlowTest {
-        val resultNested = runCli(testProject("nested-project-root") / "nested-project", "show", "modules")
+        val resultNested = runCli(testProject("nested-project-root") / "nested-project", "show", "modules", "--format=plain")
         assertModulesList(resultNested, listOf("nested-project"))
 
-        val resultRoot = runCli(testProject("nested-project-root"), "show", "modules")
+        val resultRoot = runCli(testProject("nested-project-root"), "show", "modules", "--format=plain")
         assertModulesList(resultRoot, listOf("included-module"))
     }
 
@@ -54,19 +54,19 @@ class ProjectFileTest : AmperCliTestBase() {
 
     @Test
     fun `project including a deep module`() = runSlowTest {
-        val result = runCli(testProject("project-root-deep-inclusion"), "show", "modules")
+        val result = runCli(testProject("project-root-deep-inclusion"), "show", "modules", "--format=plain")
         assertModulesList(result, listOf("deep-module"))
     }
 
     @Test
     fun `project with denormalized globs`() = runSlowTest {
-        val result = runCli(testProject("project-root-denormalized-globs"), "show", "modules")
+        val result = runCli(testProject("project-root-denormalized-globs"), "show", "modules", "--format=plain")
         assertModulesList(result, listOf("deep", "deep2", "sub1", "sub2", "sub3", "sub4"))
     }
 
     @Test
     fun `project with both top-level and nested modules`() = runSlowTest {
-        val result = runCli(testProject("top-level-and-nested-modules"), "show", "modules")
+        val result = runCli(testProject("top-level-and-nested-modules"), "show", "modules", "--format=plain")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
     }
 
