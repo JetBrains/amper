@@ -720,7 +720,7 @@ class MavenDependencyImpl internal constructor(
                                 }
                             }
                         }
-                    packaging?.takeIf { it != "pom" }?.let { packagingTypeFromPom ->
+                    packaging?.takeIf { it != "pom" && !isBom }?.let { packagingTypeFromPom ->
                         val nameWithoutExtension = getNameWithoutExtension(dependency)
 
                         val extension = resolveArtifactExtension(packagingTypeFromPom)

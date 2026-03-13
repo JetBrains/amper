@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.dependency.resolution.MavenRepository.Companion.MavenCentral
 import org.jetbrains.amper.dependency.resolution.diagnostics.BomDeclaredAsRegularDependency
 import org.jetbrains.amper.dependency.resolution.diagnostics.DependencyResolutionDiagnostics
 import org.jetbrains.amper.dependency.resolution.diagnostics.PlatformsAreNotSupported
@@ -1124,6 +1125,42 @@ class BuildGraphTest : BaseDRTest() {
         )
 
         doTest(root, verifyMessages = true)
+    }
+
+    /**
+     * This test checks that if Gradle metadata of a library declares dependency on Maven BOM (via 'platform' category),
+     * the DR doesn't expect BOM jar to exist
+     * (it doesn't attach a BOM file to the [MavenDependencyNode] and doesn't try to download it).
+     *
+     * Before the fix of https://youtrack.jetbrains.com/issue/AMPER-5196,
+     * the file asm-bom.jar was added as an artifact of the related graph node,
+     * but it is absent in the remote repository (as expected since it is BOM) which leaded to the diagnostic ERROR.
+     *
+     * The issue was caused by the fact that pom.xml of published asm-bom lacks packagingType, and
+     * thus is treated as jar by default.
+     * This is a publiation mistake (sine BOM should be published with pachagingType=pom).
+     * However, DR should not add a jar to the node corresponding to a BOM anyway
+     * even if such a jar is presented in the remote repository (which would have been a publication mistake as well).
+     */
+    @Test
+    fun `check gradle metadata dependency on maven bom published without packaging type`(testInfo: TestInfo) = runSlowDrTest {
+        val root = doTestByFile(
+            testInfo,
+            repositories = listOf(
+                MavenCentral,
+                MavenRepository("https://www.jetbrains.com/intellij-repository/releases"),
+                MavenRepository("https://cache-redirector.jetbrains.com/intellij-dependencies"),
+                MavenRepository("https://download.jetbrains.com/teamcity-repository"),
+                MavenRepository("https://packages.jetbrains.team/maven/p/dpgpv/maven"),
+                MavenRepository("https://packages.jetbrains.team/maven/p/grazi/grazie-platform-public"),
+            ),
+            scope = ResolutionScope.RUNTIME,
+            dependency = listOf(
+                "com.github.ben-manes.caffeine:caffeine:3.1.2",
+            ),
+        )
+
+        downloadAndAssertFiles(testInfo, root)
     }
 
     @Test

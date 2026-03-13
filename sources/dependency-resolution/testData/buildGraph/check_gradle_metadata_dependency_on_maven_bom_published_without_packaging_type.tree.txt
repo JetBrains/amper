@@ -1,0 +1,7 @@
+root
+╰─── com.github.ben-manes.caffeine:caffeine:3.1.2
+     ├─── org.jetbrains.kotlin:kotlin-bom:1.7.21
+     ├─── org.junit:junit-bom:5.9.1
+     ├─── org.ow2.asm:asm-bom:9.4
+     ├─── org.checkerframework:checker-qual:3.27.0
+     ╰─── com.google.errorprone:error_prone_annotations:2.16
