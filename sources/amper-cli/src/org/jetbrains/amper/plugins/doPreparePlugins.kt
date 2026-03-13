@@ -16,6 +16,7 @@ import org.jetbrains.amper.incrementalcache.IncrementalCache
 import org.jetbrains.amper.incrementalcache.executeForSerializable
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jvm.getDefaultJdk
+import org.jetbrains.amper.lazyload.ExtraClasspath
 import org.jetbrains.amper.plugins.schema.model.PluginData
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse
 import org.jetbrains.amper.plugins.schema.model.PluginDataResponse.DiagnosticKind
@@ -45,9 +46,6 @@ internal suspend fun doPreparePlugins(
     processRunner: ProcessRunner,
 ): List<PluginData> {
     require(plugins.isNotEmpty())
-    val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
-        "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
-    })
 
     return incrementalCache.executeForSerializable(
         key = "prepare-plugins",
@@ -58,8 +56,8 @@ internal suspend fun doPreparePlugins(
     ) {
         // TODO maybe force plugin modules to use a JDK aligned with Amper's runtime instead, and use it here
         val jdk = jdkProvider.getDefaultJdk()
-        val toolClasspath = distributionRoot.resolve("plugins-processor").listDirectoryEntries("*.jar")
-        val apiClasspath = distributionRoot.resolve("extensibility-api").listDirectoryEntries("*.jar")
+        val toolClasspath = ExtraClasspath.PLUGINS_PROCESSOR.findJarsInDistribution()
+        val apiClasspath = ExtraClasspath.EXTENSIBILITY_API.findJarsInDistribution()
         val outputCaptor = ProcessOutputListener.InMemoryCapture()
         val request = PluginDeclarationsRequest(
             jdkPath = jdk.homeDir,

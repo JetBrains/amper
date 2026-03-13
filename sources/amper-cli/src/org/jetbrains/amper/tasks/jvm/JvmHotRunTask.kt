@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks.jvm
@@ -25,6 +25,7 @@ import org.jetbrains.amper.jdk.provisioning.Jdk
 import org.jetbrains.amper.jdk.provisioning.JdkProvider
 import org.jetbrains.amper.jdk.provisioning.JdkProvisioningCriteria
 import org.jetbrains.amper.jdk.provisioning.orElse
+import org.jetbrains.amper.lazyload.ExtraClasspath
 import org.jetbrains.amper.run.ToolingArtifactsDownloader
 import org.jetbrains.amper.tasks.JvmMainRunSettings
 import org.jetbrains.amper.tasks.TaskResult
@@ -86,11 +87,7 @@ class JvmHotRunTask(
         val agent = agentClasspath.singleOrNull { it.name.startsWith("hot-reload-agent") }
                 ?: error("Can't find hot-reload-agent in agent classpath:\n${agentClasspath.joinToString("\n")}")
 
-        val distributionRoot = Path(checkNotNull(System.getProperty("amper.dist.path")) {
-            "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
-        })
-
-        val recompilerExtensionClasspath = distributionRoot.resolve("recompiler-extension").listDirectoryEntries("*.jar")
+        val recompilerExtensionClasspath = ExtraClasspath.RECOMPILER_EXTENSION.findJarsInDistribution()
 
         val devToolsClasspath = toolingArtifactsDownloader.downloadDevTools(
             hotReloadVersion = composeSettingsJvm.experimental.hotReload.version,
