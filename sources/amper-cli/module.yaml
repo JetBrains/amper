@@ -95,6 +95,7 @@ plugins:
       "extensibility-api": [ ../extensibility/amper-extensibility-api ]
       "recompiler-extension": [ ../amper-compose-hot-reload-recompiler-extension ]
       "amper-jic-runner": [ ../java-incremental-compilation/amper-jic-runner ]
+      "kotlin-build-tools-compat": [ $libs.kotlin.buildToolsCompat ]
     embedClasspathAsResources:
       classpath: [ ../amper-junit-listeners ]
       resourceDirName: "junit-listeners"

@@ -9,7 +9,6 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setFragments
@@ -25,7 +24,6 @@ import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.plus
 import org.jetbrains.amper.compilation.serializableCompilationSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
-import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.BuildTask
@@ -60,8 +58,10 @@ import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
-import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.buildtools.api.KotlinToolchains
+import org.jetbrains.kotlin.buildtools.api.getToolchain
+import org.jetbrains.kotlin.buildtools.api.jvm.JvmPlatformToolchain
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
@@ -69,6 +69,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
@@ -80,7 +81,6 @@ internal class JvmCompileTask(
     override val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
-    private val projectRoot: AmperProjectRoot,
     private val tempRoot: AmperProjectTempRoot,
     override val taskName: TaskName,
     private val incrementalCache: IncrementalCache,
@@ -324,7 +324,7 @@ internal class JvmCompileTask(
         additionalSourceRoots: List<SourceRoot>,
         friendPaths: List<Path>,
     ) {
-        val compilationService = CompilationService.loadMaybeCachedImpl(
+        val kotlinToolchains = KotlinToolchains.loadMaybeCachedImpl(
             kotlinVersion = userSettings.kotlin.compilerVersion,
             downloader = kotlinArtifactsDownloader,
         )
@@ -332,14 +332,11 @@ internal class JvmCompileTask(
         // TODO should we allow users to choose in-process vs daemon?
         // TODO settings for daemon JVM args?
         // FIXME Daemon strategy currently fails with "Can't get connection"
-        val executionConfig = compilationService.makeCompilerExecutionStrategyConfiguration()
-            .useInProcessStrategy()
-            //.useDaemonStrategy(jvmArguments = emptyList())
+        val executionPolicy = kotlinToolchains.createInProcessExecutionPolicy()
 
-        // TODO configure incremental compilation here
         val errorsCollector = ErrorsCollectorKotlinLogger()
-        val compilationConfig = compilationService.makeJvmCompilationConfiguration()
-            .useLogger(logger.asKotlinLogger() + errorsCollector)
+        val compilationLogger = logger.asKotlinLogger() + errorsCollector
+        sourceFiles.first().invariantSeparatorsPathString
 
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(userSettings.kotlin.compilerPlugins)
 
@@ -363,19 +360,25 @@ internal class JvmCompileTask(
             .setAttribute("compiler-version", userSettings.kotlin.compilerVersion)
             .use {
                 logger.info("Compiling module '${module.userReadableName}' for platform '${platform.pretty}'...")
-                // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
-                val projectId = projectRoot.toKotlinProjectId()
-                val compilationResult = compilationService.compileJvm(
-                    projectId = projectId,
-                    strategyConfig = executionConfig,
-                    compilationConfig = compilationConfig,
-                    sources = sourceFiles.map { it.toFile() },
-                    arguments = compilerArgs,
-                )
-
-                logger.debug("Kotlin compiler finalization...")
-                compilationService.finishProjectCompilation(projectId)
-                compilationResult
+                // TODO capture compiler errors/warnings in incremental result
+                // TODO maybe share the build session with the whole Amper build (across all JVM compile tasks)?
+                kotlinToolchains.createBuildSession().use {
+                    val compilationOperation = kotlinToolchains.getToolchain<JvmPlatformToolchain>()
+                        .createJvmCompilationOperation(
+                            sources = sourceFiles,
+                            destinationDirectory = compiledJvmArtifact.kotlinCompilerOutputRoot,
+                        ).apply {
+                            compilerArguments.applyArgumentStrings(compilerArgs)
+                            // TODO configure incremental compilation here
+//                            set(JvmCompilationOperation.INCREMENTAL_COMPILATION,
+//                                JvmSnapshotBasedIncrementalCompilationConfiguration())
+                        }
+                    it.executeOperation(
+                        operation = compilationOperation,
+                        executionPolicy = executionPolicy,
+                        logger = compilationLogger,
+                    )
+                }
             }
 
         if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {

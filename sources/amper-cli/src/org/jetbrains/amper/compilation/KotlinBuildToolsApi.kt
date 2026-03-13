@@ -4,49 +4,20 @@
 
 package org.jetbrains.amper.compilation
 
-import org.jetbrains.amper.cli.AmperProjectRoot
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
-import org.jetbrains.kotlin.buildtools.api.CompilationService
+import org.jetbrains.amper.lazyload.ExtraClasspath
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
-import org.jetbrains.kotlin.buildtools.api.ProjectId
+import org.jetbrains.kotlin.buildtools.api.KotlinToolchains
+import org.jetbrains.kotlin.buildtools.api.SharedApiClassesClassLoader
 import org.slf4j.Logger
 import java.net.URL
 import java.net.URLClassLoader
-import java.util.*
 import javax.annotation.concurrent.ThreadSafe
-import kotlin.io.path.absolutePathString
 
-/**
- * Converts this [AmperProjectRoot] to a [ProjectId] for the needs of the Kotlin compiler.
- *
- * The [ProjectId] for the Kotlin compiler needs to be unique per "root" project (not per module).
- * This is why the absolute path seems reasonable at the moment.
- */
 @OptIn(ExperimentalBuildToolsApi::class)
-internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
-    val rootProjectLocallyUniqueName = path.absolutePathString()
-    return ProjectId.ProjectUUID(UUID.nameUUIDFromBytes(rootProjectLocallyUniqueName.toByteArray()))
-}
-
-/**
- * Loads the Kotlin Build Tools [CompilationService] implementation in the given [kotlinVersion], downloading it if
- * necessary. This operation is thread-safe so that the same compiler version is never downloaded twice, even if
- * requested concurrently.
- */
-@Suppress("DEPRECATION") // https://youtrack.jetbrains.com/issue/AMPER-5113/Switch-to-the-new-Build-Tools-API
-@OptIn(ExperimentalBuildToolsApi::class)
-internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
-    kotlinVersion: String,
-    downloader: KotlinArtifactsDownloader,
-): CompilationService {
-    val classLoader = KotlinBuildToolsClassLoaderCache.computeIfAbsent(kotlinVersion) {
-        val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion)
-        val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray<URL>()
-        URLClassLoader("KotlinBuildToolsImplClassLoader-$kotlinVersion", urls, CompilationService::class.java.classLoader)
-    }
-    return loadImplementation(classLoader)
-}
+private val sharedBTAClassLoader by lazy { SharedApiClassesClassLoader() }
 
 // TODO add a mechanism (like Gradle BuildService) that allows us to know when no more tasks will need these
 //  classloaders, so we know when to close them. At the moment they are closed when Amper exits.
@@ -57,6 +28,29 @@ internal suspend fun CompilationService.Companion.loadMaybeCachedImpl(
 // There are usually very few different versions of Kotlin in the same project, but they collide easily with less
 // than 64 stripes (for example "1.8.20" and "1.9.21" hashes collide even with 32 stripes)
 private val KotlinBuildToolsClassLoaderCache = AsyncConcurrentMap<String, ClassLoader>(stripeCount = 64)
+
+/**
+ * Loads the [KotlinToolchains] implementation in the given [kotlinVersion], downloading it if necessary. This
+ * operation is thread-safe so that the same compiler version is never downloaded twice, even if requested concurrently.
+ */
+@OptIn(ExperimentalBuildToolsApi::class)
+internal suspend fun KotlinToolchains.Companion.loadMaybeCachedImpl(
+    kotlinVersion: String,
+    downloader: KotlinArtifactsDownloader,
+): KotlinToolchains {
+    val classLoader = KotlinBuildToolsClassLoaderCache.computeIfAbsent(kotlinVersion) {
+        val effectiveJars = buildList {
+            addAll(downloader.downloadKotlinBuildToolsImpl(kotlinVersion))
+
+            if (ComparableVersion(kotlinVersion) < ComparableVersion("2.3.0")) {
+                addAll(ExtraClasspath.KOTLIN_BUILD_TOOLS_COMPAT.findJarsInDistribution())
+            }
+        }
+        val urls = effectiveJars.map { it.toUri().toURL() }.toTypedArray<URL>()
+        URLClassLoader("KotlinToolchainsClassLoader-$kotlinVersion", urls, sharedBTAClassLoader)
+    }
+    return loadImplementation(classLoader)
+}
 
 /**
  * Adapts this SLF4J [Logger] to the [KotlinLogger] interface, for usage in the Kotlin Build Tools API.
@@ -77,14 +71,10 @@ fun Logger.asKotlinLogger(): KotlinLogger {
 
         override fun debug(msg: String) = slf4jLogger.debug(msg)
         override fun lifecycle(msg: String) = slf4jLogger.info(msg)
+        override fun info(msg: String) = slf4jLogger.info(msg)
         override fun warn(msg: String) = slf4jLogger.warn(msg)
         override fun warn(msg: String, throwable: Throwable?) = slf4jLogger.warn(msg, throwable)
         override fun error(msg: String, throwable: Throwable?) = slf4jLogger.error(msg, throwable)
-
-        // We map the compiler info logs to Amper's debug level as a workaround for KT-74041
-        // (the Build Tools API logs compiler args at INFO levels and it spams the output)
-        // TODO replace with info() call once the Build Tools API is fixed
-        override fun info(msg: String) = slf4jLogger.debug(msg)
     }
 }
 

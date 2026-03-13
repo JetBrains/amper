@@ -90,6 +90,7 @@ kotlin-analysis-api-k2-for-ide = { module = "org.jetbrains.kotlin:analysis-api-k
 kotlin-analysis-api-platform-interface-for-ide = { module = "org.jetbrains.kotlin:analysis-api-platform-interface-for-ide", version.ref = "kotlin" }
 kotlin-analysis-api-standalone-for-ide = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin" }
 kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api", version.ref = "kotlin" }
+kotlin-buildToolsCompat = { module = "org.jetbrains.kotlin:kotlin-build-tools-compat", version.ref = "kotlin" }
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
