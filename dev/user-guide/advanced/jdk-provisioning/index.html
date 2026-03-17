@@ -28,7 +28,7 @@ This page describes how this can be configured to suit your needs.
       
       
       <link rel="icon" href="../../../images/amper-icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
   
@@ -2651,9 +2651,8 @@ that the vendor is in the allowed <code>distributions</code>.</p>
 the consequence depends on the selection mode (in <code>auto</code> mode, Amper will provision a JDK; in <code>javaHome</code> mode, the 
 build will fail).</p>
 <h2 id="provisioning-mechanism">Provisioning mechanism<a class="headerlink" href="#provisioning-mechanism" title="Permanent link">&para;</a></h2>
-<p>When Amper decides to provision a JDK, it uses the <a href="https://github.com/foojayio/discoapi">Foojay Discovery API</a> to 
-find the latest available JDK for the requested major version on your current OS/architecture, for each of the accepted
-distributions (if specified).</p>
+<p>When Amper decides to provision a JDK, it fetches metadata about JDKs, and finds the latest available JDK for the 
+requested major version on your current OS/architecture, for each of the accepted distributions (if specified).</p>
 <p>Among all JDKs found, Amper will prefer the distribution that appears first in <code>settings.jvm.jdk.distributions</code> or in
 the default list. The default list is ordered this way:</p>
 <ul>
@@ -2663,23 +2662,20 @@ the default list. The default list is ordered this way:</p>
 <li>JetBrains Runtime</li>
 <li>Oracle OpenJDK</li>
 <li>Microsoft</li>
-<li>BiSheng</li>
 <li>Alibaba Dragonwell</li>
-<li>Tencent Kona</li>
 <li>BellSoft Liberica</li>
-<li>Perforce OpenLogic</li>
 <li>SapMachine</li>
 <li>IBM Semeru Open Edition</li>
-<li>Oracle JDK (<img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> requires license)</li>
-<li>Azul Zulu Prime (<img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> requires license)</li>
-<li>IBM Semeru Certified (<img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> requires license)</li>
+<li>GraalVM Community Edition</li>
+<li>Oracle GraalVM (<img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> requires license)</li>
 </ul>
 <h2 id="licensing">Licensing<a class="headerlink" href="#licensing" title="Permanent link">&para;</a></h2>
 <p>Some JDK vendors require a commercial license for using some of their distributions in production.
 Amper will let you know if you're trying to use such a distribution, and won't let you do it by accident.</p>
 <p>If you want to use Amper with such a distribution, you must make sure you understand the terms of the license, and have
 the appropriate contracts or agreements with the vendor.</p>
-<p>If you do, acknowledge the license by adding the distribution name to <code>settings.jvm.jdk.acknowledgedLicenses</code>.</p>
+<p>If you do, acknowledge the license by adding the distribution name to <code>settings.jvm.jdk.acknowledgedLicenses</code> (see 
+examples below).</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="specific-major-version">Specific major version<a class="headerlink" href="#specific-major-version" title="Permanent link">&para;</a></h3>
 <p>With the following configuration, Amper will use the <code>JAVA_HOME</code> JDK if it's any JDK 17.
@@ -2754,7 +2750,7 @@ suitable.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 17, 2026 13:16:49 UTC">March 17, 2026</span>
   </span>
 
     
