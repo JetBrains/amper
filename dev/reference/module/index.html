@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../images/amper-icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
   
@@ -3128,9 +3128,11 @@ Read more in the <a href="../../user-guide/testing/">Testing</a> section.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.postgresql:postgresql:42.3.3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
 </code></pre></div>
 <h2 id="description"><code>description</code><a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
-<p>The description of the module.</p>
-<p>It can be used in CLI introspection commands (<code>./amper show modules</code>) or in UIs to show information about modules.
-For libraries, it also used as a description in published metadata by default.</p>
+<p>An optional description of the module. This description supports Markdown formatting and can span multiple lines.</p>
+<p>When writing multiline descriptions, the first line should act as a short summary that can stand on its own, like 
+commit messages. Only the first line is displayed by default in <code>./amper show modules</code>.</p>
+<p>This description is used by the CLI and by IDEs to show information about the module.
+For libraries, it is also used as a description in published metadata by default.</p>
 <h2 id="layout"><code>layout</code><a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <p>The <code>layout</code> defines the module file structure. Valid values:</p>
 <ul>
@@ -4278,7 +4280,7 @@ which allows processing Kotlin source code with custom processors (usually to ge
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 18, 2026 17:11:42 UTC">March 18, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 19, 2026 15:44:52 UTC">March 19, 2026</span>
   </span>
 
     
