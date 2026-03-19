@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Kotlin Serialization is the official multiplatform and multi-format serialization library for Kotlin.
+        <meta name="description" content="kotlinx.rpc is a Kotlin Multiplatform library providing tools to implement Remote Procedure Calls (RPC) easily. 
 Amper provides support for it out of the box.
 ">
       
@@ -14,10 +14,10 @@ Amper provides support for it out of the box.
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/">
+        <link rel="canonical" href="https://amper.org/dev/user-guide/builtin-tech/kotlinx-rpc/">
       
       
-        <link rel="prev" href="../compose-multiplatform/">
+        <link rel="prev" href="../kotlinx-serialization/">
       
       
         <link rel="next" href="../ktor/">
@@ -33,7 +33,7 @@ Amper provides support for it out of the box.
   
     
       
-        <title>Kotlin Serialization - Amper</title>
+        <title>Kotlinx RPC - Amper</title>
       
     
   
@@ -82,21 +82,21 @@ Amper provides support for it out of the box.
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Kotlin Serialization - Amper" />
-<meta property="og:description" content="Kotlin Serialization is the official multiplatform and multi-format serialization library for Kotlin.
+<meta property="og:title" content="Kotlinx RPC - Amper" />
+<meta property="og:description" content="kotlinx.rpc is a Kotlin Multiplatform library providing tools to implement Remote Procedure Calls (RPC) easily. 
 Amper provides support for it out of the box.
 " />
-<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlin-serialization.png" />
+<meta property="og:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlinx-rpc.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/dev/user-guide/builtin-tech/kotlin-serialization/" />
+<meta property="og:url" content="https://amper.org/dev/user-guide/builtin-tech/kotlinx-rpc/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Kotlin Serialization - Amper" />
-<meta property="twitter:description" content="Kotlin Serialization is the official multiplatform and multi-format serialization library for Kotlin.
+<meta property="twitter:title" content="Kotlinx RPC - Amper" />
+<meta property="twitter:description" content="kotlinx.rpc is a Kotlin Multiplatform library providing tools to implement Remote Procedure Calls (RPC) easily. 
 Amper provides support for it out of the box.
 " />
-<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlin-serialization.png" />
+<meta property="twitter:image" content="https://amper.org/dev/assets/images/social/user-guide/builtin-tech/kotlinx-rpc.png" />
 </head>
   
   
@@ -116,7 +116,7 @@ Amper provides support for it out of the box.
     <div data-md-component="skip">
       
         
-        <a href="#kotlin-serialization" class="md-skip">
+        <a href="#kotlinx-rpc" class="md-skip">
           Skip to content
         </a>
       
@@ -158,7 +158,7 @@ Amper provides support for it out of the box.
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kotlin Serialization
+              Kotlinx RPC
             
           </span>
         </div>
@@ -1229,6 +1229,8 @@ Amper provides support for it out of the box.
       
         
       
+        
+      
     
     
     
@@ -1304,6 +1306,34 @@ Amper provides support for it out of the box.
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../kotlinx-serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kotlinx Serialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1316,24 +1346,6 @@ Amper provides support for it out of the box.
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Kotlin Serialization
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1341,7 +1353,7 @@ Amper provides support for it out of the box.
   <span class="md-ellipsis">
     
   
-    Kotlin Serialization
+    Kotlinx RPC
   
 
     
@@ -1350,36 +1362,6 @@ Amper provides support for it out of the box.
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#more-control-over-serialization-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        More control over serialization formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -2266,25 +2248,6 @@ Amper provides support for it out of the box.
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#more-control-over-serialization-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        More control over serialization formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2300,7 +2263,7 @@ Amper provides support for it out of the box.
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/builtin-tech/kotlin-serialization.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/main/docs/src/user-guide/builtin-tech/kotlinx-rpc.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2308,74 +2271,25 @@ Amper provides support for it out of the box.
   
 
 
-<h1 id="kotlin-serialization">Kotlin Serialization<a class="headerlink" href="#kotlin-serialization" title="Permanent link">&para;</a></h1>
-<p><a href="https://github.com/Kotlin/kotlinx.serialization">Kotlin Serialization</a> is the official multiplatform and multi-format
-serialization library for Kotlin.</p>
-<p>If you need to (de)serialize Kotlin classes to/from JSON, you can enable Kotlin Serialization it in its simplest form:
+<h1 id="kotlinx-rpc"><span class="twemoji"><?xml version="1.0" encoding="UTF-8"?><!--
+  - Copyright 2023-2024 JetBrains s.r.o and contributors. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
+<svg id="Layer_2_copy_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256"><defs><linearGradient id="linear-gradient" x1="273.1916635252" y1="131.4789077095" x2="135.9175011362" y2="126.1650691654" gradientTransform="translate(226.2670856044 -91.4213216628) rotate(66.1504459827)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c600f0"/><stop offset=".9979332011" stop-color="#070093"/></linearGradient><linearGradient id="linear-gradient-2" x1="263.5900258964" y1="164.5714288279" x2="24.4672914124" y2="164.5714288279" gradientUnits="userSpaceOnUse"><stop offset=".0032655423" stop-color="#ff5f99"/><stop offset=".9946469907" stop-color="#c200f1"/></linearGradient><linearGradient id="linear-gradient-3" x1="263.5900258964" y1="54.8571493007" x2="24.4672914124" y2="54.8571493006" xlink:href="#linear-gradient-2"/><linearGradient id="linear-gradient-4" x1="263.5900258964" y1="201.142855337" x2="24.4672914123" y2="201.142855337" xlink:href="#linear-gradient-2"/><linearGradient id="linear-gradient-5" x1="263.5900258964" y1="91.4285758098" x2="24.4672914124" y2="91.4285758098" xlink:href="#linear-gradient-2"/><linearGradient id="linear-gradient-6" x1="263.5900258964" y1="128.0000023189" x2="24.4672914124" y2="128.0000023188" xlink:href="#linear-gradient-2"/><linearGradient id="linear-gradient-7" x1="263.5900258964" y1="91.4285758098" x2="24.4672914124" y2="91.4285758097" xlink:href="#linear-gradient-2"/><linearGradient id="linear-gradient-8" x1="263.5900258964" y1="54.8571493007" x2="24.4672914124" y2="54.8571493007" xlink:href="#linear-gradient-2"/></defs><ellipse cx="183.3198810303" cy="128" rx="116.9555180552" ry="60.3232526471" transform="translate(-7.8731530202 243.9111837207) rotate(-66.1504459827)" fill="url(#linear-gradient)" stroke-width="0"/><path d="m195.0476080484,176.7619043309h30.8363077849c4.5958330742-7.6617555203,8.8321423591-15.8313979168,12.6071421462-24.380951006h-43.4434499311c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503s5.4577377875,12.190475503,12.190475503,12.190475503Z" fill="url(#linear-gradient-2)" stroke-width="0"/><path d="m195.0476080484,54.8571493007c0,6.732588906,5.4577377875,12.190475503,12.190475503,12.190475503h48.3508901305c-.7732142421-9.2119042424-2.6523808028-17.4276775886-5.5464282587-24.3809510061h-42.8044618719c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503Z" fill="url(#linear-gradient-3)" stroke-width="0"/><path d="m109.7142795272,188.952379834c-6.7327377156,0-12.190475503,5.4577377875-12.190475503,12.1903266935v.0001488095c0,6.732588906,5.4577377875,12.190475503,12.190475503,12.190475503h87.6874950551c7.1833329282-6.9532734174,14.1309515841-15.1691955731,20.586903601-24.3809510061h-108.274398656Z" fill="url(#linear-gradient-4)" stroke-width="0"/><path d="m12.190475503,103.6190513128h73.1428530181c6.7327377156,0,12.190475503-5.457886597,12.190475503-12.190475503s-5.4577377875-12.190475503-12.190475503-12.190475503H12.190475503c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503s5.4577377875,12.190475503,12.190475503,12.190475503Z" fill="url(#linear-gradient-5)" stroke-width="0"/><path d="m73.1428530181,128.0000023188c0,6.732588906,5.4577377875,12.190475503,12.190475503,12.190475503h97.5238040242c6.7327377156,0,12.190475503-5.457886597,12.190475503-12.190475503s-5.4577377875-12.190475503-12.190475503-12.190475503h-97.5238040242c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503Z" fill="url(#linear-gradient-6)" stroke-width="0"/><path d="m121.9047550303,103.6190513128h109.7142795272c6.7327377156,0,12.190475503-5.457886597,12.190475503-12.190475503s-5.4577377875-12.190475503-12.190475503-12.190475503h-109.7142795272c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503s5.4577377875,12.190475503,12.190475503,12.190475503Z" fill="url(#linear-gradient-7)" stroke-width="0"/><path d="m121.9047550303,54.8571493007c0-6.732588906-5.4577377875-12.190475503-12.190475503-12.190475503h-48.7619020121c-6.7327377156,0-12.190475503,5.457886597-12.190475503,12.190475503s5.4577377875,12.190475503,12.190475503,12.190475503h48.7619020121c6.7327377156,0,12.190475503-5.457886597,12.190475503-12.190475503Z" fill="url(#linear-gradient-8)" stroke-width="0"/><path d="m231.6190500265,128.0000295343v-.0000243809c0-6.7326069484-5.4578563123-12.1904632459-12.1904632607-12.1904632177h-.0000245855c-6.732606894.0000000282-12.1904631381,5.4578562217-12.1904631307,12.1904631157v.000024617c.0000000074,6.732606899,5.4578563302,12.190463166,12.1904632292,12.1904631862h.0000244125c6.7326069875.0000000202,12.1904633352-5.4578563327,12.1904633352-12.1904633202Zm-60.9523780326,36.5713994816v-.0000243809c.0000000115-6.7326070019-5.4578563646-12.1904633406-12.1904633665-12.190463283l-12.1904983763.0000001043c-6.7326067871.0000000576-12.190462928,5.4578562543-12.1904629169,12.1904630414v.0000246737c.0000000111,6.7326068685,5.457856234,12.1904631142,12.1904631026,12.1904631534l12.1904980855.000000071c6.7326070491.0000000392,12.1904634601-5.4578563307,12.1904634716-12.1904633798Zm12.1904750574-109.7154438001v-.0000244108c-.0000000029-6.7326069542-5.4578563153-12.1904632619-12.1904632695-12.190463259l-24.3809784193.0000000105c-6.7326069429.0000000029-12.1904632459,5.4578562977-12.190463259,12.1904632406v.0000243809c-.000000013,6.7326069597,5.4578562949,12.1904632825,12.1904632546,12.1904632879l24.3809784193.0000000194c6.73260696.0000000053,12.1904632768-5.4578563094,12.1904632739-12.1904632695Z" fill="#ffb966" stroke-width="0"/></svg></span> Kotlinx RPC<a class="headerlink" href="#kotlinx-rpc" title="Permanent link">&para;</a></h1>
+<p>The <a href="https://kotlin.github.io/kotlinx-rpc/get-started.html">kotlinx.rpc</a> library allows you to implement Remote 
+Procedure Calls (RPC) more easily by generating boilerplate code behind the scenes for you.</p>
+<p>To enable kotlinx.rpc support, add the following to the <code>module.yaml</code> file of each client or server module, and each 
+module declaring <code>@Rpc</code> services:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w">  </span><span class="c1"># JSON or other format</span>
+<span class="w">    </span><span class="nt">rpc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
 </code></pre></div>
-This snippet configures the compiler to process <code>@Serializable</code> classes, and adds dependencies on the serialization
-runtime and JSON format libraries.</p>
-<p>You can also customize the version of the Kotlin Serialization libraries using the full form of the configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.7.3</span>
-</code></pre></div>
-<h2 id="more-control-over-serialization-formats">More control over serialization formats<a class="headerlink" href="#more-control-over-serialization-formats" title="Permanent link">&para;</a></h2>
-<p>If you don't need serialization format dependencies or if you need more control over them, you can use the following:
-<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w"> </span><span class="c1"># configures the compiler and serialization runtime library</span>
-</code></pre></div>
-This snippet on its own only configures the compiler and the serialization runtime library, but doesn't add any format
-dependency. However, it adds a built-in catalog with official serialization formats libraries, which you can use in
-your <code>dependencies</code> section. This is useful in multiple cases:</p>
+<p>This will automatically:</p>
 <ul>
-<li>
-<p>if you need a format dependency only in tests:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">test-dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>if you need to customize the scope of the format dependencies:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>if you need to expose format dependencies transitively:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$kotlin.serialization.json</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>if you need multiple formats:
-  <div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
-
-<span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.json</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$kotlin.serialization.protobuf</span>
-</code></pre></div></p>
-</li>
+<li>enable code generation for your <code>@Rpc</code> services via the kotlinx.rpc compiler plugin</li>
+<li>apply the kotlinx.rpc <a href="../../dependencies/#using-a-maven-bom"><abbr title="Bill of materials">BOM</abbr> (Bill of Materials)</a> to align the versions of the 
+  RPC-related artifacts</li>
+<li>add some useful <a href="../../dependencies/#library-catalogs">library catalog</a> entries starting with <code>$kotlin.rpc.</code></li>
 </ul>
 
 
@@ -2397,7 +2311,7 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 18, 2026 15:10:23 UTC">March 18, 2026</span>
   </span>
 
     
@@ -2433,7 +2347,7 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../compose-multiplatform/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Compose Multiplatform">
+          <a href="../kotlinx-serialization/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kotlinx Serialization">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2443,7 +2357,7 @@ your <code>dependencies</code> section. This is useful in multiple cases:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Compose Multiplatform
+                Kotlinx Serialization
               </div>
             </div>
           </a>
