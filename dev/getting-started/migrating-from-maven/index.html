@@ -6,7 +6,9 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Let's migrate your Maven project to Amper with the help of our semi-automated converter.">
+        <meta name="description" content="Migrate your Maven project to Amper: run the semi-automated converter, understand the concept mapping, and learn
+what to do after the conversion.
+">
       
       
         <meta name="author" content="JetBrains Amper team">
@@ -81,7 +83,9 @@
   
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Migrating from Maven - Amper" />
-<meta property="og:description" content="Let's migrate your Maven project to Amper with the help of our semi-automated converter." />
+<meta property="og:description" content="Migrate your Maven project to Amper: run the semi-automated converter, understand the concept mapping, and learn
+what to do after the conversion.
+" />
 <meta property="og:image" content="https://amper.org/dev/assets/images/social/getting-started/migrating-from-maven.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
@@ -89,7 +93,9 @@
 <meta property="og:url" content="https://amper.org/dev/getting-started/migrating-from-maven/" />
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:title" content="Migrating from Maven - Amper" />
-<meta property="twitter:description" content="Let's migrate your Maven project to Amper with the help of our semi-automated converter." />
+<meta property="twitter:description" content="Migrate your Maven project to Amper: run the semi-automated converter, understand the concept mapping, and learn
+what to do after the conversion.
+" />
 <meta property="twitter:image" content="https://amper.org/dev/assets/images/social/getting-started/migrating-from-maven.png" />
 </head>
   
@@ -690,6 +696,78 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How it works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maven-plugin-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maven plugin handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#after-the-conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After the conversion
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#limitations" class="md-nav__link">
@@ -2297,6 +2375,78 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How it works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maven-plugin-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maven plugin handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#after-the-conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After the conversion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2355,20 +2505,216 @@ after the converter runs.</p>
 </div>
 </div>
 </div>
-<p>and then run:
+<p>and then run:</p>
 <div class="highlight"><pre><span></span><code>./amper<span class="w"> </span>tool<span class="w"> </span>convert-project
-</code></pre></div></p>
-<p>Path to <code>pom.xml</code> can be provided explicitly via <code>--pom</code> argument. <code>pom.xml</code> is a starting point. If it's a part 
-of the reactor, all related modules are converted.</p>
+</code></pre></div>
+<p>The path to your <code>pom.xml</code> can be provided explicitly via <code>--pom</code> argument. The <code>pom.xml</code> file is a starting point.
+If it's a part of the reactor, all related modules are converted.</p>
 <p>During the conversion, the tool puts Amper files into corresponding maven modules's folders. If <code>project.yaml</code> or one of
-the corresponding <code>module.yaml</code> files already exists, by default converter fails. To adjust this behavior, 
+the corresponding <code>module.yaml</code> files already exists, by default converter fails. To adjust this behavior,
 <code>--overwrite-existing</code> flag can be used.</p>
-<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
-<p>The converter doesn't support:</p>
+<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<h3 id="project-structure">Project structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h3>
+<p>The converter creates:</p>
 <ul>
-<li>extensions</li>
-<li>profiles</li>
-<li>Maven plugins besides <code>maven-compiler-plugin</code>, <code>kotlin-maven-plugin</code> and <code>spring-boot-maven-plugin</code></li>
+<li>a <code>project.yaml</code> at the reactor root with a <code>modules</code> list</li>
+<li>a <code>module.yaml</code> in each module directory (regardless of whether it's single-module or reactor)</li>
+</ul>
+<p>All converted modules use <code>layout: maven-like</code>, so your existing <code>src/main/java</code>, <code>src/test/kotlin</code>, etc. directories
+continue to work without moving any files. See <a href="../../user-guide/advanced/maven-like-layout/">Maven-like layout</a>
+for details.</p>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reactor module dependencies</strong> are converted to relative path dependencies (e.g., <code>- ../my-lib</code>)</li>
+<li><strong>External dependencies</strong> keep their Maven coordinates (<code>group:artifact:version</code>)</li>
+<li><strong>Parent POM BOMs</strong> are automatically imported as <code>bom:</code> dependencies (including their transitive parents in order
+  from the most root to the most nested)</li>
+<li><strong>Repositories</strong> (including those inherited from parent POMs) are added to the <code>repositories</code> section.</li>
+<li><strong>Publishing coordinates</strong> (<code>groupId</code>, <code>artifactId</code>, <code>version</code>) are extracted into <code>settings.publishing</code>.</li>
+</ul>
+<h3 id="maven-plugin-handling">Maven plugin handling<a class="headerlink" href="#maven-plugin-handling" title="Permanent link">&para;</a></h3>
+<p>The converter handles Maven plugins in two ways:</p>
+<p><strong>Handled natively</strong> — these plugins cover functionality that Amper provides out of the box.
+For some of them, the converter extracts the relevant configuration into Amper settings:</p>
+<table>
+<thead>
+<tr>
+<th>Maven plugin</th>
+<th>Amper settings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maven-compiler-plugin</code></td>
+<td><code>settings.jvm.release</code>, <code>settings.java.freeCompilerArgs</code>, <code>settings.java.annotationProcessing</code>, <code>settings.jvm.storeParameterNames</code></td>
+</tr>
+<tr>
+<td><code>kotlin-maven-plugin</code></td>
+<td><code>settings.kotlin.*</code> (version, compiler plugins, args), <code>settings.jvm.release</code></td>
+</tr>
+<tr>
+<td><code>spring-boot-maven-plugin</code></td>
+<td><code>settings.springBoot</code>, <code>product: jvm/app</code>, <code>settings.jvm.mainClass</code></td>
+</tr>
+<tr>
+<td><code>maven-surefire-plugin</code></td>
+<td><code>test-settings.jvm.freeJvmArgs</code>, <code>test-settings.jvm.extraEnvironment</code>, <code>test-settings.jvm.systemProperties</code></td>
+</tr>
+</tbody>
+</table>
+<p>Others (<code>maven-jar-plugin</code>, <code>maven-clean-plugin</code>, <code>maven-install-plugin</code>, <code>maven-source-plugin</code>, etc.)
+don't require any conversion because Amper handles their functionality out of the box.</p>
+<p><strong>Unknown plugins</strong> — all other plugins are downloaded, their descriptors are parsed, and each goal is added to a
+<code>mavenPlugins</code> section with <code>enabled: false</code>. You can enable them selectively after the conversion.</p>
+<p>For example, a project using <code>maven-enforcer-plugin</code> and <code>jacoco-maven-plugin</code> would produce:</p>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-enforcer-plugin.enforce</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">rules</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">        </span><span class="no">&lt;rules&gt;</span>
+<span class="w">          </span><span class="no">&lt;requireJavaVersion&gt;</span>
+<span class="w">            </span><span class="no">&lt;version&gt;17&lt;/version&gt;</span>
+<span class="w">          </span><span class="no">&lt;/requireJavaVersion&gt;</span>
+<span class="w">        </span><span class="no">&lt;/rules&gt;</span>
+<span class="w">  </span><span class="nt">jacoco-maven-plugin.prepare-agent</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>The <code>mavenPlugins</code> section allows you to run third-party Maven plugins directly in yourAmper project.
+However, not all plugins are guaranteed to work, so by default they are disabled. You can selectively enable
+plugins you need by setting <code>enabled: true</code> in their configuration after the conversion.</p>
+<h2 id="dependency-mapping">Dependency mapping<a class="headerlink" href="#dependency-mapping" title="Permanent link">&para;</a></h2>
+<p>Maven dependency scopes map to Amper as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Maven scope</th>
+<th>Amper equivalent</th>
+<th>Config section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compile</code> (default)</td>
+<td><code>compile</code> + <code>runtime</code> + <code>exported: true</code></td>
+<td><code>dependencies</code></td>
+</tr>
+<tr>
+<td><code>provided</code></td>
+<td><code>scope: compile-only</code></td>
+<td><code>dependencies</code></td>
+</tr>
+<tr>
+<td><code>runtime</code></td>
+<td><code>scope: runtime-only</code></td>
+<td><code>dependencies</code></td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td><code>compile</code> + <code>runtime</code></td>
+<td><code>test-dependencies</code></td>
+</tr>
+<tr>
+<td><code>system</code></td>
+<td>Not supported</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>import</code> (<abbr title="Bill of materials">BOM</abbr>)</td>
+<td><code>bom:</code> prefix</td>
+<td><code>dependencies</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The converter marks all <code>compile</code>-scoped dependencies as <code>exported: true</code>. This is the safe default because
+Maven's <code>compile</code> scope makes dependencies transitively visible. After conversion, consider removing <code>exported</code>
+from implementation-only dependencies that are not part of your module's public API.
+See <a href="../../user-guide/dependencies/#when-to-use-exported">When to use exported</a>.</p>
+</div>
+<p>Example:</p>
+<div class="grid">
+<div class="highlight"><span class="filename">pom.xml</span><pre><span></span><code><span class="nt">&lt;dependencies&gt;</span>
+<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">        </span><span class="nt">&lt;groupId&gt;</span>io.ktor<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>ktor-client-core<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;version&gt;</span>3.2.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">        </span><span class="nt">&lt;groupId&gt;</span>com.h2database<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>h2<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;version&gt;</span>2.4.240<span class="nt">&lt;/version&gt;</span>
+<span class="w">        </span><span class="nt">&lt;scope&gt;</span>runtime<span class="nt">&lt;/scope&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;version&gt;</span>1.18.42<span class="nt">&lt;/version&gt;</span>
+<span class="w">        </span><span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">        </span><span class="nt">&lt;groupId&gt;</span>org.junit.jupiter<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;artifactId&gt;</span>junit-jupiter<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">        </span><span class="nt">&lt;version&gt;</span>5.12.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">        </span><span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">io.ktor:ktor-client-core:3.2.0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exported</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">com.h2database:h2:2.4.240</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime-only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">org.projectlombok:lombok:1.18.42</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compile-only</span>
+
+<span class="nt">test-dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.junit.jupiter:junit-jupiter:5.12.0</span>
+</code></pre></div>
+</div>
+<p>Read more about <a href="../../user-guide/dependencies/">Dependencies</a>.</p>
+<h2 id="after-the-conversion">After the conversion<a class="headerlink" href="#after-the-conversion" title="Permanent link">&para;</a></h2>
+<p>After the converter finishes, consider the following steps:</p>
+<ol>
+<li>
+<p><strong>Build and test.</strong> Run <code>./amper build</code> and <code>./amper test</code> to verify the conversion.</p>
+</li>
+<li>
+<p><strong>Review generated files.</strong> Check <code>project.yaml</code> and each <code>module.yaml</code> for correctness.</p>
+</li>
+<li>
+<p><strong>Review dependency visibility.</strong> The converter marks all <code>compile</code>-scoped dependencies as <code>exported</code>.
+   Remove <code>exported</code> from dependencies that are only used internally and are not part of the module's public API.</p>
+</li>
+<li>
+<p><strong>Review the <code>mavenPlugins</code> section.</strong> For unknown plugins:</p>
+<ul>
+<li>Set <code>enabled: true</code> for plugins you actually need.</li>
+<li>Remove entries for plugins you don't need.</li>
+<li>Plugin coordinates are listed in <code>project.yaml</code> and can be cleaned up as well.</li>
+</ul>
+</li>
+<li>
+<p><strong>Optional: create a library catalog.</strong> Extract repeated dependency versions into a <code>libs.versions.toml</code> file.
+   See <a href="../../user-guide/dependencies/#library-catalogs">Library catalogs</a>.</p>
+</li>
+<li>
+<p><strong>Optional: switch to the standard Amper layout.</strong> The converter sets <code>layout: maven-like</code> to avoid moving files.
+   If you want to adopt the <a href="../../user-guide/basics/#project-layout">standard Amper layout</a> later, move files from
+   <code>src/main/kotlin/</code> to <code>src/</code> and from <code>src/test/kotlin/</code> to <code>test/</code>, then remove the <code>layout: maven-like</code> line.
+   See <a href="../../user-guide/advanced/maven-like-layout/">Maven-like layout</a>.</p>
+</li>
+</ol>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<p>The following Maven features are not handled by the converter and require manual migration:</p>
+<ul>
+<li><strong>Profiles</strong> — Amper does not have an equivalent of Maven profiles. Build configuration can only vary
+  <a href="../../user-guide/multiplatform/">by platform</a>.</li>
+<li><strong>Extensions</strong></li>
+<li><strong>Dependency exclusions</strong></li>
+<li><strong>Dependency classifiers</strong></li>
+<li><strong>Optional dependencies</strong></li>
+<li><strong>System-scoped dependencies</strong></li>
+<li><strong>Variable substitution</strong> — values are inlined where possible. For dependencies, it's recommended to use a
+  <a href="../../user-guide/dependencies/#library-catalogs">library catalog</a></li>
 </ul>
 
 
@@ -2390,7 +2736,7 @@ the corresponding <code>module.yaml</code> files already exists, by default conv
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 20, 2026 15:31:42 UTC">March 20, 2026</span>
   </span>
 
     
