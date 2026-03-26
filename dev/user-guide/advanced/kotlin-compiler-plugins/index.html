@@ -1924,32 +1924,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#no-arg" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        No-arg
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#power-assert" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Power Assert
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#compose" class="md-nav__link">
     <span class="md-ellipsis">
       
         Compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#js-plain-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JS Plain Objects
       
     </span>
   </a>
@@ -1979,6 +1968,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lombok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-arg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No-arg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#parcelize" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1990,10 +2001,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#lombok" class="md-nav__link">
+  <a href="#power-assert" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lombok
+        Power Assert
       
     </span>
   </a>
@@ -2492,32 +2503,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#no-arg" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        No-arg
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#power-assert" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Power Assert
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#compose" class="md-nav__link">
     <span class="md-ellipsis">
       
         Compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#js-plain-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JS Plain Objects
       
     </span>
   </a>
@@ -2547,6 +2547,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#lombok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lombok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-arg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No-arg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#parcelize" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2558,10 +2580,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#lombok" class="md-nav__link">
+  <a href="#power-assert" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lombok
+        Power Assert
       
     </span>
   </a>
@@ -2714,6 +2736,29 @@ classes as <code>open</code> automatically, without having to mark each class wi
 the original classes. This is why using <code>springBoot: enabled</code> automatically enables the All-open plugin with the
 Spring preset.</p>
 </div>
+<h3 id="compose">Compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h3>
+<p>The Compose compiler plugin is covered in the mode general
+<a href="../../builtin-tech/compose-multiplatform/">Compose Multiplatform</a> section.</p>
+<h3 id="js-plain-objects">JS Plain Objects<a class="headerlink" href="#js-plain-objects" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://kotlinlang.org/docs/js-plain-objects.html">JS plain objects</a> lets you create and copy plain JS objects in 
+a type-safe way.</p>
+<p>To enable this plugin, add the following configuration to your module file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kotlin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">jsPlainObjects</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>Then, simply annotate your <code>external interface</code> with <code>@JsPlainObject</code>, and you'll be able to use the generated
+factory function and copy function.</p>
+<p>Read more in the <a href="https://kotlinlang.org/docs/js-plain-objects.html">JS Plain Objects</a> documentation on the Kotlinlang 
+website.</p>
+<h3 id="kotlinx-serialization">Kotlinx Serialization<a class="headerlink" href="#kotlinx-serialization" title="Permanent link">&para;</a></h3>
+<p>The Kotlinx Serialization compiler plugin is covered in the more general
+<a href="../../builtin-tech/kotlinx-serialization/">Kotlinx Serialization</a> section.</p>
+<h3 id="kotlinx-rpc">Kotlinx RPC<a class="headerlink" href="#kotlinx-rpc" title="Permanent link">&para;</a></h3>
+<p>The Kotlinx RPC compiler plugin is covered in the more general
+<a href="../../builtin-tech/kotlinx-rpc/">Kotlinx RPC</a> section.</p>
+<h3 id="lombok">Lombok<a class="headerlink" href="#lombok" title="Permanent link">&para;</a></h3>
+<p>The Lombok compiler plugin is covered in the more general <a href="../../builtin-tech/lombok/">Lombok</a> section.</p>
 <h3 id="no-arg">No-arg<a class="headerlink" href="#no-arg" title="Permanent link">&para;</a></h3>
 <p>The <a href="https://kotlinlang.org/docs/no-arg-plugin.html">No-arg</a> compiler plugin automatically generates a no-arg 
 constructor for all classes marked with the configured annotations.</p>
@@ -2734,6 +2779,8 @@ constructor for all classes marked with the configured annotations.</p>
 <span class="w">      </span><span class="nt">presets</span><span class="p">:</span><span class="w"> </span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jpa</span>
 </code></pre></div>
+<h3 id="parcelize">Parcelize<a class="headerlink" href="#parcelize" title="Permanent link">&para;</a></h3>
+<p>The Parcelize compiler plugin is covered in the <a href="../../product-types/android-app/">Android</a> section.</p>
 <h3 id="power-assert">Power Assert<a class="headerlink" href="#power-assert" title="Permanent link">&para;</a></h3>
 <p>The <a href="https://kotlinlang.org/docs/power-assert.html">Power Assert</a> compiler plugin enhances the output of failed 
 assertions with additional information about the values of variables and expressions:</p>
@@ -2759,19 +2806,6 @@ assert(hello.length == world.substring(1, 4).length) { &quot;Incorrect length&qu
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">      </span><span class="nt">functions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">kotlin.test.assertTrue</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kotlin.test.assertEquals</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kotlin.test.assertNull</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<h3 id="compose">Compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h3>
-<p>The Compose compiler plugin is covered in the mode general
-<a href="../../builtin-tech/compose-multiplatform/">Compose Multiplatform</a> section.</p>
-<h3 id="kotlinx-serialization">Kotlinx Serialization<a class="headerlink" href="#kotlinx-serialization" title="Permanent link">&para;</a></h3>
-<p>The Kotlinx Serialization compiler plugin is covered in the more general 
-<a href="../../builtin-tech/kotlinx-serialization/">Kotlinx Serialization</a> section.</p>
-<h3 id="kotlinx-rpc">Kotlinx RPC<a class="headerlink" href="#kotlinx-rpc" title="Permanent link">&para;</a></h3>
-<p>The Kotlinx RPC compiler plugin is covered in the more general
-<a href="../../builtin-tech/kotlinx-rpc/">Kotlinx RPC</a> section.</p>
-<h3 id="parcelize">Parcelize<a class="headerlink" href="#parcelize" title="Permanent link">&para;</a></h3>
-<p>The Parcelize compiler plugin is covered in the <a href="../../product-types/android-app/">Android</a> section.</p>
-<h3 id="lombok">Lombok<a class="headerlink" href="#lombok" title="Permanent link">&para;</a></h3>
-<p>The Lombok compiler plugin is covered in the more general <a href="../../builtin-tech/lombok/">Lombok</a> section.</p>
 <h2 id="third-party-compiler-plugins">Third-party compiler plugins<a class="headerlink" href="#third-party-compiler-plugins" title="Permanent link">&para;</a></h2>
 <p>Third-party compiler plugins are Kotlin compiler plugins published by community members.</p>
 <div class="admonition warning">
@@ -2884,7 +2918,7 @@ You can learn how to configure this plugin in the
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 18, 2026 17:11:42 UTC">March 18, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 26, 2026 16:25:30 UTC">March 26, 2026</span>
   </span>
 
     
