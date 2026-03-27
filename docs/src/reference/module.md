@@ -326,7 +326,7 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 | Attribute              | Default  | Description                                                    |
 |------------------------|----------|----------------------------------------------------------------|
 | `enabled: boolean`     | `false`  | Enable Compose runtime, dependencies and the compiler plugins. |
-| `version: string`      | `1.10.1` | The Compose plugin version to use.                             |
+| `version: string`      | `1.10.3` | The Compose plugin version to use.                             |
 | `resources: object`    |          | Compose Resources settings.                                    |
 | `experimental: object` |          | Experimental Compose settings.                                 |
 
@@ -345,9 +345,9 @@ framework. Read more about [Compose configuration](../user-guide/builtin-tech/co
 
 `settings.compose.experimental.hotReload` configures experimental hot reload (JVM only).
 
-| Attribute         | Default      | Description                                      |
-|-------------------|--------------|--------------------------------------------------|
-| `version: string` | `1.0.0-rc01` | The Compose Hot Reload toolchain version to use. |
+| Attribute         | Default | Description                                      |
+|-------------------|---------|--------------------------------------------------|
+| `version: string` | `1.0.0` | The Compose Hot Reload toolchain version to use. |
 
 Examples:
 
@@ -493,7 +493,7 @@ Read more about [testing support](../user-guide/testing.md).
 
 | Attribute                        | Default                      | Description                                                                                                                                                          |
 |----------------------------------|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `version: string`                | 2.3.10                       | The version of the Kotlin compiler and stdlib to use.                                                                                                                |
+| `version: string`                | 2.3.20                       | The version of the Kotlin compiler and stdlib to use.                                                                                                                |
 | `allOpen: object`                |                              | Configure the [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/all-open-plugin.html).                                                                   |
 | `allWarningsAsErrors: boolean`   | `false`                      | Turn any warnings into a compilation error.                                                                                                                          |
 | `apiVersion: enum`               | (set from `languageVersion`) | Allow using declarations only from the specified version of Kotlin bundled libraries.                                                                                |
@@ -676,7 +676,7 @@ which allows processing Kotlin source code with custom processors (usually to ge
 | Attribute           | Default | Description                                                                                                          |
 |---------------------|---------|----------------------------------------------------------------------------------------------------------------------|
 | `enabled: boolean`  | `false` | Enable the Ktor server framework. This is just a convenience to generate library catalog entries for Ktor libraries. |  
-| `version: string`   | `3.4.0` | The Ktor version used for the BOM and in the generated library catalog entries                                       |  
+| `version: string`   | `3.4.1` | The Ktor version used for the BOM and in the generated library catalog entries                                       |  
 | `applyBom: boolean` | `true`  | Whether to apply the Ktor BOM                                                                                        |
 
 Example:
@@ -729,7 +729,7 @@ settings:
 | Attribute           | Default | Description                          |
 |---------------------|---------|--------------------------------------|
 | `enabled: boolean`  | `false` | Enable Spring Boot                   |  
-| `version: string`   | `4.0.2` | Spring Boot version                  |  
+| `version: string`   | `4.0.5` | Spring Boot version                  |  
 | `applyBom: boolean` | `true`  | Whether to apply the Spring Boot BOM |
 
 Example:
