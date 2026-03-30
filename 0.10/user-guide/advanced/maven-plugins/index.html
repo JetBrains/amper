@@ -6,43 +6,43 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Learn about the different product types supported by Amper:
-JVM, mobile, or native applications; JVM or KMP libraries, etc.
+        <meta name="description" content="Apply Maven plugins to your Amper project to run tests, generate sources, check code style, produce reports, and more.
+Learn how to declare, enable, configure, and extend Maven plugins across single- and multi-module projects.
 ">
       
       
         <meta name="author" content="JetBrains Amper team">
       
       
-        <link rel="canonical" href="https://amper.org/0.10/user-guide/product-types/">
+        <link rel="canonical" href="https://amper.org/0.10/user-guide/advanced/maven-plugins/">
       
       
-        <link rel="prev" href="../templates/">
+        <link rel="prev" href="../maven-like-layout/">
       
       
-        <link rel="next" href="android-app/">
+        <link rel="next" href="../../yaml-primer/">
       
       
         
       
       
-      <link rel="icon" href="../../images/amper-icon.png">
+      <link rel="icon" href="../../../images/amper-icon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
   
     
       
-        <title>Product types - Amper</title>
+        <title>Maven plugins - Amper</title>
       
     
   
 
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -67,9 +67,9 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -82,21 +82,21 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Product types - Amper" />
-<meta property="og:description" content="Learn about the different product types supported by Amper:
-JVM, mobile, or native applications; JVM or KMP libraries, etc.
+<meta property="og:title" content="Maven plugins - Amper" />
+<meta property="og:description" content="Apply Maven plugins to your Amper project to run tests, generate sources, check code style, produce reports, and more.
+Learn how to declare, enable, configure, and extend Maven plugins across single- and multi-module projects.
 " />
-<meta property="og:image" content="https://amper.org/0.10/assets/images/social/user-guide/product-types/index.png" />
+<meta property="og:image" content="https://amper.org/0.10/assets/images/social/user-guide/advanced/maven-plugins.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://amper.org/0.10/user-guide/product-types/" />
+<meta property="og:url" content="https://amper.org/0.10/user-guide/advanced/maven-plugins/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Product types - Amper" />
-<meta property="twitter:description" content="Learn about the different product types supported by Amper:
-JVM, mobile, or native applications; JVM or KMP libraries, etc.
+<meta property="twitter:title" content="Maven plugins - Amper" />
+<meta property="twitter:description" content="Apply Maven plugins to your Amper project to run tests, generate sources, check code style, produce reports, and more.
+Learn how to declare, enable, configure, and extend Maven plugins across single- and multi-module projects.
 " />
-<meta property="twitter:image" content="https://amper.org/0.10/assets/images/social/user-guide/product-types/index.png" />
+<meta property="twitter:image" content="https://amper.org/0.10/assets/images/social/user-guide/advanced/maven-plugins.png" />
 </head>
   
   
@@ -116,7 +116,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     <div data-md-component="skip">
       
         
-        <a href="#product-types" class="md-skip">
+        <a href="#maven-plugins" class="md-skip">
           Skip to content
         </a>
       
@@ -139,9 +139,9 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-header__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../images/amper-icon.svg" alt="logo">
+  <img src="../../../images/amper-icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -158,7 +158,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Product types
+              Maven plugins
             
           </span>
         </div>
@@ -287,7 +287,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -308,7 +308,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/" class="md-tabs__link">
+        <a href="../../../getting-started/" class="md-tabs__link">
           
   
   
@@ -332,7 +332,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+        <a href="../../" class="md-tabs__link">
           
   
   
@@ -354,7 +354,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
     
       <li class="md-tabs__item">
-        <a href="../../cli/" class="md-tabs__link">
+        <a href="../../../cli/" class="md-tabs__link">
           
   
   
@@ -376,7 +376,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
     
       <li class="md-tabs__item">
-        <a href="../../reference/project/" class="md-tabs__link">
+        <a href="../../../reference/project/" class="md-tabs__link">
           
   
   
@@ -396,7 +396,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-tabs__item">
-      <a href="../../faq/" class="md-tabs__link">
+      <a href="../../../faq/" class="md-tabs__link">
         
   
   
@@ -450,9 +450,9 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
+    <a href="../../.." title="Amper" class="md-nav__button md-logo" aria-label="Amper" data-md-component="logo">
       
-  <img src="../../images/amper-icon.svg" alt="logo">
+  <img src="../../../images/amper-icon.svg" alt="logo">
 
     </a>
     Amper
@@ -479,7 +479,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -535,7 +535,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../getting-started/" class="md-nav__link ">
+            <a href="../../../getting-started/" class="md-nav__link ">
               
   
   
@@ -579,7 +579,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/ide-setup/" class="md-nav__link">
+      <a href="../../../getting-started/ide-setup/" class="md-nav__link">
         
   
   
@@ -607,7 +607,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/tutorial/" class="md-nav__link">
+      <a href="../../../getting-started/tutorial/" class="md-nav__link">
         
   
   
@@ -635,7 +635,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/migrating-from-maven/" class="md-nav__link">
+      <a href="../../../getting-started/migrating-from-maven/" class="md-nav__link">
         
   
   
@@ -716,7 +716,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -760,7 +760,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../basics/" class="md-nav__link">
+      <a href="../../basics/" class="md-nav__link">
         
   
   
@@ -788,7 +788,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../dependencies/" class="md-nav__link">
+      <a href="../../dependencies/" class="md-nav__link">
         
   
   
@@ -816,7 +816,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../multiplatform/" class="md-nav__link">
+      <a href="../../multiplatform/" class="md-nav__link">
         
   
   
@@ -844,7 +844,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../testing/" class="md-nav__link">
+      <a href="../../testing/" class="md-nav__link">
         
   
   
@@ -872,7 +872,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../templates/" class="md-nav__link">
+      <a href="../../templates/" class="md-nav__link">
         
   
   
@@ -897,8 +897,6 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
                 
   
   
-    
-  
   
   
     
@@ -931,15 +929,17 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../../product-types/" class="md-nav__link ">
               
   
   
@@ -957,13 +957,13 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
             </a>
             
               
-              <label class="md-nav__link md-nav__link--active" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -983,7 +983,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="android-app/" class="md-nav__link">
+      <a href="../../product-types/android-app/" class="md-nav__link">
         
   
   
@@ -1011,7 +1011,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="ios-app/" class="md-nav__link">
+      <a href="../../product-types/ios-app/" class="md-nav__link">
         
   
   
@@ -1039,7 +1039,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="jvm-app/" class="md-nav__link">
+      <a href="../../product-types/jvm-app/" class="md-nav__link">
         
   
   
@@ -1067,7 +1067,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="jvm-lib/" class="md-nav__link">
+      <a href="../../product-types/jvm-lib/" class="md-nav__link">
         
   
   
@@ -1095,7 +1095,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="kmp-lib/" class="md-nav__link">
+      <a href="../../product-types/kmp-lib/" class="md-nav__link">
         
   
   
@@ -1123,7 +1123,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="js-app/" class="md-nav__link">
+      <a href="../../product-types/js-app/" class="md-nav__link">
         
   
   
@@ -1151,7 +1151,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="native-app/" class="md-nav__link">
+      <a href="../../product-types/native-app/" class="md-nav__link">
         
   
   
@@ -1179,7 +1179,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="wasm-app/" class="md-nav__link">
+      <a href="../../product-types/wasm-app/" class="md-nav__link">
         
   
   
@@ -1281,7 +1281,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/compose-multiplatform/" class="md-nav__link">
+      <a href="../../builtin-tech/compose-multiplatform/" class="md-nav__link">
         
   
   
@@ -1309,7 +1309,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/kotlinx-serialization/" class="md-nav__link">
+      <a href="../../builtin-tech/kotlinx-serialization/" class="md-nav__link">
         
   
   
@@ -1337,7 +1337,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/kotlinx-rpc/" class="md-nav__link">
+      <a href="../../builtin-tech/kotlinx-rpc/" class="md-nav__link">
         
   
   
@@ -1365,7 +1365,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/ktor/" class="md-nav__link">
+      <a href="../../builtin-tech/ktor/" class="md-nav__link">
         
   
   
@@ -1393,7 +1393,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/lombok/" class="md-nav__link">
+      <a href="../../builtin-tech/lombok/" class="md-nav__link">
         
   
   
@@ -1421,7 +1421,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../builtin-tech/spring/" class="md-nav__link">
+      <a href="../../builtin-tech/spring/" class="md-nav__link">
         
   
   
@@ -1523,7 +1523,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/overview/" class="md-nav__link">
+      <a href="../../plugins/overview/" class="md-nav__link">
         
   
   
@@ -1551,7 +1551,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/quick-start/" class="md-nav__link">
+      <a href="../../plugins/quick-start/" class="md-nav__link">
         
   
   
@@ -1579,7 +1579,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/topics/structure/" class="md-nav__link">
+      <a href="../../plugins/topics/structure/" class="md-nav__link">
         
   
   
@@ -1607,7 +1607,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/topics/configuration/" class="md-nav__link">
+      <a href="../../plugins/topics/configuration/" class="md-nav__link">
         
   
   
@@ -1635,7 +1635,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/topics/references/" class="md-nav__link">
+      <a href="../../plugins/topics/references/" class="md-nav__link">
         
   
   
@@ -1663,7 +1663,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../plugins/topics/tasks/" class="md-nav__link">
+      <a href="../../plugins/topics/tasks/" class="md-nav__link">
         
   
   
@@ -1696,8 +1696,10 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
                 
   
   
+    
   
   
+  
     
     
       
@@ -1720,13 +1722,11 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10" checked>
         
           
           <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
@@ -1747,7 +1747,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1765,7 +1765,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../advanced/jdk-provisioning/" class="md-nav__link">
+      <a href="../jdk-provisioning/" class="md-nav__link">
         
   
   
@@ -1793,7 +1793,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../advanced/java-annotation-processing/" class="md-nav__link">
+      <a href="../java-annotation-processing/" class="md-nav__link">
         
   
   
@@ -1821,7 +1821,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../advanced/ksp/" class="md-nav__link">
+      <a href="../ksp/" class="md-nav__link">
         
   
   
@@ -1849,7 +1849,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../advanced/kotlin-compiler-plugins/" class="md-nav__link">
+      <a href="../kotlin-compiler-plugins/" class="md-nav__link">
         
   
   
@@ -1877,7 +1877,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../advanced/maven-like-layout/" class="md-nav__link">
+      <a href="../maven-like-layout/" class="md-nav__link">
         
   
   
@@ -1902,10 +1902,37 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../advanced/maven-plugins/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maven plugins
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1921,6 +1948,65 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-extra-plugin-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding extra plugin dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1941,7 +2027,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../yaml-primer/" class="md-nav__link">
+      <a href="../../yaml-primer/" class="md-nav__link">
         
   
   
@@ -2001,7 +2087,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../cli/" class="md-nav__link ">
+            <a href="../../../cli/" class="md-nav__link ">
               
   
   
@@ -2045,7 +2131,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../cli/provisioning/" class="md-nav__link">
+      <a href="../../../cli/provisioning/" class="md-nav__link">
         
   
   
@@ -2138,7 +2224,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../reference/project/" class="md-nav__link">
+      <a href="../../../reference/project/" class="md-nav__link">
         
   
   
@@ -2166,7 +2252,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../reference/module/" class="md-nav__link">
+      <a href="../../../reference/module/" class="md-nav__link">
         
   
   
@@ -2201,7 +2287,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   
@@ -2268,6 +2354,53 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-extra-plugin-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding extra plugin dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2283,7 +2416,7 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
 
 
   
-    <a href="https://github.com/JetBrains/amper/edit/release/0.10/docs/src/user-guide/product-types/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/JetBrains/amper/edit/release/0.10/docs/src/user-guide/advanced/maven-plugins.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2291,69 +2424,151 @@ JVM, mobile, or native applications; JVM or KMP libraries, etc.
   
 
 
-<h1 id="product-types">Product types<a class="headerlink" href="#product-types" title="Permanent link">&para;</a></h1>
-<p>Each module has a product type defined by the <code>product</code> field in <code>module.yaml</code>, indicating what is created when building
-this module.</p>
-<p>This section contains subsections describing the specific aspects of each product type.
-Here is the list of supported product types:</p>
-<table>
-<thead>
-<tr>
-<th>Product type(s)</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="jvm-lib/"><code>jvm/lib</code></a></td>
-<td>A JVM library</td>
-</tr>
-<tr>
-<td><a href="jvm-app/"><code>jvm/app</code></a></td>
-<td>A JVM console or desktop application</td>
-</tr>
-<tr>
-<td><a href="kmp-lib/"><code>lib</code></a></td>
-<td>A Kotlin Multiplatform library</td>
-</tr>
-<tr>
-<td><a href="native-app/"><code>windows/app</code></a></td>
-<td>A Kotlin/Native mingw-w64 application</td>
-</tr>
-<tr>
-<td><a href="native-app/"><code>linux/app</code></a></td>
-<td>A Kotlin/Native Linux application</td>
-</tr>
-<tr>
-<td><a href="native-app/"><code>macos/app</code></a></td>
-<td>A Kotlin/Native macOS application</td>
-</tr>
-<tr>
-<td><a href="android-app/"><code>android/app</code></a></td>
-<td>An Android application</td>
-</tr>
-<tr>
-<td><a href="ios-app/"><code>ios/app</code></a></td>
-<td>An iOS application</td>
-</tr>
-<tr>
-<td><a href="js-app/"><code>js/app</code></a></td>
-<td>A JavaScript application using the Kotlin/JS technology</td>
-</tr>
-<tr>
-<td><a href="wasm-app/"><code>wasmJs/app</code></a></td>
-<td>A WebAssembly application with browser APIs</td>
-</tr>
-<tr>
-<td><a href="wasm-app/"><code>wasmWasi/app</code></a></td>
-<td>A WebAssembly application with WASI APIs</td>
-</tr>
-<tr>
-<td><a href="../plugins/topics/structure/"><code>jvm/amper-plugin</code></a></td>
-<td>An <a href="../plugins/overview/">Amper plugin</a>, to extend the Amper build with custom functionality</td>
-</tr>
-</tbody>
-</table>
+<h1 id="maven-plugins">Maven plugins<a class="headerlink" href="#maven-plugins" title="Permanent link">&para;</a></h1>
+<p>Maven plugins are tools in the JVM ecosystem that perform tasks during a project's build, such as running tests,
+generating source code, checking code style, or producing reports. Amper supports integrating Maven plugins into
+JVM modules (modules with either <code>jvm/app</code> or <code>jvm/lib</code> product type).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Maven plugins are only supported for JVM-only modules.</p>
+</div>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>Maven plugins are declared project-wide and then enabled per-module.</p>
+<p>First, declare the Maven plugin coordinates in your <code>project.yaml</code> under the <code>mavenPlugins</code> key.
+Each entry uses standard Maven coordinates notation (<code>groupId:artifactId:version</code>):</p>
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.apache.maven.plugins:maven-surefire-plugin:3.5.3</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0</span>
+</code></pre></div>
+<p>Each Maven plugin exposes one or more <em>goals</em> (mojos). A mojo is enabled in the relevant <code>module.yaml</code> using the
+<code>pluginArtifactId.goalName</code> key (<code>enabled</code> shortcut):</p>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-surefire-plugin.test</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</code></pre></div>
+<p>Fully qualified form:
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-surefire-plugin.test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<p>Setting the value to <code>enabled</code> activates the goal with its default configuration.</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>To customize a goal, replace the <code>enabled</code> shorthand with a full configuration block:</p>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-surefire-plugin.test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">includes</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*Smoke*&quot;</span>
+</code></pre></div>
+<p>The keys inside <code>configuration</code> directly correspond to the goal's parameters as documented by the respective plugin.
+Amper reads the plugin's descriptor to resolve parameter types, so IDE completion and validation are available for
+supported parameter types.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Currently, complex parameter types (POJOs) are not supported.</p>
+</div>
+<p>For configuration parameters with <code>PlexusConfiguration</code> type, Amper supports passing raw XML:</p>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-enforcer-plugin.enforce</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">rules</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span>
+<span class="w">        </span><span class="s">&lt;rules&gt;</span>
+<span class="w">          </span><span class="s">&lt;requireJavaVersion&gt;</span>
+<span class="w">            </span><span class="s">&lt;version&gt;[21,)&lt;/version&gt;</span>
+<span class="w">          </span><span class="s">&lt;/requireJavaVersion&gt;</span>
+<span class="w">        </span><span class="s">&lt;/rules&gt;&quot;</span>
+</code></pre></div>
+<h3 id="adding-extra-plugin-dependencies">Adding extra plugin dependencies<a class="headerlink" href="#adding-extra-plugin-dependencies" title="Permanent link">&para;</a></h3>
+<p>Some mojos require additional dependencies that are not bundled with the plugin itself. Add them under the
+<code>dependencies</code> key of the mojo configuration:</p>
+<div class="highlight"><span class="filename">module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">maven-checkstyle-plugin.checkstyle</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.spring.nohttp:nohttp-checkstyle:0.0.11</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">configLocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./nohttp-checkstyle.xml</span>
+<span class="w">      </span><span class="nt">includes</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;**/*&quot;</span>
+</code></pre></div>
+<h1 id="source-generation-capability">Source generation capability<a class="headerlink" href="#source-generation-capability" title="Permanent link">&para;</a></h1>
+<p>Maven plugins that generate sources integrate with Amper's compilation pipeline automatically.</p>
+<p>Example of using a protobuf code generator:</p>
+<div class="highlight"><span class="filename">project.yaml</span><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.github.ascopes:protobuf-maven-plugin:2.12.0</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jvm/app</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.google.protobuf:protobuf-kotlin:4.33.0</span>
+
+<span class="nt">mavenPlugins</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">protobuf-maven-plugin.generate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">protocVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.33.0</span>
+<span class="w">      </span><span class="nt">sourceDirectories</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">./src</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">kotlinEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h1 id="executing-maven-goals">Executing Maven goals<a class="headerlink" href="#executing-maven-goals" title="Permanent link">&para;</a></h1>
+<p>Each enabled goal becomes an Amper task named <code>pluginArtifactId.goal</code>, scoped to its module.</p>
+<h3 id="lifecycle-integration">Lifecycle integration<a class="headerlink" href="#lifecycle-integration" title="Permanent link">&para;</a></h3>
+<p>Mojo goals with a default Maven phase are automatically wired into the Amper build lifecycle on a best-effort basis.
+For instance, the <code>generate-sources</code> phase and respective <code>protobuf-maven-plugin.generate</code> task will be run before Amper calls the compiler.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Mojos that do not have a default phase defined are not automatically wired into the Amper lifecycle.</p>
+</div>
+<h3 id="running-a-mojo-explicitly">Running a mojo explicitly<a class="headerlink" href="#running-a-mojo-explicitly" title="Permanent link">&para;</a></h3>
+<p>Use the <code>task</code> command with the fully qualified maven mojo goal task name <code>:moduleName:pluginArtifactId.goal</code>. For example:</p>
+<div class="highlight"><pre><span></span><code>./amper task :app:maven-surefire-plugin.test
+./amper task :app:maven-checkstyle-plugin.checkstyle
+./amper task :app:jacoco-maven-plugin.report
+</code></pre></div>
+<h1 id="getting-results-from-maven-mojo-executions">Getting results from Maven Mojo executions<a class="headerlink" href="#getting-results-from-maven-mojo-executions" title="Permanent link">&para;</a></h1>
+<h3 id="output-files">Output files<a class="headerlink" href="#output-files" title="Permanent link">&para;</a></h3>
+<p>All files produced by mojos should be written into a <code>maven-target/</code> subdirectory inside Amper's build output.
+Report mojos (those implementing the Maven reporting API) additionally generate an HTML file under
+<code>maven-target/reports/</code>. Example output tree:</p>
+<div class="highlight"><pre><span></span><code>build/
+└── maven-target/
+    ├── jacoco.exec
+    └── reports/
+        └── checkstyle.html
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Some Maven plugins that do not rely on the Maven project's build directory
+(for example, because they define custom output directories themselves) may produce output elsewhere.
+Please refer to the documentation of those plugins in such cases.</p>
+</div>
+<h1 id="known-limitations">Known limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>JVM only</strong>: Maven plugins can only be used in JVM platform modules.</li>
+<li><strong>No general guarantees</strong>: Maven plugin mojos are executed on a best-effort basis, 
+but some plugins may rely on Maven APIs or capabilities that Amper does not support.</li>
+<li><strong>Single execution per mojo only</strong>: Currently, only a single mojo execution will be performed per Amper module. 
+  There is no support for configuring multiple executions.</li>
+<li><strong>No Maven extensions</strong>: Maven extensions modify the Maven build lifecycle, which is not suitable for Amper projects.</li>
+<li><strong>No custom dependency resolution</strong>: Plugins that override or extend Maven's dependency resolution mechanism are not supported.</li>
+<li><strong>No report aggregation</strong>: Currently, the only supported way to produce a report is to run the mojo directly.</li>
+</ul>
 
 
 
@@ -2374,7 +2589,7 @@ Here is the list of supported product types:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 29, 2026 21:48:22 UTC">March 29, 2026</span>
   </span>
 
     
@@ -2410,7 +2625,7 @@ Here is the list of supported product types:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../templates/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Templates">
+          <a href="../maven-like-layout/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Maven-like layout">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2420,20 +2635,20 @@ Here is the list of supported product types:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Templates
+                Maven-like layout
               </div>
             </div>
           </a>
         
         
           
-          <a href="android-app/" class="md-footer__link md-footer__link--next" aria-label="Next: Android application">
+          <a href="../../yaml-primer/" class="md-footer__link md-footer__link--next" aria-label="Next: Appendix: YAML primer">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Android application
+                Appendix: YAML primer
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2474,10 +2689,10 @@ Here is the list of supported product types:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.action.edit", "content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.preview", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
