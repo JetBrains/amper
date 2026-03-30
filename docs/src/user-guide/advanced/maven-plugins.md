@@ -4,7 +4,7 @@ description: |
   Learn how to declare, enable, configure, and extend Maven plugins across single- and multi-module projects.
 ---
 
-# Applying Maven plugins
+# Maven plugins
 
 Maven plugins are tools in the JVM ecosystem that perform tasks during a project's build, such as running tests,
 generating source code, checking code style, or producing reports. Amper supports integrating Maven plugins into

@@ -150,6 +150,7 @@ nav:
           - 'Kotlin Symbol Processing (KSP)': user-guide/advanced/ksp.md
           - 'Kotlin compiler plugins': user-guide/advanced/kotlin-compiler-plugins.md
           - 'Maven-like layout': user-guide/advanced/maven-like-layout.md
+          - 'Maven plugins': user-guide/advanced/maven-plugins.md
       - 'Appendix: YAML primer': user-guide/yaml-primer.md
   - 'CLI':
     - cli/index.md
