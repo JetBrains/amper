@@ -2748,7 +2748,10 @@ generally discouraged.</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>my-android-app/
 ├─<span class="w"> </span>assets/<span class="w"> </span><span class="c1"># (1)!</span>
-├─<span class="w"> </span>res/<span class="w"> </span><span class="c1"># (2)!</span>
+├─<span class="w"> </span>jniLibs/<span class="w"> </span><span class="c1"># (2)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>arm64-v8a/
+│<span class="w">     </span>╰─<span class="w"> </span>libfoo.so
+├─<span class="w"> </span>res/<span class="w"> </span><span class="c1"># (3)!</span>
 │<span class="w">  </span>├─<span class="w"> </span>drawable/
 │<span class="w">  </span>│<span class="w">  </span>╰─<span class="w"> </span>graphic.png
 │<span class="w">  </span>├─<span class="w"> </span>layout/
@@ -2757,15 +2760,16 @@ generally discouraged.</p>
 │<span class="w">  </span>╰─<span class="w"> </span>...
 ├─<span class="w"> </span>resources/
 ├─<span class="w"> </span>src/
-│<span class="w">  </span>├─<span class="w"> </span>AndroidManifest.xml<span class="w"> </span><span class="c1"># (3)!</span>
-│<span class="w">  </span>╰─<span class="w"> </span>MainActivity.kt<span class="w"> </span><span class="c1"># (4)!</span>
+│<span class="w">  </span>├─<span class="w"> </span>AndroidManifest.xml<span class="w"> </span><span class="c1"># (4)!</span>
+│<span class="w">  </span>╰─<span class="w"> </span>MainActivity.kt<span class="w"> </span><span class="c1"># (5)!</span>
 ├─<span class="w"> </span>test/
 │<span class="w">  </span>╰─<span class="w"> </span>MainTest.kt
 ├─<span class="w"> </span>module.yaml
-╰─<span class="w"> </span>proguard-rules.pro<span class="w"> </span><span class="c1"># (5)!</span>
+╰─<span class="w"> </span>proguard-rules.pro<span class="w"> </span><span class="c1"># (6)!</span>
 </code></pre></div>
 <ol>
 <li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
+<li>Pre-compiled native libraries (<code>.so</code> files) organized by ABI (e.g. <code>arm64-v8a</code>, <code>x86_64</code>). See the <a href="https://developer.android.com/studio/projects/gradle-external-native-builds#jniLibs">official Android docs</a>.</li>
 <li><code>assets</code> and <code>res</code> are standard Android resource directories. See the <a href="https://developer.android.com/guide/topics/resources/providing-resources">official Android docs</a>.</li>
 <li>The manifest file of your application.</li>
 <li>An activity (screen) of your application.</li>
