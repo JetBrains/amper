@@ -48,3 +48,12 @@ class Jdk(
 
     override fun toString(): String = "JDK $version (${distribution?.name ?: "unknown distribution"}) from $source"
 }
+/**
+ * The major Java version of this JDK, as an integer.
+ * 
+ * * For JDK 9+, this is the first component of this JDK's [version].
+ * * For JDK 8 and earlier, this is the part after the `1.` prefix (e.g. 8 for JDK 1.8).
+ */
+val Jdk.majorVersion: Int
+    get() = version.removePrefix("1.").substringBefore(".").toIntOrNull()
+        ?: error("Cannot extract JDK major version from full version '$version'")

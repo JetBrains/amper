@@ -8,6 +8,7 @@ import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.jdk.provisioning.Jdk
+import org.jetbrains.amper.jdk.provisioning.majorVersion
 import org.jetbrains.amper.processes.ArgsMode
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -49,6 +50,15 @@ internal class Ksp(
         }
         val args = config.toCommandLineOptions(workingDir, legacyListMode) + processorClasspathStr
 
+        // KSP uses some restrictive APIs inside
+        // Since Java 25, we need to explicitly allow them
+        val jvmArgs = if (jdk.majorVersion >= 25) {
+            listOf(
+                "--enable-native-access=ALL-UNNAMED",
+                "--sun-misc-unsafe-memory-access=allow",
+            )
+        } else emptyList()
+
         logger.debug("ksp {} {}", compilationType, args)
         val result = processRunner.runJava(
             jdk = jdk,
@@ -58,6 +68,7 @@ internal class Ksp(
             programArgs = args,
             argsMode = ArgsMode.ArgFile(tempRoot = tempRoot),
             outputListener = LoggingProcessOutputListener(logger, prefix = "[ksp] "),
+            jvmArgs = jvmArgs,
         )
         // Note: KSP fails automatically with exit code 1 if any error log is present
         if (result.exitCode != 0) {
