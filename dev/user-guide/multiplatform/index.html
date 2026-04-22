@@ -2650,7 +2650,7 @@ Some target platforms belong to the same <em>family</em> and share some common A
 <p>Not all multiplatform modules support all target platforms. Most modules define a limited subset of the target
 platforms. To do so, use the <code>product.platforms</code> list:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <details class="note">
@@ -2735,7 +2735,7 @@ That is <code>resources/foo.txt</code> will be overwritten by <code>resources@an
 an alias.
 You can then use the alias in places where <code>@platform</code> suffixes usually appear to share code, settings, or dependencies:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
 
 <span class="nt">aliases</span><span class="p">:</span>
@@ -2764,7 +2764,7 @@ You can then use the alias in places where <code>@platform</code> suffixes usual
 <p>Example:
 To add the <a href="https://github.com/DiamondEdge1/KmLogging">KmLogging library</a> to a multiplatform module, simply write</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">]</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
@@ -2786,7 +2786,7 @@ To add the <a href="https://github.com/DiamondEdge1/KmLogging">KmLogging library
 <p>For the explicitly specified dependencies in the <code>@platform</code>-sections the general 
 <a href="#dependencysettings-propagation">propagation rules</a> apply. That is, for the given configuration:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
 
 <span class="nt">dependencies</span><span class="p">:</span>
@@ -2812,7 +2812,7 @@ To add the <a href="https://github.com/DiamondEdge1/KmLogging">KmLogging library
 <h2 id="multiplatform-settings">Multiplatform settings<a class="headerlink" href="#multiplatform-settings" title="Permanent link">&para;</a></h2>
 <p>All toolchain settings, even platform-specific can be placed in the <code>settings:</code> section:
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">]</span>
 
 <span class="nt">settings</span><span class="p">:</span>
@@ -2853,7 +2853,7 @@ We also plan to address this by linting with conversion to a more readable form:
 <p>For settings with the <code>@platform</code>-qualifiers, the <a href="#dependencysettings-propagation">propagation rules</a> apply.
 E.g., for the given configuration:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="p p-Indicator">]</span>
 
 <span class="nt">settings</span><span class="p">:</span><span class="w">           </span><span class="c1"># common toolchain settings</span>
@@ -2953,7 +2953,7 @@ See more in the dedicated <a href="../product-types/ios-app/#swift-support">Swif
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 08:15:44 UTC">April 21, 2026</span>
   </span>
 
     

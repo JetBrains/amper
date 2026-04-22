@@ -3046,7 +3046,7 @@ have a name (an exclusive common ancestor) in the default hierarchy. Aliases can
 <p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Create an alias to share code between JVM and Android platforms.  </span>
 <span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">iosSimulatorArm64</span><span class="w"> </span><span class="p p-Indicator">]</span>
 
 <span class="nt">aliases</span><span class="p">:</span>
@@ -3297,8 +3297,8 @@ Read more about the <a href="../../user-guide/basics/#product-type">product type
 <td><code>jvm</code></td>
 </tr>
 <tr>
-<td><code>lib</code></td>
-<td>A reusable multiplatform library that other modules can depend on.</td>
+<td><code>kmp/lib</code></td>
+<td>A reusable Kotlin Multiplatform library that other modules can depend on.</td>
 <td>any (the list must be specified explicitly)</td>
 </tr>
 <tr>
@@ -3339,7 +3339,7 @@ level of their support.</p>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">macosArm64</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macosArm64</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <div class="highlight"><span class="filename">Multiplatform Library for JVM and Android platforms</span><pre><span></span><code><span class="nt">product</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmp/lib</span>
 <span class="w">  </span><span class="nt">platforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">jvm</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">android</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <h2 id="repositories"><code>repositories</code><a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
@@ -4353,7 +4353,7 @@ which allows processing Kotlin source code with custom processors (usually to ge
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 27, 2026 11:14:58 UTC">March 27, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 08:15:44 UTC">April 21, 2026</span>
   </span>
 
     
