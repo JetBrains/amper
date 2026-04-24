@@ -1633,10 +1633,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#making-plugins-available-in-the-project" class="md-nav__link">
+  <a href="#registering-plugins-in-the-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Making plugins available in the project
+        Registering plugins in the project
       
     </span>
   </a>
@@ -2338,10 +2338,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#making-plugins-available-in-the-project" class="md-nav__link">
+  <a href="#registering-plugins-in-the-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Making plugins available in the project
+        Registering plugins in the project
       
     </span>
   </a>
@@ -2407,11 +2407,11 @@ This changes the ID from the default <code>build-config</code> to <code>build-ko
 <p><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> Changing the default ID makes little sense if we are not sharing the plugin between projects, which is not supported yet.
 Currently, the ID string doesn't have a well-defined format, so leaving the ID at its default is a good idea. </p>
 </details>
-<h2 id="making-plugins-available-in-the-project">Making plugins available in the project<a class="headerlink" href="#making-plugins-available-in-the-project" title="Permanent link">&para;</a></h2>
-<p>Amper plugins are module-level plugins – they are enabled and applied per module.
+<h2 id="registering-plugins-in-the-project">Registering plugins in the project<a class="headerlink" href="#registering-plugins-in-the-project" title="Permanent link">&para;</a></h2>
+<p>Amper plugins are module-level plugins – they are enabled per module.
 There is no such concept as a project-wide plugin in Amper.</p>
-<p>To make a plugin available in the project,
-the dependency on it must be listed under the <a href="../../../../reference/project/#plugins"><code>plugins</code>section</a> of the <code>project.yaml</code> file:
+<p>To make a plugin available in the project, it must be <em>registered</em> by listing
+the dependency on it in the <a href="../../../../reference/project/#plugins"><code>plugins</code> section</a> of the <code>project.yaml</code> file:
 <div class="highlight"><pre><span></span><code><span class="nt">modules</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plugins/my-plugin</span>
@@ -2419,13 +2419,13 @@ the dependency on it must be listed under the <a href="../../../../reference/pro
 <span class="nt">plugins</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./plugins/my-plugin</span>
 </code></pre></div></p>
-<p>Plugins listed this way are not yet enabled anywhere.
+<p>Registered plugins are not yet <em>enabled</em> anywhere.
 One must enable them manually in each module where they are needed.</p>
 <p>There may be cases where a plugin is developed as part of the project, but not needed <em>in the project itself</em>.
 Then such a plugin is present in the <code>modules</code> list, but not included in the <code>plugins</code> list.</p>
 <details class="note">
 <summary>Similar to <code>apply false</code> in Gradle...</summary>
-<p>Amper's approach to listing plugins project-wide and applying them per-module is somewhat similar to the 
+<p>Amper's approach to registering plugins project-wide and enabling them per-module is somewhat similar to the 
 recommended approach in Gradle. There one lists plugins at the project level with the <code>apply false</code> clause and
 then enables them where needed.</p>
 </details>
@@ -2475,7 +2475,7 @@ that enables and configures the plugin.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 24, 2026 21:27:02 UTC">April 24, 2026</span>
   </span>
 
     
