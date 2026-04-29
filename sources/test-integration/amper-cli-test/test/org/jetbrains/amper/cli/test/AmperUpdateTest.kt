@@ -104,19 +104,25 @@ class AmperUpdateTest : AmperCliTestBase() {
     @Test
     fun `can update from 0_6_0 to current`() = runSlowTest {
         val projectDir = createEmptyProjectWithWrappers(version = "0.6.0")
-        assertCanUpdateToCurrent(projectDir)
+        // We override PSModulePath in case tests are being run from PowerShell Core (e.g. on GitHub).
+        // This fails if we don't reset the variable because of AMPER-4884, which was fixed in Amper 0.9.0.
+        assertCanUpdateToCurrent(projectDir, extraEnv = mapOf("PSModulePath" to ""))
     }
 
     @Test
     fun `can update from 0_7_0 to current`() = runSlowTest {
         val projectDir = createEmptyProjectWithWrappers(version = "0.7.0")
-        assertCanUpdateToCurrent(projectDir)
+        // We override PSModulePath in case tests are being run from PowerShell Core (e.g. on GitHub).
+        // This fails if we don't reset the variable because of AMPER-4884, which was fixed in Amper 0.9.0.
+        assertCanUpdateToCurrent(projectDir, extraEnv = mapOf("PSModulePath" to ""))
     }
 
     @Test
     fun `can update from 0_8_0 to current`() = runSlowTest {
         val projectDir = createEmptyProjectWithWrappers(version = "0.8.0")
-        assertCanUpdateToCurrent(projectDir)
+        // We override PSModulePath in case tests are being run from PowerShell Core (e.g. on GitHub).
+        // This fails if we don't reset the variable because of AMPER-4884, which was fixed in Amper 0.9.0.
+        assertCanUpdateToCurrent(projectDir, extraEnv = mapOf("PSModulePath" to ""))
     }
 
     @Test
@@ -139,11 +145,15 @@ class AmperUpdateTest : AmperCliTestBase() {
         assertCanUpdateToCurrent(projectDir)
     }
 
-    private suspend fun assertCanUpdateToCurrent(projectDir: Path) {
+    private suspend fun assertCanUpdateToCurrent(
+        projectDir: Path,
+        extraEnv: Map<String, String> = emptyMap(),
+    ) {
         val (bashVersion, batVersion) = runAmperUpdateAndAwaitWinWrapper(
             projectDir,
             "--target-version=1.0-SNAPSHOT",
             "--repository=$localAmperDistRepoUrl",
+            extraEnv = extraEnv,
         )
         assertEquals("1.0-SNAPSHOT", bashVersion, "amper bash script should have the new version")
         assertEquals("1.0-SNAPSHOT", batVersion, "amper bat script should have the new version")
@@ -159,11 +169,16 @@ class AmperUpdateTest : AmperCliTestBase() {
      * Runs the `./amper update` command with the given [options] and waits for the Windows wrapper to match the linux
      * one (in case the wrapper is updated asynchronously after the update command exits).
      */
-    private suspend fun runAmperUpdateAndAwaitWinWrapper(projectDir: Path, vararg options: String): UpdateResult {
+    private suspend fun runAmperUpdateAndAwaitWinWrapper(
+        projectDir: Path,
+        vararg options: String,
+        extraEnv: Map<String, String> = emptyMap(),
+    ): UpdateResult {
         val result = runCli(
             projectDir = projectDir,
             "update", *options,
             customAmperScriptPath = projectDir.resolve(scriptNameForCurrentOs),
+            environment = extraEnv,
         )
         assertEquals(listOf("amper", "amper.bat"), projectDir.relativeChildren(), "amper scripts should still be there")
 
