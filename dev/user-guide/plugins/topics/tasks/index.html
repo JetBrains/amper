@@ -2976,9 +2976,6 @@ Each entry creates a task instance with a short name (the map key):</p>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="kt">!fully.qualified.function.name</span>
 <span class="w">      </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">markOutputsAs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 <p>The task action is specified using the <code>action</code> property.
 This property requires an explicit YAML type tag, in this example <code>!fully.qualified.function.name</code>, to express
@@ -2999,8 +2996,8 @@ Also, there can be shared/built‑in universal task actions like <code>copy</cod
 <p>So registering a new task can be as easy as dropping a few lines of YAML (for now) and reusing the ready task action.</p>
 <p>Now, inputs/outputs markup is done in Kotlin because it is inherently bound to the action itself 
 (if the action reads from the file, it is an input),
-while <code>markOutputsAs</code> is not necessarily so: a generic <code>unzip</code> action may be actually unzipping some sources, and
-only a concrete plugin may know that, so it needs to convey it at the registration site.</p>
+while declaring the kind of generated content in <code>generated:</code> is not necessarily so: a generic <code>unzip</code> action may be
+actually unzipping some sources, and only a concrete plugin may know that, so it needs to convey it at the registration site.</p>
 </details>
 <h3 id="naming-and-addressing">Naming and addressing<a class="headerlink" href="#naming-and-addressing" title="Permanent link">&para;</a></h3>
 <p>The task name is local to the plugin. Different plugins may use the same task names without conflicts.</p>
@@ -3019,28 +3016,28 @@ By default, it is the plugin module name, unless overridden in <code>pluginInfo.
 In order to contribute some typed files back to the build, we need the following:</p>
 <ol>
 <li>To have a necessary path marked as an <code>@Output</code> in the task action</li>
-<li>To add an entry to the <code>markOutputsAs</code> list at the registration site, referring to the path and specifying the desired content kind.</li>
+<li>To add a <code>generated:</code> block at the top level of the <code>plugin.yaml</code>, declaring the kind of content and referencing the output path.</li>
 </ol>
-<p>Currently supported content kinds:</p>
+<p>Currently supported kinds of generated content:</p>
 <table>
 <thead>
 <tr>
-<th>Content kind</th>
+<th>Section</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>kotlin-sources</code></td>
-<td>A directory containing <strong>Kotlin sources</strong> to be compiled together with the module</td>
+<td><code>generated.sources</code></td>
+<td>A directory containing <strong>sources</strong> to be compiled together with the module (<code>language: kotlin</code> (default) or <code>language: java</code>)</td>
 </tr>
 <tr>
-<td><code>java-sources</code></td>
-<td>A directory containing <strong>Java sources</strong> to be compiled together with the module</td>
+<td><code>generated.resources</code></td>
+<td>A directory containing <strong>resources</strong> to be bundled together with the module</td>
 </tr>
 <tr>
-<td><code>jvm-resources</code></td>
-<td>A directory containing <strong>jvm resources</strong> to be bundled together with the module</td>
+<td><code>generated.cinteropDefinitions</code></td>
+<td>A <a href="https://kotlinlang.org/docs/native-definition-file.html"><code>.def</code> file</a> to be processed by the <a href="https://kotlinlang.org/docs/native-c-interop.html"><code>cinterop</code></a> tool</td>
 </tr>
 </tbody>
 </table>
@@ -3051,25 +3048,32 @@ In order to contribute some typed files back to the build, we need the following
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="kt">!com.example.generateSources</span>
 <span class="w">      </span><span class="nt">propertiesFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${module.rootDir}/config.properties</span>
 <span class="w">      </span><span class="nt">generatedSourceDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${taskOutputDir}</span><span class="w"> </span><span class="c1">#(1)!</span>
-<span class="w">  </span><span class="nt">markOutputsAs</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${action.generatedSourceDir}</span>
-<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin-sources</span>
-</code></pre></div>
+
+<span class="nt">generated</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
+<span class="hll"><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin</span>
+</span><span class="hll"><span class="w">      </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${tasks.generate.action.generatedSourceDir}</span>
+</span></code></pre></div>
 <ol>
 <li><code>generatedSourceDir</code> is <code class="highlight"><span class="nd">@Output</span><span class="w"> </span><span class="n">generatedSourceDir</span><span class="p">:</span><span class="w"> </span><span class="n">Path</span></code> in Kotlin</li>
 </ol>
 </div>
 <h3 id="advanced">Advanced<a class="headerlink" href="#advanced" title="Permanent link">&para;</a></h3>
-<p>One can customize the platform and/or main/test scope the content is associated with using the <code>fragment</code> clause of the <code>markOutputsAs</code> list element.
+<p>One can customize the platform and/or main/test scope the content is associated with using the <code>fragment</code> clause of each entry in the <code>generated.*</code> block.
 It has two properties: <code>modifier: string</code> and <code>isTest: boolean</code>.
 The <code>modifier</code> string has the same semantics as the suffix one can put after the <code>@</code> in the <code>module.yaml</code> configuration or
 in the names of <code>src</code> directories. For example, having:
-<div class="highlight"><pre><span></span><code><span class="nt">markOutputsAs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${action.generatedSourceDir}</span>
-<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin-sources</span>
-<span class="w">    </span><span class="nt">fragment</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">isTest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">modifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<div class="highlight"><pre><span></span><code><span class="nt">generated</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin</span>
+<span class="w">      </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${tasks.generate.action.generatedSourceDir}</span>
+<span class="w">      </span><span class="nt">fragment</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">isTest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">modifier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+
+<span class="w">  </span><span class="nt">cinteropDefinitions</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">defFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${tasks.provideNativeLibs.action.generatedDefFile}</span>
+<span class="w">      </span><span class="nt">fragment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">native</span>
 </code></pre></div>
 would make Amper treat the generated sources as if they were put into the <code>test@ios</code> directory.</p>
 <h2 id="consuming-things-from-the-build">Consuming things from the build<a class="headerlink" href="#consuming-things-from-the-build" title="Permanent link">&para;</a></h2>
@@ -3221,7 +3225,7 @@ plugin samples in the <code>build-sources</code> directory of the Amper project.
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2025 23:49:05 UTC">December 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 13:06:45 UTC">April 30, 2026</span>
   </span>
 
     

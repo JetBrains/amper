@@ -2614,21 +2614,23 @@ And <code>module.rootDir</code> is the directory of the module the plugin is ena
 Learn more about <a href="../topics/references/#reference-only-properties">Amper-provided reference-only properties</a>.</p>
 <p>But we need to make Amper aware that our output is, in fact, generated Kotlin sources,
 so the build tool can include them in the compilation, IDE can resolve symbols from them, etc.
-To do that, we'll use the <code>markOutputAs</code> clause in our task registration:</p>
+To do that, we'll add a <code>generated.sources</code> block to our <code>plugin.yaml</code>:</p>
 <div class="highlight"><span class="filename">build-config/plugin.yaml</span><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">generate</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="kt">!com.example.generateSources</span>
 <span class="w">      </span><span class="nt">propertiesFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${module.rootDir}/config.properties</span>
 <span class="w">      </span><span class="nt">generatedSourceDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${taskOutputDir}</span>
-<span class="hll"><span class="w">    </span><span class="nt">markOutputsAs</span><span class="p">:</span>
-</span><span class="hll"><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${action.generatedSourceDir}</span>
-</span><span class="hll"><span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin-sources</span><span class="w"> </span><span class="c1"># (1)!</span>
+
+<span class="hll"><span class="nt">generated</span><span class="p">:</span>
+</span><span class="hll"><span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
+</span><span class="hll"><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin</span><span class="w"> </span><span class="c1"># (1)!</span>
+</span><span class="hll"><span class="w">      </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${tasks.generate.action.generatedSourceDir}</span>
 </span></code></pre></div>
 <ol>
-<li><code>java-sources</code> and <code>jvm-resources</code> are also possible here</li>
+<li><code>java</code> is also possible here; for resources, use <code>generated.resources</code> instead</li>
 </ol>
-<p>We've added an item to the <code>markOutputsAs</code> list, where we reference our <code>generatedSourceDir</code> path and state,
-that <code>kotlin-sources</code> will be located there after the task is run.</p>
+<p>We've added an entry in <code>generated.sources</code> block, where we reference our <code>generatedSourceDir</code> path and state
+that Kotlin sources will be located there after the task is run.</p>
 <p>That's it with the plugin for now! Let's enable it in one of our modules (<code>app</code>):</p>
 <div class="highlight"><span class="filename">app/module.yaml</span><pre><span></span><code><span class="hll"><span class="nt">plugins</span><span class="p">:</span>
 </span><span class="hll"><span class="w">  </span><span class="nt">build-config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span><span class="w"> </span><span class="c1"># (1)!</span>
@@ -2805,13 +2807,15 @@ But we haven't wired them to our task! Let's fix that.</p>
 <div class="highlight"><span class="filename">build-config/plugin.yaml</span><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">generate</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="kt">!com.example.generateSources</span>
-<span class="w">      </span><span class="nt">propertiesFile</span><span class="p">:</span><span class="w"> </span>
-<span class="hll"><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">${module.rootDir}/${pluginSettings.propertiesFileName}.properties</span>
+<span class="hll"><span class="w">      </span><span class="nt">propertiesFile</span><span class="p">:</span><span class="w"> </span>
+</span><span class="hll"><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">${module.rootDir}/${pluginSettings.propertiesFileName}.properties</span>
 </span><span class="hll"><span class="w">      </span><span class="nt">additionalConfig</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${pluginSettings.additionalConfig}</span>
 </span><span class="w">      </span><span class="nt">generatedSourceDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${taskOutputDir}</span>
-<span class="w">    </span><span class="nt">markOutputsAs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${action.generatedSourceDir}</span>
-<span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin-sources</span>
+
+<span class="nt">generated</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kotlin</span>
+<span class="w">      </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${tasks.generate.action.generatedSourceDir}</span>
 </code></pre></div></p>
 <p><code>pluginSettings</code> is a global reference-only property that contains the configured plugin settings for each module the plugin is enabled in.
 In our case the type of <code>pluginSettings</code> would be <code>com.example.Settings</code> which we specified in <code>pluginInfo.settingsClass</code>.</p>
@@ -2905,7 +2909,7 @@ Feel free to take a look!</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 24, 2026 21:27:02 UTC">April 24, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 13:06:45 UTC">April 30, 2026</span>
   </span>
 
     
