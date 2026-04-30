@@ -4,6 +4,11 @@ description: 'Reports the JUnit test results present in the Amper build director
 runs:
   using: composite
   steps:
+    - name: List reports
+      shell: bash
+      run: |
+        echo "Report files:"
+        find build/reports/*/jvm/TEST-*
     - name: Report test results
       uses: dorny/test-reporter@v2
       with:
