@@ -12,7 +12,7 @@ jobs:
       fail-fast: false # So that all jobs run to completion even when one fails
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        testsType: [ cli-e2e, unit ]
+        testsType: [ cli-e2e, unit, update ]
         include:
           - testsType: cli-e2e
             testActionName: Run CLI tests
@@ -20,6 +20,10 @@ jobs:
           - testsType: unit
             testActionName: Run regular unit tests
             testCommandOptions: --exclude-module=amper-mobile-test --exclude-module=amper-cli-test
+          - testsType: update
+            testActionName: Run CLI update command tests
+            testCommandOptions: --include-module=amper-cli-test --include-classes=org.jetbrains.amper.cli.test.AmperUpdateTest
+            os: windows-latest
     name: Tests (${{ matrix.os }}, ${{ matrix.testsType }})
     runs-on: ${{ matrix.os }}
     steps:
