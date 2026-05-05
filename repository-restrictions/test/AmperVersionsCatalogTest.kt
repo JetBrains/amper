@@ -1,7 +1,10 @@
 /*
- * Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import org.apache.maven.artifact.versioning.ComparableVersion
+import org.jetbrains.amper.frontend.schema.DefaultVersions
+import org.jetbrains.amper.frontend.schema.DiscouragedDirectDefaultVersionAccess
 import org.jetbrains.amper.test.Dirs
 import kotlin.io.path.readLines
 import kotlin.test.Test
@@ -17,7 +20,8 @@ class AmperVersionsCatalogTest {
 
     // Example:
     // kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-    private val libraryWithVersionRef = Regex("""[^=]+=\s*\{\s*module\s*=\s*"[^"]+"\s*,\s*version\.ref\s*=\s*"[^"]+"\s*}""")
+    private val libraryWithVersionRef =
+        Regex("""[^=]+=\s*\{\s*module\s*=\s*"[^"]+"\s*,\s*version\.ref\s*=\s*"[^"]+"\s*}""")
 
     @Test
     fun catalogLibrariesHaveExtractedVersion() {
@@ -33,6 +37,33 @@ class AmperVersionsCatalogTest {
             )
         }
     }
+
+    @Test
+    fun kotlinBtaVersionAtLeastAsHighAsKotlinDefault() {
+        val versions = readCatalog().parsedVersions
+
+        @OptIn(DiscouragedDirectDefaultVersionAccess::class)
+        val defaultKotlinVersion = DefaultVersions.kotlin
+        val kotlinBtaVersion = versions.getValue("kotlin-bta")
+        assertTrue(
+            actual = ComparableVersion(kotlinBtaVersion) >= ComparableVersion(defaultKotlinVersion),
+            message = "`kotlin-bta` version ($kotlinBtaVersion) in libs.versions.toml must be at least as high as " +
+                    "the default Kotlin version for users ($defaultKotlinVersion) " +
+                    "defined in build-sources/project-commands/module.yaml. This guarantees that Build Tools API is" +
+                    "aware of the compiler version used by default in users' projects and doesn't rely on forward" +
+                    "compatibility.",
+        )
+    }
+
+    // Example:
+    // kotlin = "2.3.20"
+    private val versionEntryRegex = Regex("""([\w-]+)\s*=\s*"([^"]+)"""")
+
+    private val GradleCatalog.parsedVersions: Map<String, String>
+        get() = versionLines.associate { line ->
+            val match = versionEntryRegex.find(line) ?: error("Cannot parse version line: $line")
+            match.groupValues[1] to match.groupValues[2]
+        }
 
     private class GradleCatalog(val versionLines: List<String>, val libraryLines: List<String>)
 
