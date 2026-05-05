@@ -6,8 +6,8 @@ apply:
   - ../../sources/common.module-template.yaml
 
 dependencies:
+  - $kotlin.reflect
   - $libs.kotlin.poet
-  - $libs.kotlin.reflect
 
   # We depend directory on the `frontend-api` module to inspect its classes via reflection.
   # Non-runtime reflection processing (KSP, AA) is at the moment not possible, as the schema defaults are runtime values
