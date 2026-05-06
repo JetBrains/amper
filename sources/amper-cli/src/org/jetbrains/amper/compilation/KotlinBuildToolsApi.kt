@@ -4,9 +4,14 @@
 
 package org.jetbrains.amper.compilation
 
+import com.github.ajalt.mordant.rendering.TextStyle
+import com.github.ajalt.mordant.rendering.TextStyles
+import com.github.ajalt.mordant.terminal.Terminal
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.cli.lazyload.ExtraClasspath
+import org.jetbrains.amper.cli.logging.withoutConsoleLogging
 import org.jetbrains.amper.concurrency.AsyncConcurrentMap
+import org.jetbrains.amper.frontend.AmperModule
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
 import org.jetbrains.kotlin.buildtools.api.KotlinToolchains
@@ -69,22 +74,21 @@ fun Logger.asKotlinLogger(): KotlinLogger {
         override val isDebugEnabled: Boolean
             get() = slf4jLogger.isDebugEnabled
 
-        override fun debug(msg: String) = slf4jLogger.debug(msg)
-        override fun lifecycle(msg: String) = slf4jLogger.info(msg)
-        override fun info(msg: String) = slf4jLogger.info(msg)
-        override fun warn(msg: String) = slf4jLogger.warn(msg)
-        override fun warn(msg: String, throwable: Throwable?) = slf4jLogger.warn(msg, throwable)
-        override fun error(msg: String, throwable: Throwable?) = slf4jLogger.error(msg, throwable)
+        // Console logging is handled by TerminalPrintingKotlinLogger or TeminalCompilerMessageRenderer depending on
+        // the version of Kotlin.
+        override fun debug(msg: String) = withoutConsoleLogging { slf4jLogger.debug(msg) }
+        override fun lifecycle(msg: String) = withoutConsoleLogging { slf4jLogger.info(msg) }
+        override fun info(msg: String) = withoutConsoleLogging { slf4jLogger.info(msg) }
+        override fun warn(msg: String) = withoutConsoleLogging { slf4jLogger.warn(msg) }
+        override fun warn(msg: String, throwable: Throwable?) =
+            withoutConsoleLogging { slf4jLogger.warn(msg, throwable) }
+
+        override fun error(msg: String, throwable: Throwable?) =
+            withoutConsoleLogging { slf4jLogger.error(msg, throwable) }
     }
 }
 
-/**
- * Returns a [KotlinLogger] that logs to both this logger and the given [other] logger.
- */
-internal operator fun KotlinLogger.plus(other: KotlinLogger): KotlinLogger = CombiningKotlinLogger(this, other)
-
-private class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
-    private val loggers = logger
+internal class CombiningKotlinLogger(private val loggers: List<KotlinLogger>) : KotlinLogger {
 
     override val isDebugEnabled: Boolean
         get() = loggers.any { it.isDebugEnabled }
@@ -98,7 +102,7 @@ private class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
 }
 
 @ThreadSafe
-class ErrorsCollectorKotlinLogger: KotlinLogger {
+class ErrorsCollectorKotlinLogger : KotlinLogger {
     private val collector: MutableList<String> = mutableListOf()
 
     val errors: List<String>
@@ -118,4 +122,42 @@ class ErrorsCollectorKotlinLogger: KotlinLogger {
     override fun lifecycle(msg: String) = Unit
     override fun warn(msg: String) = Unit
     override fun warn(msg: String, throwable: Throwable?) = Unit
+}
+
+/**
+ * Logger that prints Kotlin messages to the CLI.
+ *
+ * For Kotlin >= 2.4.0-Beta2 use [TerminalCompilerMessageRenderer] to have better structured output.
+ */
+internal class TerminalPrintingKotlinLogger(
+    private val terminal: Terminal,
+    module: AmperModule,
+) : KotlinLogger {
+    override val isDebugEnabled: Boolean = false
+
+    private val moduleName = "(${module.userReadableName})"
+
+    override fun debug(msg: String) {
+        // Debug messages shouldn't be printed to the CLI
+    }
+
+    override fun lifecycle(msg: String) {
+        print(style = terminal.theme.info, levelText = "LIFECYCLE", message = msg)
+    }
+
+    override fun error(msg: String, throwable: Throwable?) {
+        print(style = terminal.theme.danger, levelText = "ERROR", message = msg, stderr = true)
+    }
+
+    override fun info(msg: String) {
+        print(style = terminal.theme.info, levelText = "INFO", message = msg)
+    }
+
+    override fun warn(msg: String, throwable: Throwable?) {
+        print(style = terminal.theme.warning, levelText = "WARN", message = msg)
+    }
+
+    private fun print(style: TextStyle, levelText: String, message: String, stderr: Boolean = false) {
+        terminal.println("${TextStyles.bold(style(levelText))} ${TextStyles.italic(moduleName)} $message", stderr = stderr)
+    }
 }

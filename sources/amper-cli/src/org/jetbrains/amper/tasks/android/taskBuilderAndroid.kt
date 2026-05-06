@@ -177,16 +177,18 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                 task = JvmCompileTask(
                     module = module,
                     isTest = isTest,
-                    buildType = buildType,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
+                    projectRoot = context.projectRoot,
+                    tempRoot = context.projectTempRoot,
                     taskName = compileTaskName,
                     incrementalCache = context.incrementalCache,
-                    tempRoot = context.projectTempRoot,
-                    platform = Platform.ANDROID,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
+                    buildType = buildType,
+                    platform = Platform.ANDROID,
                     processRunner = context.processRunner,
+                    terminal = context.terminal,
                 ),
                 dependsOn = buildList {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))

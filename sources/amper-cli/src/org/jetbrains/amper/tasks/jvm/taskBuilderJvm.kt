@@ -34,12 +34,14 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     isTest = isTest,
                     fragments = fragments,
                     userCacheRoot = context.userCacheRoot,
+                    projectRoot = context.projectRoot,
+                    tempRoot = context.projectTempRoot,
                     taskName = compileTaskName,
                     incrementalCache = context.incrementalCache,
-                    tempRoot = context.projectTempRoot,
                     buildOutputRoot = context.buildOutputRoot,
                     jdkProvider = context.jdkProvider,
                     processRunner = context.processRunner,
+                    terminal = context.terminal,
                 ),
                 dependsOn = buildList {
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))

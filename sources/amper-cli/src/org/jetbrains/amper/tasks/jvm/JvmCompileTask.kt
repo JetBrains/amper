@@ -4,24 +4,29 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.trace.SpanBuilder
 import kotlinx.serialization.json.Json
+import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.ProcessRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.telemetry.setAmperModule
 import org.jetbrains.amper.cli.telemetry.setFragments
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.compilation.CombiningKotlinLogger
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
 import org.jetbrains.amper.compilation.JavaUserSettings
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
+import org.jetbrains.amper.compilation.TerminalCompilerMessageRenderer
+import org.jetbrains.amper.compilation.TerminalPrintingKotlinLogger
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
-import org.jetbrains.amper.compilation.plus
 import org.jetbrains.amper.compilation.serializableCompilationSettings
 import org.jetbrains.amper.compilation.singleLeafFragment
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -59,6 +64,7 @@ import org.jetbrains.amper.telemetry.setListAttribute
 import org.jetbrains.amper.telemetry.spanBuilder
 import org.jetbrains.amper.telemetry.use
 import org.jetbrains.amper.util.BuildType
+import org.jetbrains.kotlin.buildtools.api.BaseCompilationOperation
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinToolchains
@@ -71,12 +77,10 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
-import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
-import kotlin.use
 
 @OptIn(ExperimentalBuildToolsApi::class)
 internal class JvmCompileTask(
@@ -84,6 +88,7 @@ internal class JvmCompileTask(
     override val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val projectRoot: AmperProjectRoot,
     private val tempRoot: AmperProjectTempRoot,
     override val taskName: TaskName,
     private val incrementalCache: IncrementalCache,
@@ -94,6 +99,7 @@ internal class JvmCompileTask(
     override val buildType: BuildType? = null,
     override val platform: Platform = Platform.JVM,
     private val processRunner: ProcessRunner,
+    private val terminal: Terminal,
 ): ArtifactTaskBase(), BuildTask {
 
     init {
@@ -169,7 +175,7 @@ internal class JvmCompileTask(
             .filterIsInstance<MavenPhaseResult>()
             .flatMap { it.sourceRoots }
             .distinctBy { it.path } // Need to remove duplicates, because a same path can be provided by multiple providers.
-        
+
         val additionalSources = additionalArtifactSources + additionalSourceRootsFromMaven
 
         val additionalResources = additionalResourcesDirs.map { artifact ->
@@ -338,8 +344,18 @@ internal class JvmCompileTask(
         val executionPolicy = kotlinToolchains.createInProcessExecutionPolicy()
 
         val errorsCollector = ErrorsCollectorKotlinLogger()
-        val compilationLogger = logger.asKotlinLogger() + errorsCollector
-        sourceFiles.first().invariantSeparatorsPathString
+        val isCompilerMessageRendererAPIAvailable =
+            ComparableVersion(userSettings.kotlin.compilerVersion) >= ComparableVersion("2.4.0-Beta2")
+        val compilationLogger = CombiningKotlinLogger(buildList {
+            add(logger.asKotlinLogger())
+            add(errorsCollector)
+            // Compiler message renderer is supported only since 2.4.0-Beta2.
+            // For previous versions we simply print messages provided to KotlinLogger to the terminal with an
+            // appropriate style.
+            if (!isCompilerMessageRendererAPIAvailable) {
+                add(TerminalPrintingKotlinLogger(terminal, module))
+            }
+        })
 
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             plugins = userSettings.kotlin.compilerPlugins,
@@ -374,6 +390,12 @@ internal class JvmCompileTask(
                             destinationDirectory = compiledJvmArtifact.kotlinCompilerOutputRoot,
                         ).apply {
                             compilerArguments.applyArgumentStrings(compilerArgs)
+                            if (isCompilerMessageRendererAPIAvailable) {
+                                set(
+                                    BaseCompilationOperation.COMPILER_MESSAGE_RENDERER,
+                                    TerminalCompilerMessageRenderer(terminal, projectRoot.path, module),
+                                )
+                            }
                             // TODO configure incremental compilation here
 //                            set(JvmCompilationOperation.INCREMENTAL_COMPILATION,
 //                                JvmSnapshotBasedIncrementalCompilationConfiguration())
@@ -388,10 +410,7 @@ internal class JvmCompileTask(
             }
 
         if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
-            val errorsSuffix = if (errorsCollector.errors.isNotEmpty()) {
-                ":\n\n${errorsCollector.errors.joinToString("\n")}"
-            } else " (see errors above)"
-            userReadableError("Kotlin compilation failed$errorsSuffix")
+            userReadableError("Kotlin compilation failed with ${errorsCollector.errors.size} errors (see above)")
         }
     }
 

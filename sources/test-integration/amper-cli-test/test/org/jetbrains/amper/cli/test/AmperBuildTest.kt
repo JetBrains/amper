@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli.test
 
 import org.jetbrains.amper.cli.test.utils.assertJavaIncrementalCompilationState
+import org.jetbrains.amper.cli.test.utils.assertStderrContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutContains
 import org.jetbrains.amper.cli.test.utils.assertStdoutDoesNotContain
 import org.jetbrains.amper.cli.test.utils.getTaskOutputPath
@@ -17,6 +18,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
+import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -97,15 +99,15 @@ class AmperBuildTest : AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-
-        val lastLines = r.stderr.lines().filter { it.isNotBlank() }.takeLast(2)
-
         val file = r.projectDir.resolve("shared/src/World.kt").toUri()
+        // Uses old style of reporting (< 2.4.0-Beta2), should be updated if the default Kotlin version changes.
+        r.assertStderrContains("ERROR (shared) $file:2:26 Unresolved reference 'XXXX'")
 
-        assertEquals("""
-            ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
-            $file:2:26 Unresolved reference 'XXXX'.
-        """.trimIndent(), lastLines.joinToString("\n"))
+        val lastLine = r.stderr.lines().last { it.isNotBlank() }
+        assertEquals(
+            "ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed with 1 errors (see above)".trimIndent(),
+            lastLine,
+        )
     }
 
     @Test
@@ -205,6 +207,75 @@ class AmperBuildTest : AmperCliTestBase() {
     fun `kotlin compiler dev version`() = runSlowTest {
         val projectContext = testProject("kotlin-dev-version")
         runCli(projectDir = projectContext, "build") // just test that it builds
+    }
+
+    @Test
+    fun `kotlin errors are reported structurally`() = runSlowTest {
+        val projectContext = testProject("kotlin-diagnostics-errors")
+        val result = runCli(
+            projectDir = projectContext,
+            "build",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        val filePath = Path("src/main.kt").pathString
+
+        result.assertStderrContains("""
+              ╭─ ERROR: Cannot infer type for type parameter 'B'. Specify it explicitly.
+              │ → $filePath:8:9 (kotlin-diagnostics-errors)
+              │
+            8 │     "a" to unknownValue
+              │         ⌃⌃
+              ╰─
+        """.trimIndent())
+
+        result.assertStderrContains("""
+              ╭─ ERROR: Unresolved reference 'unknownValue'.
+              │ → $filePath:8:12 (kotlin-diagnostics-errors)
+              │
+            8 │     "a" to unknownValue
+              │            ⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃
+              ╰─
+        """.trimIndent())
+
+        result.assertStderrContains("""
+               ╭─ ERROR: Argument type mismatch: actual type is 'String', but 'Int' was expected.
+               │ → $filePath:10:9 (kotlin-diagnostics-errors)
+               │
+               │         ⌄⌄⌄
+            10 │     foo(""${'"'}
+            11 │         multiline
+            12 │     ""${'"'}.trimIndent())
+               │ ⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃⌃
+               ╰─
+        """.trimIndent())
+    }
+
+    @Test
+    fun `kotlin warnings are reported structurally`() = runSlowTest {
+        val projectContext = testProject("kotlin-diagnostics-warnings")
+        val result = runCli(projectDir = projectContext, "build")
+        val filePath = Path("src/main.kt").pathString
+        result.assertStdoutContains("""
+              ╭─ WARNING: Unused return value of 'foo'.
+              │ → $filePath:9:5 (kotlin-diagnostics-warnings)
+              │
+            9 │     foo()
+              │     ⌃⌃⌃
+              ╰─
+        """.trimIndent())
+
+        result.assertStdoutContains("""
+               ╭─ WARNING: Expression is unused.
+               │ → $filePath:11:5 (kotlin-diagnostics-warnings)
+               │
+               │     ⌄⌄⌄
+            11 │     ""${'"'}
+            12 │         multiline
+            13 │     ""${'"'}
+               │ ⌃⌃⌃⌃⌃⌃⌃
+               ╰─
+        """.trimIndent())
     }
 
     private suspend fun runCliWithOrWithoutJps(
