@@ -1,7 +1,7 @@
 @echo off
 
 @rem
-@rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+@rem Copyright 2000-2026 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 @rem
 
 @rem Possible environment variables:
@@ -22,7 +22,6 @@ set amper_version=@AMPER_VERSION@
 set amper_sha256=@AMPER_DIST_TGZ_SHA256@
 
 if not defined AMPER_DOWNLOAD_ROOT set AMPER_DOWNLOAD_ROOT=https://packages.jetbrains.team/maven/p/amper/amper
-if not defined AMPER_JRE_DOWNLOAD_ROOT set AMPER_JRE_DOWNLOAD_ROOT=https:/
 if not defined AMPER_BOOTSTRAP_CACHE_DIR set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\JetBrains\Amper
 @rem remove trailing \ if present
 if [%AMPER_BOOTSTRAP_CACHE_DIR:~-1%] EQU [\] set AMPER_BOOTSTRAP_CACHE_DIR=%AMPER_BOOTSTRAP_CACHE_DIR:~0,-1%
@@ -134,63 +133,20 @@ set amper_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\amper-cli-%amper_version%
 call :download_and_extract "Amper distribution v%amper_version%" "%amper_url%" "%amper_target_dir%" "%amper_sha256%" "256" "true"
 if errorlevel 1 goto fail
 
-REM ********** Provision JRE for Amper **********
+REM ********** Launch Amper **********
 
-if defined AMPER_JAVA_HOME (
-    if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
-      echo Invalid AMPER_JAVA_HOME provided: cannot find %AMPER_JAVA_HOME%\bin\java.exe
-      goto fail
-    )
-    @rem If AMPER_JAVA_HOME contains "jbr-21", it means we're inheriting it from the old Amper's update command.
-    @rem We must ignore it because Amper needs 25.
-    if "%AMPER_JAVA_HOME%"=="%AMPER_JAVA_HOME:jbr-21=%" (
-        set effective_amper_java_home=%AMPER_JAVA_HOME%
-        goto jre_provisioned
-    ) else (
-        echo WARN: AMPER_JAVA_HOME will be ignored because it points to a JBR 21, which is not valid for Amper anymore.
-        echo If you're updating from an Amper version older than 0.8.0, please ignore this message.
-    )
-)
-
-@rem Auto-updated from syncVersions.main.kts, do not modify directly here
-set zulu_version=25.32.21
-set java_version=25.0.2
+@rem Determine the correct busybox binary based on architecture
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set jre_arch=aarch64
-    set jre_sha256=1106eec3bd166a117ccaf20f15bbec6537e27307be328b8a9e93a053c857fe7c
+    set busybox_exe=%amper_target_dir%\bin\busybox64a.exe
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set jre_arch=x64
-    set jre_sha256=a4b7e3c3929d513cdc774583d375ce07fcb8671833258f468fd2fa0d8227ba48
+    set busybox_exe=%amper_target_dir%\bin\busybox64u.exe
 ) else (
-    echo Unknown Windows architecture %PROCESSOR_ARCHITECTURE% >&2
+    echo Unsupported architecture %PROCESSOR_ARCHITECTURE% >&2
     goto fail
 )
 
-@rem URL for the JRE (see https://api.azul.com/metadata/v1/zulu/packages?release_status=ga&include_fields=java_package_features,os,arch,hw_bitness,abi,java_package_type,sha256_hash,size,archive_type,lib_c_type&java_version=25&os=macos,linux,win)
-@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-win_x64.zip
-@rem https://cdn.azul.com/zulu/bin/zulu25.28.85-ca-jre25.0.0-win_aarch64.zip
-set jre_url=%AMPER_JRE_DOWNLOAD_ROOT%/cdn.azul.com/zulu/bin/zulu%zulu_version%-ca-jre%java_version%-win_%jre_arch%.zip
-set jre_target_dir=%AMPER_BOOTSTRAP_CACHE_DIR%\zulu%zulu_version%-ca-jre%java_version%-win_%jre_arch%
-call :download_and_extract "Amper runtime v%zulu_version%" "%jre_url%" "%jre_target_dir%" "%jre_sha256%" "256" "false"
-if errorlevel 1 goto fail
-
-set effective_amper_java_home=
-for /d %%d in ("%jre_target_dir%\*") do if exist "%%d\bin\java.exe" set effective_amper_java_home=%%d
-if not exist "%effective_amper_java_home%\bin\java.exe" (
-  echo Unable to find java.exe under %jre_target_dir%
-  goto fail
-)
-:jre_provisioned
-
-REM ********** Launch Amper **********
-
-"%effective_amper_java_home%\bin\java.exe" ^
-  @"%amper_target_dir%\amper.args" ^
-  "-Damper.wrapper.dist.sha256=%amper_sha256%" ^
-  "-Damper.dist.path=%amper_target_dir%" ^
-  "-Damper.wrapper.path=%~f0" ^
-  %AMPER_JAVA_OPTIONS% ^
-  -cp "%amper_target_dir%\lib\*" ^
-  org.jetbrains.amper.cli.MainKt ^
-  %*
+rem We use busybox here because it doesn't reinterpret the user-passed command-line arguments (that we pass via %*).
+rem Also this way we can use the unified launcher script (.sh)
+set AMPER_WRAPPER_PATH=%~f0
+"%busybox_exe%" sh "%amper_target_dir%\bin\launcher.sh" %*
 exit /B %ERRORLEVEL%

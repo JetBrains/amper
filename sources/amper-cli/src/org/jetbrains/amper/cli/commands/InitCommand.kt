@@ -25,6 +25,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.readText
 
 internal class InitCommand : AmperSubcommand(name = "init") {
 
@@ -77,11 +78,13 @@ internal class InitCommand : AmperSubcommand(name = "init") {
     }
 
     private fun generateWrapperScripts(targetRootDir: Path): Boolean {
-        val sha256 = System.getProperty("amper.wrapper.dist.sha256")
-        if (sha256.isNullOrEmpty()) {
+        val distributionPath = System.getenv("AMPER_DISTRIBUTION_DIR")
+        if (distributionPath.isNullOrEmpty()) {
             logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $targetRootDir")
             return false
         }
+        // Written by `download_and_extract` wrapper routine.
+        val sha256 = Path(distributionPath, ".flag").readText().trim()
         AmperWrappers.generate(
             targetDir = targetRootDir,
             amperVersion = AmperBuild.mavenVersion,

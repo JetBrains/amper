@@ -1,0 +1,87 @@
+This software includes code from Amper project configuration tool
+Copyright (C) JetBrains s.r.o.
+https://www.jetbrains.com
+
+This software is distributed under the Apache 2.0 license.
+The full text of the license is available at:
+    licenses/Apache-2.0.txt
+
+Some third-party components may be included under separate licenses, see
+the corresponding sections below.
+
+===============================================================================
+THIRD-PARTY NOTICES
+===============================================================================
+
+This product includes third-party software distributed under separate license
+terms. This file provides attribution and license information for those
+components. It is informational only and does not modify the terms of any
+upstream license.
+
+===============================================================================
+BusyBox for Windows (busybox-w32)
+===============================================================================
+
+This product includes BusyBox for Windows ("busybox-w32"), a WIN32 native port
+of BusyBox.
+
+Project homepage:
+    https://frippery.org/busybox/
+
+Source repositories:
+    https://github.com/rmyorston/busybox-w32
+
+Upstream version:
+    busybox-w32 @BUSYBOX_W32_VERSION@
+
+Copyright:
+    Copyright (C) the respective BusyBox and busybox-w32 authors and
+    contributors. See the source distribution for individual file headers and
+    the AUTHORS file.
+
+License:
+    GNU General Public License, version 2 (GPL-2.0-only).
+    SPDX-License-Identifier: GPL-2.0-only
+
+    The full text of the GNU General Public License, version 2, is included
+    in this distribution at:
+        licenses/GPL-2.txt
+
+Included binaries:
+    - bin/busybox64u.exe   (Windows x86_64 / AMD64 build)
+    - bin/busybox64a.exe   (Windows ARM64 build)
+
+Provenance of the binaries:
+    The above binaries are unmodified, prebuilt executables obtained directly
+    from the official busybox-w32 distribution site:
+        https://frippery.org/busybox/
+    They were produced by the upstream busybox-w32 maintainer. This project
+    does not compile, patch, or otherwise modify them; it redistributes them
+    as-is.
+
+Modifications:
+    No modifications have been made to the upstream binaries or to the
+    upstream source code by this project.
+
+Corresponding source code (GPLv2 §3(a)):
+    Pursuant to GNU GPL version 2, section 3(a), the complete corresponding
+    source code for the above binaries is included in this distribution at:
+        third-party-sources/busybox-w32-@BUSYBOX_W32_VERSION@.tgz
+
+    Additionally, the source code along with the git tag can be found at:
+        https://github.com/rmyorston/busybox-w32/releases/tag/@BUSYBOX_W32_VERSION@
+
+    This tarball is the upstream busybox-w32 source tree at the revision
+    that corresponds to the included binaries. It contains the full source
+    code together with the scripts used to control compilation, namely the
+    in-tree Makefile and Kconfig build system. The Windows build
+    configurations are provided in-tree as the standard mingw64 defconfigs
+    shipped by upstream:
+        - configs/mingw64u_defconfig
+        - configs/mingw64a_defconfig
+
+Warranty disclaimer:
+    BusyBox and busybox-w32 are distributed in the hope that they will be
+    useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License, version 2, for more details.

@@ -256,7 +256,7 @@ abstract class AmperCliWithWrapperTestBase {
     }
 }
 
-private val logsDirRegex = Regex("""amper_(?<datetime>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_(?<pid>\d+)-(?<parentPid>\d+)_(?<command>.+)""")
+private val logsDirRegex = Regex("""amper_(?<datetime>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_(?<pid>\d+)-(?<grandParentPid>\d+)_(?<command>.+)""")
 
 private fun logsDirForExecution(buildDir: Path, amperWrapperPid: Long): Path? =
     (buildDir / "logs").takeIf { it.exists() }
@@ -269,11 +269,11 @@ private fun Path.isLogsDirFor(amperWrapperPid: Long): Boolean {
         ?: error("The logs root dir contains an invalid logs directory name: $name")
     val pid = match.groups["pid"]?.value?.toLong()
         ?: error("The regex was matched but the 'pid' group is missing")
-    val parentPid = match.groups["parentPid"]?.value?.toLong()
-        ?: error("The regex was matched but the 'parentPid' group is missing")
+    val grandParentPid = match.groups["grandParentPid"]?.value?.toLong()
+        ?: error("The regex was matched but the 'grandParentPid' group is missing")
     // On Windows, the PID of the process we start (the wrapper) is the parent of the Amper Java process.
     // On linux/macOS, the wrapper uses 'exec java' so the wrapper process is replaced with Java with the same PID.
-    return if (OsFamily.current.isWindows) parentPid == amperWrapperPid else pid == amperWrapperPid
+    return if (OsFamily.current.isWindows) grandParentPid == amperWrapperPid else pid == amperWrapperPid
 }
 
 /**

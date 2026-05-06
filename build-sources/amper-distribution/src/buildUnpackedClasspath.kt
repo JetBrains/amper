@@ -8,8 +8,10 @@ import org.jetbrains.amper.plugins.Input
 import org.jetbrains.amper.plugins.Output
 import org.jetbrains.amper.plugins.TaskAction
 import org.jetbrains.amper.stdlib.hashing.sha256String
+import org.jetbrains.amper.wrapper.AmperWrappers
 import java.nio.file.Path
 import kotlin.io.path.copyTo
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectory
 import kotlin.io.path.div
 import kotlin.io.path.extension
@@ -24,6 +26,7 @@ fun buildUnpackedClasspath(
     @Input baseClasspath: Classpath,
     @Input extraClasspaths: Map<String, Classpath> = emptyMap(),
     @Input extraFilteredClasspaths: Map<String, FilteredClasspath> = emptyMap(),
+    @Input thirdPartyStagingDir: Path?,
     subdirectoryName: String?,
     jarListFileName: String?,
 ) {
@@ -55,4 +58,12 @@ fun buildUnpackedClasspath(
     jarListFileName?.let { fileName ->
         targetDir.resolve(fileName).writeText(baseClasspath.resolvedFiles.joinToString("\n") { it.name })
     }
+
+    AmperWrappers.generateLaunchers(targetDir / "bin")
+
+    thirdPartyStagingDir?.copyToRecursively(
+        target = targetDir,
+        followLinks = false,
+        overwrite = false,
+    )
 }

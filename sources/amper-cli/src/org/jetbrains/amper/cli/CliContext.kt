@@ -56,13 +56,22 @@ class CliContext(
 
         val pid = currentProcess.pid() // avoid clashes with concurrent Amper processes
 
-        // On linux/macOS, the wrapper script uses 'exec java' to start Amper, which replaces the process and uses the
-        // same PID. On Windows, there is no equivalent, so a child process is created. Callers are only aware of the
-        // wrapper process ID, so to allow the automated discovery of the logs dir, we also record the parent process
-        // ID for Windows users.
-        val parentPid = currentProcess.parent().getOrNull()?.pid()
+        /*
+        On linux/macOS, the wrapper script uses 'exec java' to start Amper, which replaces the process and uses the
+         same PID.
 
-        val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}-${parentPid}_$commandName")
+        On Windows, there is no equivalent, so child processes are created.
+        That happens twice: once the wrapper calls the launcher and once more when the launcher calls java.exe.
+        The "wrapper -> launcher" call is done via the busybox*.exe binary,
+         which then does an `exec` for java.exe. But in Windowns busybox port `exec` still spawns the child process
+         as there is no other way.
+
+        Callers are only aware of the wrapper process ID,
+         so to allow the automated discovery of the logs dir, we also record the parent process ID for Windows users.
+        */
+        val grandParentPid = currentProcess.parent().getOrNull()?.parent()?.getOrNull()?.pid()
+
+        val currentLogsPath = projectLogsRoot.path.resolve("amper_${currentTimestamp}_${pid}-${grandParentPid}_$commandName")
         AmperBuildLogsRoot(currentLogsPath.createDirectories())
     }
 
@@ -104,8 +113,8 @@ class CliContext(
          * An absolute path to the wrapper script that the process currently runs under.
          */
         val wrapperScriptPath: Path by lazy {
-            System.getProperty("amper.wrapper.path")?.takeIf { it.isNotBlank() }?.let(::Path)
-                ?: error("Missing `amper.wrapper.path` property. Is your Amper distribution intact?")
+            System.getenv("AMPER_WRAPPER_PATH")?.takeIf { it.isNotBlank() }?.let(::Path)
+                ?: error("Missing `AMPER_WRAPPER_PATH` env var. Is your Amper distribution intact?")
         }
     }
 }

@@ -21,5 +21,8 @@ dependencies:
   - ../../sources/amper-maven-publish
   - ../../sources/amper-wrapper
   - ../../sources/libraries/stdlib-extended
+  - $libs.ktor.client
+  - $libs.ktor.client.cio
   - $libs.apacheCommons.compress
+  - $libs.bouncycastle.bcpg
   - $libs.slf4j.simple

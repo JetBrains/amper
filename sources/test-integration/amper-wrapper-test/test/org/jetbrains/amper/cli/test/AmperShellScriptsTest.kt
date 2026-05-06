@@ -36,6 +36,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
@@ -251,7 +252,50 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
 
     @Test
     fun `fails on wrong jre distribution checksum`() = runBlocking {
-        assertWrongChecksum(Regex("\\b(jre_sha256=)[0-9a-fA-F]+"))
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        // Step 1: Run normally to download and extract the Amper distribution (with a custom JAVA_HOME to skip JRE download)
+        val jdkHome = provisionZulu25()
+        runAmper(
+            workingDir = tempDir,
+            args = listOf("--version"),
+            bootstrapCacheDir = bootstrapCacheDir,
+            amperJavaHomeMode = JavaHomeMode.Custom(jreHomePath = jdkHome),
+        )
+
+        // Step 2: Find the launcher script inside the extracted distribution and corrupt jre_sha256
+        val amperDistDirs = bootstrapCacheDir.listDirectoryEntries("amper-cli-*")
+        assertEquals(1, amperDistDirs.size, "Expected exactly one amper-cli distribution dir in $bootstrapCacheDir")
+        val launcherScriptName = "launcher.sh"
+        val launcherScript = amperDistDirs.single() / "bin" / launcherScriptName
+        assertTrue(launcherScript.exists(), "Launcher script not found at $launcherScript")
+
+        val checksumRegex = Regex("\\b(jre_sha256=)[0-9a-fA-F]+")
+        val originalContent = launcherScript.readText()
+        val corruptedContent = originalContent
+            .replace(checksumRegex, "\$1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        assertNotEquals(originalContent, corruptedContent, "jre_sha256 pattern was not found in the launcher script")
+        launcherScript.writeText(corruptedContent)
+        launcherScript.toFile().setExecutable(true)
+
+        // Step 3: Remove any already-provisioned JRE directories and their .flag files so the launcher re-downloads
+        bootstrapCacheDir.listDirectoryEntries("zulu*").forEach { it.toFile().deleteRecursively() }
+
+        // Step 4: Run again without AMPER_JAVA_HOME, expecting a checksum failure from the launcher
+        val result = runAmper(
+            workingDir = tempDir,
+            args = listOf("--version"),
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+            bootstrapCacheDir = bootstrapCacheDir,
+            amperJavaHomeMode = JavaHomeMode.ForceUnset,
+        )
+        val expectedErrorRegex =
+            Regex("""ERROR: Checksum mismatch for .+ \(downloaded from .+\): expected checksum aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa but got \w+""")
+        assertTrue("Process stderr must match '$expectedErrorRegex'. Actual stderr:\n${result.stderr}") {
+            // cmd.exe breaks lines unpredictably when calling powershell (it depends on its own buffer)
+            result.stderr.replace("\r", "").replace("\n", "").matches(expectedErrorRegex)
+        }
     }
 
     private suspend fun assertWrongChecksum(checksumRegex: Regex) {
@@ -275,7 +319,6 @@ class AmperShellScriptsTest : AmperCliWithWrapperTestBase() {
             assertEmptyStdErr = false,
             bootstrapCacheDir = bootstrapCacheDir,
             customAmperScriptPath = brokenScript,
-            // We want to test the failure to download the JRE to the bootstrap dir, we have to unset this
             amperJavaHomeMode = JavaHomeMode.ForceUnset,
         )
         val expectedErrorRegex =

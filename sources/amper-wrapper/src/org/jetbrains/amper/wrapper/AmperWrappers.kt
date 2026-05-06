@@ -5,26 +5,44 @@
 package org.jetbrains.amper.wrapper
 
 import java.nio.file.Path
+import kotlin.io.path.createDirectory
+import kotlin.io.path.writeText
 
-private data class AmperWrapper(
+private data class AmperScript(
     val fileName: String,
-    val resourceName: String,
-    val executable: Boolean,
+    val templateName: String,
+    val executable: Boolean = false,
 )
 
 @OptIn(ExperimentalStdlibApi::class)
 object AmperWrappers {
+    private val templateProvider = TemplateProvider getTemplate@ { name ->
+        val stream = javaClass.classLoader.getResourceAsStream("wrappers/$name")
+            ?: return@getTemplate null
+        Template(
+            name = name,
+            text = stream.use { it.readAllBytes() }.decodeToString(),
+        )
+    }
 
     private val wrappers = listOf(
-        AmperWrapper(
+        AmperScript(
             fileName = "amper",
-            resourceName = "wrappers/amper.template.sh",
+            templateName = "amper.template.sh",
             executable = true,
         ),
-        AmperWrapper(
+        AmperScript(
             fileName = "amper.bat",
-            resourceName = "wrappers/amper.template.bat",
-            executable = false,
+            templateName = "amper.template.bat",
+        ),
+    )
+
+    private val launchers = listOf(
+        // Common launcher script that is called directly on Linux/macOS and via the busybox-w32 on Windows.
+        AmperScript(
+            fileName = "launcher.sh",
+            templateName = "launcher.template.sh",
+            executable = true,
         ),
     )
 
@@ -37,32 +55,45 @@ object AmperWrappers {
      * @return the paths to the generated wrapper scripts
      */
     fun generate(targetDir: Path, amperVersion: String, amperDistTgzSha256: String): List<Path> =
-        wrappers.map { it.generate(targetDir, amperVersion, amperDistTgzSha256) }
+        wrappers.map {
+            it.generate(
+                targetDir = targetDir,
+                macroSubstitutions = mapOf(
+                    "AMPER_VERSION" to amperVersion,
+                    "AMPER_DIST_TGZ_SHA256" to amperDistTgzSha256,
+                )
+            )
+        }
 
-    private fun AmperWrapper.generate(
+    /**
+     * Generates all necessary launcher scripts in the [targetDir] directory.
+     */
+    fun generateLaunchers(
         targetDir: Path,
-        amperVersion: String,
-        amperDistTgzSha256: String
+    ) {
+        targetDir.createDirectory()
+        launchers.forEach { it.generate(targetDir, emptyMap()) }
+    }
+
+    private fun AmperScript.generate(
+        targetDir: Path,
+        macroSubstitutions: Map<String, String>,
     ): Path {
         val path = targetDir.resolve(fileName)
 
-        val wrapperText = javaClass.classLoader.getResourceAsStream(resourceName)!!
-            .use { it.readAllBytes() }
-            .decodeToString()
-
-        substituteTemplatePlaceholders(
-            input = wrapperText,
-            outputFile = path,
-            replacementRules = listOf(
-                "@AMPER_VERSION@" to amperVersion,
-                "@AMPER_DIST_TGZ_SHA256@" to amperDistTgzSha256,
-            ),
+        val template = checkNotNull(templateProvider.getTemplate(templateName)) {
+            "template script not found: $templateName"
+        }
+        path.writeText(
+            template.substitute(
+                macroSubstitutions = macroSubstitutions,
+                templateProvider = templateProvider,
+            )
         )
 
         if (executable) {
-            val rc = path.toFile().setExecutable(true)
-            check(rc) {
-                "Unable to make file executable: $rc"
+            check(path.toFile().setExecutable(true)) {
+                "Unable to make file $path executable"
             }
         }
         return path

@@ -72,7 +72,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     ).path(mustExist = true, canBeFile = false, canBeDir = true)
         /*
         We could also decide that the default is to update the currently running wrapper.
-        (it can be implemented using the `amper.wrapper.path` system prop),
+        (it can be implemented using the `AMPER_WRAPPER_PATH` env variable),
         but the benefit would be marginal, and it would break amper-from-sources.
         Let's not do anything until we handle the global Amper installation / version in
         project.yaml story. See AMPER-5156 and AMPER-4104.
@@ -103,7 +103,7 @@ internal class UpdateCommand : AmperSubcommand(name = "update") {
     override fun helpEpilog(context: Context): String =
         "This command can also be used to create Amper scripts in a directory if they don't exist yet."
 
-    private val runningWrapper by lazy { Path(System.getProperty("amper.wrapper.path")).absolute() }
+    private val runningWrapper by lazy { Path(System.getenv("AMPER_WRAPPER_PATH")).absolute() }
 
     @OptIn(ProcessLeak::class)
     override suspend fun run() {

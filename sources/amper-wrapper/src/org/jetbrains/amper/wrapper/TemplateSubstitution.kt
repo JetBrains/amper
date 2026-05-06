@@ -4,39 +4,37 @@
 
 package org.jetbrains.amper.wrapper
 
-import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.writeText
+internal class Template(
+    val text: String,
+    val name: String,
+)
 
-private val logger = LoggerFactory.getLogger("TemplateSubstitution")
-
-@Suppress("SameParameterValue")
-internal fun substituteTemplatePlaceholders(
-    input: String,
-    outputFile: Path,
-    replacementRules: List<Pair<String, String>>,
-) {
-    val result = input.replaceMultiple(replacementRules)
-
-    val unsubstituted = result
-        .lineSequence()
-        .mapIndexed { line, s -> "line ${line + 1}: $s" }
-        .filter(Regex("@\\S+@")::containsMatchIn)
-        .joinToString("\n")
-    check(unsubstituted.isBlank()) {
-        "Some template parameters were left unsubstituted in template:\n$unsubstituted"
-    }
-
-    outputFile.parent.createDirectories()
-    outputFile.writeText(result)
+internal fun interface TemplateProvider {
+    fun getTemplate(name: String): Template?
 }
 
-private fun String.replaceMultiple(replacementRules: List<Pair<String, String>>): String =
-    replacementRules.fold(this) { text, rule ->
-        val (placeholder, replacement) = rule
-        if (placeholder !in text) {
-            logger.warn("Placeholder '$placeholder' is not in the input")
+internal fun Template.substitute(
+    macroSubstitutions: Map<String, String>,
+    templateProvider: TemplateProvider,
+) : String {
+    return text.replace(MacroRegex) { match ->
+        val macro = match.groupValues[1]
+        if (':' in macro) {
+            check(macro.startsWith("include:", ignoreCase = true)) {
+                "invalid macro directive: `${match.value}`; only `@include:<name>@` is supported"
+            }
+            val name = macro.removePrefix("include:")
+            val nestedTemplate = checkNotNull(templateProvider.getTemplate(name)) {
+                "`$name` not found (included at char range ${match.range} in `$name`)"
+            }
+            // TODO: Handle recursion/deduplication?
+            nestedTemplate.substitute(macroSubstitutions, templateProvider)
+        } else {
+            checkNotNull(macroSubstitutions[macro]) {
+                "macro `$macro` is not defined (requested at char range ${match.range} in `$name`)"
+            }
         }
-        text.replace(placeholder, replacement)
     }
+}
+
+private val MacroRegex = """@(\S+)@""".toRegex()

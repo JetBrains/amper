@@ -20,8 +20,8 @@ internal enum class ExtraClasspath(val dirName: String) {
     KOTLIN_BUILD_TOOLS_COMPAT(dirName = "kotlin-build-tools-compat");
 
     private val distRoot by lazy {
-        Path(checkNotNull(System.getProperty("amper.dist.path")) {
-            "Missing `amper.dist.path` system property. Ensure your wrapper script integrity."
+        Path(checkNotNull(System.getenv("AMPER_DISTRIBUTION_DIR")) {
+            "Missing `AMPER_DISTRIBUTION_DIR` env var. Ensure your wrapper script integrity."
         })
     }
 

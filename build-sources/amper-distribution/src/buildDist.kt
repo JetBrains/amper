@@ -17,6 +17,9 @@ import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.div
 import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
@@ -24,6 +27,8 @@ import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
+import kotlin.io.path.relativeTo
+import kotlin.io.path.walk
 
 @TaskAction
 fun buildDist(
@@ -31,15 +36,27 @@ fun buildDist(
     @Input cliRuntimeClasspath: Classpath,
     @Input extraClasspaths: Map<String, Classpath>,
     @Input extraFilteredClasspaths: Map<String, FilteredClasspath>,
+    @Input thirdPartyStagingDir: Path,
 ) {
     val cliTgz = distribution.cliTgz.createParentDirectories()
 
-    println("Writing CLI distribution to $cliTgz")
-    cliTgz.writeDistTarGz(
-        cliRuntimeClasspath = cliRuntimeClasspath.resolvedFiles,
-        extraClasspaths = extraClasspaths.mapValues { (_, classpath) -> classpath.resolvedFiles } +
-            extraFilteredClasspaths.mapValues { (_, classpath) -> classpath.resolvedFiles },
-    )
+    val stagingDir = createTempDirectory()
+    try {
+        AmperWrappers.generateLaunchers(stagingDir / "bin")
+
+        println("Writing CLI distribution to $cliTgz")
+        cliTgz.writeDistTarGz(
+            cliRuntimeClasspath = cliRuntimeClasspath.resolvedFiles,
+            extraClasspaths = extraClasspaths.mapValues { (_, classpath) -> classpath.resolvedFiles } +
+                    extraFilteredClasspaths.mapValues { (_, classpath) -> classpath.resolvedFiles },
+            mergeFrom = listOf(
+                stagingDir,
+                thirdPartyStagingDir,
+            ),
+        )
+    } finally {
+        stagingDir.deleteRecursively()
+    }
 
     AmperWrappers.generate(
         targetDir = distribution.wrappersDir.createDirectories(),
@@ -48,12 +65,22 @@ fun buildDist(
     )
 }
 
-private fun Path.writeDistTarGz(cliRuntimeClasspath: List<Path>, extraClasspaths: Map<String, List<Path>>) {
+private fun Path.writeDistTarGz(
+    cliRuntimeClasspath: List<Path>,
+    extraClasspaths: Map<String, List<Path>>,
+    mergeFrom: List<Path>,
+) {
     TarArchiveOutputStream(GZIPOutputStream(outputStream().buffered())).use { tarStream ->
         tarStream.writeFile(contents = argFileContents(), pathInTar = "amper.args")
         tarStream.writeDir(cliRuntimeClasspath, targetDirName = "lib")
         extraClasspaths.forEach { (name, paths) ->
             tarStream.writeDir(paths, targetDirName = name)
+        }
+        mergeFrom.forEach { stagingDir ->
+            stagingDir.walk().forEach { file ->
+                val pathInTar = file.relativeTo(stagingDir).pathString
+                tarStream.writeFile(file, pathInTar)
+            }
         }
     }
 }

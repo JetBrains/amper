@@ -125,7 +125,7 @@ class VersionUpdater(val amperRootDir: Path) {
         val jres = AzulApi.getZuluJreChecksums(zuluVersion, javaVersion)
 
         sequenceOf(
-            amperWrapperModuleDir / "resources/wrappers/amper.template.sh",
+            amperWrapperModuleDir / "resources/wrappers/launcher.template.sh",
             amperRootDir / "amper-from-sources",
         ).replaceEachFileText { initialText ->
             val textWithVersion = initialText
@@ -137,7 +137,6 @@ class VersionUpdater(val amperRootDir: Path) {
         }
 
         sequenceOf(
-            amperWrapperModuleDir / "resources/wrappers/amper.template.bat",
             amperRootDir / "amper-from-sources.bat",
         ).replaceEachFileText { initialText ->
             val textWithVersion = initialText
