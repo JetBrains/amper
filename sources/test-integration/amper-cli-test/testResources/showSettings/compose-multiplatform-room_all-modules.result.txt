@@ -61,7 +61,7 @@ settings@android:
     ksp:
       processorOptions: {}  # default
       processors: []  # default
-      version: 2.3.6  # default
+      version: 2.3.7  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
@@ -161,7 +161,7 @@ settings@jvm:
     ksp:
       processorOptions: {}  # default
       processors: []  # default
-      version: 2.3.6  # default
+      version: 2.3.7  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
@@ -277,7 +277,7 @@ settings@jvm+android:
           classifier: null  # default
           groupId: androidx.room  # module.yaml
           version: 2.7.0-alpha12  # module.yaml
-      version: 2.3.6  # default
+      version: 2.3.7  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
@@ -383,7 +383,7 @@ settings@jvm:
           classifier: null  # default
           groupId: androidx.room  # module.yaml
           version: 2.7.0-alpha12  # module.yaml
-      version: 2.3.6  # default
+      version: 2.3.7  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:
@@ -496,7 +496,7 @@ settings@android:
           classifier: null  # default
           groupId: androidx.room  # module.yaml
           version: 2.7.0-alpha12  # module.yaml
-      version: 2.3.6  # default
+      version: 2.3.7  # default
     languageFeatures: null  # default
     languageVersion: null  # default
     noArg:

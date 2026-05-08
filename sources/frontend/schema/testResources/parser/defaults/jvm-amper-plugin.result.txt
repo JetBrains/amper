@@ -109,7 +109,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.3.6
+          version: <default> 2.3.7
         }
         languageFeatures: <default> null
         languageVersion: <default> null
@@ -297,7 +297,7 @@ Fragments:
           }
           processors: <default> [
           ]
-          version: <default> 2.3.6
+          version: <default> 2.3.7
         }
         languageFeatures: <default> null
         languageVersion: <default> null
