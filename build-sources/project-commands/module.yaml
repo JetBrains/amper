@@ -20,7 +20,7 @@ plugins:
   project-commands:
     enabled: true
     versions:
-      bootstrapAmperVersion: 0.11.0-dev-3916 # AUTO-UPDATED BY THE CI
+      bootstrapAmperVersion: 0.11.0-dev-3921 # AUTO-UPDATED BY THE CI
       # To find the latest version, check:
       # https://api.azul.com/metadata/v1/zulu/packages/?java_version=25&java_package_type=jre&latest=true&release_status=ga&page=1&page_size=1
       amperJre:
