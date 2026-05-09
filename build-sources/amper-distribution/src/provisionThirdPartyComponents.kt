@@ -33,21 +33,37 @@ fun provisionThirdPartyComponents(
     stagingDir.deleteRecursively()
     stagingDir.createDirectories()
 
-    val busyboxBinaries = listOf(
-        DownloadableResource(
-            url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w32-${versions.busyboxW32Version}.tgz",
-            pathInsideTheDistribution = Path("third-party-sources/busybox-w32-${versions.busyboxW32Version}.tgz"),
-            verifySignature = false,  // Sources are not signed!
-        ),
-        DownloadableResource(
-            url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w64a-${versions.busyboxW32Version}.exe",
-            pathInsideTheDistribution = Path("bin/busybox64a.exe"),
-        ),
-        DownloadableResource(
-            url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w64u-${versions.busyboxW32Version}.exe",
-            pathInsideTheDistribution = Path("bin/busybox64u.exe"),
-        ),
-    )
+    // FIXME(inhatkevich, AMPER-5156): Solve the issue with provisioning the external artifacts, restore this code
+    //val busyboxBinaries = listOf(
+    //    DownloadableResource(
+    //        url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w32-${versions.busyboxW32Version}.tgz",
+    //        pathInsideTheDistribution = Path("third-party-sources/busybox-w32-${versions.busyboxW32Version}.tgz"),
+    //        verifySignature = false,  // Sources are not signed!
+    //    ),
+    //    DownloadableResource(
+    //        url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w64a-${versions.busyboxW32Version}.exe",
+    //        pathInsideTheDistribution = Path("bin/busybox64a.exe"),
+    //    ),
+    //    DownloadableResource(
+    //        url = "$BUSYBOX_W32_DOWNLOAD_ROOT/busybox-w64u-${versions.busyboxW32Version}.exe",
+    //        pathInsideTheDistribution = Path("bin/busybox64u.exe"),
+    //    ),
+    //)
+
+    // FIXME(inhatkevich, AMPER-5156): Remove this workaround
+    // We just copy the busybox binaries and sources from the host Amper distribution
+    val currentAmperDistribution = checkNotNull(System.getenv("AMPER_DISTRIBUTION_DIR")) {
+        "AMPER_DISTRIBUTION_DIR environment variable is not set"
+    }.let(::Path)
+    val sourcesArchiveName = "busybox-w32-${versions.busyboxW32Version}.tgz"
+    currentAmperDistribution.resolve("third-party-sources").resolve(sourcesArchiveName)
+        .copyTo(stagingDir.resolve("third-party-sources").createDirectories().resolve(sourcesArchiveName))
+    currentAmperDistribution.resolve("bin").let { bin ->
+        val targetBin = stagingDir.resolve("bin").createDirectories()
+        for (binaryName in arrayOf("busybox64a.exe", "busybox64u.exe")) {
+            bin.resolve(binaryName).copyTo(targetBin.resolve(binaryName))
+        }
+    }
 
     val builtinResources = listOf(
         BuiltinResource(
@@ -62,7 +78,8 @@ fun provisionThirdPartyComponents(
         ),
     )
 
-    busyboxBinaries.forEach { it.download(stagingDir) }
+    // FIXME(inhatkevich, AMPER-5156): Restore this code
+    // busyboxBinaries.forEach { it.download(stagingDir) }
     builtinResources.forEach { it.stage(stagingDir) }
 
     ourLicenseFile.copyTo(
