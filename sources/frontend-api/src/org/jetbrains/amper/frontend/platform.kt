@@ -86,8 +86,11 @@ enum class Platform(
      * * It should match the values of the `-target` argument of the Kotlin/Native compiler.
      * * It should match the names of the platforms in the .konan directory.
      */
-    val nameForCompiler: String
-        get() = name.lowercase()
+    val nameForCompiler: String 
+        get() = when {
+            isDescendantOf(ANDROID_NATIVE) -> name.replace("_native", "")
+            else -> name
+        }.lowercase()
 
     /**
      * Get leaf children of this parent if it is a parent; List of self otherwise.
