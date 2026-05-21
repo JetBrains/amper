@@ -1,6 +1,0 @@
-modules:
-  - plugin1
-  - app
-
-plugins:
-  - ./plugin1

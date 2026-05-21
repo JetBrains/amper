@@ -1,7 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ mingwX64 ]
-
-settings:
-  kotlin:
-    languageVersion: 2.2

@@ -1,8 +1,0 @@
-product:
-  type: ios/app
-
-dependencies:
-  - ../shared
-
-settings:
-  compose: enabled

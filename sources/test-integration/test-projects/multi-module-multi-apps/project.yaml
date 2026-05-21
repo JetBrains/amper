@@ -1,5 +1,0 @@
-modules:
-  - js-app
-  - jvm-app-1
-  - jvm-app-2
-  - wasm-js-app

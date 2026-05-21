@@ -1,4 +1,0 @@
-product: jvm/lib
-
-dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0

@@ -1,4 +1,0 @@
-product:
-  type: jvm/app
-  platforms:
-    - jvm

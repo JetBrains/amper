@@ -1,7 +1,0 @@
-product: jvm/app
-
-plugins:
-  invalid-plugin-yaml: enabled
-  unknown: enabled
-  invalid-plugin-yaml-2:
-    hello: "123"

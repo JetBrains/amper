@@ -1,5 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - ../C
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0

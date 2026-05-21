@@ -1,5 +1,0 @@
-modules:
-  - linux-app
-  - macos-app
-  - windows-app
-  - shared-app-code

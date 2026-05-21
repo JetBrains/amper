@@ -1,7 +1,0 @@
-modules:
-  - app
-  - app-default
-  - plugin
-
-plugins:
-  - ./plugin

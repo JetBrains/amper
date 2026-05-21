@@ -1,8 +1,0 @@
-product:
-  type: ios/app
-
-apply:
-  - ../compose.module-template.yaml
-
-dependencies:
-  - ../shared

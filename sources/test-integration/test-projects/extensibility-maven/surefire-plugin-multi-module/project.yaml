@@ -1,6 +1,0 @@
-modules:
-  - app
-  - lib
-
-mavenPlugins:
-  - org.apache.maven.plugins:maven-surefire-plugin:3.5.3

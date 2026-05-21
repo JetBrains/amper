@@ -1,4 +1,0 @@
-modules:
-  - client
-  - rpc-api
-  - server

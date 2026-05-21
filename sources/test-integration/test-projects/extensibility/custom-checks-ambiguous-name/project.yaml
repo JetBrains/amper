@@ -1,8 +1,0 @@
-modules:
-  - app
-  - plugin-alpha
-  - plugin-beta
-
-plugins:
-  - ./plugin-alpha
-  - ./plugin-beta

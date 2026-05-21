@@ -1,4 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - ../shared

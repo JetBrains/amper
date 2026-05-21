@@ -1,6 +1,0 @@
-JavaUtility-0.10.jar
-javafx-base-14-win.jar
-javafx-base-14.jar
-javafx-controls-14-win.jar
-javafx-graphics-14-win.jar
-javafx-graphics-14.jar

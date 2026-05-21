@@ -1,8 +1,0 @@
-root
-╰─── bayern.steinbrecher:JavaUtility:0.10
-     ├─── org.openjfx:javafx-base:14:win
-     ├─── org.openjfx:javafx-graphics:14:win
-     │    ╰─── org.openjfx:javafx-base:14
-     ╰─── org.openjfx:javafx-controls:14:win
-          ╰─── org.openjfx:javafx-graphics:14
-               ╰─── org.openjfx:javafx-base:14

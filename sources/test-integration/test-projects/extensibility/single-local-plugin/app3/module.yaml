@@ -1,9 +1,0 @@
-product:
-  type: jvm/app
-
-plugins:
-  build-konfig:
-    config:
-      hello: foo
-      bye: bar
-    packageName: com.example

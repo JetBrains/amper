@@ -1,5 +1,0 @@
-package = com.example.native.custom
----
-static inline const char* getCustomGreeting() {
-  return "Hello From Native";
-}

@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Sync versions" type="Amper.Run">
-    <option name="command" value="do syncVersions" />
-    <EXTENSION ID="amper.ktor.run">
-      <option name="developmentModeEnabled" value="false" />
-    </EXTENSION>
-    <method v="2" />
-  </configuration>
-</component>

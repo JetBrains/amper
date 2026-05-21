@@ -1,6 +1,0 @@
-modules:
-  - app
-  - test-plugin
-
-plugins:
-  - ./test-plugin

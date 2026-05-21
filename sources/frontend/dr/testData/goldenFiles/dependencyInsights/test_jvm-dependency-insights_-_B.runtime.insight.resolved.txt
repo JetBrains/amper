@@ -1,8 +1,0 @@
-Module B
-│ - main
-│ - scope = COMPILE
-│ - platforms = [jvm]
-╰─── B:main:org.jetbrains.compose.ui:ui-tooling:1.6.0
-     ╰─── org.jetbrains.compose.ui:ui-tooling:1.6.0
-          ╰─── org.jetbrains.compose.ui:ui-tooling-desktop:1.6.0
-               ╰─── org.jetbrains.compose.runtime:runtime:1.6.0

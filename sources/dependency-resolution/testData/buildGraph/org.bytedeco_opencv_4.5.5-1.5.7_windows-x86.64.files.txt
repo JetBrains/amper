@@ -1,3 +1,0 @@
-javacpp-1.5.7.jar
-openblas-0.3.19-1.5.7.jar
-opencv-4.5.5-1.5.7-windows-x86_64.jar

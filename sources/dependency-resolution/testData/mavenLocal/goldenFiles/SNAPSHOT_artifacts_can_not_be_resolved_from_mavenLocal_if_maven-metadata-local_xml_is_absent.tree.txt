@@ -1,2 +1,0 @@
-root
-╰─── org.jetbrains:dr-snapshot-sample:1.0-SNAPSHOT

@@ -1,5 +1,0 @@
-product:
-  type: jvm/app
-
-plugins:
-  checker: enabled

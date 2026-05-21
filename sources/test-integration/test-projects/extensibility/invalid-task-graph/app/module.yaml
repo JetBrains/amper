@@ -1,4 +1,0 @@
-product: jvm/app
-
-plugins:
-  tasks-with-invalid-inputs: enabled

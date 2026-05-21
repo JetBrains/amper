@@ -1,5 +1,0 @@
-product: jvm/lib
-
-dependencies:
-  - ../B1
-  - commons-io:commons-io:2.9.0

@@ -1,5 +1,0 @@
-product: 
-  type: jvm/app
-
-mavenPlugins:
-  maven-checkstyle-plugin.checkstyle: enabled

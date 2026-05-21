@@ -1,6 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ linuxArm64, linuxX64, macosArm64, mingwX64 ]
-
-dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.5.0

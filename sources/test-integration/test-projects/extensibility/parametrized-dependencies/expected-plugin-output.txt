@@ -1,2 +1,0 @@
-extraClasspath dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0
-parametrizedClasspath dependencies[0].coordinates = com.squareup:kotlinpoet:2.2.0

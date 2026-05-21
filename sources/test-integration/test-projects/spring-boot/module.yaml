@@ -1,8 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - org.springframework.boot:spring-boot-starter:3.4.2
-
-settings:
-  jvm:
-    mainClass: com.example.springboot.Main

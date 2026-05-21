@@ -1,6 +1,0 @@
-apply:
-  - ./spring-base.module-template.yaml
-
-settings:
-  jvm:
-    release: 21

@@ -1,4 +1,0 @@
-product: windows/app
-
-dependencies:
-  - ../native-shared

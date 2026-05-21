@@ -1,6 +1,0 @@
-Module jvm-empty
-│ - test
-│ - scope = COMPILE
-│ - platforms = [jvm]
-╰─── jvm-empty:test:org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion, implicit (because the test engine is junit-5)
-     ╰─── org.jetbrains.kotlin:kotlin-test-junit5:#kotlinVersion

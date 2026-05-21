@@ -1,4 +1,0 @@
-product: macos/app
-
-dependencies:
-  - ../shared-app-code

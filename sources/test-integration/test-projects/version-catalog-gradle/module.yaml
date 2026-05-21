@@ -1,4 +1,0 @@
-product: jvm/lib
-
-dependencies:
-  - $libs.kotlinx.coroutines.core

@@ -1,7 +1,0 @@
-apply:
-  - ./spring-web.module-template.yaml
-  - ./spring-cloud.module-template.yaml
-
-settings:
-  jvm:
-    release: 25

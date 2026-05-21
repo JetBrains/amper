@@ -1,6 +1,0 @@
-Module F
-│ - main
-│ - scope = COMPILE
-│ - platforms = [jvm]
-╰─── F:main:org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion, implicit
-     ╰─── org.jetbrains.kotlin:kotlin-stdlib:#kotlinVersion

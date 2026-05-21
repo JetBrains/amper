@@ -1,7 +1,0 @@
-product:
-  type: jvm/app
-
-repositories:
-  - url: https://com.example
-    credentials:
-      <![Error] Expected a value: `path`!><![Error] No value for required properties: `passwordKey`, `usernameKey`.!>file:<!><!>

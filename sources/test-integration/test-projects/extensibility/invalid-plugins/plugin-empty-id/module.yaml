@@ -1,5 +1,0 @@
-product: jvm/amper-plugin
-
-pluginInfo:
-  # no-id
-  settingsClass: com.example.Settings

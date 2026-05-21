@@ -1,7 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
-
-apply:
-  - ../../compose.module-template.yaml
-  - ../../app.module-template.yaml

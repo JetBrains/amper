@@ -1,8 +1,0 @@
-modules:
-  - app
-  - hello-plugin
-  - build-konfig-plugin
-
-plugins:
-  - ./build-konfig-plugin
-  - ./hello-plugin

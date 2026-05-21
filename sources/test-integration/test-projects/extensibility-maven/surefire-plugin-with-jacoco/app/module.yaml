@@ -1,7 +1,0 @@
-product: 
-  type: jvm/app
-
-mavenPlugins:
-  jacoco-maven-plugin.prepare-agent: enabled
-  jacoco-maven-plugin.report: enabled
-  maven-surefire-plugin.test: enabled

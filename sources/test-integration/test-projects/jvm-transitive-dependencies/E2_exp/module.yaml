@@ -1,8 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ jvm ]
-
-dependencies:
-  - com.fasterxml.jackson.core:jackson-core:2.17.1: exported
-  - org.objenesis:objenesis-test:3.4
-

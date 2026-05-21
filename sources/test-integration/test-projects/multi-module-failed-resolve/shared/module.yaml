@@ -1,6 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [jvm]
-
-dependencies:
-  - org.junit.jupiter:junit-jupiter-api:9999

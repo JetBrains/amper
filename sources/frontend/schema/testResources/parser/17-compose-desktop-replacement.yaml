@@ -1,5 +1,0 @@
-product:
-  type: jvm/app
-
-dependencies:
-  - org.jetbrains.compose.desktop:desktop:1.4.1

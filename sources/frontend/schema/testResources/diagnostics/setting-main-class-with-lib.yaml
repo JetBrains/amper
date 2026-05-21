@@ -1,7 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [jvm]
-
-settings:
-  jvm:
-    <![Warning] Setting `mainClass` cannot be applied to product type `kmp/lib`. Supported product types are: `jvm/app`!>mainClass<!>: Foo

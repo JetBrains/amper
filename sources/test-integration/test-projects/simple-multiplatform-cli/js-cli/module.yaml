@@ -1,5 +1,0 @@
-product:
-  type: js/app
-
-dependencies:
-  - ../shared

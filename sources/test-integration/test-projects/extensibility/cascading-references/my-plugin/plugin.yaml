@@ -1,9 +1,0 @@
-tasks:
-  task1:
-    action: !org.jetbrains.amper.plugins.cascading.taskAction1
-      nestedObj:
-        path: ${taskOutputDir}/file.txt
-        name: "test"
-  task2:
-    action: !org.jetbrains.amper.plugins.cascading.taskAction2
-      nestedObj: ${tasks.task1.action.nestedObj}

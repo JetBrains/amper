@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package apkg;
-
-import "main.proto";
-
-message Bar {
-  Foo foo = 1;
-}

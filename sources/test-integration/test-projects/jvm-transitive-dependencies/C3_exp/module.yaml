@@ -1,9 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ jvm ]
-
-dependencies:
-  - org.hamcrest:hamcrest:2.2: exported
-  - org.apiguardian:apiguardian-api:1.1.2
-
-

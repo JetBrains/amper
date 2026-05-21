@@ -1,5 +1,0 @@
-product: jvm/app
-
-settings:
-  <![Warning] Setting `ios` doesn't have any effect on platform `jvm`. It only applies to `ios`!>ios<!>:
-    <![Warning] This setting was only applicable in Gradle-based Amper and is now obsolete: the team ID is managed in the Xcode project.!>teamId<!>: aaa

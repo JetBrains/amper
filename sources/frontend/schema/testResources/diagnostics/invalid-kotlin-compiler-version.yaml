@@ -1,5 +1,0 @@
-product: jvm/app
-
-settings:
-  kotlin:
-    version: <![Error] Invalid Kotlin compiler version `123`. Should be in the format `x.y.*`.!>123<!>

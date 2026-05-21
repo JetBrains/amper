@@ -1,4 +1,0 @@
-org.jetbrains.amper.cli.logging.DynamicFileWriter
-org.jetbrains.amper.cli.logging.DynamicLevelConsoleWriter
-org.jetbrains.amper.cli.logging.LastLogMonitoringWriter
-org.jetbrains.amper.cli.logging.ServerWriter

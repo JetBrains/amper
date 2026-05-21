@@ -1,6 +1,0 @@
-product: jvm/app
-
-settings:
-  kotlin:
-    serialization:
-      version: <![Warning] A custom kotlinx.serialization version is specified, but the serialization plugin is disabled!>1.6.3<!>

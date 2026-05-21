@@ -1,9 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ jvm, android ]
-
-plugins:
-  consume-sources-plugin:
-    enabled: true
-    sources:
-      from: .

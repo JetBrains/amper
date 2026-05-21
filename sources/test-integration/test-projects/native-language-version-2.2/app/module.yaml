@@ -1,7 +1,0 @@
-product:
-  type: windows/app
-  platforms: [ mingwX64 ]
-
-settings:
-  kotlin:
-    languageVersion: 2.2

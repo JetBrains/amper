@@ -1,8 +1,0 @@
-product: android/app
-
-dependencies:
-  - ../shared
-  - androidx.activity:activity-compose:1.7.2
-
-settings:
-  compose: enabled

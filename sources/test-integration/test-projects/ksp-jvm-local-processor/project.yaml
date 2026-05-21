@@ -1,4 +1,0 @@
-modules:
-  - consumer
-  - my-processor
-  - my-processor-annotation

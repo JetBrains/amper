@@ -1,5 +1,0 @@
-product:
-  type: wasm-js/app
-
-dependencies:
-  - ../shared

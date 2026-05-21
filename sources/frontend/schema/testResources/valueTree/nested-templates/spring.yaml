@@ -1,6 +1,0 @@
-apply:
-  - ./kotlin-jvm.yaml
-
-settings:
-  kotlin:
-    apiVersion: 2.1

@@ -1,5 +1,0 @@
-modules:
-  - loop-plugin
-
-plugins:
-  - ./loop-plugin

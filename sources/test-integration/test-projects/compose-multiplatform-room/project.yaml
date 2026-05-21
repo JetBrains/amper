@@ -1,5 +1,0 @@
-modules:
-  - android-app
-#  - ios-app # TODO [KSP2_ISSUE] uncomment
-  - jvm-app
-  - shared

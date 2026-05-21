@@ -1,3 +1,0 @@
-caffeine-3.1.2.jar
-checker-qual-3.27.0.jar
-error_prone_annotations-2.16.jar

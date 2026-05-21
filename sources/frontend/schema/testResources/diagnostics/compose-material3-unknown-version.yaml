@@ -1,9 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - <![Warning] The Compose Material3 version cannot be reliably determined for Compose version `1.99.0`. Consider using explicit Maven coordinates (e.g., `org.jetbrains.compose.material3:material3:VERSION`) instead of `$compose.material3`. The exact version can be found on the Compose Multiplatform releases page: https://github.com/JetBrains/compose-multiplatform/releases!>$compose.material3<!>
-
-settings:
-  compose:
-    enabled: true
-    version: "1.99.0"

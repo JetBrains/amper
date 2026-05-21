@@ -1,9 +1,0 @@
-
-tasks:
-  build:
-    action: !com.example.execute
-      settings: ${pluginSettings}
-      parametrizedClasspath: 
-        - groupId: "com.squareup"
-          artifactId: "kotlinpoet"
-          version: ${pluginSettings.version}

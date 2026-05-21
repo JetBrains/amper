@@ -1,7 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [jvm, android]
-
-settings:
-  android:
-    <![Warning] Setting `signing` cannot be applied to product type `kmp/lib`. Supported product types are: `android/app`!>signing<!>: enabled

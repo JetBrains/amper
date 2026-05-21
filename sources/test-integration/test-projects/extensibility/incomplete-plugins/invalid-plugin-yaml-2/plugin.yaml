@@ -1,5 +1,0 @@
-tasks:
-  someTask1:
-    action: !existingTaskAction
-  someTask:
-    action: !existingTaskAction

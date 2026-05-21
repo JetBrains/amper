@@ -1,9 +1,0 @@
-modules:
-  - app
-  - app2
-  - my-plugin
-  - other-plugin
-
-plugins:
-  - ./my-plugin
-  - ./other-plugin

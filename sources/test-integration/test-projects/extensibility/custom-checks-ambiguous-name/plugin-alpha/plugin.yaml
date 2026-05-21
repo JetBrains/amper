@@ -1,8 +1,0 @@
-tasks:
-  runCodestyle:
-    action: !org.jetbrains.amper.plugins.alpha.runCodestyle
-      moduleName: ${module.name}
-
-checks:
-  - performedBy: runCodestyle
-    name: codestyle

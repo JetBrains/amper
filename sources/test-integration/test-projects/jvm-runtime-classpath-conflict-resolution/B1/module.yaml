@@ -1,4 +1,0 @@
-product: jvm/lib
-
-dependencies:
-  - commons-io:commons-io:2.16.1

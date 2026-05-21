@@ -1,8 +1,0 @@
-product: jvm/app
-
-dependencies:
-  - a:a:a: runtime-only
-  - b:b:b: compile-only
-  - c:c:c:
-      scope: compile-only
-      exported: true

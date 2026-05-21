@@ -1,4 +1,0 @@
-product: jvm/app
-
-apply:
-  - <![Error] Cannot find template file `unknown-template.module-template.yaml`!>unknown-template.module-template.yaml<!>

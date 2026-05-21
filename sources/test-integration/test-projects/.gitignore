@@ -1,8 +1,0 @@
-.idea
-
-amper
-amper.bat
-
-# We don't want these in tests currently unless included explicitly
-module.xcodeproj
-info.plist

@@ -1,4 +1,0 @@
-tasks:
-  someTask:
-    action: !someAction
-      stringProp: "hello"

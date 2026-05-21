@@ -1,6 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ linuxArm64, linuxX64, mingwX64 ]
-
-apply:
-  - ../common.module-template.yaml

@@ -1,5 +1,0 @@
-modules:
-  - app
-
-mavenPlugins:
-  - io.github.ascopes:protobuf-maven-plugin:3.9.1

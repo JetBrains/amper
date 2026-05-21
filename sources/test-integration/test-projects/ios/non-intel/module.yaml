@@ -1,3 +1,0 @@
-product:
-  type: ios/app
-  platforms: [iosArm64, iosSimulatorArm64]

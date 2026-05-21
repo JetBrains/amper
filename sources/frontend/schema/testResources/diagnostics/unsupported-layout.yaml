@@ -1,3 +1,0 @@
-product: android/app
-
-layout: <![Error] Module layout `maven-like` is only supported in JVM modules (`jvm/app` or `jvm/lib`)!>maven-like<!>

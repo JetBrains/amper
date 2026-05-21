@@ -1,8 +1,0 @@
-product:
-  type: kmp/lib
-  platforms:
-    - jvm
-
-dependencies:
-  - org.junit.jupiter:junit-jupiter-api:5.9.2
-  - org.jetbrains.kotlin:kotlin-test-junit5:1.9.20

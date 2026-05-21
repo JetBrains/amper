@@ -1,4 +1,0 @@
-product: jvm/lib
-
-test-dependencies:
-  - $kotlin.reflect

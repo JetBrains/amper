@@ -1,9 +1,0 @@
-product = "jvm/app"
-
-settings {
-  kotlin {
-    serialization {
-      <![Warning] A custom kotlinx.serialization version is specified, but the serialization plugin is disabled!>version = "1.6.3"<!>
-    }
-  }
-}

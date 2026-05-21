@@ -1,5 +1,0 @@
-modules:
-  - app
-
-mavenPlugins:
-  - org.jacoco:jacoco-maven-plugin:0.8.14

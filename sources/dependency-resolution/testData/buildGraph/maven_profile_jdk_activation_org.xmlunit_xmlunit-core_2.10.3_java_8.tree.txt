@@ -1,2 +1,0 @@
-root
-╰─── org.xmlunit:xmlunit-core:2.10.3

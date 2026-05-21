@@ -1,8 +1,0 @@
-product:
-  type: kmp/lib
-  platforms: [ js ]
-
-settings:
-  kotlin:
-    jsPlainObjects:
-      enabled: true

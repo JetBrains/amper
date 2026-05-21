@@ -1,9 +1,0 @@
-dependencies:
-  - $compose.foundation: exported
-  - $compose.material3: exported
-  - org.jetbrains.androidx.navigation:navigation-compose:2.9.1: exported
-  - org.jetbrains.compose.material:material-icons-extended:1.7.3: exported
-
-settings:
-  compose:
-    enabled: true

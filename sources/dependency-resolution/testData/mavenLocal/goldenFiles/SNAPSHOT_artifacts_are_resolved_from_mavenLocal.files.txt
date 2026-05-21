@@ -1,2 +1,0 @@
-dr-snapshot-sample-1.0-SNAPSHOT.jar
-jackson-annotations-2.18.2.jar

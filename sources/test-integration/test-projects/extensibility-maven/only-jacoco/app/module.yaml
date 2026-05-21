@@ -1,9 +1,0 @@
-product: 
-  type: jvm/app
-
-settings:
-  junit: junit-5
-
-mavenPlugins:
-  jacoco-maven-plugin.prepare-agent: enabled
-  jacoco-maven-plugin.report: enabled

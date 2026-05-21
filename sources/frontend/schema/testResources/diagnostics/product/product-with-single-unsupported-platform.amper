@@ -1,4 +1,0 @@
-product {
-  type = "kmp/lib"
-  platforms = { "jvm", <![Error] Unknown platform: foo!>"foo"<!> }
-}

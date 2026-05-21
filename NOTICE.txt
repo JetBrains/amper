@@ -1,7 +1,0 @@
-This software includes code from Amper project configuration tool
-Copyright (C) JetBrains s.r.o.
-https://www.jetbrains.com
-
-Release artifacts of this product may additionally bundle
-third-party software under separate licenses. See NOTICE.txt
-in the release artifact for details.
